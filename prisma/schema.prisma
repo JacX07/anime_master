@@ -1,0 +1,100 @@
+// Schéma Anime Masters — voir SPEC.md.
+// Doit rester compatible SQLite (local) et PostgreSQL (production, étape 6).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Rarity {
+  N
+  R
+  SR
+  SSR
+  UR
+}
+
+enum CardType {
+  COMBAT
+  MYSTERE
+  MAGIE
+  COEUR
+  AVENTURE
+}
+
+enum CharacterRole {
+  MAIN
+  SUPPORTING
+  BACKGROUND
+}
+
+/// Un personnage AniList (étape 1).
+model Character {
+  /// id AniList
+  id             Int            @id
+  name           String
+  nameNative     String?
+  /// URL de l'image sur le CDN AniList (on ne stocke pas le fichier)
+  imageUrl       String
+  descriptionRaw String?
+  description    String?
+  gender         String?
+  age            String?
+  birthMonth     Int?
+  birthDay       Int?
+  favourites     Int
+  rarity         Rarity
+  type           CardType
+  attack         Int
+  defense        Int
+  /// Série principale (sert au type et au rôle)
+  mainMediaId    Int?
+  mainMedia      Media?         @relation("MainMedia", fields: [mainMediaId], references: [id])
+  mainRole       CharacterRole
+  /// Nombre d'exemplaires tirés (numéros d'exemplaire, étape 2)
+  pullCount      Int            @default(0)
+  /// Retrait à la demande d'un ayant droit (étape 6)
+  disabled       Boolean        @default(false)
+  media          CharacterMedia[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([rarity])
+  @@index([type])
+  @@index([favourites])
+}
+
+/// Une série animée AniList.
+model Media {
+  id             Int              @id
+  titleRomaji    String
+  titleEnglish   String?
+  titleNative    String?
+  format         String?
+  year           Int?
+  coverUrl       String?
+  popularity     Int
+  /// Liste des genres AniList (tableau JSON)
+  genres         Json
+  /// Tags AniList [{ name, rank }] (tableau JSON, sert au type)
+  tags           Json             @default("[]")
+  studio         String?
+  characters     CharacterMedia[]
+  mainCharacters Character[]      @relation("MainMedia")
+  updatedAt      DateTime         @updatedAt
+}
+
+model CharacterMedia {
+  characterId Int
+  mediaId     Int
+  role        CharacterRole
+  character   Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  media       Media         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([characterId, mediaId])
+  @@index([mediaId])
+}
