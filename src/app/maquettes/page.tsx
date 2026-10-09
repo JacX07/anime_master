@@ -5,7 +5,12 @@ const MOCKUPS = [
   { href: "/maquettes/b-neon.html", name: "B · Néon arcade (gacha néon)" },
   { href: "/maquettes/c-manga.html", name: "C · Shōnen pop (manga)" },
   { href: "/maquettes/d-dream.html", name: "D · Rêve holo (pastel irisé)" },
-  { href: "/maquettes/e-scene3d.html", name: "E · Scène 3D néon (basée sur B, version retenue)" },
+  { href: "/maquettes/e-scene3d.html", name: "E · Scène 3D néon (trou noir)" },
+  { href: "/maquettes/opening.html?theme=medieval", name: "F · Ouverture 3D : Médiéval (salle du trésor)" },
+  { href: "/maquettes/opening.html?theme=cyberpunk", name: "G · Ouverture 3D : Cyberpunk (rue sous la pluie)" },
+  { href: "/maquettes/opening.html?theme=futur", name: "H · Ouverture 3D : Cyber futuriste (laboratoire blanc)" },
+  { href: "/maquettes/opening.html?theme=prairie", name: "I · Ouverture 3D : Prairie à la Frieren" },
+  { href: "/maquettes/opening.html?theme=sanctuaire", name: "J · Ouverture 3D : Sanctuaire au clair de lune" },
 ];
 
 export default function MockupsPage() {
