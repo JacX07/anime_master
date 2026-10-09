@@ -28,7 +28,7 @@ Avoir sur le PC une base SQLite remplie de personnages d'anime venant d'AniList,
 - **Descriptions** : en anglais pour l'instant, avec un champ prévu pour le français plus tard.
 - **Rareté** : 5 niveaux N / R / SR / SSR / UR, sans « Légendaire » (voir §5).
 - **Finitions** : Normal / Holo / Gold, purement cosmétiques (voir §5 bis).
-- **Types** : 5 types tirés des genres de l'anime, chacun avec un atout et un défaut (voir §5 ter). Version initiale, susceptible d'évoluer.
+- **Types** : 5 types tirés des tags et genres de l'anime, chacun avec un atout et un défaut (voir §5 ter). Version initiale, susceptible d'évoluer.
 - **Stats** : puissance par rareté, répartie en ATK / DEF selon le rôle (voir §6).
 
 ---
@@ -60,7 +60,7 @@ Avoir sur le PC une base SQLite remplie de personnages d'anime venant d'AniList,
 | `attack`, `defense` | calculés |
 | `updatedAt` | date du dernier import |
 
-**Media** : `id`, `titleRomaji`, `titleEnglish`, `titleNative`, `format`, `year`, `coverUrl`, `popularity`, `genres`, `studio`
+**Media** : `id`, `titleRomaji`, `titleEnglish`, `titleNative`, `format`, `year`, `coverUrl`, `popularity`, `genres`, `tags` (nom + rang, hors tags spoilers), `studio`
 
 **CharacterMedia** : `characterId`, `mediaId`, `role` (MAIN / SUPPORTING / BACKGROUND)
 
@@ -112,28 +112,33 @@ Propriété de **l'exemplaire** (la carte possédée par un joueur), tirée au h
 - Concerne l'étape 2 : la finition n'est pas stockée sur `Character`, mais sur la future table des cartes des joueurs.
 
 ### 5 ter. Types
-Propriété du **personnage**, calculée à l'import à partir des genres de sa **série principale**.
+Propriété du **personnage**, calculée à l'import à partir des **tags** et des genres de sa **série principale**.
 
-| Type | Genres AniList | Style | ✅ Atout | ❌ Défaut |
+| Type | Exemples de tags (genres) | Style | ✅ Atout | ❌ Défaut |
 |---|---|---|---|---|
-| 🔥 Combat | Action, Sports, Mecha | Tout ou rien | **Coup critique** : dégâts ×2 si le défenseur rate toutes les questions | DEF −25 % |
-| 🔮 Mystère | Mystery, Psychological, Thriller, Horror | Pression | **Fausse piste** : le défenseur a 5 choix au lieu de 4 et moins de temps | ATK −25 % |
-| ✨ Magie | Fantasy, Supernatural, Mahou Shoujo | Vampire | **Drain** : récupère 30 % des dégâts infligés en PV (sans dépasser les PV de départ) | ATK −15 % |
-| 💗 Cœur | Romance, Drama, Slice of Life, Music, Comedy, Ecchi | Tank et soutien | **Lien** : DEF comptée ×1,3 dans les PV, +10 % ATK aux autres cartes de l'équipe | ATK −30 % |
-| 🧭 Aventure | Adventure, Sci-Fi | Régulier | **Persévérance** : inflige au moins 25 % de son ATK même sans erreur adverse | **Plafond** : jamais plus de 75 % de son ATK |
+| 🔥 Combat | Super Power, Swordplay, Martial Arts, Military, sports… (Action, Sports, Mecha) | Tout ou rien | **Coup critique** : dégâts ×2 si le défenseur rate toutes les questions | DEF −25 % |
+| 🔮 Mystère | Detective, Crime, Conspiracy, Death Game, Time Manipulation… (Mystery, Psychological, Thriller, Horror) | Pression | **Fausse piste** : le défenseur a 5 choix au lieu de 4 et moins de temps | ATK −25 % |
+| ✨ Magie | Magic, Demons, Curses, Youkai, Gods, Vampire… (Fantasy, Supernatural, Mahou Shoujo) | Vampire | **Drain** : récupère 30 % des dégâts infligés en PV (sans dépasser les PV de départ) | ATK −15 % |
+| 💗 Cœur | Love Triangle, Idol, Band, Iyashikei, Family Life… (Romance, Drama, Slice of Life, Music, Comedy, Ecchi) | Tank et soutien | **Lien** : DEF comptée ×1,3 dans les PV, +10 % ATK aux autres cartes de l'équipe | ATK −30 % |
+| 🧭 Aventure | Travel, Isekai, Pirates, Space, Post-Apocalyptic, Dungeon… (Adventure, Sci-Fi) | Régulier | **Persévérance** : inflige au moins 25 % de son ATK même sans erreur adverse | **Plafond** : jamais plus de 75 % de son ATK |
 
 **Série principale** : la série de type ANIME la plus populaire où le personnage a le rôle MAIN ; à défaut, la plus populaire tous rôles confondus.
 
 **Règle d'attribution :**
-1. Compter, pour chaque type, le nombre de genres de la série principale qui lui appartiennent.
-2. Le type avec le plus de genres l'emporte.
-3. En cas d'égalité, ordre de priorité : Aventure > Mystère > Magie > Cœur > Combat (les types aux genres les plus spécifiques passent en premier).
-4. Aucun genre reconnu → Cœur par défaut.
+1. Une table associe environ 150 tags AniList à un type (liste complète dans `src/lib/stats.ts`). Chaque tag de la série principale ajoute `rang / 100 × poids` au score de son type. Le poids vaut 1, ou moins pour les tags très répandus et peu caractéristiques (School 0,3 ; Heterosexual, Gore, Urban Fantasy 0,5…). Les tags descriptifs (Male Protagonist, Shounen…) et les tags spoilers sont ignorés.
+2. Chaque genre ajoute 0,2 au score de son type (départage et repli).
+3. Chaque score est multiplié par un coefficient d'équilibrage : Combat ×1, Mystère ×1,5, Magie ×1, Cœur ×0,6, Aventure ×1,5. Sans lui, Cœur dépasse 40 %.
+4. Le score le plus élevé l'emporte ; égalité parfaite : Aventure > Mystère > Magie > Cœur > Combat. Aucun signal → Cœur.
+
+Répartition obtenue (import d'octobre 2026, 4 717 persos) : Cœur 27 %, Mystère 20 %, Combat 19 %, Magie 18 %, Aventure 16,5 %. Exemples : Gojo ✨, Levi 🔥, Naruto 🔥, Luffy 🧭, L 🔮, Kaguya 💗.
+
+> Historique : la première règle (genres seuls) donnait Cœur 48 % et Combat 3 %. Comedy et Drama sont présents sur près de la moitié des séries, et les genres sont trop grossiers.
 
 **Notes :**
 - Les chiffres (−25 %, ×1,3…) sont indicatifs et seront équilibrés à l'étape « duels ». L'étape 1 ne stocke que le type.
 - Pas de cycle « fort contre » au départ ; à réévaluer après des tests.
-- Après le premier import, vérifier la répartition des types. Si Aventure est sous-représenté, ajuster l'ordre de priorité.
+- La table des tags et les coefficients se réajustent sans retélécharger : `npm run import -- --recompute`.
+- Certains cas restent discutables (L'Attaque des Titans → Aventure, Spy×Family → Mystère). Une surcharge manuelle par personnage pourra être ajoutée plus tard si besoin.
 - Idées pour plus tard : bonus « même série » (+10 % ATK) et bonus « 3 cartes du même type ».
 
 ### 6. Stats (ATK / DEF)
@@ -269,7 +274,9 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - `packsSinceUR` : remis à 0 si le paquet contient au moins un UR, sinon +1.
 - Affichés sur `/packs` : « SSR garanti dans X paquets », « UR garanti dans Y paquets ».
 
-**Temps moyen pour un premier UR** (pour référence) : ~7 h pour un joueur qui ouvre tout, ~1 jour pour un joueur régulier, ~4 jours pour un joueur occasionnel. Avec le pity UR, jamais plus de 100 paquets.
+**Taux réels, garanties comprises** (calcul exact, confirmé par `npm run simulate`) : N 62,5 % / R 25,5 % / SR 8,5 % / SSR 2,9 % / UR 0,61 %. La carte garantie et les pity relèvent légèrement les raretés hautes.
+
+**Premier UR** (simulation de 2 000 nouveaux joueurs) : 32 paquets en moyenne, médiane 24, 90 % des joueurs avant 75, jamais plus de 100. Pour un joueur qui ouvre tout dès la recharge (10 de bienvenue + 6 par heure), c'est ~4 h en moyenne et ~11 h dans le pire des cas courants. Il faut compter plus pour un joueur régulier ou occasionnel.
 
 ### 5. Modèle de données (ajouts)
 **User** : `id`, `username` (unique), `email` (unique), données d'authentification (gérées par Better Auth), `packsStored`, `lastPackAt`, `packsSinceSSR`, `packsSinceUR`, `createdAt`.
@@ -317,13 +324,13 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - Pagination ou défilement infini (plusieurs milliers de cartes).
 
 ### 8. Critères pour dire que l'étape 2 est finie
-- [ ] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit 10 paquets.
+- [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit 10 paquets.
 - [ ] Un paquet se recharge toutes les 10 minutes, avec un maximum de 10.
-- [ ] Chaque paquet contient 5 cartes, dont au moins une R ou mieux.
-- [ ] Le pity SSR se déclenche au 15ᵉ paquet sans SSR ou mieux, et le pity UR au 100ᵉ sans UR.
-- [ ] Sur 10 000 paquets simulés, les taux observés correspondent à la spec (en tenant compte des garanties).
-- [ ] Deux ouvertures simultanées ne consomment pas plus de paquets que disponible.
-- [ ] Les numéros d'exemplaire sont uniques et consécutifs par personnage.
+- [x] Chaque paquet contient 5 cartes, dont au moins une R ou mieux.
+- [x] Le pity SSR se déclenche au 15ᵉ paquet sans SSR ou mieux, et le pity UR au 100ᵉ sans UR.
+- [x] Sur 10 000 paquets simulés, les taux observés correspondent à la spec (en tenant compte des garanties).
+- [x] Deux ouvertures simultanées ne consomment pas plus de paquets que disponible.
+- [x] Les numéros d'exemplaire sont uniques et consécutifs par personnage.
 - [ ] L'album affiche possédés et manquants, avec filtres et progression par série.
 
 ---

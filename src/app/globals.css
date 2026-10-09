@@ -1,26 +1,216 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0b12;
+  --foreground: #ececf1;
+  --panel: #161622;
+  --muted: #8b8ba3;
+
+  --rarity-N: #94a3b8;
+  --rarity-R: #38bdf8;
+  --rarity-SR: #a855f7;
+  --rarity-SSR: #f59e0b;
+  --rarity-UR: #f43f5e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-muted: var(--muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---------- Carte ---------- */
+
+.card {
+  --rarity: var(--rarity-N);
+  position: relative;
+  aspect-ratio: 5 / 7;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 3px solid var(--rarity);
+  background: var(--panel);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.45);
+  container-type: inline-size;
+}
+.card[data-rarity="R"] { --rarity: var(--rarity-R); }
+.card[data-rarity="SR"] { --rarity: var(--rarity-SR); }
+.card[data-rarity="SSR"] { --rarity: var(--rarity-SSR); }
+.card[data-rarity="UR"] {
+  --rarity: var(--rarity-UR);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    linear-gradient(135deg, #f43f5e, #f59e0b, #22d3ee, #a855f7, #f43f5e) border-box;
+}
+
+/* L'image (portrait 2:3 sur AniList) occupe toute la carte ; les infos passent par-dessus */
+.card-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.card-info {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  padding: 16cqw 6cqw 5cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5cqw;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--rarity) 12%, #0b0b12) 0%,
+    rgb(11 11 18 / 0.92) 55%,
+    transparent 100%
+  );
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
+}
+.card-name {
+  font-weight: 700;
+  font-size: 7.5cqw;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card-series {
+  font-size: 5cqw;
+  color: #c4c4d4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card-stats {
+  margin-top: 2cqw;
+  display: flex;
+  justify-content: space-between;
+  font-size: 5.5cqw;
+  font-variant-numeric: tabular-nums;
+}
+.card-badge {
+  position: absolute;
+  top: 3cqw;
+  padding: 0.5cqw 2.5cqw;
+  border-radius: 999px;
+  font-size: 5cqw;
+  font-weight: 700;
+  background: rgb(0 0 0 / 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+.card-badge.left { left: 3cqw; color: var(--rarity); }
+.card-badge.right { right: 3cqw; color: var(--foreground); font-variant-numeric: tabular-nums; }
+.card-new {
+  position: absolute;
+  top: 3cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5cqw 2.5cqw;
+  border-radius: 999px;
+  font-size: 4.5cqw;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #0b0b12;
+  background: #facc15;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.5);
+  z-index: 3;
+  animation: pop 0.35s ease-out;
+}
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Holo : reflet arc-en-ciel animé */
+.card[data-finish="HOLO"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 20%, #ff4d6d55 30%, #ffd16655 40%, #4ade8055 50%, #38bdf855 60%, #c084fc55 70%, transparent 80%);
+  background-size: 250% 250%;
+  mix-blend-mode: color-dodge;
+  animation: holo 4s linear infinite;
+}
+@keyframes holo {
+  from { background-position: 0% 0%; }
+  to { background-position: 250% 250%; }
+}
+
+/* Gold : cadre doré, halo et éclat */
+.card[data-finish="GOLD"] {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    linear-gradient(135deg, #fde68a, #b45309, #fef3c7, #d97706, #fde68a) border-box;
+  box-shadow: 0 0 18px #fbbf2499, 0 8px 24px rgb(0 0 0 / 0.45);
+}
+.card[data-finish="GOLD"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, #fff7d6aa 50%, transparent 60%);
+  background-size: 300% 100%;
+  animation: shine 2.8s ease-in-out infinite;
+}
+@keyframes shine {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+/* ---------- Retournement ---------- */
+
+.flip {
+  perspective: 1200px;
+  cursor: pointer;
+}
+.flip-inner {
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip[data-revealed="true"] { cursor: default; }
+.flip[data-revealed="true"] .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  backface-visibility: hidden;
+}
+.flip-front {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+.card-back {
+  aspect-ratio: 5 / 7;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 3px solid #2a2a3d;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 40%, #3b2a6b 0%, transparent 60%),
+    repeating-linear-gradient(45deg, #161622 0 10px, #1c1c2b 10px 20px);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+  transition: transform 0.2s;
+}
+.flip:not([data-revealed="true"]):hover .card-back { transform: translateY(-6px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner { transition: none; }
+  .card::after { animation: none !important; }
 }

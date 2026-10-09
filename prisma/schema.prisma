@@ -32,6 +32,18 @@ enum CharacterRole {
   BACKGROUND
 }
 
+enum Finish {
+  NORMAL
+  HOLO
+  GOLD
+}
+
+enum PityTrigger {
+  NONE
+  SSR
+  UR
+}
+
 /// Un personnage AniList (étape 1).
 model Character {
   /// id AniList
@@ -60,6 +72,7 @@ model Character {
   /// Retrait à la demande d'un ayant droit (étape 6)
   disabled       Boolean        @default(false)
   media          CharacterMedia[]
+  cards          Card[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -81,7 +94,7 @@ model Media {
   /// Liste des genres AniList (tableau JSON)
   genres         Json
   /// Tags AniList [{ name, rank }] (tableau JSON, sert au type)
-  tags           Json             @default("[]")
+  tags           Json?
   studio         String?
   characters     CharacterMedia[]
   mainCharacters Character[]      @relation("MainMedia")
@@ -97,4 +110,104 @@ model CharacterMedia {
 
   @@id([characterId, mediaId])
   @@index([mediaId])
+}
+
+// ---------- Étape 2 : comptes, paquets, cartes ----------
+
+/// Joueur. Les champs d'authentification sont gérés par Better Auth.
+model User {
+  id            String        @id
+  name          String
+  /// Pseudo unique (plugin username de Better Auth, stocké en minuscules)
+  username      String        @unique
+  email         String        @unique
+  emailVerified Boolean       @default(false)
+  image         String?
+  /// Paquets en stock au moment de `lastPackAt` (recharge calculée à la lecture, SPEC étape 2 §3)
+  packsStored   Int           @default(10)
+  lastPackAt    DateTime      @default(now())
+  packsSinceSSR Int           @default(0)
+  packsSinceUR  Int           @default(0)
+  sessions      Session[]
+  accounts      Account[]
+  cards         Card[]
+  packOpenings  PackOpening[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+/// Un exemplaire possédé par un joueur.
+model Card {
+  id            String      @id @default(cuid())
+  ownerId       String
+  owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  characterId   Int
+  character     Character   @relation(fields: [characterId], references: [id])
+  finish        Finish
+  /// n-ième exemplaire de ce personnage tiré sur le site
+  serial        Int
+  /// Rareté au moment du tirage (historique uniquement : la carte affiche la rareté actuelle)
+  rarityAtPull  Rarity
+  packOpeningId String
+  packOpening   PackOpening @relation(fields: [packOpeningId], references: [id], onDelete: Cascade)
+  obtainedAt    DateTime    @default(now())
+
+  @@unique([characterId, serial])
+  @@index([ownerId, characterId])
+}
+
+/// Historique des ouvertures de paquets.
+model PackOpening {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pityTriggered PityTrigger
+  cards         Card[]
+  openedAt      DateTime    @default(now())
+
+  @@index([userId, openedAt])
 }

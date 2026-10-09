@@ -11,15 +11,18 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio --port 5555 --url \"file://$PWD/data/app.db\"",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "simulate": "tsx scripts/simulate.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "better-auth": "^1.7.7",
     "dotenv": "^18.0.6",
     "next": "16.4.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
