@@ -319,3 +319,6 @@ body.scene-active > header form button {
 body.scene-active > header form button {
   opacity: 0.6;
 }
+body.scene-active > header .wallet {
+  color: #b87a00;
+}

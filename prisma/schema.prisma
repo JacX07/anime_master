@@ -47,7 +47,7 @@ enum PityTrigger {
 /// Un personnage AniList (étape 1).
 model Character {
   /// id AniList
-  id             Int            @id
+  id             Int              @id
   name           String
   nameNative     String?
   /// URL de l'image sur le CDN AniList (on ne stocke pas le fichier)
@@ -65,16 +65,16 @@ model Character {
   defense        Int
   /// Série principale (sert au type et au rôle)
   mainMediaId    Int?
-  mainMedia      Media?         @relation("MainMedia", fields: [mainMediaId], references: [id])
+  mainMedia      Media?           @relation("MainMedia", fields: [mainMediaId], references: [id])
   mainRole       CharacterRole
   /// Nombre d'exemplaires tirés (numéros d'exemplaire, étape 2)
-  pullCount      Int            @default(0)
+  pullCount      Int              @default(0)
   /// Retrait à la demande d'un ayant droit (étape 6)
-  disabled       Boolean        @default(false)
+  disabled       Boolean          @default(false)
   media          CharacterMedia[]
   cards          Card[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([rarity])
   @@index([type])
@@ -116,24 +116,28 @@ model CharacterMedia {
 
 /// Joueur. Les champs d'authentification sont gérés par Better Auth.
 model User {
-  id            String        @id
-  name          String
+  id               String           @id
+  name             String
   /// Pseudo unique (plugin username de Better Auth, stocké en minuscules)
-  username      String        @unique
-  email         String        @unique
-  emailVerified Boolean       @default(false)
-  image         String?
+  username         String           @unique
+  email            String           @unique
+  emailVerified    Boolean          @default(false)
+  image            String?
   /// Paquets en stock au moment de `lastPackAt` (recharge calculée à la lecture, SPEC étape 2 §3)
-  packsStored   Int           @default(10)
-  lastPackAt    DateTime      @default(now())
-  packsSinceSSR Int           @default(0)
-  packsSinceUR  Int           @default(0)
-  sessions      Session[]
-  accounts      Account[]
-  cards         Card[]
-  packOpenings  PackOpening[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  packsStored      Int              @default(10)
+  lastPackAt       DateTime         @default(now())
+  packsSinceSSR    Int              @default(0)
+  packsSinceUR     Int              @default(0)
+  /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
+  balance          Int              @default(0)
+  lastDailyBonusAt DateTime?
+  ledger           CurrencyLedger[]
+  sessions         Session[]
+  accounts         Account[]
+  cards            Card[]
+  packOpenings     PackOpening[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model Session {
@@ -195,6 +199,8 @@ model Card {
   packOpeningId String
   packOpening   PackOpening @relation(fields: [packOpeningId], references: [id], onDelete: Cascade)
   obtainedAt    DateTime    @default(now())
+  /// Cadenas : une carte verrouillée ne peut être ni vendue, ni échangée, ni mise aux enchères
+  locked        Boolean     @default(false)
 
   @@unique([characterId, serial])
   @@index([ownerId, characterId])
@@ -210,4 +216,33 @@ model PackOpening {
   openedAt      DateTime    @default(now())
 
   @@index([userId, openedAt])
+}
+
+// ---------- Étape 3 : économie ----------
+
+enum LedgerReason {
+  QUICK_SELL
+  DAILY
+  PACK_BUY
+  BID_HOLD
+  BID_REFUND
+  AUCTION_SALE
+  AUCTION_FEE
+  TRADE_IN
+  TRADE_OUT
+}
+
+/// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).
+model CurrencyLedger {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Positif = gain, négatif = dépense
+  amount    Int
+  reason    LedgerReason
+  /// Objet concerné (carte vendue, enchère, échange…)
+  refId     String?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, createdAt])
 }

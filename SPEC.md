@@ -374,6 +374,7 @@ Un paquet acheté s'ajoute au stock et peut dépasser la limite de 10 (la limite
 - Repère : un joueur régulier (~40 paquets par jour) qui vend tous ses doublons gagne environ 1 000 Ryō par jour.
 
 **Protections**
+- **Vente rapide d'une carte précise** : n'importe quel exemplaire non verrouillé (pas seulement les doublons), après un message d'avertissement (retrait définitif, irréversible ; avertissement renforcé s'il s'agit du seul exemplaire du personnage).
 - **Cadenas** (`locked`) : une carte verrouillée ne peut être ni vendue, ni échangée, ni mise aux enchères.
 - **Vente groupée des doublons** : filtre par rareté ; conserve toujours, pour chaque personnage, l'exemplaire de meilleure finition (à finition égale, le plus petit numéro d'exemplaire). N'inclut jamais les cartes verrouillées, aux enchères ou en échange.
 - Confirmation avec le total en Ryō avant toute vente.
@@ -433,8 +434,8 @@ Dans le site uniquement (cloche, pas d'email) : offre dépassée, enchère gagn�
 | Album, fiche perso | Actions : vendre, verrouiller, « À échanger », mettre aux enchères ; solde et bonus quotidien dans l'en-tête |
 
 ### 10. Critères pour dire que l'étape 3 est finie
-- [ ] Le solde de chaque joueur est toujours égal à la somme de son journal, et n'est jamais négatif.
-- [ ] La vente rapide respecte les prix ; la vente groupée ne touche ni aux cartes verrouillées, ni aux cartes en échange ou aux enchères, ni au meilleur exemplaire de chaque personnage.
+- [x] Le solde de chaque joueur est toujours égal à la somme de son journal, et n'est jamais négatif (`npm run check:economy`).
+- [x] La vente rapide respecte les prix ; la vente groupée ne touche ni aux cartes verrouillées, ni aux cartes en échange ou aux enchères, ni au meilleur exemplaire de chaque personnage (cartes en échange / aux enchères : à vérifier quand ces fonctions existeront).
 - [ ] Un échange accepté transfère tout ou rien ; une offre devient invalide si un élément n'est plus disponible.
 - [ ] Impossible de gagner une enchère sans les Ryō ; l'enchérisseur dépassé est remboursé immédiatement.
 - [ ] L'anti-sniping prolonge l'enchère ; la clôture n'a lieu qu'une seule fois.

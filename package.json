@@ -13,7 +13,8 @@
     "db:studio": "prisma studio --port 5555 --url \"file://$PWD/data/app.db\"",
     "postinstall": "prisma generate",
     "simulate": "tsx scripts/simulate.ts",
-    "check:recharge": "tsx scripts/check-recharge.ts"
+    "check:recharge": "tsx scripts/check-recharge.ts",
+    "check:economy": "tsx scripts/check-economy.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

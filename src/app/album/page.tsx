@@ -4,7 +4,9 @@ import { Suspense } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { getAlbum, parseAlbumFilters, RARITY_ORDER, type AlbumFilters as Filters } from "@/lib/album";
 import { requireUser } from "@/lib/session";
+import { previewDuplicateSale } from "@/lib/wallet";
 import { AlbumFilters } from "./AlbumFilters";
+import { DuplicateSale } from "./DuplicateSale";
 
 export const metadata: Metadata = { title: "Album — Anime Masters" };
 
@@ -25,6 +27,8 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
   const user = await requireUser();
   const filters = parseAlbumFilters(await searchParams);
   const album = await getAlbum(user.id, filters);
+  const saleRarities = ["N", "R"] as const;
+  const salePreview = await previewDuplicateSale(user.id, [...saleRarities]);
   const { progress } = album;
 
   return (
@@ -50,6 +54,8 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           ))}
         </ul>
       </section>
+
+      <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
 
       <AlbumFilters filters={filters} />
 

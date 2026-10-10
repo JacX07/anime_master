@@ -5,8 +5,10 @@ import { Suspense } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { getCharacter } from "@/lib/album";
 import { prisma } from "@/lib/db";
+import { quickSellPrice } from "@/lib/economy";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { getSessionUser } from "@/lib/session";
+import { CopyActions } from "./CopyActions";
 
 const parseId = (raw: string) => (/^\d{1,9}$/.test(raw) ? Number(raw) : null);
 
@@ -96,12 +98,20 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
             <h2 className="mb-2 text-lg font-bold">Mes exemplaires ({c.copies.length})</h2>
             <ul className="divide-y divide-white/5 rounded-xl bg-panel">
               {c.copies.map((copy) => (
-                <li key={copy.id} className="flex items-center gap-4 px-4 py-2.5 text-sm tabular-nums">
+                <li key={copy.id} className="flex items-start gap-4 px-4 py-2.5 text-sm tabular-nums">
                   <span className="w-16 font-semibold">#{copy.serial}</span>
                   <span className="finish-tag" data-finish={copy.finish}>
                     {FINISH_NAMES[copy.finish]}
                   </span>
                   <span className="ml-auto text-muted">{dateFmt.format(copy.obtainedAt)}</span>
+                  <CopyActions
+                    cardId={copy.id}
+                    locked={copy.locked}
+                    price={quickSellPrice(c.rarity, copy.finish)}
+                    label={`#${copy.serial} · ${FINISH_NAMES[copy.finish]}`}
+                    characterName={c.name}
+                    lastCopy={c.copies!.length === 1}
+                  />
                 </li>
               ))}
             </ul>

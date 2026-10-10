@@ -162,7 +162,7 @@ export interface CharacterDetail {
   media: { id: number; title: string; format: string | null; year: number | null; coverUrl: string | null; role: string }[];
   pullCount: number;
   /** Exemplaires du joueur connecté (null si déconnecté) */
-  copies: { id: string; finish: Finish; serial: number; obtainedAt: Date }[] | null;
+  copies: { id: string; finish: Finish; serial: number; obtainedAt: Date; locked: boolean }[] | null;
 }
 
 export async function getCharacter(id: number, userId: string | null): Promise<CharacterDetail | null> {
@@ -180,7 +180,7 @@ export async function getCharacter(id: number, userId: string | null): Promise<C
   const copies = userId
     ? await prisma.card.findMany({
         where: { ownerId: userId, characterId: id },
-        select: { id: true, finish: true, serial: true, obtainedAt: true },
+        select: { id: true, finish: true, serial: true, obtainedAt: true, locked: true },
         orderBy: { serial: "asc" },
       })
     : null;

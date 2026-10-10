@@ -12,10 +12,13 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 - **Recharge vérifiée** : `npm run check:recharge` (joueur jetable sur la vraie base : palier 10 min, plafond 10, progression gardée après ouverture, refus à 0, ouvertures simultanées) + test navigateur (compteur 0 → 1 en direct, ouverture acceptée, compte à rebours conservé).
 - **Maquettes d'ouverture 3D** (`/maquettes`) : DA cyber futuriste v2 validée par l'utilisateur (« on changera des détails après »), musique générative adaptative, sons de verre (l'éclatement du noyau imite maintenant du vrai verre brisé). Seule la variante **noyaux** est gardée (capsules, portail et anciens thèmes supprimés). Capsule du booster en vrai objet 3D (`futur/capsule.js`, verre + chrome, s'ouvre en deux), cartes sans lumière propre (comme avant) avec un reflet type « sol » sous chaque carte, et rangement vers l'album : clic sur une carte (ou Entrée) = elle se dissout en particules qui filent vers le lien « Album » ; sans clic, rangement automatique après 5 s. **Non vérifié à l'œil** : le navigateur de test (rendu logiciel) est trop lent, à regarder en vrai.
 
+- **Étape 3, partie 1 — Ryō et vente rapide** : `User.balance` + journal `CurrencyLedger` (écrits dans la même transaction), cadenas, vente rapide d'un exemplaire (avertissement avant), vente groupée des doublons (aperçu du total + confirmation, garde le meilleur exemplaire), bonus quotidien 50 Ryō ; solde et bouton de bonus dans le menu. Logique dans `src/lib/economy.ts` (pur) et `src/lib/wallet.ts` (transactions) ; vérifié par `npm run check:economy`.
+
 ## Reste à faire, dans l'ordre
-1. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
-2. Plus tard : passer `three` en dépendance npm (la scène charge three et les polices depuis des CDN) et remplacer l'iframe par un composant React.
-3. Hors MVP (repoussé) : lueur de rareté au dos, progression et filtre par série, indicateurs de finition dans l'album, `/profile`, puis étapes 3 à 6 de la spec (économie, etc.).
+1. **Étape 3, suite** : achat de paquets (100 Ryō, 5/jour), échanges, enchères, marché, liste de souhaits, notifications (voir SPEC).
+2. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
+3. Plus tard : passer `three` en dépendance npm (la scène charge three et les polices depuis des CDN) et remplacer l'iframe par un composant React.
+4. Hors MVP (repoussé) : lueur de rareté au dos, progression et filtre par série, indicateurs de finition dans l'album, `/profile`, puis étapes 3 à 6 de la spec (économie, etc.).
 
 ## Ouverture 3D dans `/packs`
 Scène statique `public/pack-opening/futur.html?embed=1` dans une iframe de même origine (`src/app/packs/ImmersiveOpener.tsx`). Elle demande l'ouverture par `postMessage` (`open-request`), l'hôte appelle `openPackAction` et renvoie les cartes (`pack-result`) ; l'état du stock et du pity vient du serveur (`init`). Sans WebGL, message `unsupported` : repli sur l'ouverture classique (`PackOpener`). Hors iframe, la page tourne seule avec des cartes d'exemple.
@@ -43,6 +46,7 @@ Révélation deux fois plus rapide ; un clic (ou Espace / Entrée / Échap) pend
 | `scripts/import.ts`, `scripts/simulate.ts`, `scripts/check-recharge.ts` | Import AniList, simulation des taux, vérification de la recharge |
 | `src/lib/stats.ts`, `src/lib/clean.ts` | Rareté, stats, types ; nettoyage des descriptions |
 | `src/lib/pull.ts` | Tirage pur (taux, garanties, pity) |
+| `src/lib/economy.ts`, `src/lib/wallet.ts`, `src/app/economy-actions.ts` | Prix, solde/journal, ventes, bonus quotidien |
 | `src/lib/pack-stock.ts`, `src/lib/packs.ts` | Stock de paquets ; ouverture transactionnelle |
 | `src/lib/album.ts` | Requêtes album et fiche perso |
 | `src/lib/auth.ts`, `src/lib/session.ts`, `src/proxy.ts` | Auth, session, redirection des pages réservées |
