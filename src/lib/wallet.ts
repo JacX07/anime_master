@@ -97,9 +97,3 @@ export async function sellDuplicates(userId: string, rarities: Rarity[]): Promis
   const list = await duplicatesFor(userId, rarities);
   return { count: list.length, total: await sell(userId, list) };
 }
-
-/** Pour l'avertissement : est-ce le dernier exemplaire de ce personnage ? */
-export async function copiesOfSameCharacter(userId: string, cardId: string): Promise<number> {
-  const card = await prisma.card.findFirst({ where: { id: cardId, ownerId: userId }, select: { characterId: true } });
-  return card ? prisma.card.count({ where: { ownerId: userId, characterId: card.characterId } }) : 0;
-}
