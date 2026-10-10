@@ -11,11 +11,13 @@ import THEME from "../opening/themes/futur.js";
 import { buildDecor, BLUE, MINT } from "./decor.js";
 import { futurAudio } from "./audio.js";
 import { buildCapsule } from "./capsule.js";
+import { createPerf } from "./perf.js";
 
 export const MODES = [
   { id: "noyaux", name: "Noyaux de données" },
 ];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const PERF = new URLSearchParams(location.search).has("perf");
 // Intégré dans /packs (?embed) : la page hôte détient la session et appelle le serveur ; on lui parle par postMessage.
 // Hors iframe, la maquette tourne seule avec des cartes d'exemple.
 const EMBED = new URLSearchParams(location.search).has("embed") && parent !== window;
@@ -374,11 +376,23 @@ export async function start(modeId) {
     const it = mode.nextItem(items, camera); if (it) { e.preventDefault(); reveal(it); }
   });
 
+  // ?perf : affichage de mesure et interrupteurs (voir perf.js)
+  const perf = PERF ? createPerf({
+    renderer,
+    toggles: {
+      halo: { key: "b", set: (v) => (bloom.enabled = v) },
+      miroir: { key: "m", set: (v) => (decor.mirror.visible = v) },
+      ombres: { key: "s", set: (v) => (decor.key.castShadow = v) },
+      ciel: { key: "k", set: (v) => (decor.sky.visible = v) },
+    },
+    setPixelRatio: (r) => { pixelRatio = r; renderer.setPixelRatio(r); composer.setPixelRatio(r); resize(); },
+  }) : null;
+
   // Résolution adaptative : si la machine ne tient pas ~45 images/s, on baisse le ratio de pixels par paliers (sans jamais remonter, pour éviter les oscillations)
   let pixelRatio = renderer.getPixelRatio();
   const ad = { n: 0, acc: 0, skip: 120 };
   const adapt = (ms) => {
-    if (TEST || ad.skip-- > 0) return;
+    if (TEST || PERF || ad.skip-- > 0) return;
     ad.acc += Math.min(ms, 100);
     if (++ad.n < 90) return;
     const avg = ad.acc / ad.n; ad.n = 0; ad.acc = 0;
@@ -388,6 +402,7 @@ export async function start(modeId) {
   // Boucle
   let last = performance.now(), time = 0;
   renderer.setAnimationLoop((now) => {
+    perf?.begin();
     adapt(now - last);
     const dt = Math.min(0.05, (now - last) / 1000); last = now; time += dt;
     const sdt = now < stopUntil ? dt * 0.04 : dt;
@@ -417,6 +432,7 @@ export async function start(modeId) {
     punch *= Math.pow(0.015, dt); camera.fov = 45 - punch * 3.5; camera.updateProjectionMatrix();
     camera.position.set(mouseSmooth.x * 0.5, 2.5 + mouseSmooth.y * 0.25, camDist); camera.lookAt(LOOK);
     composer.render(dt);
+    perf?.end(now);
   });
 
   // Préchauffage : compile les shaders et envoie les textures au GPU pendant le chargement, pas au premier effet

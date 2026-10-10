@@ -33,6 +33,9 @@ export function buildDecor({ scene, renderer }) {
         if (d.y > 0.0) { vec2 p = d.xz / (d.y + 0.25) + vec2(uTime * 0.004, 0.0); col = mix(col, vec3(0.97, 0.98, 1.0), smoothstep(0.55, 0.85, fbm(vec3(p * 1.5, 0.0))) * 0.6); }
         gl_FragColor = vec4(srgb(col), 1.0); }`,
   }));
+  // Dessiné en dernier : les pixels déjà couverts par le décor échouent au test de profondeur, donc le bruit (fbm) du ciel
+  // n'est calculé que là où le ciel se voit (avant, il était calculé sur tout l'écran puis recouvert)
+  sky.renderOrder = 1000;
   scene.add(sky);
   updaters.push((dt, t) => (sky.material.uniforms.uTime.value = t));
 
@@ -57,7 +60,7 @@ export function buildDecor({ scene, renderer }) {
     // dalles légèrement différentes, comme de vraies plaques
     for (let i = 0; i < 900; i++) { const a = R() * Math.PI * 2, r = 4 + R() * 26; g.fillStyle = R() < 0.5 ? "#ffffff30" : "#00000008"; g.beginPath(); g.arc(c + Math.cos(a) * r * px, c + Math.sin(a) * r * px, 18 + R() * 30, 0, Math.PI * 2); g.fill(); }
   });
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 96), new THREE.MeshPhysicalMaterial({ map: floorMap, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.12, transparent: true, opacity: 0.86 }));
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 96), new THREE.MeshStandardMaterial({ map: floorMap, roughness: 0.18, metalness: 0.05, transparent: true, opacity: 0.86 }));
   floor.rotation.x = -Math.PI / 2; floor.position.y = -0.6; scene.add(floor);
   const shadowCatcher = new THREE.Mesh(new THREE.CircleGeometry(16, 64), new THREE.ShadowMaterial({ color: "#2a3a55", opacity: 0.16 }));
   shadowCatcher.rotation.x = -Math.PI / 2; shadowCatcher.position.y = -0.595; shadowCatcher.receiveShadow = true; scene.add(shadowCatcher);
@@ -175,6 +178,7 @@ export function buildDecor({ scene, renderer }) {
   updaters.push((dt, t) => { const a = dGeo.attributes.position.array; for (let i = 0; i < D; i++) { a[i * 3 + 1] += dt * 0.08; a[i * 3] += Math.sin(t * 0.3 + i) * 0.002; if (a[i * 3 + 1] > 8.5) a[i * 3 + 1] = -0.5; } dGeo.attributes.position.needsUpdate = true; });
 
   return {
+    sky, mirror, key, root: scene,
     gyro, portal, portalMat,
     setSpin: (v) => (spin = v),
     materials: { ceramic, satin, chrome, glass, glowBlue, glowMint, glowWhite },

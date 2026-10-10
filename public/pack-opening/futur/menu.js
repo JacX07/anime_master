@@ -9,9 +9,11 @@ import { cardPainter } from "../opening/core.js";
 import THEME from "../opening/themes/futur.js";
 import { buildDecor, BLUE, MINT } from "./decor.js";
 import { buildCapsule } from "./capsule.js";
+import { createPerf } from "./perf.js";
 
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const TEST = new URLSearchParams(location.search).has("test");
+const PERF = new URLSearchParams(location.search).has("perf");
 
 export async function start() {
   // Polices du dos de carte (Michroma / Sora), chargées avant de le peindre
@@ -29,7 +31,8 @@ export async function start() {
 
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 2 }));
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.4, 0.4, 1.5));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.4, 0.4, 1.5);
+  composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
   // Mise en page : la capsule se place à droite sur grand écran (le menu occupe la gauche), au centre sur mobile
@@ -50,11 +53,23 @@ export async function start() {
   const capsule = buildCapsule({ decor, ctx: { tween, ease }, backTex, BLUE, MINT });
   scene.add(capsule.group); capsule.show();
 
+  // ?perf : affichage de mesure et interrupteurs (voir perf.js)
+  const perf = PERF ? createPerf({
+    renderer,
+    toggles: {
+      halo: { key: "b", set: (v) => (bloom.enabled = v) },
+      miroir: { key: "m", set: (v) => (decor.mirror.visible = v) },
+      ombres: { key: "s", set: (v) => (decor.key.castShadow = v) },
+      ciel: { key: "k", set: (v) => (decor.sky.visible = v) },
+    },
+    setPixelRatio: (r) => { pixelRatio = r; renderer.setPixelRatio(r); composer.setPixelRatio(r); resize(); },
+  }) : null;
+
   // Résolution adaptative : si la machine ne tient pas ~45 images/s, on baisse le ratio de pixels par paliers (sans jamais remonter, pour éviter les oscillations)
   let pixelRatio = renderer.getPixelRatio();
   const ad = { n: 0, acc: 0, skip: 120 };
   const adapt = (ms) => {
-    if (TEST || ad.skip-- > 0) return;
+    if (TEST || PERF || ad.skip-- > 0) return;
     ad.acc += Math.min(ms, 100);
     if (++ad.n < 90) return;
     const avg = ad.acc / ad.n; ad.n = 0; ad.acc = 0;
@@ -64,6 +79,7 @@ export async function start() {
   const still = new THREE.Vector2();
   let last = performance.now(), time = 0;
   renderer.setAnimationLoop((now) => {
+    perf?.begin();
     adapt(now - last);
     const dt = Math.min(0.05, (now - last) / 1000); last = now; time += reduced ? 0 : dt;
     for (const tw of [...tweens]) { tw.t += dt; const k = Math.min(1, tw.t / tw.dur); tw.fn(tw.e(k)); if (k >= 1) { tweens.delete(tw); tw.res(); } }
@@ -73,6 +89,7 @@ export async function start() {
     const sway = Math.sin(time * 0.15);
     camera.position.set(sway * 0.8, 2.4, 8.5); camera.lookAt(side * 0.9, 1.45, 0);
     composer.render(dt);
+    perf?.end(now);
   });
   // Préchauffage : shaders compilés et deux images rendues avant d'annoncer que la scène est prête
   await renderer.compileAsync(scene, camera);

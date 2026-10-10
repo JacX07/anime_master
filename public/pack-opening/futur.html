@@ -38,12 +38,12 @@
   nav a.bump { animation: bump .55s ease-out; }
   @keyframes bump { 30% { scale: 1.25; color: var(--accent); text-shadow: 0 0 18px var(--accent); } }
   .right { margin-left: auto; display: flex; gap: 10px; }
-  .btn { font: 600 14px var(--font-body); color: var(--ink); background: var(--btn); border: 1.5px solid var(--btn-line); border-radius: 12px; padding: 9px 16px; cursor: pointer; backdrop-filter: blur(8px); transition: border-color .2s, box-shadow .2s; }
+  .btn { font: 600 14px var(--font-body); color: var(--ink); background: var(--btn); border: 1.5px solid var(--btn-line); border-radius: 12px; padding: 9px 16px; cursor: pointer; transition: border-color .2s, box-shadow .2s; }
   .btn:hover { border-color: var(--accent); box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent); }
   .btn:focus-visible, .booster:focus-visible { outline: 3px solid var(--hl); outline-offset: 4px; }
   .btn.primary { background: var(--btn-primary); color: var(--btn-primary-ink); border-color: transparent; font-size: 16px; padding: 12px 22px; }
 
-  .hud { position: absolute; top: 76px; right: 28px; width: 270px; background: var(--panel); border: 1.5px solid var(--panel-line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; backdrop-filter: blur(10px); }
+  .hud { position: absolute; top: 76px; right: 28px; width: 270px; background: var(--panel); border: 1.5px solid var(--panel-line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; }
   .hud .big { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 36px; line-height: 1; }
   .hud .big small { font: 600 14px var(--font-body); color: var(--muted); }
   .stock { display: flex; gap: 4px; margin-top: 8px; }
