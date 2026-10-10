@@ -60,9 +60,9 @@
     "semantic_hash": "4fb6e69b06ba014e319b0d6f1f47104c"
   },
   "public/pack-opening/futur/decor.js": {
-    "mtime": 1791661238.3704102,
-    "seen": 1791661379.6168725,
-    "ast_hash": "77a28fafd6403418aa7dcf5a422af30f",
+    "mtime": 1791662077.544814,
+    "seen": 1791662095.0810308,
+    "ast_hash": "b526984b49adb0700bed74a12edc95fa",
     "semantic_hash": ""
   },
   "public/pack-opening/futur/engine.js": {
@@ -924,9 +924,9 @@
     "semantic_hash": ""
   },
   "docs/STATE.md": {
-    "mtime": 1791661373.3990273,
-    "seen": 1791661379.6417978,
-    "ast_hash": "36097912a9397715fbfde25c13613027",
+    "mtime": 1791662087.5116568,
+    "seen": 1791662095.088476,
+    "ast_hash": "f8fb40ad9c3a80180aa8653e59b15813",
     "semantic_hash": ""
   },
   "public/pack-opening/futur.html": {

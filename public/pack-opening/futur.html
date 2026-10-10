@@ -45,6 +45,10 @@
 
   .hud { position: absolute; top: 76px; right: 28px; width: 270px; background: var(--panel); border: 1.5px solid var(--panel-line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; }
   .hud .big { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 36px; line-height: 1; }
+  .shop { display: grid; gap: 6px; }
+  .shop .btn { width: 100%; }
+  .shop .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .shop p { margin: 0; font-size: 12px; color: var(--muted); }
   .hud .big small { font: 600 14px var(--font-body); color: var(--muted); }
   .stock { display: flex; gap: 4px; margin-top: 8px; }
   .stock i { flex: 1; height: 20px; border-radius: 5px; background: color-mix(in srgb, var(--ink) 10%, transparent); transition: background .3s; }
@@ -134,6 +138,7 @@
   <aside class="hud">
     <div><div class="big"><span id="count">9</span><small id="maxPacks"> / 10 boosters</small></div><div class="stock" id="stock"></div></div>
     <p id="nextIn"></p>
+    <div class="shop"><button class="btn" id="buy" type="button">Acheter un paquet</button><p id="buyInfo"></p></div>
     <div class="leds"><p>Puissance totale <span id="totalPower">⚡ 0</span></p></div>
     <div class="leds"><p>SSR garanti <span>dans <b id="ssrLeft">6</b></span></p><div class="bar" style="--c:var(--SSR)" id="ssr"></div></div>
     <div class="leds"><p>UR garanti <span>dans <b id="urLeft">71</b></span></p><div class="bar" style="--c:var(--UR)" id="ur"></div></div>

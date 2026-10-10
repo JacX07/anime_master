@@ -447,7 +447,7 @@ Dans le site uniquement (cloche, pas d'email) : offre dépassée, enchère gagn�
 - [ ] Un échange accepté transfère tout ou rien ; une offre devient invalide si un élément n'est plus disponible.
 - [ ] Impossible de gagner une enchère sans les Ryō ; l'enchérisseur dépassé est remboursé immédiatement.
 - [ ] L'anti-sniping prolonge l'enchère ; la clôture n'a lieu qu'une seule fois.
-- [ ] Les limites (5 paquets achetés par jour, 10 offres, 10 enchères, ancienneté du compte) sont respectées.
+- [ ] Les limites (5 paquets achetés par jour, 10 offres, 10 enchères, ancienneté du compte) sont respectées. *(paquets : fait et vérifié par `npm run check:economy` ; le reste à venir)*
 
 ---
 

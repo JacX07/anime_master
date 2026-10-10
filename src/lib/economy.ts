@@ -4,6 +4,8 @@ import type { Rarity } from "../generated/prisma/enums";
 import type { Finish } from "./pull";
 
 export const DAILY_BONUS = 50;
+export const PACK_PRICE = 100;
+export const MAX_PACK_PURCHASES_PER_DAY = 5;
 
 export const QUICK_SELL_PRICES: Record<Rarity, number> = { N: 1, R: 3, SR: 10, SSR: 40, UR: 200 };
 export const FINISH_MULTIPLIER: Record<Finish, number> = { NORMAL: 1, HOLO: 3, GOLD: 10 };
@@ -16,6 +18,12 @@ export function startOfDay(now: Date) {
   const d = new Date(now);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+/** Achats restants aujourd'hui, sachant combien en ont été faits le jour `boughtDate`. */
+export function purchasesLeft(boughtToday: number, boughtDate: Date | null, now: Date) {
+  const done = boughtDate && boughtDate >= startOfDay(now) ? boughtToday : 0;
+  return Math.max(0, MAX_PACK_PURCHASES_PER_DAY - done);
 }
 
 export const canClaimDailyBonus = (lastClaim: Date | null, now: Date) => lastClaim === null || lastClaim < startOfDay(now);

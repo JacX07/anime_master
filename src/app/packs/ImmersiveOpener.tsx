@@ -6,14 +6,14 @@ import { MAX_PACKS, PACK_INTERVAL_MS } from "@/lib/pack-stock";
 import type { PlayerPackState } from "@/lib/packs";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { ALBUM_BUMP, ALBUM_STORED } from "@/components/AlbumLink";
-import { openPackAction } from "./actions";
+import { buyPackAction, openPackAction } from "./actions";
 import { PackOpener } from "./PackOpener";
 
 // Scène 3D d'ouverture (public/pack-opening) : elle vit dans une iframe de même origine et ne fait confiance qu'à nous.
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number };
+type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request" | "buy-request"; id: number };
 
 export function ImmersiveOpener({ initialState }: { initialState: PlayerPackState }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -47,6 +47,9 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
       } else if (msg.type === "album-bump" || msg.type === "album-stored") {
         // Le lien « Album » du menu (AlbumLink) réagit : impulsion, et compteur à chaque carte rangée
         window.dispatchEvent(new Event(msg.type === "album-stored" ? ALBUM_STORED : ALBUM_BUMP));
+      } else if (msg.type === "buy-request") {
+        const r = await buyPackAction();
+        send(r.ok ? { type: "buy-result", id: msg.id, ok: true, state: r.state } : { type: "buy-result", id: msg.id, ok: false, error: r.error });
       } else if (msg.type === "open-request") {
         const result = await openPackAction();
         if (!result.ok) return send({ type: "pack-result", id: msg.id, ok: false, error: result.error });

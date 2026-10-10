@@ -44,7 +44,7 @@ export async function start(modeId) {
   let capsule = null, stored = 0;
   // Stock et pity : fournis par le serveur (init / réponse d'ouverture), valeurs d'exemple hors iframe
   let cfg = { interval: 600000, max: 10, ssrPity: 15, urPity: 100 };
-  let pack = { available: 9, nextPackAt: null, packsSinceSSR: 9, packsSinceUR: 4, collectionPower: 123456 }, hostAlbum = null;
+  let pack = { available: 9, nextPackAt: null, packsSinceSSR: 9, packsSinceUR: 4, collectionPower: 123456, balance: 650, packPrice: 100, purchasesLeft: 5 }, hostAlbum = null;
   const liveStock = () => {
     const next = pack.nextPackAt ? new Date(pack.nextPackAt).getTime() : null, now = Date.now();
     if (next === null || now < next) return { available: pack.available, msLeft: next === null ? null : next - now };
@@ -206,13 +206,27 @@ export async function start(modeId) {
   const el = (id) => document.getElementById(id);
   function hud() {
     const { available, msLeft } = liveStock();
-    bar("stock", cfg.max, available); el("count").textContent = available; el("maxPacks").textContent = ` / ${cfg.max} boosters`;
+    bar("stock", cfg.max, Math.min(available, cfg.max)); el("count").textContent = available;
+    el("maxPacks").textContent = available > cfg.max ? " boosters" : ` / ${cfg.max} boosters`; // au-delà de la réserve : paquets achetés
+    // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
+    el("buy").disabled = buying || pack.purchasesLeft < 1 || pack.balance < pack.packPrice;
+    if (!buyMsg) el("buyInfo").textContent = `${pack.packPrice} 両 · ${pack.purchasesLeft} achat${pack.purchasesLeft > 1 ? "s" : ""} restant${pack.purchasesLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")} 両`;
     el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain booster dans ${mmss(msLeft)}`;
     el("totalPower").textContent = `⚡ ${(pack.collectionPower ?? 0).toLocaleString("fr-FR")}`;
     el("ssrLeft").textContent = cfg.ssrPity - pack.packsSinceSSR; el("urLeft").textContent = cfg.urPity - pack.packsSinceUR;
     bar("ssr", 15, Math.round((15 * pack.packsSinceSSR) / cfg.ssrPity)); bar("ur", 15, Math.round((15 * pack.packsSinceUR) / cfg.urPity));
   }
   const setPack = (state) => { pack = state; hud(); };
+  let buying = false, buyMsg = "";
+  el("buy").addEventListener("click", async () => {
+    if (buying) return;
+    buying = true; hud();
+    const res = await requestBuy();
+    buying = false;
+    if (res.ok) setPack(res.state);
+    else { buyMsg = res.error; el("buyInfo").textContent = buyMsg; hud(); setTimeout(() => { buyMsg = ""; hud(); }, 4000); }
+    hud();
+  });
   setInterval(hud, 1000); hud();
 
   // Dialogue avec la page hôte
@@ -222,8 +236,19 @@ export async function start(modeId) {
     const m = e.data ?? {};
     if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
-    else if (m.type === "pack-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
+    else if (m.type === "pack-result" || m.type === "buy-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
   });
+  // Achat d'un paquet (même circuit que l'ouverture ; hors iframe, simulé localement)
+  function requestBuy() {
+    if (!EMBED) {
+      if (pack.balance < pack.packPrice) return Promise.resolve({ ok: false, error: "Pas assez de Ryō." });
+      return Promise.resolve({ ok: true, state: { ...pack, available: liveStock().available + 1, balance: pack.balance - pack.packPrice, purchasesLeft: pack.purchasesLeft - 1 } });
+    }
+    return new Promise((resolve) => {
+      const id = ++reqId; waiting.set(id, resolve); post({ type: "buy-request", id });
+      setTimeout(() => { if (waiting.delete(id)) resolve({ ok: false, error: "Le serveur ne répond pas, réessaie." }); }, 20000);
+    });
+  }
   // Demande un paquet au serveur (ou en tire un d'exemple hors iframe)
   function requestPack() {
     if (!EMBED) {

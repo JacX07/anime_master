@@ -133,6 +133,9 @@ model User {
   /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
   balance          Int              @default(0)
   lastDailyBonusAt DateTime?
+  /// Paquets achetés pendant la journée `packsBoughtDate` (remise à zéro à minuit, heure du serveur)
+  packsBoughtToday Int              @default(0)
+  packsBoughtDate  DateTime?
   ledger           CurrencyLedger[]
   sessions         Session[]
   accounts         Account[]

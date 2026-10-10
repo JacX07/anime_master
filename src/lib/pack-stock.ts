@@ -15,6 +15,8 @@ export interface PackStock {
 }
 
 export function packStock(packsStored: number, lastPackAt: Date, now: Date): PackStock {
+  // Réserve pleine (ou dépassée par des achats) : plus de recharge automatique
+  if (packsStored >= MAX_PACKS) return { available: packsStored, elapsed: 0, nextPackAt: null };
   const since = Math.max(0, now.getTime() - lastPackAt.getTime());
   const elapsed = Math.floor(since / PACK_INTERVAL_MS);
   const available = Math.min(MAX_PACKS, packsStored + elapsed);
@@ -34,5 +36,14 @@ export function afterOpening(packsStored: number, lastPackAt: Date, now: Date) {
     packsStored: stock.available - 1,
     lastPackAt:
       stock.available >= MAX_PACKS ? now : new Date(lastPackAt.getTime() + stock.elapsed * PACK_INTERVAL_MS),
+  };
+}
+
+/** Nouvel état après l'achat d'un paquet : le stock gagne 1 (au-delà de la limite si besoin) sans perdre la progression de la recharge. */
+export function afterPurchase(packsStored: number, lastPackAt: Date, now: Date) {
+  const stock = packStock(packsStored, lastPackAt, now);
+  return {
+    packsStored: stock.available + 1,
+    lastPackAt: stock.available >= MAX_PACKS ? now : new Date(lastPackAt.getTime() + stock.elapsed * PACK_INTERVAL_MS),
   };
 }

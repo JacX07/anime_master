@@ -3,6 +3,7 @@
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { getCollectionPower } from "./collection";
 import { prisma } from "./db";
+import { PACK_PRICE, purchasesLeft } from "./economy";
 import { afterOpening, packStock } from "./pack-stock";
 import { rollPack, secureRandom, type Finish, type PityTrigger, type Random } from "./pull";
 
@@ -43,6 +44,10 @@ export interface PlayerPackState {
   packsSinceUR: number;
   /** Puissance totale de la collection (somme de la puissance de chaque carte) */
   collectionPower: number;
+  /** Boutique : solde en Ryō, prix d'un paquet et achats restants aujourd'hui */
+  balance: number;
+  packPrice: number;
+  purchasesLeft: number;
 }
 
 export interface OpenedPack {
@@ -51,7 +56,15 @@ export interface OpenedPack {
   state: PlayerPackState;
 }
 
-const USER_PACK_FIELDS = { packsStored: true, lastPackAt: true, packsSinceSSR: true, packsSinceUR: true } as const;
+const USER_PACK_FIELDS = {
+  packsStored: true,
+  lastPackAt: true,
+  packsSinceSSR: true,
+  packsSinceUR: true,
+  balance: true,
+  packsBoughtToday: true,
+  packsBoughtDate: true,
+} as const;
 
 export async function getPackState(userId: string, now = new Date()): Promise<PlayerPackState> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
@@ -62,6 +75,9 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     packsSinceSSR: user.packsSinceSSR,
     packsSinceUR: user.packsSinceUR,
     collectionPower: await getCollectionPower(userId),
+    balance: user.balance,
+    packPrice: PACK_PRICE,
+    purchasesLeft: purchasesLeft(user.packsBoughtToday, user.packsBoughtDate, now),
   };
 }
 
@@ -168,6 +184,9 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
         nextPackAt: stock.nextPackAt?.toISOString() ?? null,
         ...roll.next,
         collectionPower: await getCollectionPower(userId, tx),
+        balance: user.balance,
+        packPrice: PACK_PRICE,
+        purchasesLeft: purchasesLeft(user.packsBoughtToday, user.packsBoughtDate, now),
       },
     };
   });
