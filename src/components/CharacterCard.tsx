@@ -13,6 +13,10 @@ export interface CharacterCardProps {
   finish?: Finish;
   serial?: number;
   isNew?: boolean;
+  /** Nombre d'exemplaires possédés (album) : badge ×N à partir de 2 */
+  count?: number;
+  /** Personnage pas encore possédé : image grisée et floutée, nom visible */
+  missing?: boolean;
 }
 
 /** Carte d'un personnage : rareté (cadre), finition (effet), type et stats. */
@@ -27,15 +31,19 @@ export function CharacterCard({
   finish = "NORMAL",
   serial,
   isNew,
+  count,
+  missing,
 }: CharacterCardProps) {
   const t = TYPE_LABELS[type];
   return (
-    <div className="card" data-rarity={rarity} data-finish={finish}>
+    <div className="card" data-rarity={rarity} data-finish={missing ? "NORMAL" : finish} data-missing={missing || undefined}>
       {/* Image servie par le CDN AniList : <img> simple, pas de copie côté serveur */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="card-art" src={imageUrl} alt={name} loading="lazy" referrerPolicy="no-referrer" />
       <span className="card-badge left">{rarity}</span>
+      {missing && <span className="card-unknown" aria-hidden>?</span>}
       {serial !== undefined && <span className="card-badge right">#{serial}</span>}
+      {count !== undefined && count > 1 && <span className="card-badge right">×{count}</span>}
       {isNew && <span className="card-new">NOUVEAU</span>}
       <div className="card-info">
         <div className="card-name" title={name}>
@@ -45,10 +53,12 @@ export function CharacterCard({
           {t.emoji} {t.name}
           {series ? ` · ${series}` : ""}
         </div>
-        <div className="card-stats">
-          <span>⚔️ {attack}</span>
-          <span>🛡️ {defense}</span>
-        </div>
+        {!missing && (
+          <div className="card-stats">
+            <span>⚔️ {attack}</span>
+            <span>🛡️ {defense}</span>
+          </div>
+        )}
       </div>
     </div>
   );

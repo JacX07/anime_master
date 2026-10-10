@@ -331,7 +331,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - [x] Sur 10 000 paquets simulés, les taux observés correspondent à la spec (en tenant compte des garanties).
 - [x] Deux ouvertures simultanées ne consomment pas plus de paquets que disponible.
 - [x] Les numéros d'exemplaire sont uniques et consécutifs par personnage.
-- [ ] L'album affiche possédés et manquants, avec filtres et progression par série.
+- [x] L'album affiche possédés et manquants, avec filtres (rareté, type, possession, recherche) et progression globale et par rareté. Progression par série : repoussée (voir MVP).
 
 ---
 

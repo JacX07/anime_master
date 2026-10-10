@@ -134,6 +134,21 @@ body {
   to { transform: translateX(-50%) scale(1); }
 }
 
+/* Manquant (album) : image grisée et floutée, « ? » au centre */
+.card[data-missing] { border-color: #2a2a3d; background: var(--panel); }
+.card[data-missing] .card-art { filter: grayscale(1) blur(6px) brightness(0.45); transform: scale(1.08); }
+.card[data-missing] .card-name { color: #a1a1b5; }
+.card-unknown {
+  position: absolute;
+  inset: 0 0 20%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  font-size: 30cqw;
+  font-weight: 900;
+  color: rgb(255 255 255 / 0.18);
+}
+
 /* Holo : reflet arc-en-ciel animé */
 .card[data-finish="HOLO"]::after {
   content: "";
@@ -213,4 +228,22 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .flip-inner { transition: none; }
   .card::after { animation: none !important; }
+}
+
+/* Étiquette de finition (fiche perso) */
+.finish-tag {
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgb(255 255 255 / 0.08);
+  color: #c4c4d4;
+}
+.finish-tag[data-finish="HOLO"] {
+  color: #0b0b12;
+  background: linear-gradient(90deg, #ff8fa3, #ffe08a, #86efac, #7dd3fc, #d8b4fe);
+}
+.finish-tag[data-finish="GOLD"] {
+  color: #0b0b12;
+  background: linear-gradient(90deg, #fde68a, #f59e0b, #fef3c7);
 }

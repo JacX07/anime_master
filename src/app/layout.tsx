@@ -32,6 +32,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/packs" className="text-sm text-muted hover:text-foreground">
               Paquets
             </Link>
+            <Link href="/album" className="text-sm text-muted hover:text-foreground">
+              Album
+            </Link>
             <div className="ml-auto">
               <Suspense fallback={null}>
                 <UserMenu />
