@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { ConcurrentOpeningError, NoPackAvailableError, openPack, type OpenedPack } from "@/lib/packs";
 import { getSessionUser } from "@/lib/session";
 
@@ -9,7 +10,9 @@ export async function openPackAction(): Promise<OpenPackResult> {
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
-    return { ok: true, pack: await openPack(user.id) };
+    const pack = await openPack(user.id);
+    revalidatePath("/album"); // l'album affiche les nouvelles cartes à la prochaine visite
+    return { ok: true, pack };
   } catch (err) {
     if (err instanceof NoPackAvailableError) return { ok: false, error: "Aucun paquet disponible pour l'instant." };
     if (err instanceof ConcurrentOpeningError) return { ok: false, error: "Un paquet est déjà en cours d'ouverture." };

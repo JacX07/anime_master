@@ -269,14 +269,15 @@ a.album-bump {
   font-weight: 700;
 }
 
-/* Page Paquets : la scène 3D occupe tout l'écran et le menu du haut flotte dessus, dans le style de la maquette */
-body:has(.scene-page) {
+/* Page Paquets : la scène 3D occupe tout l'écran et le menu du haut flotte dessus, dans le style de la maquette.
+   La classe est posée par ImmersiveOpener tant qu'il est affiché (Next garde les pages quittées en mémoire, d'où pas de :has). */
+body.scene-active {
   overflow: hidden;
 }
-body:has(.scene-page) > footer {
+body.scene-active > footer {
   display: none;
 }
-body:has(.scene-page) > header {
+body.scene-active > header {
   position: absolute;
   inset: 0 0 auto 0;
   z-index: 20;
@@ -285,36 +286,36 @@ body:has(.scene-page) > header {
   color: #0d1b2a;
   font-family: var(--font-sora), var(--font-geist-sans), sans-serif;
 }
-body:has(.scene-page) > header .site-logo {
+body.scene-active > header .site-logo {
   font-family: var(--font-michroma), var(--font-geist-sans), sans-serif;
   font-size: 18px;
   font-weight: 400;
   letter-spacing: 0.08em;
 }
-body:has(.scene-page) > header .site-logo span {
+body.scene-active > header .site-logo span {
   color: #2b6cff;
 }
-body:has(.scene-page) > header .site-link {
+body.scene-active > header .site-link {
   padding: 8px 14px;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   color: #0d1b2a99;
 }
-body:has(.scene-page) > header .site-link:hover {
+body.scene-active > header .site-link:hover {
   color: #2b6cff;
 }
-body:has(.scene-page) > header a[href="/packs"] {
+body.scene-active > header a[href="/packs"] {
   color: #0d1b2a;
   box-shadow: inset 0 -2px 0 #2b6cff;
 }
-body:has(.scene-page) > header .album-badge {
+body.scene-active > header .album-badge {
   background: #2b6cff;
 }
-body:has(.scene-page) > header form,
-body:has(.scene-page) > header form button {
+body.scene-active > header form,
+body.scene-active > header form button {
   color: #0d1b2a;
 }
-body:has(.scene-page) > header form button {
+body.scene-active > header form button {
   opacity: 0.6;
 }

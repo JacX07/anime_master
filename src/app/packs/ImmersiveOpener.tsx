@@ -81,6 +81,13 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
     };
   }, [initialState]);
 
+  // Menu flottant et plein écran uniquement tant que la scène est affichée (l'effet est coupé quand on quitte la page)
+  useEffect(() => {
+    if (unsupported) return;
+    document.body.classList.add("scene-active");
+    return () => document.body.classList.remove("scene-active");
+  }, [unsupported]);
+
   // Sans WebGL (ou en cas d'échec de la scène), on retombe sur l'ouverture classique
   if (unsupported) {
     return (

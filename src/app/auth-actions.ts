@@ -2,6 +2,7 @@
 
 import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { PASSWORD_MIN, USERNAME_MAX, USERNAME_MIN, auth } from "@/lib/auth";
 
@@ -50,6 +51,7 @@ export async function signUp(_prev: AuthFormState, form: FormData): Promise<Auth
   } catch (err) {
     return { error: describe(err), values };
   }
+  revalidatePath("/", "layout"); // aucune page du compte précédent ne doit rester en cache
   redirect("/packs");
 }
 
@@ -61,10 +63,12 @@ export async function signIn(_prev: AuthFormState, form: FormData): Promise<Auth
   } catch (err) {
     return { error: describe(err), values: { email } };
   }
+  revalidatePath("/", "layout");
   redirect("/packs");
 }
 
 export async function signOut() {
   await auth.api.signOut({ headers: await headers() });
+  revalidatePath("/", "layout");
   redirect("/");
 }
