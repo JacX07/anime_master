@@ -1,5 +1,5 @@
 // Moteur de la DA cyber futuriste : décor, HUD, son, cinématique UR, ligne de cartes.
-// Chaque variante (capsules, noyaux, portail) ne décrit que l'apparition et l'ouverture de ses objets.
+// La variante retenue (noyaux de données) décrit l'apparition et l'ouverture des objets ; le moteur gère le reste.
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -13,9 +13,7 @@ import { futurAudio } from "./audio.js";
 import { buildCapsule } from "./capsule.js";
 
 export const MODES = [
-  { id: "capsules", name: "Capsules de stase" },
   { id: "noyaux", name: "Noyaux de données" },
-  { id: "portail", name: "Portail" },
 ];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CARD_W = 1.4, CARD_H = 1.96;
@@ -79,9 +77,13 @@ export async function start(modeId) {
   const glowTex = canvasTex(512, 640, (g, w, h) => { g.shadowColor = "#fff"; g.shadowBlur = 60; g.fillStyle = "#fff"; g.beginPath(); g.roundRect(130, 140, w - 260, h - 280, 30); g.fill(); g.fill(); });
   const holoTex = canvasTex(512, 512, (g, w, h) => { const hues = ["#ff5fd8", "#ffd84a", "#5ff2c8", "#5fb8ff", "#a77dff"]; g.lineWidth = 7; for (let i = -h; i < w + h; i += 46) { const gr = g.createLinearGradient(i, 0, i + h, h); hues.forEach((c, k) => gr.addColorStop(k / 4, c)); g.strokeStyle = gr; g.globalAlpha = 0.55; g.beginPath(); g.moveTo(i, 0); g.lineTo(i + h, h); g.stroke(); } });
   holoTex.wrapS = holoTex.wrapT = THREE.RepeatWrapping;
-  const glossTex = canvasTex(512, 512, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h * 0.5); gr.addColorStop(0.3, "#ffffff00"); gr.addColorStop(0.5, "#ffffffcc"); gr.addColorStop(0.7, "#ffffff00"); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+  const reflectMat = (map) => new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.DoubleSide, uniforms: { map: { value: map }, uOpacity: { value: 0.32 } },
+    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform sampler2D map; uniform float uOpacity; varying vec2 vUv;
+      void main() { vec4 t = texture2D(map, vUv); gl_FragColor = vec4(t.rgb, t.a * uOpacity * clamp(1.0 - vUv.y * 1.7, 0.0, 1.0)); }`,
+  });
   let backTex = null;
-  const cards = new Set(); // toutes les cartes affichées (reflets et balancement)
   const scanMat = (map, color) => new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, uniforms: { map: { value: map }, uProg: { value: 0 }, uColor: { value: new THREE.Color(color) } },
     vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
@@ -94,19 +96,15 @@ export async function start(modeId) {
     const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
     const geo = new THREE.PlaneGeometry(CARD_W, CARD_H);
     const map = painter.drawFront(c);
-    // Matériau éclairé (vernis + reflets de l'environnement) ; l'émissif garde les couleurs de l'illustration fidèles
-    const basic = new THREE.MeshPhysicalMaterial({ map, transparent: true, color: new THREE.Color(0.55, 0.55, 0.55), emissive: "#ffffff", emissiveMap: map, emissiveIntensity: 0.5,
-      roughness: 0.3, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 3.2 });
+    const basic = new THREE.MeshBasicMaterial({ map, transparent: true });
     const front = new THREE.Mesh(geo, basic); body.add(front);
-    // Reflet en bande qui glisse quand la carte s'incline
-    const gloss = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: glossTex.clone(), transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
-    gloss.material.map.wrapS = THREE.RepeatWrapping; gloss.material.map.needsUpdate = true; gloss.position.z = 0.004; gloss.visible = false; body.add(gloss);
+    // Reflet au sol : copie retournée sous la carte, qui s'estompe vers le bas (affichée une fois la carte matérialisée)
+    const reflection = new THREE.Mesh(geo, reflectMat(map)); reflection.scale.y = -1; reflection.position.y = -CARD_H - 0.1; reflection.visible = false; body.add(reflection);
     const back = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: backTex, transparent: true })); back.rotation.y = Math.PI; body.add(back);
     let holo = null;
     if (c.holo) { holo = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: holoTex.clone(), transparent: true, opacity: 0.28, color: new THREE.Color(0.6, 0.6, 0.6), blending: THREE.AdditiveBlending, depthWrite: false })); holo.position.z = 0.003; holo.material.map.wrapS = holo.material.map.wrapT = THREE.RepeatWrapping; holo.visible = false; body.add(holo); }
     const halo = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W * 2, CARD_H * 1.78), new THREE.MeshBasicMaterial({ map: glowTex, color: RC[c.rarity], transparent: true, opacity: 0, depthWrite: false })); halo.position.z = -0.02; body.add(halo);
-    root.userData = { c, body, front, basic, map, holo, halo, gloss, hoverK: 0, state: "focus", seed: Math.random() * 6 };
-    cards.add(root);
+    root.userData = { c, body, front, basic, map, holo, halo, reflection, hoverK: 0, state: "focus" };
     front.userData.card = root;
     return root;
   }
@@ -114,7 +112,7 @@ export async function start(modeId) {
     const u = card.userData, mat = scanMat(u.map, RC[u.c.rarity]);
     u.front.material = mat; card.visible = true;
     await tween(dur, (k) => (mat.uniforms.uProg.value = k), (k) => k);
-    u.front.material = u.basic; mat.dispose(); if (u.holo) u.holo.visible = true; u.gloss.visible = true;
+    u.front.material = u.basic; mat.dispose(); if (u.holo) u.holo.visible = true; u.reflection.visible = true;
   }
 
   // Animation et effets
@@ -220,7 +218,7 @@ export async function start(modeId) {
   }
 
   // Rangement : la carte se dissout du haut vers le bas (comme elle s'était formée) et ses particules filent vers « Album »
-  const dropCard = (c) => { scene.remove(c); cards.delete(c); };
+  const dropCard = (c) => scene.remove(c);
   const albumWorld = () => {
     const r = albumEl.getBoundingClientRect();
     const v = new THREE.Vector3(((r.left + r.width / 2) / innerWidth) * 2 - 1, -((r.top + r.height / 2) / innerHeight) * 2 + 1, 0.5).unproject(camera);
@@ -244,7 +242,7 @@ export async function start(modeId) {
     pts.frustumCulled = false; scene.add(pts);
     // La carte se « dé-scanne » : le motif de matérialisation à l'envers
     const mat = scanMat(u.map, RC[u.c.rarity]); mat.uniforms.uProg.value = 1; u.front.material = mat;
-    u.halo.visible = false; if (u.holo) u.holo.visible = false; u.gloss.visible = false;
+    u.halo.visible = false; if (u.holo) u.holo.visible = false; u.reflection.visible = false;
     const arrived = new Set(); let first = true;
     await tween(DUR, (k) => {
       const t = k * DUR, target = albumWorld();
@@ -328,19 +326,13 @@ export async function start(modeId) {
     }
     fxLight.intensity *= Math.pow(0.08, dt);
     capsule?.update(dt, time, mouseSmooth);
-    for (const card of cards) { // balancement lent : fait glisser les reflets sur la carte
-      const u = card.userData; if (u.state === "leaving") continue;
-      const sway = Math.sin(time * 0.9 + u.seed);
-      u.gloss.material.map.offset.x = sway * 0.35 + mouse.x * 0.25 + u.hoverK * 0.2; u.gloss.material.opacity = 0.2 + (sway * 0.5 + 0.5) * 0.4 + u.hoverK * 0.3;
-      if (u.state === "focus") { u.body.rotation.y = sway * 0.16; u.body.rotation.x = Math.sin(time * 0.7 + u.seed) * 0.05; }
-    }
     for (const card of line) {
       const u = card.userData; if (u.state === "leaving") continue;
       u.hoverK += ((card === hoverCard ? 1 : 0) - u.hoverK) * Math.min(1, dt * 10);
       if (u.state === "line") {
         u.body.scale.setScalar(1 + u.hoverK * 0.12);
         if (u.landT !== undefined && u.landT < 0.6) { u.landT += sdt; const sq = 0.16 * Math.exp(-u.landT * 9) * Math.cos(u.landT * 26); u.body.scale.x *= 1 + sq; u.body.scale.y *= 1 - sq * 0.7; }
-        u.body.position.y = u.hoverK * 0.25; u.body.rotation.x = u.hoverK * -mouse.y * 0.25 + Math.sin(time * 0.7 + u.seed) * 0.04; u.body.rotation.y = u.hoverK * mouse.x * 0.35 + Math.sin(time * 0.9 + u.seed) * 0.14;
+        u.body.position.y = u.hoverK * 0.25; u.body.rotation.x = u.hoverK * -mouse.y * 0.25; u.body.rotation.y = u.hoverK * mouse.x * 0.35;
         u.halo.material.opacity = 0.12 + u.hoverK * 0.5;
       }
       if (u.holo) u.holo.material.map.offset.set(time * 0.15 + mouse.x * 0.3, mouse.y * 0.3);

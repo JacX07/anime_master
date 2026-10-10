@@ -40,7 +40,7 @@
   .right { margin-left: auto; display: flex; gap: 10px; }
   .btn { font: 600 14px var(--font-body); color: var(--ink); background: var(--btn); border: 1.5px solid var(--btn-line); border-radius: 12px; padding: 9px 16px; cursor: pointer; backdrop-filter: blur(8px); transition: border-color .2s, box-shadow .2s; }
   .btn:hover { border-color: var(--accent); box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent); }
-  .btn:focus-visible, .booster:focus-visible, .themes a:focus-visible { outline: 3px solid var(--hl); outline-offset: 4px; }
+  .btn:focus-visible, .booster:focus-visible { outline: 3px solid var(--hl); outline-offset: 4px; }
   .btn.primary { background: var(--btn-primary); color: var(--btn-primary-ink); border-color: transparent; font-size: 16px; padding: 12px 22px; }
 
   .hud { position: absolute; top: 76px; right: 28px; width: 270px; background: var(--panel); border: 1.5px solid var(--panel-line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; backdrop-filter: blur(10px); }
@@ -105,12 +105,9 @@
   .ur.out { animation: out .45s ease-in forwards; }
   @keyframes out { to { opacity: 0; scale: 1.08; } }
 
-  /* Sélecteur de thème (maquette uniquement) */
-  .themes { position: absolute; left: 50%; translate: -50% 0; top: 70px; display: flex; gap: 6px; padding: 6px; border-radius: 14px; background: #0008; backdrop-filter: blur(8px); z-index: 5; }
-  .themes a { font: 600 12px system-ui, sans-serif; color: #fffc; text-decoration: none; padding: 6px 10px; border-radius: 9px; }
-  .themes a[aria-current] { background: #fff; color: #111; }
 
-  @media (max-width: 760px) { .hud { display: none; } .ur .stage { grid-template-columns: 1fr; text-align: center; } .ur .art { width: 60vw; } .themes { top: 60px; } }
+
+  @media (max-width: 760px) { .hud { display: none; } .ur .stage { grid-template-columns: 1fr; text-align: center; } .ur .art { width: 60vw; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 </style>
 <style id="theme-css"></style>
@@ -140,7 +137,6 @@
   <div class="vig"></div>
   <div class="vignette" id="vignette"></div>
   <div class="flash" id="flash"></div>
-  <nav class="themes" id="themes" aria-label="Variantes de révélation"></nav>
   <div class="ur" id="urScreen" hidden role="dialog" aria-label="Ultra rare obtenu">
     <div class="rays"></div>
     <div class="stage">
@@ -153,8 +149,7 @@
 </div>
 <script type="module">
 import { start, MODES } from "./futur/engine.js";
-const id = new URLSearchParams(location.search).get("reveal") ?? MODES[0].id;
-document.getElementById("themes").innerHTML = MODES.map((m) => `<a href="?reveal=${m.id}"${m.id === id ? ' aria-current="page"' : ""}>${m.name}</a>`).join("");
+const id = MODES[0].id;
 start(id).catch((e) => { console.error(e); document.title = "ERREUR : " + (e?.stack ?? e).toString().slice(0, 300); });
 </script>
 </body>
