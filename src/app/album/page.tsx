@@ -1,29 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CharacterCard } from "@/components/CharacterCard";
 import { BuyPackButton } from "@/components/BuyPackButton";
-import { getPackState } from "@/lib/packs";
+import { CharacterCard } from "@/components/CharacterCard";
+import { SceneBody } from "@/components/SceneBody";
 import { getAlbum, parseAlbumFilters, RARITY_ORDER, type AlbumFilters as Filters } from "@/lib/album";
+import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
-import { AlbumFilters } from "./AlbumFilters";
+import { AlbumFilters, albumHref } from "./AlbumFilters";
 import { DuplicateSale } from "./DuplicateSale";
 
 export const metadata: Metadata = { title: "Album — Anime Masters" };
 
+const num = new Intl.NumberFormat("fr-FR");
+const pct = (a: number, b: number) => (b ? Math.floor((a / b) * 1000) / 10 : 0);
+
+// Album « vitrine » : même nuit que l'accueil, cartes qui se soulèvent au survol, résumé dans une barre d'état en bas.
 export default function AlbumPage({ searchParams }: PageProps<"/album">) {
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-      <h1 className="mb-6 text-2xl font-bold">Album</h1>
-      <Suspense fallback={<p className="text-muted">Chargement…</p>}>
+    <main className="vt">
+      <SceneBody night scroll />
+      <Suspense fallback={<p className="vt-inner text-muted">Chargement…</p>}>
         <Album searchParams={searchParams} />
       </Suspense>
     </main>
   );
 }
-
-const pct = (a: number, b: number) => (b ? Math.floor((a / b) * 1000) / 10 : 0);
 
 async function Album({ searchParams }: { searchParams: PageProps<"/album">["searchParams"] }) {
   const user = await requireUser();
@@ -35,84 +38,75 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
   const { progress } = album;
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="flex flex-wrap items-end gap-x-8 gap-y-3 rounded-2xl bg-panel p-5">
-        <div>
-          <div className="text-3xl font-extrabold tabular-nums">
-            {progress.owned} <span className="text-base font-medium text-muted">/ {progress.total} personnages</span>
-          </div>
-          <div className="mt-2 h-2 w-64 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-violet-400" style={{ width: `${pct(progress.owned, progress.total)}%` }} />
-          </div>
-          <div className="mt-1 text-sm text-muted">{pct(progress.owned, progress.total)} % de complétion</div>
+    <>
+      <div className="vt-inner">
+        <header>
+          <h1 className="vt-title">Album</h1>
+          <p className="vt-sub">
+            {num.format(progress.owned)} personnages sur {num.format(progress.total)}
+          </p>
+        </header>
+
+        <AlbumFilters filters={filters} />
+        <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
+
+        <p className="vt-count">
+          {album.matching} personnage{album.matching > 1 ? "s" : ""}
+        </p>
+
+        {album.entries.length === 0 ? (
+          <p className="vt-empty">Aucun personnage ne correspond à ces filtres.</p>
+        ) : (
+          <ul className="vt-grid">
+            {album.entries.map((e) => (
+              <li key={e.id}>
+                <Link href={`/character/${e.id}`} className="vt-card" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
+                  <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <Pagination filters={filters} pages={album.pages} />
+      </div>
+
+      <footer className="vt-status" aria-label="Ta collection">
+        <div className="vt-progress">
+          <span>
+            {num.format(progress.owned)} / {num.format(progress.total)}
+          </span>
+          <span className="vt-bar" role="img" aria-label={`${pct(progress.owned, progress.total)} % de complétion`}>
+            <i style={{ width: `${pct(progress.owned, progress.total)}%` }} />
+          </span>
+          <span className="vt-muted">{pct(progress.owned, progress.total)} %</span>
         </div>
-        <div>
-          <div className="text-3xl font-extrabold tabular-nums">⚡ {new Intl.NumberFormat("fr-FR").format(packs.collectionPower)}</div>
-          <div className="mt-1 text-sm text-muted">Puissance totale de la collection</div>
-        </div>
-        <div className="ml-auto">
-          <BuyPackButton price={packs.packPrice} left={packs.purchasesLeft} balance={packs.balance} available={packs.available} />
-        </div>
-        <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm tabular-nums">
+        <ul className="vt-rarities">
           {RARITY_ORDER.map((r) => (
             <li key={r}>
-              <b style={{ color: `var(--rarity-${r})` }}>{r}</b>{" "}
-              <span className="text-muted">
-                {progress.byRarity[r].owned}/{progress.byRarity[r].total}
-              </span>
+              <b style={{ color: `var(--rarity-${r})` }}>{r}</b> {progress.byRarity[r].owned}/{progress.byRarity[r].total}
             </li>
           ))}
         </ul>
-      </section>
-
-      <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
-
-      <AlbumFilters filters={filters} />
-
-      <p className="text-sm text-muted">
-        {album.matching} personnage{album.matching > 1 ? "s" : ""}
-      </p>
-
-      {album.entries.length === 0 ? (
-        <p className="py-16 text-center text-muted">Aucun personnage ne correspond à ces filtres.</p>
-      ) : (
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {album.entries.map((e) => (
-            <li key={e.id}>
-              <Link href={`/character/${e.id}`} className="block rounded-xl transition-transform hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-violet-400">
-                <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <Pagination filters={filters} pages={album.pages} />
-    </div>
+        <span className="vt-power" title="Puissance totale de la collection">
+          ⚡ {num.format(packs.collectionPower)}
+        </span>
+        <BuyPackButton price={packs.packPrice} left={packs.purchasesLeft} balance={packs.balance} available={packs.available} />
+      </footer>
+    </>
   );
 }
 
 function Pagination({ filters, pages }: { filters: Filters; pages: number }) {
   if (pages <= 1) return null;
-  const href = (page: number) => {
-    const p = new URLSearchParams();
-    if (filters.q) p.set("q", filters.q);
-    if (filters.rarity) p.set("rarity", filters.rarity);
-    if (filters.type) p.set("type", filters.type);
-    if (filters.owned !== "all") p.set("owned", filters.owned);
-    if (page > 1) p.set("page", String(page));
-    const s = p.toString();
-    return s ? `/album?${s}` : "/album";
-  };
   const page = Math.min(filters.page, pages);
-  const link = "rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold hover:bg-white/5";
   return (
-    <nav className="flex items-center justify-center gap-3" aria-label="Pagination">
-      {page > 1 ? <Link href={href(page - 1)} className={link}>← Précédent</Link> : <span className={`${link} opacity-40`}>← Précédent</span>}
-      <span className="text-sm tabular-nums text-muted">
-        Page {page} / {pages}
+    <nav className="vt-pager" aria-label="Pagination">
+      {page > 1 ? <Link href={albumHref(filters, { page: page - 1 })}>Précédent</Link> : <span aria-disabled="true">Précédent</span>}
+      <span className="vt-muted">
+        Page {page} sur {pages}
       </span>
-      {page < pages ? <Link href={href(page + 1)} className={link}>Suivant →</Link> : <span className={`${link} opacity-40`}>Suivant →</span>}
+      {page < pages ? <Link href={albumHref(filters, { page: page + 1 })}>Suivant</Link> : <span aria-disabled="true">Suivant</span>}
     </nav>
   );
 }

@@ -13,24 +13,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "scenemessage",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
       "source_location": "L16"
-    },
-    {
-      "id": "src_lib_packs_openedcard",
-      "label": "OpenedCard",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
-      "file_type": "code",
-      "norm_label": "openedcard",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L22"
     },
     {
       "id": "src_app_character_id_copyactions_props",
@@ -38,8 +25,8 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "props",
       "source_file": "src/app/character/[id]/CopyActions.tsx",
@@ -51,12 +38,142 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "actionresult",
       "source_file": "src/app/economy-actions.ts",
       "source_location": "L17"
+    },
+    {
+      "id": "src_app_packs_actions_buypackresult",
+      "label": "BuyPackResult",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "buypackresult",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "src_app_packs_actions_openpackresult",
+      "label": "OpenPackResult",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "openpackresult",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "src_lib_collection_carddb",
+      "label": "CardDb",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "carddb",
+      "source_file": "src/lib/collection.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_lib_pack_stock_packstock",
+      "label": "packStock",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "packstock",
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "src_lib_packs_concurrentopeningerror",
+      "label": "ConcurrentOpeningError",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "concurrentopeningerror",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "src_lib_packs_nopackavailableerror",
+      "label": "NoPackAvailableError",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "nopackavailableerror",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "src_lib_packs_openedpack",
+      "label": "OpenedPack",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "openedpack",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "src_lib_packs_playerpackstate",
+      "label": "PlayerPackState",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "playerpackstate",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "src_lib_pull_pitytrigger",
+      "label": "PityTrigger",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "pitytrigger",
+      "source_file": "src/lib/pull.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "src_lib_summary_playersummary",
+      "label": "PlayerSummary",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "playersummary",
+      "source_file": "src/lib/summary.ts",
+      "source_location": "L8"
     },
     {
       "id": "src_lib_wallet_saleerror",
@@ -64,8 +181,8 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "saleerror",
       "source_file": "src/lib/wallet.ts",
@@ -77,51 +194,12 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "salepreview",
       "source_file": "src/lib/wallet.ts",
       "source_location": "L48"
-    },
-    {
-      "id": "src_lib_collection_carddb",
-      "label": "CardDb",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "carddb",
-      "source_file": "src/lib/collection.ts",
-      "source_location": "L5"
-    },
-    {
-      "id": "src_lib_packs_playerpackstate",
-      "label": "PlayerPackState",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "playerpackstate",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L39"
-    },
-    {
-      "id": "src_lib_summary_playersummary",
-      "label": "PlayerSummary",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "playersummary",
-      "source_file": "src/lib/summary.ts",
-      "source_location": "L8"
     },
     {
       "id": "src_lib_wallet_wallet",
@@ -129,12 +207,25 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "wallet",
       "source_file": "src/lib/wallet.ts",
       "source_location": "L11"
+    },
+    {
+      "id": "src_components_charactercard_charactercardprops",
+      "label": "CharacterCardProps",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "charactercardprops",
+      "source_file": "src/components/CharacterCard.tsx",
+      "source_location": "L5"
     },
     {
       "id": "src_lib_album_albumentry",
@@ -176,6 +267,19 @@
       "source_location": "L82"
     },
     {
+      "id": "src_lib_album_characterdetail",
+      "label": "CharacterDetail",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "characterdetail",
+      "source_file": "src/lib/album.ts",
+      "source_location": "L149"
+    },
+    {
       "id": "src_lib_album_ownedfilter",
       "label": "OwnedFilter",
       "_callable": true,
@@ -187,6 +291,19 @@
       "norm_label": "ownedfilter",
       "source_file": "src/lib/album.ts",
       "source_location": "L13"
+    },
+    {
+      "id": "src_lib_album_ownership",
+      "label": "Ownership",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "ownership",
+      "source_file": "src/lib/album.ts",
+      "source_location": "L44"
     },
     {
       "id": "src_lib_album_rawparams",
@@ -202,82 +319,43 @@
       "source_location": "L25"
     },
     {
-      "id": "src_app_packs_actions_openpackresult",
-      "label": "OpenPackResult",
+      "id": "src_lib_economy_sellablecopy",
+      "label": "SellableCopy",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
+      "community": 3,
+      "community_name": "album.ts",
       "file_type": "code",
-      "norm_label": "openpackresult",
-      "source_file": "src/app/packs/actions.ts",
-      "source_location": "L7"
+      "norm_label": "sellablecopy",
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L33"
     },
     {
-      "id": "src_lib_pack_stock_packstock",
-      "label": "packStock",
+      "id": "src_lib_packs_openedcard",
+      "label": "OpenedCard",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
+      "community": 3,
+      "community_name": "album.ts",
       "file_type": "code",
-      "norm_label": "packstock",
-      "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L17"
-    },
-    {
-      "id": "src_lib_packs_concurrentopeningerror",
-      "label": "ConcurrentOpeningError",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "concurrentopeningerror",
+      "norm_label": "openedcard",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L16"
+      "source_location": "L23"
     },
     {
-      "id": "src_lib_packs_nopackavailableerror",
-      "label": "NoPackAvailableError",
+      "id": "src_lib_pull_finish",
+      "label": "Finish",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
+      "community": 3,
+      "community_name": "album.ts",
       "file_type": "code",
-      "norm_label": "nopackavailableerror",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_lib_packs_openedpack",
-      "label": "OpenedPack",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "openedpack",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L48"
-    },
-    {
-      "id": "src_lib_pull_pitytrigger",
-      "label": "PityTrigger",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "pitytrigger",
+      "norm_label": "finish",
       "source_file": "src/lib/pull.ts",
-      "source_location": "L29"
+      "source_location": "L21"
     },
     {
       "id": "scripts_import_kept",
@@ -501,71 +579,6 @@
       "source_location": "L32"
     },
     {
-      "id": "src_components_charactercard_charactercardprops",
-      "label": "CharacterCardProps",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "charactercardprops",
-      "source_file": "src/components/CharacterCard.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "src_lib_album_characterdetail",
-      "label": "CharacterDetail",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "characterdetail",
-      "source_file": "src/lib/album.ts",
-      "source_location": "L149"
-    },
-    {
-      "id": "src_lib_album_ownership",
-      "label": "Ownership",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "ownership",
-      "source_file": "src/lib/album.ts",
-      "source_location": "L44"
-    },
-    {
-      "id": "src_lib_economy_sellablecopy",
-      "label": "SellableCopy",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "sellablecopy",
-      "source_file": "src/lib/economy.ts",
-      "source_location": "L25"
-    },
-    {
-      "id": "src_lib_pull_finish",
-      "label": "Finish",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "finish",
-      "source_file": "src/lib/pull.ts",
-      "source_location": "L21"
-    },
-    {
       "id": "public_pack_opening_futur_audio_futuraudio",
       "label": "futurAudio()",
       "_callable": true,
@@ -743,7 +756,7 @@
       "file_type": "code",
       "norm_label": "checkstored()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L328"
+      "source_location": "L353"
     },
     {
       "id": "public_pack_opening_futur_engine_start_finish",
@@ -755,7 +768,7 @@
       "file_type": "code",
       "norm_label": "finish()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L274"
+      "source_location": "L299"
     },
     {
       "id": "public_pack_opening_futur_engine_start_hud",
@@ -815,7 +828,19 @@
       "file_type": "code",
       "norm_label": "openbooster()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L240"
+      "source_location": "L265"
+    },
+    {
+      "id": "public_pack_opening_futur_engine_start_requestbuy",
+      "label": "requestBuy()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "engine.js",
+      "file_type": "code",
+      "norm_label": "requestbuy()",
+      "source_file": "public/pack-opening/futur/engine.js",
+      "source_location": "L242"
     },
     {
       "id": "public_pack_opening_futur_engine_start_requestpack",
@@ -827,7 +852,7 @@
       "file_type": "code",
       "norm_label": "requestpack()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L228"
+      "source_location": "L253"
     },
     {
       "id": "public_pack_opening_futur_engine_start_reveal",
@@ -839,7 +864,7 @@
       "file_type": "code",
       "norm_label": "reveal()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L257"
+      "source_location": "L282"
     },
     {
       "id": "public_pack_opening_futur_engine_start_revealall",
@@ -851,7 +876,7 @@
       "file_type": "code",
       "norm_label": "revealall()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L333"
+      "source_location": "L358"
     },
     {
       "id": "public_pack_opening_futur_engine_start_sendall",
@@ -863,7 +888,7 @@
       "file_type": "code",
       "norm_label": "sendall()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L324"
+      "source_location": "L349"
     },
     {
       "id": "public_pack_opening_futur_engine_start_toalbum",
@@ -875,7 +900,7 @@
       "file_type": "code",
       "norm_label": "toalbum()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L289"
+      "source_location": "L314"
     },
     {
       "id": "public_pack_opening_futur_engine_start_urcinematic",
@@ -899,7 +924,7 @@
       "file_type": "code",
       "norm_label": "warmup()",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L439"
+      "source_location": "L464"
     },
     {
       "id": "public_pack_opening_futur_menu_start",
@@ -1178,16 +1203,40 @@
       "source_location": "L127"
     },
     {
+      "id": "src_app_layout_rootlayout",
+      "label": "RootLayout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "rootlayout()",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L28"
+    },
+    {
+      "id": "src_app_packs_actions_buypackaction",
+      "label": "buyPackAction()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "buypackaction()",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L30"
+    },
+    {
       "id": "src_app_packs_actions_openpackaction",
       "label": "openPackAction()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "openpackaction()",
       "source_file": "src/app/packs/actions.ts",
-      "source_location": "L9"
+      "source_location": "L12"
     },
     {
       "id": "src_app_packs_immersiveopener_immersiveopener",
@@ -1195,7 +1244,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "immersiveopener()",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
@@ -1207,7 +1256,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "onmessage()",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
@@ -1219,7 +1268,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "formatduration()",
       "source_file": "src/app/packs/PackOpener.tsx",
@@ -1231,7 +1280,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "packopener()",
       "source_file": "src/app/packs/PackOpener.tsx",
@@ -1243,7 +1292,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "open()",
       "source_file": "src/app/packs/PackOpener.tsx",
@@ -1255,11 +1304,167 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "uselivestock()",
       "source_file": "src/app/packs/PackOpener.tsx",
       "source_location": "L11"
+    },
+    {
+      "id": "src_app_packs_page_packs",
+      "label": "Packs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "packs()",
+      "source_file": "src/app/packs/page.tsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "src_app_packs_page_packspage",
+      "label": "PacksPage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "packspage()",
+      "source_file": "src/app/packs/page.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_app_page_guest",
+      "label": "Guest()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "guest()",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L53"
+    },
+    {
+      "id": "src_app_page_home",
+      "label": "Home()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "home()",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_app_page_item",
+      "label": "Item()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "item()",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L35"
+    },
+    {
+      "id": "src_app_page_menu",
+      "label": "Menu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "menu()",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L68"
+    },
+    {
+      "id": "src_app_page_wordmark",
+      "label": "Wordmark()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "wordmark()",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L26"
+    },
+    {
+      "id": "src_components_albumlink_albumlink",
+      "label": "AlbumLink()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "albumlink()",
+      "source_file": "src/components/AlbumLink.tsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_components_menunav_menunav",
+      "label": "MenuNav()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "menunav()",
+      "source_file": "src/components/MenuNav.tsx",
+      "source_location": "L6"
+    },
+    {
+      "id": "src_components_menunav_menunav_onkeydown",
+      "label": "onKeyDown()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "onkeydown()",
+      "source_file": "src/components/MenuNav.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_components_scenebody_scenebody",
+      "label": "SceneBody()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "scenebody()",
+      "source_file": "src/components/SceneBody.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_components_sceneframe_sceneframe",
+      "label": "SceneFrame()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "sceneframe()",
+      "source_file": "src/components/SceneFrame.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_lib_session_requireuser",
+      "label": "requireUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "requireuser()",
+      "source_file": "src/lib/session.ts",
+      "source_location": "L21"
     },
     {
       "id": "public_pack_opening_futur_noyaux_builditem",
@@ -1346,12 +1551,132 @@
       "source_location": "L63"
     },
     {
+      "id": "scripts_check_economy_check",
+      "label": "check()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "check()",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L12"
+    },
+    {
+      "id": "scripts_check_economy_invariant",
+      "label": "invariant()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "invariant()",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "scripts_check_economy_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "scripts_check_economy_main_give",
+      "label": "give()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "give()",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "scripts_check_economy_rejects",
+      "label": "rejects()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "rejects()",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L16"
+    },
+    {
+      "id": "scripts_check_recharge_check",
+      "label": "check()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "check()",
+      "source_file": "scripts/check-recharge.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "scripts_check_recharge_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "scripts/check-recharge.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "scripts_check_recharge_minutesuntil",
+      "label": "minutesUntil()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "minutesuntil()",
+      "source_file": "scripts/check-recharge.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "scripts_check_recharge_near",
+      "label": "near()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "near()",
+      "source_file": "scripts/check-recharge.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "scripts_check_recharge_setstock",
+      "label": "setStock()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "setstock()",
+      "source_file": "scripts/check-recharge.ts",
+      "source_location": "L28"
+    },
+    {
       "id": "src_app_album_duplicatesale_duplicatesale",
       "label": "DuplicateSale()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "duplicatesale()",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -1362,8 +1687,8 @@
       "label": "sell()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "sell()",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -1374,8 +1699,8 @@
       "label": "toggle()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "toggle()",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -1386,20 +1711,32 @@
       "label": "CopyActions()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "copyactions()",
       "source_file": "src/app/character/[id]/CopyActions.tsx",
       "source_location": "L20"
     },
     {
+      "id": "src_app_character_id_page_character",
+      "label": "Character()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "character()",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L39"
+    },
+    {
       "id": "src_app_economy_actions_claimdailybonusaction",
       "label": "claimDailyBonusAction()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "claimdailybonusaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -1410,8 +1747,8 @@
       "label": "parseRarities()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "parserarities()",
       "source_file": "src/app/economy-actions.ts",
@@ -1422,8 +1759,8 @@
       "label": "previewDuplicatesAction()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "previewduplicatesaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -1434,8 +1771,8 @@
       "label": "run()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "run()",
       "source_file": "src/app/economy-actions.ts",
@@ -1446,8 +1783,8 @@
       "label": "sellCardAction()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "sellcardaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -1458,8 +1795,8 @@
       "label": "sellDuplicatesAction()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "sellduplicatesaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -1470,168 +1807,12 @@
       "label": "toggleLockAction()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "togglelockaction()",
       "source_file": "src/app/economy-actions.ts",
       "source_location": "L42"
-    },
-    {
-      "id": "src_lib_wallet_claimdailybonus",
-      "label": "claimDailyBonus()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "claimdailybonus()",
-      "source_file": "src/lib/wallet.ts",
-      "source_location": "L22"
-    },
-    {
-      "id": "src_lib_wallet_sellcard",
-      "label": "sellCard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "sellcard()",
-      "source_file": "src/lib/wallet.ts",
-      "source_location": "L89"
-    },
-    {
-      "id": "src_lib_wallet_setlocked",
-      "label": "setLocked()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "setlocked()",
-      "source_file": "src/lib/wallet.ts",
-      "source_location": "L34"
-    },
-    {
-      "id": "src_app_character_id_page_character",
-      "label": "Character()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "character()",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L39"
-    },
-    {
-      "id": "src_app_character_id_page_characterpage",
-      "label": "CharacterPage()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "characterpage()",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L21"
-    },
-    {
-      "id": "src_app_character_id_page_generatemetadata",
-      "label": "generateMetadata()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "generatemetadata()",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L15"
-    },
-    {
-      "id": "src_app_character_id_page_parseid",
-      "label": "parseId()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "parseid()",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L13"
-    },
-    {
-      "id": "scripts_check_economy_check",
-      "label": "check()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "check()",
-      "source_file": "scripts/check-economy.ts",
-      "source_location": "L10"
-    },
-    {
-      "id": "scripts_check_economy_invariant",
-      "label": "invariant()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "invariant()",
-      "source_file": "scripts/check-economy.ts",
-      "source_location": "L16"
-    },
-    {
-      "id": "scripts_check_economy_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "scripts/check-economy.ts",
-      "source_location": "L22"
-    },
-    {
-      "id": "scripts_check_economy_main_give",
-      "label": "give()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "give()",
-      "source_file": "scripts/check-economy.ts",
-      "source_location": "L30"
-    },
-    {
-      "id": "scripts_check_economy_rejects",
-      "label": "rejects()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "rejects()",
-      "source_file": "scripts/check-economy.ts",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_app_auth_actions_signout",
-      "label": "signOut()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "signout()",
-      "source_file": "src/app/auth-actions.ts",
-      "source_location": "L70"
     },
     {
       "id": "src_components_dailybonus_dailybonus",
@@ -1639,7 +1820,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "dailybonus()",
       "source_file": "src/components/DailyBonus.tsx",
@@ -1651,11 +1832,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "usermenu()",
       "source_file": "src/components/UserMenu.tsx",
       "source_location": "L10"
+    },
+    {
+      "id": "src_lib_collection_getcollectionpower",
+      "label": "getCollectionPower()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "getcollectionpower()",
+      "source_file": "src/lib/collection.ts",
+      "source_location": "L7"
     },
     {
       "id": "src_lib_economy_canclaimdailybonus",
@@ -1663,11 +1856,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "canclaimdailybonus()",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L21"
+      "source_location": "L29"
     },
     {
       "id": "src_lib_economy_pickduplicates",
@@ -1675,11 +1868,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "pickduplicates()",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L37"
+      "source_location": "L45"
+    },
+    {
+      "id": "src_lib_economy_purchasesleft",
+      "label": "purchasesLeft()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "purchasesleft()",
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L24"
     },
     {
       "id": "src_lib_economy_quicksellprice",
@@ -1687,11 +1892,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "quicksellprice()",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L12"
+      "source_location": "L14"
     },
     {
       "id": "src_lib_economy_startofday",
@@ -1699,11 +1904,131 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "startofday()",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L15"
+      "source_location": "L17"
+    },
+    {
+      "id": "src_lib_pack_stock_afteropening",
+      "label": "afterOpening()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "afteropening()",
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "src_lib_pack_stock_afterpurchase",
+      "label": "afterPurchase()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "afterpurchase()",
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "src_lib_packs_concurrentopeningerror_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": ".constructor()",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "src_lib_packs_getpackstate",
+      "label": "getPackState()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "getpackstate()",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L69"
+    },
+    {
+      "id": "src_lib_packs_nopackavailableerror_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": ".constructor()",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_lib_packs_openpack",
+      "label": "openPack()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "openpack()",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "src_lib_session_getsessionuser",
+      "label": "getSessionUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "getsessionuser()",
+      "source_file": "src/lib/session.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "src_lib_shop_buypack",
+      "label": "buyPack()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "buypack()",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "src_lib_summary_getplayersummary",
+      "label": "getPlayerSummary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "getplayersummary()",
+      "source_file": "src/lib/summary.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "src_lib_wallet_claimdailybonus",
+      "label": "claimDailyBonus()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "claimdailybonus()",
+      "source_file": "src/lib/wallet.ts",
+      "source_location": "L22"
     },
     {
       "id": "src_lib_wallet_duplicatesfor",
@@ -1711,7 +2036,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "duplicatesfor()",
       "source_file": "src/lib/wallet.ts",
@@ -1723,7 +2048,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "getwallet()",
       "source_file": "src/lib/wallet.ts",
@@ -1735,7 +2060,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "previewduplicatesale()",
       "source_file": "src/lib/wallet.ts",
@@ -1747,11 +2072,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "sell()",
       "source_file": "src/lib/wallet.ts",
       "source_location": "L74"
+    },
+    {
+      "id": "src_lib_wallet_sellcard",
+      "label": "sellCard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "sellcard()",
+      "source_file": "src/lib/wallet.ts",
+      "source_location": "L89"
     },
     {
       "id": "src_lib_wallet_sellduplicates",
@@ -1759,35 +2096,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "sellduplicates()",
       "source_file": "src/lib/wallet.ts",
       "source_location": "L96"
     },
     {
-      "id": "src_lib_collection_getcollectionpower",
-      "label": "getCollectionPower()",
+      "id": "src_lib_wallet_setlocked",
+      "label": "setLocked()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "code",
-      "norm_label": "getcollectionpower()",
-      "source_file": "src/lib/collection.ts",
-      "source_location": "L7"
-    },
-    {
-      "id": "src_lib_summary_getplayersummary",
-      "label": "getPlayerSummary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "getplayersummary()",
-      "source_file": "src/lib/summary.ts",
-      "source_location": "L19"
+      "norm_label": "setlocked()",
+      "source_file": "src/lib/wallet.ts",
+      "source_location": "L34"
     },
     {
       "id": "src_app_album_albumfilters_albumfilters",
@@ -1848,6 +2173,42 @@
       "norm_label": "pct()",
       "source_file": "src/app/album/page.tsx",
       "source_location": "L25"
+    },
+    {
+      "id": "src_app_character_id_page_characterpage",
+      "label": "CharacterPage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "characterpage()",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L21"
+    },
+    {
+      "id": "src_app_character_id_page_generatemetadata",
+      "label": "generateMetadata()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "generatemetadata()",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L15"
+    },
+    {
+      "id": "src_app_character_id_page_parseid",
+      "label": "parseId()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "parseid()",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L13"
     },
     {
       "id": "src_components_charactercard_charactercard",
@@ -1956,150 +2317,6 @@
       "norm_label": "cleandescription()",
       "source_file": "src/lib/clean.ts",
       "source_location": "L17"
-    },
-    {
-      "id": "scripts_check_recharge_check",
-      "label": "check()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "check()",
-      "source_file": "scripts/check-recharge.ts",
-      "source_location": "L15"
-    },
-    {
-      "id": "scripts_check_recharge_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "scripts/check-recharge.ts",
-      "source_location": "L32"
-    },
-    {
-      "id": "scripts_check_recharge_minutesuntil",
-      "label": "minutesUntil()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "minutesuntil()",
-      "source_file": "scripts/check-recharge.ts",
-      "source_location": "L20"
-    },
-    {
-      "id": "scripts_check_recharge_setstock",
-      "label": "setStock()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "setstock()",
-      "source_file": "scripts/check-recharge.ts",
-      "source_location": "L28"
-    },
-    {
-      "id": "src_app_packs_page_packs",
-      "label": "Packs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "packs()",
-      "source_file": "src/app/packs/page.tsx",
-      "source_location": "L19"
-    },
-    {
-      "id": "src_app_packs_page_packspage",
-      "label": "PacksPage()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "packspage()",
-      "source_file": "src/app/packs/page.tsx",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_lib_pack_stock_afteropening",
-      "label": "afterOpening()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "afteropening()",
-      "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L30"
-    },
-    {
-      "id": "src_lib_packs_concurrentopeningerror_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L17"
-    },
-    {
-      "id": "src_lib_packs_getpackstate",
-      "label": "getPackState()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "getpackstate()",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L56"
-    },
-    {
-      "id": "src_lib_packs_nopackavailableerror_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L10"
-    },
-    {
-      "id": "src_lib_packs_openpack",
-      "label": "openPack()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "openpack()",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L73"
-    },
-    {
-      "id": "src_lib_session_requireuser",
-      "label": "requireUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "requireuser()",
-      "source_file": "src/lib/session.ts",
-      "source_location": "L21"
     },
     {
       "id": "scripts_import_fetchall",
@@ -2378,6 +2595,18 @@
       "source_location": "L58"
     },
     {
+      "id": "src_app_auth_actions_signout",
+      "label": "signOut()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "next",
+      "file_type": "code",
+      "norm_label": "signout()",
+      "source_file": "src/app/auth-actions.ts",
+      "source_location": "L70"
+    },
+    {
       "id": "src_app_auth_actions_signup",
       "label": "signUp()",
       "_callable": true,
@@ -2436,126 +2665,6 @@
       "norm_label": "proxy()",
       "source_file": "src/proxy.ts",
       "source_location": "L7"
-    },
-    {
-      "id": "src_app_page_guest",
-      "label": "Guest()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "guest()",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L53"
-    },
-    {
-      "id": "src_app_page_home",
-      "label": "Home()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "home()",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_app_page_item",
-      "label": "Item()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "item()",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L35"
-    },
-    {
-      "id": "src_app_page_menu",
-      "label": "Menu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "menu()",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L68"
-    },
-    {
-      "id": "src_app_page_wordmark",
-      "label": "Wordmark()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "wordmark()",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L26"
-    },
-    {
-      "id": "src_components_menunav_menunav",
-      "label": "MenuNav()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "menunav()",
-      "source_file": "src/components/MenuNav.tsx",
-      "source_location": "L6"
-    },
-    {
-      "id": "src_components_menunav_menunav_onkeydown",
-      "label": "onKeyDown()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "onkeydown()",
-      "source_file": "src/components/MenuNav.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_components_scenebody_scenebody",
-      "label": "SceneBody()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "scenebody()",
-      "source_file": "src/components/SceneBody.tsx",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_components_sceneframe_sceneframe",
-      "label": "SceneFrame()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "sceneframe()",
-      "source_file": "src/components/SceneFrame.tsx",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_lib_session_getsessionuser",
-      "label": "getSessionUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "getsessionuser()",
-      "source_file": "src/lib/session.ts",
-      "source_location": "L13"
     },
     {
       "id": "scripts_simulate_expected",
@@ -2784,42 +2893,6 @@
       "norm_label": "main()",
       "source_file": ".claude/skills/create-game-assets/scripts/build_preview_sheet.py",
       "source_location": "L36"
-    },
-    {
-      "id": "src_app_layout_rootlayout",
-      "label": "RootLayout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "rootlayout()",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L28"
-    },
-    {
-      "id": "src_components_albumlink_albumlink",
-      "label": "AlbumLink()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "albumlink()",
-      "source_file": "src/components/AlbumLink.tsx",
-      "source_location": "L11"
-    },
-    {
-      "id": "scripts_check_recharge_near",
-      "label": "near()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "code",
-      "norm_label": "near()",
-      "source_file": "scripts/check-recharge.ts",
-      "source_location": "L24"
     },
     {
       "id": "public_pack_opening_futur_audio",
@@ -3120,11 +3193,77 @@
       "source_location": "L5"
     },
     {
+      "id": "src_app_layout",
+      "label": "layout.tsx",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "layout.tsx",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_layout_geistmono",
+      "label": "geistMono",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "geistmono",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_app_layout_geistsans",
+      "label": "geistSans",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "geistsans",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_app_layout_metadata",
+      "label": "metadata",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "metadata",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L23"
+    },
+    {
+      "id": "src_app_layout_michroma",
+      "label": "michroma",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "michroma",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L20"
+    },
+    {
+      "id": "src_app_layout_sora",
+      "label": "sora",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "sora",
+      "source_file": "src/app/layout.tsx",
+      "source_location": "L21"
+    },
+    {
       "id": "src_app_packs_immersiveopener",
       "label": "ImmersiveOpener.tsx",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "immersiveopener.tsx",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
@@ -3135,18 +3274,62 @@
       "label": "PackOpener.tsx",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "packopener.tsx",
       "source_file": "src/app/packs/PackOpener.tsx",
       "source_location": "L1"
     },
     {
+      "id": "src_app_packs_page",
+      "label": "packs/page.tsx",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "packs/page.tsx",
+      "source_file": "src/app/packs/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_packs_page_metadata",
+      "label": "metadata",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "metadata",
+      "source_file": "src/app/packs/page.tsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_app_page",
+      "label": "app/page.tsx",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "app/page.tsx",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_page_num",
+      "label": "num",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "num",
+      "source_file": "src/app/page.tsx",
+      "source_location": "L11"
+    },
+    {
       "id": "src_components_albumlink",
       "label": "AlbumLink.tsx",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "albumlink.tsx",
       "source_file": "src/components/AlbumLink.tsx",
@@ -3157,7 +3340,7 @@
       "label": "ALBUM_BUMP",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "album_bump",
       "source_file": "src/components/AlbumLink.tsx",
@@ -3168,29 +3351,73 @@
       "label": "ALBUM_STORED",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "album_stored",
       "source_file": "src/components/AlbumLink.tsx",
       "source_location": "L8"
     },
     {
-      "id": "src_lib_pack_stock_max_packs",
-      "label": "MAX_PACKS",
+      "id": "src_components_menunav",
+      "label": "MenuNav.tsx",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
-      "norm_label": "max_packs",
+      "norm_label": "menunav.tsx",
+      "source_file": "src/components/MenuNav.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_scenebody",
+      "label": "SceneBody.tsx",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "scenebody.tsx",
+      "source_file": "src/components/SceneBody.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_sceneframe",
+      "label": "SceneFrame.tsx",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "sceneframe.tsx",
+      "source_file": "src/components/SceneFrame.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_pack_stock_pack_interval_ms",
+      "label": "PACK_INTERVAL_MS",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "pack_interval_ms",
       "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L5"
+      "source_location": "L4"
+    },
+    {
+      "id": "src_lib_pack_stock_welcome_packs",
+      "label": "WELCOME_PACKS",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "welcome_packs",
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L6"
     },
     {
       "id": "src_lib_pull_ssr_pity",
       "label": "SSR_PITY",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "ssr_pity",
       "source_file": "src/lib/pull.ts",
@@ -3201,23 +3428,106 @@
       "label": "UR_PITY",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "code",
       "norm_label": "ur_pity",
       "source_file": "src/lib/pull.ts",
       "source_location": "L11"
     },
     {
+      "id": "ref_react",
+      "label": "react",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "concept",
+      "norm_label": "react",
+      "source_file": "package.json",
+      "source_location": "L25"
+    },
+    {
+      "id": "docs_state",
+      "label": "STATE.md",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "state.md",
+      "source_file": "docs/STATE.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_state_d\u00e9cisions_et_raisons",
+      "label": "D\u00e9cisions et raisons",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "decisions et raisons",
+      "source_file": "docs/STATE.md",
+      "source_location": "L36"
+    },
+    {
+      "id": "docs_state_fichiers_cl\u00e9s",
+      "label": "Fichiers cl\u00e9s",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "fichiers cles",
+      "source_file": "docs/STATE.md",
+      "source_location": "L48"
+    },
+    {
       "id": "docs_state_ouverture_3d_dans_packs",
       "label": "Ouverture 3D dans `/packs`",
       "_origin": "ast",
       "community": 1,
-      "community_name": "ImmersiveOpener.tsx",
+      "community_name": "app/page.tsx",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "ouverture 3d dans `/packs`",
       "source_file": "docs/STATE.md",
-      "source_location": "L29"
+      "source_location": "L31"
+    },
+    {
+      "id": "docs_state_pi\u00e8ges",
+      "label": "Pi\u00e8ges",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "pieges",
+      "source_file": "docs/STATE.md",
+      "source_location": "L65"
+    },
+    {
+      "id": "docs_state_reste_\u00e0_faire_dans_l_ordre",
+      "label": "Reste \u00e0 faire, dans l'ordre",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "reste a faire, dans l'ordre",
+      "source_file": "docs/STATE.md",
+      "source_location": "L25"
+    },
+    {
+      "id": "docs_state_\u00e9tat_du_projet_passation",
+      "label": "\u00c9tat du projet \u2014 passation",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "etat du projet \u2014 passation",
+      "source_file": "docs/STATE.md",
+      "source_location": "L1"
     },
     {
       "id": "package_scripts",
@@ -4037,78 +4347,6 @@
       "node_kind": "heading",
       "norm_label": "three.js gltf: loaders, compression & animation detail (r150+)",
       "source_file": ".claude/skills/threejs-gltf-loading/references/loaders-and-animation.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "docs_state",
-      "label": "STATE.md",
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "\u00c9tat du projet \u2014 passation",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "state.md",
-      "source_file": "docs/STATE.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "docs_state_d\u00e9cisions_et_raisons",
-      "label": "D\u00e9cisions et raisons",
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "\u00c9tat du projet \u2014 passation",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "decisions et raisons",
-      "source_file": "docs/STATE.md",
-      "source_location": "L34"
-    },
-    {
-      "id": "docs_state_fichiers_cl\u00e9s",
-      "label": "Fichiers cl\u00e9s",
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "\u00c9tat du projet \u2014 passation",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "fichiers cles",
-      "source_file": "docs/STATE.md",
-      "source_location": "L46"
-    },
-    {
-      "id": "docs_state_pi\u00e8ges",
-      "label": "Pi\u00e8ges",
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "\u00c9tat du projet \u2014 passation",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "pieges",
-      "source_file": "docs/STATE.md",
-      "source_location": "L63"
-    },
-    {
-      "id": "docs_state_reste_\u00e0_faire_dans_l_ordre",
-      "label": "Reste \u00e0 faire, dans l'ordre",
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "\u00c9tat du projet \u2014 passation",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "reste a faire, dans l'ordre",
-      "source_file": "docs/STATE.md",
-      "source_location": "L23"
-    },
-    {
-      "id": "docs_state_\u00e9tat_du_projet_passation",
-      "label": "\u00c9tat du projet \u2014 passation",
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "\u00c9tat du projet \u2014 passation",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "etat du projet \u2014 passation",
-      "source_file": "docs/STATE.md",
       "source_location": "L1"
     },
     {
@@ -8309,69 +8547,99 @@
       "source_location": "L416"
     },
     {
-      "id": "src_app_album_duplicatesale",
-      "label": "DuplicateSale.tsx",
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph",
+      "label": "scene-graph.md",
       "_origin": "ast",
       "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "duplicatesale.tsx",
-      "source_file": "src/app/album/DuplicateSale.tsx",
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "scene-graph.md",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
       "source_location": "L1"
     },
     {
-      "id": "src_app_album_duplicatesale_rarity_order",
-      "label": "RARITY_ORDER",
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_coordinates_conventions",
+      "label": "Coordinates & conventions",
       "_origin": "ast",
       "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "rarity_order",
-      "source_file": "src/app/album/DuplicateSale.tsx",
-      "source_location": "L7"
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "coordinates & conventions",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
+      "source_location": "L6"
     },
     {
-      "id": "src_app_album_duplicatesale_ryo",
-      "label": "ryo",
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_disposing_of_resources_avoiding_leaks",
+      "label": "Disposing of resources (avoiding leaks)",
       "_origin": "ast",
       "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "ryo",
-      "source_file": "src/app/album/DuplicateSale.tsx",
-      "source_location": "L8"
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "disposing of resources (avoiding leaks)",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
+      "source_location": "L62"
     },
     {
-      "id": "src_app_character_id_copyactions",
-      "label": "CopyActions.tsx",
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_perspectivecamera_vs_orthographiccamera",
+      "label": "PerspectiveCamera vs OrthographicCamera",
       "_origin": "ast",
       "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "copyactions.tsx",
-      "source_file": "src/app/character/[id]/CopyActions.tsx",
-      "source_location": "L1"
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "perspectivecamera vs orthographiccamera",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
+      "source_location": "L44"
     },
     {
-      "id": "src_app_character_id_copyactions_ryo",
-      "label": "ryo",
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_render_on_demand",
+      "label": "Render-on-demand",
       "_origin": "ast",
       "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "ryo",
-      "source_file": "src/app/character/[id]/CopyActions.tsx",
-      "source_location": "L17"
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "render-on-demand",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
+      "source_location": "L97"
     },
     {
-      "id": "src_app_economy_actions",
-      "label": "economy-actions.ts",
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_stopping_and_restarting_the_loop",
+      "label": "Stopping and restarting the loop",
       "_origin": "ast",
       "community": 2,
-      "community_name": "economy-actions.ts",
-      "file_type": "code",
-      "norm_label": "economy-actions.ts",
-      "source_file": "src/app/economy-actions.ts",
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "stopping and restarting the loop",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
+      "source_location": "L90"
+    },
+    {
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_the_object3d_hierarchy",
+      "label": "The Object3D hierarchy",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "the object3d hierarchy",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
+      "source_location": "L15"
+    },
+    {
+      "id": "claude_skills_threejs_scene_setup_references_scene_graph_three_js_scene_graph_cameras_cleanup_r150",
+      "label": "three.js scene graph, cameras & cleanup (r150+)",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "three.js scene graph, cameras & cleanup (r150+)",
+      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
       "source_location": "L1"
     },
     {
@@ -8983,72 +9251,6 @@
       "source_location": "L6"
     },
     {
-      "id": "src_app_character_id_page",
-      "label": "[id]/page.tsx",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "[id]/page.tsx",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_character_id_page_datefmt",
-      "label": "dateFmt",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "datefmt",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L36"
-    },
-    {
-      "id": "src_app_character_id_page_months",
-      "label": "MONTHS",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "months",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L35"
-    },
-    {
-      "id": "src_app_character_id_page_numfmt",
-      "label": "numFmt",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "numfmt",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L37"
-    },
-    {
-      "id": "src_app_character_id_page_roles",
-      "label": "ROLES",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "roles",
-      "source_file": "src/app/character/[id]/page.tsx",
-      "source_location": "L34"
-    },
-    {
-      "id": "src_lib_labels_finish_names",
-      "label": "FINISH_NAMES",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "[id]/page.tsx",
-      "file_type": "code",
-      "norm_label": "finish_names",
-      "source_file": "src/lib/labels.ts",
-      "source_location": "L22"
-    },
-    {
       "id": "claude_skills_router_skill",
       "label": "router/SKILL.md",
       "_origin": "ast",
@@ -9249,10 +9451,98 @@
       "label": "check-economy.ts",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "check-economy.ts",
       "source_file": "scripts/check-economy.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "scripts_check_recharge",
+      "label": "check-recharge.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "check-recharge.ts",
+      "source_file": "scripts/check-recharge.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_album_duplicatesale",
+      "label": "DuplicateSale.tsx",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "duplicatesale.tsx",
+      "source_file": "src/app/album/DuplicateSale.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_album_duplicatesale_rarity_order",
+      "label": "RARITY_ORDER",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "rarity_order",
+      "source_file": "src/app/album/DuplicateSale.tsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_app_album_duplicatesale_ryo",
+      "label": "ryo",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "ryo",
+      "source_file": "src/app/album/DuplicateSale.tsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_app_character_id_copyactions",
+      "label": "CopyActions.tsx",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "copyactions.tsx",
+      "source_file": "src/app/character/[id]/CopyActions.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_character_id_copyactions_ryo",
+      "label": "ryo",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "ryo",
+      "source_file": "src/app/character/[id]/CopyActions.tsx",
+      "source_location": "L17"
+    },
+    {
+      "id": "src_app_economy_actions",
+      "label": "economy-actions.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "economy-actions.ts",
+      "source_file": "src/app/economy-actions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_packs_actions",
+      "label": "actions.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "actions.ts",
+      "source_file": "src/app/packs/actions.ts",
       "source_location": "L1"
     },
     {
@@ -9260,7 +9550,7 @@
       "label": "DailyBonus.tsx",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "dailybonus.tsx",
       "source_file": "src/components/DailyBonus.tsx",
@@ -9271,7 +9561,7 @@
       "label": "UserMenu.tsx",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "usermenu.tsx",
       "source_file": "src/components/UserMenu.tsx",
@@ -9282,18 +9572,62 @@
       "label": "ryo",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "ryo",
       "source_file": "src/components/UserMenu.tsx",
       "source_location": "L7"
     },
     {
+      "id": "src_lib_collection",
+      "label": "collection.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "collection.ts",
+      "source_file": "src/lib/collection.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_db",
+      "label": "db.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "db.ts",
+      "source_file": "src/lib/db.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_db_globalforprisma",
+      "label": "globalForPrisma",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "globalforprisma",
+      "source_file": "src/lib/db.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_lib_db_prisma",
+      "label": "prisma",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "prisma",
+      "source_file": "src/lib/db.ts",
+      "source_location": "L11"
+    },
+    {
       "id": "src_lib_economy",
       "label": "economy.ts",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "economy.ts",
       "source_file": "src/lib/economy.ts",
@@ -9304,7 +9638,7 @@
       "label": "DAILY_BONUS",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "daily_bonus",
       "source_file": "src/lib/economy.ts",
@@ -9315,40 +9649,128 @@
       "label": "FINISH_MULTIPLIER",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "finish_multiplier",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L9"
+      "source_location": "L11"
     },
     {
       "id": "src_lib_economy_finish_rank",
       "label": "FINISH_RANK",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "finish_rank",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L23"
+      "source_location": "L31"
+    },
+    {
+      "id": "src_lib_economy_max_pack_purchases_per_day",
+      "label": "MAX_PACK_PURCHASES_PER_DAY",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "max_pack_purchases_per_day",
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_lib_economy_pack_price",
+      "label": "PACK_PRICE",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "pack_price",
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L7"
     },
     {
       "id": "src_lib_economy_quick_sell_prices",
       "label": "QUICK_SELL_PRICES",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "quick_sell_prices",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L8"
+      "source_location": "L10"
+    },
+    {
+      "id": "src_lib_pack_stock",
+      "label": "pack-stock.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "pack-stock.ts",
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_pack_stock_max_packs",
+      "label": "MAX_PACKS",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "max_packs",
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_lib_packs",
+      "label": "packs.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "packs.ts",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_packs_user_pack_fields",
+      "label": "USER_PACK_FIELDS",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "user_pack_fields",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L59"
+    },
+    {
+      "id": "src_lib_shop",
+      "label": "shop.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "shop.ts",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_summary",
+      "label": "summary.ts",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "packs.ts",
+      "file_type": "code",
+      "norm_label": "summary.ts",
+      "source_file": "src/lib/summary.ts",
+      "source_location": "L1"
     },
     {
       "id": "src_lib_wallet",
       "label": "wallet.ts",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "wallet.ts",
       "source_file": "src/lib/wallet.ts",
@@ -9359,73 +9781,18 @@
       "label": "COPY_SELECT",
       "_origin": "ast",
       "community": 24,
-      "community_name": "wallet.ts",
+      "community_name": "packs.ts",
       "file_type": "code",
       "norm_label": "copy_select",
       "source_file": "src/lib/wallet.ts",
       "source_location": "L39"
     },
     {
-      "id": "src_lib_collection",
-      "label": "collection.ts",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "collection.ts",
-      "source_file": "src/lib/collection.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_db",
-      "label": "db.ts",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "db.ts",
-      "source_file": "src/lib/db.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_db_globalforprisma",
-      "label": "globalForPrisma",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "globalforprisma",
-      "source_file": "src/lib/db.ts",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_lib_db_prisma",
-      "label": "prisma",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "prisma",
-      "source_file": "src/lib/db.ts",
-      "source_location": "L11"
-    },
-    {
-      "id": "src_lib_summary",
-      "label": "summary.ts",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
-      "file_type": "code",
-      "norm_label": "summary.ts",
-      "source_file": "src/lib/summary.ts",
-      "source_location": "L1"
-    },
-    {
       "id": "ref_prisma_adapter_better_sqlite3",
       "label": "@prisma/adapter-better-sqlite3",
       "_origin": "ast",
-      "community": 25,
-      "community_name": "db.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "file_type": "concept",
       "norm_label": "@prisma/adapter-better-sqlite3",
       "source_file": "package.json",
@@ -10170,6 +10537,83 @@
       "source_location": "L12"
     },
     {
+      "id": "src_app_character_id_page",
+      "label": "[id]/page.tsx",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "[id]/page.tsx",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_character_id_page_datefmt",
+      "label": "dateFmt",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "datefmt",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "src_app_character_id_page_months",
+      "label": "MONTHS",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "months",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L35"
+    },
+    {
+      "id": "src_app_character_id_page_numfmt",
+      "label": "numFmt",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "numfmt",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L37"
+    },
+    {
+      "id": "src_app_character_id_page_roles",
+      "label": "ROLES",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "roles",
+      "source_file": "src/app/character/[id]/page.tsx",
+      "source_location": "L34"
+    },
+    {
+      "id": "src_components_charactercard",
+      "label": "CharacterCard.tsx",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "charactercard.tsx",
+      "source_file": "src/components/CharacterCard.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_charactercard_powerfmt",
+      "label": "powerFmt",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "powerfmt",
+      "source_file": "src/components/CharacterCard.tsx",
+      "source_location": "L24"
+    },
+    {
       "id": "src_lib_album",
       "label": "album.ts",
       "_origin": "ast",
@@ -10236,6 +10680,28 @@
       "source_location": "L10"
     },
     {
+      "id": "src_lib_labels",
+      "label": "labels.ts",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "labels.ts",
+      "source_file": "src/lib/labels.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_labels_finish_names",
+      "label": "FINISH_NAMES",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "finish_names",
+      "source_file": "src/lib/labels.ts",
+      "source_location": "L22"
+    },
+    {
       "id": "src_lib_labels_rarity_names",
       "label": "RARITY_NAMES",
       "_origin": "ast",
@@ -10245,6 +10711,17 @@
       "norm_label": "rarity_names",
       "source_file": "src/lib/labels.ts",
       "source_location": "L6"
+    },
+    {
+      "id": "src_lib_labels_type_labels",
+      "label": "TYPE_LABELS",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "type_labels",
+      "source_file": "src/lib/labels.ts",
+      "source_location": "L14"
     },
     {
       "id": "claude_skills_card_game_skill",
@@ -11946,17 +12423,6 @@
       "source_location": "L26"
     },
     {
-      "id": "ref_server_only",
-      "label": "server-only",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "server-only",
-      "source_file": "package.json",
-      "source_location": "L27"
-    },
-    {
       "id": "ref_tailwindcss",
       "label": "tailwindcss",
       "_origin": "ast",
@@ -12988,94 +13454,6 @@
       "norm_label": "etape 3 \u2014 economie",
       "source_file": "SPEC.md",
       "source_location": "L346"
-    },
-    {
-      "id": "scripts_check_recharge",
-      "label": "check-recharge.ts",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "check-recharge.ts",
-      "source_file": "scripts/check-recharge.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_packs_actions",
-      "label": "actions.ts",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "actions.ts",
-      "source_file": "src/app/packs/actions.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_packs_page",
-      "label": "packs/page.tsx",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "packs/page.tsx",
-      "source_file": "src/app/packs/page.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_packs_page_metadata",
-      "label": "metadata",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "metadata",
-      "source_file": "src/app/packs/page.tsx",
-      "source_location": "L7"
-    },
-    {
-      "id": "src_lib_pack_stock",
-      "label": "pack-stock.ts",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "pack-stock.ts",
-      "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_pack_stock_pack_interval_ms",
-      "label": "PACK_INTERVAL_MS",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "pack_interval_ms",
-      "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L4"
-    },
-    {
-      "id": "src_lib_packs",
-      "label": "packs.ts",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "packs.ts",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_packs_user_pack_fields",
-      "label": "USER_PACK_FIELDS",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "user_pack_fields",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L54"
     },
     {
       "id": "claude_skills_audio_design_skill",
@@ -15358,17 +15736,6 @@
       "source_location": "L10"
     },
     {
-      "id": "src_lib_pack_stock_welcome_packs",
-      "label": "WELCOME_PACKS",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "next",
-      "file_type": "code",
-      "norm_label": "welcome_packs",
-      "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L6"
-    },
-    {
       "id": "src_lib_session",
       "label": "session.ts",
       "_origin": "ast",
@@ -15424,70 +15791,15 @@
       "source_location": "L24"
     },
     {
-      "id": "src_app_page",
-      "label": "app/page.tsx",
+      "id": "ref_server_only",
+      "label": "server-only",
       "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "app/page.tsx",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_page_num",
-      "label": "num",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "num",
-      "source_file": "src/app/page.tsx",
-      "source_location": "L11"
-    },
-    {
-      "id": "src_components_menunav",
-      "label": "MenuNav.tsx",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "menunav.tsx",
-      "source_file": "src/components/MenuNav.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_scenebody",
-      "label": "SceneBody.tsx",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "scenebody.tsx",
-      "source_file": "src/components/SceneBody.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_sceneframe",
-      "label": "SceneFrame.tsx",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
-      "file_type": "code",
-      "norm_label": "sceneframe.tsx",
-      "source_file": "src/components/SceneFrame.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "ref_react",
-      "label": "react",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "app/page.tsx",
+      "community": 6,
+      "community_name": "next",
       "file_type": "concept",
-      "norm_label": "react",
+      "norm_label": "server-only",
       "source_file": "package.json",
-      "source_location": "L25"
+      "source_location": "L27"
     },
     {
       "id": "spec_1_d\u00e9roulement_d_un_duel",
@@ -17226,50 +17538,6 @@
       "source_location": "L587"
     },
     {
-      "id": "src_components_charactercard",
-      "label": "CharacterCard.tsx",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "charactercard.tsx",
-      "source_file": "src/components/CharacterCard.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_charactercard_powerfmt",
-      "label": "powerFmt",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "powerfmt",
-      "source_file": "src/components/CharacterCard.tsx",
-      "source_location": "L24"
-    },
-    {
-      "id": "src_lib_labels",
-      "label": "labels.ts",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "labels.ts",
-      "source_file": "src/lib/labels.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_labels_type_labels",
-      "label": "TYPE_LABELS",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "file_type": "code",
-      "norm_label": "type_labels",
-      "source_file": "src/lib/labels.ts",
-      "source_location": "L14"
-    },
-    {
       "id": "claude_skills_ai_behavior_trees_utility_ai_skill",
       "label": "ai-behavior-trees-utility-ai/SKILL.md",
       "_origin": "ast",
@@ -18653,72 +18921,6 @@
       "source_location": "L27"
     },
     {
-      "id": "src_app_layout",
-      "label": "layout.tsx",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "layout.tsx",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_layout_geistmono",
-      "label": "geistMono",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "geistmono",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_app_layout_geistsans",
-      "label": "geistSans",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "geistsans",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_app_layout_metadata",
-      "label": "metadata",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "metadata",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L23"
-    },
-    {
-      "id": "src_app_layout_michroma",
-      "label": "michroma",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "michroma",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L20"
-    },
-    {
-      "id": "src_app_layout_sora",
-      "label": "sora",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "file_type": "code",
-      "norm_label": "sora",
-      "source_file": "src/app/layout.tsx",
-      "source_location": "L21"
-    },
-    {
       "id": "claude_skills_ai_behavior_trees_utility_ai_references_best_practices_and_pitfalls",
       "label": "best-practices-and-pitfalls.md",
       "_origin": "ast",
@@ -19796,7 +19998,7 @@
       "label": "materials-lights-table.md",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "materials-lights-table.md",
@@ -19808,7 +20010,7 @@
       "label": "Common PBR intuition",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "common pbr intuition",
@@ -19820,7 +20022,7 @@
       "label": "IBL without an HDR file: PMREM + RoomEnvironment",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "ibl without an hdr file: pmrem + roomenvironment",
@@ -19832,7 +20034,7 @@
       "label": "Light types",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "light types",
@@ -19844,7 +20046,7 @@
       "label": "Material cheat-sheet",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "material cheat-sheet",
@@ -19856,7 +20058,7 @@
       "label": "Shadow camera by light type",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "shadow camera by light type",
@@ -19868,7 +20070,7 @@
       "label": "three.js materials, lights & IBL reference (r155+)",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "three.js materials, lights & ibl reference (r155+)",
@@ -19880,108 +20082,12 @@
       "label": "Transparency & sorting",
       "_origin": "ast",
       "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
+      "community_name": "three.js materials, lights & IBL reference (r155+)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "transparency & sorting",
       "source_file": ".claude/skills/threejs-materials-lighting/references/materials-lights-table.md",
       "source_location": "L64"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph",
-      "label": "scene-graph.md",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "scene-graph.md",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_coordinates_conventions",
-      "label": "Coordinates & conventions",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "coordinates & conventions",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L6"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_disposing_of_resources_avoiding_leaks",
-      "label": "Disposing of resources (avoiding leaks)",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "disposing of resources (avoiding leaks)",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L62"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_perspectivecamera_vs_orthographiccamera",
-      "label": "PerspectiveCamera vs OrthographicCamera",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "perspectivecamera vs orthographiccamera",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L44"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_render_on_demand",
-      "label": "Render-on-demand",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "render-on-demand",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L97"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_stopping_and_restarting_the_loop",
-      "label": "Stopping and restarting the loop",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "stopping and restarting the loop",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L90"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_the_object3d_hierarchy",
-      "label": "The Object3D hierarchy",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "the object3d hierarchy",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L15"
-    },
-    {
-      "id": "claude_skills_threejs_scene_setup_references_scene_graph_three_js_scene_graph_cameras_cleanup_r150",
-      "label": "three.js scene graph, cameras & cleanup (r150+)",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "three.js scene graph, cameras & cleanup (r150+)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "three.js scene graph, cameras & cleanup (r150+)",
-      "source_file": ".claude/skills/threejs-scene-setup/references/scene-graph.md",
-      "source_location": "L1"
     },
     {
       "id": "readme",
@@ -20102,10 +20208,21 @@
       "type": "external"
     },
     {
+      "id": "src_app_globals",
+      "label": "src_app_globals",
+      "community": 1,
+      "community_name": "app/page.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_app_globals",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "src_generated_prisma_client",
       "label": "src_generated_prisma_client",
-      "community": 25,
-      "community_name": "db.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "external": true,
       "file_type": "concept",
       "norm_label": "src_generated_prisma_client",
@@ -20115,11 +20232,44 @@
     {
       "id": "src_generated_prisma_client_prismaclient",
       "label": "src_generated_prisma_client_prismaclient",
-      "community": 25,
-      "community_name": "db.ts",
+      "community": 24,
+      "community_name": "packs.ts",
       "external": true,
       "file_type": "concept",
       "norm_label": "src_generated_prisma_client_prismaclient",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_generated_prisma_enums",
+      "label": "src_generated_prisma_enums",
+      "community": 24,
+      "community_name": "packs.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_generated_prisma_enums",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_generated_prisma_enums_rarity",
+      "label": "src_generated_prisma_enums_rarity",
+      "community": 24,
+      "community_name": "packs.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_generated_prisma_enums_rarity",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_generated_prisma_enums_cardtype",
+      "label": "src_generated_prisma_enums_cardtype",
+      "community": 3,
+      "community_name": "album.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_generated_prisma_enums_cardtype",
       "source_file": "",
       "type": "external"
     },
@@ -20131,39 +20281,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "src_generated_prisma_enums_characterrole",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_generated_prisma_enums",
-      "label": "src_generated_prisma_enums",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_generated_prisma_enums",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_generated_prisma_enums_cardtype",
-      "label": "src_generated_prisma_enums_cardtype",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_generated_prisma_enums_cardtype",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_generated_prisma_enums_rarity",
-      "label": "src_generated_prisma_enums_rarity",
-      "community": 74,
-      "community_name": "CharacterCard.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_generated_prisma_enums_rarity",
       "source_file": "",
       "type": "external"
     },
@@ -20230,17 +20347,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "typing",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_app_globals",
-      "label": "src_app_globals",
-      "community": 87,
-      "community_name": "layout.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_app_globals",
       "source_file": "",
       "type": "external"
     }
@@ -20423,7 +20529,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L288",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -20435,7 +20541,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L380",
+      "source_location": "L405",
       "weight": 1.0
     },
     {
@@ -20447,7 +20553,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L458",
+      "source_location": "L483",
       "weight": 1.0
     },
     {
@@ -20531,7 +20637,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L276",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -20579,7 +20685,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L244",
+      "source_location": "L269",
+      "weight": 1.0
+    },
+    {
+      "source": "public_pack_opening_futur_engine_start_requestbuy",
+      "target": "public_pack_opening_futur_engine_post",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "public/pack-opening/futur/engine.js",
+      "source_location": "L248",
       "weight": 1.0
     },
     {
@@ -20591,7 +20709,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L234",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -20603,7 +20721,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L262",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -20615,7 +20733,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L267",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -20627,7 +20745,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L272",
+      "source_location": "L297",
       "weight": 1.0
     },
     {
@@ -20639,7 +20757,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L337",
+      "source_location": "L362",
       "weight": 1.0
     },
     {
@@ -20651,7 +20769,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L326",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -20663,7 +20781,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L321",
+      "source_location": "L346",
       "weight": 1.0
     },
     {
@@ -20675,7 +20793,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L322",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -20687,7 +20805,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L440",
+      "source_location": "L465",
       "weight": 1.0
     },
     {
@@ -20699,7 +20817,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L446",
+      "source_location": "L471",
       "weight": 1.0
     },
     {
@@ -21047,7 +21165,43 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L19",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy_main",
+      "target": "src_lib_shop_buypack",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy_main",
+      "target": "src_lib_packs_getpackstate",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy_main",
+      "target": "src_lib_packs_openpack",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L114",
       "weight": 1.0
     },
     {
@@ -21059,7 +21213,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L42",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -21071,7 +21225,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L43",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -21083,7 +21237,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L44",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -21095,7 +21249,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L44",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -21107,7 +21261,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L47",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -21119,7 +21273,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L51",
+      "source_location": "L54",
       "weight": 1.0
     },
     {
@@ -21131,7 +21285,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L52",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -21143,7 +21297,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L71",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
@@ -21155,7 +21309,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L73",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -21167,7 +21321,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L86",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -22131,6 +22285,42 @@
       "weight": 1.0
     },
     {
+      "source": "src_app_packs_actions_buypackaction",
+      "target": "src_lib_session_getsessionuser",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions_buypackaction",
+      "target": "src_lib_shop_buypack",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions_buypackaction",
+      "target": "src_lib_packs_getpackstate",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
       "source": "src_app_packs_actions_openpackaction",
       "target": "src_lib_session_getsessionuser",
       "relation": "calls",
@@ -22139,7 +22329,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/packs/actions.ts",
-      "source_location": "L10",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -22151,19 +22341,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/packs/actions.ts",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_app_packs_immersiveopener_immersiveopener",
-      "target": "src_app_packs_actions_openpackaction",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/app/packs/ImmersiveOpener.tsx",
-      "source_location": "L51",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -22175,7 +22353,43 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
-      "source_location": "L99",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_immersiveopener_immersiveopener",
+      "target": "src_app_packs_actions_buypackaction",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/app/packs/ImmersiveOpener.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_immersiveopener_immersiveopener",
+      "target": "src_app_packs_actions_openpackaction",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/app/packs/ImmersiveOpener.tsx",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_immersiveopener_immersiveopener_onmessage",
+      "target": "src_app_packs_actions_buypackaction",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/app/packs/ImmersiveOpener.tsx",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -22187,7 +22401,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
-      "source_location": "L51",
+      "source_location": "L54",
       "weight": 1.0
     },
     {
@@ -22607,7 +22821,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L21",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_economy_purchasesleft",
+      "target": "src_lib_economy_startofday",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -22619,7 +22845,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L58",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -22631,60 +22857,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_packs_openpack",
-      "target": "src_lib_collection_getcollectionpower",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L170",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_packs_openpack",
-      "target": "src_lib_pack_stock_packstock",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/packs.ts",
       "source_location": "L77",
       "weight": 1.0
     },
     {
-      "source": "src_lib_packs_openpack",
-      "target": "src_lib_packs_nopackavailableerror",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L77",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_packs_openpack",
-      "target": "src_lib_pull_rollpack",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L79",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_packs_openpack",
-      "target": "src_lib_pack_stock_afteropening",
+      "source": "src_lib_packs_getpackstate",
+      "target": "src_lib_economy_purchasesleft",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -22703,7 +22881,79 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L86",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs_openpack",
+      "target": "src_lib_collection_getcollectionpower",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs_openpack",
+      "target": "src_lib_economy_purchasesleft",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs_openpack",
+      "target": "src_lib_pack_stock_packstock",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs_openpack",
+      "target": "src_lib_packs_nopackavailableerror",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs_openpack",
+      "target": "src_lib_pull_rollpack",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs_openpack",
+      "target": "src_lib_pack_stock_afteropening",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -22740,6 +22990,54 @@
       "context": "call",
       "source_file": "src/lib/session.ts",
       "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop_buypack",
+      "target": "src_lib_economy_purchasesleft",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop_buypack",
+      "target": "src_lib_wallet_saleerror",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop_buypack",
+      "target": "src_lib_economy_startofday",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop_buypack",
+      "target": "src_lib_pack_stock_afterpurchase",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -22984,6 +23282,18 @@
     },
     {
       "source": "public_pack_opening_futur_engine_start",
+      "target": "public_pack_opening_futur_engine_start_requestbuy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "public/pack-opening/futur/engine.js",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "public_pack_opening_futur_engine_start",
       "target": "public_pack_opening_futur_engine_start_reveal",
       "relation": "contains",
       "_origin": "ast",
@@ -22991,7 +23301,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L257",
+      "source_location": "L282",
       "weight": 1.0
     },
     {
@@ -23003,7 +23313,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L289",
+      "source_location": "L314",
       "weight": 1.0
     },
     {
@@ -23015,7 +23325,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L439",
+      "source_location": "L464",
       "weight": 1.0
     },
     {
@@ -23051,7 +23361,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L30",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -23135,7 +23445,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "src/lib/economy.ts",
-      "source_location": "L28",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -23147,7 +23457,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -23159,7 +23469,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L50",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -23824,7 +24134,7 @@
     },
     {
       "source": "scripts_check_economy",
-      "target": "src_lib_economy_daily_bonus",
+      "target": "src_lib_packs_getpackstate",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23832,6 +24142,66 @@
       "context": "import",
       "source_file": "scripts/check-economy.ts",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_packs_openpack",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_shop_buypack",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_economy_daily_bonus",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_economy_max_pack_purchases_per_day",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_economy_pack_price",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -23843,7 +24213,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L6",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -23855,7 +24225,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -23867,7 +24237,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -23879,7 +24249,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -23891,7 +24261,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -23903,7 +24273,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -23915,7 +24285,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -23927,7 +24297,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -24951,6 +25321,42 @@
       "weight": 1.0
     },
     {
+      "source": "src_app_packs_actions",
+      "target": "src_lib_packs_getpackstate",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_lib_shop_buypack",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_lib_wallet_saleerror",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "src_app_packs_immersiveopener",
       "target": "src_app_packs_packopener_packopener",
       "relation": "imports",
@@ -25056,6 +25462,18 @@
       "context": "import",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
       "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_immersiveopener",
+      "target": "src_app_packs_actions_buypackaction",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/ImmersiveOpener.tsx",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -25696,7 +26114,7 @@
     },
     {
       "source": "src_lib_packs",
-      "target": "src_lib_pack_stock_afteropening",
+      "target": "src_lib_economy_pack_price",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -25704,6 +26122,30 @@
       "context": "import",
       "source_file": "src/lib/packs.ts",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs",
+      "target": "src_lib_economy_purchasesleft",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs",
+      "target": "src_lib_pack_stock_afteropening",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -25715,7 +26157,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -25727,7 +26169,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -25739,7 +26181,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -25751,7 +26193,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -25763,7 +26205,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -25775,7 +26217,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/packs.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -25800,6 +26242,78 @@
       "context": "import",
       "source_file": "src/lib/session.ts",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_economy_pack_price",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_economy_purchasesleft",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_economy_startofday",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_db_prisma",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_pack_stock_afterpurchase",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_wallet_saleerror",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -26369,7 +26883,7 @@
     },
     {
       "source": "scripts_check_economy",
-      "target": "src_lib_economy",
+      "target": "src_lib_packs",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -26381,7 +26895,7 @@
     },
     {
       "source": "scripts_check_economy",
-      "target": "src_lib_wallet",
+      "target": "src_lib_shop",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -26389,6 +26903,30 @@
       "context": "import",
       "source_file": "scripts/check-economy.ts",
       "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_economy",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_check_economy",
+      "target": "src_lib_wallet",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/check-economy.ts",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -27083,18 +27621,6 @@
     },
     {
       "source": "src_app_packs_actions",
-      "target": "src_lib_packs",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/app/packs/actions.ts",
-      "source_location": "L4",
-      "weight": 1.0
-    },
-    {
-      "source": "src_app_packs_actions",
       "target": "src_lib_session",
       "relation": "imports_from",
       "_origin": "ast",
@@ -27103,6 +27629,42 @@
       "context": "import",
       "source_file": "src/app/packs/actions.ts",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_lib_packs",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_lib_shop",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_lib_wallet",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -27961,7 +28523,7 @@
     },
     {
       "source": "src_lib_packs",
-      "target": "src_lib_pack_stock",
+      "target": "src_lib_economy",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -27973,7 +28535,7 @@
     },
     {
       "source": "src_lib_packs",
-      "target": "src_lib_pull",
+      "target": "src_lib_pack_stock",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -27981,6 +28543,18 @@
       "context": "import",
       "source_file": "src/lib/packs.ts",
       "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs",
+      "target": "src_lib_pull",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -28030,6 +28604,54 @@
       "context": "import",
       "source_file": "src/lib/session.ts",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_economy",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_db",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_pack_stock",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_wallet",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -39619,7 +40241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/STATE.md",
-      "source_location": "L23",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -39630,7 +40252,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/STATE.md",
-      "source_location": "L29",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -39641,7 +40263,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/STATE.md",
-      "source_location": "L34",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -39652,7 +40274,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/STATE.md",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -39674,7 +40296,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/STATE.md",
-      "source_location": "L63",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -40356,7 +40978,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L228",
+      "source_location": "L253",
       "weight": 1.0
     },
     {
@@ -40367,7 +40989,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L274",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
@@ -40378,7 +41000,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L324",
+      "source_location": "L349",
       "weight": 1.0
     },
     {
@@ -40389,7 +41011,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L328",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -40807,7 +41429,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L10",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
@@ -40818,7 +41440,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L14",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -40829,7 +41451,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -40840,7 +41462,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/check-economy.ts",
-      "source_location": "L22",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -42479,7 +43101,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/packs/actions.ts",
-      "source_location": "L7",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -42490,7 +43112,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/packs/actions.ts",
-      "source_location": "L9",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_app_packs_actions_buypackresult",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_packs_actions",
+      "target": "src_app_packs_actions_buypackaction",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -43265,13 +43909,35 @@
     },
     {
       "source": "src_lib_economy",
+      "target": "src_lib_economy_quick_sell_prices",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_economy",
+      "target": "src_lib_economy_finish_multiplier",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_economy",
       "target": "src_lib_economy_quicksellprice",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
-      "source_location": "L12",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -43282,7 +43948,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
-      "source_location": "L15",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_economy",
+      "target": "src_lib_economy_purchasesleft",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -43293,7 +43970,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
-      "source_location": "L21",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -43304,7 +43981,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
-      "source_location": "L23",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -43315,7 +43992,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
-      "source_location": "L25",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -43326,7 +44003,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
-      "source_location": "L37",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -43342,24 +44019,24 @@
     },
     {
       "source": "src_lib_economy",
-      "target": "src_lib_economy_quick_sell_prices",
+      "target": "src_lib_economy_pack_price",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/economy.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_economy",
+      "target": "src_lib_economy_max_pack_purchases_per_day",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/economy.ts",
       "source_location": "L8",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_economy",
-      "target": "src_lib_economy_finish_multiplier",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/economy.ts",
-      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -43414,7 +44091,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pack-stock.ts",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -43426,6 +44103,17 @@
       "confidence_score": 1.0,
       "source_file": "src/lib/pack-stock.ts",
       "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_pack_stock",
+      "target": "src_lib_pack_stock_afterpurchase",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/pack-stock.ts",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -43452,13 +44140,24 @@
     },
     {
       "source": "src_lib_packs",
+      "target": "src_lib_packs_nopackavailableerror",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/packs.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_packs",
       "target": "src_lib_packs_concurrentopeningerror",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -43469,7 +44168,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -43480,7 +44179,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -43491,7 +44190,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L48",
+      "source_location": "L53",
       "weight": 1.0
     },
     {
@@ -43502,7 +44201,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L54",
+      "source_location": "L59",
       "weight": 1.0
     },
     {
@@ -43513,7 +44212,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L56",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -43524,18 +44223,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L73",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_packs",
-      "target": "src_lib_packs_nopackavailableerror",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/packs.ts",
-      "source_location": "L9",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -43767,6 +44455,17 @@
       "confidence_score": 1.0,
       "source_file": "src/lib/session.ts",
       "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_shop",
+      "target": "src_lib_shop_buypack",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/shop.ts",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -44360,7 +45059,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -44371,7 +45070,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/packs.ts",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
@@ -44428,7 +45127,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L340",
+      "source_location": "L365",
       "weight": 1.0
     },
     {
@@ -44440,7 +45139,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L341",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -44452,7 +45151,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "public/pack-opening/futur/engine.js",
-      "source_location": "L278",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -44500,7 +45199,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
-      "source_location": "L79",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -44680,7 +45379,7 @@
       "confidence_score": 0.95,
       "context": "AlbumLink",
       "source_file": "docs/STATE.md",
-      "source_location": "L32",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -44716,7 +45415,7 @@
       "confidence_score": 0.95,
       "context": "PackOpener",
       "source_file": "docs/STATE.md",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -44729,6 +45428,18 @@
       "context": "SceneFrame",
       "source_file": "docs/STATE.md",
       "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_state_fait_et_committ\u00e9",
+      "target": "src_lib_pack_stock_afterpurchase",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "context": "afterPurchase",
+      "source_file": "docs/STATE.md",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -44764,7 +45475,7 @@
       "confidence_score": 0.95,
       "context": "init",
       "source_file": "docs/STATE.md",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -44836,7 +45547,7 @@
       "confidence_score": 0.95,
       "context": "openPackAction",
       "source_file": "docs/STATE.md",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -44865,5 +45576,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c867719e3d894c5b6597e7bc8104e5ed116b7f7f"
+  "built_at_commit": "3348b214bccae46101c303e4cf6dd2f849541a07"
 }

@@ -39,7 +39,7 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
   }
 
   return (
-    <section className="rounded-2xl bg-panel p-5">
+    <section className="vt-sale">
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center justify-between font-bold">
         Vendre mes doublons
         <span className="text-muted">{open ? "−" : "+"}</span>

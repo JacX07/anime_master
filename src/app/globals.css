@@ -145,8 +145,8 @@ body {
 }
 
 /* Manquant (album) : image grisée et floutée, « ? » au centre */
-.card[data-missing] { border-color: #2a2a3d; background: var(--panel); }
-.card[data-missing] .card-art { filter: grayscale(1) blur(6px) brightness(0.45); transform: scale(1.08); }
+.card[data-missing] { border-color: #ffffff1f; border-style: dashed; background: var(--panel); }
+.card[data-missing] .card-art { filter: grayscale(1) blur(8px) brightness(0.3); transform: scale(1.08); }
 .card[data-missing] .card-name { color: #a1a1b5; }
 .card-unknown {
   position: absolute;
@@ -549,4 +549,207 @@ a.gm-item:focus-visible small {
 @media (prefers-reduced-motion: reduce) {
   .scene-loader-bar { animation: none; }
   .scene-loader { transition: none; }
+}
+
+/* ---------- Album « vitrine » ---------- */
+body.scene-night {
+  background: #0b1424;
+}
+.vt {
+  flex: 1;
+  background: radial-gradient(ellipse 80% 40% at 50% -5%, #1c3d7066, transparent 70%), #0b1424;
+  color: #e8f0ff;
+  font-family: var(--font-sora), var(--font-geist-sans), sans-serif;
+}
+.vt-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.vt-title {
+  font-family: var(--font-michroma), var(--font-geist-sans), sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  letter-spacing: 0.03em;
+}
+.vt-sub,
+.vt-muted {
+  color: #8ea3c4;
+}
+.vt-count {
+  font-size: 0.85rem;
+  color: #8ea3c4;
+}
+.vt-empty {
+  padding: 4rem 0;
+  text-align: center;
+  color: #8ea3c4;
+}
+.vt-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.vt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.75rem;
+}
+.vt-sale {
+  max-width: 40rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ffffff1f;
+  font-size: 0.9rem;
+}
+.vt-search {
+  flex: none;
+}
+.vt-search input {
+  width: min(17rem, 100%);
+  padding: 0.5rem 0.1rem;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ffffff33;
+  color: inherit;
+  outline: none;
+}
+.vt-search input:focus {
+  border-bottom-color: #4b8bff;
+}
+.vt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.vt-chip {
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #ffffff26;
+  font-size: 0.85rem;
+  color: #c9d8f2;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.vt-chip b {
+  color: var(--rar, inherit);
+}
+.vt-chip:hover,
+.vt-chip:focus-visible {
+  background: #ffffff14;
+  outline: none;
+}
+.vt-chip[data-active="true"] {
+  background: #4b8bff33;
+  border-color: #4b8bff;
+  color: #fff;
+}
+.vt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  gap: 1.5rem 1.25rem;
+}
+/* La carte se soulève ; une lueur à la couleur de sa rareté se pose sous elle, comme sur le sol d'une vitrine */
+.vt-card {
+  position: relative;
+  display: block;
+  border-radius: 0.75rem;
+  transition: transform 0.25s ease;
+}
+.vt-card::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -0.9rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--rar);
+  filter: blur(14px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.vt-card:hover,
+.vt-card:focus-visible {
+  transform: translateY(-10px) scale(1.03);
+  outline: none;
+  -webkit-box-reflect: below 6px linear-gradient(transparent 72%, #ffffff1f);
+}
+.vt-card:hover::after,
+.vt-card:focus-visible::after {
+  opacity: 0.55;
+}
+.vt-pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+}
+.vt-pager a,
+.vt-pager span[aria-disabled] {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #ffffff26;
+}
+.vt-pager a:hover {
+  background: #ffffff14;
+}
+.vt-pager span[aria-disabled] {
+  opacity: 0.35;
+}
+/* Barre d'état : le résumé de la collection reste visible en bas, comme le HUD d'un jeu */
+.vt-status {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem 2rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(transparent, #070d1aeb 45%);
+}
+.vt-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.vt-bar {
+  width: 10rem;
+  height: 4px;
+  border-radius: 4px;
+  background: #ffffff22;
+  overflow: hidden;
+}
+.vt-bar i {
+  display: block;
+  height: 100%;
+  background: #4b8bff;
+}
+.vt-rarities {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: #8ea3c4;
+}
+.vt-power {
+  margin-left: auto;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #00c8b4;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vt-card,
+  .vt-card::after {
+    transition: none;
+  }
 }
