@@ -48,7 +48,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
   const facts = [
     ["Rareté", `${c.rarity} · ${RARITY_NAMES[c.rarity]}`],
     ["Type", `${t.emoji} ${t.name}`],
-    ["Puissance", `⚡ ${numFmt.format(c.attack + c.defense)}`],
+    ["Puissance", `⚡ ${numFmt.format(c.power)}`],
     ["Attaque", `⚔️ ${numFmt.format(c.attack)}`],
     ["Défense", `🛡️ ${numFmt.format(c.defense)}`],
     ["Favoris AniList", numFmt.format(c.favourites)],

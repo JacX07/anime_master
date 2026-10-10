@@ -27,6 +27,7 @@ export interface OpenedCard {
   type: CardType;
   attack: number;
   defense: number;
+  power: number;
   series: string | null;
   finish: Finish;
   serial: number;
@@ -121,6 +122,7 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
           type: true,
           attack: true,
           defense: true,
+          power: true,
           pullCount: true,
           mainMedia: { select: { titleRomaji: true, titleEnglish: true } },
         },
@@ -145,6 +147,7 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
         type: character.type,
         attack: character.attack,
         defense: character.defense,
+        power: character.power,
         series: character.mainMedia?.titleEnglish ?? character.mainMedia?.titleRomaji ?? null,
         finish: card.finish,
         serial: character.pullCount,

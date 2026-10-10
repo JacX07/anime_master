@@ -63,6 +63,8 @@ model Character {
   type           CardType
   attack         Int
   defense        Int
+  /// Puissance : stat à part (popularité), indépendante d'ATK/DEF
+  power          Int      @default(0)
   /// Série principale (sert au type et au rôle)
   mainMediaId    Int?
   mainMedia      Media?           @relation("MainMedia", fields: [mainMediaId], references: [id])

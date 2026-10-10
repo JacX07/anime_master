@@ -9,6 +9,8 @@ export interface CharacterCardProps {
   type: CardType;
   attack: number;
   defense: number;
+  /** Puissance : stat de popularité, indépendante d'ATK et DEF */
+  power: number;
   series?: string | null;
   finish?: Finish;
   serial?: number;
@@ -29,6 +31,7 @@ export function CharacterCard({
   type,
   attack,
   defense,
+  power,
   series,
   finish = "NORMAL",
   serial,
@@ -57,8 +60,8 @@ export function CharacterCard({
         </div>
         {!missing && (
           <div className="card-stats">
-            <span className="card-power" title="Puissance = attaque + défense">
-              ⚡ {powerFmt.format(attack + defense)}
+            <span className="card-power" title="Puissance (popularité)">
+              ⚡ {powerFmt.format(power)}
             </span>
             <span className="card-atkdef">
               ⚔️ {powerFmt.format(attack)} · 🛡️ {powerFmt.format(defense)}

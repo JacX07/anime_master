@@ -74,6 +74,7 @@ export interface AlbumEntry {
   type: CardType;
   attack: number;
   defense: number;
+  power: number;
   series: string | null;
   owned: Ownership | null;
 }
@@ -128,6 +129,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
       type: true,
       attack: true,
       defense: true,
+      power: true,
       mainMedia: { select: { titleRomaji: true, titleEnglish: true } },
     },
   });
@@ -153,6 +155,7 @@ export interface CharacterDetail {
   type: CardType;
   attack: number;
   defense: number;
+  power: number;
   favourites: number;
   gender: string | null;
   age: string | null;
@@ -195,6 +198,7 @@ export async function getCharacter(id: number, userId: string | null): Promise<C
     type: c.type,
     attack: c.attack,
     defense: c.defense,
+    power: c.power,
     favourites: c.favourites,
     gender: c.gender,
     age: c.age,

@@ -7,7 +7,7 @@ import type { CharacterRole } from "../src/generated/prisma/enums";
 import { fetchCharactersPage, type AniListCharacter, type AniListMedia } from "../src/lib/anilist";
 import { cleanDescription, shortenDescription } from "../src/lib/clean";
 import { prisma } from "../src/lib/db";
-import { RARITIES, assignRarities, assignType, computeStats, favouriteBounds, type MediaTag } from "../src/lib/stats";
+import { RARITIES, assignRarities, assignType, computePower, computeStats, favouriteBounds, type MediaTag } from "../src/lib/stats";
 
 const PER_PAGE = 50;
 const DEFAULT_PAGES = 100; // l'API plafonne la pagination à 5 000 résultats
@@ -121,7 +121,7 @@ async function saveRaw(kept: Kept[]) {
         return [
           prisma.character.upsert({
             where: { id: c.id },
-            create: { id: c.id, ...data, rarity: "N", type: "COEUR", attack: 0, defense: 0 },
+            create: { id: c.id, ...data, rarity: "N", type: "COEUR", attack: 0, defense: 0, power: 0 },
             update: data,
           }),
           prisma.characterMedia.deleteMany({ where: { characterId: c.id } }),
@@ -145,6 +145,7 @@ async function recompute() {
   const rarities = assignRarities(all);
   const withRarity = all.map((c) => ({ ...c, rarity: rarities.get(c.id)! }));
   const bounds = favouriteBounds(withRarity);
+  const minFavourites = Math.min(...all.map((c) => c.favourites));
 
   const updates = withRarity.map((c) => {
     const genres = Array.isArray(c.mainMedia?.genres) ? (c.mainMedia.genres as string[]) : [];
@@ -153,7 +154,7 @@ async function recompute() {
       { id: c.id, favourites: c.favourites, rarity: c.rarity, role: c.mainRole },
       bounds,
     );
-    return { id: c.id, data: { rarity: c.rarity, type: assignType(genres, tags), attack, defense } };
+    return { id: c.id, data: { rarity: c.rarity, type: assignType(genres, tags), attack, defense, power: computePower(c.favourites, minFavourites) } };
   });
 
   await inBatches(updates, (batch) =>
@@ -167,19 +168,19 @@ async function printSummary() {
   const byType = await prisma.character.groupBy({ by: ["type"], _count: true });
   const stats = await prisma.character.groupBy({
     by: ["rarity"],
-    _min: { attack: true, defense: true, favourites: true },
-    _max: { attack: true, defense: true, favourites: true },
+    _min: { attack: true, defense: true, power: true, favourites: true },
+    _max: { attack: true, defense: true, power: true, favourites: true },
   });
   const noDesc = await prisma.character.count({ where: { description: null } });
 
   console.log(`\n=== Résumé : ${total} personnages en base ===`);
-  console.log("\nRareté   Nombre   Favoris (min–max)   ATK (min–max)   DEF (min–max)");
+  console.log("\nRareté   Nombre   Favoris (min–max)   ATK (min–max)   DEF (min–max)   Puissance (min–max)");
   for (const r of [...RARITIES].reverse()) {
     const s = stats.find((x) => x.rarity === r);
     const n = byRarity.find((x) => x.rarity === r)?._count ?? 0;
     console.log(
       `${r.padEnd(8)} ${String(n).padStart(6)}   ${`${s?._min.favourites ?? "-"}–${s?._max.favourites ?? "-"}`.padEnd(19)} ` +
-        `${`${s?._min.attack ?? "-"}–${s?._max.attack ?? "-"}`.padEnd(15)} ${s?._min.defense ?? "-"}–${s?._max.defense ?? "-"}`,
+        `${`${s?._min.attack ?? "-"}–${s?._max.attack ?? "-"}`.padEnd(15)} ${`${s?._min.defense ?? "-"}–${s?._max.defense ?? "-"}`.padEnd(15)} ${s?._min.power ?? "-"}–${s?._max.power ?? "-"}`,
     );
   }
   console.log("\nType       Nombre   Part");

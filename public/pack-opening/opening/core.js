@@ -15,11 +15,11 @@ export const THEMES = [
 ];
 
 const CHARS = [
-  { name: "Satoru Gojou", series: "Jujutsu Kaisen", img: "https://s4.anilist.co/file/anilistcdn/character/large/b127691-9zqh1xpIubn7.png", rarity: "UR", type: "Magie", atk: 63000, def: 42000, serial: 12 },
-  { name: "Anya Forger", series: "Spy × Family", img: "https://s4.anilist.co/file/anilistcdn/character/large/b138100-4Li0tWRCa5bQ.png", rarity: "SSR", type: "Mystère", atk: 11500, def: 8600, serial: 87 },
-  { name: "Frieren", series: "Frieren", img: "https://s4.anilist.co/file/anilistcdn/character/large/b176754-PCnpqIOkjhFk.png", rarity: "SR", type: "Aventure", atk: 4100, def: 3300, serial: 214, holo: true },
-  { name: "Kaguya Shinomiya", series: "Kaguya-sama", img: "https://s4.anilist.co/file/anilistcdn/character/large/b120649-NPaWaIpWy60E.png", rarity: "R", type: "Cœur", atk: 1500, def: 1100, serial: 431 },
-  { name: "Levi", series: "L'Attaque des Titans", img: "https://s4.anilist.co/file/anilistcdn/character/large/b45627-CR68RyZmddGG.png", rarity: "N", type: "Combat", atk: 340, def: 290, serial: 1203 },
+  { name: "Satoru Gojou", series: "Jujutsu Kaisen", img: "https://s4.anilist.co/file/anilistcdn/character/large/b127691-9zqh1xpIubn7.png", rarity: "UR", type: "Magie", atk: 4920, def: 3080, power: 98000, serial: 12 },
+  { name: "Anya Forger", series: "Spy × Family", img: "https://s4.anilist.co/file/anilistcdn/character/large/b138100-4Li0tWRCa5bQ.png", rarity: "SSR", type: "Mystère", atk: 3390, def: 2494, power: 21000, serial: 87 },
+  { name: "Frieren", series: "Frieren", img: "https://s4.anilist.co/file/anilistcdn/character/large/b176754-PCnpqIOkjhFk.png", rarity: "SR", type: "Aventure", atk: 3990, def: 2913, power: 6400, serial: 214, holo: true },
+  { name: "Kaguya Shinomiya", series: "Kaguya-sama", img: "https://s4.anilist.co/file/anilistcdn/character/large/b120649-NPaWaIpWy60E.png", rarity: "R", type: "Cœur", atk: 4270, def: 2444, power: 1800, serial: 431 },
+  { name: "Levi", series: "L'Attaque des Titans", img: "https://s4.anilist.co/file/anilistcdn/character/large/b45627-CR68RyZmddGG.png", rarity: "N", type: "Combat", atk: 4600, def: 3347, power: 210, serial: 1203 },
 ];
 const RANK = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 };
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -184,7 +184,7 @@ export function cardPainter(T, images) {
       g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 30 - sw, 34, sw, 50, 25); g.fill(); g.fillStyle = C.ink; g.fillText(s, w - 30 - sw + 14, 68);
       g.fillStyle = C.ink; g.font = `700 44px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);
       g.fillStyle = C.sub; g.font = `500 26px "${C.body}"`; g.fillText(`${c.type} · ${c.series}`, 40, h - 84, w - 80);
-      g.fillStyle = col; g.font = `700 46px "${C.body}"`; g.fillText(`⚡ ${(c.atk + c.def).toLocaleString("fr-FR")}`, 40, h - 34);
+      g.fillStyle = col; g.font = `700 46px "${C.body}"`; g.fillText(`⚡ ${c.power.toLocaleString("fr-FR")}`, 40, h - 34);
       g.fillStyle = C.sub; g.font = `600 22px "${C.body}"`; const at = `ATK ${c.atk.toLocaleString("fr-FR")}`, df = `DEF ${c.def.toLocaleString("fr-FR")}`;
       g.fillText(at, w - 40 - g.measureText(at).width, h - 58); g.fillText(df, w - 40 - g.measureText(df).width, h - 30);
     });

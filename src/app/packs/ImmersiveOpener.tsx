@@ -63,6 +63,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
             type: `${TYPE_LABELS[c.type].emoji} ${TYPE_LABELS[c.type].name}`,
             atk: c.attack,
             def: c.defense,
+            power: c.power,
             serial: c.serial,
             finish: c.finish,
             holo: c.finish !== "NORMAL",
