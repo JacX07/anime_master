@@ -20,14 +20,14 @@ export async function start() {
 
   const canvas = document.getElementById("scene");
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 1.5));
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.38; // crépuscule : le décor est volontairement sombre
   renderer.shadowMap.enabled = true;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
   const decor = buildDecor({ scene, renderer });
 
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 4 }));
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 2 }));
   composer.addPass(new RenderPass(scene, camera));
   composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.4, 0.4, 1.5));
   composer.addPass(new OutputPass());
@@ -50,9 +50,21 @@ export async function start() {
   const capsule = buildCapsule({ decor, ctx: { tween, ease }, backTex, BLUE, MINT });
   scene.add(capsule.group); capsule.show();
 
+  // Résolution adaptative : si la machine ne tient pas ~45 images/s, on baisse le ratio de pixels par paliers (sans jamais remonter, pour éviter les oscillations)
+  let pixelRatio = renderer.getPixelRatio();
+  const ad = { n: 0, acc: 0, skip: 120 };
+  const adapt = (ms) => {
+    if (TEST || ad.skip-- > 0) return;
+    ad.acc += Math.min(ms, 100);
+    if (++ad.n < 90) return;
+    const avg = ad.acc / ad.n; ad.n = 0; ad.acc = 0;
+    if (avg > 22 && pixelRatio > 0.75) { pixelRatio = Math.max(0.75, pixelRatio * 0.85); renderer.setPixelRatio(pixelRatio); composer.setPixelRatio(pixelRatio); resize(); }
+  };
+
   const still = new THREE.Vector2();
   let last = performance.now(), time = 0;
   renderer.setAnimationLoop((now) => {
+    adapt(now - last);
     const dt = Math.min(0.05, (now - last) / 1000); last = now; time += reduced ? 0 : dt;
     for (const tw of [...tweens]) { tw.t += dt; const k = Math.min(1, tw.t / tw.dur); tw.fn(tw.e(k)); if (k >= 1) { tweens.delete(tw); tw.res(); } }
     decor.update(dt, time);

@@ -20,7 +20,7 @@ export function buildDecor({ scene, renderer }) {
   scene.add(new THREE.HemisphereLight("#f4f6f9", "#b9c3cf", 0.35));
   const key = new THREE.DirectionalLight("#fffaf2", 1.2);
   key.position.set(-6, 14, 9); key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048); key.shadow.camera.left = -14; key.shadow.camera.right = 14; key.shadow.camera.top = 14; key.shadow.camera.bottom = -14; key.shadow.camera.far = 40; key.shadow.radius = 6; key.shadow.bias = -0.0005;
+  key.shadow.mapSize.set(1024, 1024); key.shadow.camera.left = -14; key.shadow.camera.right = 14; key.shadow.camera.top = 14; key.shadow.camera.bottom = -14; key.shadow.camera.far = 40; key.shadow.radius = 6; key.shadow.bias = -0.0005;
   scene.add(key);
 
   // Ciel au-delà des verrières : bleu pâle et voiles de nuages
@@ -46,7 +46,7 @@ export function buildDecor({ scene, renderer }) {
   const glowWhite = new THREE.MeshBasicMaterial({ color: hdr("#dfeaff", 1.3) });
 
   // Sol : miroir sous une dalle laquée semi-transparente, joints en anneaux et rayons
-  const mirror = new Reflector(new THREE.CircleGeometry(30, 96), { textureWidth: innerWidth * 0.6, textureHeight: innerHeight * 0.6, color: "#b9c3cf" });
+  const mirror = new Reflector(new THREE.CircleGeometry(30, 96), { textureWidth: innerWidth * 0.4, textureHeight: innerHeight * 0.4, color: "#b9c3cf" });
   mirror.rotation.x = -Math.PI / 2; mirror.position.y = -0.62; scene.add(mirror);
   if (new URLSearchParams(location.search).has("test")) mirror.visible = false; // ?test : rendu logiciel, le miroir double le coût de chaque image
   const floorMap = canvasTex(2048, 2048, (g, w) => {
@@ -65,7 +65,8 @@ export function buildDecor({ scene, renderer }) {
   [[3.1, glowBlue, 0.035], [9.2, glowBlue, 0.03], [15.4, glowMint, 0.025]].forEach(([r, m, wd]) => { const ring = new THREE.Mesh(new THREE.RingGeometry(r, r + wd, 192), m); ring.rotation.x = -Math.PI / 2; ring.position.y = -0.59; scene.add(ring); });
   const beacons = new THREE.InstancedMesh(new THREE.CircleGeometry(0.05, 12), new THREE.MeshBasicMaterial({ color: hdr(BLUE, 1.9) }), 48);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)), one = new THREE.Vector3(1, 1, 1);
-  updaters.push((dt, t) => { for (let i = 0; i < 48; i++) { const a = (i / 48) * Math.PI * 2 + t * 0.08, k = 0.5 + 0.5 * Math.sin(t * 2 - i * 0.6); m4.compose(new THREE.Vector3(Math.cos(a) * 6.2, -0.588, Math.sin(a) * 6.2), q, one.clone().multiplyScalar(0.4 + k)); beacons.setMatrixAt(i, m4); } beacons.instanceMatrix.needsUpdate = true; });
+  const bp = new THREE.Vector3(), bs = new THREE.Vector3(); // réutilisés : pas d'allocation à chaque image (ramasse-miettes)
+  updaters.push((dt, t) => { for (let i = 0; i < 48; i++) { const a = (i / 48) * Math.PI * 2 + t * 0.08, k = 0.5 + 0.5 * Math.sin(t * 2 - i * 0.6); m4.compose(bp.set(Math.cos(a) * 6.2, -0.588, Math.sin(a) * 6.2), q, bs.copy(one).multiplyScalar(0.4 + k)); beacons.setMatrixAt(i, m4); } beacons.instanceMatrix.needsUpdate = true; });
   scene.add(beacons);
 
   // Colonnade : piliers arrondis, verrières, bandeau lumineux et poutre circulaire

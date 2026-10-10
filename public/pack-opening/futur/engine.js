@@ -60,7 +60,7 @@ export async function start(modeId) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   // ?test : résolution réduite pour les captures automatiques en rendu logiciel
   const TEST = new URLSearchParams(location.search).has("test");
-  renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 1.5));
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.7;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
@@ -70,7 +70,7 @@ export async function start(modeId) {
   const decor = buildDecor({ scene, renderer });
   const fxLight = new THREE.PointLight("#ffffff", 0, 9, 1.5); scene.add(fxLight);
 
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 4 }));
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 2 }));
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.4, 0.4, 1.5);
   composer.addPass(bloom);
@@ -345,6 +345,7 @@ export async function start(modeId) {
   });
 
   // Pointeur et clavier
+  const ZERO2 = new THREE.Vector2();
   const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(-9, -9), mouseSmooth = new THREE.Vector2();
   let hoverItem = null, hoverCard = null;
   const pick = () => {
@@ -373,9 +374,21 @@ export async function start(modeId) {
     const it = mode.nextItem(items, camera); if (it) { e.preventDefault(); reveal(it); }
   });
 
+  // Résolution adaptative : si la machine ne tient pas ~45 images/s, on baisse le ratio de pixels par paliers (sans jamais remonter, pour éviter les oscillations)
+  let pixelRatio = renderer.getPixelRatio();
+  const ad = { n: 0, acc: 0, skip: 120 };
+  const adapt = (ms) => {
+    if (TEST || ad.skip-- > 0) return;
+    ad.acc += Math.min(ms, 100);
+    if (++ad.n < 90) return;
+    const avg = ad.acc / ad.n; ad.n = 0; ad.acc = 0;
+    if (avg > 22 && pixelRatio > 0.75) { pixelRatio = Math.max(0.75, pixelRatio * 0.85); renderer.setPixelRatio(pixelRatio); composer.setPixelRatio(pixelRatio); resize(); }
+  };
+
   // Boucle
   let last = performance.now(), time = 0;
   renderer.setAnimationLoop((now) => {
+    adapt(now - last);
     const dt = Math.min(0.05, (now - last) / 1000); last = now; time += dt;
     const sdt = now < stopUntil ? dt * 0.04 : dt;
     for (const tw of [...tweens]) { tw.t += sdt; const k = Math.min(1, tw.t / tw.dur); tw.fn(tw.e(k)); if (k >= 1) { tweens.delete(tw); tw.res(); } }
@@ -400,7 +413,7 @@ export async function start(modeId) {
       }
       if (u.holo) u.holo.material.map.offset.set(time * 0.15 + mouse.x * 0.3, mouse.y * 0.3);
     }
-    mouseSmooth.lerp(mouse.x < -5 ? new THREE.Vector2() : mouse, Math.min(1, dt * 3));
+    mouseSmooth.lerp(mouse.x < -5 ? ZERO2 : mouse, Math.min(1, dt * 3));
     punch *= Math.pow(0.015, dt); camera.fov = 45 - punch * 3.5; camera.updateProjectionMatrix();
     camera.position.set(mouseSmooth.x * 0.5, 2.5 + mouseSmooth.y * 0.25, camDist); camera.lookAt(LOOK);
     composer.render(dt);

@@ -60,15 +60,15 @@
     "semantic_hash": "4fb6e69b06ba014e319b0d6f1f47104c"
   },
   "public/pack-opening/futur/decor.js": {
-    "mtime": 1791643700.1807516,
-    "seen": 1791649539.2771003,
-    "ast_hash": "10cdd9fc9d47e9832a00dc4d956af90c",
-    "semantic_hash": "10cdd9fc9d47e9832a00dc4d956af90c"
+    "mtime": 1791660546.4531965,
+    "seen": 1791660641.681405,
+    "ast_hash": "507819f51035d91cca05d9a9015bae3c",
+    "semantic_hash": ""
   },
   "public/pack-opening/futur/engine.js": {
-    "mtime": 1791659922.239779,
-    "seen": 1791660253.4773757,
-    "ast_hash": "ee4fec701ae3b134085a1744bf0af859",
+    "mtime": 1791660546.4514227,
+    "seen": 1791660641.6814077,
+    "ast_hash": "a7f813d1a0f3de8cf730429286bbafff",
     "semantic_hash": ""
   },
   "public/pack-opening/futur/noyaux.js": {
@@ -924,9 +924,9 @@
     "semantic_hash": ""
   },
   "docs/STATE.md": {
-    "mtime": 1791660248.6241708,
-    "seen": 1791660253.486642,
-    "ast_hash": "f7be294ef890bcbc271b5b5c0085f463",
+    "mtime": 1791660635.0234563,
+    "seen": 1791660641.7166746,
+    "ast_hash": "61d37a26227b6a2afc4610219bea4136",
     "semantic_hash": ""
   },
   "public/pack-opening/futur.html": {
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "public/pack-opening/futur/menu.js": {
-    "mtime": 1791660138.9223528,
-    "seen": 1791660253.4773793,
-    "ast_hash": "689752a3d652350c0f0e583decfae7d6",
+    "mtime": 1791660546.4521663,
+    "seen": 1791660641.6814115,
+    "ast_hash": "563a29eb3775ebd83d8805dc5598b1ea",
     "semantic_hash": ""
   },
   "src/components/SceneBody.tsx": {
