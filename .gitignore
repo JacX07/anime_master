@@ -46,3 +46,6 @@ next-env.d.ts
 # env & local database
 .env
 /data
+
+# Cache généré par graphify
+graphify-out/cache/ast/
