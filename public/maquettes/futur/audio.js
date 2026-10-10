@@ -125,6 +125,8 @@ export function futurAudio(s) {
     },
     // Éclats qui se rassemblent : tintements ascendants qui se resserrent
     gather: () => { const t = s.ctx.currentTime; for (let i = 0; i < 14; i++) { const k = i / 14; tink(t + 0.6 * k ** 0.7, 1500 * 2 ** (k * 1.6), 0.02, 0.14, 0.7); } },
+    // Arrivée dans l'album : petit carillon montant
+    collect: () => { const t = s.ctx.currentTime; [0, 0.06, 0.12].forEach((at, i) => tink(t + at, 2400 * 2 ** (i / 3), 0.04, 0.3, 0.6)); s.tone(659.25, 0.5, { type: "triangle", gain: 0.035, slide: 1.5, wet: 0.5 }); },
     // Scellé de capsule : clic, puis le verre chante et se fend
     unseal: () => { [0, 0.07].forEach((at) => s.tone(2200, 0.04, { type: "square", gain: 0.02, at, bus: "ui", wet: 0.2 })); s.bell(1318.5, 1.6, { gain: 0.03, at: 0.05, partials: [1, 2.41, 3.9] }); },
     // Portail : montée harmonique (pas de souffle), puis jaillissement scintillant

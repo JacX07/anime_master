@@ -48,6 +48,7 @@ export function buildDecor({ scene, renderer }) {
   // Sol : miroir sous une dalle laquée semi-transparente, joints en anneaux et rayons
   const mirror = new Reflector(new THREE.CircleGeometry(30, 96), { textureWidth: innerWidth * 0.6, textureHeight: innerHeight * 0.6, color: "#b9c3cf" });
   mirror.rotation.x = -Math.PI / 2; mirror.position.y = -0.62; scene.add(mirror);
+  if (new URLSearchParams(location.search).has("test")) mirror.visible = false; // ?test : rendu logiciel, le miroir double le coût de chaque image
   const floorMap = canvasTex(2048, 2048, (g, w) => {
     const c = w / 2, px = c / 30;
     g.fillStyle = "#f2f5f9"; g.fillRect(0, 0, w, w);
