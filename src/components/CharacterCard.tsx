@@ -1,5 +1,6 @@
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { TYPE_LABELS } from "@/lib/labels";
+import { Icon, RarityGem, Stat, TypeIcon } from "./icons";
 import type { Finish } from "@/lib/pull";
 
 export interface CharacterCardProps {
@@ -45,26 +46,32 @@ export function CharacterCard({
       {/* Image servie par le CDN AniList : <img> simple, pas de copie côté serveur */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="card-art" src={imageUrl} alt={name} loading="lazy" referrerPolicy="no-referrer" />
-      <span className="card-badge left">{rarity}</span>
+      <RarityGem rarity={rarity} className="card-gem" />
+      {!missing && finish !== "NORMAL" && <Icon name={finish === "GOLD" ? "f-gold" : "f-holo"} className="card-finish" title={finish === "GOLD" ? "Gold" : "Holo"} />}
+      <span className="card-kind" title={t.name}>
+        <TypeIcon type={type} />
+      </span>
       {missing && <span className="card-unknown" aria-hidden>?</span>}
-      {serial !== undefined && <span className="card-badge right">#{serial}</span>}
-      {count !== undefined && count > 1 && <span className="card-badge right">×{count}</span>}
+      {count !== undefined && count > 1 && <span className="card-count">×{count}</span>}
       {isNew && <span className="card-new">NOUVEAU</span>}
       <div className="card-info">
         <div className="card-name" title={name}>
           {name}
         </div>
         <div className="card-series" title={series ?? undefined}>
-          {t.emoji} {t.name}
+          {t.name}
           {series ? ` · ${series}` : ""}
+          {serial !== undefined && <span className="card-serial">#{serial}</span>}
         </div>
         {!missing && (
           <div className="card-stats">
             <span className="card-power" title="Puissance (popularité)">
-              ⚡ {powerFmt.format(power)}
+              <Icon name="puissance" style={{ "--acc": "currentColor" } as React.CSSProperties} />
+              {powerFmt.format(power)}
             </span>
             <span className="card-atkdef">
-              ⚔️ {powerFmt.format(attack)} · 🛡️ {powerFmt.format(defense)}
+              <Stat icon="atk">{powerFmt.format(attack)}</Stat>
+              <Stat icon="def">{powerFmt.format(defense)}</Stat>
             </span>
           </div>
         )}

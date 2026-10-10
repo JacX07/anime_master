@@ -86,7 +86,7 @@ export function PackOpener({ initialState }: { initialState: PlayerPackState }) 
           type="button"
           onClick={open}
           disabled={pending || available < 1 || (cards !== null && !allRevealed)}
-          className="ml-auto rounded-xl bg-violet-500 px-6 py-3 font-bold text-white shadow-lg shadow-violet-500/20 hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-50"
+          className="ml-auto rounded-xl bg-[#2b6cff] px-6 py-3 font-bold text-white shadow-lg shadow-[#2b6cff]/20 hover:bg-[#4b8bff] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? "Ouverture…" : cards ? "Ouvrir le suivant" : "Ouvrir un paquet"}
         </button>
@@ -115,7 +115,7 @@ export function PackOpener({ initialState }: { initialState: PlayerPackState }) 
               >
                 <div className="flip-inner">
                   <div className="flip-face card-back">
-                    <span className="text-2xl font-black tracking-widest text-violet-300/70">AM</span>
+                    <span className="text-2xl font-black tracking-widest text-[#8fb5ff]/70">AM</span>
                   </div>
                   <div className="flip-face flip-front" aria-hidden={!revealed[i]}>
                     <CharacterCard {...card} />

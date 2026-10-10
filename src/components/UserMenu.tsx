@@ -1,36 +1,46 @@
 import Link from "next/link";
 import { signOut } from "@/app/auth-actions";
+import { getPackState } from "@/lib/packs";
 import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { DailyBonus } from "./DailyBonus";
+import { Icon, Money } from "./icons";
 
-const ryo = new Intl.NumberFormat("fr-FR");
+const num = new Intl.NumberFormat("fr-FR");
 
 /** Lit la session : à placer derrière un <Suspense>. */
 export async function UserMenu() {
   const user = await getSessionUser();
   if (!user) {
     return (
-      <div className="flex items-center gap-3 text-sm">
-        <Link href="/login" className="text-muted hover:text-foreground">
+      <div className="site-res">
+        <Link href="/login" className="site-link">
           Connexion
         </Link>
-        <Link href="/signup" className="rounded-lg bg-violet-500 px-3 py-1.5 font-semibold text-white hover:bg-violet-400">
-          S&apos;inscrire
+        <Link href="/signup" className="site-cta">
+          Créer un compte
         </Link>
       </div>
     );
   }
-  const wallet = await getWallet(user.id);
+  const [wallet, packs] = await Promise.all([getWallet(user.id), getPackState(user.id)]);
   return (
-    <form action={signOut} className="flex items-center gap-3 text-sm">
+    <form action={signOut} className="site-res">
       {wallet.canClaimBonus && <DailyBonus />}
-      <span className="wallet font-semibold tabular-nums text-amber-300" title="Ryō">
-        {ryo.format(wallet.balance)} 両
+      <span className="res-item" title="Ryō">
+        <Money n={wallet.balance} />
       </span>
-      <span className="font-medium">{user.username}</span>
-      <button type="submit" className="text-muted hover:text-foreground">
-        Déconnexion
+      <span className="res-item" title="Paquets en réserve">
+        <Icon name="paquet" />
+        {packs.available}
+        {packs.available <= 10 && <span className="res-max"> / 10</span>}
+      </span>
+      <span className="res-item res-power" title="Puissance totale de la collection">
+        <Icon name="puissance" style={{ "--acc": "currentColor" } as React.CSSProperties} />
+        {num.format(packs.collectionPower)}
+      </span>
+      <button type="submit" className="avatar" title={`${user.username} · se déconnecter`} aria-label={`Se déconnecter (${user.username})`}>
+        {user.username.slice(0, 1).toUpperCase()}
       </button>
     </form>
   );

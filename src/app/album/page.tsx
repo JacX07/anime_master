@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { BuyPackButton } from "@/components/BuyPackButton";
 import { CharacterCard } from "@/components/CharacterCard";
+import { Stat } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { getAlbum, parseAlbumFilters, RARITY_ORDER, type AlbumFilters as Filters } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
@@ -89,7 +90,9 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           ))}
         </ul>
         <span className="vt-power" title="Puissance totale de la collection">
-          ⚡ {num.format(packs.collectionPower)}
+          <Stat icon="puissance" accent="currentColor">
+            {num.format(packs.collectionPower)}
+          </Stat>
         </span>
         <BuyPackButton price={packs.packPrice} left={packs.purchasesLeft} balance={packs.balance} available={packs.available} />
       </footer>

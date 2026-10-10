@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { previewDuplicatesAction, sellDuplicatesAction } from "@/app/economy-actions";
+import { Money } from "@/components/icons";
 import type { SalePreview } from "@/lib/wallet";
 
 const RARITY_ORDER = ["UR", "SSR", "SR", "R", "N"] as const;
-const ryo = new Intl.NumberFormat("fr-FR");
 
 /** Vente groupée des doublons : on choisit les raretés, on voit le total, on confirme. */
 export function DuplicateSale({ initialRarities, initialPreview }: { initialRarities: string[]; initialPreview: SalePreview }) {
@@ -13,7 +13,7 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
   const [rarities, setRarities] = useState(initialRarities);
   const [preview, setPreview] = useState(initialPreview);
   const [confirming, setConfirming] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<React.ReactNode>(null);
   const [pending, start] = useTransition();
 
   function toggle(r: string) {
@@ -30,7 +30,7 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
     start(async () => {
       const res = await sellDuplicatesAction(rarities);
       if (res.ok) {
-        setMessage(`${res.count} carte${res.count > 1 ? "s" : ""} vendue${res.count > 1 ? "s" : ""} : +${ryo.format(res.total)} 両.`);
+        setMessage(<>{res.count} carte{res.count > 1 ? "s" : ""} vendue{res.count > 1 ? "s" : ""} : +<Money n={res.total} />.</>);
         setConfirming(false);
         const p = await previewDuplicatesAction(rarities);
         if (p.ok) setPreview(p.preview);
@@ -51,8 +51,8 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
           </p>
           <div className="flex flex-wrap gap-2">
             {RARITY_ORDER.map((r) => (
-              <label key={r} className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 has-[:checked]:border-violet-400">
-                <input type="checkbox" checked={rarities.includes(r)} onChange={() => toggle(r)} className="accent-violet-400" />
+              <label key={r} className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 has-[:checked]:border-[#4b8bff]">
+                <input type="checkbox" checked={rarities.includes(r)} onChange={() => toggle(r)} className="accent-[#4b8bff]" />
                 <b style={{ color: `var(--rarity-${r})` }}>{r}</b>
               </label>
             ))}
@@ -63,7 +63,7 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
             ) : (
               <>
                 <b>{preview.count}</b> carte{preview.count > 1 ? "s" : ""} ({preview.characters} personnage{preview.characters > 1 ? "s" : ""}) pour{" "}
-                <b className="text-amber-300">{ryo.format(preview.total)} 両</b>
+                <b className="text-amber-300"><Money n={preview.total} /></b>
               </>
             )}
           </p>
@@ -79,7 +79,7 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
           ) : (
             <div role="alertdialog" aria-label="Confirmer la vente groupée" className="rounded-xl border border-amber-400/40 bg-black/40 p-4">
               <p>
-                ⚠ Tu vas vendre <b>{preview.count} carte{preview.count > 1 ? "s" : ""}</b> pour <b>{ryo.format(preview.total)} 両</b>. Elles seront définitivement retirées de ta collection,
+                ⚠ Tu vas vendre <b>{preview.count} carte{preview.count > 1 ? "s" : ""}</b> pour <b><Money n={preview.total} /></b>. Elles seront définitivement retirées de ta collection,
                 cette action est irréversible.
               </p>
               <div className="mt-3 flex gap-2">

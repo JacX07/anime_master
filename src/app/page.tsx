@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { Money, Stat } from "@/components/icons";
 import { MenuNav } from "@/components/MenuNav";
 import { SceneFrame } from "@/components/SceneFrame";
 import { SceneBody } from "@/components/SceneBody";
@@ -92,11 +93,17 @@ async function Menu() {
         <dl>
           <div className="gm-power">
             <dt>Puissance totale</dt>
-            <dd>⚡ {num.format(s.power)}</dd>
+            <dd>
+              <Stat icon="puissance" accent="currentColor">
+                {num.format(s.power)}
+              </Stat>
+            </dd>
           </div>
           <div>
             <dt>Ryō</dt>
-            <dd>{num.format(s.wallet.balance)} 両</dd>
+            <dd>
+              <Money n={s.wallet.balance} />
+            </dd>
           </div>
           <div>
             <dt>Cartes</dt>

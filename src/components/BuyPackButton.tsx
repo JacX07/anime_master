@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { buyPackAction } from "@/app/packs/actions";
+import { Money } from "./icons";
 
 interface Props {
   price: number;
@@ -12,7 +13,6 @@ interface Props {
   available: number;
 }
 
-const num = new Intl.NumberFormat("fr-FR");
 
 /** Achat d'un paquet avec des Ryō ; la page se rafraîchit toute seule avec le nouveau solde. */
 export function BuyPackButton({ price, left, balance, available }: Props) {
@@ -33,7 +33,7 @@ export function BuyPackButton({ price, left, balance, available }: Props) {
         }
         className="rounded-xl bg-amber-400/90 px-4 py-2 text-sm font-bold text-black hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-45"
       >
-        {pending ? "Achat…" : `Acheter un paquet · ${num.format(price)} 両`}
+        {pending ? "Achat…" : (<>Acheter un paquet · <Money n={price} /></>)}
       </button>
       <p className="text-xs text-muted" role={error ? "alert" : undefined}>
         {error ?? blocked ?? `${left} achat${left > 1 ? "s" : ""} restant${left > 1 ? "s" : ""} aujourd'hui`} · {available} paquet{available > 1 ? "s" : ""} en réserve

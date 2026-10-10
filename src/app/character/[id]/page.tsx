@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { getCharacter } from "@/lib/album";
 import { prisma } from "@/lib/db";
+import { Stat, TypeIcon } from "@/components/icons";
 import { quickSellPrice } from "@/lib/economy";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { getSessionUser } from "@/lib/session";
@@ -45,17 +46,17 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
 
   const owned = c.copies !== null && c.copies.length > 0;
   const t = TYPE_LABELS[c.type];
-  const facts = [
+  const facts: [string, React.ReactNode][] = [
     ["Rareté", `${c.rarity} · ${RARITY_NAMES[c.rarity]}`],
-    ["Type", `${t.emoji} ${t.name}`],
-    ["Puissance", `⚡ ${numFmt.format(c.power)}`],
-    ["Attaque", `⚔️ ${numFmt.format(c.attack)}`],
-    ["Défense", `🛡️ ${numFmt.format(c.defense)}`],
+    ["Type", <span key="type" className="stat"><TypeIcon type={c.type} />{t.name}</span>],
+    ["Puissance", <Stat key="power" icon="puissance" accent="#00c8b4">{numFmt.format(c.power)}</Stat>],
+    ["Attaque", <Stat key="atk" icon="atk">{numFmt.format(c.attack)}</Stat>],
+    ["Défense", <Stat key="def" icon="def">{numFmt.format(c.defense)}</Stat>],
     ["Favoris AniList", numFmt.format(c.favourites)],
     ["Exemplaires tirés", numFmt.format(c.pullCount)],
-    ...(c.gender ? [["Genre", c.gender]] : []),
-    ...(c.age ? [["Âge", c.age]] : []),
-    ...(c.birthday ? [["Anniversaire", `${c.birthday.day ?? ""} ${MONTHS[c.birthday.month - 1]}`.trim()]] : []),
+    ...(c.gender ? [["Genre", c.gender] as [string, string]] : []),
+    ...(c.age ? [["Âge", c.age] as [string, string]] : []),
+    ...(c.birthday ? [["Anniversaire", `${c.birthday.day ?? ""} ${MONTHS[c.birthday.month - 1]}`.trim()] as [string, string]] : []),
   ];
 
   return (
@@ -73,7 +74,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
         <header>
           <h1 className="text-3xl font-extrabold">{c.name}</h1>
           {c.nameNative && <p className="text-muted">{c.nameNative}</p>}
-          {c.series && <p className="mt-1 text-sm text-violet-300">{c.series}</p>}
+          {c.series && <p className="mt-1 text-sm text-[#8fb5ff]">{c.series}</p>}
         </header>
 
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { claimDailyBonusAction } from "@/app/economy-actions";
 import { DAILY_BONUS } from "@/lib/economy";
+import { Icon } from "./icons";
 
 /** Bouton du bonus quotidien dans le menu : disparaît une fois réclamé (la page se rafraîchit avec le nouveau solde). */
 export function DailyBonus() {
@@ -19,9 +20,10 @@ export function DailyBonus() {
           setError(r.ok ? null : r.error);
         })
       }
-      className="daily-bonus rounded-full bg-amber-400/90 px-3 py-1 text-xs font-bold text-black hover:bg-amber-300 disabled:opacity-60"
+      className="daily-bonus"
     >
-      {error ? "Réessayer" : `Bonus du jour +${DAILY_BONUS}`}
+      <Icon name="bonus" style={{ "--acc": "#f2a516" } as React.CSSProperties} />
+      {error ? "Réessayer" : `Bonus +${DAILY_BONUS}`}
     </button>
   );
 }

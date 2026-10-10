@@ -3,6 +3,8 @@ import { Michroma, Sora } from "next/font/google";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AlbumLink } from "@/components/AlbumLink";
+import { Icon, IconSprite } from "@/components/icons";
+import { NavLink } from "@/components/NavLink";
 import { UserMenu } from "@/components/UserMenu";
 import "./globals.css";
 
@@ -19,21 +21,47 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${michroma.variable} ${sora.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
-        <header className="border-b border-white/10 bg-black/30">
-          <nav className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
-            <Link href="/" className="site-logo font-bold tracking-tight">
-              Anime <span className="text-violet-400">Masters</span>
+        <IconSprite />
+        <header className="site-header">
+          <div className="site-header-in">
+            <Link href="/" className="brand">
+              <Icon name="logo" className="brand-mark" />
+              <span>Anime Masters</span>
             </Link>
-            <Link href="/packs" className="site-link text-sm text-muted hover:text-foreground">
-              Paquets
-            </Link>
-            <AlbumLink />
-            <div className="ml-auto">
-              <Suspense fallback={null}>
-                <UserMenu />
+            <nav className="site-nav" aria-label="Navigation principale">
+              {/* usePathname() lit l'URL à l'exécution : derrière un Suspense, avec les mêmes liens (sans soulignement) en attendant */}
+              <Suspense
+                fallback={
+                  <>
+                    <Link href="/packs" className="site-link">
+                      <Icon name="nav-paquets" />
+                      Paquets
+                    </Link>
+                    <Link href="/album" className="site-link">
+                      <Icon name="nav-album" />
+                      Album
+                    </Link>
+                  </>
+                }
+              >
+                <NavLink href="/packs" icon="nav-paquets">
+                  Paquets
+                </NavLink>
+                <AlbumLink />
               </Suspense>
-            </div>
-          </nav>
+              <span className="site-link site-soon" title="Bientôt">
+                <Icon name="nav-marche" />
+                Marché
+              </span>
+              <span className="site-link site-soon" title="Bientôt">
+                <Icon name="nav-duels" />
+                Duels
+              </span>
+            </nav>
+            <Suspense fallback={null}>
+              <UserMenu />
+            </Suspense>
+          </div>
         </header>
         {children}
         <footer className="py-6 text-center text-xs text-muted">

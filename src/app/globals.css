@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0b12;
-  --foreground: #ececf1;
-  --panel: #161622;
-  --muted: #8b8ba3;
+  --background: #0b1424;
+  --foreground: #e8f0ff;
+  --panel: #111f38;
+  --muted: #8ea3c4;
 
   --rarity-N: #94a3b8;
   --rarity-R: #38bdf8;
@@ -97,6 +97,7 @@ h3 {
   white-space: nowrap;
 }
 .card-series {
+  display: flex;
   font-size: 5cqw;
   color: #c4c4d4;
   overflow: hidden;
@@ -111,12 +112,17 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 .card-power {
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
   font-size: 9cqw;
   font-weight: 800;
   line-height: 1.1;
   color: color-mix(in srgb, var(--rarity) 55%, white);
 }
 .card-atkdef {
+  display: flex;
+  gap: 4cqw;
   font-size: 4.2cqw;
   color: #c4c4d4;
 }
@@ -128,11 +134,37 @@ h3 {
   font-size: 5cqw;
   font-weight: 700;
   background: rgb(0 0 0 / 0.65);
-  backdrop-filter: blur(4px);
   z-index: 2;
 }
-.card-badge.left { left: 3cqw; color: var(--rarity); }
-.card-badge.right { right: 3cqw; color: var(--foreground); font-variant-numeric: tabular-nums; }
+/* Cristal de rareté en haut à gauche, finition dessous, plaque du type en haut à droite */
+.card-gem { position: absolute; top: 2.5cqw; left: 2.5cqw; width: 12cqw; height: 12cqw; z-index: 2; }
+.card-finish { position: absolute; top: 16.5cqw; left: 3.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+.card-kind {
+  position: absolute;
+  top: 3cqw;
+  right: 3cqw;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 11cqw;
+  height: 11cqw;
+  border-radius: 2.5cqw;
+  background: rgb(11 20 36 / 0.7);
+  font-size: 7cqw;
+}
+.card-count {
+  position: absolute;
+  top: 16cqw;
+  right: 3cqw;
+  z-index: 2;
+  padding: 0.5cqw 2.5cqw;
+  border-radius: 999px;
+  font-size: 4.5cqw;
+  font-weight: 700;
+  background: rgb(11 20 36 / 0.75);
+  font-variant-numeric: tabular-nums;
+}
+.card-serial { margin-left: auto; padding-left: 2cqw; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-new {
   position: absolute;
   top: 3cqw;
@@ -289,83 +321,212 @@ a.album-bump {
   font-weight: 700;
 }
 
-/* Page Paquets : la scène 3D occupe tout l'écran et le menu du haut flotte dessus, dans le style de la maquette.
-   La classe est posée par ImmersiveOpener tant qu'il est affiché (Next garde les pages quittées en mémoire, d'où pas de :has). */
+/* Pages à fond 3D plein écran (accueil, Paquets) : la scène occupe l'écran et la barre du haut flotte dessus. */
 body.scene-active {
   overflow: hidden;
 }
 body.scene-active > footer {
   display: none;
 }
-body.scene-active > header {
+body.scene-active > .site-header {
   position: absolute;
   inset: 0 0 auto 0;
-  z-index: 20;
-  border: 0;
-  background: linear-gradient(#f4f7fb99, transparent);
-  color: #0d1b2a;
-  font-family: var(--font-sora), sans-serif;
-}
-body.scene-active > header .site-logo {
-  font-family: var(--font-michroma), var(--font-sora), sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-}
-body.scene-active > header .site-logo span {
-  color: #2b6cff;
-}
-body.scene-active > header .site-link {
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #0d1b2a99;
-}
-body.scene-active > header .site-link:hover {
-  color: #2b6cff;
-}
-body.scene-packs > header a[href="/packs"] {
-  color: #0d1b2a;
-  box-shadow: inset 0 -2px 0 #2b6cff;
-}
-body.scene-active > header .album-badge {
-  background: #2b6cff;
-}
-body.scene-active > header form,
-body.scene-active > header form button {
-  color: #0d1b2a;
-}
-body.scene-active > header form button {
-  opacity: 0.6;
-}
-body.scene-active > header .wallet {
-  color: #b87a00;
+  background: linear-gradient(#070d1acc, transparent);
 }
 
-/* ---------- Menu d'accueil : le laboratoire à la tombée de la nuit ---------- */
-body.scene-night > header {
-  background: linear-gradient(#070d1acc, transparent);
-  color: #e8f0ff;
+/* ---------- Barre du haut : bandeau de HUD ---------- */
+.site-header {
+  position: relative;
+  z-index: 20;
+  background: linear-gradient(#070d1ae6, #0b1424e6);
+  color: var(--foreground);
 }
-body.scene-night > header .site-logo span {
-  color: #4b8bff;
+.site-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #4b8bff 25%, #00c8b4 60%, transparent);
+  opacity: 0.7;
+  pointer-events: none;
 }
-body.scene-night > header .site-link {
-  color: #e8f0ffb3;
+.site-header-in {
+  max-width: 80rem;
+  margin: 0 auto;
+  height: 60px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2.25rem;
 }
-body.scene-night > header .site-link:hover {
-  color: #fff;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
-body.scene-night > header form,
-body.scene-night > header form button {
-  color: #e8f0ff;
+.brand-mark {
+  width: 26px;
+  height: 26px;
 }
-body.scene-night > header .text-muted {
-  color: #c9d8f2;
+.site-nav {
+  display: flex;
+  gap: 0.4rem;
 }
-body.scene-night > header .wallet {
-  color: #f5c451;
+.site-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+.site-link .i {
+  width: 18px;
+  height: 18px;
+}
+a.site-link:hover {
+  opacity: 1;
+}
+.site-link[aria-current="page"] {
+  opacity: 1;
+}
+.site-link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0.8rem;
+  right: 0.8rem;
+  bottom: -0.55rem;
+  height: 2px;
+  background: #4b8bff;
+  box-shadow: 0 0 10px #4b8bff;
+}
+.site-soon {
+  opacity: 0.35;
+  cursor: default;
+}
+.site-res {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+.site-cta {
+  margin-left: 0.5rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid #4b8bff;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.site-cta:hover {
+  background: #4b8bff33;
+}
+.res-item {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.res-item + .res-item {
+  border-left: 1px solid;
+  border-image: linear-gradient(transparent, #ffffff40, transparent) 1;
+}
+.res-item .i {
+  width: 20px;
+  height: 20px;
+}
+.res-max {
+  opacity: 0.55;
+  font-weight: 400;
+}
+.res-power {
+  color: #00c8b4;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-left: 0.6rem;
+  border: 0;
+  cursor: pointer;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: linear-gradient(135deg, #4b8bff, #00c8b4);
+  color: #06101e;
+  font: 400 0.8rem var(--font-display);
+}
+.avatar:hover {
+  filter: brightness(1.15);
+}
+.daily-bonus {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 0.6rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #f2a516;
+  border-radius: 4px;
+  background: #f2a51622;
+  color: #f2c25a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  animation: bonus-pulse 2.4s ease-in-out infinite;
+}
+.daily-bonus .i {
+  width: 16px;
+  height: 16px;
+}
+.daily-bonus:hover {
+  background: #f2a51644;
+}
+@keyframes bonus-pulse {
+  50% { box-shadow: 0 0 14px #f2a51655; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-bonus { animation: none; }
+}
+@media (max-width: 860px) {
+  .site-header-in { gap: 1rem; padding: 0 0.75rem; }
+  .brand span { display: none; }
+  .res-item { padding: 0 0.6rem; }
+  .site-soon { display: none; }
+}
+
+/* Variante labo clair : scène d'ouverture de paquets */
+body.scene-packs > .site-header {
+  background: linear-gradient(#f4f7fb99, transparent);
+  color: #0d1b2a;
+}
+body.scene-packs .site-header::after {
+  background: linear-gradient(90deg, transparent, #2b6cff 25%, #00c8b4 60%, transparent);
+}
+body.scene-packs .site-link[aria-current="page"]::after {
+  background: #2b6cff;
+  box-shadow: 0 0 10px #2b6cff88;
+}
+body.scene-packs .res-item + .res-item {
+  border-image: linear-gradient(transparent, #0d1b2a33, transparent) 1;
+}
+body.scene-packs .res-power {
+  color: #00968a;
+}
+body.scene-packs .daily-bonus {
+  color: #9a6200;
+}
+body.scene-packs .site-cta {
+  border-color: #2b6cff;
 }
 
 .gm {
@@ -620,7 +781,8 @@ body.scene-night {
   flex: none;
 }
 .vt-search input {
-  width: min(17rem, 100%);
+  width: 17rem;
+  max-width: 100%;
   padding: 0.5rem 0.1rem;
   background: transparent;
   border: 0;
@@ -637,6 +799,10 @@ body.scene-night {
   gap: 0.4rem;
 }
 .vt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
   padding: 0.3rem 0.85rem;
   border-radius: 999px;
   border: 1px solid #ffffff26;
@@ -763,3 +929,22 @@ body.scene-night {
     transition: none;
   }
 }
+
+/* ---------- Icônes maison ---------- */
+.i {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  flex: none;
+  vertical-align: -0.25em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Dans un <use>, le contenu du symbole est stylé selon sa place dans le sprite : pas de « .i » devant ces sélecteurs */
+.a { stroke: var(--acc, #00c8b4); }
+.f { fill: var(--acc, #00c8b4); stroke: none; }
+.gem { width: 1.5em; height: 1.5em; flex: none; overflow: visible; }
+.money, .stat { display: inline-flex; align-items: center; gap: 0.3em; font-variant-numeric: tabular-nums; }

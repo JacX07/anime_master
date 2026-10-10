@@ -1,0 +1,728 @@
+{
+ "t-combat": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M7 3.5 15.5 20.5M12 3.5l6.5 13M3.5 8l5.2 11"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "19.6",
+     "cy": "5",
+     "r": "1.2"
+    }
+   }
+  ]
+ },
+ "t-mystere": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 2.5 20.5 12 12 21.5 3.5 12Z"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "a",
+     "d": "M7.6 12c1.6-2.5 7.2-2.5 8.8 0-1.6 2.5-7.2 2.5-8.8 0Z"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "12",
+     "cy": "12",
+     "r": "1.7"
+    }
+   }
+  ]
+ },
+ "t-magie": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 3l1.8 7.2L21 12l-7.2 1.8L12 21l-1.8-7.2L3 12l7.2-1.8Z"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "19.2",
+     "cy": "4.8",
+     "r": "1.2"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "5",
+     "cy": "19",
+     "r": ".9"
+    }
+   }
+  ]
+ },
+ "t-coeur": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 20.5 4.6 13A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 7.4 6Z"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "f",
+     "d": "M12 10.6l1.7 1.7-1.7 1.7-1.7-1.7Z"
+    }
+   }
+  ]
+ },
+ "t-aventure": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "circle",
+    "attrs": {
+     "cx": "12",
+     "cy": "12",
+     "r": "9"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "a",
+     "d": "M12 6.5 14.2 12 12 17.5 9.8 12Z",
+     "transform": "rotate(38 12 12)"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 2.5v2.2"
+    }
+   }
+  ]
+ },
+ "puissance": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 2.5 20 7v10l-8 4.5L4 17V7Z"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "f",
+     "d": "M13.2 6.6 8.6 13.2h3.2l-1 4.4 4.6-6.6h-3.2Z"
+    }
+   }
+  ]
+ },
+ "atk": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M6 18 18.5 5.5M14 5.5h4.5V10M7.6 13.4l3 3M4.2 19.8 6 18"
+    }
+   }
+  ]
+ },
+ "def": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 3 19.5 6v6c0 4.4-3.4 7.4-7.5 9-4.1-1.6-7.5-4.6-7.5-9V6Z"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "f",
+     "d": "M12 7.2l4 1.6V12c0 2.4-1.6 4.2-4 5.3Z",
+     "opacity": ".55"
+    }
+   }
+  ]
+ },
+ "ryo": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "circle",
+    "attrs": {
+     "cx": "12",
+     "cy": "12",
+     "r": "9"
+    }
+   },
+   {
+    "tag": "rect",
+    "attrs": {
+     "class": "a",
+     "x": "9",
+     "y": "9",
+     "width": "6",
+     "height": "6",
+     "rx": "1"
+    }
+   }
+  ]
+ },
+ "paquet": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "7",
+     "y": "2.5",
+     "width": "10",
+     "height": "19",
+     "rx": "5"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "a",
+     "d": "M7 12h10"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "12",
+     "cy": "7.2",
+     "r": "1"
+    }
+   }
+  ]
+ },
+ "lock": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "6",
+     "y": "11",
+     "width": "12",
+     "height": "9.5",
+     "rx": "2.2"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M8.6 11V8.2a3.4 3.4 0 0 1 6.8 0V11"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "12",
+     "cy": "15.7",
+     "r": "1.3"
+    }
+   }
+  ]
+ },
+ "unlock": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "6",
+     "y": "11",
+     "width": "12",
+     "height": "9.5",
+     "rx": "2.2"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M8.6 11V8.2a3.4 3.4 0 0 1 6.5-1.4"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "12",
+     "cy": "15.7",
+     "r": "1.3"
+    }
+   }
+  ]
+ },
+ "vendre": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "3",
+     "y": "7",
+     "width": "9.5",
+     "height": "13.5",
+     "rx": "2"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "a",
+     "cx": "17",
+     "cy": "8",
+     "r": "4.4"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "a",
+     "d": "M17 6.2v3.6M15.4 8h3.2"
+    }
+   }
+  ]
+ },
+ "bonus": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4Z"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M4 7.4 12 12l8-4.6M12 12v9.2"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "12",
+     "cy": "12",
+     "r": "1.5"
+    }
+   }
+  ]
+ },
+ "nav-paquets": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "7",
+     "y": "2.5",
+     "width": "10",
+     "height": "19",
+     "rx": "5"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "a",
+     "d": "M7 12h10"
+    }
+   }
+  ]
+ },
+ "nav-album": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "3.5",
+     "y": "6",
+     "width": "11",
+     "height": "15",
+     "rx": "2"
+    }
+   },
+   {
+    "tag": "rect",
+    "attrs": {
+     "class": "a",
+     "x": "9.5",
+     "y": "3",
+     "width": "11",
+     "height": "15",
+     "rx": "2"
+    }
+   }
+  ]
+ },
+ "nav-marche": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M3 12 11 4h9v9l-8 8Z"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "class": "f",
+     "cx": "15.6",
+     "cy": "8.4",
+     "r": "1.4"
+    }
+   }
+  ]
+ },
+ "nav-duels": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M5 5l14 14M19 5 5 19"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "class": "f",
+     "d": "M12 9.4l2.6 2.6-2.6 2.6L9.4 12Z"
+    }
+   }
+  ]
+ },
+ "nav-classement": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "3",
+     "y": "12",
+     "width": "5.2",
+     "height": "8.5",
+     "rx": "1"
+    }
+   },
+   {
+    "tag": "rect",
+    "attrs": {
+     "class": "a",
+     "x": "9.4",
+     "y": "6.5",
+     "width": "5.2",
+     "height": "14",
+     "rx": "1"
+    }
+   },
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "15.8",
+     "y": "14.5",
+     "width": "5.2",
+     "height": "6",
+     "rx": "1"
+    }
+   }
+  ]
+ },
+ "logo": {
+  "viewBox": "0 0 32 32",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 2 28 16 16 30 4 16Z",
+     "fill": "none",
+     "stroke": "url(#lg)",
+     "stroke-width": "2",
+     "stroke-linejoin": "round"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M4 16h24M16 2v28",
+     "stroke": "url(#lg)",
+     "stroke-width": "1",
+     "opacity": ".55"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 10 22 16 16 22 10 16Z",
+     "fill": "url(#lg)"
+    }
+   }
+  ]
+ },
+ "f-normal": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "5",
+     "y": "3",
+     "width": "14",
+     "height": "18",
+     "rx": "2.2"
+    }
+   }
+  ]
+ },
+ "f-holo": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "5",
+     "y": "3",
+     "width": "14",
+     "height": "18",
+     "rx": "2.2"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M8 18 16 6",
+     "stroke": "#ff7fb0"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M10.5 19 17 9",
+     "stroke": "#ffd84a"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M8 13l5-7",
+     "stroke": "#5fb8ff"
+    }
+   }
+  ]
+ },
+ "f-gold": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   {
+    "tag": "rect",
+    "attrs": {
+     "x": "5",
+     "y": "3",
+     "width": "14",
+     "height": "18",
+     "rx": "2.2",
+     "stroke": "#f2a516"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M12 7.5l1.2 3.3 3.3 1.2-3.3 1.2L12 16.5l-1.2-3.3L7.5 12l3.3-1.2Z",
+     "fill": "#f2a516",
+     "stroke": "none"
+    }
+   }
+  ]
+ },
+ "r-N": {
+  "viewBox": "0 0 32 32",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 4 26 16 16 28 6 16Z",
+     "fill": "currentColor",
+     "stroke": "currentColor",
+     "stroke-width": "1.6",
+     "stroke-linejoin": "round",
+     "fill-opacity": "0.12"
+    }
+   }
+  ]
+ },
+ "r-R": {
+  "viewBox": "0 0 32 32",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 3 27 16 16 29 5 16Z",
+     "fill": "currentColor",
+     "stroke": "currentColor",
+     "stroke-width": "1.6",
+     "stroke-linejoin": "round",
+     "fill-opacity": "0.15"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M5 16h22",
+     "stroke": "currentColor",
+     "stroke-width": "1.2"
+    }
+   }
+  ]
+ },
+ "r-SR": {
+  "viewBox": "0 0 32 32",
+  "shapes": [
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 3 27 16 16 29 5 16Z",
+     "fill": "currentColor",
+     "stroke": "currentColor",
+     "stroke-width": "1.6",
+     "stroke-linejoin": "round",
+     "fill-opacity": "0.18"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M5 16h22M16 3v26",
+     "stroke": "currentColor",
+     "stroke-width": "1.2"
+    }
+   }
+  ]
+ },
+ "r-SSR": {
+  "viewBox": "0 0 32 32",
+  "shapes": [
+   {
+    "tag": "circle",
+    "attrs": {
+     "cx": "16",
+     "cy": "16",
+     "r": "14.2",
+     "fill": "none",
+     "stroke": "currentColor",
+     "stroke-width": "1",
+     "opacity": ".7"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 4 26 16 16 28 6 16Z",
+     "fill": "currentColor",
+     "stroke": "currentColor",
+     "stroke-width": "1.6",
+     "stroke-linejoin": "round",
+     "fill-opacity": "0.22"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M6 16h20M16 4v24",
+     "stroke": "currentColor",
+     "stroke-width": "1.2"
+    }
+   }
+  ]
+ },
+ "r-UR": {
+  "viewBox": "0 0 32 32",
+  "shapes": [
+   {
+    "tag": "circle",
+    "attrs": {
+     "cx": "16",
+     "cy": "16",
+     "r": "14.6",
+     "fill": "none",
+     "stroke": "currentColor",
+     "stroke-width": "1",
+     "opacity": ".8"
+    }
+   },
+   {
+    "tag": "circle",
+    "attrs": {
+     "cx": "16",
+     "cy": "16",
+     "r": "11.6",
+     "fill": "none",
+     "stroke": "currentColor",
+     "stroke-width": ".8",
+     "opacity": ".5"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 4.5 25.5 16 16 27.5 6.5 16Z",
+     "fill": "currentColor",
+     "stroke": "currentColor",
+     "stroke-width": "1.6",
+     "stroke-linejoin": "round",
+     "fill-opacity": "0.25"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M6.5 16h19M16 4.5v23",
+     "stroke": "currentColor",
+     "stroke-width": "1.2"
+    }
+   },
+   {
+    "tag": "path",
+    "attrs": {
+     "d": "M16 1v3M16 28v3M1 16h3M28 16h3",
+     "stroke": "currentColor",
+     "stroke-width": "1.4",
+     "stroke-linecap": "round"
+    }
+   }
+  ]
+ }
+}

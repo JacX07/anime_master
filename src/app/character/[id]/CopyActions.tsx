@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { sellCardAction, toggleLockAction } from "@/app/economy-actions";
+import { Icon, Money } from "@/components/icons";
 
 interface Props {
   cardId: string;
@@ -14,7 +15,6 @@ interface Props {
   lastCopy: boolean;
 }
 
-const ryo = new Intl.NumberFormat("fr-FR");
 
 /** Cadenas et vente rapide d'un exemplaire, avec avertissement avant la vente. */
 export function CopyActions({ cardId, locked, price, label, characterName, lastCopy }: Props) {
@@ -40,7 +40,7 @@ export function CopyActions({ cardId, locked, price, label, characterName, lastC
           title={locked ? "Déverrouiller" : "Verrouiller (empêche la vente)"}
           className="rounded-lg border border-white/10 px-2.5 py-1 hover:bg-white/5 disabled:opacity-50"
         >
-          {locked ? "🔒" : "🔓"}
+          <Icon name={locked ? "lock" : "unlock"} title={locked ? "Verrouillée" : "Déverrouillée"} />
         </button>
         <button
           type="button"
@@ -49,14 +49,14 @@ export function CopyActions({ cardId, locked, price, label, characterName, lastC
           title={locked ? "Déverrouille la carte pour la vendre" : undefined}
           className="rounded-lg bg-amber-400/90 px-3 py-1 text-xs font-bold text-black hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Vendre · {ryo.format(price)} 両
+          Vendre · <Money n={price} />
         </button>
       </div>
 
       {confirming && (
         <div role="alertdialog" aria-label="Confirmer la vente" className="w-72 rounded-xl border border-amber-400/40 bg-black/40 p-3 text-left text-xs leading-relaxed">
           <p>
-            Vendre <b>{characterName}</b> ({label}) pour <b>{ryo.format(price)} 両</b> ?
+            Vendre <b>{characterName}</b> ({label}) pour <b><Money n={price} /></b> ?
           </p>
           <p className="mt-1 text-muted">La carte est définitivement retirée de ta collection. Cette action est irréversible.</p>
           {lastCopy && (

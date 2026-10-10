@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "./icons";
 
 export const ALBUM_BUMP = "am:album-bump";
 export const ALBUM_STORED = "am:album-stored";
@@ -41,7 +42,8 @@ export function AlbumLink() {
   }
 
   return (
-    <Link ref={ref} href="/album" className="site-link text-sm text-muted hover:text-foreground">
+    <Link ref={ref} href="/album" className="site-link" aria-current={pathname.startsWith("/album") ? "page" : undefined}>
+      <Icon name="nav-album" />
       Album
       {stored > 0 && <span className="album-badge">+{stored}</span>}
     </Link>

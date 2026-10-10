@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { AlbumFilters as Filters } from "@/lib/album";
+import { TypeIcon } from "@/components/icons";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
@@ -62,7 +63,7 @@ export function AlbumFilters({ filters }: { filters: Filters }) {
         <div className="vt-chips" role="group" aria-label="Type">
           {TYPES.map((t) => (
             <Chip key={t} href={albumHref(filters, { type: filters.type === t ? null : t })} active={filters.type === t}>
-              {TYPE_LABELS[t].emoji} {TYPE_LABELS[t].name}
+              <TypeIcon type={t} /> {TYPE_LABELS[t].name}
             </Chip>
           ))}
         </div>

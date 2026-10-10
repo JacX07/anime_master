@@ -10,7 +10,7 @@ interface Props {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 outline-none focus:border-violet-400";
+  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 outline-none focus:border-[#4b8bff]";
 
 export function AuthForm({ mode, action }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
@@ -65,7 +65,7 @@ export function AuthForm({ mode, action }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-violet-500 px-4 py-2 font-semibold text-white hover:bg-violet-400 disabled:opacity-60"
+        className="rounded-lg bg-[#2b6cff] px-4 py-2 font-semibold text-white hover:bg-[#4b8bff] disabled:opacity-60"
       >
         {pending ? "Un instant…" : signup ? "Créer mon compte" : "Se connecter"}
       </button>
@@ -73,11 +73,11 @@ export function AuthForm({ mode, action }: Props) {
       <p className="text-center text-sm text-muted">
         {signup ? (
           <>
-            Déjà un compte ? <Link href="/login" className="text-violet-300 hover:underline">Se connecter</Link>
+            Déjà un compte ? <Link href="/login" className="text-[#8fb5ff] hover:underline">Se connecter</Link>
           </>
         ) : (
           <>
-            Pas encore de compte ? <Link href="/signup" className="text-violet-300 hover:underline">S&apos;inscrire</Link>
+            Pas encore de compte ? <Link href="/signup" className="text-[#8fb5ff] hover:underline">S&apos;inscrire</Link>
           </>
         )}
       </p>
