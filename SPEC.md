@@ -325,7 +325,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 
 ### 8. Critères pour dire que l'étape 2 est finie
 - [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit 10 paquets.
-- [ ] Un paquet se recharge toutes les 10 minutes, avec un maximum de 10.
+- [x] Un paquet se recharge toutes les 10 minutes, avec un maximum de 10 (`npm run check:recharge`).
 - [x] Chaque paquet contient 5 cartes, dont au moins une R ou mieux.
 - [x] Le pity SSR se déclenche au 15ᵉ paquet sans SSR ou mieux, et le pity UR au 100ᵉ sans UR.
 - [x] Sur 10 000 paquets simulés, les taux observés correspondent à la spec (en tenant compte des garanties).

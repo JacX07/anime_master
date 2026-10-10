@@ -9,14 +9,14 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 - **Paquets** (`/packs`) : stock paresseux (1 / 10 min, max 10), ouverture serveur en une transaction, protection contre les ouvertures simultanées, retournement CSS, Holo/Gold, « NOUVEAU ».
 - **Album** (`/album`) : grille triée rareté puis favoris, possédés (meilleure finition, ×N), manquants floutés, filtres rareté / type / possession / recherche dans l'URL, progression globale et par rareté, pagination 60.
 - **Fiche perso** (`/character/[id]`) : grande carte, infos, description complète, exemplaires du joueur, séries.
+- **Recharge vérifiée** : `npm run check:recharge` (joueur jetable sur la vraie base : palier 10 min, plafond 10, progression gardée après ouverture, refus à 0, ouvertures simultanées) + test navigateur (compteur 0 → 1 en direct, ouverture acceptée, compte à rebours conservé).
 - **Maquettes d'ouverture 3D** (`/maquettes`) : DA cyber futuriste v2 validée par l'utilisateur (« on changera des détails après »), 3 variantes de révélation (capsules, noyaux, portail), musique générative adaptative, sons de verre.
 
 ## Reste à faire, dans l'ordre
-1. **Vérifier en vrai la recharge** (1 paquet / 10 min, max 10) puis cocher le critère dans `SPEC.md` §8.
-2. **Intégrer l'ouverture 3D futuriste dans `/packs`**, branchée sur `openPackAction` (le tirage reste côté serveur). Choisir avec l'utilisateur la variante (capsules / noyaux / portail) et les détails à retoucher.
-3. **Supprimer les maquettes** (`public/maquettes/`, `src/app/maquettes/`) une fois l'intégration faite.
-4. Supprimer le compte de test `testrendu`.
-5. Hors MVP (repoussé) : lueur de rareté au dos, progression et filtre par série, indicateurs de finition dans l'album, `/profile`, puis étapes 3 à 6 de la spec (économie, etc.).
+1. **Intégrer l'ouverture 3D futuriste dans `/packs`**, branchée sur `openPackAction` (le tirage reste côté serveur). Variante choisie : **2 — noyaux de données**. Détails à retoucher à voir avec l'utilisateur.
+2. **Supprimer les maquettes** (`public/maquettes/`, `src/app/maquettes/`) une fois l'intégration faite.
+3. Supprimer le compte de test `testrendu`.
+4. Hors MVP (repoussé) : lueur de rareté au dos, progression et filtre par série, indicateurs de finition dans l'album, `/profile`, puis étapes 3 à 6 de la spec (économie, etc.).
 
 ## Décisions et raisons
 - **Spec d'abord** : on valide dans `SPEC.md` avant de coder ; l'utilisateur parle français.
@@ -36,7 +36,7 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 | `SPEC.md` | Spécification complète et critères de fin d'étape |
 | `AGENTS.md` | Règles : lire la doc Next 16 dans `node_modules/next/dist/docs/`, commit + push après chaque fonctionnalité |
 | `prisma/schema.prisma` | Modèle de données (SQLite local, compatible PostgreSQL) |
-| `scripts/import.ts`, `scripts/simulate.ts` | Import AniList, simulation des taux |
+| `scripts/import.ts`, `scripts/simulate.ts`, `scripts/check-recharge.ts` | Import AniList, simulation des taux, vérification de la recharge |
 | `src/lib/stats.ts`, `src/lib/clean.ts` | Rareté, stats, types ; nettoyage des descriptions |
 | `src/lib/pull.ts` | Tirage pur (taux, garanties, pity) |
 | `src/lib/pack-stock.ts`, `src/lib/packs.ts` | Stock de paquets ; ouverture transactionnelle |
