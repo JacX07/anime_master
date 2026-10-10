@@ -46,7 +46,7 @@ export async function start(modeId) {
   // ?test : résolution réduite pour les captures automatiques en rendu logiciel
   const TEST = new URLSearchParams(location.search).has("test");
   renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 2));
-  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.88;
+  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.7;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
@@ -78,7 +78,7 @@ export async function start(modeId) {
   const holoTex = canvasTex(512, 512, (g, w, h) => { const hues = ["#ff5fd8", "#ffd84a", "#5ff2c8", "#5fb8ff", "#a77dff"]; g.lineWidth = 7; for (let i = -h; i < w + h; i += 46) { const gr = g.createLinearGradient(i, 0, i + h, h); hues.forEach((c, k) => gr.addColorStop(k / 4, c)); g.strokeStyle = gr; g.globalAlpha = 0.55; g.beginPath(); g.moveTo(i, 0); g.lineTo(i + h, h); g.stroke(); } });
   holoTex.wrapS = holoTex.wrapT = THREE.RepeatWrapping;
   const reflectMat = (map) => new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, side: THREE.DoubleSide, uniforms: { map: { value: map }, uOpacity: { value: 0.32 } },
+    transparent: true, depthWrite: false, side: THREE.DoubleSide, uniforms: { map: { value: map }, uOpacity: { value: 0.25 } },
     vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: `uniform sampler2D map; uniform float uOpacity; varying vec2 vUv;
       void main() { vec4 t = texture2D(map, vUv); gl_FragColor = vec4(t.rgb, t.a * uOpacity * clamp(1.0 - vUv.y * 1.7, 0.0, 1.0)); }`,

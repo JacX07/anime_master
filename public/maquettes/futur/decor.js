@@ -15,10 +15,10 @@ export function buildDecor({ scene, renderer }) {
   // Éclairage : environnement de studio pour des reflets réalistes, une lumière clé qui projette des ombres douces
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.6;
+  scene.environmentIntensity = 0.45;
   scene.fog = new THREE.Fog("#e6edf5", 34, 140);
-  scene.add(new THREE.HemisphereLight("#f4f6f9", "#b9c3cf", 0.5));
-  const key = new THREE.DirectionalLight("#fffaf2", 1.6);
+  scene.add(new THREE.HemisphereLight("#f4f6f9", "#b9c3cf", 0.35));
+  const key = new THREE.DirectionalLight("#fffaf2", 1.2);
   key.position.set(-6, 14, 9); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048); key.shadow.camera.left = -14; key.shadow.camera.right = 14; key.shadow.camera.top = 14; key.shadow.camera.bottom = -14; key.shadow.camera.far = 40; key.shadow.radius = 6; key.shadow.bias = -0.0005;
   scene.add(key);
