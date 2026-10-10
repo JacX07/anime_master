@@ -49,8 +49,11 @@ export function buildDecor({ scene, renderer }) {
   const glowWhite = new THREE.MeshBasicMaterial({ color: hdr("#dfeaff", 1.3) });
 
   // Sol : miroir sous une dalle laquée semi-transparente, joints en anneaux et rayons
-  const mirror = new Reflector(new THREE.CircleGeometry(30, 96), { textureWidth: innerWidth * 0.4, textureHeight: innerHeight * 0.4, color: "#b9c3cf" });
+  const mirror = new Reflector(new THREE.CircleGeometry(30, 96), { textureWidth: innerWidth * 0.4, textureHeight: innerHeight * 0.4, color: "#b9c3cf", multisample: 0 }); // multisample 0 : par défaut ×4 en HalfFloat, très coûteux pour un reflet déjà flou
   mirror.rotation.x = -Math.PI / 2; mirror.position.y = -0.62; scene.add(mirror);
+  // Le reflet ne se redessine qu'une image sur deux : il refait toute la scène à chaque passage, et personne ne voit le décalage
+  const mirrorRender = mirror.onBeforeRender; let mirrorFrame = 0;
+  mirror.onBeforeRender = function (...args) { if (mirrorFrame++ % 2 === 0) mirrorRender.apply(this, args); };
   if (new URLSearchParams(location.search).has("test")) mirror.visible = false; // ?test : rendu logiciel, le miroir double le coût de chaque image
   const floorMap = canvasTex(2048, 2048, (g, w) => {
     const c = w / 2, px = c / 30;
