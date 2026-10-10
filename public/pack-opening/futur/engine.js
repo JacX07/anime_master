@@ -137,7 +137,7 @@ export async function start(modeId) {
   let skip = false; const waiters = new Set();
   const tween = (dur, fn, e = ease.out) => new Promise((res) => tweens.add({ t: 0, dur: skip ? 0.001 : reduced ? Math.min(dur, 0.15) : dur, fn, e, res }));
   const wait = (s) => new Promise((r) => {
-    if (skip) return r();
+    if (skip) return requestAnimationFrame(() => r()); // une image d'attente : sinon les boucles « while (…) await wait() » gèleraient la page
     const done = () => { clearTimeout(id); waiters.delete(done); r(); }, id = setTimeout(done, s * 1000); waiters.add(done);
   });
   const moveTo = (obj, { pos, rotY, scale }, dur, e) => { const p0 = obj.position.clone(), r0 = obj.rotation.y, s0 = obj.scale.x; return tween(dur, (k) => { if (pos) obj.position.lerpVectors(p0, pos, k); if (rotY !== undefined) obj.rotation.y = r0 + (rotY - r0) * k; if (scale !== undefined) obj.scale.setScalar(s0 + (scale - s0) * k); }, e); };
