@@ -1,7 +1,7 @@
 // Habillage sonore de la DA cyber futuriste.
 // - Musique générative en couches (pad, arpège, basse, charleston, pulsation) dont l'intensité suit l'action ;
 //   les changements de couche tombent sur la mesure suivante pour rester musicaux.
-// - Sons de verre : éclats en sinusoïdes (tintements courts, spatialisés) plutôt qu'en bruit blanc, pour rester doux.
+// - Sons de verre : tintements en sinusoïdes (tink) et, pour le verre brisé, claquement + grains de bruit brillants.
 
 const BPM = 100, STEP = 60 / BPM / 4; // double croche
 // Progression en ré lydien : Dmaj9 · Bm9 · Gmaj7#11 · A6/9
@@ -98,13 +98,30 @@ export function futurAudio(s) {
       s.pad([293.66, 369.99, 440, 554.37], 1.4, { type: "sawtooth", gain: 0.012, attack: 1.1, cutoff: 2600, wet: 0.6 });
       const t = s.ctx.currentTime; for (let i = 0; i < 18; i++) { const k = i / 18; tink(t + 1.2 * (1 - (1 - k) ** 2), 1800 + k * 4200, 0.012 + k * 0.012, 0.12); }
     },
-    // Verre qui éclate, en douceur : un choc sourd, un voile filtré très court, puis une pluie de tintements
+    // Verre brisé : claquement sec, craquement de fond, puis pluie d'éclats (grains de bruit brillants + tintements)
     shatter(power = 1) {
-      const t = s.ctx.currentTime;
-      s.tone(90, 0.45, { gain: 0.14 * power, slide: 0.55, attack: 0.004, wet: 0.2 });
-      s.noise(0.22, { from: 5200, to: 2400, gain: 0.035 * power, type: "bandpass", q: 1.2, attack: 0.003, wet: 0.6 });
-      const n = Math.round(30 * power);
-      for (let i = 0; i < n; i++) { const at = Math.random() ** 1.8 * 0.9; tink(t + at, 2200 + Math.random() * 5800, 0.03 * power * (1 - at * 0.6), 0.1 + Math.random() * 0.2); }
+      const ctx = s.ctx, t = ctx.currentTime;
+      // Choc : claquement très bref et brillant + petit coup sourd
+      const crack = ctx.createBufferSource(), chp = ctx.createBiquadFilter(), cg = ctx.createGain();
+      crack.buffer = noise(ctx); chp.type = "highpass"; chp.frequency.value = 2500; env(cg, t, 0.3 * power, 0.001, 0.05);
+      crack.connect(chp).connect(cg); s.out(cg, "sfx", 0.25); crack.start(t, Math.random() * 0.3, 0.1);
+      s.tone(110, 0.2, { gain: 0.07 * power, slide: 0.6, attack: 0.003, wet: 0.1 });
+      // Fracas : fine nappe de bruit aigu qui se tait vite
+      const body = ctx.createBufferSource(), bbp = ctx.createBiquadFilter(), bg = ctx.createGain();
+      body.buffer = noise(ctx); bbp.type = "bandpass"; bbp.Q.value = 0.8; bbp.frequency.setValueAtTime(7500, t); bbp.frequency.exponentialRampToValueAtTime(3500, t + 0.4);
+      env(bg, t + 0.005, 0.1 * power, 0.004, 0.35); body.connect(bbp).connect(bg); s.out(bg, "sfx", 0.45); body.start(t, Math.random() * 0.2, 0.45);
+      // Éclats qui tombent : grains de bruit très courts, filtrés étroits (cliquetis de morceaux de verre)
+      const grains = Math.round(70 * power);
+      for (let i = 0; i < grains; i++) {
+        const at = t + 0.02 + Math.random() ** 1.7 * 1.1, k = 1 - (at - t) / 1.2;
+        const g = ctx.createGain(), bp = ctx.createBiquadFilter(), src = ctx.createBufferSource(), pan = ctx.createStereoPanner();
+        src.buffer = noise(ctx); bp.type = "bandpass"; bp.frequency.value = 3000 + Math.random() * 8000; bp.Q.value = 3 + Math.random() * 6;
+        env(g, at, (0.05 + Math.random() * 0.07) * power * Math.max(0.15, k), 0.001, 0.008 + Math.random() * 0.02);
+        pan.pan.value = Math.random() * 1.8 - 0.9; src.connect(bp).connect(g).connect(pan); s.out(pan, "sfx", 0.35); src.start(at, Math.random() * 0.4, 0.05);
+      }
+      // Tintements aigus qui s'éteignent (éclats plus gros qui rebondissent)
+      const n = Math.round(22 * power);
+      for (let i = 0; i < n; i++) { const at = 0.01 + Math.random() ** 1.5 * 1.0; tink(t + at, 3500 + Math.random() * 6500, 0.035 * power * (1 - at * 0.5), 0.06 + Math.random() * 0.14, 0.45); }
     },
     // Éclats qui se rassemblent : tintements ascendants qui se resserrent
     gather: () => { const t = s.ctx.currentTime; for (let i = 0; i < 14; i++) { const k = i / 14; tink(t + 0.6 * k ** 0.7, 1500 * 2 ** (k * 1.6), 0.02, 0.14, 0.7); } },
