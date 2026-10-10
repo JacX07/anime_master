@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anime Masters · Maquette des assets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@400;600;700&display=swap" />
+<style>
+  :root {
+    --night: #0b1424; --deep: #12233f; --ink: #e8f0ff; --muted: #8ea3c4; --line: #ffffff1f;
+    --blue: #4b8bff; --blue-lab: #2b6cff; --mint: #00c8b4;
+    --N: #9aa8b8; --R: #2b9bff; --SR: #7a5cff; --SSR: #f2a516; --UR: #00c8b4;
+    --acc: var(--mint);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--night); }
+  body { margin: 0; color: var(--ink); font: 400 15px/1.55 "Sora", system-ui, sans-serif; background: radial-gradient(ellipse 90% 35% at 50% -5%, #1c3d7066, transparent 70%), var(--night); }
+  h1, h2, h3 { font-family: "Michroma", sans-serif; font-weight: 400; margin: 0; letter-spacing: .02em; }
+  main { max-width: 76rem; margin: 0 auto; padding: 3rem 1.5rem 6rem; display: grid; gap: 4rem; }
+  section > h2 { font-size: 1.4rem; margin-bottom: .4rem; }
+  section > p { color: var(--muted); max-width: 46rem; margin: 0 0 1.5rem; }
+  .why { display: grid; gap: .5rem; color: var(--muted); max-width: 46rem; }
+  .why b { color: var(--ink); font-weight: 600; }
+
+  /* ---- icônes ---- */
+  .i { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  /* Sélecteurs sans « .i » : dans un <use>, le contenu du symbole est stylé selon sa place d'origine dans le sprite */
+  .a { stroke: var(--acc); }
+  .f { fill: var(--acc); stroke: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .75rem; }
+  .tile { display: grid; justify-items: center; gap: .5rem; padding: 1.1rem .5rem .9rem; border: 1px solid var(--line); border-radius: 14px; text-align: center; }
+  .tile .i { width: 40px; height: 40px; }
+  .tile b { font-weight: 600; font-size: .85rem; }
+  .tile small { color: var(--muted); font-size: .72rem; line-height: 1.3; }
+  .sizes { display: flex; gap: 1.5rem; align-items: end; margin-top: 1.25rem; color: var(--ink); }
+  .sizes span { display: grid; justify-items: center; gap: .3rem; font-size: .7rem; color: var(--muted); }
+  .t-combat { --acc: #ff6b5e; } .t-mystere { --acc: #b48cff; } .t-magie { --acc: #5fb8ff; } .t-coeur { --acc: #ff7fb0; } .t-aventure { --acc: #4fd6a0; }
+
+  /* ---- raretés ---- */
+  .gems { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .gem { display: grid; justify-items: center; gap: .4rem; width: 8rem; padding: 1.2rem .5rem 1rem; border: 1px solid var(--line); border-radius: 14px; text-align: center; }
+  .gem svg { width: 64px; height: 64px; overflow: visible; }
+  .gem b { font-family: "Michroma"; font-weight: 400; }
+  .gem small { color: var(--muted); font-size: .72rem; }
+
+  /* ---- barre du haut ---- */
+  .bars { display: grid; gap: 1.25rem; }
+  .bar { position: relative; display: flex; align-items: center; gap: 2.25rem; height: 60px; padding: 0 1.5rem; border-radius: 4px; overflow: hidden; }
+  .bar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--blue) 25%, var(--mint) 60%, transparent); opacity: .7; }
+  .bar.night { background: linear-gradient(#070d1ae6, #0b1424e6); color: var(--ink); }
+  .bar.lab { background: linear-gradient(#f6f9fdf2, #e6edf6f2); color: #0d1b2a; }
+  .bar.lab::after { background: linear-gradient(90deg, transparent, var(--blue-lab) 25%, var(--mint) 60%, transparent); }
+  .brand { display: flex; align-items: center; gap: .7rem; font-family: "Michroma"; font-size: .95rem; letter-spacing: .06em; }
+  .brand .i { width: 26px; height: 26px; }
+  .nav { display: flex; gap: .4rem; }
+  .nav a { position: relative; display: flex; align-items: center; gap: .5rem; padding: .4rem .8rem; font-size: .88rem; font-weight: 600; opacity: .7; text-decoration: none; color: inherit; }
+  .nav a .i { width: 18px; height: 18px; }
+  .nav a[aria-current] { opacity: 1; }
+  .nav a[aria-current]::after { content: ""; position: absolute; left: .8rem; right: .8rem; bottom: -.55rem; height: 2px; background: var(--blue); box-shadow: 0 0 10px var(--blue); }
+  .lab .nav a[aria-current]::after { background: var(--blue-lab); box-shadow: 0 0 10px #2b6cff88; }
+  .res { margin-left: auto; display: flex; align-items: center; }
+  .res > span { display: flex; align-items: center; gap: .5rem; padding: 0 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; font-size: .92rem; }
+  .res > span + span { border-left: 1px solid currentColor; border-image: linear-gradient(transparent, #ffffff40, transparent) 1; }
+  .lab .res > span + span { border-image: linear-gradient(transparent, #0d1b2a33, transparent) 1; }
+  .res .i { width: 20px; height: 20px; }
+  .res .power { color: var(--mint); }
+  .lab .res .power { color: #00968a; }
+  .res .ryo { --acc: #f2a516; }
+  .avatar { display: grid; place-items: center; width: 34px; height: 34px; margin-left: .6rem; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(135deg, var(--blue), var(--mint)); color: #06101e; font: 400 .8rem "Michroma"; }
+  .cap { color: var(--muted); font-size: .8rem; margin-top: .35rem; }
+
+  /* ---- typographie ---- */
+  .type { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.5rem; }
+  .specimen { border: 1px solid var(--line); border-radius: 14px; padding: 1.5rem; display: grid; gap: .8rem; }
+  .specimen .big { font: 400 2.6rem/1.05 "Michroma"; letter-spacing: .02em; }
+  .specimen .num { font: 700 2rem "Sora"; font-variant-numeric: tabular-nums; }
+  .specimen .num.pow { color: var(--mint); }
+  .specimen .small { color: var(--muted); font-size: .85rem; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .compare div { border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.25rem; }
+  .compare em { display: block; font-style: normal; color: var(--muted); font-size: .75rem; margin-bottom: .5rem; }
+
+  /* ---- carte ---- */
+  .cards { display: flex; flex-wrap: wrap; gap: 1.75rem; }
+  .card { position: relative; width: 12.5rem; aspect-ratio: 5/7; border-radius: 14px; overflow: hidden; border: 2px solid var(--c); box-shadow: 0 0 28px color-mix(in srgb, var(--c) 35%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 40%, #12233f), #0b1424 70%); }
+  .card .art { position: absolute; inset: 0; background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--c) 55%, white) 0, transparent 38%), repeating-linear-gradient(115deg, #ffffff08 0 8px, transparent 8px 16px); }
+  .card .gem-s { position: absolute; top: .55rem; left: .55rem; width: 30px; height: 30px; }
+  .card .kind { position: absolute; top: .55rem; right: .55rem; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: #0b1424b3; }
+  .card .kind .i { width: 20px; height: 20px; }
+  .card .info { position: absolute; inset: auto 0 0 0; padding: 2.2rem .8rem .7rem; background: linear-gradient(transparent, #070d1af2 60%); display: grid; gap: .25rem; }
+  .card .nm { font: 400 .95rem "Michroma"; }
+  .card .sr { font-size: .72rem; color: var(--muted); }
+  .card .pw { display: flex; align-items: center; gap: .4rem; font: 700 1.35rem "Sora"; color: var(--mint); font-variant-numeric: tabular-nums; }
+  .card .pw .i { width: 20px; height: 20px; }
+  .card .ad { display: flex; gap: .9rem; font-size: .72rem; color: #c9d8f2; }
+  .card .ad span { display: flex; align-items: center; gap: .25rem; }
+  .card .ad .i { width: 14px; height: 14px; }
+  .card .fin { position: absolute; left: .55rem; top: 2.9rem; width: 22px; height: 22px; }
+  .card.holo::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(115deg, transparent 20%, #ff5fd855 35%, #ffd84a55 45%, #5ff2c855 55%, #5fb8ff55 65%, transparent 80%); mix-blend-mode: screen; }
+  .card.gold::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(115deg, transparent 25%, #ffe08a66 45%, transparent 65%); mix-blend-mode: screen; }
+  .tags { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; color: var(--muted); font-size: .85rem; }
+  .tags span { display: inline-flex; align-items: center; gap: .4rem; }
+</style>
+</head>
+<body>
+<!-- Sprite : toutes les icônes sur une grille de 24 px, trait de 1,6 px, extrémités arrondies. Le trait suit la couleur du texte, le petit détail porte la couleur d'accent. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b8bff"/><stop offset="1" stop-color="#00c8b4"/></linearGradient>
+  </defs>
+  <!-- Types -->
+  <symbol id="t-combat" viewBox="0 0 24 24"><path d="M7 3.5 15.5 20.5M12 3.5l6.5 13M3.5 8l5.2 11"/><circle class="f" cx="19.6" cy="5" r="1.2"/></symbol>
+  <symbol id="t-mystere" viewBox="0 0 24 24"><path d="M12 2.5 20.5 12 12 21.5 3.5 12Z"/><path class="a" d="M7.6 12c1.6-2.5 7.2-2.5 8.8 0-1.6 2.5-7.2 2.5-8.8 0Z"/><circle class="f" cx="12" cy="12" r="1.7"/></symbol>
+  <symbol id="t-magie" viewBox="0 0 24 24"><path d="M12 3l1.8 7.2L21 12l-7.2 1.8L12 21l-1.8-7.2L3 12l7.2-1.8Z"/><circle class="f" cx="19.2" cy="4.8" r="1.2"/><circle class="f" cx="5" cy="19" r=".9"/></symbol>
+  <symbol id="t-coeur" viewBox="0 0 24 24"><path d="M12 20.5 4.6 13A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 7.4 6Z"/><path class="f" d="M12 10.6l1.7 1.7-1.7 1.7-1.7-1.7Z"/></symbol>
+  <symbol id="t-aventure" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path class="a" d="M12 6.5 14.2 12 12 17.5 9.8 12Z" transform="rotate(38 12 12)"/><path d="M12 2.5v2.2"/></symbol>
+  <!-- Statistiques -->
+  <symbol id="puissance" viewBox="0 0 24 24"><path d="M12 2.5 20 7v10l-8 4.5L4 17V7Z"/><path class="f" d="M13.2 6.6 8.6 13.2h3.2l-1 4.4 4.6-6.6h-3.2Z"/></symbol>
+  <symbol id="atk" viewBox="0 0 24 24"><path d="M6 18 18.5 5.5M14 5.5h4.5V10M7.6 13.4l3 3M4.2 19.8 6 18"/></symbol>
+  <symbol id="def" viewBox="0 0 24 24"><path d="M12 3 19.5 6v6c0 4.4-3.4 7.4-7.5 9-4.1-1.6-7.5-4.6-7.5-9V6Z"/><path class="f" d="M12 7.2l4 1.6V12c0 2.4-1.6 4.2-4 5.3Z" opacity=".55"/></symbol>
+  <symbol id="ryo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><rect class="a" x="9" y="9" width="6" height="6" rx="1"/></symbol>
+  <symbol id="paquet" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="5"/><path class="a" d="M7 12h10"/><circle class="f" cx="12" cy="7.2" r="1"/></symbol>
+  <!-- Actions -->
+  <symbol id="lock" viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="9.5" rx="2.2"/><path d="M8.6 11V8.2a3.4 3.4 0 0 1 6.8 0V11"/><circle class="f" cx="12" cy="15.7" r="1.3"/></symbol>
+  <symbol id="unlock" viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="9.5" rx="2.2"/><path d="M8.6 11V8.2a3.4 3.4 0 0 1 6.5-1.4"/><circle class="f" cx="12" cy="15.7" r="1.3"/></symbol>
+  <symbol id="vendre" viewBox="0 0 24 24"><rect x="3" y="7" width="9.5" height="13.5" rx="2"/><circle class="a" cx="17" cy="8" r="4.4"/><path class="a" d="M17 6.2v3.6M15.4 8h3.2"/></symbol>
+  <symbol id="bonus" viewBox="0 0 24 24"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4Z"/><path d="M4 7.4 12 12l8-4.6M12 12v9.2"/><circle class="f" cx="12" cy="12" r="1.5"/></symbol>
+  <!-- Navigation -->
+  <symbol id="nav-paquets" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="5"/><path class="a" d="M7 12h10"/></symbol>
+  <symbol id="nav-album" viewBox="0 0 24 24"><rect x="3.5" y="6" width="11" height="15" rx="2"/><rect class="a" x="9.5" y="3" width="11" height="15" rx="2"/></symbol>
+  <symbol id="nav-marche" viewBox="0 0 24 24"><path d="M3 12 11 4h9v9l-8 8Z"/><circle class="f" cx="15.6" cy="8.4" r="1.4"/></symbol>
+  <symbol id="nav-duels" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/><path class="f" d="M12 9.4l2.6 2.6-2.6 2.6L9.4 12Z"/></symbol>
+  <symbol id="nav-classement" viewBox="0 0 24 24"><rect x="3" y="12" width="5.2" height="8.5" rx="1"/><rect class="a" x="9.4" y="6.5" width="5.2" height="14" rx="1"/><rect x="15.8" y="14.5" width="5.2" height="6" rx="1"/></symbol>
+  <!-- Logo : cristal à huit faces avec un cœur lumineux -->
+  <symbol id="logo" viewBox="0 0 32 32"><path d="M16 2 28 16 16 30 4 16Z" fill="none" stroke="url(#lg)" stroke-width="2" stroke-linejoin="round"/><path d="M4 16h24M16 2v28" stroke="url(#lg)" stroke-width="1" opacity=".55"/><path d="M16 10 22 16 16 22 10 16Z" fill="url(#lg)"/></symbol>
+  <!-- Finitions -->
+  <symbol id="f-normal" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.2"/></symbol>
+  <symbol id="f-holo" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8 18 16 6" stroke="#ff7fb0"/><path d="M10.5 19 17 9" stroke="#ffd84a"/><path d="M8 13l5-7" stroke="#5fb8ff"/></symbol>
+  <symbol id="f-gold" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.2" stroke="#f2a516"/><path d="M12 7.5l1.2 3.3 3.3 1.2-3.3 1.2L12 16.5l-1.2-3.3L7.5 12l3.3-1.2Z" fill="#f2a516" stroke="none"/></symbol>
+  <!-- Raretés : le cristal gagne des facettes, un anneau, puis un halo -->
+  <symbol id="r-N" viewBox="0 0 32 32"><path d="M16 4 26 16 16 28 6 16Z" fill="#9aa8b81f" stroke="#9aa8b8" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="r-R" viewBox="0 0 32 32"><path d="M16 3 27 16 16 29 5 16Z" fill="#2b9bff26" stroke="#2b9bff" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 16h22" stroke="#2b9bff" stroke-width="1.2"/></symbol>
+  <symbol id="r-SR" viewBox="0 0 32 32"><path d="M16 3 27 16 16 29 5 16Z" fill="#7a5cff2e" stroke="#7a5cff" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 16h22M16 3v26" stroke="#7a5cff" stroke-width="1.2"/></symbol>
+  <symbol id="r-SSR" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14.2" fill="none" stroke="#f2a516" stroke-width="1" opacity=".7"/><path d="M16 4 26 16 16 28 6 16Z" fill="#f2a51638" stroke="#f2a516" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 16h20M16 4v24" stroke="#f2a516" stroke-width="1.2"/></symbol>
+  <symbol id="r-UR" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14.6" fill="none" stroke="#00c8b4" stroke-width="1" opacity=".8"/><circle cx="16" cy="16" r="11.6" fill="none" stroke="#00c8b4" stroke-width=".8" opacity=".5"/><path d="M16 4.5 25.5 16 16 27.5 6.5 16Z" fill="#00c8b440" stroke="#00c8b4" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.5 16h19M16 4.5v23" stroke="#00c8b4" stroke-width="1.2"/><path d="M16 1v3M16 28v3M1 16h3M28 16h3" stroke="#00c8b4" stroke-width="1.4" stroke-linecap="round"/></symbol>
+</svg>
+
+<main>
+  <header>
+    <h1 style="font-size:2rem">Anime Masters — maquette des assets</h1>
+    <p style="color:var(--muted);max-width:46rem">Proposition pour remplacer les emojis du système et unifier la barre du haut, la typographie et les badges. Rien n'est encore appliqué au site : dis-moi ce que tu gardes, ce que tu changes.</p>
+  </header>
+
+  <section>
+    <h2>Ce qui ne va pas aujourd'hui</h2>
+    <div class="why">
+      <span><b>Deux polices qui se battent.</b> Michroma et Sora sont partout sur l'accueil et la scène 3D, mais le menu du haut, les cartes, l'album et les formulaires sont restés en police par défaut.</span>
+      <span><b>Des emojis système.</b> 🔥 ✨ 💗 ⚡ ⚔️ 🛡️ s'affichent différemment sur chaque machine, parfois en carrés vides, et n'ont aucun lien avec le cristal, la capsule et le labo du jeu.</span>
+      <span><b>Une barre du haut générique.</b> Texte brut, pseudo, « Déconnexion » : rien n'y dit qu'on est dans un jeu, et les ressources (Ryō, paquets, puissance) sont éparpillées.</span>
+      <span><b>Deux couleurs pour l'Ultra Rare.</b> Rose sur le site, menthe dans la scène 3D. La maquette tranche pour la menthe.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Barre du haut</h2>
+    <p>Un bandeau de HUD : le logo-cristal et le nom, la navigation avec ses icônes, puis les ressources du joueur regroupées avec de fins séparateurs (pas de pastilles). Un filet lumineux bleu-menthe en bas. Deux variantes : nuit (accueil, album) et labo clair (scène d'ouverture).</p>
+    <div class="bars">
+      <div>
+        <div class="bar night">
+          <div class="brand"><svg class="i"><use href="#logo"/></svg>Anime Masters</div>
+          <nav class="nav">
+            <a href="#"><svg class="i"><use href="#nav-paquets"/></svg>Paquets</a>
+            <a href="#" aria-current="page"><svg class="i"><use href="#nav-album"/></svg>Album</a>
+            <a href="#" style="opacity:.35"><svg class="i"><use href="#nav-marche"/></svg>Marché</a>
+            <a href="#" style="opacity:.35"><svg class="i"><use href="#nav-duels"/></svg>Duels</a>
+          </nav>
+          <div class="res">
+            <span class="ryo"><svg class="i"><use href="#ryo"/></svg>450</span>
+            <span><svg class="i"><use href="#paquet"/></svg>7 / 10</span>
+            <span class="power"><svg class="i" style="--acc:var(--mint)"><use href="#puissance"/></svg>1 128 725</span>
+            <span class="avatar" title="testalbum">T</span>
+          </div>
+        </div>
+        <p class="cap">Nuit : accueil, album, fiches. Le bonus du jour apparaîtrait comme une petite icône cadeau qui pulse à côté du solde.</p>
+      </div>
+      <div>
+        <div class="bar lab">
+          <div class="brand"><svg class="i"><use href="#logo"/></svg>Anime Masters</div>
+          <nav class="nav">
+            <a href="#" aria-current="page"><svg class="i"><use href="#nav-paquets"/></svg>Paquets</a>
+            <a href="#"><svg class="i"><use href="#nav-album"/></svg>Album</a>
+            <a href="#" style="opacity:.35"><svg class="i"><use href="#nav-marche"/></svg>Marché</a>
+            <a href="#" style="opacity:.35"><svg class="i"><use href="#nav-duels"/></svg>Duels</a>
+          </nav>
+          <div class="res">
+            <span class="ryo"><svg class="i"><use href="#ryo"/></svg>450</span>
+            <span><svg class="i"><use href="#paquet"/></svg>7 / 10</span>
+            <span class="power"><svg class="i" style="--acc:#00968a"><use href="#puissance"/></svg>1 128 725</span>
+            <span class="avatar" title="testalbum">T</span>
+          </div>
+        </div>
+        <p class="cap">Labo clair : scène d'ouverture de paquets.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Types</h2>
+    <p>Le même cristal à huit faces que dans le jeu, réutilisé avec un détail propre à chaque type. Une couleur d'accent par type, utilisée seulement pour le petit détail ; le trait reste neutre.</p>
+    <div class="grid">
+      <div class="tile t-combat"><svg class="i"><use href="#t-combat"/></svg><b>Combat</b><small>trois griffures<br>remplace 🔥</small></div>
+      <div class="tile t-mystere"><svg class="i"><use href="#t-mystere"/></svg><b>Mystère</b><small>le cristal et son œil<br>remplace 🔮</small></div>
+      <div class="tile t-magie"><svg class="i"><use href="#t-magie"/></svg><b>Magie</b><small>étincelle à quatre branches<br>remplace ✨</small></div>
+      <div class="tile t-coeur"><svg class="i"><use href="#t-coeur"/></svg><b>Cœur</b><small>cœur géométrique<br>remplace 💗</small></div>
+      <div class="tile t-aventure"><svg class="i"><use href="#t-aventure"/></svg><b>Aventure</b><small>boussole<br>remplace 🧭</small></div>
+    </div>
+    <div class="sizes">
+      <span><svg class="i t-mystere" style="width:16px;height:16px"><use href="#t-mystere"/></svg>16</span>
+      <span><svg class="i t-mystere"><use href="#t-mystere"/></svg>24</span>
+      <span><svg class="i t-mystere" style="width:40px;height:40px"><use href="#t-mystere"/></svg>40</span>
+      <span><svg class="i t-mystere" style="width:72px;height:72px"><use href="#t-mystere"/></svg>72</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Statistiques, ressources et actions</h2>
+    <p>La puissance reprend l'hexagone du logo pour se distinguer d'ATK et de DEF, qui restent des signes simples. Le Ryō est une pièce à trou carré, et le paquet est la capsule du jeu.</p>
+    <div class="grid">
+      <div class="tile"><svg class="i" style="--acc:var(--mint)"><use href="#puissance"/></svg><b>Puissance</b><small>remplace ⚡</small></div>
+      <div class="tile"><svg class="i"><use href="#atk"/></svg><b>Attaque</b><small>remplace ⚔️</small></div>
+      <div class="tile"><svg class="i"><use href="#def"/></svg><b>Défense</b><small>remplace 🛡️</small></div>
+      <div class="tile"><svg class="i" style="--acc:#f2a516"><use href="#ryo"/></svg><b>Ryō</b><small>remplace 両 en texte</small></div>
+      <div class="tile"><svg class="i"><use href="#paquet"/></svg><b>Paquet</b><small>la capsule</small></div>
+      <div class="tile"><svg class="i"><use href="#lock"/></svg><b>Verrouillée</b><small>remplace 🔒</small></div>
+      <div class="tile"><svg class="i"><use href="#unlock"/></svg><b>Déverrouillée</b><small>remplace 🔓</small></div>
+      <div class="tile"><svg class="i" style="--acc:#f2a516"><use href="#vendre"/></svg><b>Vendre</b><small>carte contre pièce</small></div>
+      <div class="tile"><svg class="i"><use href="#bonus"/></svg><b>Bonus du jour</b><small>remplace 🎁</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Navigation</h2>
+    <div class="grid">
+      <div class="tile"><svg class="i"><use href="#nav-paquets"/></svg><b>Paquets</b></div>
+      <div class="tile"><svg class="i"><use href="#nav-album"/></svg><b>Album</b></div>
+      <div class="tile"><svg class="i"><use href="#nav-marche"/></svg><b>Marché</b></div>
+      <div class="tile"><svg class="i"><use href="#nav-duels"/></svg><b>Duels</b></div>
+      <div class="tile"><svg class="i"><use href="#nav-classement"/></svg><b>Classement</b></div>
+      <div class="tile"><svg class="i" style="width:48px;height:48px"><use href="#logo"/></svg><b>Logo</b><small>cristal à huit faces</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Raretés</h2>
+    <p>Le même cristal prend des facettes à mesure qu'on monte : un simple losange, une facette, la croix, puis un anneau, et pour l'Ultra Rare un double anneau avec des rayons. Lisible même à 20 px, et plus parlant qu'une pastille de lettres.</p>
+    <div class="gems">
+      <div class="gem"><svg><use href="#r-N"/></svg><b style="color:var(--N)">N</b><small>Normal</small></div>
+      <div class="gem"><svg><use href="#r-R"/></svg><b style="color:var(--R)">R</b><small>Rare</small></div>
+      <div class="gem"><svg><use href="#r-SR"/></svg><b style="color:var(--SR)">SR</b><small>Super Rare</small></div>
+      <div class="gem"><svg><use href="#r-SSR"/></svg><b style="color:var(--SSR)">SSR</b><small>Super Super Rare</small></div>
+      <div class="gem"><svg><use href="#r-UR"/></svg><b style="color:var(--UR)">UR</b><small>Ultra Rare</small></div>
+    </div>
+    <h3 style="font-size:1rem;margin:2rem 0 .8rem">Finitions</h3>
+    <div class="grid" style="grid-template-columns:repeat(3,minmax(9.5rem,12rem))">
+      <div class="tile"><svg class="i"><use href="#f-normal"/></svg><b>Normal</b></div>
+      <div class="tile"><svg class="i"><use href="#f-holo"/></svg><b>Holo</b><small>reflets arc-en-ciel</small></div>
+      <div class="tile"><svg class="i"><use href="#f-gold"/></svg><b>Gold</b><small>éclat doré</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Typographie</h2>
+    <p>Deux familles, déjà celles du jeu. Michroma pour tout ce qui est titre, nom de carte et logo. Sora pour l'interface, les nombres en chiffres alignés. On les applique partout, y compris le menu, les cartes, les filtres et les formulaires.</p>
+    <div class="type">
+      <div class="specimen">
+        <div class="big">Anime Masters</div>
+        <div style="font:400 1.4rem 'Michroma'">Mon album</div>
+        <div style="font:400 1rem 'Michroma'">Satoru Gojou</div>
+        <div class="small">Michroma — logo, titres, noms de cartes, entrées de menu. Jamais en majuscules forcées, jamais pour du texte courant.</div>
+      </div>
+      <div class="specimen">
+        <div class="num pow">103 598</div>
+        <div class="num">1 128 725</div>
+        <div>Un paquet toutes les 10 minutes, jusqu'à 10 en réserve.</div>
+        <div class="small">Sora 400 · 600 · 700 — interface, nombres, descriptions. La puissance en menthe est le seul nombre coloré.</div>
+      </div>
+    </div>
+    <div class="compare" style="margin-top:1.25rem">
+      <div><em>Aujourd'hui sur les cartes</em><span style="font:700 1.3rem system-ui">⚡ 103 598</span><br><span style="font:12px system-ui;color:var(--muted)">⚔️ 4 920 · 🛡️ 3 080</span></div>
+      <div><em>Proposition</em><span class="num pow" style="font-size:1.3rem;display:inline-flex;align-items:center;gap:.4rem"><svg class="i" style="--acc:var(--mint);width:22px;height:22px;color:var(--mint)"><use href="#puissance"/></svg>103 598</span><br><span style="font-size:12px;color:#c9d8f2;display:inline-flex;gap:.9rem;align-items:center"><span style="display:inline-flex;gap:.25rem;align-items:center"><svg class="i" style="width:14px;height:14px"><use href="#atk"/></svg>4 920</span><span style="display:inline-flex;gap:.25rem;align-items:center"><svg class="i" style="width:14px;height:14px"><use href="#def"/></svg>3 080</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Les cartes avec ces assets</h2>
+    <p>Rareté en cristal en haut à gauche, type dans une plaque en haut à droite, puissance en grand avec l'hexagone, ATK et DEF en petit. La finition se lit par l'icône et par l'effet de reflet sur la carte.</p>
+    <div class="cards">
+      <div class="card gold" style="--c:var(--UR)">
+        <div class="art"></div>
+        <svg class="gem-s"><use href="#r-UR"/></svg><svg class="fin i"><use href="#f-gold"/></svg>
+        <span class="kind t-magie"><svg class="i"><use href="#t-magie"/></svg></span>
+        <div class="info"><div class="nm">Satoru Gojou</div><div class="sr">Jujutsu Kaisen</div><div class="pw"><svg class="i" style="--acc:var(--mint)"><use href="#puissance"/></svg>103 598</div><div class="ad"><span><svg class="i"><use href="#atk"/></svg>4 920</span><span><svg class="i"><use href="#def"/></svg>3 080</span></div></div>
+      </div>
+      <div class="card holo" style="--c:var(--SR)">
+        <div class="art"></div>
+        <svg class="gem-s"><use href="#r-SR"/></svg><svg class="fin i"><use href="#f-holo"/></svg>
+        <span class="kind t-aventure"><svg class="i"><use href="#t-aventure"/></svg></span>
+        <div class="info"><div class="nm">Frieren</div><div class="sr">Sousou no Frieren</div><div class="pw"><svg class="i" style="--acc:var(--mint)"><use href="#puissance"/></svg>6 412</div><div class="ad"><span><svg class="i"><use href="#atk"/></svg>3 990</span><span><svg class="i"><use href="#def"/></svg>2 913</span></div></div>
+      </div>
+      <div class="card" style="--c:var(--R)">
+        <div class="art"></div>
+        <svg class="gem-s"><use href="#r-R"/></svg>
+        <span class="kind t-coeur"><svg class="i"><use href="#t-coeur"/></svg></span>
+        <div class="info"><div class="nm">Kaguya Shinomiya</div><div class="sr">Kaguya-sama</div><div class="pw"><svg class="i" style="--acc:var(--mint)"><use href="#puissance"/></svg>1 804</div><div class="ad"><span><svg class="i"><use href="#atk"/></svg>1 410</span><span><svg class="i"><use href="#def"/></svg>1 090</span></div></div>
+      </div>
+      <div class="card" style="--c:var(--N)">
+        <div class="art"></div>
+        <svg class="gem-s"><use href="#r-N"/></svg>
+        <span class="kind t-combat"><svg class="i"><use href="#t-combat"/></svg></span>
+        <div class="info"><div class="nm">Levi</div><div class="sr">L'Attaque des Titans</div><div class="pw"><svg class="i" style="--acc:var(--mint)"><use href="#puissance"/></svg>212</div><div class="ad"><span><svg class="i"><use href="#atk"/></svg>1 120</span><span><svg class="i"><use href="#def"/></svg>870</span></div></div>
+      </div>
+    </div>
+    <div class="tags"><span>Les illustrations ci-dessus sont des fonds de remplacement, pas les vrais personnages.</span></div>
+  </section>
+</main>
+</body>
+</html>

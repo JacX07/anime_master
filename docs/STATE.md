@@ -24,6 +24,8 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 
 - **Album « vitrine »** (`src/app/album/`) : même nuit que l'accueil, filtres en pastilles (liens, sans JS), cartes qui se soulèvent au survol avec lueur de rareté au sol, manquants en emplacements sombres en pointillés, résumé dans une barre d'état fixe en bas (progression, raretés, puissance totale, bouton d'achat de paquet). `SceneBody night scroll` pose la classe `scene-night` sans le plein écran.
 
+- **Maquette des assets** (`public/ui-kit/index.html`, à valider avec l'utilisateur avant application) : icônes SVG maison à la place des emojis (types, puissance, ATK/DEF, Ryō, paquet, cadenas, vente, bonus, navigation), raretés en cristaux à facettes croissantes, finitions, barre du haut en bandeau de HUD (variantes nuit et labo clair), typographie Michroma + Sora partout. Décision proposée : Ultra Rare en menthe (`#00c8b4`, comme la scène 3D) au lieu du rose du site.
+
 ## Reste à faire, dans l'ordre
 1. **Étape 3, suite** : échanges, enchères, marché, liste de souhaits, notifications (voir SPEC).
 2. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
