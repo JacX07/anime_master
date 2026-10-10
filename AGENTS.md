@@ -14,6 +14,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Push right after each commit (`git push`), so the remote stays in sync.
 - Keep commit messages short and descriptive. Don't commit secrets (`.env`) or the local database (`data/`).
 
+## Session handoff
+
+- At a completed task boundary, when the conversation is getting long, or when the user is switching topics, offer a concise handoff for a fresh session.
+- Keep it under 10 lines: goal, decisions, current task/status, changed files and Git state, next step, and unresolved questions.
+- Do not repeat the conversation history or claim to create/switch sessions. The user starts the fresh session and can provide the handoff.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
