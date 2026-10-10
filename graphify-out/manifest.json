@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "public/pack-opening/futur/engine.js": {
-    "mtime": 1791662402.6457534,
-    "seen": 1791662509.2287862,
-    "ast_hash": "334d01f60ba0e829831ceaf57a23aef0",
+    "mtime": 1791675084.3041284,
+    "seen": 1791675199.8389223,
+    "ast_hash": "d8d5216d671fb27fc119ca2df7b58719",
     "semantic_hash": ""
   },
   "public/pack-opening/futur/noyaux.js": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "public/pack-opening/opening/core.js": {
-    "mtime": 1791657439.935443,
-    "seen": 1791657903.6001856,
-    "ast_hash": "280c814e543b62db3985ca40d39c8d36",
+    "mtime": 1791675069.782793,
+    "seen": 1791675199.839103,
+    "ast_hash": "b7a7564060282c3e8c2b32d0c65aeb62",
     "semantic_hash": ""
   },
   "public/pack-opening/opening/themes/futur.js": {
@@ -180,9 +180,9 @@
     "semantic_hash": "348d8d0edcbeed567871a31ca31b42b0"
   },
   "src/app/packs/ImmersiveOpener.tsx": {
-    "mtime": 1791662343.634666,
-    "seen": 1791662509.230103,
-    "ast_hash": "c46b4bd9e6e74f88dee7102f1ec5d39b",
+    "mtime": 1791675084.3048875,
+    "seen": 1791675199.840334,
+    "ast_hash": "b28709652ee635e533a68c593e0ab36d",
     "semantic_hash": ""
   },
   "src/app/packs/PackOpener.tsx": {
@@ -282,10 +282,10 @@
     "semantic_hash": ""
   },
   "src/lib/labels.ts": {
-    "mtime": 1791501552.9783669,
-    "seen": 1791649539.2771306,
-    "ast_hash": "febd193918f27c10b3a665f8ed6ae63d",
-    "semantic_hash": "febd193918f27c10b3a665f8ed6ae63d"
+    "mtime": 1791675084.3051558,
+    "seen": 1791675199.8431952,
+    "ast_hash": "2ffe71ad2cba95eb5f19613ffa4edfbe",
+    "semantic_hash": ""
   },
   "src/lib/pack-stock.ts": {
     "mtime": 1791662289.141493,
@@ -924,15 +924,15 @@
     "semantic_hash": ""
   },
   "docs/STATE.md": {
-    "mtime": 1791664103.3723814,
-    "seen": 1791675017.2227876,
-    "ast_hash": "8b6febe58b08c4cd178e0e9c79a1ad0a",
+    "mtime": 1791675195.730224,
+    "seen": 1791675199.849399,
+    "ast_hash": "6141dbd6138538b623c5e38e0533f4c7",
     "semantic_hash": ""
   },
   "public/pack-opening/futur.html": {
-    "mtime": 1791664477.686992,
-    "seen": 1791675017.2227893,
-    "ast_hash": "77ab7914987c9b04d8f2e807ea11227b",
+    "mtime": 1791675084.3045375,
+    "seen": 1791675199.8494008,
+    "ast_hash": "4bf60afd64150f694f17e6fc321882e2",
     "semantic_hash": ""
   },
   "public/pack-opening/futur/menu.js": {
@@ -1017,6 +1017,12 @@
     "mtime": 1791664477.687592,
     "seen": 1791675017.222822,
     "ast_hash": "e81b518661a8dac9f123a8c250f24d65",
+    "semantic_hash": ""
+  },
+  "public/pack-opening/opening/icons.js": {
+    "mtime": 1791675069.7633302,
+    "seen": 1791675199.8391068,
+    "ast_hash": "73c5b082b3c3f625679907b54242dcd2",
     "semantic_hash": ""
   }
 }

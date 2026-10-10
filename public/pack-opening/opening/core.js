@@ -1,6 +1,7 @@
 // Moteur commun de la scène d'ouverture : cercle de cartes, révélations, cinématique UR, son.
 // Chaque thème (themes/*.js) fournit son décor, ses cartes, ses sons et son habillage.
 import * as THREE from "three";
+import { drawIcon, TYPE_ACCENT } from "./icons.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
@@ -15,11 +16,11 @@ export const THEMES = [
 ];
 
 const CHARS = [
-  { name: "Satoru Gojou", series: "Jujutsu Kaisen", img: "https://s4.anilist.co/file/anilistcdn/character/large/b127691-9zqh1xpIubn7.png", rarity: "UR", type: "Magie", atk: 4920, def: 3080, power: 98000, serial: 12 },
-  { name: "Anya Forger", series: "Spy × Family", img: "https://s4.anilist.co/file/anilistcdn/character/large/b138100-4Li0tWRCa5bQ.png", rarity: "SSR", type: "Mystère", atk: 3390, def: 2494, power: 21000, serial: 87 },
-  { name: "Frieren", series: "Frieren", img: "https://s4.anilist.co/file/anilistcdn/character/large/b176754-PCnpqIOkjhFk.png", rarity: "SR", type: "Aventure", atk: 3990, def: 2913, power: 6400, serial: 214, holo: true },
-  { name: "Kaguya Shinomiya", series: "Kaguya-sama", img: "https://s4.anilist.co/file/anilistcdn/character/large/b120649-NPaWaIpWy60E.png", rarity: "R", type: "Cœur", atk: 4270, def: 2444, power: 1800, serial: 431 },
-  { name: "Levi", series: "L'Attaque des Titans", img: "https://s4.anilist.co/file/anilistcdn/character/large/b45627-CR68RyZmddGG.png", rarity: "N", type: "Combat", atk: 4600, def: 3347, power: 210, serial: 1203 },
+  { name: "Satoru Gojou", series: "Jujutsu Kaisen", img: "https://s4.anilist.co/file/anilistcdn/character/large/b127691-9zqh1xpIubn7.png", rarity: "UR", type: "Magie", typeId: "MAGIE", finish: "GOLD", atk: 4920, def: 3080, power: 98000, serial: 12 },
+  { name: "Anya Forger", series: "Spy × Family", img: "https://s4.anilist.co/file/anilistcdn/character/large/b138100-4Li0tWRCa5bQ.png", rarity: "SSR", type: "Mystère", typeId: "MYSTERE", atk: 3390, def: 2494, power: 21000, serial: 87 },
+  { name: "Frieren", series: "Frieren", img: "https://s4.anilist.co/file/anilistcdn/character/large/b176754-PCnpqIOkjhFk.png", rarity: "SR", type: "Aventure", typeId: "AVENTURE", finish: "HOLO", atk: 3990, def: 2913, power: 6400, serial: 214, holo: true },
+  { name: "Kaguya Shinomiya", series: "Kaguya-sama", img: "https://s4.anilist.co/file/anilistcdn/character/large/b120649-NPaWaIpWy60E.png", rarity: "R", type: "Cœur", typeId: "COEUR", atk: 4270, def: 2444, power: 1800, serial: 431 },
+  { name: "Levi", series: "L'Attaque des Titans", img: "https://s4.anilist.co/file/anilistcdn/character/large/b45627-CR68RyZmddGG.png", rarity: "N", type: "Combat", typeId: "COMBAT", atk: 4600, def: 3347, power: 210, serial: 1203 },
 ];
 const RANK = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 };
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -176,17 +177,24 @@ export function cardPainter(T, images) {
       g.fillStyle = grad; g.fillRect(0, h * 0.55, w, h);
       g.restore();
       C.ornament?.(g, c, w, h, col);
-      g.font = `700 40px "${C.display}"`; const rw = g.measureText(c.rarity).width + 36;
-      g.fillStyle = C.badge; g.beginPath(); g.roundRect(30, 30, rw, 60, 30); g.fill();
-      g.fillStyle = c.rarity === "UR" ? T.urInk ?? col : col; g.fillText(c.rarity, 48, 75);
+      // Cristal de rareté en haut à gauche, finition dessous, plaque du type en haut à droite
+      drawIcon(g, `r-${c.rarity}`, 24, 24, 76, { color: col });
+      if (c.finish === "HOLO" || c.finish === "GOLD") drawIcon(g, c.finish === "GOLD" ? "f-gold" : "f-holo", 32, 106, 50, { color: "#e8f0ff" });
+      g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 24 - 72, 28, 72, 72, 16); g.fill();
+      drawIcon(g, `t-${(c.typeId ?? "MAGIE").toLowerCase()}`, w - 24 - 72 + 12, 40, 48, { color: "#ffffff", accent: TYPE_ACCENT[c.typeId] ?? "#5fb8ff" });
       if (c.isNew) { g.font = `700 22px "${C.body}"`; const nw = g.measureText("NOUVEAU").width + 28, nx = (w - nw) / 2; g.fillStyle = "#2b6cff"; g.beginPath(); g.roundRect(nx, 100, nw, 40, 20); g.fill(); g.fillStyle = "#fff"; g.fillText("NOUVEAU", nx + 14, 129); }
-      g.font = `700 26px "${C.body}"`; const s = `#${c.serial}`, sw = g.measureText(s).width + 28;
-      g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 30 - sw, 34, sw, 50, 25); g.fill(); g.fillStyle = C.ink; g.fillText(s, w - 30 - sw + 14, 68);
-      g.fillStyle = C.ink; g.font = `700 44px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);
-      g.fillStyle = C.sub; g.font = `500 26px "${C.body}"`; g.fillText(`${c.type} · ${c.series}`, 40, h - 84, w - 80);
-      g.fillStyle = col; g.font = `700 46px "${C.body}"`; g.fillText(`⚡ ${c.power.toLocaleString("fr-FR")}`, 40, h - 34);
-      g.fillStyle = C.sub; g.font = `600 22px "${C.body}"`; const at = `ATK ${c.atk.toLocaleString("fr-FR")}`, df = `DEF ${c.def.toLocaleString("fr-FR")}`;
-      g.fillText(at, w - 40 - g.measureText(at).width, h - 58); g.fillText(df, w - 40 - g.measureText(df).width, h - 30);
+      g.fillStyle = C.ink; g.font = `400 38px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);
+      g.font = `500 24px "${C.body}"`; const sn = `#${c.serial}`, snw = g.measureText(sn).width;
+      g.fillStyle = C.sub; g.fillText(`${c.type} · ${c.series}`, 40, h - 84, w - 80 - snw - 16);
+      g.textAlign = "right"; g.fillText(sn, w - 40, h - 84); g.textAlign = "left";
+      // Puissance en grand avec son hexagone, ATK et DEF en petit avec leurs icônes
+      drawIcon(g, "puissance", 36, h - 80, 52, { color: col, accent: col });
+      g.fillStyle = col; g.font = `700 46px "${C.body}"`; g.fillText(c.power.toLocaleString("fr-FR"), 98, h - 34);
+      g.fillStyle = C.sub; g.font = `600 22px "${C.body}"`; g.textAlign = "right";
+      const at = c.atk.toLocaleString("fr-FR"), df = c.def.toLocaleString("fr-FR");
+      g.fillText(at, w - 40, h - 58); g.fillText(df, w - 40, h - 30); g.textAlign = "left";
+      drawIcon(g, "atk", w - 40 - g.measureText(at).width - 30, h - 77, 22, { color: C.sub });
+      drawIcon(g, "def", w - 40 - g.measureText(df).width - 30, h - 49, 22, { color: C.sub });
     });
   }
   const makeBack = () => canvasTex(512, 716, (g, w, h) => { g.beginPath(); g.roundRect(0, 0, w, h, C.radius); g.clip(); C.back(g, w, h); });

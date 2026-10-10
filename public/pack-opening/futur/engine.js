@@ -12,6 +12,7 @@ import { buildDecor, BLUE, MINT } from "./decor.js";
 import { futurAudio } from "./audio.js";
 import { buildCapsule } from "./capsule.js";
 import { createPerf } from "./perf.js";
+import { icon, installSprite, loadIcons } from "../opening/icons.js";
 
 export const MODES = [
   { id: "noyaux", name: "Noyaux de données" },
@@ -27,6 +28,7 @@ export const FOCUS = new THREE.Vector3(0, 2.05, 5.0);
 
 export async function start(modeId) {
   const mode = (await import(`./${modeId}.js`)).default;
+  await loadIcons(); installSprite(); // icônes du HUD et des cartes (même jeu que le site)
   const T = { ...THEME, ambienceDb: -13 }, RC = T.rarity;
   // Habillage du thème futuriste
   const l = document.createElement("link"); l.rel = "stylesheet"; l.href = T.fonts; document.head.append(l);
@@ -210,9 +212,9 @@ export async function start(modeId) {
     el("maxPacks").textContent = available > cfg.max ? " boosters" : ` / ${cfg.max} boosters`; // au-delà de la réserve : paquets achetés
     // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
     el("buy").disabled = buying || pack.purchasesLeft < 1 || pack.balance < pack.packPrice;
-    if (!buyMsg) el("buyInfo").textContent = `${pack.packPrice} 両 · ${pack.purchasesLeft} achat${pack.purchasesLeft > 1 ? "s" : ""} restant${pack.purchasesLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")} 両`;
+    if (!buyMsg) el("buyInfo").innerHTML = `${pack.packPrice}${icon("ryo", "--acc:#f2a516")} · ${pack.purchasesLeft} achat${pack.purchasesLeft > 1 ? "s" : ""} restant${pack.purchasesLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")}${icon("ryo", "--acc:#f2a516")}`;
     el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain booster dans ${mmss(msLeft)}`;
-    el("totalPower").textContent = `⚡ ${(pack.collectionPower ?? 0).toLocaleString("fr-FR")}`;
+    el("totalPower").innerHTML = `${icon("puissance", "--acc:currentColor")}${(pack.collectionPower ?? 0).toLocaleString("fr-FR")}`;
     el("ssrLeft").textContent = cfg.ssrPity - pack.packsSinceSSR; el("urLeft").textContent = cfg.urPity - pack.packsSinceUR;
     bar("ssr", 15, Math.round((15 * pack.packsSinceSSR) / cfg.ssrPity)); bar("ur", 15, Math.round((15 * pack.packsSinceUR) / cfg.urPity));
   }

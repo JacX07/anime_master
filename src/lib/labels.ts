@@ -11,12 +11,12 @@ export const RARITY_NAMES: Record<Rarity, string> = {
   UR: "Ultra Rare",
 };
 
-export const TYPE_LABELS: Record<CardType, { emoji: string; name: string }> = {
-  COMBAT: { emoji: "🔥", name: "Combat" },
-  MYSTERE: { emoji: "🔮", name: "Mystère" },
-  MAGIE: { emoji: "✨", name: "Magie" },
-  COEUR: { emoji: "💗", name: "Cœur" },
-  AVENTURE: { emoji: "🧭", name: "Aventure" },
+export const TYPE_LABELS: Record<CardType, { name: string }> = {
+  COMBAT: { name: "Combat" },
+  MYSTERE: { name: "Mystère" },
+  MAGIE: { name: "Magie" },
+  COEUR: { name: "Cœur" },
+  AVENTURE: { name: "Aventure" },
 };
 
 export const FINISH_NAMES: Record<Finish, string> = {
