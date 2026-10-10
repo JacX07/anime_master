@@ -18,6 +18,7 @@ type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stor
 export function ImmersiveOpener({ initialState }: { initialState: PlayerPackState }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const send = (msg: object) => frame.current?.contentWindow?.postMessage(msg, location.origin);
@@ -34,6 +35,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
       if (e.origin !== location.origin || e.source !== frame.current?.contentWindow) return;
       const msg = e.data;
       if (msg.type === "ready") {
+        setLoaded(true); // la scène a compilé ses shaders : l'écran de chargement s'efface
         send({
           type: "init",
           config: { interval: PACK_INTERVAL_MS, max: MAX_PACKS, ssrPity: SSR_PITY, urPity: UR_PITY },
@@ -100,13 +102,12 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
   }
 
   return (
-    <iframe
-      ref={frame}
-      src={SCENE_URL}
-      title="Ouverture de paquets"
-      allow="autoplay"
-      className="scene-page block w-full border-0 bg-[#e9eff6]"
-      style={{ height: "100dvh", minHeight: 560 }}
-    />
+    <div className="relative" style={{ height: "100dvh", minHeight: 560 }}>
+      <iframe ref={frame} src={SCENE_URL} title="Ouverture de paquets" allow="autoplay" className="scene-page block h-full w-full border-0 bg-[#e9eff6]" />
+      <div className="scene-loader" data-ready={loaded} aria-hidden="true">
+        <span className="scene-loader-name">Anime Masters</span>
+        <span className="scene-loader-bar" />
+      </div>
+    </div>
   );
 }

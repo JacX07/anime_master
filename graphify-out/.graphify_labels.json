@@ -1,11 +1,11 @@
 {
-  "0": "engine.js",
+  "0": "start",
   "1": "ImmersiveOpener.tsx",
   "2": "economy-actions.ts",
   "3": "album.ts",
   "4": "package.json",
   "5": "import.ts",
-  "6": "next",
+  "6": "auth-actions.ts",
   "7": "pull.ts",
   "8": "asset_report.py",
   "9": "compilerOptions",
@@ -24,7 +24,6 @@
   "22": "[id]/page.tsx",
   "23": "Master Router — Game-Development Skill Dispatcher",
   "24": "wallet.ts",
-  "25": "db.ts",
   "26": "Performance optimization",
   "27": "Roguelike",
   "28": "Étape 1 — Base de personnages (100 % local)",
@@ -86,7 +85,7 @@
   "84": "Tower defense balancing and pathing (depth)",
   "85": "Visual novel script model and flow (depth)",
   "86": "dependencies",
-  "87": "layout.tsx",
+  "87": "next",
   "88": "Best practices & pitfalls — performance, memory, hybrid AI",
   "89": "Raster, sprite, tile, background, and UI pipeline",
   "90": "Behavior trees, FSMs, and the blackboard",
@@ -99,7 +98,6 @@
   "97": "three.js materials, lights & IBL reference (r155+)",
   "98": "three.js scene graph, cameras & cleanup (r150+)",
   "99": "Anime Masters — Spécifications",
-  "100": "packs/page.tsx",
   "101": "Frontend Design",
   "102": "Art direction and consistency",
   "103": "3D concept-to-runtime pipeline",
@@ -119,7 +117,5 @@
   "117": "Web Interface Guidelines",
   "118": "Practical examples — guard AI, villager needs, hybrid agent",
   "119": "Asset rights and provenance",
-  "120": "eslint.config.mjs",
-  "121": "Finish",
-  "122": "summary.ts"
+  "120": "eslint.config.mjs"
 }

@@ -62,5 +62,15 @@ export async function start() {
     camera.position.set(sway * 0.8, 2.4, 8.5); camera.lookAt(side * 0.9, 1.45, 0);
     composer.render(dt);
   });
+  // Préchauffage : shaders compilés et deux images rendues avant d'annoncer que la scène est prête
+  await renderer.compileAsync(scene, camera);
+  for (let i = 0; i < 2; i++) await new Promise((r) => requestAnimationFrame(r));
   window.__menu = { ready: true };
+  // La page hôte peut ne pas être encore à l'écoute : on répète jusqu'à son accusé de réception
+  if (parent !== window) {
+    let acked = false;
+    addEventListener("message", (e) => { if (e.source === parent && e.origin === location.origin && e.data?.type === "scene-ack") acked = true; });
+    const ping = setInterval(() => (acked ? clearInterval(ping) : parent.postMessage({ type: "scene-ready" }, location.origin)), 300);
+    parent.postMessage({ type: "scene-ready" }, location.origin);
+  }
 }

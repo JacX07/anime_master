@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { MenuNav } from "@/components/MenuNav";
+import { SceneFrame } from "@/components/SceneFrame";
 import { SceneBody } from "@/components/SceneBody";
 import { MAX_PACKS, PACK_INTERVAL_MS, WELCOME_PACKS } from "@/lib/pack-stock";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
@@ -14,7 +15,7 @@ export default function Home() {
   return (
     <main className="gm">
       <SceneBody night />
-      <iframe src="/pack-opening/menu.html" title="" aria-hidden="true" tabIndex={-1} className="gm-bg" />
+      <SceneFrame src="/pack-opening/menu.html" />
       <Suspense fallback={<Guest />}>
         <Menu />
       </Suspense>

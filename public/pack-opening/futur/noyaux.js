@@ -4,6 +4,25 @@ import * as THREE from "three";
 let group, geo, mats;
 const SHARDS = 90;
 
+// Un noyau complet (cristal, arêtes, cœur, orbite, attaches, faisceau) ; sert à l'ouverture et au préchauffage
+function buildItem(BLUE, c, x, y, z) {
+  const root = new THREE.Group(); root.position.set(x, y, z); group.add(root);
+  const body = new THREE.Group(); root.add(body);
+  const crystal = new THREE.Mesh(geo.crystal, mats.crystal); crystal.scale.set(0.82, 1.35, 0.82); crystal.castShadow = true;
+  const edges = new THREE.LineSegments(geo.edges, mats.edge.clone()); edges.scale.copy(crystal.scale);
+  const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.95) });
+  const core = new THREE.Mesh(geo.inner, coreMat); core.scale.set(1, 1.5, 1);
+  const orbit = new THREE.Mesh(geo.orbit, mats.edge.clone()); orbit.rotation.x = Math.PI / 2 + 0.3;
+  const clamps = [0, 1].map((k) => { const m = new THREE.Mesh(geo.clamp, mats.chrome); m.rotation.set(Math.PI / 2, 0, k * Math.PI); m.position.y = k ? 0.52 : -0.52; return m; });
+  const light = { intensity: 0, color: new THREE.Color() }; // pas de PointLight par objet (recompilation des shaders)
+  const beam = new THREE.Mesh(geo.beam, mats.beam.clone()); beam.scale.y = 1.6; beam.position.y = -1.1;
+  const hit = new THREE.Mesh(geo.hit, new THREE.MeshBasicMaterial({ visible: false }));
+  body.add(crystal, edges, core, orbit, ...clamps, hit); root.add(beam);
+  const item = { c, root, body, crystal, edges, core, coreMat, orbit, clamps, light, beam, hit, state: "spawn", seed: Math.random() * 6, hoverK: 0, spin: 0.6 };
+  hit.userData.item = item;
+  return item;
+}
+
 export default {
   text: { open: "Touche la capsule pour activer les noyaux", reveal: "Clique sur un noyau (ou Espace) pour le briser" },
   init({ scene, decor, BLUE }) {
@@ -30,21 +49,7 @@ export default {
   async open(ctx, chars) {
     const { tween, wait, ease, Sfx, burst, BLUE } = ctx;
     const items = chars.map((c, i) => {
-      const root = new THREE.Group(), x = (i - 2) * 1.3;
-      root.position.set(x, -1.5, 2.3 - Math.abs(i - 2) ** 2 * 0.18); group.add(root);
-      const body = new THREE.Group(); root.add(body);
-      const crystal = new THREE.Mesh(geo.crystal, mats.crystal); crystal.scale.set(0.82, 1.35, 0.82); crystal.castShadow = true;
-      const edges = new THREE.LineSegments(geo.edges, mats.edge.clone()); edges.scale.copy(crystal.scale);
-      const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.95) });
-      const core = new THREE.Mesh(geo.inner, coreMat); core.scale.set(1, 1.5, 1);
-      const orbit = new THREE.Mesh(geo.orbit, mats.edge.clone()); orbit.rotation.x = Math.PI / 2 + 0.3;
-      const clamps = [0, 1].map((k) => { const m = new THREE.Mesh(geo.clamp, mats.chrome); m.rotation.set(Math.PI / 2, 0, k * Math.PI); m.position.y = k ? 0.52 : -0.52; return m; });
-      const light = { intensity: 0, color: new THREE.Color() }; // pas de PointLight par objet (recompilation des shaders)
-      const beam = new THREE.Mesh(geo.beam, mats.beam.clone()); beam.scale.y = 1.6; beam.position.y = -1.1;
-      const hit = new THREE.Mesh(geo.hit, new THREE.MeshBasicMaterial({ visible: false }));
-      body.add(crystal, edges, core, orbit, ...clamps, hit); root.add(beam);
-      const item = { c, root, body, crystal, edges, core, coreMat, orbit, clamps, light, beam, hit, state: "spawn", seed: Math.random() * 6, hoverK: 0, spin: 0.6 };
-      hit.userData.item = item;
+      const item = buildItem(BLUE, c, (i - 2) * 1.3, -1.5, 2.3 - Math.abs(i - 2) ** 2 * 0.18), root = item.root;
       root.scale.setScalar(0.01);
       setTimeout(() => { Sfx.spawn(i); tween(1.0, (k) => { root.position.y = -1.5 + 3.2 * k; root.scale.setScalar(Math.max(0.01, k)); }, ease.back).then(() => (item.state = "ready")); }, i * 140);
       return item;
@@ -52,6 +57,12 @@ export default {
     burst(new THREE.Vector3(0, 0.2, 2.2), [BLUE, "#ffffff", "#00c8b4"], { n: 140, speed: 2.2, gravity: -0.3, additive: true });
     await wait(1.7);
     return items;
+  },
+
+  // Préchauffage (écran de chargement) : un noyau et des éclats hors champ, pour compiler les shaders avant la première ouverture
+  warm({ BLUE }) {
+    buildItem(BLUE, { rarity: "N" }, 0, -60, 0).root.scale.setScalar(1);
+    const shards = new THREE.InstancedMesh(geo.shard, mats.shard.clone(), 4); shards.position.y = -60; group.add(shards);
   },
 
   pickables: (items) => items.filter((i) => i.state === "ready").map((i) => i.hit),

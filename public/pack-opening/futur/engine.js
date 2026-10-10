@@ -406,11 +406,28 @@ export async function start(modeId) {
     composer.render(dt);
   });
 
+  // Préchauffage : compile les shaders et envoie les textures au GPU pendant le chargement, pas au premier effet
+  async function warmUp() {
+    const mk = (extra) => makeCard({ name: "", series: "", img: "", rarity: "UR", type: "", atk: 0, def: 0, power: 0, serial: 1, holo: true, finish: "GOLD", isNew: true, ...extra });
+    const a = mk(), b = mk(); // b garde le matériau normal, a prend celui de la matérialisation
+    for (const c of [a, b]) { c.position.set(0, -60, 0); c.userData.holo.visible = c.userData.reflection.visible = true; scene.add(c); }
+    a.userData.front.material = scanMat(a.userData.map, RC.UR);
+    mode.warm?.(ctx);
+    const far = new THREE.Vector3(0, -60, 0);
+    burst(far, ["#ffffff"], { n: 1, life: 0.01, additive: true }); burst(far, ["#ffffff"], { n: 1, life: 0.01 });
+    for (const t of [a.userData.map, b.userData.map, holoTex, glowTex, backTex, softDot]) renderer.initTexture(t);
+    await renderer.compileAsync(scene, camera);
+    for (let i = 0; i < 2; i++) { composer.render(0); await new Promise((r) => requestAnimationFrame(r)); }
+    for (const c of [a, b]) dropCard(c);
+    a.userData.front.material.dispose(); mode.clear?.(ctx);
+  }
+
   ui.booster.disabled = true;
   await Promise.all([...(EMBED ? [] : CHARS).map(async (c) => (images[c.img] = await painter.loadImg(c.img))), document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
   backTex = painter.makeBack();
   mode.init?.(ctx); modeReady = true;
   capsule = buildCapsule({ decor, ctx, backTex, BLUE, MINT }); scene.add(capsule.group); capsule.show();
+  await warmUp();
   ui.booster.disabled = false;
   // La page hôte peut ne pas être encore à l'écoute : on se signale jusqu'à recevoir l'init
   if (EMBED) { const ping = setInterval(() => (inited ? clearInterval(ping) : post({ type: "ready" })), 400); post({ type: "ready" }); }
