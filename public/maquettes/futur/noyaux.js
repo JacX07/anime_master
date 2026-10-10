@@ -6,11 +6,6 @@ const SHARDS = 90;
 
 export default {
   text: { open: "Touche la capsule pour activer les noyaux", reveal: "Clique sur un noyau (ou Espace) pour le briser" },
-  sounds: (s) => ({
-    crack: () => { s.noise(0.5, { from: 9000, to: 1800, gain: 0.16, type: "bandpass", attack: 0.002 }); [0, 0.03, 0.07].forEach((at, i) => s.tone(2600 + i * 700, 0.08, { type: "triangle", gain: 0.04, at, wet: 0.5 })); s.tone(90, 0.3, { gain: 0.2, slide: 0.5 }); },
-    gather: () => s.noise(0.7, { from: 800, to: 6000, gain: 0.05, type: "bandpass", attack: 0.4 }),
-  }),
-
   init({ scene, decor, BLUE }) {
     group = new THREE.Group(); scene.add(group);
     geo = {
@@ -25,7 +20,7 @@ export default {
     };
     mats = {
       crystal: new THREE.MeshPhysicalMaterial({ color: "#7f9fff", roughness: 0.04, metalness: 0.1, transparent: true, opacity: 0.62, flatShading: true, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false }),
-      edge: new THREE.LineBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.2), transparent: true, opacity: 0.9 }),
+      edge: new THREE.LineBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.43), transparent: true, opacity: 0.9 }),
       chrome: decor.materials.chrome,
       beam: new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.4), transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }),
       shard: new THREE.MeshPhysicalMaterial({ color: "#dfe8ff", roughness: 0.1, flatShading: true, emissive: "#2b6cff", emissiveIntensity: 1.5 }),
@@ -40,7 +35,7 @@ export default {
       const body = new THREE.Group(); root.add(body);
       const crystal = new THREE.Mesh(geo.crystal, mats.crystal); crystal.scale.set(0.82, 1.35, 0.82); crystal.castShadow = true;
       const edges = new THREE.LineSegments(geo.edges, mats.edge.clone()); edges.scale.copy(crystal.scale);
-      const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(3) });
+      const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.95) });
       const core = new THREE.Mesh(geo.inner, coreMat); core.scale.set(1, 1.5, 1);
       const orbit = new THREE.Mesh(geo.orbit, mats.edge.clone()); orbit.rotation.x = Math.PI / 2 + 0.3;
       const clamps = [0, 1].map((k) => { const m = new THREE.Mesh(geo.clamp, mats.chrome); m.rotation.set(Math.PI / 2, 0, k * Math.PI); m.position.y = k ? 0.52 : -0.52; return m; });
@@ -74,17 +69,17 @@ export default {
     await charge(c, (k) => {
       item.spin = 0.6 + k * 14; body.position.x = (Math.random() - 0.5) * 0.03 * k;
       item.clamps[0].position.y = -0.52 - k * 0.25; item.clamps[1].position.y = 0.52 + k * 0.25;
-      item.coreMat.color.copy(new THREE.Color(ctx.BLUE).lerp(col, k)).multiplyScalar(3 + k * 3); item.light.color.copy(item.coreMat.color); item.light.intensity = 1.2 + k * 10;
+      item.coreMat.color.copy(new THREE.Color(ctx.BLUE).lerp(col, k)).multiplyScalar(1.95 + k * 3); item.light.color.copy(item.coreMat.color); item.light.intensity = 1.2 + k * 10;
     });
-    item.coreMat.color.copy(col).multiplyScalar(5);
+    item.coreMat.color.copy(col).multiplyScalar(3.25);
     // Éclatement
-    S.sounds.crack(); hitStop(0.06); fxPulse(RC[c.rarity], 16, spot);
+    S.sounds.shatter(1); hitStop(0.06); fxPulse(RC[c.rarity], 16, spot);
     const shardMat = mats.shard.clone(); shardMat.emissive.copy(col);
     const shards = new THREE.InstancedMesh(geo.shard, shardMat, SHARDS); scene.add(shards);
     const P = [], V = [], R = [], target = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), one = new THREE.Vector3(1, 1, 1);
     for (let i = 0; i < SHARDS; i++) {
       P.push(spot.clone().add(new THREE.Vector3().randomDirection().multiplyScalar(0.25)));
-      V.push(new THREE.Vector3().randomDirection().multiplyScalar(2 + Math.random() * 3.5));
+      V.push(new THREE.Vector3().randomDirection().multiplyScalar(1.3 + Math.random() * 3.5));
       R.push(new THREE.Vector3(Math.random() * 6, Math.random() * 6, Math.random() * 6));
       // Cible : un point du cadre de la carte (les éclats dessinent le contour avant le scan)
       const t = Math.random() * 4, cw = CARD_W * 1.1 / 2, ch = CARD_H * 1.1 / 2;
@@ -119,7 +114,7 @@ export default {
       it.core.rotation.y -= dt * it.spin * 1.6; it.orbit.rotation.z += dt * (0.8 + it.spin * 0.3);
       if (it.state === "ready") {
         it.body.position.y = Math.sin(t * 1.2 + it.seed) * 0.08 + it.hoverK * 0.18;
-        it.coreMat.color.set(it.hoverK > 0.5 ? ctx.MINT : ctx.BLUE).multiplyScalar(3 + it.hoverK * 2);
+        it.coreMat.color.set(it.hoverK > 0.5 ? ctx.MINT : ctx.BLUE).multiplyScalar(1.95 + it.hoverK * 2);
         it.light.intensity = 1.2 + it.hoverK * 4; it.spin = 0.6 + it.hoverK * 1.8;
         it.beam.material.opacity = 0.14 + Math.sin(t * 3 + it.seed) * 0.04 + it.hoverK * 0.15;
       }

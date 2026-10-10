@@ -5,9 +5,11 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { Sound as S, CHARS, RANK, canvasTex, softDot, rng, GLSL_NOISE, cardPainter, vary } from "../opening/core.js";
 import THEME from "../opening/themes/futur.js";
 import { buildDecor, BLUE, MINT } from "./decor.js";
+import { futurAudio } from "./audio.js";
 
 export const MODES = [
   { id: "capsules", name: "Capsules de stase" },
@@ -20,7 +22,7 @@ export const FOCUS = new THREE.Vector3(0, 2.05, 5.0);
 
 export async function start(modeId) {
   const mode = (await import(`./${modeId}.js`)).default;
-  const T = THEME, RC = T.rarity;
+  const T = { ...THEME, ambienceDb: -13 }, RC = T.rarity;
   // Habillage du thème futuriste
   const l = document.createElement("link"); l.rel = "stylesheet"; l.href = T.fonts; document.head.append(l);
   document.getElementById("theme-css").textContent = T.css + (mode.css ?? "");
@@ -30,7 +32,7 @@ export async function start(modeId) {
   document.getElementById("urLabel").innerHTML = txt.ur;
   ui.hint.textContent = txt.open; ui.booster.innerHTML = T.booster;
 
-  S.sounds = { ...T.sounds(S), ...(mode.sounds?.(S) ?? {}) };
+  S.sounds = { ...T.sounds(S), ...futurAudio(S), ...(mode.sounds?.(S) ?? {}) };
   const Sfx = S.sounds;
   ui.snd.addEventListener("click", () => { S.init(T); S.setOn(!S.on); ui.snd.textContent = S.on ? "Son activé" : "Son coupé"; ui.snd.setAttribute("aria-pressed", String(S.on)); });
 
@@ -40,7 +42,7 @@ export async function start(modeId) {
   // ?test : résolution réduite pour les captures automatiques en rendu logiciel
   const TEST = new URLSearchParams(location.search).has("test");
   renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 2));
-  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0;
+  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.88;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
@@ -52,7 +54,16 @@ export async function start(modeId) {
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.4, 0.4, 1.5);
-  composer.addPass(bloom); composer.addPass(new OutputPass());
+  composer.addPass(bloom);
+  // Étalonnage : couleurs un peu désaturées et hautes lumières retenues, pour un rendu plus feutré
+  composer.addPass(new ShaderPass({
+    uniforms: { tDiffuse: { value: null }, uSat: { value: 0.8 } },
+    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform sampler2D tDiffuse; uniform float uSat; varying vec2 vUv;
+      void main() { vec4 c = texture2D(tDiffuse, vUv); float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+        c.rgb = mix(vec3(l), c.rgb, uSat); c.rgb = c.rgb / (1.0 + max(c.rgb - 0.85, 0.0) * 0.6); gl_FragColor = c; }`,
+  }));
+  composer.addPass(new OutputPass());
   const resize = () => { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); camDist = 8.5 * Math.max(1, 1.55 / camera.aspect); };
   addEventListener("resize", resize); resize();
 
@@ -155,7 +166,7 @@ export async function start(modeId) {
     setHint: (t) => (ui.hint.textContent = t) };
 
   // Déroulé
-  let busy = false, phase = "idle", count = 9, items = [], line = [];
+  let modeReady = false, busy = false, phase = "idle", count = 9, items = [], line = [];
   const bar = (id, n, on) => (document.getElementById(id).innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join(""));
   const stock = () => { bar("stock", 10, count); document.getElementById("count").textContent = count; };
   bar("ssr", 15, 9); bar("ur", 15, 4); stock();
@@ -170,25 +181,25 @@ export async function start(modeId) {
     line.forEach((c) => scene.remove(c)); line = [];
     items = await mode.open(ctx, [...CHARS].sort(() => Math.random() - 0.5));
     while (items.some((i) => i.state === "spawn")) await wait(0.05);
-    phase = "ready"; busy = false;
+    phase = "ready"; busy = false; S.music?.setLevel(1);
     ui.hint.textContent = txt.reveal; ui.all.hidden = false;
   }
   async function reveal(item, quick = false) {
     if (busy || phase !== "ready" || item.state !== "ready") return;
-    busy = true; item.state = "opening";
+    busy = true; item.state = "opening"; S.music?.setLevel(2);
     const card = await mode.reveal(ctx, item, quick);
     item.state = "done";
     await wait(quick ? 0.5 : 1.0);
     const slot = line.length; line.push(card);
     card.userData.state = "moving";
     await moveTo(card, { pos: linePos(slot), rotY: 0, scale: 0.62 }, 0.6, ease.inOut);
-    card.userData.state = "line"; card.userData.landT = 0; Sfx.settle();
+    card.userData.state = "line"; card.userData.landT = 0; Sfx.settle(); S.music?.setLevel(1);
     busy = false;
     mode.afterReveal?.(ctx, items);
     if (line.length === items.length) finish();
   }
   async function finish() {
-    phase = "done"; ui.all.hidden = true;
+    phase = "done"; ui.all.hidden = true; S.music?.setLevel(0);
     await Promise.all(line.map((card, i) => moveTo(card, { pos: new THREE.Vector3((i - 2) * 1.45, 1.45, 3.2), scale: 0.74 }, 0.7, ease.back)));
     ui.hint.textContent = txt.done; ui.next.hidden = count === 0;
     if (!ui.next.hidden) ui.next.focus({ preventScroll: true });
@@ -237,7 +248,7 @@ export async function start(modeId) {
     const sdt = now < stopUntil ? dt * 0.04 : dt;
     for (const tw of [...tweens]) { tw.t += sdt; const k = Math.min(1, tw.t / tw.dur); tw.fn(tw.e(k)); if (k >= 1) { tweens.delete(tw); tw.res(); } }
     decor.update(sdt, time);
-    mode.update?.(ctx, items, sdt, time, hoverItem);
+    if (modeReady) mode.update?.(ctx, items, sdt, time, hoverItem);
     for (const b of [...bursts]) {
       b.life += sdt; const a = b.pts.geometry.attributes.position.array;
       for (let i = 0; i < a.length; i += 3) { a[i] += b.v[i] * sdt; a[i + 1] += b.v[i + 1] * sdt; a[i + 2] += b.v[i + 2] * sdt; b.v[i + 1] -= b.gravity * sdt; b.v[i] *= 0.98; b.v[i + 2] *= 0.98; }
@@ -264,7 +275,7 @@ export async function start(modeId) {
   ui.booster.disabled = true;
   await Promise.all([...CHARS.map(async (c) => (images[c.img] = await painter.loadImg(c.img))), document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
   backTex = painter.makeBack();
-  mode.init?.(ctx);
+  mode.init?.(ctx); modeReady = true;
   ui.booster.disabled = false;
   // Accès en lecture pour les tests automatisés de la maquette
   window.__scene = { three: { scene, camera }, get phase() { return phase === "ready" ? "ring" : phase; }, get busy() { return busy; }, get states() { return items.map((i) => (i.state === "ready" ? "ring" : i.state)); }, get ur() { return !ui.ur.hidden; } };

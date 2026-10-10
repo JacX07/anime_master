@@ -5,11 +5,6 @@ let ring, geo, mats;
 
 export default {
   text: { open: "Touche la capsule pour lancer la sélection", reveal: "Clique sur une capsule (ou Espace) pour l'ouvrir" },
-  sounds: (s) => ({
-    hiss: () => { s.noise(1.1, { from: 7000, to: 2500, gain: 0.12, type: "highpass", attack: 0.02 }); s.tone(120, 0.25, { gain: 0.15, slide: 0.6, wet: 0.2 }); s.tone(1800, 0.06, { type: "square", gain: 0.02, wet: 0.1 }); },
-    unlock: () => [0, 0.08].forEach((at) => s.tone(2200, 0.04, { type: "square", gain: 0.03, at, bus: "ui", wet: 0.2 })),
-  }),
-
   init({ scene, decor }) {
     ring = new THREE.Group(); scene.add(ring);
     const capProfile = [[0, 0], [0.5, 0], [0.6, 0.04], [0.64, 0.12], [0.64, 0.2], [0.56, 0.26], [0.3, 0.3], [0, 0.31]].map(([x, y]) => new THREE.Vector2(x, y));
@@ -42,12 +37,12 @@ export default {
       const body = new THREE.Group(); root.add(body);
       const bottom = new THREE.Mesh(geo.cap, mats.graphite); bottom.position.y = -0.75; bottom.rotation.x = Math.PI; bottom.castShadow = true;
       const top = new THREE.Mesh(geo.cap, mats.graphite); top.position.y = 0.75; top.castShadow = true;
-      const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.4) });
+      const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.56) });
       const rb = new THREE.Mesh(geo.ringLight, glow); rb.rotation.x = Math.PI / 2; rb.position.y = -0.87;
       const rt = new THREE.Mesh(geo.ringLight, glow); rt.rotation.x = Math.PI / 2; rt.position.y = 0.87;
       const halves = geo.half.map((g) => { const m = new THREE.Mesh(g, mats.glass.clone()); body.add(m); return m; });
       const struts = [0, 1, 2].map((k) => { const s = new THREE.Mesh(geo.strut, mats.chrome); const sa = (k / 3) * Math.PI * 2 + 0.5; s.position.set(Math.cos(sa) * 0.56, 0, Math.sin(sa) * 0.56); body.add(s); return s; });
-      const led = new THREE.Mesh(geo.led, new THREE.MeshBasicMaterial({ color: new THREE.Color("#00c8b4").multiplyScalar(2.5) })); led.position.set(0, 1.06, 0); top.add(led); led.position.y = 0.31;
+      const led = new THREE.Mesh(geo.led, new THREE.MeshBasicMaterial({ color: new THREE.Color("#00c8b4").multiplyScalar(1.62) })); led.position.set(0, 1.06, 0); top.add(led); led.position.y = 0.31;
       const mist = new THREE.Sprite(new THREE.SpriteMaterial({ map: mats.mist, transparent: true, opacity: 0.4, color: "#9cc0ff", depthWrite: false })); mist.scale.set(0.9, 1.3, 1);
       const fluid = new THREE.Mesh(geo.fluid, mats.fluid.clone());
       const bands = [0.62, -0.62].map((y) => { const b = new THREE.Mesh(geo.band, mats.ceramic); b.position.y = y; return b; });
@@ -71,16 +66,16 @@ export default {
   async reveal(ctx, item, quick) {
     const { scene, tween, wait, ease, moveTo, Sfx, S, burst, fxPulse, charge, impact, materialize, makeCard, FOCUS, RC } = ctx;
     const { c, root, body } = item;
-    Sfx.select(); Sfx.unlock();
+    Sfx.select(); Sfx.unseal();
     scene.attach(root); root.rotation.set(0, new THREE.Euler().setFromQuaternion(root.quaternion, "YXZ").y, 0);
     const spot = FOCUS.clone().setZ(3.4).setY(1.75);
     await moveTo(root, { pos: spot, rotY: 0, scale: 0.95 }, quick ? 0.45 : 0.65, ease.inOut);
     // Montée en pression : la capsule vibre légèrement, la brume s'épaissit
     await charge(c, (k) => { item.mist.material.opacity = 0.4 + k * 0.4; item.fluid.material.opacity = 0.42 + k * 0.3; item.mist.scale.set(0.9 + k * 0.3, 1.3 + k * 0.2, 1); item.core.intensity = 1.5 + k * 6; body.rotation.y = Math.sin(k * 60) * 0.01 * k; });
     // Ouverture : verrous, vapeur, panneaux qui s'écartent, lumière de la rareté
-    S.sounds.hiss();
+    S.sounds.shatter(0.6);
     const col = RC[c.rarity];
-    item.glow.color.set(col).multiplyScalar(2.6); item.core.color.set(col); item.core.intensity = 12; item.fluid.material.color.set(col); fxPulse(col, 14, spot);
+    item.glow.color.set(col).multiplyScalar(1.69); item.core.color.set(col); item.core.intensity = 12; item.fluid.material.color.set(col); fxPulse(col, 14, spot);
     burst(spot.clone().setY(spot.y - 0.6), ["#ffffff", "#e8f0ff", "#dfe8f5"], { n: 140, speed: 1.6, size: 0.35, gravity: -0.6, life: 2.2, rise: 0.8 });
     const card = makeCard(c); card.visible = false; card.position.copy(spot).add(new THREE.Vector3(0, 0.1, 0.05)); card.scale.setScalar(0.72); scene.add(card);
     const opening = tween(0.8, (k) => {
@@ -108,7 +103,7 @@ export default {
     if (!ctx.reduced) ring.rotation.y += dt * 0.32;
     for (const it of items) {
       it.hoverK += ((it === hover ? 1 : 0) - it.hoverK) * Math.min(1, dt * 10);
-      if (it.state === "ready") { it.body.position.y = Math.sin(t * 1.1 + it.seed) * 0.06 + it.hoverK * 0.15; it.core.intensity = 1.5 + it.hoverK * 4; it.glow.color.set(it.hoverK > 0.5 ? "#00c8b4" : ctx.BLUE).multiplyScalar(2.4 + it.hoverK); }
+      if (it.state === "ready") { it.body.position.y = Math.sin(t * 1.1 + it.seed) * 0.06 + it.hoverK * 0.15; it.core.intensity = 1.5 + it.hoverK * 4; it.glow.color.set(it.hoverK > 0.5 ? "#00c8b4" : ctx.BLUE).multiplyScalar(1.56 + it.hoverK); }
       it.led.visible = Math.sin(t * 4 + it.seed) > 0;
       it.mist.material.rotation += dt * 0.3;
     }

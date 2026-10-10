@@ -15,10 +15,10 @@ export function buildDecor({ scene, renderer }) {
   // Éclairage : environnement de studio pour des reflets réalistes, une lumière clé qui projette des ombres douces
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.85;
+  scene.environmentIntensity = 0.6;
   scene.fog = new THREE.Fog("#e6edf5", 34, 140);
-  scene.add(new THREE.HemisphereLight("#ffffff", "#c4d2e2", 0.7));
-  const key = new THREE.DirectionalLight("#ffffff", 2.2);
+  scene.add(new THREE.HemisphereLight("#f4f6f9", "#b9c3cf", 0.5));
+  const key = new THREE.DirectionalLight("#fffaf2", 1.6);
   key.position.set(-6, 14, 9); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048); key.shadow.camera.left = -14; key.shadow.camera.right = 14; key.shadow.camera.top = 14; key.shadow.camera.bottom = -14; key.shadow.camera.far = 40; key.shadow.radius = 6; key.shadow.bias = -0.0005;
   scene.add(key);
@@ -29,7 +29,7 @@ export function buildDecor({ scene, renderer }) {
     vertexShader: `varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: `uniform float uTime; varying vec3 vDir; ${GLSL_NOISE}
       void main() { vec3 d = normalize(vDir);
-        vec3 col = mix(vec3(0.93, 0.95, 0.98), vec3(0.62, 0.74, 0.9), smoothstep(0.0, 0.6, d.y));
+        vec3 col = mix(vec3(0.86, 0.88, 0.91), vec3(0.66, 0.72, 0.8), smoothstep(0.0, 0.6, d.y));
         if (d.y > 0.0) { vec2 p = d.xz / (d.y + 0.25) + vec2(uTime * 0.004, 0.0); col = mix(col, vec3(0.97, 0.98, 1.0), smoothstep(0.55, 0.85, fbm(vec3(p * 1.5, 0.0))) * 0.6); }
         gl_FragColor = vec4(srgb(col), 1.0); }`,
   }));
@@ -41,9 +41,9 @@ export function buildDecor({ scene, renderer }) {
   const satin = new THREE.MeshPhysicalMaterial({ color: "#dfe6ef", roughness: 0.45, metalness: 0.2, clearcoat: 0.6 });
   const chrome = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.08, metalness: 1 });
   const glass = new THREE.MeshPhysicalMaterial({ color: "#cfe0f2", roughness: 0.04, metalness: 0, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide });
-  const glowBlue = new THREE.MeshBasicMaterial({ color: hdr(BLUE, 2.6), fog: false });
-  const glowMint = new THREE.MeshBasicMaterial({ color: hdr(MINT, 2.4), fog: false });
-  const glowWhite = new THREE.MeshBasicMaterial({ color: hdr("#dfeaff", 1.8) });
+  const glowBlue = new THREE.MeshBasicMaterial({ color: hdr(BLUE, 1.7), fog: false });
+  const glowMint = new THREE.MeshBasicMaterial({ color: hdr(MINT, 1.5), fog: false });
+  const glowWhite = new THREE.MeshBasicMaterial({ color: hdr("#dfeaff", 1.3) });
 
   // Sol : miroir sous une dalle laquée semi-transparente, joints en anneaux et rayons
   const mirror = new Reflector(new THREE.CircleGeometry(30, 96), { textureWidth: innerWidth * 0.6, textureHeight: innerHeight * 0.6, color: "#b9c3cf" });
@@ -62,7 +62,7 @@ export function buildDecor({ scene, renderer }) {
   shadowCatcher.rotation.x = -Math.PI / 2; shadowCatcher.position.y = -0.595; shadowCatcher.receiveShadow = true; scene.add(shadowCatcher);
   // Bandes lumineuses incrustées : anneaux, rayons courts et balises qui défilent
   [[3.1, glowBlue, 0.035], [9.2, glowBlue, 0.03], [15.4, glowMint, 0.025]].forEach(([r, m, wd]) => { const ring = new THREE.Mesh(new THREE.RingGeometry(r, r + wd, 192), m); ring.rotation.x = -Math.PI / 2; ring.position.y = -0.59; scene.add(ring); });
-  const beacons = new THREE.InstancedMesh(new THREE.CircleGeometry(0.05, 12), new THREE.MeshBasicMaterial({ color: hdr(BLUE, 3) }), 48);
+  const beacons = new THREE.InstancedMesh(new THREE.CircleGeometry(0.05, 12), new THREE.MeshBasicMaterial({ color: hdr(BLUE, 1.9) }), 48);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)), one = new THREE.Vector3(1, 1, 1);
   updaters.push((dt, t) => { for (let i = 0; i < 48; i++) { const a = (i / 48) * Math.PI * 2 + t * 0.08, k = 0.5 + 0.5 * Math.sin(t * 2 - i * 0.6); m4.compose(new THREE.Vector3(Math.cos(a) * 6.2, -0.588, Math.sin(a) * 6.2), q, one.clone().multiplyScalar(0.4 + k)); beacons.setMatrixAt(i, m4); } beacons.instanceMatrix.needsUpdate = true; });
   scene.add(beacons);
@@ -162,7 +162,7 @@ export function buildDecor({ scene, renderer }) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 8), glowBlue); eye.position.set(0, -0.05, 0.25); g.add(eye);
     return { g, eye, r: 9 + i * 2.5, h: 4.2 + i * 0.9, s: 0.12 + i * 0.04, o: i * 2.1 };
   });
-  updaters.push((dt, t) => drones.forEach((d) => { const a = t * d.s + d.o; d.g.position.set(Math.sin(a) * d.r, d.h + Math.sin(t * 1.3 + d.o) * 0.2, -6 - Math.cos(a) * d.r * 0.5); d.g.rotation.y = a + Math.PI / 2; d.g.rotation.z = Math.sin(t + d.o) * 0.1; d.eye.material.color.copy(hdr(Math.sin(t * 3 + d.o) > 0.9 ? MINT : BLUE, 2.6)); }));
+  updaters.push((dt, t) => drones.forEach((d) => { const a = t * d.s + d.o; d.g.position.set(Math.sin(a) * d.r, d.h + Math.sin(t * 1.3 + d.o) * 0.2, -6 - Math.cos(a) * d.r * 0.5); d.g.rotation.y = a + Math.PI / 2; d.g.rotation.z = Math.sin(t + d.o) * 0.1; d.eye.material.color.copy(hdr(Math.sin(t * 3 + d.o) > 0.9 ? MINT : BLUE, 1.8)); }));
 
   // Rais de lumière tombant des verrières, poussière dorée
   const shaftTex = canvasTex(64, 256, (g, w, h) => { const l = g.createLinearGradient(0, 0, 0, h); l.addColorStop(0, "#ffffff"); l.addColorStop(1, "#ffffff00"); g.fillStyle = l; g.fillRect(0, 0, w, h); const s = g.createLinearGradient(0, 0, w, 0); s.addColorStop(0, "#000"); s.addColorStop(0.5, "#fff"); s.addColorStop(1, "#000"); g.globalCompositeOperation = "multiply"; g.fillStyle = s; g.fillRect(0, 0, w, h); });

@@ -7,12 +7,6 @@ const GLYPHS = ["01", "02", "03", "04", "05"];
 
 export default {
   text: { open: "Touche la capsule pour calibrer le portail", reveal: "Clique sur une clé (ou Espace) pour l'envoyer dans le portail" },
-  sounds: (s) => ({
-    launch: () => s.tone(300, 0.5, { type: "sine", gain: 0.1, slide: 4, wet: 0.4 }),
-    warp: () => { s.noise(1.4, { from: 300, to: 5000, gain: 0.09, type: "bandpass", attack: 0.6 }); s.tone(55, 1.4, { gain: 0.2, slide: 2, wet: 0.3 }); },
-    whoosh: () => s.noise(0.7, { from: 5000, to: 400, gain: 0.12, type: "bandpass", attack: 0.05 }),
-  }),
-
   init({ scene, decor, canvasTex, BLUE }) {
     group = new THREE.Group(); scene.add(group);
     geo = {
@@ -42,10 +36,10 @@ export default {
       root.position.copy(from); root.scale.setScalar(0.01);
       const body = new THREE.Group(); root.add(body); body.rotation.x = Math.PI / 2;
       const key = new THREE.Mesh(geo.key, mats.ceramic); key.castShadow = true;
-      const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.4) });
+      const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.56) });
       const rims = [0.05, -0.05].map((y) => { const r = new THREE.Mesh(geo.rim, glow); r.rotation.set(Math.PI / 2, 0, Math.PI / 6); r.position.y = y; return r; });
       const face = new THREE.Mesh(geo.face, new THREE.MeshBasicMaterial({ map: glyphs[i], transparent: true })); face.rotation.set(-Math.PI / 2, 0, Math.PI / 2); face.position.y = 0.047;
-      const haloMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.6), transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
+      const haloMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.04), transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
       const halo = new THREE.Mesh(geo.halo, haloMat); halo.rotation.x = -Math.PI / 2;
       const hit = new THREE.Mesh(geo.hit, new THREE.MeshBasicMaterial({ visible: false }));
       body.add(key, ...rims, face, halo, hit);
@@ -106,7 +100,7 @@ export default {
       it.root.position.y = it.slot.y + Math.sin(t * 1.3 + it.seed) * 0.06 + it.hoverK * 0.15;
       it.body.rotation.y = Math.sin(t * 0.8 + it.seed) * 0.35;
       it.haloMat.opacity = it.hoverK * 0.9; it.halo.scale.setScalar(1 + Math.sin(t * 6) * 0.04);
-      it.glow.color.set(it.hoverK > 0.5 ? ctx.MINT : ctx.BLUE).multiplyScalar(2.4 + it.hoverK * 1.5);
+      it.glow.color.set(it.hoverK > 0.5 ? ctx.MINT : ctx.BLUE).multiplyScalar(1.56 + it.hoverK * 1.5);
     }
   },
 
