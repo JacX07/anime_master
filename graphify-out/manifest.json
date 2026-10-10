@@ -180,9 +180,9 @@
     "semantic_hash": "348d8d0edcbeed567871a31ca31b42b0"
   },
   "src/app/packs/ImmersiveOpener.tsx": {
-    "mtime": 1791657439.9346063,
-    "seen": 1791657903.6005797,
-    "ast_hash": "b7a45ae25dfbaff8f80851a20da742e7",
+    "mtime": 1791658363.5351613,
+    "seen": 1791659550.5092254,
+    "ast_hash": "47a157bbd937617e480205cb09552b1e",
     "semantic_hash": ""
   },
   "src/app/packs/PackOpener.tsx": {
@@ -204,9 +204,9 @@
     "semantic_hash": "8c79a0a4c8d32db2cdb11b78c89b43c2"
   },
   "src/app/page.tsx": {
-    "mtime": 1791657870.7345276,
-    "seen": 1791657903.6006608,
-    "ast_hash": "a8edb0ca5c4cefa20469a5a67b87bc34",
+    "mtime": 1791659226.290874,
+    "seen": 1791659550.5093837,
+    "ast_hash": "a9663dc7c935c3d2bd0132f24879de45",
     "semantic_hash": ""
   },
   "src/app/signup/page.tsx": {
@@ -924,9 +924,9 @@
     "semantic_hash": ""
   },
   "docs/STATE.md": {
-    "mtime": 1791657900.8860974,
-    "seen": 1791657903.6063921,
-    "ast_hash": "6e99d1c4a65eae9d6d648e0a81bc2cd0",
+    "mtime": 1791659539.2682307,
+    "seen": 1791659550.516604,
+    "ast_hash": "bdcf67a8595ea7a69feca24c54c7e837",
     "semantic_hash": ""
   },
   "public/pack-opening/futur.html": {
@@ -936,15 +936,15 @@
     "semantic_hash": ""
   },
   "public/pack-opening/futur/menu.js": {
-    "mtime": 1791657842.9231825,
-    "seen": 1791657903.6001549,
-    "ast_hash": "69a16f7faab6e405dcf0d9a07ca231ee",
+    "mtime": 1791659226.5228899,
+    "seen": 1791659550.508179,
+    "ast_hash": "87d7b608e5851d15222b40f8b1fb2b05",
     "semantic_hash": ""
   },
   "src/components/SceneBody.tsx": {
-    "mtime": 1791657870.731593,
-    "seen": 1791657903.6007588,
-    "ast_hash": "5c7e6c6e6017c97df260df7dc2d64af7",
+    "mtime": 1791659226.2743309,
+    "seen": 1791659550.509699,
+    "ast_hash": "aa0720092d0772d2ba5ddca898fda2ee",
     "semantic_hash": ""
   },
   "src/lib/collection.ts": {
@@ -963,6 +963,12 @@
     "mtime": 1791657842.9230304,
     "seen": 1791657903.6064012,
     "ast_hash": "ee855c539ed04b245f885e4321ffbcc6",
+    "semantic_hash": ""
+  },
+  "src/components/MenuNav.tsx": {
+    "mtime": 1791659226.2828734,
+    "seen": 1791659550.509694,
+    "ast_hash": "2193462f9b2a086c211eaabeee54e548",
     "semantic_hash": ""
   }
 }

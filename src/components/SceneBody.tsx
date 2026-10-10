@@ -2,11 +2,15 @@
 
 import { useEffect } from "react";
 
-/** Pages à fond 3D plein écran : le menu du haut flotte dessus (voir `body.scene-active` dans globals.css). */
-export function SceneBody() {
+/**
+ * Pages à fond 3D plein écran : le menu du haut flotte dessus (voir `body.scene-active` dans globals.css).
+ * `night` : décor sombre, le menu du haut passe en texte clair.
+ */
+export function SceneBody({ night = false }: { night?: boolean }) {
   useEffect(() => {
-    document.body.classList.add("scene-active");
-    return () => document.body.classList.remove("scene-active");
-  }, []);
+    const classes = night ? ["scene-active", "scene-night"] : ["scene-active"];
+    document.body.classList.add(...classes);
+    return () => document.body.classList.remove(...classes);
+  }, [night]);
   return null;
 }

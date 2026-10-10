@@ -21,7 +21,7 @@ export async function start() {
   const canvas = document.getElementById("scene");
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 2));
-  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.7;
+  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.38; // crépuscule : le décor est volontairement sombre
   renderer.shadowMap.enabled = true;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
