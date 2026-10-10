@@ -11,6 +11,9 @@ const MOCKUPS = [
   { href: "/maquettes/opening.html?theme=futur", name: "H · Ouverture 3D : Cyber futuriste (laboratoire blanc)" },
   { href: "/maquettes/opening.html?theme=prairie", name: "I · Ouverture 3D : Prairie à la Frieren" },
   { href: "/maquettes/opening.html?theme=sanctuaire", name: "J · Ouverture 3D : Sanctuaire au clair de lune" },
+  { href: "/maquettes/futur.html?reveal=capsules", name: "K · Cyber futuriste v2 : Capsules de stase" },
+  { href: "/maquettes/futur.html?reveal=noyaux", name: "L · Cyber futuriste v2 : Noyaux de données" },
+  { href: "/maquettes/futur.html?reveal=portail", name: "M · Cyber futuriste v2 : Portail" },
 ];
 
 export default function MockupsPage() {

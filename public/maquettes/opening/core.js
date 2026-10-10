@@ -135,6 +135,8 @@ const S = {
   every(minS, maxS, fn) { const go = () => { if (this.on) fn(); setTimeout(go, (minS + Math.random() * (maxS - minS)) * 1000); }; setTimeout(go, minS * 1000); },
 };
 
+export { S as Sound, CHARS, RANK };
+
 // Sons par défaut ; un thème remplace ceux qu'il veut
 function defaultSounds(s) {
   return {
@@ -148,6 +150,44 @@ function defaultSounds(s) {
     urImpact: () => { s.tone(90, 1.2, { gain: 0.6, slide: 0.35 }); s.pad([261.63, 329.63, 392, 523.25], 3, { at: 0.5, gain: 0.025 }); },
     settle: () => { s.tone(vary(880), 0.08, { type: "triangle", gain: 0.06, bus: "ui", wet: 0 }); },
   };
+}
+
+// Peintre de cartes partagé : face (illustration, rareté, stats) et dos fournis par le thème
+export function cardPainter(T, images) {
+  const RC = T.rarity;
+  const C = { display: "serif", body: "sans-serif", ink: "#fff", sub: "#ffffffbb", panel: "#111", shade: "#0a0a14", badge: "#000000b0", radius: 36, ...T.card };
+  const loadImg = (src) => new Promise((res) => { const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = () => res(null); im.src = src + "?cors=1"; });
+  const frameFill = (g, r, w, h) => {
+    if (C.frame) return C.frame(g, r, w, h, RC[r]);
+    if (r === "UR") { const f = g.createLinearGradient(0, 0, w, h); T.urFrame.forEach((s, i, a) => f.addColorStop(i / (a.length - 1), s)); return f; }
+    if (r === "SSR") { const f = g.createLinearGradient(0, 0, w, h); ["#fff1b0", "#e0a020", "#fff6d0", "#b87a00"].forEach((s, i) => f.addColorStop(i / 3, s)); return f; }
+    return RC[r];
+  };
+  function drawFront(c) {
+    return canvasTex(512, 716, (g, w, h) => {
+      const col = RC[c.rarity], rad = C.radius;
+      g.save(); g.beginPath(); g.roundRect(0, 0, w, h, rad); g.clip();
+      g.fillStyle = frameFill(g, c.rarity, w, h); g.fillRect(0, 0, w, h);
+      g.beginPath(); g.roundRect(14, 14, w - 28, h - 28, Math.max(4, rad - 10)); g.clip();
+      g.fillStyle = C.panel; g.fillRect(0, 0, w, h);
+      const im = images[c.img];
+      if (im) { const s = Math.max((w - 28) / im.width, (h - 28) / im.height); g.drawImage(im, 14 + ((w - 28) - im.width * s) / 2, 14, im.width * s, im.height * s); }
+      const grad = g.createLinearGradient(0, h * 0.55, 0, h); grad.addColorStop(0, C.shade + "00"); grad.addColorStop(0.45, C.shade + "e0"); grad.addColorStop(1, C.shade + "f8");
+      g.fillStyle = grad; g.fillRect(0, h * 0.55, w, h);
+      g.restore();
+      C.ornament?.(g, c, w, h, col);
+      g.font = `700 40px "${C.display}"`; const rw = g.measureText(c.rarity).width + 36;
+      g.fillStyle = C.badge; g.beginPath(); g.roundRect(30, 30, rw, 60, 30); g.fill();
+      g.fillStyle = c.rarity === "UR" ? T.urInk ?? col : col; g.fillText(c.rarity, 48, 75);
+      g.font = `700 26px "${C.body}"`; const s = `#${c.serial}`, sw = g.measureText(s).width + 28;
+      g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 30 - sw, 34, sw, 50, 25); g.fill(); g.fillStyle = C.ink; g.fillText(s, w - 30 - sw + 14, 68);
+      g.fillStyle = C.ink; g.font = `700 44px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);
+      g.fillStyle = C.sub; g.font = `500 26px "${C.body}"`; g.fillText(`${c.type} · ${c.series}`, 40, h - 84, w - 80);
+      g.fillStyle = C.ink; g.font = `700 30px "${C.body}"`; g.fillText(`ATK ${c.atk}`, 40, h - 38); const d = `DEF ${c.def}`; g.fillText(d, w - 40 - g.measureText(d).width, h - 38);
+    });
+  }
+  const makeBack = () => canvasTex(512, 716, (g, w, h) => { g.beginPath(); g.roundRect(0, 0, w, h, C.radius); g.clip(); C.back(g, w, h); });
+  return { C, drawFront, makeBack, loadImg };
 }
 
 // =============== Démarrage d'un thème ===============
@@ -197,39 +237,8 @@ export async function start(theme) {
 
   // =============== Cartes ===============
   const CARD_W = 1.4, CARD_H = 1.96;
-  const C = { display: "serif", body: "sans-serif", ink: "#fff", sub: "#ffffffbb", panel: "#111", shade: "#0a0a14", badge: "#000000b0", radius: 36, ...T.card };
   const images = {};
-  const loadImg = (src) => new Promise((res) => { const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = () => res(null); im.src = src + "?cors=1"; });
-  const frameFill = (g, r, w, h) => {
-    if (C.frame) return C.frame(g, r, w, h, RC[r]);
-    if (r === "UR") { const f = g.createLinearGradient(0, 0, w, h); T.urFrame.forEach((s, i, a) => f.addColorStop(i / (a.length - 1), s)); return f; }
-    if (r === "SSR") { const f = g.createLinearGradient(0, 0, w, h); ["#fff1b0", "#e0a020", "#fff6d0", "#b87a00"].forEach((s, i) => f.addColorStop(i / 3, s)); return f; }
-    return RC[r];
-  };
-  function drawFront(c) {
-    return canvasTex(512, 716, (g, w, h) => {
-      const col = RC[c.rarity], rad = C.radius;
-      g.save(); g.beginPath(); g.roundRect(0, 0, w, h, rad); g.clip();
-      g.fillStyle = frameFill(g, c.rarity, w, h); g.fillRect(0, 0, w, h);
-      g.beginPath(); g.roundRect(14, 14, w - 28, h - 28, Math.max(4, rad - 10)); g.clip();
-      g.fillStyle = C.panel; g.fillRect(0, 0, w, h);
-      const im = images[c.img];
-      if (im) { const s = Math.max((w - 28) / im.width, (h - 28) / im.height); g.drawImage(im, 14 + ((w - 28) - im.width * s) / 2, 14, im.width * s, im.height * s); }
-      const grad = g.createLinearGradient(0, h * 0.55, 0, h); grad.addColorStop(0, C.shade + "00"); grad.addColorStop(0.45, C.shade + "e0"); grad.addColorStop(1, C.shade + "f8");
-      g.fillStyle = grad; g.fillRect(0, h * 0.55, w, h);
-      g.restore();
-      C.ornament?.(g, c, w, h, col);
-      g.font = `700 40px "${C.display}"`; const rw = g.measureText(c.rarity).width + 36;
-      g.fillStyle = C.badge; g.beginPath(); g.roundRect(30, 30, rw, 60, 30); g.fill();
-      g.fillStyle = c.rarity === "UR" ? T.urInk ?? col : col; g.fillText(c.rarity, 48, 75);
-      g.font = `700 26px "${C.body}"`; const s = `#${c.serial}`, sw = g.measureText(s).width + 28;
-      g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 30 - sw, 34, sw, 50, 25); g.fill(); g.fillStyle = C.ink; g.fillText(s, w - 30 - sw + 14, 68);
-      g.fillStyle = C.ink; g.font = `700 44px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);
-      g.fillStyle = C.sub; g.font = `500 26px "${C.body}"`; g.fillText(`${c.type} · ${c.series}`, 40, h - 84, w - 80);
-      g.fillStyle = C.ink; g.font = `700 30px "${C.body}"`; g.fillText(`ATK ${c.atk}`, 40, h - 38); const d = `DEF ${c.def}`; g.fillText(d, w - 40 - g.measureText(d).width, h - 38);
-    });
-  }
-  const makeBack = () => canvasTex(512, 716, (g, w, h) => { g.beginPath(); g.roundRect(0, 0, w, h, C.radius); g.clip(); C.back(g, w, h); });
+  const { C, drawFront, makeBack, loadImg } = cardPainter(T, images);
   let backTex = makeBack();
   const holoTex = canvasTex(512, 512, (g, w, h) => {
     const hues = ["#ff5fd8", "#ffd84a", "#5ff2c8", "#5fb8ff", "#a77dff"];
