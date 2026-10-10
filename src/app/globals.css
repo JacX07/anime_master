@@ -255,7 +255,66 @@ a.album-bump {
 @keyframes album-bump {
   30% {
     scale: 1.25;
-    color: var(--rarity-UR, #a78bfa);
+    color: #2b6cff;
     text-shadow: 0 0 14px currentColor;
   }
+}
+.album-badge {
+  margin-left: 0.5rem;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--rarity-UR);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Page Paquets : la scène 3D occupe tout l'écran et le menu du haut flotte dessus, dans le style de la maquette */
+body:has(.scene-page) {
+  overflow: hidden;
+}
+body:has(.scene-page) > footer {
+  display: none;
+}
+body:has(.scene-page) > header {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 20;
+  border: 0;
+  background: linear-gradient(#f4f7fb99, transparent);
+  color: #0d1b2a;
+  font-family: var(--font-sora), var(--font-geist-sans), sans-serif;
+}
+body:has(.scene-page) > header .site-logo {
+  font-family: var(--font-michroma), var(--font-geist-sans), sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+body:has(.scene-page) > header .site-logo span {
+  color: #2b6cff;
+}
+body:has(.scene-page) > header .site-link {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0d1b2a99;
+}
+body:has(.scene-page) > header .site-link:hover {
+  color: #2b6cff;
+}
+body:has(.scene-page) > header a[href="/packs"] {
+  color: #0d1b2a;
+  box-shadow: inset 0 -2px 0 #2b6cff;
+}
+body:has(.scene-page) > header .album-badge {
+  background: #2b6cff;
+}
+body:has(.scene-page) > header form,
+body:has(.scene-page) > header form button {
+  color: #0d1b2a;
+}
+body:has(.scene-page) > header form button {
+  opacity: 0.6;
 }

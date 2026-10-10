@@ -63,7 +63,7 @@ export default {
     Sfx.select();
     const spot = new THREE.Vector3(0, 1.95, 4.4);
     item.beam.visible = false;
-    await moveTo(root, { pos: spot, scale: 1.15 }, quick ? 0.45 : 0.7, ease.inOut);
+    await moveTo(root, { pos: spot, scale: 1.15 }, quick ? 0.22 : 0.35, ease.inOut);
     // Surcharge : le noyau s'emballe, les attaches s'écartent, la couleur de rareté perce
     const col = new THREE.Color(RC[c.rarity]);
     await charge(c, (k) => {
@@ -93,16 +93,16 @@ export default {
     const imp = impact(c, spot);
     // Les éclats s'envolent, freinent, puis sont aspirés vers le contour de la carte
     let last = 0;
-    await tween(0.55, (k) => { const dt = k - last; last = k; for (let i = 0; i < SHARDS; i++) { P[i].addScaledVector(V[i], dt * 0.55 * (1.4 - k)); R[i].addScalar(dt * 4); } place(1); }, (k) => k);
+    await tween(0.28, (k) => { const dt = k - last; last = k; for (let i = 0; i < SHARDS; i++) { P[i].addScaledVector(V[i], dt * 0.55 * (1.4 - k)); R[i].addScalar(dt * 4); } place(1); }, (k) => k);
     S.sounds.gather();
     const start = P.map((p) => p.clone());
-    await tween(0.6, (k) => { for (let i = 0; i < SHARDS; i++) { P[i].lerpVectors(start[i], target[i], k); R[i].addScalar(0.05); } place(1 - k * 0.6); }, ease.inOut);
+    await tween(0.3, (k) => { for (let i = 0; i < SHARDS; i++) { P[i].lerpVectors(start[i], target[i], k); R[i].addScalar(0.05); } place(1 - k * 0.6); }, ease.inOut);
     const card = makeCard(c); card.position.copy(FOCUS); card.scale.setScalar(1.1); scene.add(card);
-    const mat = materialize(card, 0.85);
-    tween(0.5, (k) => place(0.4 * (1 - k))).then(() => { scene.remove(shards); shards.dispose(); });
+    const mat = materialize(card, 0.43);
+    tween(0.25, (k) => place(0.4 * (1 - k))).then(() => { scene.remove(shards); shards.dispose(); });
     await mat;
     await imp;
-    await wait(0.3);
+    await wait(0.15);
     group.remove(root);
     return card;
   },

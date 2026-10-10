@@ -109,8 +109,8 @@
 
   /* Intégré dans /packs : la page hôte fournit la navigation, il ne reste que le bouton de son */
   .embed .logo, .embed header nav, .embed .right > span { display: none; }
-  .embed header { background: none; pointer-events: none; } .embed header .btn { pointer-events: auto; }
-  .embed .hud { top: 64px; }
+  .embed header { top: auto; bottom: 20px; right: auto; left: 20px; padding: 0; background: none; pointer-events: none; } .embed header .btn { pointer-events: auto; }
+  .embed .hud { top: 76px; }
 
   @media (max-width: 760px) { .hud { display: none; } .ur .stage { grid-template-columns: 1fr; text-align: center; } .ur .art { width: 60vw; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }

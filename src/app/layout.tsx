@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Michroma, Sora } from "next/font/google";
 import Link from "next/link";
 import { Suspense } from "react";
+import { AlbumLink } from "@/components/AlbumLink";
 import { UserMenu } from "@/components/UserMenu";
 import "./globals.css";
 
@@ -15,6 +16,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Polices du menu sur la page Paquets (scène 3D)
+const michroma = Michroma({ variable: "--font-michroma", weight: "400", subsets: ["latin"] });
+const sora = Sora({ variable: "--font-sora", subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: "Anime Masters",
   description: "Collectionne les personnages d'anime en ouvrant des paquets de cartes.",
@@ -22,19 +27,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} ${michroma.variable} ${sora.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         <header className="border-b border-white/10 bg-black/30">
           <nav className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
-            <Link href="/" className="font-bold tracking-tight">
+            <Link href="/" className="site-logo font-bold tracking-tight">
               Anime <span className="text-violet-400">Masters</span>
             </Link>
-            <Link href="/packs" className="text-sm text-muted hover:text-foreground">
+            <Link href="/packs" className="site-link text-sm text-muted hover:text-foreground">
               Paquets
             </Link>
-            <Link href="/album" className="text-sm text-muted hover:text-foreground">
-              Album
-            </Link>
+            <AlbumLink />
             <div className="ml-auto">
               <Suspense fallback={null}>
                 <UserMenu />

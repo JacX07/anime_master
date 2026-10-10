@@ -20,6 +20,8 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 ## Ouverture 3D dans `/packs`
 Scène statique `public/pack-opening/futur.html?embed=1` dans une iframe de même origine (`src/app/packs/ImmersiveOpener.tsx`). Elle demande l'ouverture par `postMessage` (`open-request`), l'hôte appelle `openPackAction` et renvoie les cartes (`pack-result`) ; l'état du stock et du pity vient du serveur (`init`). Sans WebGL, message `unsupported` : repli sur l'ouverture classique (`PackOpener`). Hors iframe, la page tourne seule avec des cartes d'exemple.
 
+Révélation deux fois plus rapide ; un clic (ou Espace / Entrée / Échap) pendant une animation la saute (`requestSkip` dans `engine.js`). Sur `/packs`, le menu du site flotte sur la scène plein écran, au style de la maquette (règles `body:has(.scene-page)` dans `globals.css`) ; `AlbumLink` affiche le compteur `+N` des cartes rangées et pulse à chaque arrivée.
+
 ## Décisions et raisons
 - **Spec d'abord** : on valide dans `SPEC.md` avant de coder ; l'utilisateur parle français.
 - **Types depuis les tags AniList** (plutôt que les genres) : plus discriminants ; coefficients d'équilibrage pour éviter que Cœur dépasse 40 %.

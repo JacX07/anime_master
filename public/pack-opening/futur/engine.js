@@ -133,8 +133,13 @@ export async function start(modeId) {
   // Animation et effets
   const tweens = new Set();
   const ease = { out: (k) => 1 - Math.pow(1 - k, 3), inOut: (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2), back: (k) => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2), in: (k) => k * k * k };
-  const tween = (dur, fn, e = ease.out) => new Promise((res) => tweens.add({ t: 0, dur: reduced ? Math.min(dur, 0.15) : dur, fn, e, res }));
-  const wait = (s) => new Promise((r) => setTimeout(r, s * 1000));
+  // Saut d'animation : les interpolations en cours se terminent aussitôt et les attentes sont levées
+  let skip = false; const waiters = new Set();
+  const tween = (dur, fn, e = ease.out) => new Promise((res) => tweens.add({ t: 0, dur: skip ? 0.001 : reduced ? Math.min(dur, 0.15) : dur, fn, e, res }));
+  const wait = (s) => new Promise((r) => {
+    if (skip) return r();
+    const done = () => { clearTimeout(id); waiters.delete(done); r(); }, id = setTimeout(done, s * 1000); waiters.add(done);
+  });
   const moveTo = (obj, { pos, rotY, scale }, dur, e) => { const p0 = obj.position.clone(), r0 = obj.rotation.y, s0 = obj.scale.x; return tween(dur, (k) => { if (pos) obj.position.lerpVectors(p0, pos, k); if (rotY !== undefined) obj.rotation.y = r0 + (rotY - r0) * k; if (scale !== undefined) obj.scale.setScalar(s0 + (scale - s0) * k); }, e); };
   const bursts = new Set();
   function burst(pos, colors, { n = 200, speed = 3, size = 0.07, gravity = 0.4, life = 1.6, rise = 0, tex = softDot, additive = false } = {}) {
@@ -146,14 +151,15 @@ export async function start(modeId) {
   }
   const fxPulse = (color, intensity, pos = FOCUS) => { fxLight.color.set(color); fxLight.intensity = intensity; fxLight.position.set(pos.x, pos.y + 0.3, pos.z + 0.8); };
   let stopUntil = 0, punch = 0;
-  const hitStop = (s) => { if (!reduced) stopUntil = performance.now() + s * 1000; };
+  const hitStop = (s) => { if (!reduced && !skip) stopUntil = performance.now() + s * 1000; };
+  const requestSkip = () => { if (skip) return; skip = true; stopUntil = 0; for (const tw of tweens) tw.dur = 0.001; [...waiters].forEach((f) => f()); };
   const zoomPunch = (a) => { if (!reduced) punch = Math.max(punch, a); };
   const flash = () => { if (reduced) return; ui.flash.classList.remove("go"); void ui.flash.offsetWidth; ui.flash.classList.add("go"); };
   const TIER = { N: [0, 0], R: [0, 0.15], SR: [0.05, 0.35], SSR: [0.12, 1], UR: [0.16, 1.3] };
 
   // Moments clés partagés par les variantes
   async function charge(c, onK) {
-    if (c.rarity !== "UR") { await tween(0.3, (k) => onK?.(k * 0.3), ease.in); return; }
+    if (c.rarity !== "UR") { await tween(0.15, (k) => onK?.(k * 0.3), ease.in); return; }
     Sfx.urCharge(); ui.vignette.classList.add("on"); decor.setSpin(4);
     await tween(1.2, (k) => { onK?.(k); fxPulse(RC.UR, 30 * k); });
   }
@@ -231,7 +237,7 @@ export async function start(modeId) {
   async function openBooster() {
     if (busy || phase !== "idle") return;
     if (liveStock().available < 1) { ui.hint.textContent = txt.empty; return; }
-    S.init(T); busy = true; ui.hint.textContent = "Ouverture…";
+    S.init(T); busy = true; skip = false; ui.hint.textContent = "Ouverture…";
     const res = await requestPack();
     if (!res.ok) { ui.hint.textContent = res.error; busy = false; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); return; }
     setPack(res.state);
@@ -243,19 +249,22 @@ export async function start(modeId) {
     items = await mode.open(ctx, [...res.cards].sort(() => Math.random() - 0.5));
     while (items.some((i) => i.state === "spawn")) await wait(0.05);
     phase = "ready"; busy = false; S.music?.setLevel(1);
-    ui.hint.textContent = (res.pity ? `Pity ${res.pity} déclenché ! ` : "") + txt.reveal; ui.all.hidden = false;
+    skip = false; ui.hint.textContent = (res.pity ? `Pity ${res.pity} déclenché ! ` : "") + txt.reveal; ui.all.hidden = false;
   }
   async function reveal(item, quick = false) {
     if (busy || phase !== "ready" || item.state !== "ready") return;
     busy = true; item.state = "opening"; S.music?.setLevel(2);
+    if (!quick) skip = false;
+    ui.hint.textContent = "Clique pour passer l'animation";
     const card = await mode.reveal(ctx, item, quick);
     item.state = "done";
-    await wait(quick ? 0.5 : 1.0);
+    await wait(quick ? 0.25 : 0.5);
     const slot = line.length; line.push(card);
     card.userData.state = "moving";
-    await moveTo(card, { pos: linePos(slot), rotY: 0, scale: 0.62 }, 0.6, ease.inOut);
+    await moveTo(card, { pos: linePos(slot), rotY: 0, scale: 0.62 }, 0.3, ease.inOut);
     card.userData.state = "line"; card.userData.landT = 0; Sfx.settle(); S.music?.setLevel(1);
-    busy = false;
+    if (!quick) skip = false;
+    ui.hint.textContent = txt.reveal; busy = false;
     mode.afterReveal?.(ctx, items);
     if (line.length === items.length) finish();
   }
@@ -306,7 +315,7 @@ export async function start(modeId) {
     }, (k) => k);
     scene.remove(pts); geo.dispose(); pts.material.dispose(); mat.dispose();
     dropCard(card); line = line.filter((c) => c !== card);
-    albumBadge.textContent = `+${++stored}`; albumBadge.hidden = false; albumBump();
+    if (EMBED) post({ type: "album-stored" }); else { albumBadge.textContent = `+${++stored}`; albumBadge.hidden = false; albumBump(); }
     checkStored();
   }
   async function sendAll() {
@@ -321,7 +330,9 @@ export async function start(modeId) {
   async function revealAll() {
     if (phase !== "ready") return;
     ui.all.hidden = true;
+    skip = false;
     for (;;) { while (busy) await wait(0.1); const it = mode.nextItem(items); if (!it) break; await reveal(it, true); }
+    skip = false;
   }
   ui.booster.addEventListener("click", openBooster);
   ui.all.addEventListener("click", revealAll);
@@ -349,10 +360,12 @@ export async function start(modeId) {
     canvas.style.cursor = (it && !busy) || capsuleHover || (cd && phase === "done") ? "pointer" : "default";
   });
   canvas.addEventListener("click", () => {
+    if (busy) return requestSkip();
     const p = pick();
     if (p.capsule) openBooster(); else if (p.item) reveal(p.item); else if (p.card && phase === "done") toAlbum(p.card);
   });
   addEventListener("keydown", (e) => {
+    if (busy && ["Enter", " ", "Escape"].includes(e.key) && !e.target.closest?.("button, a")) { e.preventDefault(); return requestSkip(); }
     if (!["Enter", " "].includes(e.key) || e.target.closest?.("button, a")) return;
     if (phase === "done") { const c = line.find((x) => x.userData.state === "line"); if (c) { e.preventDefault(); toAlbum(c); } return; }
     if (phase !== "ready" || busy) return;
