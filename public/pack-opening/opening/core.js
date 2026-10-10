@@ -179,6 +179,7 @@ export function cardPainter(T, images) {
       g.font = `700 40px "${C.display}"`; const rw = g.measureText(c.rarity).width + 36;
       g.fillStyle = C.badge; g.beginPath(); g.roundRect(30, 30, rw, 60, 30); g.fill();
       g.fillStyle = c.rarity === "UR" ? T.urInk ?? col : col; g.fillText(c.rarity, 48, 75);
+      if (c.isNew) { g.font = `700 22px "${C.body}"`; const nw = g.measureText("NOUVEAU").width + 28, nx = (w - nw) / 2; g.fillStyle = "#2b6cff"; g.beginPath(); g.roundRect(nx, 100, nw, 40, 20); g.fill(); g.fillStyle = "#fff"; g.fillText("NOUVEAU", nx + 14, 129); }
       g.font = `700 26px "${C.body}"`; const s = `#${c.serial}`, sw = g.measureText(s).width + 28;
       g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 30 - sw, 34, sw, 50, 25); g.fill(); g.fillStyle = C.ink; g.fillText(s, w - 30 - sw + 14, 68);
       g.fillStyle = C.ink; g.font = `700 44px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);

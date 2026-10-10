@@ -247,3 +247,15 @@ body {
   color: #0b0b12;
   background: linear-gradient(90deg, #fde68a, #f59e0b, #fef3c7);
 }
+
+/* Impulsion du lien « Album » quand une carte y est rangée (scène 3D d'ouverture) */
+a.album-bump {
+  animation: album-bump 0.55s ease-out;
+}
+@keyframes album-bump {
+  30% {
+    scale: 1.25;
+    color: var(--rarity-UR, #a78bfa);
+    text-shadow: 0 0 14px currentColor;
+  }
+}

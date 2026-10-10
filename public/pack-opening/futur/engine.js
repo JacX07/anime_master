@@ -16,6 +16,10 @@ export const MODES = [
   { id: "noyaux", name: "Noyaux de données" },
 ];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Intégré dans /packs (?embed) : la page hôte détient la session et appelle le serveur ; on lui parle par postMessage.
+// Hors iframe, la maquette tourne seule avec des cartes d'exemple.
+const EMBED = new URLSearchParams(location.search).has("embed") && parent !== window;
+const post = (msg) => parent.postMessage(msg, location.origin);
 const CARD_W = 1.4, CARD_H = 1.96;
 export const FOCUS = new THREE.Vector3(0, 2.05, 5.0);
 
@@ -30,11 +34,22 @@ export async function start(modeId) {
     flash: document.getElementById("flash"), vignette: document.getElementById("vignette"), ur: document.getElementById("urScreen"), snd: document.getElementById("snd") };
   txt.done = "Clique une carte pour la ranger dans l'album, sinon elles partent toutes seules";
   txt.stored = "Cartes rangées dans l'album";
+  txt.empty = "Plus de paquet pour l'instant, le prochain arrive bientôt";
   document.getElementById("urLabel").innerHTML = txt.ur;
   // La capsule est un objet 3D : le bouton ne sert plus qu'à l'accessibilité clavier (invisible, ne capte pas la souris)
   ui.hint.textContent = txt.open; ui.booster.innerHTML = ""; ui.booster.style.cssText = "opacity:0;pointer-events:none;animation:none";
   const albumEl = document.getElementById("albumLink"), albumBadge = document.getElementById("albumBadge");
   let capsule = null, stored = 0;
+  // Stock et pity : fournis par le serveur (init / réponse d'ouverture), valeurs d'exemple hors iframe
+  let cfg = { interval: 600000, max: 10, ssrPity: 15, urPity: 100 };
+  let pack = { available: 9, nextPackAt: null, packsSinceSSR: 9, packsSinceUR: 4 }, hostAlbum = null;
+  const liveStock = () => {
+    const next = pack.nextPackAt ? new Date(pack.nextPackAt).getTime() : null, now = Date.now();
+    if (next === null || now < next) return { available: pack.available, msLeft: next === null ? null : next - now };
+    const gained = 1 + Math.floor((now - next) / cfg.interval), available = Math.min(cfg.max, pack.available + gained);
+    return { available, msLeft: available >= cfg.max ? null : next + gained * cfg.interval - now };
+  };
+  const mmss = (ms) => { const t = Math.ceil(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
 
   S.sounds = { ...T.sounds(S), ...futurAudio(S), ...(mode.sounds?.(S) ?? {}) };
   const Sfx = S.sounds;
@@ -102,7 +117,7 @@ export async function start(modeId) {
     const reflection = new THREE.Mesh(geo, reflectMat(map)); reflection.scale.y = -1; reflection.position.y = -CARD_H - 0.1; reflection.visible = false; body.add(reflection);
     const back = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: backTex, transparent: true })); back.rotation.y = Math.PI; body.add(back);
     let holo = null;
-    if (c.holo) { holo = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: holoTex.clone(), transparent: true, opacity: 0.28, color: new THREE.Color(0.6, 0.6, 0.6), blending: THREE.AdditiveBlending, depthWrite: false })); holo.position.z = 0.003; holo.material.map.wrapS = holo.material.map.wrapT = THREE.RepeatWrapping; holo.visible = false; body.add(holo); }
+    if (c.holo) { holo = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: holoTex.clone(), transparent: true, opacity: 0.28, color: c.finish === "GOLD" ? new THREE.Color(0.85, 0.62, 0.1) : new THREE.Color(0.6, 0.6, 0.6), blending: THREE.AdditiveBlending, depthWrite: false })); holo.position.z = 0.003; holo.material.map.wrapS = holo.material.map.wrapT = THREE.RepeatWrapping; holo.visible = false; body.add(holo); }
     const halo = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W * 2, CARD_H * 1.78), new THREE.MeshBasicMaterial({ map: glowTex, color: RC[c.rarity], transparent: true, opacity: 0, depthWrite: false })); halo.position.z = -0.02; body.add(halo);
     root.userData = { c, body, front, basic, map, holo, halo, reflection, hoverK: 0, state: "focus" };
     front.userData.card = root;
@@ -178,23 +193,57 @@ export async function start(modeId) {
     setHint: (t) => (ui.hint.textContent = t) };
 
   // Déroulé
-  let modeReady = false, busy = false, phase = "idle", count = 9, items = [], line = [], autoTimer = 0, capsuleHover = false;
+  let modeReady = false, busy = false, phase = "idle", items = [], line = [], autoTimer = 0, capsuleHover = false;
   const bar = (id, n, on) => (document.getElementById(id).innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join(""));
-  const stock = () => { bar("stock", 10, count); document.getElementById("count").textContent = count; };
-  bar("ssr", 15, 9); bar("ur", 15, 4); stock();
+  const el = (id) => document.getElementById(id);
+  function hud() {
+    const { available, msLeft } = liveStock();
+    bar("stock", cfg.max, available); el("count").textContent = available; el("maxPacks").textContent = ` / ${cfg.max} boosters`;
+    el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain booster dans ${mmss(msLeft)}`;
+    el("ssrLeft").textContent = cfg.ssrPity - pack.packsSinceSSR; el("urLeft").textContent = cfg.urPity - pack.packsSinceUR;
+    bar("ssr", 15, Math.round((15 * pack.packsSinceSSR) / cfg.ssrPity)); bar("ur", 15, Math.round((15 * pack.packsSinceUR) / cfg.urPity));
+  }
+  const setPack = (state) => { pack = state; hud(); };
+  setInterval(hud, 1000); hud();
+
+  // Dialogue avec la page hôte
+  const waiting = new Map(); let reqId = 0, inited = false;
+  addEventListener("message", (e) => {
+    if (!EMBED || e.source !== parent || e.origin !== location.origin) return;
+    const m = e.data ?? {};
+    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; setPack(m.state); }
+    else if (m.type === "album-rect") hostAlbum = m.albumRect;
+    else if (m.type === "pack-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
+  });
+  // Demande un paquet au serveur (ou en tire un d'exemple hors iframe)
+  function requestPack() {
+    if (!EMBED) {
+      const state = { ...pack, available: liveStock().available - 1, nextPackAt: new Date(Date.now() + cfg.interval).toISOString() };
+      return Promise.resolve({ ok: true, cards: [...CHARS], state, pity: null });
+    }
+    return new Promise((resolve) => {
+      const id = ++reqId; waiting.set(id, resolve); post({ type: "open-request", id });
+      setTimeout(() => { if (waiting.delete(id)) resolve({ ok: false, error: "Le serveur ne répond pas, réessaie." }); }, 20000);
+    });
+  }
   const linePos = (i) => new THREE.Vector3((i - 2) * 1.35, 0.85, 3.2);
 
   async function openBooster() {
     if (busy || phase !== "idle") return;
-    S.init(T); busy = true; Sfx.tear();
-    count = Math.max(0, count - 1); stock();
-    ui.booster.blur(); ui.booster.hidden = true; capsuleHover = false;
+    if (liveStock().available < 1) { ui.hint.textContent = txt.empty; return; }
+    S.init(T); busy = true; ui.hint.textContent = "Ouverture…";
+    const res = await requestPack();
+    if (!res.ok) { ui.hint.textContent = res.error; busy = false; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); return; }
+    setPack(res.state);
+    // Les images du paquet doivent être chargées avant de peindre les cartes
+    await Promise.all(res.cards.map(async (c) => { images[c.img] ??= await painter.loadImg(c.img); }));
+    Sfx.tear(); ui.booster.blur(); ui.booster.hidden = true; capsuleHover = false;
     await capsule.open(ctx);
     line.forEach(dropCard); line = [];
-    items = await mode.open(ctx, [...CHARS].sort(() => Math.random() - 0.5));
+    items = await mode.open(ctx, [...res.cards].sort(() => Math.random() - 0.5));
     while (items.some((i) => i.state === "spawn")) await wait(0.05);
     phase = "ready"; busy = false; S.music?.setLevel(1);
-    ui.hint.textContent = txt.reveal; ui.all.hidden = false;
+    ui.hint.textContent = (res.pity ? `Pity ${res.pity} déclenché ! ` : "") + txt.reveal; ui.all.hidden = false;
   }
   async function reveal(item, quick = false) {
     if (busy || phase !== "ready" || item.state !== "ready") return;
@@ -220,11 +269,11 @@ export async function start(modeId) {
   // Rangement : la carte se dissout du haut vers le bas (comme elle s'était formée) et ses particules filent vers « Album »
   const dropCard = (c) => scene.remove(c);
   const albumWorld = () => {
-    const r = albumEl.getBoundingClientRect();
+    const r = EMBED ? (hostAlbum ?? { left: 0, top: -40, width: 0, height: 0 }) : albumEl.getBoundingClientRect();
     const v = new THREE.Vector3(((r.left + r.width / 2) / innerWidth) * 2 - 1, -((r.top + r.height / 2) / innerHeight) * 2 + 1, 0.5).unproject(camera);
     return camera.position.clone().add(v.sub(camera.position).normalize().multiplyScalar(5.5));
   };
-  const albumBump = () => { albumEl.classList.remove("bump"); void albumEl.offsetWidth; albumEl.classList.add("bump"); };
+  const albumBump = () => { if (EMBED) return post({ type: "album-bump" }); albumEl.classList.remove("bump"); void albumEl.offsetWidth; albumEl.classList.add("bump"); };
   async function toAlbum(card) {
     const u = card.userData; if (u.state !== "line") return;
     u.state = "leaving"; Sfx.gather();
@@ -266,7 +315,7 @@ export async function start(modeId) {
   }
   function checkStored() {
     if (phase !== "done" || line.length) return;
-    phase = "stored"; clearTimeout(autoTimer); ui.hint.textContent = txt.stored; ui.next.hidden = count === 0;
+    phase = "stored"; clearTimeout(autoTimer); ui.hint.textContent = txt.stored; ui.next.hidden = liveStock().available < 1;
     if (!ui.next.hidden) ui.next.focus({ preventScroll: true });
   }
   async function revealAll() {
@@ -344,11 +393,13 @@ export async function start(modeId) {
   });
 
   ui.booster.disabled = true;
-  await Promise.all([...CHARS.map(async (c) => (images[c.img] = await painter.loadImg(c.img))), document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
+  await Promise.all([...(EMBED ? [] : CHARS).map(async (c) => (images[c.img] = await painter.loadImg(c.img))), document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
   backTex = painter.makeBack();
   mode.init?.(ctx); modeReady = true;
   capsule = buildCapsule({ decor, ctx, backTex, BLUE, MINT }); scene.add(capsule.group); capsule.show();
   ui.booster.disabled = false;
+  // La page hôte peut ne pas être encore à l'écoute : on se signale jusqu'à recevoir l'init
+  if (EMBED) { const ping = setInterval(() => (inited ? clearInterval(ping) : post({ type: "ready" })), 400); post({ type: "ready" }); }
   // Accès en lecture pour les tests automatisés de la maquette
   window.__scene = { three: { scene, camera }, get phase() { return phase === "ready" ? "ring" : phase; }, get busy() { return busy; }, get states() { return items.map((i) => (i.state === "ready" ? "ring" : i.state)); }, get ur() { return !ui.ur.hidden; } };
 }

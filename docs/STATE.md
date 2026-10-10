@@ -13,10 +13,12 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 - **Maquettes d'ouverture 3D** (`/maquettes`) : DA cyber futuriste v2 validée par l'utilisateur (« on changera des détails après »), musique générative adaptative, sons de verre (l'éclatement du noyau imite maintenant du vrai verre brisé). Seule la variante **noyaux** est gardée (capsules, portail et anciens thèmes supprimés). Capsule du booster en vrai objet 3D (`futur/capsule.js`, verre + chrome, s'ouvre en deux), cartes sans lumière propre (comme avant) avec un reflet type « sol » sous chaque carte, et rangement vers l'album : clic sur une carte (ou Entrée) = elle se dissout en particules qui filent vers le lien « Album » ; sans clic, rangement automatique après 5 s. **Non vérifié à l'œil** : le navigateur de test (rendu logiciel) est trop lent, à regarder en vrai.
 
 ## Reste à faire, dans l'ordre
-1. **Intégrer l'ouverture 3D futuriste dans `/packs`**, branchée sur `openPackAction` (le tirage reste côté serveur). Variante choisie : **2 — noyaux de données**. Détails à retoucher à voir avec l'utilisateur.
-2. **Supprimer les maquettes** (`public/maquettes/`, `src/app/maquettes/`) une fois l'intégration faite.
-3. Supprimer le compte de test `testrendu`.
-4. Hors MVP (repoussé) : lueur de rareté au dos, progression et filtre par série, indicateurs de finition dans l'album, `/profile`, puis étapes 3 à 6 de la spec (économie, etc.).
+1. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
+2. Plus tard : passer `three` en dépendance npm (la scène charge three et les polices depuis des CDN) et remplacer l'iframe par un composant React.
+3. Hors MVP (repoussé) : lueur de rareté au dos, progression et filtre par série, indicateurs de finition dans l'album, `/profile`, puis étapes 3 à 6 de la spec (économie, etc.).
+
+## Ouverture 3D dans `/packs`
+Scène statique `public/pack-opening/futur.html?embed=1` dans une iframe de même origine (`src/app/packs/ImmersiveOpener.tsx`). Elle demande l'ouverture par `postMessage` (`open-request`), l'hôte appelle `openPackAction` et renvoie les cartes (`pack-result`) ; l'état du stock et du pity vient du serveur (`init`). Sans WebGL, message `unsupported` : repli sur l'ouverture classique (`PackOpener`). Hors iframe, la page tourne seule avec des cartes d'exemple.
 
 ## Décisions et raisons
 - **Spec d'abord** : on valide dans `SPEC.md` avant de coder ; l'utilisateur parle français.
@@ -44,7 +46,7 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 | `src/lib/auth.ts`, `src/lib/session.ts`, `src/proxy.ts` | Auth, session, redirection des pages réservées |
 | `src/app/packs/`, `src/app/album/`, `src/app/character/[id]/` | Pages |
 | `src/components/CharacterCard.tsx`, `src/app/globals.css` | Carte (rareté, finitions, manquant) |
-| `public/maquettes/futur/` | Maquette 3D validée : `engine.js`, `decor.js`, `audio.js`, variantes |
+| `public/pack-opening/futur/` | Maquette 3D validée : `engine.js`, `decor.js`, `audio.js`, variantes |
 
 ## Pièges
 - Utiliser Node 24 : `source ~/.nvm/nvm.sh && nvm use` avant npm/tsx (better-sqlite3 compilé pour Node 24).

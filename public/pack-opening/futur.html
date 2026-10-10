@@ -107,6 +107,11 @@
 
 
 
+  /* Intégré dans /packs : la page hôte fournit la navigation, il ne reste que le bouton de son */
+  .embed .logo, .embed header nav, .embed .right > span { display: none; }
+  .embed header { background: none; pointer-events: none; } .embed header .btn { pointer-events: auto; }
+  .embed .hud { top: 64px; }
+
   @media (max-width: 760px) { .hud { display: none; } .ur .stage { grid-template-columns: 1fr; text-align: center; } .ur .art { width: 60vw; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 </style>
@@ -127,10 +132,10 @@
     <div class="right"><button class="btn" id="snd" aria-pressed="true">Son activé</button><span class="btn">Mika</span></div>
   </header>
   <aside class="hud">
-    <div><div class="big"><span id="count">9</span><small> / 10 boosters</small></div><div class="stock" id="stock"></div></div>
-    <p>Prochain booster dans <b>4:12</b></p>
-    <div class="leds"><p>SSR garanti <span>dans <b>6</b></span></p><div class="bar" style="--c:var(--SSR)" id="ssr"></div></div>
-    <div class="leds"><p>UR garanti <span>dans <b>71</b></span></p><div class="bar" style="--c:var(--UR)" id="ur"></div></div>
+    <div><div class="big"><span id="count">9</span><small id="maxPacks"> / 10 boosters</small></div><div class="stock" id="stock"></div></div>
+    <p id="nextIn"></p>
+    <div class="leds"><p>SSR garanti <span>dans <b id="ssrLeft">6</b></span></p><div class="bar" style="--c:var(--SSR)" id="ssr"></div></div>
+    <div class="leds"><p>UR garanti <span>dans <b id="urLeft">71</b></span></p><div class="bar" style="--c:var(--UR)" id="ur"></div></div>
   </aside>
   <button class="booster" id="booster" aria-label="Ouvrir le booster"></button>
   <div class="bottom"><span class="hint" id="hint" aria-live="polite">Clique sur le booster pour l'ouvrir</span><button class="btn" id="all" hidden>Tout révéler</button><button class="btn primary" id="next" hidden>Ouvrir le suivant</button></div>
@@ -150,7 +155,9 @@
 <script type="module">
 import { start, MODES } from "./futur/engine.js";
 const id = MODES[0].id;
-start(id).catch((e) => { console.error(e); document.title = "ERREUR : " + (e?.stack ?? e).toString().slice(0, 300); });
+if (new URLSearchParams(location.search).has("embed") && parent !== window) document.body.classList.add("embed");
+// En cas d'échec (WebGL absent…), la page hôte bascule sur l'ouverture classique
+start(id).catch((e) => { console.error(e); document.title = "ERREUR : " + (e?.stack ?? e).toString().slice(0, 300); if (parent !== window) parent.postMessage({ type: "unsupported" }, location.origin); });
 </script>
 </body>
 </html>
