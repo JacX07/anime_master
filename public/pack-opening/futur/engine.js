@@ -42,7 +42,7 @@ export async function start(modeId) {
   let capsule = null, stored = 0;
   // Stock et pity : fournis par le serveur (init / réponse d'ouverture), valeurs d'exemple hors iframe
   let cfg = { interval: 600000, max: 10, ssrPity: 15, urPity: 100 };
-  let pack = { available: 9, nextPackAt: null, packsSinceSSR: 9, packsSinceUR: 4 }, hostAlbum = null;
+  let pack = { available: 9, nextPackAt: null, packsSinceSSR: 9, packsSinceUR: 4, collectionPower: 123456 }, hostAlbum = null;
   const liveStock = () => {
     const next = pack.nextPackAt ? new Date(pack.nextPackAt).getTime() : null, now = Date.now();
     if (next === null || now < next) return { available: pack.available, msLeft: next === null ? null : next - now };
@@ -206,6 +206,7 @@ export async function start(modeId) {
     const { available, msLeft } = liveStock();
     bar("stock", cfg.max, available); el("count").textContent = available; el("maxPacks").textContent = ` / ${cfg.max} boosters`;
     el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain booster dans ${mmss(msLeft)}`;
+    el("totalPower").textContent = `⚡ ${(pack.collectionPower ?? 0).toLocaleString("fr-FR")}`;
     el("ssrLeft").textContent = cfg.ssrPity - pack.packsSinceSSR; el("urLeft").textContent = cfg.urPity - pack.packsSinceUR;
     bar("ssr", 15, Math.round((15 * pack.packsSinceSSR) / cfg.ssrPity)); bar("ur", 15, Math.round((15 * pack.packsSinceUR) / cfg.urPity));
   }

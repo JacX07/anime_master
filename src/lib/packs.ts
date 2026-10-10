@@ -1,6 +1,7 @@
 // Ouverture d'un paquet côté serveur (SPEC étape 2, §6).
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
+import { getCollectionPower } from "./collection";
 import { prisma } from "./db";
 import { afterOpening, packStock } from "./pack-stock";
 import { rollPack, secureRandom, type Finish, type PityTrigger, type Random } from "./pull";
@@ -40,6 +41,8 @@ export interface PlayerPackState {
   nextPackAt: string | null;
   packsSinceSSR: number;
   packsSinceUR: number;
+  /** Puissance totale de la collection (somme de la puissance de chaque carte) */
+  collectionPower: number;
 }
 
 export interface OpenedPack {
@@ -58,6 +61,7 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     nextPackAt: stock.nextPackAt?.toISOString() ?? null,
     packsSinceSSR: user.packsSinceSSR,
     packsSinceUR: user.packsSinceUR,
+    collectionPower: await getCollectionPower(userId),
   };
 }
 
@@ -163,6 +167,7 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
         available: stock.available,
         nextPackAt: stock.nextPackAt?.toISOString() ?? null,
         ...roll.next,
+        collectionPower: await getCollectionPower(userId, tx),
       },
     };
   });
