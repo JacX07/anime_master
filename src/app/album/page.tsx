@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
-import { getCollectionPower } from "@/lib/collection";
+import { BuyPackButton } from "@/components/BuyPackButton";
+import { getPackState } from "@/lib/packs";
 import { getAlbum, parseAlbumFilters, RARITY_ORDER, type AlbumFilters as Filters } from "@/lib/album";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
@@ -28,7 +29,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
   const user = await requireUser();
   const filters = parseAlbumFilters(await searchParams);
   const album = await getAlbum(user.id, filters);
-  const power = await getCollectionPower(user.id);
+  const packs = await getPackState(user.id);
   const saleRarities = ["N", "R"] as const;
   const salePreview = await previewDuplicateSale(user.id, [...saleRarities]);
   const { progress } = album;
@@ -46,8 +47,11 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           <div className="mt-1 text-sm text-muted">{pct(progress.owned, progress.total)} % de complétion</div>
         </div>
         <div>
-          <div className="text-3xl font-extrabold tabular-nums">⚡ {new Intl.NumberFormat("fr-FR").format(power)}</div>
+          <div className="text-3xl font-extrabold tabular-nums">⚡ {new Intl.NumberFormat("fr-FR").format(packs.collectionPower)}</div>
           <div className="mt-1 text-sm text-muted">Puissance totale de la collection</div>
+        </div>
+        <div className="ml-auto">
+          <BuyPackButton price={packs.packPrice} left={packs.purchasesLeft} balance={packs.balance} available={packs.available} />
         </div>
         <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm tabular-nums">
           {RARITY_ORDER.map((r) => (
