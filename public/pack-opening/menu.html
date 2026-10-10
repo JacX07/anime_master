@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anime Masters · Menu</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #e9eff6; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+<script type="module">
+import { start } from "./futur/menu.js";
+start().catch((e) => { console.error(e); document.title = "ERREUR : " + (e?.stack ?? e).toString().slice(0, 300); });
+</script>
+</body>
+</html>

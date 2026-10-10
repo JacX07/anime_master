@@ -16,6 +16,8 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 
 - **Puissance** : stat à part (`Character.power`, migration `character_power`), décorrélée d'ATK/DEF qui gardent leurs plages équilibrées (SPEC §6) ; loi de puissance des favoris (`POWER_BASE × (fav/favMin)^1,35`, ~100 à ~104 000), affichée en grand sur les cartes (site et scène 3D). Recalcul : `npm run import -- --recompute` (sans appel AniList).
 
+- **Accueil façon menu de jeu** (`src/app/page.tsx`) : fond 3D `public/pack-opening/menu.html` (même laboratoire, capsule qui tourne) en iframe, menu par-dessus (Ouvrir des paquets, Album, puis Marché / Duels / Classement verrouillés « bientôt »), carte joueur à droite (puissance totale, Ryō, cartes, paquets, pity). Visiteur non connecté : Commencer / Se connecter. **Puissance totale** (somme de la puissance de chaque carte, doublons compris, `src/lib/collection.ts`) aussi dans le panneau de la scène d'ouverture et l'album. Non vérifié à l'œil.
+
 ## Reste à faire, dans l'ordre
 1. **Étape 3, suite** : achat de paquets (100 Ryō, 5/jour), échanges, enchères, marché, liste de souhaits, notifications (voir SPEC).
 2. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
