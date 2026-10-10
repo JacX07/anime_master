@@ -1,22 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Michroma, Sora } from "next/font/google";
+import { Michroma, Sora } from "next/font/google";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AlbumLink } from "@/components/AlbumLink";
 import { UserMenu } from "@/components/UserMenu";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Polices du menu sur la page Paquets (scène 3D)
+// Les deux polices du jeu, partout : Michroma pour les titres, noms et logo, Sora pour l'interface et les chiffres
 const michroma = Michroma({ variable: "--font-michroma", weight: "400", subsets: ["latin"] });
 const sora = Sora({ variable: "--font-sora", subsets: ["latin"] });
 
@@ -27,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} ${michroma.variable} ${sora.variable} h-full antialiased`}>
+    <html lang="fr" className={`${michroma.variable} ${sora.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         <header className="border-b border-white/10 bg-black/30">
           <nav className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">

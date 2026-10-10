@@ -13,7 +13,7 @@ export default {
       --logo: #0d1b2a; --logo-glow: none; --header-fade: #f4f7fb99;
       --btn: #ffffffb0; --btn-line: #ffffff; --btn-primary: #0d1b2a; --btn-primary-ink: #fff;
       --hint: #0d1b2a; --hint-glow: none;
-      --SSR: #f2a516; --UR: #00c8b4;
+      --SSR: #f2a516; --UR: #ff3b4a;
       --flash: radial-gradient(circle at 50% 45%, #ffffff 0%, #fff4d6aa 30%, transparent 65%);
       --vig: radial-gradient(ellipse at 50% 45%, transparent 60%, #8aa0b833 100%);
       --ur-bg: radial-gradient(circle, #ffffff, #dfe8f3 60%, #c3d3e6);
@@ -38,8 +38,8 @@ export default {
   `,
   booster: `<span class="cap"></span><span class="num">05</span><span class="lbl">Capsule de cartes</span>`,
   text: { open: "Touche la capsule pour l'ouvrir", done: "Synchronisation terminée. Survole tes cartes pour les admirer" },
-  rarity: { N: "#9aa8b8", R: "#2b9bff", SR: "#7a5cff", SSR: "#f2a516", UR: "#00c8b4" },
-  urFrame: ["#2b6cff", "#00c8b4", "#f2a516", "#7a5cff", "#2b6cff"], urInk: "#c9fff8", urStar: "+",
+  rarity: { N: "#9aa8b8", R: "#2b9bff", SR: "#7a5cff", SSR: "#f2a516", UR: "#ff3b4a" },
+  urFrame: ["#2b6cff", "#00c8b4", "#f2a516", "#7a5cff", "#2b6cff"], urInk: "#ffd2d6", urStar: "+",
   card: {
     display: "Michroma", body: "Sora", ink: "#ffffff", sub: "#c6d5e6", panel: "#eef3f8", shade: "#0d1b2a", badge: "#0d1b2ac0", radius: 28, tint: 0.98,
     back(g, w, h) {
