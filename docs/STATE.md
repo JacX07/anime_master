@@ -14,6 +14,8 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 
 - **Étape 3, partie 1 — Ryō et vente rapide** : `User.balance` + journal `CurrencyLedger` (écrits dans la même transaction), cadenas, vente rapide d'un exemplaire (avertissement avant), vente groupée des doublons (aperçu du total + confirmation, garde le meilleur exemplaire), bonus quotidien 50 Ryō ; solde et bouton de bonus dans le menu. Logique dans `src/lib/economy.ts` (pur) et `src/lib/wallet.ts` (transactions) ; vérifié par `npm run check:economy`.
 
+- **Puissance** : ATK + DEF suit maintenant une loi de puissance des favoris (`POWER_BASE × (fav/favMin)^1,35`, ~100 à ~105 000) ; affichée en grand sur les cartes (site et scène 3D), ATK/DEF en petit. Stats recalculées en base avec `npm run import -- --recompute` (sans appel AniList).
+
 ## Reste à faire, dans l'ordre
 1. **Étape 3, suite** : achat de paquets (100 Ryō, 5/jour), échanges, enchères, marché, liste de souhaits, notifications (voir SPEC).
 2. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.

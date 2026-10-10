@@ -94,11 +94,21 @@ body {
   white-space: nowrap;
 }
 .card-stats {
-  margin-top: 2cqw;
+  margin-top: 1cqw;
   display: flex;
-  justify-content: space-between;
-  font-size: 5.5cqw;
+  flex-direction: column;
+  gap: 0.5cqw;
   font-variant-numeric: tabular-nums;
+}
+.card-power {
+  font-size: 9cqw;
+  font-weight: 800;
+  line-height: 1.1;
+  color: color-mix(in srgb, var(--rarity) 55%, white);
+}
+.card-atkdef {
+  font-size: 4.2cqw;
+  color: #c4c4d4;
 }
 .card-badge {
   position: absolute;

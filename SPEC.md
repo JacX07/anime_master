@@ -144,20 +144,21 @@ Répartition obtenue (import d'octobre 2026, 4 717 persos) : Cœur 27 %, Mystèr
 ### 6. Stats (ATK / DEF)
 Valeurs de **base** stockées sur `Character`. Les atouts et défauts des types s'appliquent pendant le duel, pas ici.
 
-**1. Puissance totale (ATK + DEF) par rareté**
-| Rareté | Puissance |
-|---|---|
-| N | 1 000 – 2 000 |
-| R | 2 000 – 3 200 |
-| SR | 3 200 – 4 600 |
-| SSR | 4 600 – 6 200 |
-| UR | 6 200 – 8 000 |
+**1. Puissance totale (ATK + DEF) : loi de puissance des favoris**
+```
+puissance = 100 × (favoris / favorisMin)^1,35      // favorisMin = le personnage le moins aimé de la base
+```
+Chaque doublement de favoris multiplie la puissance par ~2,5 : les personnages populaires écrasent les autres. Avec les données actuelles (229 à 39 213 favoris), la puissance va d'environ 100 à 100 000.
 
-Position dans la plage, sur une échelle logarithmique des favoris au sein de la rareté :
-```
-t         = (ln(fav) − ln(favMin)) / (ln(favMax) − ln(favMin))   // 0..1, favMin/favMax de la rareté
-puissance = min + t × (max − min)
-```
+| Rareté | Puissance approximative |
+|---|---|
+| N | 100 – 650 |
+| R | 650 – 2 900 |
+| SR | 2 900 – 10 700 |
+| SSR | 10 700 – 34 000 |
+| UR | 34 000 – 105 000 |
+
+La rareté suit les favoris, donc les plages des raretés ne se chevauchent pas. La **puissance** (ATK + DEF) est mise en avant sur les cartes ; ATK et DEF restent affichées plus discrètement.
 
 **2. Répartition ATK / DEF**
 | Rôle dans la série principale | Part ATK | Part DEF |
@@ -167,9 +168,9 @@ puissance = min + t × (max − min)
 
 - Variation fixe par personnage : la part d'ATK est décalée de ±5 points (donc environ ±10 % sur chaque stat), selon une valeur pseudo-aléatoire dérivée de l'id AniList.
 - La variation porte sur la répartition, pas sur la puissance totale : les plages des raretés restent disjointes.
-- `ATK = round(puissance × partATK, 10)`, `DEF = puissance − ATK`.
+- `ATK = round(puissance × partATK)`, `DEF = puissance − ATK`.
 
-**Exemple :** Gojo, UR, MAIN, le plus favori → puissance 8 000 → ATK ≈ 4 800 / DEF ≈ 3 200 (± variation).
+**Exemple :** le plus favori de la base (UR, MAIN) → puissance ≈ 105 000 → ATK ≈ 63 000 / DEF ≈ 42 000 (± variation) ; un N peu connu → puissance ≈ 100.
 
 **Contraintes :** calcul déterministe (même entrée = même résultat d'un import à l'autre), recalculé à chaque import.
 

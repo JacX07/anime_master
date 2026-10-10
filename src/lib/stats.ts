@@ -138,13 +138,14 @@ export function assignType(genres: string[], tags: MediaTag[] = []): CardType {
 
 // ---------- Stats ----------
 
-const POWER_RANGES: Record<Rarity, [number, number]> = {
-  N: [1000, 2000],
-  R: [2000, 3200],
-  SR: [3200, 4600],
-  SSR: [4600, 6200],
-  UR: [6200, 8000],
-};
+/**
+ * Puissance totale (ATK + DEF) : loi de puissance des favoris, pour que les personnages populaires écrasent les autres.
+ * Le moins aimé vaut POWER_BASE ; chaque doublement de favoris multiplie la puissance par 2^POWER_EXPONENT (≈ 2,5).
+ * Avec les données actuelles (229 à 39 000 favoris) : environ 100 pour les plus modestes, 100 000 pour le plus aimé.
+ * La rareté suit les favoris, donc plus de puissance = rareté au moins égale : les plages des raretés ne se chevauchent pas.
+ */
+export const POWER_BASE = 100;
+export const POWER_EXPONENT = 1.35;
 
 /** Valeur pseudo-aléatoire stable dans [0, 1) dérivée d'un entier (hash de type mulberry32). */
 function stableRandom(seed: number): number {
@@ -161,7 +162,7 @@ export interface StatsInput {
   role: CharacterRole;
 }
 
-/** favMin / favMax par rareté, pour placer chaque personnage dans sa plage. */
+/** favMin / favMax par rareté (le plus petit favMin sert de référence à la puissance). */
 export function favouriteBounds(characters: { favourites: number; rarity: Rarity }[]) {
   const bounds = new Map<Rarity, { min: number; max: number }>();
   for (const c of characters) {
@@ -179,16 +180,11 @@ export function computeStats(
   c: StatsInput,
   bounds: Map<Rarity, { min: number; max: number }>,
 ): { attack: number; defense: number } {
-  const [lo, hi] = POWER_RANGES[c.rarity];
-  const b = bounds.get(c.rarity) ?? { min: c.favourites, max: c.favourites };
-
-  const logMin = Math.log(b.min + 1);
-  const logMax = Math.log(b.max + 1);
-  const t = logMax > logMin ? (Math.log(c.favourites + 1) - logMin) / (logMax - logMin) : 0.5;
-  const power = Math.round(lo + Math.min(1, Math.max(0, t)) * (hi - lo));
+  const minFavourites = Math.max(1, Math.min(...[...bounds.values()].map((b) => b.min), c.favourites));
+  const power = Math.round(POWER_BASE * Math.pow(Math.max(1, c.favourites) / minFavourites, POWER_EXPONENT));
 
   const baseShare = c.role === "MAIN" ? 0.6 : 0.45;
   const share = baseShare + (stableRandom(c.id) * 0.1 - 0.05); // ±5 points
-  const attack = Math.round((power * share) / 10) * 10;
+  const attack = Math.round(power * share);
   return { attack, defense: power - attack };
 }

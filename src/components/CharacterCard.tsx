@@ -19,6 +19,8 @@ export interface CharacterCardProps {
   missing?: boolean;
 }
 
+const powerFmt = new Intl.NumberFormat("fr-FR");
+
 /** Carte d'un personnage : rareté (cadre), finition (effet), type et stats. */
 export function CharacterCard({
   name,
@@ -55,8 +57,12 @@ export function CharacterCard({
         </div>
         {!missing && (
           <div className="card-stats">
-            <span>⚔️ {attack}</span>
-            <span>🛡️ {defense}</span>
+            <span className="card-power" title="Puissance = attaque + défense">
+              ⚡ {powerFmt.format(attack + defense)}
+            </span>
+            <span className="card-atkdef">
+              ⚔️ {powerFmt.format(attack)} · 🛡️ {powerFmt.format(defense)}
+            </span>
           </div>
         )}
       </div>
