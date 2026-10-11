@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Anime Masters · Maquette d'ouverture</title>
+<title>Anime Masters · Maquettes d'ouverture</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@400;600&display=swap" />
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #e9eff6; font-family: "Sora", system-ui, sans-serif; }
   canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
-  .bar { position: fixed; top: 16px; left: 50%; translate: -50% 0; display: flex; gap: 6px; padding: 6px; border-radius: 12px; background: #0b1424d9; z-index: 5; }
+  .bar { position: fixed; top: 16px; left: 50%; translate: -50% 0; display: flex; gap: 6px; padding: 6px; border-radius: 12px; background: #0b1424d9; z-index: 5; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 24px); }
   .bar button { font: 600 13px "Sora", sans-serif; color: #c9d8f2; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
   .bar button[aria-pressed="true"] { background: #4b8bff33; border-color: #4b8bff; color: #fff; }
   .bar button:hover { color: #fff; }
-  .bar .play { background: #4b8bff; color: #fff; }
+  .bar .play { background: #4b8bff; color: #fff; margin-left: 6px; }
   .hint { position: fixed; left: 0; right: 0; bottom: 28px; text-align: center; font: 600 15px "Sora", sans-serif; color: #0d1b2a; pointer-events: none; }
-  .desc { position: fixed; left: 24px; bottom: 24px; max-width: 24rem; padding: 14px 16px; border-radius: 12px; background: #0b1424d9; color: #c9d8f2; font-size: 13px; line-height: 1.5; }
+  .desc { position: fixed; left: 24px; bottom: 24px; max-width: 26rem; padding: 14px 16px; border-radius: 12px; background: #0b1424d9; color: #c9d8f2; font-size: 13px; line-height: 1.5; }
   .desc b { color: #fff; font-family: "Michroma", sans-serif; font-weight: 400; display: block; margin-bottom: 4px; }
 </style>
 <script type="importmap">
@@ -27,12 +27,14 @@
 <body>
 <canvas id="scene"></canvas>
 <div class="bar" role="group" aria-label="Variantes">
-  <button id="v-portail" aria-pressed="true">A · Portail</button>
-  <button id="v-capsule" aria-pressed="false">B · Capsule</button>
+  <button data-v="fusion" aria-pressed="true">1 · Portail + capsule</button>
+  <button data-v="sortie" aria-pressed="false">2 · Capsule sortie du portail</button>
+  <button data-v="portail" aria-pressed="false">3 · Portail seul</button>
+  <button data-v="tisserand" aria-pressed="false">4 · Tisserand</button>
   <button id="replay" class="play">Ouvrir</button>
 </div>
 <div class="desc" id="desc"></div>
-<p class="hint" id="hint">Clique, ou appuie sur Espace, pour ouvrir</p>
+<p class="hint" id="hint"></p>
 <script type="module">
 import { start } from "./futur/lab.js";
 start().catch((e) => { console.error(e); document.title = "ERREUR : " + (e?.stack ?? e).toString().slice(0, 300); });

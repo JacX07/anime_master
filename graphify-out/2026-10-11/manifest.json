@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "public/pack-opening/futur/noyaux.js": {
-    "mtime": 1791659893.8695424,
-    "seen": 1791660253.4773824,
-    "ast_hash": "b03d876ae6dbcbec03e89d26473ee44e",
+    "mtime": 1791676642.537249,
+    "seen": 1791676932.2733562,
+    "ast_hash": "973a4200c1f96edbc07a2714258b1710",
     "semantic_hash": ""
   },
   "public/pack-opening/opening/core.js": {
@@ -924,9 +924,9 @@
     "semantic_hash": ""
   },
   "docs/STATE.md": {
-    "mtime": 1791675195.730224,
-    "seen": 1791675199.849399,
-    "ast_hash": "6141dbd6138538b623c5e38e0533f4c7",
+    "mtime": 1791676925.4618514,
+    "seen": 1791676932.2925968,
+    "ast_hash": "0108e302affbbbd99656b0cae4ec371b",
     "semantic_hash": ""
   },
   "public/pack-opening/futur.html": {
@@ -1023,6 +1023,24 @@
     "mtime": 1791675069.7633302,
     "seen": 1791675199.8391068,
     "ast_hash": "73c5b082b3c3f625679907b54242dcd2",
+    "semantic_hash": ""
+  },
+  "public/pack-opening/futur/lab.js": {
+    "mtime": 1791676925.368914,
+    "seen": 1791676932.273264,
+    "ast_hash": "f59c4aa007401962ac32e3cd1a47cdee",
+    "semantic_hash": ""
+  },
+  "public/pack-opening/futur/pod.js": {
+    "mtime": 1791676831.2440143,
+    "seen": 1791676932.27346,
+    "ast_hash": "9269f7ad96e8602b34d02201b278e903",
+    "semantic_hash": ""
+  },
+  "public/pack-opening/lab.html": {
+    "mtime": 1791676712.8021014,
+    "seen": 1791676932.2926648,
+    "ast_hash": "dc8d11fee73a24a851d460b1d1dbf5bf",
     "semantic_hash": ""
   }
 }

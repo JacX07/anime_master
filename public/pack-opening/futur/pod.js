@@ -6,7 +6,7 @@ import { softDot } from "../opening/core.js";
 const R = 0.78, L = 1.1, H = 0.62; // rayon, hauteur du prisme, hauteur d'une pyramide
 
 export function buildPod({ decor, BLUE, MINT }) {
-  const chrome = decor.materials.chrome;
+  const chrome = decor.materials.chrome.clone(); // copie : la matérialisation découpe les matériaux de la capsule, pas ceux du décor
   const group = new THREE.Group();
   const body = new THREE.Group(); group.add(body);
   const top = new THREE.Group(), bottom = new THREE.Group(); body.add(top, bottom);
