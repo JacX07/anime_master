@@ -716,6 +716,99 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 
 ---
 
+## Étape 4 ter — Expéditions dans les brèches
+
+> **Statut : spec écrite le 2026-10-12, pas encore codée.** Les décisions de principe sont validées ; les chiffres marqués *(à équilibrer)* sont des valeurs de départ à tester.
+
+### Objectif
+Donner une utilité de jeu aux cartes en dehors des duels : envoyer une équipe explorer une brèche pendant quelques heures, et revenir chercher le butin. Les expéditions sont la source de **cristaux spéciaux** (et un petit revenu en Ryō et en cristaux).
+
+### Décisions validées
+- **Mode idle seul** pour l'instant : on envoie, on revient plus tard. Pas de boss ni de combat interactif (idée repoussée : boss de brèche en quiz, réutilisant `duel-quiz.ts`).
+- **3 durées**, thèmes de brèche, **1 emplacement au début, 3 après quelques succès**.
+- **Gratuit** : aucun coût d'entrée ; les emplacements sont le seul frein.
+- Récompenses : **Ryō (plus faible que la vente rapide, pour ne pas concurrencer le marché)**, un peu de cristaux normaux, et des **cristaux spéciaux qui tombent de temps en temps**, sans boss. Plafond de 10 cristaux spéciaux par semaine (déjà décidé, Étape 4 bis §6).
+- **Échec sans pénalité** : aucune blessure ni temps de repos ; les cartes reviennent, le butin est réduit.
+- **Capture d'un personnage précis** : « on verra » (hors périmètre).
+
+---
+
+### 1. Brèches
+Définies **dans le code** (comme les succès), pas en base : `id`, `name`, `lore`, `durationH`, `favoredTypes`, `threshold` (puissance requise) et table de récompenses.
+
+| Niveau | Durée | Seuil de puissance *(à équilibrer)* | Types favorisés |
+|---|---|---|---|
+| Faille | 1 h | faible | 1 type |
+| Brèche | 6 h | moyen | 2 types |
+| Gouffre | 24 h | élevé | 2 types |
+
+Chaque niveau a plusieurs brèches thématiques (nom, lore, types favorisés différents) pour varier ; liste initiale à écrire avec la direction du lore. Les noms ci-dessus sont des placeholders.
+
+### 2. Équipe et emplacements
+- Une expédition = **1 à 3 cartes** du joueur (cartes distinctes ; deux cartes du même personnage autorisées).
+- Les cartes envoyées sont **bloquées** (`Card.inExpedition`) : ni vente, ni échange, ni enchère, ni nouvelle expédition. Elles restent utilisables en duel (le duel copie leurs stats).
+- **Emplacements** : 1 au début ; un 2ᵉ puis un 3ᵉ se débloquent avec des succès d'expédition *(seuils à équilibrer, par exemple 5 et 20 expéditions terminées)*.
+- Pas de limite par jour : le temps et les emplacements suffisent.
+
+### 3. Résolution
+Calculée par le serveur **au retour**, à partir d'une `seed` tirée et enregistrée **au lancement** (recharger la page ne change pas le résultat).
+
+```
+score(carte) = puissance × affinité        (type favorisé ×1,25 ; autre type ×1,0)
+score(équipe) = Σ score(carte) × aléa      (aléa dans [0,85 ; 1,15] fixé par la seed)
+ratio = score(équipe) / seuil de la brèche
+```
+| Résultat | Condition | Part du butin |
+|---|---|---|
+| Échec | ratio < 1 | 25 % des Ryō, rien d'autre |
+| Réussite | 1 ≤ ratio < 1,5 | 100 % |
+| Triomphe | ratio ≥ 1,5 | 150 % des Ryō, double chance de cristal spécial |
+
+*(Coefficients à équilibrer par simulation.)*
+
+### 4. Récompenses *(à équilibrer)*
+| Brèche | Ryō (réussite) | Cristaux normaux | Chance de cristal spécial |
+|---|---|---|---|
+| Faille (1 h) | 10 | 0 | 0 % |
+| Brèche (6 h) | 60 | 1 | 5 % |
+| Gouffre (24 h) | 250 | 3 | 20 % |
+
+- Repères : le bonus quotidien rapporte 50 Ryō, une UR se vend 200 Ryō. Un joueur à 3 emplacements ne doit pas dépasser environ **600 Ryō par jour** d'expéditions.
+- Cristaux normaux gagnés par expédition : plafond **10 par jour**.
+- Cristal spécial : 1 par tirage réussi, **plafond de 10 par semaine** (semaine commençant le lundi, heure du serveur).
+- Journal : nouvelles raisons `EXPEDITION` (Ryō) ; les cristaux ont leur propre journal (Étape 4 bis).
+
+### 5. Déroulement
+1. `/expeditions` : choix d'une brèche, de 1 à 3 cartes, lancement. Le résultat n'est pas affiché.
+2. À la fin du temps, l'expédition passe à « terminée » (balayage paresseux à chaque consultation, comme `sweepDuels`, et `POST /api/expeditions/close` pour la production). Une notification `EXPEDITION_DONE` est envoyée.
+3. Le joueur **récupère le butin** par un bouton ; le résultat s'affiche alors (échec / réussite / triomphe, gains). Une expédition non récupérée reste en attente : elle occupe l'emplacement mais ne perd rien.
+4. Le passage « terminée » → « récupérée » est un **passage conditionnel** (une seule récupération, même en cas de double clic) et crédite Ryō, cristaux et cristal spécial dans la même transaction, avec le journal.
+
+### 6. Succès liés
+Nouveaux succès *(à définir et équilibrer)* : première expédition, 5 et 20 expéditions terminées (qui débloquent les emplacements 2 et 3), premier triomphe, premier cristal spécial.
+
+### 7. Modèle de données (ajouts)
+- **Expedition** : `id`, `userId`, `breachId`, `startedAt`, `endsAt`, `seed`, `status` (RUNNING / DONE / CLAIMED), `outcome` (FAIL / SUCCESS / TRIUMPH, une fois calculé), `rewards` (JSON), `claimedAt`.
+- **ExpeditionCard** : `expeditionId`, `cardId`, instantané `characterId`, `type`, `power`.
+- **Card** : ajout de `inExpedition`.
+- **User** : ajout de `expeditionsDone` (pour les emplacements et succès).
+- **CurrencyLedger.reason** : ajout de `EXPEDITION`.
+
+### 8. Pages
+| Page | Contenu |
+|---|---|
+| `/expeditions` | Emplacements, expéditions en cours avec compte à rebours, à récupérer, historique, formulaire de lancement |
+| Accueil / menu | Entrée « Expéditions » avec le nombre à récupérer |
+
+### 9. Critères pour dire que l'étape 4 ter est finie
+- [ ] Une carte en expédition ne peut ni être vendue, ni échangée, ni mise aux enchères, ni envoyée dans une autre expédition.
+- [ ] Le résultat est identique quel que soit le nombre de rechargements (seed enregistrée) ; récupérer deux fois ne paie qu'une fois.
+- [ ] Le plafond de 10 cristaux spéciaux par semaine et de 10 cristaux normaux par jour est respecté, même avec des récupérations simultanées.
+- [ ] Un joueur à 3 emplacements reste sous ~600 Ryō par jour (vérifié par simulation).
+- [ ] L'échec rend les cartes sans pénalité et paie 25 % des Ryō.
+
+---
+
 ## Étape 5 — Social
 
 ### Objectif

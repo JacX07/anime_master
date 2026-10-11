@@ -36,6 +36,8 @@ Mis à jour le 2026-10-12 (spec cristaux/bannières ajoutée). La spec complète
 
 - **Spec « Étape 4 bis — Cristaux et bannières »** (SPEC.md, pas encore codée) : 1 cristal = 1 carte, 1 cristal / 2 min (plafond 50), pity 75 / 500 cartes avec un compteur unique, lots ×5 / ×10 (variante C : carte R+ garantie sur la 5ᵉ carte de chaque bloc de 5 + 10ᵉ carte du ×10 boostée, +16 / +9 / +5 % de SR / SSR / UR mesurés par `npm run simulate:crystals`), bannières de catégories sans effet sur les taux de rareté, cristaux spéciaux non échangeables. **À valider** : 20 Ryō le cristal, 50 % de la bannière, cadeau de bienvenue (20 tirages de bannière au choix), plafonds des cristaux spéciaux, renommage de « marché noir ». Les duels (étape 4) restent codés mais l'utilisateur n'est pas fan : à décider (retirer du menu, ou remplacer par les expéditions).
 
+- **Spec « Étape 4 ter — Expéditions »** (SPEC.md, pas encore codée) : idle seul, 3 durées (1 / 6 / 24 h), 1 à 3 cartes bloquées, 1 emplacement puis 3, gratuit, échec sans pénalité, Ryō faibles, cristaux spéciaux (plafond 10 par semaine) ; chiffres *à équilibrer* par simulation. Boss, quiz de boss et capture de personnage précis : repoussés. Étape 4 bis validée (cristaux, bannières).
+
 ## Reste à faire, dans l'ordre
 1. **Étape 5 — Social** (voir SPEC) ; l'étape 4 est complète côté fonctionnalités. Pour la production (étape 6) : planifier `POST /api/auctions/close` chaque minute ; les duels expirent paresseusement à chaque consultation.
 2. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
