@@ -21,7 +21,7 @@ const DESC = {
   fusion: ["1 · Portail + capsule", "« Ouvrir » : le portail s'embrase, ses anneaux s'emballent avec une montée sonore, puis la capsule se matérialise du socle vers le haut, en une ligne de scan. Elle s'ouvre ensuite toute seule."],
   sortie: ["2 · Capsule sortie du portail", "Deux temps. « Invoquer » : le portail s'embrase et dépose la capsule, qui descend en arc jusqu'à son socle. Puis on clique sur la capsule (ou « Ouvrir ») pour l'ouvrir."],
   portail: ["3 · Portail seul", "Pas de capsule : les noyaux jaillissent du portail en arc, avec une traînée de lumière, et se posent à leur place. Son plus grave et plus sérieux que la première maquette."],
-  tisserand: ["4 · Machine à tisser", "Une machine-araignée reste suspendue haut au-dessus de la capsule, à son rail : carapace sombre, quatre yeux, huit pattes articulées. Deux s'agrippent au rail et se raccrochent plus haut ; les six autres descendent tisser la capsule de la pointe du haut à celle du bas, chacune à son rythme, avec ses retards et ses tapotements. Puis elle remonte, le verre se forme, la capsule s'ouvre."],
+  tisserand: ["4 · Machine à tisser", "Une machine-araignée reste suspendue haut au-dessus de la capsule, à son rail : carapace sombre, quatre yeux, huit pattes articulées. Deux s'agrippent au rail et se raccrochent plus haut ; les six autres construisent la capsule de bas en haut, chacune à son rythme, avec ses retards et ses tapotements : la partie déjà tissée reste sous les pattes, qui ne la traversent jamais. Puis elle remonte, le verre se forme, la capsule s'ouvre."],
 };
 
 // ---------- Son : basses, cloches de verre, réverbération. Rien de cartoon. ----------
@@ -282,8 +282,9 @@ export async function start() {
     resetPod(true); pod.body.visible = false; fillPod(); items.forEach((i) => i.root.scale.setScalar(0.001)); opening = true;
     const m = ensureMachine(); m.group.visible = true; m.legs.forEach((l) => { l.s.dab = null; l.s.next = time + rnd(0.2, 1.4); });
     const { R, L, H } = pod, yTop = L / 2 + H;
-    // Chemin des pointes : pointe du haut → épaule → ventre → épaule → pointe du bas (rayon et hauteur dans le repère de la capsule)
-    const path = (u) => { const d = Math.min(1, Math.max(0, u)) * (2 * H + L); if (d < H) return { y: yTop - d, r: (d / H) * R }; if (d < H + L) return { y: L / 2 - (d - H), r: R }; const e = (d - H - L) / H; return { y: -L / 2 - e * H, r: R * (1 - e) }; };
+    // Chemin des pointes, de BAS en HAUT : pointe du bas → épaule → ventre → épaule → pointe du haut (rayon et hauteur dans le repère de la capsule).
+    // La machine construit vers le haut : la partie déjà tissée est toujours sous ses pattes, elles ne traversent jamais la capsule.
+    const path = (u) => { const d = (1 - Math.min(1, Math.max(0, u))) * (2 * H + L); if (d < H) return { y: yTop - d, r: (d / H) * R }; if (d < H + L) return { y: L / 2 - (d - H), r: R }; const e = (d - H - L) / H; return { y: -L / 2 - e * H, r: R * (1 - e) }; };
     const K = 90, M = 36, vert = (i, r, y) => { const th = (i * Math.PI) / 3; return [Math.sin(th) * r, y, Math.cos(th) * r]; };
     // Chaîne : une ligne par patte, révélée au rythme de CETTE patte (elles n'avancent pas toutes pareil). Trame : un hexagone par niveau.
     const lines = new THREE.Group(); pod.group.add(lines); threads = lines;
@@ -301,10 +302,10 @@ export async function start() {
     const lag = [-0.035, 0.02, -0.015, 0.035, -0.025, 0.01], speedJitter = m.legs.map(() => rnd(0.9, 1.1));
     const apex = (i, y, spread) => { const th = (i * Math.PI) / 3 + time * 0.6; return new THREE.Vector3(Math.sin(th) * spread, y, Math.cos(th) * spread); };
 
-    // 1 · l'araignée descend du plafond en tâtant l'air avec ses pattes, jusqu'au-dessus de la pointe de la capsule
+    // 1 · l'araignée descend du plafond en tâtant l'air avec ses pattes, jusqu'à la pointe du bas de la future capsule (rien n'est encore tissé)
     A.motor(5.4); A.riser(1.0, 0.03); A.skitter();
-    tween(1.4, (k) => (camLift = 1.3 * k), ease.inOut); // la caméra se lève pour suivre l'araignée
-    await tween(1.1, (k) => { const ty = 6.2 + (yTop - 6.2) * k; placeMachine(m, ty + BODY_H, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, ty, 0.35 + 0.25 * Math.sin(time * 3 + i)), 4))); }, ease.inOut);
+    tween(1.6, (k) => (camLift = 0.9 * k), ease.inOut); // la caméra se lève pour suivre l'araignée
+    await tween(1.5, (k) => { const ty = 6.2 + (-yTop - 6.2) * k; placeMachine(m, ty + BODY_H, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, ty, 0.35 + 0.25 * Math.sin(time * 3 + i)), 4))); }, ease.inOut);
     // 2 · elle tisse : chaque patte suit son fil avec son propre retard et ses propres gestes
     let lastLevel = -1;
     await tween(3.4, (u0) => {
@@ -318,9 +319,9 @@ export async function start() {
     wg.setDrawRange(0, M * 12); warp.forEach((g) => g.setDrawRange(0, K));
     // 3 · elle remonte en repliant ses pattes, le verre se forme, les fils s'éteignent
     pod.body.visible = true; pod.glass.opacity = 0; pod.edgeMat.opacity = 0; A.latch(); A.shimmer(); A.skitter();
-    tween(1.3, (k) => { const by = -yTop + BODY_H + (14 + yTop) * ease.in(k); placeMachine(m, by, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, by - BODY_H, 0.3 * (1 - k * 0.5)), 3))); }, ease.in).then(() => { m.group.visible = false; });
+    tween(1.3, (k) => { const by = yTop + BODY_H + (14 - yTop - BODY_H) * ease.in(k); placeMachine(m, by, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, by - BODY_H, 0.3 * (1 - k * 0.5)), 3))); }, ease.in).then(() => { m.group.visible = false; });
     await tween(0.8, (k) => { pod.glass.opacity = 0.42 * k; pod.edgeMat.opacity = 0.95 * k; mat.opacity = 1 - k; items.forEach((it) => it.root.scale.setScalar(0.4 * k)); }, ease.out);
-    tween(1.4, (k) => (camLift = 1.3 * (1 - k)), ease.inOut);
+    tween(1.4, (k) => (camLift = 0.9 * (1 - k)), ease.inOut);
     threads.removeFromParent(); threads = null; spinStart = time; opening = false;
   }
 

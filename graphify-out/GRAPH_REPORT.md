@@ -1,7 +1,7 @@
 # Graph Report - anime_master  (2026-10-11)
 
 ## Corpus Check
-- 173 files · ~150,689 words
+- 173 files · ~150,757 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: (none) 4, .example 1, .toml 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4f0d693d`
+- Built from commit: `75485c7e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
