@@ -33,6 +33,19 @@
       "source_location": "L69"
     },
     {
+      "id": "src_lib_album_albumfilters",
+      "label": "AlbumFilters",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "albumfilters",
+      "source_file": "src/lib/album.ts",
+      "source_location": "L17"
+    },
+    {
       "id": "src_lib_album_albumpage",
       "label": "AlbumPage",
       "_callable": true,
@@ -124,17 +137,17 @@
       "source_location": "L21"
     },
     {
-      "id": "src_app_economy_actions_actionresult",
-      "label": "ActionResult",
+      "id": "src_lib_session_sessionuser",
+      "label": "SessionUser",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
+      "community": 1,
+      "community_name": "album.ts",
       "file_type": "code",
-      "norm_label": "actionresult",
-      "source_file": "src/app/economy-actions.ts",
-      "source_location": "L17"
+      "norm_label": "sessionuser",
+      "source_file": "src/lib/session.ts",
+      "source_location": "L8"
     },
     {
       "id": "src_lib_wallet_saleerror",
@@ -150,56 +163,43 @@
       "source_location": "L9"
     },
     {
-      "id": "src_lib_wallet_salepreview",
-      "label": "SalePreview",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "salepreview",
-      "source_file": "src/lib/wallet.ts",
-      "source_location": "L48"
-    },
-    {
       "id": "src_app_character_id_copyactions_props",
       "label": "Props",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "props",
       "source_file": "src/app/character/[id]/CopyActions.tsx",
       "source_location": "L7"
     },
     {
-      "id": "src_components_buypackbutton_props",
-      "label": "Props",
+      "id": "src_app_economy_actions_actionresult",
+      "label": "ActionResult",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
+      "community": 25,
+      "community_name": "economy-actions.ts",
       "file_type": "code",
-      "norm_label": "props",
-      "source_file": "src/components/BuyPackButton.tsx",
-      "source_location": "L7"
+      "norm_label": "actionresult",
+      "source_file": "src/app/economy-actions.ts",
+      "source_location": "L17"
     },
     {
-      "id": "src_lib_album_albumfilters",
-      "label": "AlbumFilters",
+      "id": "src_lib_wallet_salepreview",
+      "label": "SalePreview",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
+      "community": 25,
+      "community_name": "economy-actions.ts",
       "file_type": "code",
-      "norm_label": "albumfilters",
-      "source_file": "src/lib/album.ts",
-      "source_location": "L17"
+      "norm_label": "salepreview",
+      "source_file": "src/lib/wallet.ts",
+      "source_location": "L48"
     },
     {
       "id": "scripts_import_kept",
@@ -332,16 +332,29 @@
       "source_location": "L7"
     },
     {
-      "id": "src_lib_session_sessionuser",
-      "label": "SessionUser",
+      "id": "src_components_icons_iconname",
+      "label": "IconName",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
-      "norm_label": "sessionuser",
-      "source_file": "src/lib/session.ts",
+      "norm_label": "iconname",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L37"
+    },
+    {
+      "id": "src_components_icons_shape",
+      "label": "Shape",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "shape",
+      "source_file": "src/components/icons.tsx",
       "source_location": "L8"
     },
     {
@@ -423,32 +436,6 @@
       "source_location": "L32"
     },
     {
-      "id": "src_components_icons_iconname",
-      "label": "IconName",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "iconname",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L37"
-    },
-    {
-      "id": "src_components_icons_shape",
-      "label": "Shape",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "shape",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L8"
-    },
-    {
       "id": "src_lib_collection_carddb",
       "label": "CardDb",
       "_callable": true,
@@ -499,32 +486,6 @@
       "norm_label": "wallet",
       "source_file": "src/lib/wallet.ts",
       "source_location": "L11"
-    },
-    {
-      "id": "src_app_packs_actions_buypackresult",
-      "label": "BuyPackResult",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "buypackresult",
-      "source_file": "src/app/packs/actions.ts",
-      "source_location": "L27"
-    },
-    {
-      "id": "src_app_packs_actions_openpackresult",
-      "label": "OpenPackResult",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "openpackresult",
-      "source_file": "src/app/packs/actions.ts",
-      "source_location": "L10"
     },
     {
       "id": "src_lib_pack_stock_packstock",
@@ -592,6 +553,32 @@
       "source_location": "L29"
     },
     {
+      "id": "src_app_packs_actions_buypackresult",
+      "label": "BuyPackResult",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "ImmersiveOpener.tsx",
+      "file_type": "code",
+      "norm_label": "buypackresult",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "src_app_packs_actions_openpackresult",
+      "label": "OpenPackResult",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "ImmersiveOpener.tsx",
+      "file_type": "code",
+      "norm_label": "openpackresult",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L10"
+    },
+    {
       "id": "src_app_packs_immersiveopener_scenemessage",
       "label": "SceneMessage",
       "_callable": true,
@@ -603,6 +590,19 @@
       "norm_label": "scenemessage",
       "source_file": "src/app/packs/ImmersiveOpener.tsx",
       "source_location": "L16"
+    },
+    {
+      "id": "src_components_buypackbutton_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "ImmersiveOpener.tsx",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "src/components/BuyPackButton.tsx",
+      "source_location": "L7"
     },
     {
       "id": "src_lib_packs_openedcard",
@@ -666,28 +666,76 @@
       "source_location": "L5"
     },
     {
-      "id": "public_pack_opening_futur_pod_buildpod",
-      "label": "buildPod()",
+      "id": "public_pack_opening_opening_core_start_resize",
+      "label": "resize()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "lab.js",
       "file_type": "code",
-      "norm_label": "buildpod()",
-      "source_file": "public/pack-opening/futur/pod.js",
-      "source_location": "L8"
+      "norm_label": "resize()",
+      "source_file": "public/pack-opening/opening/core.js",
+      "source_location": "L241"
     },
     {
-      "id": "public_pack_opening_opening_core_rng",
-      "label": "rng()",
+      "id": "src_app_album_albumfilters_albumhref",
+      "label": "albumHref()",
       "_callable": true,
       "_origin": "ast",
-      "community": 0,
-      "community_name": "lab.js",
+      "community": 1,
+      "community_name": "album.ts",
       "file_type": "code",
-      "norm_label": "rng()",
-      "source_file": "public/pack-opening/opening/core.js",
-      "source_location": "L34"
+      "norm_label": "albumhref()",
+      "source_file": "src/app/album/AlbumFilters.tsx",
+      "source_location": "L16"
+    },
+    {
+      "id": "src_app_album_page_album",
+      "label": "Album()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "album()",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L32"
+    },
+    {
+      "id": "src_app_album_page_albumpage",
+      "label": "AlbumPage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "albumpage()",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L21"
+    },
+    {
+      "id": "src_app_album_page_pagination",
+      "label": "Pagination()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "pagination()",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L103"
+    },
+    {
+      "id": "src_app_album_page_pct",
+      "label": "pct()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "pct()",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L18"
     },
     {
       "id": "src_lib_album_getalbum",
@@ -784,6 +832,18 @@
       "norm_label": "defaultsounds()",
       "source_file": "public/pack-opening/opening/core.js",
       "source_location": "L142"
+    },
+    {
+      "id": "public_pack_opening_opening_core_rng",
+      "label": "rng()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 100,
+      "community_name": "futur.js",
+      "file_type": "code",
+      "norm_label": "rng()",
+      "source_file": "public/pack-opening/opening/core.js",
+      "source_location": "L34"
     },
     {
       "id": "public_pack_opening_opening_core_vary",
@@ -1062,18 +1122,6 @@
       "source_location": "L466"
     },
     {
-      "id": "public_pack_opening_opening_core_start_resize",
-      "label": "resize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 109,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "resize()",
-      "source_file": "public/pack-opening/opening/core.js",
-      "source_location": "L241"
-    },
-    {
       "id": "public_pack_opening_opening_icons_icon",
       "label": "icon()",
       "_callable": true,
@@ -1086,280 +1134,16 @@
       "source_location": "L30"
     },
     {
-      "id": "public_pack_opening_futur_lab_slot",
-      "label": "slot()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "slot()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L18"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start",
-      "label": "start()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "start()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L76"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_emerge",
-      "label": "emerge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "emerge()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L273"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_emit",
-      "label": "emit()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "emit()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L112"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_ensuremachine",
-      "label": "ensureMachine()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "ensuremachine()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L202"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_fillpod",
-      "label": "fillPod()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "fillpod()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L139"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_ignite",
-      "label": "ignite()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "ignite()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L161"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_materialize",
-      "label": "materialize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "materialize()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L192"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_openpod",
-      "label": "openPod()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "openpod()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L169"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_placemachine",
-      "label": "placeMachine()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "placemachine()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L220"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_play",
-      "label": "play()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "play()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L300"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_portalonly",
-      "label": "portalOnly()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "portalonly()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L286"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_reset",
-      "label": "reset()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "reset()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L148"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_resetpod",
-      "label": "resetPod()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "resetpod()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L142"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_updatesparks",
-      "label": "updateSparks()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "updatesparks()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L119"
-    },
-    {
-      "id": "public_pack_opening_futur_lab_start_weave",
-      "label": "weave()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "weave()",
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L231"
-    },
-    {
-      "id": "public_pack_opening_futur_noyaux_builditem",
-      "label": "buildItem()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "builditem()",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L8"
-    },
-    {
-      "id": "public_pack_opening_futur_noyaux_clear",
-      "label": "clear()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "clear()",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L138"
-    },
-    {
       "id": "public_pack_opening_futur_noyaux_init",
       "label": "init()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "code",
       "norm_label": "init()",
       "source_file": "public/pack-opening/futur/noyaux.js",
       "source_location": "L28"
-    },
-    {
-      "id": "public_pack_opening_futur_noyaux_open",
-      "label": "open()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "open()",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L49"
-    },
-    {
-      "id": "public_pack_opening_futur_noyaux_reveal",
-      "label": "reveal()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "reveal()",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L74"
-    },
-    {
-      "id": "public_pack_opening_futur_noyaux_update",
-      "label": "update()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "update()",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L124"
-    },
-    {
-      "id": "public_pack_opening_futur_noyaux_warm",
-      "label": "warm()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "warm()",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L66"
     },
     {
       "id": "public_pack_opening_futur_capsule_buildcapsule",
@@ -1746,6 +1530,18 @@
       "source_location": "L27"
     },
     {
+      "id": "src_components_icons_stat",
+      "label": "Stat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "app/page.tsx",
+      "file_type": "code",
+      "norm_label": "stat()",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L75"
+    },
+    {
       "id": "src_components_menunav_menunav",
       "label": "MenuNav()",
       "_callable": true,
@@ -2039,7 +1835,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "duplicatesale()",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -2051,7 +1847,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "sell()",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -2063,7 +1859,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "toggle()",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -2075,7 +1871,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "copyactions()",
       "source_file": "src/app/character/[id]/CopyActions.tsx",
@@ -2087,7 +1883,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "parserarities()",
       "source_file": "src/app/economy-actions.ts",
@@ -2099,7 +1895,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "previewduplicatesaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -2111,7 +1907,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "run()",
       "source_file": "src/app/economy-actions.ts",
@@ -2123,7 +1919,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "sellcardaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -2135,7 +1931,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "sellduplicatesaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -2147,7 +1943,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "togglelockaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -2159,155 +1955,347 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "money()",
       "source_file": "src/components/icons.tsx",
       "source_location": "L65"
     },
     {
+      "id": "src_lib_session_getsessionuser",
+      "label": "getSessionUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "economy-actions.ts",
+      "file_type": "code",
+      "norm_label": "getsessionuser()",
+      "source_file": "src/lib/session.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_slot",
+      "label": "slot()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "slot()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L18"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start",
+      "label": "start()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "start()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L77"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_emerge",
+      "label": "emerge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "emerge()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L303"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_emit",
+      "label": "emit()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "emit()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L113"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_ensuremachine",
+      "label": "ensureMachine()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "ensuremachine()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L204"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_fillpod",
+      "label": "fillPod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "fillpod()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L140"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_ignite",
+      "label": "ignite()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "ignite()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L162"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_materialize",
+      "label": "materialize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "materialize()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L193"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_openpod",
+      "label": "openPod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "openpod()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L170"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_placemachine",
+      "label": "placeMachine()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "placemachine()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L240"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_play",
+      "label": "play()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "play()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L330"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_portalonly",
+      "label": "portalOnly()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "portalonly()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L316"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_reset",
+      "label": "reset()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "reset()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L149"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_resetpod",
+      "label": "resetPod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "resetpod()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L143"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_solveleg",
+      "label": "solveLeg()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "solveleg()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L231"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_updatesparks",
+      "label": "updateSparks()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "updatesparks()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L120"
+    },
+    {
+      "id": "public_pack_opening_futur_lab_start_weave",
+      "label": "weave()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "weave()",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L261"
+    },
+    {
+      "id": "public_pack_opening_futur_noyaux_builditem",
+      "label": "buildItem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "builditem()",
+      "source_file": "public/pack-opening/futur/noyaux.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "public_pack_opening_futur_noyaux_clear",
+      "label": "clear()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "clear()",
+      "source_file": "public/pack-opening/futur/noyaux.js",
+      "source_location": "L138"
+    },
+    {
+      "id": "public_pack_opening_futur_noyaux_open",
+      "label": "open()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "open()",
+      "source_file": "public/pack-opening/futur/noyaux.js",
+      "source_location": "L49"
+    },
+    {
+      "id": "public_pack_opening_futur_noyaux_reveal",
+      "label": "reveal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "reveal()",
+      "source_file": "public/pack-opening/futur/noyaux.js",
+      "source_location": "L74"
+    },
+    {
+      "id": "public_pack_opening_futur_noyaux_update",
+      "label": "update()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "update()",
+      "source_file": "public/pack-opening/futur/noyaux.js",
+      "source_location": "L124"
+    },
+    {
+      "id": "public_pack_opening_futur_noyaux_warm",
+      "label": "warm()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "warm()",
+      "source_file": "public/pack-opening/futur/noyaux.js",
+      "source_location": "L66"
+    },
+    {
+      "id": "public_pack_opening_futur_pod_buildpod",
+      "label": "buildPod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "start",
+      "file_type": "code",
+      "norm_label": "buildpod()",
+      "source_file": "public/pack-opening/futur/pod.js",
+      "source_location": "L8"
+    },
+    {
       "id": "src_app_album_albumfilters_albumfilters",
       "label": "AlbumFilters()",
       "_callable": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
       "file_type": "code",
       "norm_label": "albumfilters()",
       "source_file": "src/app/album/AlbumFilters.tsx",
       "source_location": "L37"
     },
     {
-      "id": "src_app_album_albumfilters_albumhref",
-      "label": "albumHref()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "albumhref()",
-      "source_file": "src/app/album/AlbumFilters.tsx",
-      "source_location": "L16"
-    },
-    {
       "id": "src_app_album_albumfilters_chip",
       "label": "Chip()",
       "_callable": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
       "file_type": "code",
       "norm_label": "chip()",
       "source_file": "src/app/album/AlbumFilters.tsx",
       "source_location": "L28"
     },
     {
-      "id": "src_app_album_page_album",
-      "label": "Album()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "album()",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L32"
-    },
-    {
-      "id": "src_app_album_page_albumpage",
-      "label": "AlbumPage()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "albumpage()",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L21"
-    },
-    {
-      "id": "src_app_album_page_pagination",
-      "label": "Pagination()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "pagination()",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L103"
-    },
-    {
-      "id": "src_app_album_page_pct",
-      "label": "pct()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "pct()",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L18"
-    },
-    {
       "id": "src_app_character_id_page_character",
       "label": "Character()",
       "_callable": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
       "file_type": "code",
       "norm_label": "character()",
       "source_file": "src/app/character/[id]/page.tsx",
       "source_location": "L40"
-    },
-    {
-      "id": "src_components_buypackbutton_buypackbutton",
-      "label": "BuyPackButton()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "buypackbutton()",
-      "source_file": "src/components/BuyPackButton.tsx",
-      "source_location": "L18"
-    },
-    {
-      "id": "src_components_charactercard_charactercard",
-      "label": "CharacterCard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "charactercard()",
-      "source_file": "src/components/CharacterCard.tsx",
-      "source_location": "L28"
-    },
-    {
-      "id": "src_components_icons_stat",
-      "label": "Stat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "stat()",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L75"
-    },
-    {
-      "id": "src_components_icons_typeicon",
-      "label": "TypeIcon()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "typeicon()",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L49"
     },
     {
       "id": "src_app_character_id_page_characterpage",
@@ -2344,6 +2332,42 @@
       "norm_label": "parseid()",
       "source_file": "src/app/character/[id]/page.tsx",
       "source_location": "L14"
+    },
+    {
+      "id": "src_components_charactercard_charactercard",
+      "label": "CharacterCard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "charactercard()",
+      "source_file": "src/components/CharacterCard.tsx",
+      "source_location": "L28"
+    },
+    {
+      "id": "src_components_icons_raritygem",
+      "label": "RarityGem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "raritygem()",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L54"
+    },
+    {
+      "id": "src_components_icons_typeicon",
+      "label": "TypeIcon()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "typeicon()",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L49"
     },
     {
       "id": "scripts_import_fetchall",
@@ -2711,7 +2735,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "claimdailybonusaction()",
       "source_file": "src/app/economy-actions.ts",
@@ -2723,7 +2747,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "rootlayout()",
       "source_file": "src/app/layout.tsx",
@@ -2735,7 +2759,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "albumlink()",
       "source_file": "src/components/AlbumLink.tsx",
@@ -2747,11 +2771,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "dailybonus()",
       "source_file": "src/components/DailyBonus.tsx",
       "source_location": "L9"
+    },
+    {
+      "id": "src_components_icons_camel",
+      "label": "camel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "camel()",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L11"
     },
     {
       "id": "src_components_icons_icon",
@@ -2759,11 +2795,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "icon()",
       "source_file": "src/components/icons.tsx",
       "source_location": "L39"
+    },
+    {
+      "id": "src_components_icons_iconsprite",
+      "label": "IconSprite()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "iconsprite()",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L14"
     },
     {
       "id": "src_components_navlink_navlink",
@@ -2771,7 +2819,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "navlink()",
       "source_file": "src/components/NavLink.tsx",
@@ -2783,23 +2831,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "usermenu()",
       "source_file": "src/components/UserMenu.tsx",
       "source_location": "L12"
-    },
-    {
-      "id": "src_lib_session_getsessionuser",
-      "label": "getSessionUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "next",
-      "file_type": "code",
-      "norm_label": "getsessionuser()",
-      "source_file": "src/lib/session.ts",
-      "source_location": "L13"
     },
     {
       "id": "scripts_simulate_expected",
@@ -2922,6 +2958,18 @@
       "source_location": "L74"
     },
     {
+      "id": "src_lib_pull_securerandom",
+      "label": "secureRandom()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "pull.ts",
+      "file_type": "code",
+      "norm_label": "securerandom()",
+      "source_file": "src/lib/pull.ts",
+      "source_location": "L55"
+    },
+    {
       "id": "src_lib_pull_weightedpick",
       "label": "weightedPick()",
       "_callable": true,
@@ -2932,42 +2980,6 @@
       "norm_label": "weightedpick()",
       "source_file": "src/lib/pull.ts",
       "source_location": "L60"
-    },
-    {
-      "id": "src_components_icons_camel",
-      "label": "camel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "camel()",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L11"
-    },
-    {
-      "id": "src_components_icons_iconsprite",
-      "label": "IconSprite()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "iconsprite()",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_components_icons_raritygem",
-      "label": "RarityGem()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "raritygem()",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L54"
     },
     {
       "id": "claude_skills_create_game_assets_scripts_asset_report_alpha_stats",
@@ -3186,18 +3198,6 @@
       "source_location": "L89"
     },
     {
-      "id": "src_lib_pull_securerandom",
-      "label": "secureRandom()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "securerandom()",
-      "source_file": "src/lib/pull.ts",
-      "source_location": "L55"
-    },
-    {
       "id": "src_app_packs_actions_buypackaction",
       "label": "buyPackAction()",
       "_callable": true,
@@ -3316,6 +3316,18 @@
       "norm_label": "packspage()",
       "source_file": "src/app/packs/page.tsx",
       "source_location": "L9"
+    },
+    {
+      "id": "src_components_buypackbutton_buypackbutton",
+      "label": "BuyPackButton()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "ImmersiveOpener.tsx",
+      "file_type": "code",
+      "norm_label": "buypackbutton()",
+      "source_file": "src/components/BuyPackButton.tsx",
+      "source_location": "L18"
     },
     {
       "id": "src_lib_session_requireuser",
@@ -3484,6 +3496,17 @@
       "source_location": "L1"
     },
     {
+      "id": "public_pack_opening_opening_core_glsl_noise",
+      "label": "GLSL_NOISE",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "lab.js",
+      "file_type": "code",
+      "norm_label": "glsl_noise",
+      "source_file": "public/pack-opening/opening/core.js",
+      "source_location": "L35"
+    },
+    {
       "id": "public_pack_opening_opening_core_softdot",
       "label": "softDot",
       "_origin": "ast",
@@ -3493,6 +3516,39 @@
       "norm_label": "softdot",
       "source_file": "public/pack-opening/opening/core.js",
       "source_location": "L32"
+    },
+    {
+      "id": "src_app_album_page",
+      "label": "album/page.tsx",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "album/page.tsx",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_album_page_metadata",
+      "label": "metadata",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "metadata",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L15"
+    },
+    {
+      "id": "src_app_album_page_num",
+      "label": "num",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "num",
+      "source_file": "src/app/album/page.tsx",
+      "source_location": "L17"
     },
     {
       "id": "src_lib_album",
@@ -3559,6 +3615,28 @@
       "norm_label": "type_order",
       "source_file": "src/lib/album.ts",
       "source_location": "L10"
+    },
+    {
+      "id": "src_lib_session",
+      "label": "session.ts",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "code",
+      "norm_label": "session.ts",
+      "source_file": "src/lib/session.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "ref_server_only",
+      "label": "server-only",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "album.ts",
+      "file_type": "concept",
+      "norm_label": "server-only",
+      "source_file": "package.json",
+      "source_location": "L27"
     },
     {
       "id": "package_scripts",
@@ -4401,6 +4479,18 @@
       "norm_label": "three.js gltf: loaders, compression & animation detail (r150+)",
       "source_file": ".claude/skills/threejs-gltf-loading/references/loaders-and-animation.md",
       "source_location": "L1"
+    },
+    {
+      "id": "spec_5_mod\u00e8le_de_donn\u00e9es_ajouts_635",
+      "label": "5. Mod\u00e8le de donn\u00e9es (ajouts)",
+      "_origin": "ast",
+      "community": 109,
+      "community_name": "start",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5. modele de donnees (ajouts)",
+      "source_file": "SPEC.md",
+      "source_location": "L635"
     },
     {
       "id": "claude_skills_threejs_textures_skill",
@@ -5617,22 +5707,11 @@
       "source_location": "L36"
     },
     {
-      "id": "public_pack_opening_futur_noyaux",
-      "label": "noyaux.js",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "start",
-      "file_type": "code",
-      "norm_label": "noyaux.js",
-      "source_file": "public/pack-opening/futur/noyaux.js",
-      "source_location": "L1"
-    },
-    {
       "id": "claude_skills_phaser_core_skill",
       "label": "phaser-core/SKILL.md",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "frontmatter": {
         "name": "phaser-core",
@@ -5648,7 +5727,7 @@
       "label": "pixijs-rendering/SKILL.md",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "frontmatter": {
         "name": "pixijs-rendering",
@@ -5664,7 +5743,7 @@
       "label": "scene-flow.md",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "scene-flow.md",
@@ -5676,7 +5755,7 @@
       "label": "Duplicate listeners",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "duplicate listeners",
@@ -5688,7 +5767,7 @@
       "label": "Lifecycle order",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "lifecycle order",
@@ -5700,7 +5779,7 @@
       "label": "Phaser scene flow (Phaser 4.2; core lifecycle also applies to 3.90)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "phaser scene flow (phaser 4.2; core lifecycle also applies to 3.90)",
@@ -5712,7 +5791,7 @@
       "label": "Removing or replacing a scene",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "removing or replacing a scene",
@@ -5724,7 +5803,7 @@
       "label": "The restart-state bug",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "the restart-state bug",
@@ -5736,7 +5815,7 @@
       "label": "1. Game config + boot (ES module)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "1. game config + boot (es module)",
@@ -5748,7 +5827,7 @@
       "label": "2. A Scene with the full lifecycle",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "2. a scene with the full lifecycle",
@@ -5760,7 +5839,7 @@
       "label": "3. Cross-scene data + events",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "3. cross-scene data + events",
@@ -5772,7 +5851,7 @@
       "label": "4. Scene transitions (pick the right verb)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "4. scene transitions (pick the right verb)",
@@ -5784,7 +5863,7 @@
       "label": "5. A camera that follows the player",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "5. a camera that follows the player",
@@ -5796,7 +5875,7 @@
       "label": "Core workflow",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "core workflow",
@@ -5808,7 +5887,7 @@
       "label": "Patterns",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "patterns",
@@ -5820,7 +5899,7 @@
       "label": "Phaser 4 Core",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "phaser 4 core",
@@ -5832,7 +5911,7 @@
       "label": "Pitfalls",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "pitfalls",
@@ -5844,7 +5923,7 @@
       "label": "References",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "references",
@@ -5856,7 +5935,7 @@
       "label": "Related skills",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "related skills",
@@ -5868,7 +5947,7 @@
       "label": "When to use",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "when to use",
@@ -5880,7 +5959,7 @@
       "label": "1. Async Application boot (the v8 entry point)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "1. async application boot (the v8 entry point)",
@@ -5892,7 +5971,7 @@
       "label": "2. Containers for a relative-transform scene graph",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "2. containers for a relative-transform scene graph",
@@ -5904,7 +5983,7 @@
       "label": "3. The ticker loop (frame-rate independent)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "3. the ticker loop (frame-rate independent)",
@@ -5916,7 +5995,7 @@
       "label": "4. Pointer events (federated)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "4. pointer events (federated)",
@@ -5928,7 +6007,7 @@
       "label": "5. Loading many assets by name (bundles)",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "5. loading many assets by name (bundles)",
@@ -5940,7 +6019,7 @@
       "label": "6. Render groups for large static layers",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "6. render groups for large static layers",
@@ -5952,7 +6031,7 @@
       "label": "Core workflow",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "core workflow",
@@ -5964,7 +6043,7 @@
       "label": "Patterns",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "patterns",
@@ -5976,7 +6055,7 @@
       "label": "Pitfalls",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "pitfalls",
@@ -5988,7 +6067,7 @@
       "label": "PixiJS 8.21 Rendering",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "pixijs 8.21 rendering",
@@ -6000,7 +6079,7 @@
       "label": "References",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "references",
@@ -6012,7 +6091,7 @@
       "label": "Related skills",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "related skills",
@@ -6024,12 +6103,96 @@
       "label": "When to use",
       "_origin": "ast",
       "community": 12,
-      "community_name": "start",
+      "community_name": "PixiJS 8.21 Rendering",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "when to use",
       "source_file": ".claude/skills/pixijs-rendering/SKILL.md",
       "source_location": "L19"
+    },
+    {
+      "id": "docs_state",
+      "label": "STATE.md",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "state.md",
+      "source_file": "docs/STATE.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_state_d\u00e9cisions_et_raisons",
+      "label": "D\u00e9cisions et raisons",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "decisions et raisons",
+      "source_file": "docs/STATE.md",
+      "source_location": "L42"
+    },
+    {
+      "id": "docs_state_fichiers_cl\u00e9s",
+      "label": "Fichiers cl\u00e9s",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "fichiers cles",
+      "source_file": "docs/STATE.md",
+      "source_location": "L54"
+    },
+    {
+      "id": "docs_state_ouverture_3d_dans_packs",
+      "label": "Ouverture 3D dans `/packs`",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "ouverture 3d dans `/packs`",
+      "source_file": "docs/STATE.md",
+      "source_location": "L37"
+    },
+    {
+      "id": "docs_state_pi\u00e8ges",
+      "label": "Pi\u00e8ges",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "pieges",
+      "source_file": "docs/STATE.md",
+      "source_location": "L71"
+    },
+    {
+      "id": "docs_state_reste_\u00e0_faire_dans_l_ordre",
+      "label": "Reste \u00e0 faire, dans l'ordre",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "reste a faire, dans l'ordre",
+      "source_file": "docs/STATE.md",
+      "source_location": "L31"
+    },
+    {
+      "id": "docs_state_\u00e9tat_du_projet_passation",
+      "label": "\u00c9tat du projet \u2014 passation",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "PixiJS 8.21 Rendering",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "etat du projet \u2014 passation",
+      "source_file": "docs/STATE.md",
+      "source_location": "L1"
     },
     {
       "id": "eslint_config",
@@ -6162,17 +6325,6 @@
       "norm_label": "chars",
       "source_file": "public/pack-opening/opening/core.js",
       "source_location": "L18"
-    },
-    {
-      "id": "public_pack_opening_opening_core_glsl_noise",
-      "label": "GLSL_NOISE",
-      "_origin": "ast",
-      "community": 123,
-      "community_name": "engine.js",
-      "file_type": "code",
-      "norm_label": "glsl_noise",
-      "source_file": "public/pack-opening/opening/core.js",
-      "source_location": "L35"
     },
     {
       "id": "public_pack_opening_opening_core_rank",
@@ -9664,6 +9816,18 @@
       "source_location": "L25"
     },
     {
+      "id": "docs_state_fait_et_committ\u00e9",
+      "label": "Fait et committ\u00e9",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "app/page.tsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "fait et committe",
+      "source_file": "docs/STATE.md",
+      "source_location": "L5"
+    },
+    {
       "id": "claude_skills_router_skill",
       "label": "router/SKILL.md",
       "_origin": "ast",
@@ -9871,17 +10035,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_app_economy_actions",
-      "label": "economy-actions.ts",
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "wallet.ts",
-      "file_type": "code",
-      "norm_label": "economy-actions.ts",
-      "source_file": "src/app/economy-actions.ts",
-      "source_location": "L1"
-    },
-    {
       "id": "src_lib_economy",
       "label": "economy.ts",
       "_origin": "ast",
@@ -9996,7 +10149,7 @@
       "label": "DuplicateSale.tsx",
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "duplicatesale.tsx",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -10007,7 +10160,7 @@
       "label": "RARITY_ORDER",
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "rarity_order",
       "source_file": "src/app/album/DuplicateSale.tsx",
@@ -10018,10 +10171,21 @@
       "label": "CopyActions.tsx",
       "_origin": "ast",
       "community": 25,
-      "community_name": "Money",
+      "community_name": "economy-actions.ts",
       "file_type": "code",
       "norm_label": "copyactions.tsx",
       "source_file": "src/app/character/[id]/CopyActions.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_economy_actions",
+      "label": "economy-actions.ts",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "economy-actions.ts",
+      "file_type": "code",
+      "norm_label": "economy-actions.ts",
+      "source_file": "src/app/economy-actions.ts",
       "source_location": "L1"
     },
     {
@@ -10697,91 +10861,14 @@
       "source_location": "L19"
     },
     {
-      "id": "src_app_album_albumfilters",
-      "label": "AlbumFilters.tsx",
+      "id": "public_pack_opening_futur_noyaux",
+      "label": "noyaux.js",
       "_origin": "ast",
       "community": 3,
-      "community_name": "album/page.tsx",
+      "community_name": "start",
       "file_type": "code",
-      "norm_label": "albumfilters.tsx",
-      "source_file": "src/app/album/AlbumFilters.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_album_albumfilters_owned",
-      "label": "OWNED",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "owned",
-      "source_file": "src/app/album/AlbumFilters.tsx",
-      "source_location": "L8"
-    },
-    {
-      "id": "src_app_album_albumfilters_rarities",
-      "label": "RARITIES",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "rarities",
-      "source_file": "src/app/album/AlbumFilters.tsx",
-      "source_location": "L6"
-    },
-    {
-      "id": "src_app_album_albumfilters_types",
-      "label": "TYPES",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "types",
-      "source_file": "src/app/album/AlbumFilters.tsx",
-      "source_location": "L7"
-    },
-    {
-      "id": "src_app_album_page",
-      "label": "album/page.tsx",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "album/page.tsx",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_app_album_page_metadata",
-      "label": "metadata",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "metadata",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L15"
-    },
-    {
-      "id": "src_app_album_page_num",
-      "label": "num",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "num",
-      "source_file": "src/app/album/page.tsx",
-      "source_location": "L17"
-    },
-    {
-      "id": "src_components_buypackbutton",
-      "label": "BuyPackButton.tsx",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "album/page.tsx",
-      "file_type": "code",
-      "norm_label": "buypackbutton.tsx",
-      "source_file": "src/components/BuyPackButton.tsx",
+      "norm_label": "noyaux.js",
+      "source_file": "public/pack-opening/futur/noyaux.js",
       "source_location": "L1"
     },
     {
@@ -12495,17 +12582,6 @@
       "source_location": "L26"
     },
     {
-      "id": "ref_server_only",
-      "label": "server-only",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "server-only",
-      "source_file": "package.json",
-      "source_location": "L27"
-    },
-    {
       "id": "ref_tailwindcss",
       "label": "tailwindcss",
       "_origin": "ast",
@@ -13537,6 +13613,50 @@
       "norm_label": "etape 3 \u2014 economie",
       "source_file": "SPEC.md",
       "source_location": "L346"
+    },
+    {
+      "id": "src_app_album_albumfilters",
+      "label": "AlbumFilters.tsx",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "albumfilters.tsx",
+      "source_file": "src/app/album/AlbumFilters.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_album_albumfilters_owned",
+      "label": "OWNED",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "owned",
+      "source_file": "src/app/album/AlbumFilters.tsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_app_album_albumfilters_rarities",
+      "label": "RARITIES",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "rarities",
+      "source_file": "src/app/album/AlbumFilters.tsx",
+      "source_location": "L6"
+    },
+    {
+      "id": "src_app_album_albumfilters_types",
+      "label": "TYPES",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "[id]/page.tsx",
+      "file_type": "code",
+      "norm_label": "types",
+      "source_file": "src/app/album/AlbumFilters.tsx",
+      "source_location": "L7"
     },
     {
       "id": "src_app_character_id_page",
@@ -15966,7 +16086,7 @@
       "label": "next.config.ts",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "next.config.ts",
       "source_file": "next.config.ts",
@@ -15977,7 +16097,7 @@
       "label": "nextConfig",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "nextconfig",
       "source_file": "next.config.ts",
@@ -15988,7 +16108,7 @@
       "label": "layout.tsx",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "layout.tsx",
       "source_file": "src/app/layout.tsx",
@@ -15999,7 +16119,7 @@
       "label": "metadata",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "metadata",
       "source_file": "src/app/layout.tsx",
@@ -16010,7 +16130,7 @@
       "label": "michroma",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "michroma",
       "source_file": "src/app/layout.tsx",
@@ -16021,7 +16141,7 @@
       "label": "sora",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "sora",
       "source_file": "src/app/layout.tsx",
@@ -16032,7 +16152,7 @@
       "label": "AlbumLink.tsx",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "albumlink.tsx",
       "source_file": "src/components/AlbumLink.tsx",
@@ -16043,7 +16163,7 @@
       "label": "ALBUM_BUMP",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "album_bump",
       "source_file": "src/components/AlbumLink.tsx",
@@ -16054,7 +16174,7 @@
       "label": "ALBUM_STORED",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "album_stored",
       "source_file": "src/components/AlbumLink.tsx",
@@ -16065,18 +16185,62 @@
       "label": "DailyBonus.tsx",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "dailybonus.tsx",
       "source_file": "src/components/DailyBonus.tsx",
       "source_location": "L1"
     },
     {
+      "id": "src_components_icons",
+      "label": "icons.tsx",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "icons.tsx",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_icons_fmt",
+      "label": "fmt",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "fmt",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L62"
+    },
+    {
+      "id": "src_components_icons_sprite",
+      "label": "sprite",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "sprite",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_components_icons_type_accent",
+      "label": "TYPE_ACCENT",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "file_type": "code",
+      "norm_label": "type_accent",
+      "source_file": "src/components/icons.tsx",
+      "source_location": "L47"
+    },
+    {
       "id": "src_components_navlink",
       "label": "NavLink.tsx",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "navlink.tsx",
       "source_file": "src/components/NavLink.tsx",
@@ -16087,7 +16251,7 @@
       "label": "UserMenu.tsx",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "usermenu.tsx",
       "source_file": "src/components/UserMenu.tsx",
@@ -16098,29 +16262,18 @@
       "label": "num",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "code",
       "norm_label": "num",
       "source_file": "src/components/UserMenu.tsx",
       "source_location": "L9"
     },
     {
-      "id": "src_lib_session",
-      "label": "session.ts",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "next",
-      "file_type": "code",
-      "norm_label": "session.ts",
-      "source_file": "src/lib/session.ts",
-      "source_location": "L1"
-    },
-    {
       "id": "ref_next",
       "label": "next",
       "_origin": "ast",
       "community": 60,
-      "community_name": "next",
+      "community_name": "icons.tsx",
       "file_type": "concept",
       "norm_label": "next",
       "source_file": "package.json",
@@ -17791,18 +17944,6 @@
       "source_location": "L628"
     },
     {
-      "id": "spec_5_mod\u00e8le_de_donn\u00e9es_ajouts_635",
-      "label": "5. Mod\u00e8le de donn\u00e9es (ajouts)",
-      "_origin": "ast",
-      "community": 73,
-      "community_name": "\u00c9tape 5 \u2014 Social",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "5. modele de donnees (ajouts)",
-      "source_file": "SPEC.md",
-      "source_location": "L635"
-    },
-    {
       "id": "spec_6_pages",
       "label": "6. Pages",
       "_origin": "ast",
@@ -17861,134 +18002,6 @@
       "norm_label": "etape 5 \u2014 social",
       "source_file": "SPEC.md",
       "source_location": "L587"
-    },
-    {
-      "id": "src_components_icons",
-      "label": "icons.tsx",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "icons.tsx",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_icons_fmt",
-      "label": "fmt",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "fmt",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L62"
-    },
-    {
-      "id": "src_components_icons_sprite",
-      "label": "sprite",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "sprite",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L9"
-    },
-    {
-      "id": "src_components_icons_type_accent",
-      "label": "TYPE_ACCENT",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "code",
-      "norm_label": "type_accent",
-      "source_file": "src/components/icons.tsx",
-      "source_location": "L47"
-    },
-    {
-      "id": "docs_state",
-      "label": "STATE.md",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "state.md",
-      "source_file": "docs/STATE.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "docs_state_d\u00e9cisions_et_raisons",
-      "label": "D\u00e9cisions et raisons",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "decisions et raisons",
-      "source_file": "docs/STATE.md",
-      "source_location": "L42"
-    },
-    {
-      "id": "docs_state_fait_et_committ\u00e9",
-      "label": "Fait et committ\u00e9",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "fait et committe",
-      "source_file": "docs/STATE.md",
-      "source_location": "L5"
-    },
-    {
-      "id": "docs_state_fichiers_cl\u00e9s",
-      "label": "Fichiers cl\u00e9s",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "fichiers cles",
-      "source_file": "docs/STATE.md",
-      "source_location": "L54"
-    },
-    {
-      "id": "docs_state_pi\u00e8ges",
-      "label": "Pi\u00e8ges",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "pieges",
-      "source_file": "docs/STATE.md",
-      "source_location": "L71"
-    },
-    {
-      "id": "docs_state_reste_\u00e0_faire_dans_l_ordre",
-      "label": "Reste \u00e0 faire, dans l'ordre",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "reste a faire, dans l'ordre",
-      "source_file": "docs/STATE.md",
-      "source_location": "L31"
-    },
-    {
-      "id": "docs_state_\u00e9tat_du_projet_passation",
-      "label": "\u00c9tat du projet \u2014 passation",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "icons.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "etat du projet \u2014 passation",
-      "source_file": "docs/STATE.md",
-      "source_location": "L1"
     },
     {
       "id": "claude_skills_ai_behavior_trees_utility_ai_skill",
@@ -20513,17 +20526,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_app_packs_actions",
-      "label": "actions.ts",
-      "_origin": "ast",
-      "community": 97,
-      "community_name": "packs.ts",
-      "file_type": "code",
-      "norm_label": "actions.ts",
-      "source_file": "src/app/packs/actions.ts",
-      "source_location": "L1"
-    },
-    {
       "id": "src_lib_pack_stock",
       "label": "pack-stock.ts",
       "_origin": "ast",
@@ -20579,6 +20581,17 @@
       "source_location": "L59"
     },
     {
+      "id": "src_app_packs_actions",
+      "label": "actions.ts",
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "ImmersiveOpener.tsx",
+      "file_type": "code",
+      "norm_label": "actions.ts",
+      "source_file": "src/app/packs/actions.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "src_app_packs_immersiveopener",
       "label": "ImmersiveOpener.tsx",
       "_origin": "ast",
@@ -20623,6 +20636,17 @@
       "source_location": "L7"
     },
     {
+      "id": "src_components_buypackbutton",
+      "label": "BuyPackButton.tsx",
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "ImmersiveOpener.tsx",
+      "file_type": "code",
+      "norm_label": "buypackbutton.tsx",
+      "source_file": "src/components/BuyPackButton.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "src_lib_pull_ssr_pity",
       "label": "SSR_PITY",
       "_origin": "ast",
@@ -20643,18 +20667,6 @@
       "norm_label": "ur_pity",
       "source_file": "src/lib/pull.ts",
       "source_location": "L11"
-    },
-    {
-      "id": "docs_state_ouverture_3d_dans_packs",
-      "label": "Ouverture 3D dans `/packs`",
-      "_origin": "ast",
-      "community": 98,
-      "community_name": "ImmersiveOpener.tsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "ouverture 3d dans `/packs`",
-      "source_file": "docs/STATE.md",
-      "source_location": "L37"
     },
     {
       "id": "readme",
@@ -20819,24 +20831,24 @@
       "type": "external"
     },
     {
-      "id": "src_app_globals",
-      "label": "src_app_globals",
-      "community": 60,
-      "community_name": "next",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_app_globals",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "public_icons_icons",
       "label": "public_icons_icons",
-      "community": 74,
+      "community": 60,
       "community_name": "icons.tsx",
       "external": true,
       "file_type": "concept",
       "norm_label": "public_icons_icons",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_app_globals",
+      "label": "src_app_globals",
+      "community": 60,
+      "community_name": "icons.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_app_globals",
       "source_file": "",
       "type": "external"
     },
@@ -21455,7 +21467,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L134",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -21467,7 +21479,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L329",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -21479,7 +21491,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L83",
+      "source_location": "L84",
       "weight": 1.0
     },
     {
@@ -21491,7 +21503,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L89",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -21503,7 +21515,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L91",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -21515,7 +21527,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L93",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -21527,7 +21539,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L274",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -21539,7 +21551,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L274",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -21551,7 +21563,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L277",
+      "source_location": "L307",
       "weight": 1.0
     },
     {
@@ -21563,7 +21575,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L193",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -21575,7 +21587,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L193",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -21587,7 +21599,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L195",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -21599,7 +21611,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L174",
+      "source_location": "L175",
       "weight": 1.0
     },
     {
@@ -21611,7 +21623,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L181",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "public_pack_opening_futur_lab_start_placemachine",
+      "target": "public_pack_opening_futur_lab_start_solveleg",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L253",
       "weight": 1.0
     },
     {
@@ -21623,7 +21647,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L302",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -21635,7 +21659,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L302",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -21647,7 +21671,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L302",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -21659,7 +21683,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L304",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
@@ -21671,7 +21695,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L306",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -21683,7 +21707,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L307",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -21695,7 +21719,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L288",
+      "source_location": "L318",
       "weight": 1.0
     },
     {
@@ -21707,7 +21731,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L291",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -21719,7 +21743,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L292",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -21731,7 +21755,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L153",
+      "source_location": "L154",
       "weight": 1.0
     },
     {
@@ -21743,7 +21767,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L232",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -21755,7 +21779,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L232",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -21767,7 +21791,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L233",
+      "source_location": "L263",
       "weight": 1.0
     },
     {
@@ -21779,7 +21803,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L254",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -21791,7 +21815,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L262",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -24755,7 +24779,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L112",
+      "source_location": "L113",
       "weight": 1.0
     },
     {
@@ -24767,7 +24791,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L119",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -24779,7 +24803,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L148",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -24791,7 +24815,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L300",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -43421,7 +43445,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L76",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -43432,7 +43456,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L139",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -43443,7 +43467,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L142",
+      "source_location": "L143",
       "weight": 1.0
     },
     {
@@ -43454,7 +43478,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L161",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -43465,7 +43489,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L169",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -43476,7 +43500,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L192",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -43487,23 +43511,12 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L202",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
       "source": "public_pack_opening_futur_lab_start",
-      "target": "public_pack_opening_futur_lab_start_placemachine",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L220",
-      "weight": 1.0
-    },
-    {
-      "source": "public_pack_opening_futur_lab_start",
-      "target": "public_pack_opening_futur_lab_start_weave",
+      "target": "public_pack_opening_futur_lab_start_solveleg",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -43514,13 +43527,35 @@
     },
     {
       "source": "public_pack_opening_futur_lab_start",
+      "target": "public_pack_opening_futur_lab_start_placemachine",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "public_pack_opening_futur_lab_start",
+      "target": "public_pack_opening_futur_lab_start_weave",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/pack-opening/futur/lab.js",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "public_pack_opening_futur_lab_start",
       "target": "public_pack_opening_futur_lab_start_emerge",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L273",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -43531,7 +43566,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "public/pack-opening/futur/lab.js",
-      "source_location": "L286",
+      "source_location": "L316",
       "weight": 1.0
     },
     {
@@ -48411,5 +48446,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7cb3e2938267c63ba2d3d1ecb64ea678a7573b78"
+  "built_at_commit": "4a466a29a70dadd04a13b6857252458a8dc9714c"
 }

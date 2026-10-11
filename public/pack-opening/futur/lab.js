@@ -21,7 +21,7 @@ const DESC = {
   fusion: ["1 · Portail + capsule", "« Ouvrir » : le portail s'embrase, ses anneaux s'emballent avec une montée sonore, puis la capsule se matérialise du socle vers le haut, en une ligne de scan. Elle s'ouvre ensuite toute seule."],
   sortie: ["2 · Capsule sortie du portail", "Deux temps. « Invoquer » : le portail s'embrase et dépose la capsule, qui descend en arc jusqu'à son socle. Puis on clique sur la capsule (ou « Ouvrir ») pour l'ouvrir."],
   portail: ["3 · Portail seul", "Pas de capsule : les noyaux jaillissent du portail en arc, avec une traînée de lumière, et se posent à leur place. Son plus grave et plus sérieux que la première maquette."],
-  tisserand: ["4 · Machine à tisser", "Une machine-araignée descend d'un rail du plafond : carapace sombre, quatre yeux, huit pattes articulées dont deux s'agrippent au rail. Les six autres plantent leurs pointes sur la capsule et la tissent de la pointe du haut à celle du bas, trame après trame. Puis elle remonte, le verre se forme, la capsule s'ouvre."],
+  tisserand: ["4 · Machine à tisser", "Une machine-araignée reste suspendue haut au-dessus de la capsule, à son rail : carapace sombre, quatre yeux, huit pattes articulées. Deux s'agrippent au rail et se raccrochent plus haut ; les six autres descendent tisser la capsule de la pointe du haut à celle du bas, chacune à son rythme, avec ses retards et ses tapotements. Puis elle remonte, le verre se forme, la capsule s'ouvre."],
 };
 
 // ---------- Son : basses, cloches de verre, réverbération. Rien de cartoon. ----------
@@ -129,7 +129,7 @@ export async function start() {
   shock.rotation.x = -Math.PI / 2; scene.add(shock);
 
   // ---------- État ----------
-  let variant = "fusion", stage = "idle", items = [], busy = false, opening = false, time = 0, spinStart = 0, threads = null;
+  let camLift = 0, variant = "fusion", stage = "idle", items = [], busy = false, opening = false, time = 0, spinStart = 0, threads = null;
   const hint = document.getElementById("hint"), desc = document.getElementById("desc"), btn = document.getElementById("replay");
   const bounce = (item) => tween(0.4, (k) => { const s = 1 + 0.16 * Math.sin(k * Math.PI * 3) * (1 - k); item.root.scale.set(1 - (s - 1) * 0.6, s, 1 - (s - 1) * 0.6); }, ease.lin);
   const land = (item, i) => { A.land(); emit(slot(i).clone().add(new THREE.Vector3(0, -0.5, 0)), 14, { speed: 1.2, life: 0.5 }); item.state = "ready"; item.beam.visible = true; return bounce(item); };
@@ -147,7 +147,7 @@ export async function start() {
     clip.constant = 1e4; scanRing.visible = false; spinStart = time;
   }
   function reset() {
-    tweens.clear(); items.forEach((i) => i.root.removeFromParent()); noyaux.clear(); items = []; opening = false; stage = "idle";
+    tweens.clear(); camLift = 0; items.forEach((i) => i.root.removeFromParent()); noyaux.clear(); items = []; opening = false; stage = "idle";
     if (threads) { threads.removeFromParent(); threads = null; }
     if (machine) machine.group.visible = false;
     pm.uK.value = 0.2; decor.setSpin(1); shock.material.opacity = 0;
@@ -200,7 +200,8 @@ export async function start() {
 
   // ---------- Machine à tisser : un rail descend du plafond, un anneau à six têtes trace les arêtes de la capsule ----------
   let machine = null;
-  const LEG_A = 1.35, LEG_B = 1.45, BODY_H = 1.95; // longueurs des deux segments d'une patte, hauteur du corps au-dessus des pointes
+  const LEG_A = 1.95, LEG_B = 2.1, BODY_H = 3.2; // longueurs des deux segments d'une patte ; le corps reste haut au-dessus de la capsule, il ne la touche jamais
+  const rnd = (a, b) => a + Math.random() * (b - a);
   function ensureMachine() {
     if (machine) return machine;
     // Métal sombre et lustré : il ressort sur le labo clair, les yeux et les pointes sont les seules lumières
@@ -208,64 +209,83 @@ export async function start() {
     const glowMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(3) });
     const eyeMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(MINT).multiplyScalar(3) });
     const group = new THREE.Group(); scene.add(group);
-    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 14, 6), dark); rail.position.y = BODY_H + 0.45 + 7; group.add(rail);
-    // Corps : une carapace ovale, un abdomen derrière, quatre yeux
-    const body = new THREE.Group(); body.position.y = BODY_H; group.add(body);
-    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.45, 20, 14), dark); shell.scale.set(1, 0.62, 1); shell.castShadow = true; body.add(shell);
-    const crest = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.03, 8, 6), dark); crest.rotation.x = Math.PI / 2; crest.position.y = 0.17; body.add(crest);
-    const eyes = [[-0.14, 0.04, 0.4, 0.05], [0.14, 0.04, 0.4, 0.05], [-0.26, 0.08, 0.33, 0.035], [0.26, 0.08, 0.33, 0.035]].map(([x, y, z, r]) => { const e = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), eyeMat); e.position.set(x, y, z); body.add(e); return e; });
-    // Pattes : deux segments effilés, un genou, une pointe lumineuse. Six tissent, deux s'accrochent au rail.
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 14, 6), dark); group.add(rail);
+    // Corps : une carapace ovale, une crête, quatre yeux
+    const body = new THREE.Group(); group.add(body);
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.5, 20, 14), dark); shell.scale.set(1, 0.62, 1); shell.castShadow = true; body.add(shell);
+    const crest = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.03, 8, 6), dark); crest.rotation.x = Math.PI / 2; crest.position.y = 0.19; body.add(crest);
+    const eyes = [[-0.15, 0.04, 0.45, 0.055], [0.15, 0.04, 0.45, 0.055], [-0.28, 0.09, 0.37, 0.038], [0.28, 0.09, 0.37, 0.038]].map(([x, y, z, r]) => { const e = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), eyeMat); e.position.set(x, y, z); body.add(e); return e; });
+    // Pattes : deux segments effilés, un genou, une pointe. Chacune a ses propres fréquences, son retard et ses « tapotements ».
     const legs = [];
     for (let i = 0; i < 8; i++) {
-      const seg = (r0, r1, len) => { const g = new THREE.CylinderGeometry(r1, r0, 1, 6); const m = new THREE.Mesh(g, dark); m.castShadow = true; group.add(m); return m; };
-      const knee = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 6), dark); group.add(knee);
-      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.22, 6), i < 6 ? glowMat : dark); tip.geometry.translate(0, -0.11, 0); group.add(tip);
-      legs.push({ femur: seg(0.065, 0.045), tibia: seg(0.045, 0.02), knee, tip, i });
+      const seg = (r0, r1) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, 1, 6), dark); m.castShadow = true; group.add(m); return m; };
+      const knee = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 6), dark); group.add(knee);
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.24, 6), i < 6 ? glowMat : dark); tip.geometry.translate(0, -0.12, 0); group.add(tip);
+      legs.push({ femur: seg(0.075, 0.05), tibia: seg(0.05, 0.02), knee, tip, s: { f1: rnd(2.2, 4.6), f2: rnd(1.4, 3.2), f3: rnd(5, 9), ph: rnd(0, 6.28), next: rnd(0.2, 1.4), dab: null } });
     }
-    machine = { group, body, eyes, legs, heads: legs.slice(0, 6).map((l) => l.tip) };
+    machine = { group, body, rail, eyes, legs, heads: legs.slice(0, 6).map((l) => l.tip) };
     return machine;
   }
-  const UP = new THREE.Vector3(0, 1, 0), _a = new THREE.Vector3(), _b = new THREE.Vector3(), _d = new THREE.Vector3(), _k = new THREE.Vector3(), _p = new THREE.Vector3();
+  const UP = new THREE.Vector3(0, 1, 0), _d = new THREE.Vector3(), _p = new THREE.Vector3(), _n = new THREE.Vector3();
   const setSeg = (mesh, p0, p1) => { _d.subVectors(p1, p0); const len = _d.length(); mesh.position.addVectors(p0, p1).multiplyScalar(0.5); mesh.scale.set(1, Math.max(0.001, len), 1); mesh.quaternion.setFromUnitVectors(UP, _d.normalize()); };
   // Cinématique inverse à deux segments : le genou se place dans le plan défini par la direction origine → pointe et un vecteur « vers le haut et vers l'extérieur »
-  function solveLeg(origin, target, pole, out) {
+  function solveLeg(origin, target, pole, knee) {
     _d.subVectors(target, origin); let dist = _d.length(); const dir = _d.clone().divideScalar(dist || 1);
     dist = Math.min(LEG_A + LEG_B - 0.01, Math.max(Math.abs(LEG_A - LEG_B) + 0.01, dist));
     const x = (dist * dist + LEG_A * LEG_A - LEG_B * LEG_B) / (2 * dist), h = Math.sqrt(Math.max(0, LEG_A * LEG_A - x * x));
     _p.copy(pole).addScaledVector(dir, -pole.dot(dir)).normalize();
-    out.copy(origin).addScaledVector(dir, x).addScaledVector(_p, h);
-    return origin.clone().addScaledVector(dir, dist); // la pointe, ramenée à portée si besoin
+    knee.copy(origin).addScaledVector(dir, x).addScaledVector(_p, h);
   }
-  // Pose la machine : les six pointes sur un hexagone de rayon r à la hauteur locale y (repère de la capsule), corps au-dessus
-  function placeMachine(m, y, r) {
-    m.group.position.set(HOME.x, HOME.y + y, HOME.z);
-    m.body.rotation.y = Math.sin(time * 1.7) * 0.12;
-    const bodyPos = m.body.position, origin = new THREE.Vector3(), target = new THREE.Vector3(), pole = new THREE.Vector3(), knee = new THREE.Vector3();
+  // Pose la machine (repère de la capsule) : corps à la hauteur bodyY, pointe de chaque patte de tissage sur tips[i]. Tout bouge en continu, patte par patte.
+  function placeMachine(m, bodyY, tips) {
+    m.group.position.set(HOME.x, HOME.y, HOME.z);
+    m.body.position.set(Math.sin(time * 0.9) * 0.1, bodyY + Math.sin(time * 1.3) * 0.07, Math.cos(time * 0.7) * 0.08);
+    m.body.rotation.set(Math.sin(time * 0.8) * 0.06, Math.sin(time * 0.6) * 0.2, Math.sin(time * 1.1) * 0.05);
+    m.body.scale.setScalar(1 + Math.sin(time * 2.2) * 0.02); m.body.updateMatrix();
+    m.rail.position.set(m.body.position.x, m.body.position.y + 7.4, m.body.position.z);
+    const origin = new THREE.Vector3(), target = new THREE.Vector3(), pole = new THREE.Vector3(), knee = new THREE.Vector3(), t = time;
     m.legs.forEach((l, i) => {
-      const th = (i * Math.PI) / 3;
+      const s = l.s, th = ((i < 6 ? i : i - 6 + 0.5) * Math.PI) / 3;
       if (i < 6) {
-        origin.set(Math.sin(th) * 0.32, bodyPos.y - 0.12, Math.cos(th) * 0.32);
-        target.set(Math.sin(th) * r, 0, Math.cos(th) * r);
-        pole.set(Math.sin(th), 1.5 + Math.sin(time * 7 + i * 2) * 0.35, Math.cos(th)); // le genou monte et tremble : la patte « marche » sur place
-      } else { // deux pattes qui s'agrippent au rail
-        const sx = i === 6 ? -1 : 1; origin.set(sx * 0.2, bodyPos.y + 0.12, 0); target.set(sx * 0.07, bodyPos.y + 1.6, 0.05); pole.set(sx, 0.3, 0.8);
+        origin.set(Math.sin(th) * 0.36, -0.14, Math.cos(th) * 0.36).applyMatrix4(m.body.matrix);
+        target.copy(tips[i]);
+        // Le genou monte, se balance de côté et se plie à son propre rythme
+        const sw = Math.sin(t * s.f1 + s.ph) * 0.9;
+        pole.set(Math.sin(th) + Math.cos(th) * sw, 1.3 + 0.7 * Math.sin(t * s.f2 + s.ph * 1.7), Math.cos(th) - Math.sin(th) * sw);
+      } else { // deux pattes qui s'agrippent au rail, se décrochent et se raccrochent plus haut
+        const sx = i === 6 ? -1 : 1, g = (t * 0.7 + (i - 6) * 0.5) % 1, climb = g < 0.8 ? g / 0.8 : 1 - (g - 0.8) / 0.2, lift = g >= 0.8 ? 0.35 * Math.sin((Math.PI * (g - 0.8)) / 0.2) : 0;
+        origin.set(sx * 0.24, 0.16, 0).applyMatrix4(m.body.matrix);
+        target.set(m.rail.position.x + sx * 0.06, m.body.position.y + 1.2 + 1.0 * climb + lift, m.rail.position.z + 0.04); pole.set(sx, 0.4, 0.9);
       }
-      const tip = solveLeg(origin, target, pole, knee);
-      l.tip.position.copy(tip); l.tip.quaternion.setFromUnitVectors(UP, _k.subVectors(tip, knee).normalize()); // pointe dans le prolongement du tibia
-      l.knee.position.copy(knee); setSeg(l.femur, origin, knee); setSeg(l.tibia, knee, tip);
-      if (i < 6) l.tip.position.copy(target); // les pointes de tissage restent exactement sur le chemin des fils
+      solveLeg(origin, target, pole, knee);
+      _n.subVectors(target, knee).normalize();
+      l.tip.position.copy(target); l.tip.quaternion.setFromUnitVectors(UP, _n);
+      l.knee.position.copy(knee); setSeg(l.femur, origin, knee); setSeg(l.tibia, knee, target);
     });
-    m.eyes.forEach((e, i) => e.scale.setScalar(1 + Math.sin(time * 4 + i) * 0.15));
+    m.eyes.forEach((e, i) => e.scale.setScalar(1 + Math.sin(time * 4 + i * 1.3) * 0.18));
+  }
+  let lastTick = -1;
+  // Cible d'une patte de tissage : le point du fil + un petit mouvement propre + de temps en temps un tapotement (la patte se lève, se pose à côté, revient)
+  function legTarget(l, i, base, wob) {
+    const s = l.s, th = (i * Math.PI) / 3, out = base.clone();
+    out.x += Math.cos(th) * Math.sin(time * s.f1 + s.ph) * 0.05 * wob; out.z -= Math.sin(th) * Math.sin(time * s.f1 + s.ph) * 0.05 * wob; out.y += Math.cos(time * s.f3 + s.ph) * 0.04 * wob;
+    if (!s.dab && time > s.next) s.dab = { t0: time, dur: rnd(0.3, 0.6), side: rnd(-0.28, 0.28), up: rnd(0.12, 0.34) };
+    if (s.dab) {
+      const p = (time - s.dab.t0) / s.dab.dur;
+      if (p >= 1) { s.dab = null; s.next = time + rnd(0.4, 1.6); if (time - lastTick > 0.05 && Math.random() < 0.6) { A.tick(); lastTick = time; } }
+      else { const w = Math.sin(Math.PI * p); out.y += s.dab.up * w; out.x += Math.cos(th) * s.dab.side * w; out.z -= Math.sin(th) * s.dab.side * w; }
+    }
+    return out;
   }
 
   async function weave() {
     resetPod(true); pod.body.visible = false; fillPod(); items.forEach((i) => i.root.scale.setScalar(0.001)); opening = true;
-    const m = ensureMachine(); m.group.visible = true;
+    const m = ensureMachine(); m.group.visible = true; m.legs.forEach((l) => { l.s.dab = null; l.s.next = time + rnd(0.2, 1.4); });
     const { R, L, H } = pod, yTop = L / 2 + H;
-    // Chemin des têtes : pointe du haut → épaule → ventre → épaule → pointe du bas (rayon et hauteur dans le repère de la capsule)
-    const path = (u) => { const d = u * (2 * H + L); if (d < H) return { y: yTop - d, r: (d / H) * R }; if (d < H + L) return { y: L / 2 - (d - H), r: R }; const e = (d - H - L) / H; return { y: -L / 2 - e * H, r: R * (1 - e) }; };
+    // Chemin des pointes : pointe du haut → épaule → ventre → épaule → pointe du bas (rayon et hauteur dans le repère de la capsule)
+    const path = (u) => { const d = Math.min(1, Math.max(0, u)) * (2 * H + L); if (d < H) return { y: yTop - d, r: (d / H) * R }; if (d < H + L) return { y: L / 2 - (d - H), r: R }; const e = (d - H - L) / H; return { y: -L / 2 - e * H, r: R * (1 - e) }; };
     const K = 90, M = 36, vert = (i, r, y) => { const th = (i * Math.PI) / 3; return [Math.sin(th) * r, y, Math.cos(th) * r]; };
-    // Chaîne : une ligne par tête, révélée au fil de la descente. Trame : des hexagones à chaque niveau, révélés par la navette.
+    // Chaîne : une ligne par patte, révélée au rythme de CETTE patte (elles n'avancent pas toutes pareil). Trame : un hexagone par niveau.
     const lines = new THREE.Group(); pod.group.add(lines); threads = lines;
     const mat = new THREE.LineBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.6), transparent: true, opacity: 1 });
     const warp = [];
@@ -278,24 +298,29 @@ export async function start() {
     for (let k = 0; k < M; k++) { const { y, r } = path((k + 0.5) / M); for (let i = 0; i < 6; i++) weftArr.set([...vert(i, r, y), ...vert((i + 1) % 6, r, y)], (k * 12 + i * 2) * 3); }
     const wg = new THREE.BufferGeometry(); wg.setAttribute("position", new THREE.BufferAttribute(weftArr, 3)); wg.setDrawRange(0, 0);
     const weft = new THREE.LineSegments(wg, mat); weft.frustumCulled = false; lines.add(weft);
+    const lag = [-0.035, 0.02, -0.015, 0.035, -0.025, 0.01], speedJitter = m.legs.map(() => rnd(0.9, 1.1));
+    const apex = (i, y, spread) => { const th = (i * Math.PI) / 3 + time * 0.6; return new THREE.Vector3(Math.sin(th) * spread, y, Math.cos(th) * spread); };
 
-    // 1 · la machine descend du plafond jusqu'à la pointe de la capsule
-    A.motor(5.2); A.riser(1.0, 0.03);
-    placeMachine(m, 6.2, 0); A.skitter();
-    await tween(1.0, (k) => placeMachine(m, 6.2 + (yTop - 6.2) * k, 0), ease.inOut);
-    // 2 · elle tisse : l'anneau s'ouvre sur les épaules, descend le long du ventre, se referme sur la pointe du bas
+    // 1 · l'araignée descend du plafond en tâtant l'air avec ses pattes, jusqu'au-dessus de la pointe de la capsule
+    A.motor(5.4); A.riser(1.0, 0.03); A.skitter();
+    tween(1.4, (k) => (camLift = 1.3 * k), ease.inOut); // la caméra se lève pour suivre l'araignée
+    await tween(1.1, (k) => { const ty = 6.2 + (yTop - 6.2) * k; placeMachine(m, ty + BODY_H, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, ty, 0.35 + 0.25 * Math.sin(time * 3 + i)), 4))); }, ease.inOut);
+    // 2 · elle tisse : chaque patte suit son fil avec son propre retard et ses propres gestes
     let lastLevel = -1;
-    await tween(3.2, (u) => {
-      const { y, r } = path(u); placeMachine(m, y, r);
-      const n = Math.max(0, Math.min(K, Math.round(u * (K - 1)) + 1)); warp.forEach((g) => g.setDrawRange(0, n));
-      const level = Math.floor(u * M); if (level !== lastLevel) { lastLevel = level; wg.setDrawRange(0, Math.min(M, level) * 12); A.tick(); }
-      if (Math.random() < 0.5) m.heads.forEach((h, i) => { if (i % 2 === (level % 2)) emit(h.getWorldPosition(new THREE.Vector3()), 1, { speed: 0.3, life: 0.35 }); });
+    await tween(3.4, (u0) => {
+      const u = -0.05 + u0 * 1.1; // les pattes en retard finissent après les autres
+      let avgY = 0;
+      const tips = m.legs.slice(0, 6).map((l, i) => { const ui = Math.min(1, Math.max(0, u * speedJitter[i] + lag[i])), { y, r } = path(ui); avgY += y / 6; warp[i].setDrawRange(0, Math.max(0, Math.round(ui * (K - 1)) + 1)); return legTarget(l, i, new THREE.Vector3(...vert(i, r, y)), 1); });
+      placeMachine(m, avgY + BODY_H, tips);
+      const level = Math.floor(Math.min(1, Math.max(0, u)) * M); if (level !== lastLevel) { lastLevel = level; wg.setDrawRange(0, Math.min(M, level) * 12); }
+      if (Math.random() < 0.4) tips.forEach((tp, i) => { if (Math.random() < 0.3) emit(pod.group.localToWorld(tp.clone()), 1, { speed: 0.3, life: 0.35 }); });
     }, ease.lin);
-    wg.setDrawRange(0, M * 12);
-    // 3 · la machine remonte, le verre se forme, les fils s'éteignent
-    pod.body.visible = true; pod.glass.opacity = 0; pod.edgeMat.opacity = 0; A.latch(); A.shimmer();
-    tween(1.1, (k) => placeMachine(m, -yTop + (7 + yTop) * ease.in(k), 0.0 + (1 - k) * 0), ease.in).then(() => { m.group.visible = false; });
+    wg.setDrawRange(0, M * 12); warp.forEach((g) => g.setDrawRange(0, K));
+    // 3 · elle remonte en repliant ses pattes, le verre se forme, les fils s'éteignent
+    pod.body.visible = true; pod.glass.opacity = 0; pod.edgeMat.opacity = 0; A.latch(); A.shimmer(); A.skitter();
+    tween(1.3, (k) => { const by = -yTop + BODY_H + (14 + yTop) * ease.in(k); placeMachine(m, by, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, by - BODY_H, 0.3 * (1 - k * 0.5)), 3))); }, ease.in).then(() => { m.group.visible = false; });
     await tween(0.8, (k) => { pod.glass.opacity = 0.42 * k; pod.edgeMat.opacity = 0.95 * k; mat.opacity = 1 - k; items.forEach((it) => it.root.scale.setScalar(0.4 * k)); }, ease.out);
+    tween(1.4, (k) => (camLift = 1.3 * (1 - k)), ease.inOut);
     threads.removeFromParent(); threads = null; spinStart = time; opening = false;
   }
 
@@ -357,7 +382,7 @@ export async function start() {
       items.forEach((it, i) => { if (it.state !== "inside") return; const a = time * 0.9 + (i / 5) * Math.PI * 2; it.root.position.set(Math.cos(a) * 0.5, Math.sin(time * 1.4 + i) * 0.22 + (i - 2) * 0.14, Math.sin(a) * 0.5); });
     }
     noyaux.update(ctx, items, dt, time, null);
-    camera.position.set(Math.sin(time * 0.15) * 0.5, 2.4, 8.5); camera.lookAt(0, 1.45, 0);
+    camera.position.set(Math.sin(time * 0.15) * 0.5, 2.4 + camLift * 0.5, 8.5); camera.lookAt(0, 1.45 + camLift, 0);
   };
   renderer.setAnimationLoop((now) => { const dt = Math.min(0.05, (now - last) / 1000); last = now; tick(dt); composer.render(dt); });
   // Pour les tests automatisés : avance le temps simulé sans rendre chaque image
