@@ -1,22 +1,22 @@
 # Graph Report - anime_master  (2026-10-11)
 
 ## Corpus Check
-- 173 files · ~149,047 words
+- 173 files · ~149,665 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: (none) 4, .example 1, .toml 1)
 
 ## Summary
-- 1744 nodes · 2410 edges · 126 communities
+- 1746 nodes · 2414 edges · 125 communities
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 46 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e1d80486`
+- Built from commit: `7cb3e293`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- engine.js
+- lab.js
 - album.ts
 - three.js scene graph, cameras & cleanup (r150+)
 - album/page.tsx
@@ -76,7 +76,7 @@
 - Engine skills
 - Save systems
 - Shader programming (cross-engine)
-- icons.tsx
+- next
 - Étape 4 — Duels, classements, succès
 - Level design
 - Roguelike generation, FOV, and loot (depth)
@@ -90,7 +90,7 @@
 - Noise for terrain, biomes, and scatter
 - Puzzle board models and resolution (depth)
 - Étape 5 — Social
-- État du projet — passation
+- icons.tsx
 - Behavior Trees & Utility AI
 - Follow & framing — depth for `camera-systems`
 - Card effect resolution and structure (depth)
@@ -116,7 +116,7 @@
 - packs.ts
 - ImmersiveOpener.tsx
 - Anime Masters — Spécifications
-- core.js
+- futur.js
 - Frontend Design
 - Art direction and consistency
 - 3D concept-to-runtime pipeline
@@ -137,18 +137,17 @@
 - Practical examples — guard AI, villager needs, hybrid agent
 - Asset rights and provenance
 - eslint.config.mjs
-- lab.js
+- buildCapsule
 - start
-- canvasTex
-- session.ts
+- engine.js
 - audio.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `start()` - 31 edges
-2. `Three.js Materials` - 21 edges
-3. `next` - 19 edges
-4. `react` - 19 edges
-5. `start()` - 19 edges
+2. `start()` - 21 edges
+3. `Three.js Materials` - 21 edges
+4. `next` - 19 edges
+5. `react` - 19 edges
 6. `Icon()` - 19 edges
 7. `getPackState()` - 18 edges
 8. `Three.js Lighting` - 17 edges
@@ -158,27 +157,27 @@
 ## Surprising Connections (you probably didn't know these)
 - `5. Modèle de données (ajouts)` --references--> `icon()`  [INFERRED]
   SPEC.md → public/pack-opening/opening/icons.js
+- `Fait et committé` --references--> `warmUp()`  [INFERRED]
+  docs/STATE.md → public/pack-opening/futur/engine.js
 - `Lifecycle order` --references--> `init()`  [INFERRED]
   .claude/skills/phaser-core/references/scene-flow.md → public/pack-opening/futur/noyaux.js
 - `Core workflow` --references--> `init()`  [INFERRED]
   .claude/skills/phaser-core/SKILL.md → public/pack-opening/futur/noyaux.js
 - `Pitfalls` --references--> `init()`  [INFERRED]
   .claude/skills/phaser-core/SKILL.md → public/pack-opening/futur/noyaux.js
-- `Pitfalls` --references--> `init()`  [INFERRED]
-  .claude/skills/pixijs-rendering/SKILL.md → public/pack-opening/futur/noyaux.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (126 total, 0 thin omitted)
+## Communities (125 total, 0 thin omitted)
 
-### Community 0 - "engine.js"
-Cohesion: 0.14
-Nodes (16): buildCapsule(), halfGeometry(), HOME, BLUE, buildDecor(), hdr(), MINT, FOCUS (+8 more)
+### Community 0 - "lab.js"
+Cohesion: 0.16
+Nodes (16): BLUE, buildDecor(), hdr(), MINT, A, CHARS, DESC, HOME (+8 more)
 
 ### Community 1 - "album.ts"
-Cohesion: 0.13
-Nodes (19): CharacterCardProps, AlbumEntry, AlbumPage, CharacterDetail, FINISH_ORDER, getAlbum(), one(), OWNED_FILTERS (+11 more)
+Cohesion: 0.12
+Nodes (21): CharacterCardProps, AlbumEntry, AlbumPage, CharacterDetail, FINISH_ORDER, getAlbum(), getCharacter(), one() (+13 more)
 
 ### Community 2 - "three.js scene graph, cameras & cleanup (r150+)"
 Cohesion: 0.12
@@ -186,11 +185,11 @@ Nodes (15): Common PBR intuition, IBL without an HDR file: PMREM + RoomEnvironme
 
 ### Community 3 - "album/page.tsx"
 Cohesion: 0.17
-Nodes (16): AlbumFilters(), albumHref(), Chip(), OWNED, RARITIES, TYPES, Album(), AlbumPage() (+8 more)
+Nodes (19): AlbumFilters(), albumHref(), Chip(), OWNED, RARITIES, TYPES, Album(), AlbumPage() (+11 more)
 
 ### Community 4 - "package.json"
 Cohesion: 0.12
-Nodes (15): name, private, version, dotenv, prisma, @prisma/adapter-better-sqlite3, @prisma/client, react-dom (+7 more)
+Nodes (16): name, private, version, dotenv, prisma, @prisma/adapter-better-sqlite3, @prisma/client, react-dom (+8 more)
 
 ### Community 5 - "import.ts"
 Cohesion: 0.08
@@ -202,7 +201,7 @@ Nodes (22): better-auth, GET, POST, AuthFormState, describe(), ERRORS, field(), 
 
 ### Community 7 - "pull.ts"
 Cohesion: 0.14
-Nodes (23): Counts, expected(), main(), ModeOutcome, option(), pct(), RARITIES, RATE (+15 more)
+Nodes (24): Counts, expected(), main(), ModeOutcome, option(), pct(), RARITIES, RATE (+16 more)
 
 ### Community 8 - "asset_report.py"
 Cohesion: 0.17
@@ -222,7 +221,7 @@ Nodes (44): Accessing UVs, Background Options, Basic Loading, Canvas Texture, Co
 
 ### Community 12 - "start"
 Cohesion: 0.05
-Nodes (49): Duplicate listeners, Lifecycle order, Phaser scene flow (Phaser 4.2; core lifecycle also applies to 3.90), Removing or replacing a scene, The restart-state bug, 1. Game config + boot (ES module), 2. A Scene with the full lifecycle, 3. Cross-scene data + events (+41 more)
+Nodes (51): Duplicate listeners, Lifecycle order, Phaser scene flow (Phaser 4.2; core lifecycle also applies to 3.90), Removing or replacing a scene, The restart-state bug, 1. Game config + boot (ES module), 2. A Scene with the full lifecycle, 3. Cross-scene data + events (+43 more)
 
 ### Community 13 - "Three.js Shaders"
 Cohesion: 0.06
@@ -357,8 +356,8 @@ Cohesion: 0.15
 Nodes (13): 10. Critères pour dire que l'étape 3 est finie, 1. Monnaie, 2. Sources et dépenses, 3. Échanges directs, 4. Enchères, 5. Marché et liste de souhaits, 6. Notifications, 7. Anti-abus (+5 more)
 
 ### Community 46 - "[id]/page.tsx"
-Cohesion: 0.16
-Nodes (19): Fait et committé, makeCard(), warmUp(), Character(), dateFmt, generateMetadata(), MONTHS, numFmt (+11 more)
+Cohesion: 0.20
+Nodes (10): dateFmt, generateMetadata(), MONTHS, numFmt, parseId(), ROLES, powerFmt, FINISH_NAMES (+2 more)
 
 ### Community 47 - "Audio design"
 Cohesion: 0.17
@@ -412,9 +411,9 @@ Nodes (11): 1. Serialize state as plain data (not engine objects), 2. Atomic, cr
 Cohesion: 0.17
 Nodes (11): 1. Fragment basics: sample, tint, and combine, 2. Scrolling UVs (animated texture) — frame-rate independent, 3. Dissolve (threshold a noise map, glow the edge), 4. Fresnel rim light (3D) — brighten glancing angles, Core workflow, Patterns, Pitfalls, References (+3 more)
 
-### Community 60 - "icons.tsx"
-Cohesion: 0.14
-Nodes (21): nextConfig, next, claimDailyBonusAction(), metadata, michroma, RootLayout(), sora, AlbumLink() (+13 more)
+### Community 60 - "next"
+Cohesion: 0.16
+Nodes (17): nextConfig, next, claimDailyBonusAction(), metadata, michroma, RootLayout(), sora, ALBUM_BUMP (+9 more)
 
 ### Community 61 - "Étape 4 — Duels, classements, succès"
 Cohesion: 0.17
@@ -468,9 +467,9 @@ Nodes (9): 1. Match-3 full resolution, 2. Deadlock detection and reshuffle (matc
 Cohesion: 0.20
 Nodes (10): 1. Profils publics et vitrine, 2. Amis, 3. Guildes, 4. Messagerie, 5. Modèle de données (ajouts), 6. Pages, 7. Critères pour dire que l'étape 5 est finie, Décisions validées (+2 more)
 
-### Community 74 - "État du projet — passation"
-Cohesion: 0.33
-Nodes (5): Décisions et raisons, Fichiers clés, Pièges, Reste à faire, dans l'ordre, État du projet — passation
+### Community 74 - "icons.tsx"
+Cohesion: 0.13
+Nodes (14): Décisions et raisons, Fait et committé, Fichiers clés, Pièges, Reste à faire, dans l'ordre, État du projet — passation, camel(), fmt (+6 more)
 
 ### Community 75 - "Behavior Trees & Utility AI"
 Cohesion: 0.22
@@ -521,8 +520,8 @@ Cohesion: 0.22
 Nodes (9): dependencies, better-auth, dotenv, next, @prisma/adapter-better-sqlite3, @prisma/client, react, react-dom (+1 more)
 
 ### Community 87 - "db.ts"
-Cohesion: 0.27
-Nodes (6): CardDb, globalForPrisma, prisma, PlayerPackState, PlayerSummary, Wallet
+Cohesion: 0.24
+Nodes (9): CardDb, getCollectionPower(), globalForPrisma, prisma, getPackState(), PlayerPackState, getPlayerSummary(), PlayerSummary (+1 more)
 
 ### Community 88 - "Best practices & pitfalls — performance, memory, hybrid AI"
 Cohesion: 0.25
@@ -562,19 +561,19 @@ Nodes (7): 1. App build script with separate depot scripts, 2. Running builds (p
 
 ### Community 97 - "packs.ts"
 Cohesion: 0.17
-Nodes (18): check(), main(), minutesUntil(), setStock(), BuyPackResult, OpenPackResult, getCollectionPower(), packStock (+10 more)
+Nodes (17): check(), main(), minutesUntil(), setStock(), BuyPackResult, OpenPackResult, afterOpening(), MAX_PACKS (+9 more)
 
 ### Community 98 - "ImmersiveOpener.tsx"
 Cohesion: 0.19
-Nodes (18): Ouverture 3D dans `/packs`, buyPackAction(), openPackAction(), ImmersiveOpener(), onMessage(), SceneMessage, formatDuration(), PackOpener() (+10 more)
+Nodes (17): Ouverture 3D dans `/packs`, buyPackAction(), openPackAction(), ImmersiveOpener(), onMessage(), SceneMessage, formatDuration(), PackOpener() (+9 more)
 
 ### Community 99 - "Anime Masters — Spécifications"
 Cohesion: 0.25
 Nodes (6): Anime Masters, Commandes, Installation, Prérequis, Anime Masters — Spécifications, MVP (validé)
 
-### Community 100 - "core.js"
-Cohesion: 0.19
-Nodes (10): CHARS, defaultSounds(), RANK, rng(), S, THEMES, vary(), env() (+2 more)
+### Community 100 - "futur.js"
+Cohesion: 0.33
+Nodes (5): defaultSounds(), vary(), env(), LYDIAN, sounds()
 
 ### Community 101 - "Frontend Design"
 Cohesion: 0.29
@@ -609,8 +608,8 @@ Cohesion: 0.29
 Nodes (6): AnimationMixer detail, Async loading with a progress bar, Compression: DRACO, Meshopt, KTX2, Exporter hygiene (Blender → glTF), Reusing a model many times, three.js glTF: loaders, compression & animation detail (r150+)
 
 ### Community 109 - "start"
-Cohesion: 0.19
-Nodes (17): post(), start(), burst(), charge(), checkStored(), finish(), hud(), impact() (+9 more)
+Cohesion: 0.16
+Nodes (20): post(), start(), burst(), charge(), checkStored(), finish(), hud(), impact() (+12 more)
 
 ### Community 110 - "Utility AI system — curves, considerations, evaluator"
 Cohesion: 0.33
@@ -656,21 +655,17 @@ Nodes (4): Asset rights and provenance, Decision rules, Record per shipped asset
 Cohesion: 0.50
 Nodes (3): eslintConfig, eslint, eslint-config-next
 
-### Community 121 - "lab.js"
-Cohesion: 0.28
-Nodes (7): A, CHARS, DESC, HOME, TEST, buildPod(), softDot
+### Community 121 - "buildCapsule"
+Cohesion: 0.33
+Nodes (3): buildCapsule(), halfGeometry(), HOME
 
 ### Community 122 - "start"
 Cohesion: 0.44
 Nodes (10): start(), burst(), finish(), fxPulse(), makeCard(), moveTo(), openBooster(), reveal() (+2 more)
 
-### Community 123 - "canvasTex"
-Cohesion: 0.31
-Nodes (8): canvasTex(), cardPainter(), drawFront(), drawIcon(), gradient(), installSprite(), loadIcons(), TYPE_ACCENT
-
-### Community 124 - "session.ts"
-Cohesion: 0.36
-Nodes (6): server-only, metadata, Packs(), PacksPage(), requireUser(), SessionUser
+### Community 123 - "engine.js"
+Cohesion: 0.17
+Nodes (16): FOCUS, MODES, PERF, canvasTex(), cardPainter(), drawFront(), CHARS, GLSL_NOISE (+8 more)
 
 ### Community 126 - "audio.js"
 Cohesion: 0.29
@@ -683,17 +678,17 @@ Nodes (4): ARP, BARS, futurAudio(), LEVEL
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `start()` connect `start` to `engine.js`, `core.js`, `[id]/page.tsx`, `canvasTex`, `audio.js`?**
+- **Why does `start()` connect `start` to `lab.js`, `futur.js`, `buildCapsule`, `engine.js`, `audio.js`?**
   _High betweenness centrality (0.060) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `start()` (e.g. with `burst()` and `charge()`) actually correct?**
   _`start()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `@prisma/client`, `react-dom`, `@tailwindcss/turbopack` to the rest of the system?**
   _9 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `engine.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.14153846153846153 - nodes in this community are weakly interconnected._
-- **Why does `Fait et committé` connect `[id]/page.tsx` to `ImmersiveOpener.tsx`, `État du projet — passation`, `app/page.tsx`, `wallet.ts`, `Money`, `icons.tsx`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **Should `album.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.13157894736842105 - nodes in this community are weakly interconnected._
-- **Why does `warmUp()` connect `[id]/page.tsx` to `start`?**
+  _Cohesion score 0.12121212121212122 - nodes in this community are weakly interconnected._
+- **Why does `Fait et committé` connect `icons.tsx` to `ImmersiveOpener.tsx`, `album/page.tsx`, `start`, `app/page.tsx`, `wallet.ts`, `Money`, `next`?**
   _High betweenness centrality (0.056) - this node is a cross-community bridge._
+- **Should `three.js scene graph, cameras & cleanup (r150+)` be split into smaller, more focused modules?**
+  _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
+- **Why does `warmUp()` connect `start` to `icons.tsx`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
