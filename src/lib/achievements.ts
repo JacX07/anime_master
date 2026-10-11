@@ -23,6 +23,9 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "unique_2500", label: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000 },
   { key: "series_complete", label: "Série complète", description: `Posséder tous les personnages d'une série (au moins ${3}).`, reward: 150 },
   { key: "all_types", label: "Tous les types", description: "Posséder au moins un personnage de chaque type.", reward: 50 },
+  { key: "duel_win_1", label: "Premier duel", description: "Gagner un duel.", reward: 30 },
+  { key: "duel_win_10", label: "Duelliste", description: "Gagner 10 duels.", reward: 150 },
+  { key: "duel_win_50", label: "Champion", description: "Gagner 50 duels.", reward: 500 },
   { key: "first_auction_sale", label: "Première vente", description: "Vendre une carte aux enchères.", reward: 30 },
   { key: "first_trade", label: "Premier échange", description: "Conclure un échange avec un joueur.", reward: 30 },
 ];
@@ -41,6 +44,7 @@ export interface AchievementFacts {
   types: number;
   auctionSales: number;
   trades: number;
+  duelWins: number;
 }
 
 /** Condition de chaque succès : pure, testable sans base. */
@@ -59,16 +63,20 @@ export function earned(f: AchievementFacts): string[] {
     all_types: f.types >= 5,
     first_auction_sale: f.auctionSales >= 1,
     first_trade: f.trades >= 1,
+    duel_win_1: f.duelWins >= 1,
+    duel_win_10: f.duelWins >= 10,
+    duel_win_50: f.duelWins >= 50,
   };
   return ACHIEVEMENTS.filter((a) => ok[a.key]).map((a) => a.key);
 }
 
 async function gather(userId: string): Promise<AchievementFacts> {
-  const [openings, owned, auctionSales, trades] = await Promise.all([
+  const [openings, owned, auctionSales, trades, duelWins] = await Promise.all([
     prisma.packOpening.count({ where: { userId } }),
     prisma.card.findMany({ where: { ownerId: userId }, select: { characterId: true, finish: true, rarityAtPull: true, character: { select: { rarity: true, type: true } } } }),
     prisma.auction.count({ where: { sellerId: userId, status: "SOLD" } }),
     prisma.trade.count({ where: { status: "ACCEPTED", OR: [{ fromId: userId }, { toId: userId }] } }),
+    prisma.duel.count({ where: { winnerId: userId, status: { in: ["DONE", "FORFEIT"] } } }),
   ]);
   const ids = new Set(owned.map((c) => c.characterId));
   const rarities = new Set(owned.flatMap((c) => [c.rarityAtPull, c.character.rarity]));
@@ -95,6 +103,7 @@ async function gather(userId: string): Promise<AchievementFacts> {
     types: new Set(owned.map((c) => c.character.type)).size,
     auctionSales,
     trades,
+    duelWins,
   };
 }
 

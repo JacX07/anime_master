@@ -23,6 +23,12 @@ const TEXT: Record<NotificationType, (p: Payload) => string> = {
   CARD_SOLD: (p) => `${p.character} est vendu : tu reçois ${ryo(p.amount)} (taxe de 5 % déduite).`,
   WISHED_AVAILABLE: (p) => (p.source === "auction" ? `${p.character}, dans ta liste de souhaits, vient d'être mis aux enchères.` : `${p.username} propose ${p.character} (ta liste de souhaits) à l'échange.`),
   ACHIEVEMENT: (p) => `Succès débloqué : ${p.label} (+${ryo(p.amount)}).`,
+  DUEL_RECEIVED: (p) => `${p.username} te défie en duel.`,
+  DUEL_ACCEPTED: (p) => `${p.username} a accepté ton duel : à toi de jouer ta défense.`,
+  DUEL_DECLINED: (p) => `${p.username} a refusé ton duel.`,
+  DUEL_EXPIRED: (p) => (p.username ? `${p.username} n'a pas répondu à ton duel à temps.` : "Un duel a expiré : personne n'a joué sa défense à temps."),
+  DUEL_RESULT: (p) =>
+    `${p.outcome === "win" ? "Victoire" : p.outcome === "draw" ? "Match nul" : "Défaite"}${p.forfeit ? " par forfait" : ""} contre ${p.username}${p.amount ? ` (+${ryo(p.amount)})` : ""}.`,
   AUCTION_UNSOLD: (p) => `Ton enchère sur ${p.character} s'est terminée sans offre : la carte est revenue dans ton album.`,
 };
 
@@ -52,7 +58,7 @@ async function Notifications() {
         <ul className="notif-list">
           {list.map((n) => (
             <li key={n.id} className={n.read ? "" : "unread"}>
-              <Link href={n.payload.auctionId ? `/market/${n.payload.auctionId}` : n.payload.characterId ? `/character/${n.payload.characterId}` : n.payload.label ? "/achievements" : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
+              <Link href={n.payload.duelId ? `/duels/${n.payload.duelId}` : n.payload.auctionId ? `/market/${n.payload.auctionId}` : n.payload.characterId ? `/character/${n.payload.characterId}` : n.payload.label ? "/achievements" : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
               <time className="vt-muted">{dateFmt.format(n.createdAt)}</time>
             </li>
           ))}
