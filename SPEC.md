@@ -605,11 +605,12 @@ Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 
 - **Le ×10 améliore la 10ᵉ carte**, de façon dégressive : le gain relatif est plus fort sur SR que sur SSR, plus fort que sur UR (variante C, ci-dessous).
 - **Bannières** de catégories (sport, shonen, isekai, waifu, husbando) et de personnages ciblés, avec des **cristaux spéciaux** obtenus par **succès** ou **expéditions** (les expéditions avec boss restent à explorer).
 
-### À valider (propositions du conseil, pas encore décidées)
+### Validé le 2026-10-12 (propositions du conseil, acceptées)
 - Prix : **20 Ryō par cristal** (500 Ryō/jour au maximum, comme aujourd'hui).
 - Bannière : la rareté est tirée avec les taux normaux, puis **50 %** des cartes viennent de la catégorie mise en avant et 50 % du pool complet.
-- Cadeau de bienvenue : **50 cartes** en tout, dont **20 tirages sur une bannière de catégorie au choix du joueur**, à usage unique (la demande initiale était « ×20 ou plus, à discuter »).
-- Plafonds des cristaux spéciaux (§6) et nom du marché des enchères (§9).
+- Cadeau de bienvenue : **50 cartes** en tout, dont **20 tirages sur une bannière de catégorie au choix du joueur**, à usage unique.
+- Cristaux spéciaux : environ 100 sur la vie d'un compte via les succès, puis 10 par semaine au plus via les expéditions.
+- Le nom du marché des enchères (§9) reste à décider avec la direction du lore.
 
 ---
 
@@ -668,14 +669,14 @@ Le ×5 reste équivalent à aujourd'hui, le ×10 est meilleur : il est donc l'un
 ### 5. Bannières
 - Une **bannière** = un nom, une description (lore), une **liste de personnages** (catégorie ou sélection), des dates d'ouverture et de fermeture éventuelles, un coût en cristaux (normaux ou spéciaux).
 - Catégories prévues : **sport, shonen, isekai, waifu, husbando** (à construire à partir des tags/genres AniList et du champ `gender`) ; des bannières de **personnages ciblés** viendront ensuite.
-- **Une bannière ne change jamais les taux de rareté** ni le pity. Elle change seulement le choix du personnage : la rareté est tirée comme d'habitude, puis **[à valider] 50 %** des cartes viennent des personnages de la bannière (de la rareté tirée), 50 % du pool complet de cette rareté. Si la bannière n'a aucun personnage de la rareté tirée, on prend le pool complet.
+- **Une bannière ne change jamais les taux de rareté** ni le pity. Elle change seulement le choix du personnage : la rareté est tirée comme d'habitude, puis **50 %** des cartes viennent des personnages de la bannière (de la rareté tirée), 50 % du pool complet de cette rareté. Si la bannière n'a aucun personnage de la rareté tirée, on prend le pool complet.
 - Pas de « 100 % de la catégorie » : la demande reste répartie sur tous les personnages.
 - Les bannières de catégorie **tournent dans le temps** ; seules les bannières de bienvenue (§8) sont permanentes pour les nouveaux joueurs.
 - Les lots ×5 et ×10 fonctionnent de la même manière sur une bannière (mêmes règles de lot, mêmes garanties).
 
 ### 6. Cristaux spéciaux
 - Ressource séparée (`User.specialCrystals`), utilisable seulement sur les bannières qui en demandent. **Ni achetable, ni vendable, ni échangeable.**
-- Sources : d'abord les **succès** (stock total limité, environ 100 sur la vie d'un compte), puis les **expéditions** [à valider : 10 par semaine au plus].
+- Sources : d'abord les **succès** (stock total limité, environ 100 sur la vie d'un compte), puis les **expéditions** 10 par semaine au plus.
 - Règle de garde-fou : toutes les sources spéciales réunies restent **sous 5 % des cartes créées par jour** par les cristaux normaux.
 - Journal dédié : table `SpecialCrystalLedger` (`userId`, `amount`, `reason`, `refId`).
 
@@ -684,12 +685,12 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 
 ### 8. Cadeau de bienvenue
 - Remplace les 10 paquets : **50 cartes** en tout.
-- [à valider] 30 cristaux normaux + **20 tirages sur une bannière de catégorie choisie par le joueur** parmi les catégories de §5, à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
+- 30 cristaux normaux + **20 tirages sur une bannière de catégorie choisie par le joueur** parmi les catégories de §5, à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
 - Le cadeau injecte **autant de cartes qu'aujourd'hui** (50), pas plus.
 
-### 9. Vocabulaire et clarté
+### 9. Vocabulaire et clarté (renommage de « marché noir » : à décider)
 - Chaque terme (cristal, cristal spécial, bannière, pity, Ryō) est défini à l'écran à sa première apparition.
-- [à valider] Renommer « marché noir » (enchères) en un terme moins négatif, par exemple « Bourse des brèches ». À décider avec la direction du lore.
+- Renommer « marché noir » (enchères) en un terme moins négatif, par exemple « Bourse des brèches ». À décider avec la direction du lore.
 
 ### 10. Modèle de données (changements)
 - **User** : ajout de `crystals`, `crystalsUpdatedAt`, `specialCrystals`, `crystalsBoughtToday`, `crystalsBoughtDate` ; renommage `packsSinceSSR` → `cardsSinceSSR`, `packsSinceUR` → `cardsSinceUR` ; suppression de `packsStored`, `lastPackAt`, `packsBoughtToday`, `packsBoughtDate`.
