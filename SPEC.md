@@ -727,7 +727,7 @@ Donner une utilité de jeu aux cartes en dehors des duels : envoyer une équipe 
 - **Mode idle seul** pour l'instant : on envoie, on revient plus tard. Pas de boss ni de combat interactif (idée repoussée : boss de brèche en quiz, réutilisant `duel-quiz.ts`).
 - **3 durées**, thèmes de brèche, **1 emplacement au début, 3 après quelques succès**.
 - **Gratuit** : aucun coût d'entrée ; les emplacements sont le seul frein.
-- Récompenses : **Ryō (plus faible que la vente rapide, pour ne pas concurrencer le marché)**, un peu de cristaux normaux, et des **cristaux spéciaux qui tombent de temps en temps**, sans boss. Plafond de 10 cristaux spéciaux par semaine (déjà décidé, Étape 4 bis §6).
+- Récompenses **qui augmentent avec la puissance de l'équipe** (§3) : **Ryō (plus faible que la vente rapide, pour ne pas concurrencer le marché)**, un peu de cristaux normaux, et des **cristaux spéciaux qui tombent de temps en temps**, sans boss. Plafond de 10 cristaux spéciaux par semaine (déjà décidé, Étape 4 bis §6).
 - **Échec sans pénalité** : aucune blessure ni temps de repos ; les cartes reviennent, le butin est réduit.
 - **Capture d'un personnage précis** : « on verra » (hors périmètre).
 
@@ -758,11 +758,17 @@ score(carte) = puissance × affinité        (type favorisé ×1,25 ; autre type
 score(équipe) = Σ score(carte) × aléa      (aléa dans [0,85 ; 1,15] fixé par la seed)
 ratio = score(équipe) / seuil de la brèche
 ```
-| Résultat | Condition | Part du butin |
+| Résultat | Condition | Butin |
 |---|---|---|
 | Échec | ratio < 1 | 25 % des Ryō, rien d'autre |
-| Réussite | 1 ≤ ratio < 1,5 | 100 % |
-| Triomphe | ratio ≥ 1,5 | 150 % des Ryō, double chance de cristal spécial |
+| Réussite | 1 ≤ ratio < 1,5 | butin de base (§4) |
+| Triomphe | ratio ≥ 1,5 | butin de base, avec le bonus de puissance (ci-dessous) |
+
+**Bonus de puissance** *(validé : plus l'équipe est puissante, plus les ressources rares sont probables)* : pour une réussite ou un triomphe, on pose `m = clamp(ratio, 1, 3)`.
+- **Ryō** : × `1 + 0,25 × (m − 1)` (jusqu'à ×1,5).
+- **Cristaux normaux** : la quantité de base, plus 1 cristal supplémentaire avec une probabilité de `(m − 1) / 2`.
+- **Cristal spécial** : probabilité de base × `m` (jusqu'à ×3), toujours dans le plafond de 10 par semaine.
+- Une équipe très au-dessus du seuil ne rapporte donc pas des quantités illimitées : les multiplicateurs sont bornés, et les plafonds quotidiens et hebdomadaires restent valables.
 
 *(Coefficients à équilibrer par simulation.)*
 
