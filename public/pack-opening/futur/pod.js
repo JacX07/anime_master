@@ -11,9 +11,9 @@ export function buildPod({ decor, BLUE, MINT }) {
   const top = new THREE.Group(), bottom = new THREE.Group(); body.add(top, bottom);
 
   // Verre teinté bleu pâle : reflets de l'environnement bien marqués, facettes nettes
-  const glass = new THREE.MeshPhysicalMaterial({ color: "#b4ccf6", transparent: true, opacity: 0.55, metalness: 0.1, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.6, iridescence: 0.35, flatShading: true, side: THREE.DoubleSide, depthWrite: false });
+  const glass = new THREE.MeshPhysicalMaterial({ color: "#b4ccf6", transparent: true, opacity: 0.6, metalness: 0.1, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.6, iridescence: 0.35, flatShading: true, side: THREE.DoubleSide, depthWrite: false });
   // Verre dépoli juste dessous : il floute ce qu'il y a dedans
-  const frost = new THREE.MeshPhysicalMaterial({ color: "#d3e2fb", transparent: true, opacity: 0.82, roughness: 0.85, metalness: 0, flatShading: true, side: THREE.DoubleSide, depthWrite: false });
+  const frost = new THREE.MeshPhysicalMaterial({ color: "#cfdffb", transparent: true, opacity: 0.96, roughness: 0.9, metalness: 0, flatShading: true, side: THREE.DoubleSide, depthWrite: false });
   const edgeMat = new THREE.LineBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.1), transparent: true, opacity: 0.95 });
   const prism = new THREE.CylinderGeometry(R, R, L / 2, 6, 1, true), cone = new THREE.ConeGeometry(R, H, 6, 1, true);
   const prismEdges = new THREE.EdgesGeometry(prism), coneEdges = new THREE.EdgesGeometry(cone);
