@@ -89,3 +89,11 @@ export const sellerProceeds = (price: number) => Math.floor(price * (1 - AUCTION
 export function endAfterBid(endsAt: Date, now: Date): Date {
   return endsAt.getTime() - now.getTime() <= ANTI_SNIPING_MS ? new Date(now.getTime() + ANTI_SNIPING_MS) : endsAt;
 }
+
+// ---------- Classement Collection (SPEC étape 4, §5) ----------
+
+export const COLLECTION_POINTS: Record<Rarity, number> = { N: 1, R: 3, SR: 10, SSR: 40, UR: 200 };
+
+/** Valeur d'un personnage unique : sa rareté actuelle, +50 % si on a la Holo, +100 % si on a la Gold. */
+export const collectionValue = (rarity: Rarity, hasHolo: boolean, hasGold: boolean) =>
+  COLLECTION_POINTS[rarity] * (1 + (hasHolo ? 0.5 : 0) + (hasGold ? 1 : 0));

@@ -145,6 +145,7 @@ model User {
   auctionsLeading  Auction[]        @relation("AuctionLeader")
   bids             Bid[]
   wishlist         WishlistItem[]
+  achievements     UserAchievement[]
   sessions         Session[]
   accounts         Account[]
   cards            Card[]
@@ -249,6 +250,8 @@ enum LedgerReason {
   AUCTION_FEE
   TRADE_IN
   TRADE_OUT
+  DUEL_REWARD
+  ACHIEVEMENT
 }
 
 /// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).
@@ -379,4 +382,14 @@ model WishlistItem {
 
   @@index([characterId])
   @@index([userId])
+}
+
+/// Succès débloqués (étape 4) : une seule fois par joueur et par clé.
+model UserAchievement {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key        String
+  unlockedAt DateTime @default(now())
+
+  @@id([userId, key])
 }

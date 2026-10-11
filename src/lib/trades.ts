@@ -3,6 +3,7 @@
 
 import { prisma } from "./db";
 import { MAX_PENDING_TRADES, TRADE_LIFETIME_MS, tradeEligibility } from "./economy";
+import { checkAchievementsSafe } from "./achievements";
 import { notify } from "./notifications";
 import { notifyWishers } from "./wishlist";
 
@@ -84,6 +85,7 @@ export async function expireTrades(now = new Date()) {
 
 export async function acceptTrade(userId: string, tradeId: string, now = new Date()) {
   await expireTrades(now);
+  let parties: string[] = [];
   try {
     await prisma.$transaction(async (tx) => {
       // Le passage conditionnel PENDING → ACCEPTED garantit une seule exécution, même en cas de double clic
@@ -110,7 +112,9 @@ export async function acceptTrade(userId: string, tradeId: string, now = new Dat
         await tx.currencyLedger.create({ data: { userId: receiver, amount, reason: "TRADE_IN", refId: tradeId } });
       }
       await notify(tx, t.fromId, "TRADE_ACCEPTED", { tradeId, username: t.to.username });
+      parties = [t.fromId, t.toId];
     });
+    await checkAchievementsSafe(...parties);
   } catch (err) {
     if (err instanceof InvalidTrade) {
       // La transaction est annulée : on marque l'offre invalide à part

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ConcurrentOpeningError, NoPackAvailableError, openPack, type OpenedPack } from "@/lib/packs";
+import { checkAchievementsSafe } from "@/lib/achievements";
 import { getSessionUser } from "@/lib/session";
 import { getPackState } from "@/lib/packs";
 import { buyPack } from "@/lib/shop";
@@ -14,6 +15,7 @@ export async function openPackAction(): Promise<OpenPackResult> {
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const pack = await openPack(user.id);
+    await checkAchievementsSafe(user.id);
     revalidatePath("/album"); // l'album affiche les nouvelles cartes à la prochaine visite
     return { ok: true, pack };
   } catch (err) {

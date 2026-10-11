@@ -53,6 +53,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       <Icon name="souhait" />
                       Souhaits
                     </Link>
+                    <Link href="/leaderboard" className="site-link">
+                      <Icon name="nav-classement" />
+                      Classement
+                    </Link>
                   </>
                 }
               >
@@ -68,6 +72,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </NavLink>
                 <NavLink href="/wishlist" icon="souhait">
                   Souhaits
+                </NavLink>
+                <NavLink href="/leaderboard" icon="nav-classement">
+                  Classement
                 </NavLink>
               </Suspense>
               <span className="site-link site-soon" title="Bientôt">

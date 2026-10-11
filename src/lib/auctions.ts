@@ -5,6 +5,7 @@ import type { Prisma } from "../generated/prisma/client";
 import type { CardType, Finish, Rarity } from "../generated/prisma/enums";
 import { prisma } from "./db";
 import { AUCTION_DURATIONS_H, endAfterBid, MAX_ACTIVE_AUCTIONS, minBid, sellerProceeds, tradeEligibility } from "./economy";
+import { checkAchievementsSafe } from "./achievements";
 import { notify } from "./notifications";
 import { notifyWishers } from "./wishlist";
 
@@ -67,18 +68,22 @@ const FOR_SETTLE = { id: true, sellerId: true, cardId: true, currentBid: true, c
 
 /** Clôture une enchère échue, une seule fois même si deux déclenchements arrivent ensemble. */
 export async function closeAuction(auctionId: string, now = new Date()) {
+  let soldBy: string | null = null;
   await prisma.$transaction(async (tx) => {
     const a = await tx.auction.findFirst({ where: { id: auctionId, status: "ACTIVE", endsAt: { lte: now } }, select: FOR_SETTLE });
     if (!a) return;
     const sold = a.currentBidderId !== null && a.currentBid !== null;
     const claimed = await tx.auction.updateMany({ where: { id: a.id, status: "ACTIVE" }, data: { status: sold ? "SOLD" : "UNSOLD", closedAt: now, finalPrice: sold ? a.currentBid : null } });
     if (claimed.count !== 1) return;
-    if (sold) await settle(tx, a, a.currentBidderId!, a.currentBid!, now);
-    else {
+    if (sold) {
+      await settle(tx, a, a.currentBidderId!, a.currentBid!, now);
+      soldBy = a.sellerId;
+    } else {
       await tx.card.update({ where: { id: a.cardId }, data: { inAuction: false } });
       await notify(tx, a.sellerId, "AUCTION_UNSOLD", { auctionId: a.id, character: a.card.character.name });
     }
   });
+  if (soldBy) await checkAchievementsSafe(soldBy);
 }
 
 /** Clôture toutes les enchères échues (appelée à chaque consultation du marché et par la tâche planifiée). */
@@ -129,6 +134,7 @@ export async function placeBid(bidderId: string, auctionId: string, amount: numb
 export async function buyNow(buyerId: string, auctionId: string, now = new Date()) {
   await assertEligible(buyerId, now);
   await closeAuction(auctionId, now);
+  let seller = "";
   await prisma.$transaction(async (tx) => {
     const a = await tx.auction.findFirst({ where: { id: auctionId, status: "ACTIVE", endsAt: { gt: now } }, select: { ...FOR_SETTLE, buyNowPrice: true } });
     if (!a) throw new AuctionError("Cette enchère est terminée.");
@@ -145,7 +151,9 @@ export async function buyNow(buyerId: string, auctionId: string, now = new Date(
     await hold(tx, buyerId, price, a.id);
     await tx.bid.create({ data: { auctionId: a.id, bidderId: buyerId, amount: price } });
     await settle(tx, a, buyerId, price, now);
+    seller = a.sellerId;
   });
+  await checkAchievementsSafe(seller);
 }
 
 export async function cancelAuction(sellerId: string, auctionId: string, now = new Date()) {
