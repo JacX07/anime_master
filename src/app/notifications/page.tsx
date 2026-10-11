@@ -10,12 +10,18 @@ export const metadata: Metadata = { title: "Notifications — Anime Masters" };
 
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 
-const TEXT: Record<NotificationType, (who: string, reason?: string) => string> = {
-  TRADE_RECEIVED: (who) => `${who} t'a envoyé une offre d'échange.`,
-  TRADE_ACCEPTED: (who) => `${who} a accepté ton offre d'échange.`,
-  TRADE_REFUSED: (who) => `${who} a refusé ton offre d'échange.`,
-  TRADE_INVALID: (who, reason) => `Ton offre à ${who} est devenue invalide${reason ? ` (${reason})` : ""}.`,
-  TRADE_EXPIRED: (who) => `Ton offre à ${who} a expiré sans réponse.`,
+type Payload = Awaited<ReturnType<typeof listNotifications>>[number]["payload"];
+const ryo = (n?: number) => `${n ?? 0} Ryō`;
+const TEXT: Record<NotificationType, (p: Payload) => string> = {
+  TRADE_RECEIVED: (p) => `${p.username} t'a envoyé une offre d'échange.`,
+  TRADE_ACCEPTED: (p) => `${p.username} a accepté ton offre d'échange.`,
+  TRADE_REFUSED: (p) => `${p.username} a refusé ton offre d'échange.`,
+  TRADE_INVALID: (p) => `Ton offre à ${p.username} est devenue invalide${p.reason ? ` (${p.reason})` : ""}.`,
+  TRADE_EXPIRED: (p) => `Ton offre à ${p.username} a expiré sans réponse.`,
+  OUTBID: (p) => `Ton offre de ${ryo(p.amount)} sur ${p.character} a été dépassée (Ryō remboursés).`,
+  AUCTION_WON: (p) => `Tu as remporté ${p.character} pour ${ryo(p.amount)}.`,
+  CARD_SOLD: (p) => `${p.character} est vendu : tu reçois ${ryo(p.amount)} (taxe de 5 % déduite).`,
+  AUCTION_UNSOLD: (p) => `Ton enchère sur ${p.character} s'est terminée sans offre : la carte est revenue dans ton album.`,
 };
 
 export default function NotificationsPage() {
@@ -44,7 +50,7 @@ async function Notifications() {
         <ul className="notif-list">
           {list.map((n) => (
             <li key={n.id} className={n.read ? "" : "unread"}>
-              <Link href="/trades">{(TEXT[n.type] ?? (() => "Notification"))(n.payload.username ?? "Un joueur", n.payload.reason)}</Link>
+              <Link href={n.payload.auctionId ? `/market/${n.payload.auctionId}` : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
               <time className="vt-muted">{dateFmt.format(n.createdAt)}</time>
             </li>
           ))}

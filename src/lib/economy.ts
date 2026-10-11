@@ -68,3 +68,24 @@ export function tradeEligibility(createdAt: Date, openings: number, now: Date): 
   if (openings < TRADE_MIN_OPENINGS) return { ok: false, reason: `il faut au moins ${TRADE_MIN_OPENINGS} paquets ouverts (${openings} pour l'instant)` };
   return { ok: true };
 }
+
+// ---------- Enchères (SPEC étape 3, §4) ----------
+
+export const AUCTION_DURATIONS_H = [1, 6, 24, 72] as const;
+export const AUCTION_FEE_RATE = 0.05;
+export const ANTI_SNIPING_MS = 2 * 60 * 1000;
+export const MAX_ACTIVE_AUCTIONS = 10;
+
+/** Offre minimale : max(prix de départ, offre actuelle × 1,05 arrondi au supérieur, offre actuelle + 1). */
+export function minBid(startPrice: number, currentBid: number | null): number {
+  if (currentBid === null) return startPrice;
+  return Math.max(startPrice, Math.ceil(currentBid * 1.05), currentBid + 1);
+}
+
+/** Montant reçu par le vendeur : prix moins 5 %, arrondi à l'inférieur (la taxe est détruite). */
+export const sellerProceeds = (price: number) => Math.floor(price * (1 - AUCTION_FEE_RATE));
+
+/** Fin de l'enchère après une offre à `now` : repoussée à now + 2 min si elle tombe dans les 2 dernières minutes. */
+export function endAfterBid(endsAt: Date, now: Date): Date {
+  return endsAt.getTime() - now.getTime() <= ANTI_SNIPING_MS ? new Date(now.getTime() + ANTI_SNIPING_MS) : endsAt;
+}

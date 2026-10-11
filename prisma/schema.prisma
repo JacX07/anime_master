@@ -140,6 +140,9 @@ model User {
   tradesSent       Trade[]          @relation("TradeFrom")
   tradesReceived   Trade[]          @relation("TradeTo")
   notifications    Notification[]
+  auctionsSold     Auction[]        @relation("AuctionSeller")
+  auctionsLeading  Auction[]        @relation("AuctionLeader")
+  bids             Bid[]
   sessions         Session[]
   accounts         Account[]
   cards            Card[]
@@ -214,6 +217,7 @@ model Card {
   /// Bloquée pendant une enchère (étape 3, enchères)
   inAuction     Boolean     @default(false)
   tradeItems    TradeItem[]
+  auctions      Auction[]
 
   @@unique([characterId, serial])
   @@index([ownerId, characterId])
@@ -315,4 +319,47 @@ model Notification {
   createdAt DateTime  @default(now())
 
   @@index([userId, readAt])
+}
+
+enum AuctionStatus {
+  ACTIVE
+  SOLD
+  UNSOLD
+  CANCELLED
+}
+
+model Auction {
+  id              String        @id @default(cuid())
+  sellerId        String
+  seller          User          @relation("AuctionSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  cardId          String
+  card            Card          @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  startPrice      Int
+  buyNowPrice     Int?
+  currentBid      Int?
+  currentBidderId String?
+  currentBidder   User?         @relation("AuctionLeader", fields: [currentBidderId], references: [id])
+  endsAt          DateTime
+  status          AuctionStatus @default(ACTIVE)
+  /// Prix final (enchère vendue)
+  finalPrice      Int?
+  bids            Bid[]
+  createdAt       DateTime      @default(now())
+  closedAt        DateTime?
+
+  @@index([status, endsAt])
+  @@index([sellerId, status])
+  @@index([cardId])
+}
+
+model Bid {
+  id        String   @id @default(cuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidderId  String
+  bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  amount    Int
+  createdAt DateTime @default(now())
+
+  @@index([auctionId, createdAt])
 }

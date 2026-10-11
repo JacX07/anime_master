@@ -3,10 +3,16 @@
 import type { Prisma } from "../generated/prisma/client";
 import { prisma } from "./db";
 
-export type NotificationType = "TRADE_RECEIVED" | "TRADE_ACCEPTED" | "TRADE_REFUSED" | "TRADE_INVALID" | "TRADE_EXPIRED";
+export type NotificationType =
+  | "TRADE_RECEIVED" | "TRADE_ACCEPTED" | "TRADE_REFUSED" | "TRADE_INVALID" | "TRADE_EXPIRED"
+  | "OUTBID" | "AUCTION_WON" | "CARD_SOLD" | "AUCTION_UNSOLD";
 
 export interface NotificationPayload {
   tradeId?: string;
+  auctionId?: string;
+  /// Nom du personnage et montant (enchères)
+  character?: string;
+  amount?: number;
   /** L'autre joueur concerné */
   username?: string;
   reason?: string;
