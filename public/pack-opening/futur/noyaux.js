@@ -59,6 +59,9 @@ export default {
     return items;
   },
 
+  /** Un noyau complet, hors du déroulé d'ouverture (maquettes d'ouverture). */
+  buildItem: (BLUE, c, x, y, z) => buildItem(BLUE, c, x, y, z),
+
   // Préchauffage (écran de chargement) : un noyau et des éclats hors champ, pour compiler les shaders avant la première ouverture
   warm({ BLUE }) {
     buildItem(BLUE, { rarity: "N" }, 0, -60, 0).root.scale.setScalar(1);

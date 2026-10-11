@@ -26,6 +26,8 @@ Mis à jour le 2026-10-10. La spec complète est dans `SPEC.md` (source de véri
 
 - **Identité visuelle appliquée** (validée par l'utilisateur sur la maquette `public/ui-kit/index.html`) : polices Sora + Michroma partout (`layout.tsx`, `globals.css`), icônes SVG maison à la place des emojis (`public/icons/icons.json` est la source unique ; `src/components/icons.tsx` côté site avec `IconSprite`, `Icon`, `TypeIcon`, `RarityGem`, `Money`, `Stat` ; `public/pack-opening/opening/icons.js` côté scène 3D, HUD et peinture des cartes sur canevas), raretés en cristaux à facettes, barre du haut en bandeau de HUD (logo cristal, navigation avec icônes, ressources Ryō / paquets / puissance, avatar hexagonal, variante labo clair sur Paquets). **Ultra Rare en rouge `#ff3b4a`** partout (à confirmer à l'usage : « test en rouge »). Fond du site aligné sur la nuit du jeu (`#0b1424`), accents violets remplacés par le bleu `#2b6cff`.
 
+- **Maquette d'ouverture** (`public/pack-opening/lab.html`, pas encore branchée au jeu) : compare **A · Portail** (les noyaux jaillissent du grand portail du fond) et **B · Capsule** refaite en reliquaire de verre à facettes (`futur/pod.js` : arêtes lumineuses, cœur, noyaux qui orbitent ; ouverture écrasement → « bop » → couvercle qui saute → noyaux qui jaillissent). Le « bop » est un petit son synthétisé (`A.bop` dans `lab.js`). À choisir avec l'utilisateur avant d'intégrer à `engine.js`.
+
 ## Reste à faire, dans l'ordre
 1. **Étape 3, suite** : échanges, enchères, marché, liste de souhaits, notifications (voir SPEC).
 2. **Valider l'ouverture 3D intégrée dans `/packs`** (faite, testée seulement jusqu'aux noyaux : l'utilisateur teste l'affichage lui-même). Retouches de détails à venir.
