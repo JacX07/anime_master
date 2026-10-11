@@ -191,3 +191,40 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
     };
   });
 }
+
+export const BULK_SIZES = [5, 10] as const;
+
+export interface OpenedBulk {
+  /** Toutes les cartes tirées, paquet après paquet */
+  cards: OpenedCard[];
+  /** Nombre de paquets réellement ouverts (moins que demandé si le stock ou un conflit l'a arrêté) */
+  opened: number;
+  /** Pity déclenchés pendant la série */
+  pities: PityTrigger[];
+  state: PlayerPackState;
+}
+
+/**
+ * Ouvre `count` paquets d'affilée, chacun dans sa propre transaction (stock, pity et numéros d'exemplaire
+ * se comportent exactement comme pour des ouvertures successives). Refuse tout si le stock est insuffisant.
+ */
+export async function openPacks(userId: string, count: number, rng: Random = secureRandom): Promise<OpenedBulk> {
+  const before = await getPackState(userId);
+  if (before.available < count) throw new NoPackAvailableError();
+  const cards: OpenedCard[] = [];
+  const pities: PityTrigger[] = [];
+  let state = before;
+  let opened = 0;
+  try {
+    for (; opened < count; opened++) {
+      const pack = await openPack(userId, rng);
+      cards.push(...pack.cards);
+      if (pack.pity !== "NONE") pities.push(pack.pity);
+      state = pack.state;
+    }
+  } catch (err) {
+    // Les paquets déjà ouverts sont acquis : on les renvoie plutôt que de les perdre de vue
+    if (opened === 0) throw err;
+  }
+  return { cards, opened, pities, state };
+}

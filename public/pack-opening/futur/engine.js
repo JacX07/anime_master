@@ -211,6 +211,7 @@ export async function start(modeId) {
     bar("stock", cfg.max, Math.min(available, cfg.max)); el("count").textContent = available;
     el("maxPacks").textContent = available > cfg.max ? " boosters" : ` / ${cfg.max} boosters`; // au-delà de la réserve : paquets achetés
     // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
+    for (const n of [5, 10]) el("bulk" + n).disabled = bulking || busy || phase !== "idle" || available < n;
     el("buy").disabled = buying || pack.purchasesLeft < 1 || pack.balance < pack.packPrice;
     if (!buyMsg) el("buyInfo").innerHTML = `${pack.packPrice}${icon("ryo", "--acc:#f2a516")} · ${pack.purchasesLeft} achat${pack.purchasesLeft > 1 ? "s" : ""} restant${pack.purchasesLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")}${icon("ryo", "--acc:#f2a516")}`;
     el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain booster dans ${mmss(msLeft)}`;
@@ -229,6 +230,14 @@ export async function start(modeId) {
     else { buyMsg = res.error; el("buyInfo").textContent = buyMsg; hud(); setTimeout(() => { buyMsg = ""; hud(); }, 4000); }
     hud();
   });
+  // Ouverture groupée : sans animation, la page hôte affiche le résumé des cartes
+  let bulking = false;
+  document.querySelector(".bulk-row").toggleAttribute("data-embed", EMBED); // hors page hôte il n'y a personne pour afficher le résumé
+  for (const n of [5, 10]) el("bulk" + n).addEventListener("click", () => {
+    if (!EMBED || bulking || busy || phase !== "idle" || liveStock().available < n) return;
+    bulking = true; ui.hint.textContent = `Ouverture de ${n} paquets…`; hud();
+    post({ type: "bulk-request", count: n });
+  });
   setInterval(hud, 1000); hud();
 
   // Dialogue avec la page hôte
@@ -238,6 +247,11 @@ export async function start(modeId) {
     const m = e.data ?? {};
     if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
+    else if (m.type === "bulk-done") {
+      bulking = false;
+      if (m.ok) { setPack(m.state); ui.hint.textContent = txt.open; } else { ui.hint.textContent = m.error; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); }
+      hud();
+    }
     else if (m.type === "pack-result" || m.type === "buy-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
   });
   // Achat d'un paquet (même circuit que l'ouverture ; hors iframe, simulé localement)
