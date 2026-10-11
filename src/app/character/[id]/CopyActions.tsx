@@ -2,11 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { sellCardAction, toggleLockAction } from "@/app/economy-actions";
+import { toggleForTradeAction } from "@/app/trade-actions";
 import { Icon, Money } from "@/components/icons";
 
 interface Props {
   cardId: string;
   locked: boolean;
+  forTrade: boolean;
   price: number;
   /** Description de la carte pour l'avertissement, ex. « #12 · Holo » */
   label: string;
@@ -17,7 +19,7 @@ interface Props {
 
 
 /** Cadenas et vente rapide d'un exemplaire, avec avertissement avant la vente. */
-export function CopyActions({ cardId, locked, price, label, characterName, lastCopy }: Props) {
+export function CopyActions({ cardId, locked, forTrade, price, label, characterName, lastCopy }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -41,6 +43,16 @@ export function CopyActions({ cardId, locked, price, label, characterName, lastC
           className="rounded-lg border border-white/10 px-2.5 py-1 hover:bg-white/5 disabled:opacity-50"
         >
           <Icon name={locked ? "lock" : "unlock"} title={locked ? "Verrouillée" : "Déverrouillée"} />
+        </button>
+        <button
+          type="button"
+          disabled={pending || locked}
+          onClick={() => run(() => toggleForTradeAction(cardId, !forTrade))}
+          aria-pressed={forTrade}
+          title={locked ? "Déverrouille la carte pour la proposer" : forTrade ? "Ne plus proposer à l'échange" : "Proposer à l'échange"}
+          className={`rounded-lg border px-2.5 py-1 text-xs font-semibold hover:bg-white/5 disabled:opacity-40 ${forTrade ? "border-[#00c8b4] text-[#00c8b4]" : "border-white/10"}`}
+        >
+          {forTrade ? "À échanger ✓" : "À échanger"}
         </button>
         <button
           type="button"

@@ -948,3 +948,162 @@ body.scene-night {
 .f { fill: var(--acc, #00c8b4); stroke: none; }
 .gem { width: 1.5em; height: 1.5em; flex: none; overflow: visible; }
 .money, .stat { display: inline-flex; align-items: center; gap: 0.3em; font-variant-numeric: tabular-nums; }
+
+/* ---------- Échanges et notifications ---------- */
+.vt-h2 {
+  font-family: var(--font-michroma), var(--font-sora), sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+}
+.vt-btn {
+  padding: 0.55rem 1.1rem;
+  border: 1px solid #4b8bff;
+  border-radius: 4px;
+  background: #4b8bff33;
+  color: #e8f0ff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vt-btn:hover:not(:disabled) {
+  background: #4b8bff66;
+}
+.vt-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.vt-btn.ghost {
+  border-color: #ffffff30;
+  background: transparent;
+}
+.bell {
+  position: relative;
+  padding: 0 0.8rem;
+}
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.notif-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ffffff14;
+  border-radius: 6px;
+  background: #0f1c33;
+  font-size: 0.9rem;
+}
+.notif-list li.unread {
+  border-color: #4b8bff;
+}
+.trade-new {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.trade-new input,
+.trade-picker input[type="text"],
+.trade-picker > input:not([type]),
+.trade-ryo input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ffffff24;
+  border-radius: 4px;
+  background: #0b1424;
+  color: inherit;
+  font: inherit;
+}
+.trade-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.trade-card {
+  padding: 1rem 1.2rem;
+  border: 1px solid #ffffff14;
+  border-radius: 6px;
+  background: #0f1c33;
+}
+.trade-card > header {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: 0.7rem;
+}
+.trade-status {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 99px;
+  background: #4b8bff33;
+}
+[data-status="ACCEPTED"] .trade-status {
+  background: #00c8b433;
+}
+[data-status="REFUSED"] .trade-status,
+[data-status="INVALID"] .trade-status,
+[data-status="EXPIRED"] .trade-status,
+[data-status="CANCELLED"] .trade-status {
+  background: #ff3b4a33;
+}
+.trade-sides,
+.trade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+.trade-side h3 {
+  font-size: 0.78rem;
+  color: #8ea3c4;
+  margin-bottom: 0.3rem;
+}
+.trade-side li,
+.trade-picker li label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  padding: 0.2rem 0;
+}
+.trade-card footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+.trade-error {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: #ff8b95;
+}
+.trade-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid #ffffff14;
+  border-radius: 6px;
+  background: #0f1c33;
+}
+.trade-picker ul {
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.trade-ryo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+}
+.trade-ryo input {
+  width: 7rem;
+}
+.trade-tag {
+  margin-left: auto;
+  font-size: 0.7rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 99px;
+  background: #00c8b433;
+  color: #00c8b4;
+}

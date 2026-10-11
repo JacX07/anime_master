@@ -9,6 +9,7 @@ import { Stat, TypeIcon } from "@/components/icons";
 import { quickSellPrice } from "@/lib/economy";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { getSessionUser } from "@/lib/session";
+import { traders } from "@/lib/trades";
 import { CopyActions } from "./CopyActions";
 
 const parseId = (raw: string) => (/^\d{1,9}$/.test(raw) ? Number(raw) : null);
@@ -44,6 +45,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
   const c = await getCharacter(id, user?.id ?? null);
   if (!c) notFound();
 
+  const offers = await traders(id);
   const owned = c.copies !== null && c.copies.length > 0;
   const t = TYPE_LABELS[c.type];
   const facts: [string, React.ReactNode][] = [
@@ -109,11 +111,34 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
                   <CopyActions
                     cardId={copy.id}
                     locked={copy.locked}
+                    forTrade={copy.forTrade}
                     price={quickSellPrice(c.rarity, copy.finish)}
                     label={`#${copy.serial} · ${FINISH_NAMES[copy.finish]}`}
                     characterName={c.name}
                     lastCopy={c.copies!.length === 1}
                   />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {offers.length > 0 && (
+          <section>
+            <h2 className="mb-2 text-lg font-bold">Proposé à l&apos;échange ({offers.length})</h2>
+            <ul className="divide-y divide-white/5 rounded-xl bg-panel">
+              {offers.map((o) => (
+                <li key={o.id} className="flex items-center gap-4 px-4 py-2.5 text-sm tabular-nums">
+                  <span className="font-semibold">{o.username}</span>
+                  <span className="text-muted">#{o.serial}</span>
+                  <span className="finish-tag" data-finish={o.finish}>
+                    {FINISH_NAMES[o.finish]}
+                  </span>
+                  {user && o.username !== user.username && (
+                    <Link href={`/trades/new?to=${encodeURIComponent(o.username)}&ask=${o.id}`} className="ml-auto text-[#8fb5ff] hover:underline">
+                      Proposer un échange
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

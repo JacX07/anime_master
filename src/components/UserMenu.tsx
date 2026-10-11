@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { signOut } from "@/app/auth-actions";
 import { getPackState } from "@/lib/packs";
 import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { DailyBonus } from "./DailyBonus";
 import { Icon, Money } from "./icons";
+import { NotificationBell } from "./NotificationBell";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -39,6 +41,9 @@ export async function UserMenu() {
         <Icon name="puissance" style={{ "--acc": "currentColor" } as React.CSSProperties} />
         {num.format(packs.collectionPower)}
       </span>
+      <Suspense fallback={null}>
+        <NotificationBell userId={user.id} />
+      </Suspense>
       <button type="submit" className="avatar" title={`${user.username} · se déconnecter`} aria-label={`Se déconnecter (${user.username})`}>
         {user.username.slice(0, 1).toUpperCase()}
       </button>
