@@ -49,6 +49,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       <Icon name="nav-marche" />
                       Marché
                     </Link>
+                    <Link href="/wishlist" className="site-link">
+                      <Icon name="souhait" />
+                      Souhaits
+                    </Link>
                   </>
                 }
               >
@@ -61,6 +65,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </NavLink>
                 <NavLink href="/market" icon="nav-marche">
                   Marché
+                </NavLink>
+                <NavLink href="/wishlist" icon="souhait">
+                  Souhaits
                 </NavLink>
               </Suspense>
               <span className="site-link site-soon" title="Bientôt">

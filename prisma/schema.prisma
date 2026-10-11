@@ -73,6 +73,7 @@ model Character {
   pullCount      Int              @default(0)
   /// Retrait à la demande d'un ayant droit (étape 6)
   disabled       Boolean          @default(false)
+  wishedBy       WishlistItem[]
   media          CharacterMedia[]
   cards          Card[]
   createdAt      DateTime         @default(now())
@@ -143,6 +144,7 @@ model User {
   auctionsSold     Auction[]        @relation("AuctionSeller")
   auctionsLeading  Auction[]        @relation("AuctionLeader")
   bids             Bid[]
+  wishlist         WishlistItem[]
   sessions         Session[]
   accounts         Account[]
   cards            Card[]
@@ -362,4 +364,19 @@ model Bid {
   createdAt DateTime @default(now())
 
   @@index([auctionId, createdAt])
+}
+
+/// Liste de souhaits : un personnage, avec ou sans finition précise (étape 3).
+model WishlistItem {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  /// null = n'importe quelle finition
+  finish      Finish?
+  createdAt   DateTime  @default(now())
+
+  @@index([characterId])
+  @@index([userId])
 }

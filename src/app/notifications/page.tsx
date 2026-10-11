@@ -21,6 +21,7 @@ const TEXT: Record<NotificationType, (p: Payload) => string> = {
   OUTBID: (p) => `Ton offre de ${ryo(p.amount)} sur ${p.character} a été dépassée (Ryō remboursés).`,
   AUCTION_WON: (p) => `Tu as remporté ${p.character} pour ${ryo(p.amount)}.`,
   CARD_SOLD: (p) => `${p.character} est vendu : tu reçois ${ryo(p.amount)} (taxe de 5 % déduite).`,
+  WISHED_AVAILABLE: (p) => (p.source === "auction" ? `${p.character}, dans ta liste de souhaits, vient d'être mis aux enchères.` : `${p.username} propose ${p.character} (ta liste de souhaits) à l'échange.`),
   AUCTION_UNSOLD: (p) => `Ton enchère sur ${p.character} s'est terminée sans offre : la carte est revenue dans ton album.`,
 };
 
@@ -50,7 +51,7 @@ async function Notifications() {
         <ul className="notif-list">
           {list.map((n) => (
             <li key={n.id} className={n.read ? "" : "unread"}>
-              <Link href={n.payload.auctionId ? `/market/${n.payload.auctionId}` : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
+              <Link href={n.payload.auctionId ? `/market/${n.payload.auctionId}` : n.payload.characterId ? `/character/${n.payload.characterId}` : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
               <time className="vt-muted">{dateFmt.format(n.createdAt)}</time>
             </li>
           ))}

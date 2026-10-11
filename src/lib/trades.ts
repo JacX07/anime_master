@@ -4,6 +4,7 @@
 import { prisma } from "./db";
 import { MAX_PENDING_TRADES, TRADE_LIFETIME_MS, tradeEligibility } from "./economy";
 import { notify } from "./notifications";
+import { notifyWishers } from "./wishlist";
 
 export class TradeError extends Error {}
 /** L'offre n'est plus exécutable (carte vendue, solde insuffisant…) : elle passe en INVALID. */
@@ -178,6 +179,10 @@ export async function tradableCards(userId: string) {
 export async function setForTrade(userId: string, cardId: string, forTrade: boolean) {
   const r = await prisma.card.updateMany({ where: { id: cardId, ownerId: userId, ...(forTrade ? { locked: false, inAuction: false } : {}) }, data: { forTrade } });
   if (r.count !== 1) throw new TradeError("Carte introuvable ou indisponible.");
+  if (forTrade) {
+    const c = await prisma.card.findUniqueOrThrow({ where: { id: cardId }, select: { finish: true, characterId: true, owner: { select: { username: true } }, character: { select: { name: true } } } });
+    await notifyWishers({ characterId: c.characterId, finish: c.finish, ownerId: userId, characterName: c.character.name, source: "trade", username: c.owner.username });
+  }
 }
 
 /** Joueurs qui proposent ce personnage à l'échange. */

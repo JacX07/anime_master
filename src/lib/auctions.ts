@@ -6,6 +6,7 @@ import type { CardType, Finish, Rarity } from "../generated/prisma/enums";
 import { prisma } from "./db";
 import { AUCTION_DURATIONS_H, endAfterBid, MAX_ACTIVE_AUCTIONS, minBid, sellerProceeds, tradeEligibility } from "./economy";
 import { notify } from "./notifications";
+import { notifyWishers } from "./wishlist";
 
 export class AuctionError extends Error {}
 
@@ -32,7 +33,7 @@ export async function createAuction(sellerId: string, d: AuctionDraft, now = new
   if (!(AUCTION_DURATIONS_H as readonly number[]).includes(d.durationHours)) throw new AuctionError("Durée invalide.");
   const buyNow = d.buyNowPrice ?? null;
   if (buyNow !== null && (!isPrice(buyNow) || buyNow <= d.startPrice)) throw new AuctionError("Le prix d'achat immédiat doit dépasser le prix de départ.");
-  return prisma.$transaction(async (tx) => {
+  const auctionId = await prisma.$transaction(async (tx) => {
     const active = await tx.auction.count({ where: { sellerId, status: "ACTIVE" } });
     if (active >= MAX_ACTIVE_AUCTIONS) throw new AuctionError(`Tu as déjà ${MAX_ACTIVE_AUCTIONS} enchères actives.`);
     // Le blocage conditionnel de la carte empêche de la mettre deux fois aux enchères ou de la vendre en parallèle
@@ -44,6 +45,9 @@ export async function createAuction(sellerId: string, d: AuctionDraft, now = new
     });
     return a.id;
   });
+  const c = await prisma.card.findUniqueOrThrow({ where: { id: d.cardId }, select: { finish: true, characterId: true, character: { select: { name: true } } } });
+  await notifyWishers({ characterId: c.characterId, finish: c.finish, ownerId: sellerId, characterName: c.character.name, source: "auction", auctionId });
+  return auctionId;
 }
 
 /** Transfère la carte au gagnant et paie le vendeur (moins 5 %). Le montant est déjà retiré du solde du gagnant. */
@@ -154,6 +158,27 @@ export async function cancelAuction(sellerId: string, auctionId: string, now = n
 }
 
 // ---------- Lecture ----------
+
+/** Historique des prix d'un personnage : dernières ventes et prix moyen par finition. */
+export async function priceHistory(characterId: number) {
+  const sales = await prisma.auction.findMany({
+    where: { status: "SOLD", finalPrice: { not: null }, card: { characterId } },
+    orderBy: { closedAt: "desc" },
+    take: 100,
+    select: { finalPrice: true, closedAt: true, card: { select: { finish: true } } },
+  });
+  const byFinish = new Map<Finish, { sum: number; n: number }>();
+  for (const s of sales) {
+    const e = byFinish.get(s.card.finish) ?? { sum: 0, n: 0 };
+    e.sum += s.finalPrice!;
+    e.n += 1;
+    byFinish.set(s.card.finish, e);
+  }
+  return {
+    last: sales.slice(0, 10).map((s) => ({ price: s.finalPrice!, finish: s.card.finish, at: s.closedAt! })),
+    averages: (["NORMAL", "HOLO", "GOLD"] as Finish[]).flatMap((f) => (byFinish.has(f) ? [{ finish: f, average: Math.round(byFinish.get(f)!.sum / byFinish.get(f)!.n), count: byFinish.get(f)!.n }] : [])),
+  };
+}
 
 export interface MarketFilters {
   q?: string;

@@ -5,6 +5,8 @@
 import { prisma } from "../src/lib/db";
 import { buyNow, cancelAuction, closeAuction, closeDueAuctions, createAuction, AuctionError, placeBid } from "../src/lib/auctions";
 import { ANTI_SNIPING_MS, MAX_ACTIVE_AUCTIONS, minBid, sellerProceeds } from "../src/lib/economy";
+import { priceHistory } from "../src/lib/auctions";
+import { addWish } from "../src/lib/wishlist";
 import { sellCard, setLocked } from "../src/lib/wallet";
 
 let failures = 0;
@@ -134,6 +136,22 @@ async function main() {
     check("Achat immédiat trop cher pour l'acheteur : refusé", await rejects(buyNow(b1, a6)));
     check("Le vendeur ne peut pas acheter sa carte", await rejects(buyNow(s, a6)));
     await invariants("après achat immédiat");
+
+    // --- Historique des prix (a1 vendue 210, a4 vendue 300, même finition NORMAL)
+    const a1row = await prisma.auction.findUniqueOrThrow({ where: { id: a1 }, select: { card: { select: { characterId: true } } } });
+    const hist = await priceHistory(a1row.card.characterId);
+    check("Historique : dernière vente 210 Ryō visible, moyenne cohérente", hist.last.some((h) => h.price === 210) && hist.averages.some((x) => x.finish === "NORMAL" && x.count >= 1));
+
+    // --- Liste de souhaits : notification à la mise aux enchères
+    const c7 = await give(), c8 = await give();
+    const char7 = (await prisma.card.findUniqueOrThrow({ where: { id: c7 }, select: { characterId: true } })).characterId;
+    const char8 = (await prisma.card.findUniqueOrThrow({ where: { id: c8 }, select: { characterId: true } })).characterId;
+    await addWish(b1, char7, null); await addWish(b1, char7, null); await addWish(b2, char7, "GOLD"); await addWish(s, char7, null); await addWish(b1, char8, "HOLO");
+    check("Souhait en double ignoré", (await prisma.wishlistItem.count({ where: { userId: b1, characterId: char7 } })) === 1);
+    await createAuction(s, { cardId: c7, startPrice: 5, durationHours: 1 });
+    await createAuction(s, { cardId: c8, startPrice: 5, durationHours: 1 });
+    const wn = (u: string) => prisma.notification.count({ where: { userId: u, type: "WISHED_AVAILABLE" } });
+    check("Souhait sans finition : prévenu ; finition différente : non ; finition ≠ : non ; propriétaire : non", (await wn(b1)) === 1 && (await wn(b2)) === 0 && (await wn(s)) === 0);
 
     // --- Annulation
     check("Annulation avec offre refusée", (await placeBid(b1, a5, 10).then(() => true)) && (await rejects(cancelAuction(s, a5))));

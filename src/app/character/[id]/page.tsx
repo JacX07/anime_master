@@ -9,7 +9,10 @@ import { Stat, TypeIcon } from "@/components/icons";
 import { quickSellPrice } from "@/lib/economy";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { getSessionUser } from "@/lib/session";
+import { priceHistory } from "@/lib/auctions";
 import { traders } from "@/lib/trades";
+import { wishesFor } from "@/lib/wishlist";
+import { WishButton } from "./WishButton";
 import { CopyActions } from "./CopyActions";
 
 const parseId = (raw: string) => (/^\d{1,9}$/.test(raw) ? Number(raw) : null);
@@ -45,7 +48,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
   const c = await getCharacter(id, user?.id ?? null);
   if (!c) notFound();
 
-  const offers = await traders(id);
+  const [offers, history, wishes] = await Promise.all([traders(id), priceHistory(id), user ? wishesFor(user.id, id) : Promise.resolve([])]);
   const owned = c.copies !== null && c.copies.length > 0;
   const t = TYPE_LABELS[c.type];
   const facts: [string, React.ReactNode][] = [
@@ -87,6 +90,31 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
             </div>
           ))}
         </dl>
+
+        {user && (
+          <section>
+            <h2 className="mb-2 text-lg font-bold">Liste de souhaits</h2>
+            <WishButton characterId={id} wishes={wishes} />
+          </section>
+        )}
+
+        {history.last.length > 0 && (
+          <section>
+            <h2 className="mb-2 text-lg font-bold">Prix aux enchères</h2>
+            <p className="mb-2 text-sm text-muted">
+              {history.averages.map((a) => `${FINISH_NAMES[a.finish]} : ${numFmt.format(a.average)} Ryō en moyenne (${a.count} vente${a.count > 1 ? "s" : ""})`).join(" · ")}
+            </p>
+            <ul className="divide-y divide-white/5 rounded-xl bg-panel">
+              {history.last.map((h, i) => (
+                <li key={i} className="flex items-center gap-4 px-4 py-2 text-sm tabular-nums">
+                  <span className="finish-tag" data-finish={h.finish}>{FINISH_NAMES[h.finish]}</span>
+                  <span className="font-semibold">{numFmt.format(h.price)} Ryō</span>
+                  <span className="ml-auto text-muted">{dateFmt.format(h.at)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {c.description && (
           <section>
