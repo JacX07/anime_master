@@ -97,7 +97,7 @@ export async function start() {
   // Plan de coupe : la capsule se dévoile du socle vers le haut (matérialisation)
   const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e4);
   const mats = new Set(); pod.group.traverse((o) => { if (o.material) mats.add(o.material); });
-  mats.forEach((m) => { if (m.type !== "SpriteMaterial") m.clippingPlanes = [clip]; });
+  mats.forEach((m) => { m.clippingPlanes = [clip]; });
   const scanRing = new THREE.Mesh(new THREE.TorusGeometry(pod.R + 0.25, 0.03, 6, 6), new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(3.2) }));
   scanRing.rotation.x = Math.PI / 2; scanRing.visible = false; scene.add(scanRing);
 
@@ -127,12 +127,15 @@ export async function start() {
   }
   const shock = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2), transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
   shock.rotation.x = -Math.PI / 2; scene.add(shock);
+  // Faisceau de lumière qui jaillit de la coque quand le couvercle saute
+  const shaftGeo = new THREE.CylinderGeometry(0.55, 0.75, 3, 24, 1, true); shaftGeo.translate(0, 1.5, 0);
+  const shaft = new THREE.Mesh(shaftGeo, new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(1.8), transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending })); shaft.visible = false; scene.add(shaft);
 
   // ---------- État ----------
   let camLift = 0, variant = "fusion", stage = "idle", items = [], busy = false, opening = false, time = 0, spinStart = 0, threads = null;
   const hint = document.getElementById("hint"), desc = document.getElementById("desc"), btn = document.getElementById("replay");
   const bounce = (item) => tween(0.4, (k) => { const s = 1 + 0.16 * Math.sin(k * Math.PI * 3) * (1 - k); item.root.scale.set(1 - (s - 1) * 0.6, s, 1 - (s - 1) * 0.6); }, ease.lin);
-  const land = (item, i) => { A.land(); emit(slot(i).clone().add(new THREE.Vector3(0, -0.5, 0)), 14, { speed: 1.2, life: 0.5 }); item.state = "ready"; item.beam.visible = true; return bounce(item); };
+  const land = (item, i) => { A.land(); emit(slot(i).clone().add(new THREE.Vector3(0, -0.5, 0)), 14, { speed: 1.2, life: 0.5 }); item.state = "ready"; item.beam.visible = true; item.beam.scale.y = 0.01; tween(0.7, (k) => (item.beam.scale.y = 0.01 + 1.59 * k), ease.out); return bounce(item); };
   const portalPos = () => decor.portal.getWorldPosition(new THREE.Vector3());
   const bottomY = () => pod.group.position.y + pod.pedY - 0.2, topY = () => pod.group.position.y + pod.L / 2 + pod.H + 0.4;
   const setLabel = (label, text) => { btn.textContent = label; hint.textContent = text; };
@@ -142,8 +145,8 @@ export async function start() {
   }
   function resetPod(visible) {
     pod.group.visible = visible; pod.group.position.copy(HOME); pod.group.scale.setScalar(1);
-    pod.body.visible = true; pod.body.scale.set(1, 1, 1); pod.body.position.set(0, 0, 0); pod.body.rotation.set(0, 0, 0); pod.glow.visible = true; pod.top.position.set(0, 0, 0); pod.top.rotation.set(0, 0, 0); pod.top.visible = true;
-    pod.glass.opacity = 0.42; pod.glow.material.opacity = 0.85; pod.edgeMat.opacity = 0.95; pod.coreMat.color.set(BLUE).multiplyScalar(3); pod.core.scale.set(1, 1.5, 1);
+    pod.body.visible = true; pod.body.scale.set(1, 1, 1); pod.body.position.set(0, 0, 0); pod.body.rotation.set(0, 0, 0); pod.inner.visible = true; pod.core.visible = true; pod.top.position.set(0, 0, 0); pod.top.rotation.set(0, 0, 0); pod.top.visible = true;
+    pod.edgeMat.opacity = 0.95; pod.coreMat.color.set(BLUE).multiplyScalar(3); pod.core.scale.set(1, 1.5, 1);
     clip.constant = 1e4; scanRing.visible = false; spinStart = time;
   }
   function reset() {
@@ -175,7 +178,9 @@ export async function start() {
     emit(center.clone().add(new THREE.Vector3(0, 1, 0)), 90, { speed: 3, life: 0.9, colors: [BLUE, "#ffffff", MINT] });
     shock.position.set(center.x, pod.group.position.y + pod.pedY, center.z); shock.material.opacity = 0.9;
     tween(0.7, (k) => { shock.scale.setScalar(0.5 + k * 4); shock.material.opacity = 0.9 * (1 - k); });
-    tween(0.75, (k) => { pod.top.position.y = 2.2 * Math.sin(k * Math.PI * 0.55) - 0.3 * k * k; pod.top.rotation.z = 0.9 * k; pod.top.rotation.x = 0.4 * k; }, ease.out).then(() => { pod.top.visible = false; });
+    shaft.position.set(center.x, pod.group.position.y + 0.5, center.z); shaft.visible = true;
+    tween(1.0, (k) => { shaft.scale.set(1 - 0.5 * k, 0.3 + 2.2 * ease.out(k), 1 - 0.5 * k); shaft.material.opacity = 0.75 * (1 - k) ** 1.5; }).then(() => { shaft.visible = false; });
+    tween(0.75, (k) => { pod.top.position.y = 2.2 * Math.sin(k * Math.PI * 0.55) - 0.3 * k * k; pod.top.rotation.z = 0.9 * k; pod.top.rotation.x = 0.4 * k; pod.top.scale.setScalar(1 - 0.85 * ease.in(k)); }, ease.out).then(() => { pod.top.visible = false; pod.top.scale.setScalar(1); });
     tween(0.4, (k) => { const o = Math.sin(k * Math.PI); pod.body.scale.set(1.08 - 0.08 * k - 0.05 * o, 0.88 + 0.12 * k + 0.16 * o, 1.08 - 0.08 * k - 0.05 * o); }, ease.out);
     await Promise.all(items.map((item, i) => wait(0.14 + i * 0.1).then(async () => {
       A.chime(i);
@@ -185,17 +190,16 @@ export async function start() {
       await tween(0.95, (k) => { item.root.position.copy(curve.getPoint(k)); item.root.scale.setScalar(0.4 + 0.6 * ease.out(k)); item.body.rotation.y = (1 - k) * 8; if (k - last > 0.04) { last = k; emit(item.root.position, 2, { speed: 0.3, life: 0.5 }); } }, ease.inOut);
       item.root.position.copy(to); await land(item, i);
     })));
-    await tween(0.8, (k) => { pod.coreMat.color.set(BLUE).multiplyScalar(7 * (1 - k) + 0.6); pod.core.scale.setScalar(1.6 - 0.6 * k); pod.edgeMat.opacity = 0.95 - 0.5 * k; pod.glow.material.opacity = 0.85 * (1 - k); }, ease.out);
+    await tween(0.8, (k) => { pod.coreMat.color.set(BLUE).multiplyScalar(7 * (1 - k) + 0.6); pod.core.scale.setScalar(1.6 - 0.6 * k); pod.edgeMat.opacity = 0.95 - 0.5 * k; }, ease.out);
     await tween(0.6, (k) => { pod.body.scale.setScalar(Math.max(0.001, 1 - k)); pod.body.position.y = -0.4 * k; }, ease.in); pod.body.visible = false;
   }
 
   // Matérialisation : une ligne de scan monte du socle et dévoile la capsule
   async function materialize() {
-    resetPod(true); pod.glow.visible = false; fillPod(); items.forEach((i) => i.root.scale.setScalar(0.001));
+    resetPod(true); fillPod(); pod.inner.visible = false; items.forEach((i) => i.root.scale.setScalar(0.001));
     clip.constant = bottomY(); scanRing.visible = true; A.scan();
     await tween(1.7, (k) => { const h = bottomY() + (topY() - bottomY()) * k; clip.constant = h; scanRing.position.set(pod.group.position.x, h, pod.group.position.z); if (k > 0.02) emit(new THREE.Vector3(pod.group.position.x + (Math.random() - 0.5) * 1.6, h, pod.group.position.z + (Math.random() - 0.5) * 1.6), 2, { speed: 0.4, life: 0.5 }); }, ease.inOut);
-    clip.constant = 1e4; scanRing.visible = false; pod.glow.visible = true; A.latch();
-    await tween(0.5, (k) => items.forEach((it) => it.root.scale.setScalar(0.4 * k)), ease.out);
+    clip.constant = 1e4; scanRing.visible = false; A.latch(); pod.inner.visible = true; items.forEach((it) => it.root.scale.setScalar(0.4)); // cachés par la coque opaque : rien ne surgit
   }
 
   // ---------- Machine à tisser : un rail descend du plafond, un anneau à six têtes trace les arêtes de la capsule ----------
@@ -279,7 +283,7 @@ export async function start() {
   }
 
   async function weave() {
-    resetPod(true); pod.body.visible = false; fillPod(); items.forEach((i) => i.root.scale.setScalar(0.001)); opening = true;
+    resetPod(true); fillPod(); pod.inner.visible = false; opening = true; clip.constant = bottomY() - 1; // la coque se solidifie au fil du tissage, sous les pointes
     const m = ensureMachine(); m.group.visible = true; m.legs.forEach((l) => { l.s.dab = null; l.s.next = time + rnd(0.2, 1.4); });
     const { R, L, H } = pod, yTop = L / 2 + H;
     // Chemin des pointes, de BAS en HAUT : pointe du bas → épaule → ventre → épaule → pointe du haut (rayon et hauteur dans le repère de la capsule).
@@ -313,14 +317,15 @@ export async function start() {
       let avgY = 0;
       const tips = m.legs.slice(0, 6).map((l, i) => { const ui = Math.min(1, Math.max(0, u * speedJitter[i] + lag[i])), { y, r } = path(ui); avgY += y / 6; warp[i].setDrawRange(0, Math.max(0, Math.round(ui * (K - 1)) + 1)); return legTarget(l, i, new THREE.Vector3(...vert(i, r, y)), 1); });
       placeMachine(m, avgY + BODY_H, tips);
+      clip.constant = HOME.y + path(Math.min(...m.legs.slice(0, 6).map((l, i) => Math.min(1, Math.max(0, u * speedJitter[i] + lag[i]))))).y - 0.04;
       const level = Math.floor(Math.min(1, Math.max(0, u)) * M); if (level !== lastLevel) { lastLevel = level; wg.setDrawRange(0, Math.min(M, level) * 12); }
       if (Math.random() < 0.4) tips.forEach((tp, i) => { if (Math.random() < 0.3) emit(pod.group.localToWorld(tp.clone()), 1, { speed: 0.3, life: 0.35 }); });
     }, ease.lin);
-    wg.setDrawRange(0, M * 12); warp.forEach((g) => g.setDrawRange(0, K));
+    wg.setDrawRange(0, M * 12); warp.forEach((g) => g.setDrawRange(0, K)); clip.constant = 1e4; pod.inner.visible = true; items.forEach((it) => it.root.scale.setScalar(0.4));
     // 3 · elle remonte en repliant ses pattes, le verre se forme, les fils s'éteignent
-    pod.body.visible = true; pod.glass.opacity = 0; pod.edgeMat.opacity = 0; A.latch(); A.shimmer(); A.skitter();
+    A.latch(); A.shimmer(); A.skitter();
     tween(1.3, (k) => { const by = yTop + BODY_H + (14 - yTop - BODY_H) * ease.in(k); placeMachine(m, by, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, by - BODY_H, 0.3 * (1 - k * 0.5)), 3))); }, ease.in).then(() => { m.group.visible = false; });
-    await tween(0.8, (k) => { pod.glass.opacity = 0.42 * k; pod.edgeMat.opacity = 0.95 * k; mat.opacity = 1 - k; items.forEach((it) => it.root.scale.setScalar(0.4 * k)); }, ease.out);
+    await tween(0.8, (k) => { mat.opacity = 1 - k; }, ease.out);
     tween(1.4, (k) => (camLift = 0.9 * (1 - k)), ease.inOut);
     threads.removeFromParent(); threads = null; spinStart = time; opening = false;
   }
