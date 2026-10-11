@@ -7,6 +7,12 @@
       "skillPath": "skills/genres/card-game/SKILL.md",
       "computedHash": "00a8cf72066ba076e559db0bbe1e783d2ced8c494b7fa28fe96b75e7fc5aa1f3"
     },
+    "codeql": {
+      "source": "trailofbits/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/static-analysis/skills/codeql/SKILL.md",
+      "computedHash": "1756abbf6ee92dbe55c5f49c9b0a73db2c1514f2f57e08c46d7e8b2a26a339d8"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
