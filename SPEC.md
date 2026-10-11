@@ -248,6 +248,8 @@ Pas d'envoi d'email en local : pas de vérification d'email ni de « mot de pass
 | `/profile` | Pseudo, statistiques (nombre de cartes, % de complétion, meilleures cartes) |
 
 ### 3. Paquets
+> **Remplacé** par les cristaux : voir « Étape 4 bis — Cristaux et bannières » (spec du 2026-10-12, pas encore codée). Cette section décrit le système en place.
+
 - **5 cartes par paquet.**
 - **1 paquet toutes les 10 minutes**, **stock maximum de 10**.
 - **10 paquets de bienvenue** à l'inscription.
@@ -259,6 +261,8 @@ Pas d'envoi d'email en local : pas de vérification d'email ni de « mot de pass
   Lors d'une ouverture, `packsStored = disponibles − 1`, et `lastPackAt` avance de `écoulés × 10 min` (ou passe à maintenant si le stock était plein), pour ne pas perdre la progression vers le paquet suivant.
 
 ### 4. Tirage
+> **Évolue** : le pity passe en cartes (75 / 500), la carte garantie reste par bloc de 5 et le ×10 améliore la 10ᵉ carte : voir « Étape 4 bis ».
+
 Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasard, uniformément, parmi ceux de cette rareté**, puis la **finition**.
 
 **Taux de rareté (par carte)**
@@ -363,6 +367,8 @@ Donner de la valeur aux cartes : revente des doublons, échanges entre joueurs, 
 - Un solde ne peut jamais devenir négatif.
 
 ### 2. Sources et dépenses
+> **Évolue** : l'achat de paquets devient l'achat de cristaux (20 Ryō, 25 par jour) : voir « Étape 4 bis ».
+
 | ➕ Sources | ➖ Dépenses |
 |---|---|
 | Vente rapide d'une carte au système | Achat de paquet : 100 Ryō, 5 par jour maximum (remise à zéro à minuit, heure du serveur) |
@@ -581,6 +587,131 @@ Définis dans le code, vérifiés après chaque événement (paquet ouvert, duel
 - [ ] Le replay correspond exactement au combat calculé.
 - [ ] L'Elo, les récompenses et les limites (5 par jour, 2 récompensés par adversaire) sont respectés.
 - [ ] Chaque succès ne se débloque qu'une fois et crédite les Ryō.
+
+---
+
+## Étape 4 bis — Cristaux et bannières (refonte du tirage)
+
+> **Statut : spec écrite le 2026-10-12, pas encore codée.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
+
+### Objectif
+Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 cristal = 1 carte tirée**. Cela permet des récompenses de toute taille, des tirages ×5 et ×10, et des **bannières** pour viser des catégories de personnages. Les cristaux sont aussi l'énergie du lore (la machine-araignée en consomme pour capturer).
+
+### Décisions validées
+- 1 cristal = 1 carte. Tirages **×5** et **×10** (pas de tirage à l'unité).
+- Régénération et plafond équivalents à l'actuel : **1 cristal toutes les 2 min, plafond 50**.
+- Achat avec des Ryō : **25 cristaux par jour maximum**.
+- **Pity compté en cartes**, un seul compteur : SSR ou mieux garanti à la **75ᵉ** carte sans SSR, UR garanti à la **500ᵉ** carte sans UR (soit exactement l'actuel, 15 et 100 paquets de 5).
+- **Le ×10 améliore la 10ᵉ carte**, de façon dégressive : le gain relatif est plus fort sur SR que sur SSR, plus fort que sur UR (variante C, ci-dessous).
+- **Bannières** de catégories (sport, shonen, isekai, waifu, husbando) et de personnages ciblés, avec des **cristaux spéciaux** obtenus par **succès** ou **expéditions** (les expéditions avec boss restent à explorer).
+
+### À valider (propositions du conseil, pas encore décidées)
+- Prix : **20 Ryō par cristal** (500 Ryō/jour au maximum, comme aujourd'hui).
+- Bannière : la rareté est tirée avec les taux normaux, puis **50 %** des cartes viennent de la catégorie mise en avant et 50 % du pool complet.
+- Cadeau de bienvenue : **50 cartes** en tout, dont **20 tirages sur une bannière de catégorie au choix du joueur**, à usage unique (la demande initiale était « ×20 ou plus, à discuter »).
+- Plafonds des cristaux spéciaux (§6) et nom du marché des enchères (§9).
+
+---
+
+### 1. Cristaux (stock)
+- `User.crystals` (stock au moment de `crystalsUpdatedAt`) et `User.crystalsUpdatedAt`. Calcul **paresseux**, comme pour les paquets :
+  ```
+  écoulés   = floor((maintenant − crystalsUpdatedAt) / 2 min)
+  disponibles = min(50, crystals + écoulés)      // sauf si crystals dépasse déjà 50 : pas de recharge
+  ```
+- Au-delà de 50 (achats, récompenses), le stock est conservé mais ne se recharge plus tant qu'il reste ≥ 50 (règle actuelle des paquets achetés).
+- Les cristaux ne sont **ni vendables, ni échangeables, ni mis aux enchères**.
+- Toute dépense ou gain est une mise à jour conditionnelle dans la transaction (le stock ne devient jamais négatif).
+
+### 2. Boutique
+| ➖ Dépense | ➕ Gain |
+|---|---|
+| 20 Ryō = 1 cristal, **25 par jour maximum** (remise à zéro à minuit, heure du serveur), achetés par lots de 5 ou 25 | 1 cristal / 2 min, succès, expéditions (plus tard) |
+
+L'achat s'ajoute au stock et peut le faire dépasser 50. Journal : nouvelle raison `CRYSTAL_BUY` dans `CurrencyLedger`.
+
+### 3. Lots ×5 et ×10
+- Un ×5 coûte 5 cristaux, un ×10 coûte 10 cristaux (aucune remise : le gain du ×10 est la 10ᵉ carte).
+- Chaque lot se tire dans **une seule transaction**. Un lot est refusé s'il y a moins de cristaux que son coût.
+- Taux de rareté de base inchangés : N 65 / R 24 / SR 8 / SSR 2,5 / UR 0,5 %. Finitions inchangées : Normal 90 / Holo 9 / Gold 1 %.
+
+**Règles de tirage d'un lot, appliquées carte par carte dans l'ordre :**
+1. **Pity UR** : si `cardsSinceUR ≥ 499`, la carte est un UR.
+2. **Pity SSR** : si `cardsSinceSSR ≥ 74` et que la carte tirée n'est ni SSR ni UR, elle est retirée parmi SSR et UR (SSR 5/6, UR 1/6).
+3. **Carte garantie** : la 5ᵉ carte de chaque bloc de 5 est tirée parmi R, SR, SSR et UR (selon leurs taux relatifs) si les 4 cartes précédentes du bloc sont toutes N. Comme aujourd'hui.
+4. **10ᵉ carte du ×10** : elle est tirée avec la table ci-dessous (au moins R) **à la place** de la règle 3 pour cette carte. Le ×5 n'a pas de 10ᵉ carte.
+
+| Rareté | Taux de base | 10ᵉ carte du ×10 |
+|---|---|---|
+| N | 65 % | 0 % |
+| R | 24 % | 68,75 % |
+| SR | 8 % | 24 % (×3) |
+| SSR | 2,5 % | 6,25 % (×2,5) |
+| UR | 0,5 % | 1 % (×2) |
+
+**Résultats simulés** (2 000 000 cartes, `npm run simulate:crystals`), relatifs à l'actuel, par lot de 10 cartes :
+| | SR | SSR | UR |
+|---|---|---|---|
+| ×5 (variante C) | ±0 % | +1 % | +1 % |
+| ×10 (variante C) | **+16 %** | **+9 %** | **+5 %** |
+
+Le ×5 reste équivalent à aujourd'hui, le ×10 est meilleur : il est donc l'unité naturelle. Sans la règle 3 (variante B), le ×5 était 6 % en dessous de l'actuel en SR : rejeté.
+
+**Pity (simulé)** : premier SSR ou mieux en médiane autour de 20–22 cartes (90 % avant 65–71, jamais plus de 75) ; premier UR en médiane autour de 120 cartes (90 % avant ~380–390, jamais plus de 500).
+
+### 4. Pity
+- `User.cardsSinceSSR` et `User.cardsSinceUR` remplacent `packsSinceSSR` / `packsSinceUR`.
+- **Un seul compteur pour le tirage standard et pour toutes les bannières** : changer de bannière ne permet pas de le contourner.
+- Remise à zéro : `cardsSinceSSR` si une carte SSR ou UR est obtenue, `cardsSinceUR` si une carte UR est obtenue ; sinon +1 par carte.
+- Affichage : « SSR garanti dans X cartes », « UR garanti dans Y cartes ».
+
+### 5. Bannières
+- Une **bannière** = un nom, une description (lore), une **liste de personnages** (catégorie ou sélection), des dates d'ouverture et de fermeture éventuelles, un coût en cristaux (normaux ou spéciaux).
+- Catégories prévues : **sport, shonen, isekai, waifu, husbando** (à construire à partir des tags/genres AniList et du champ `gender`) ; des bannières de **personnages ciblés** viendront ensuite.
+- **Une bannière ne change jamais les taux de rareté** ni le pity. Elle change seulement le choix du personnage : la rareté est tirée comme d'habitude, puis **[à valider] 50 %** des cartes viennent des personnages de la bannière (de la rareté tirée), 50 % du pool complet de cette rareté. Si la bannière n'a aucun personnage de la rareté tirée, on prend le pool complet.
+- Pas de « 100 % de la catégorie » : la demande reste répartie sur tous les personnages.
+- Les bannières de catégorie **tournent dans le temps** ; seules les bannières de bienvenue (§8) sont permanentes pour les nouveaux joueurs.
+- Les lots ×5 et ×10 fonctionnent de la même manière sur une bannière (mêmes règles de lot, mêmes garanties).
+
+### 6. Cristaux spéciaux
+- Ressource séparée (`User.specialCrystals`), utilisable seulement sur les bannières qui en demandent. **Ni achetable, ni vendable, ni échangeable.**
+- Sources : d'abord les **succès** (stock total limité, environ 100 sur la vie d'un compte), puis les **expéditions** [à valider : 10 par semaine au plus].
+- Règle de garde-fou : toutes les sources spéciales réunies restent **sous 5 % des cartes créées par jour** par les cristaux normaux.
+- Journal dédié : table `SpecialCrystalLedger` (`userId`, `amount`, `reason`, `refId`).
+
+### 7. Expéditions (à explorer, hors périmètre de cette étape)
+Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencent le résultat ; un boss à la fin rapporte des cristaux spéciaux. Cette étape ne code que les **hooks** : les cristaux spéciaux existent et les succès en donnent. Les expéditions auront leur propre spec.
+
+### 8. Cadeau de bienvenue
+- Remplace les 10 paquets : **50 cartes** en tout.
+- [à valider] 30 cristaux normaux + **20 tirages sur une bannière de catégorie choisie par le joueur** parmi les catégories de §5, à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
+- Le cadeau injecte **autant de cartes qu'aujourd'hui** (50), pas plus.
+
+### 9. Vocabulaire et clarté
+- Chaque terme (cristal, cristal spécial, bannière, pity, Ryō) est défini à l'écran à sa première apparition.
+- [à valider] Renommer « marché noir » (enchères) en un terme moins négatif, par exemple « Bourse des brèches ». À décider avec la direction du lore.
+
+### 10. Modèle de données (changements)
+- **User** : ajout de `crystals`, `crystalsUpdatedAt`, `specialCrystals`, `crystalsBoughtToday`, `crystalsBoughtDate` ; renommage `packsSinceSSR` → `cardsSinceSSR`, `packsSinceUR` → `cardsSinceUR` ; suppression de `packsStored`, `lastPackAt`, `packsBoughtToday`, `packsBoughtDate`.
+- **PackOpening** → **Opening** : `lotSize` (5 ou 10), `bannerId` (nullable), `pityTriggered`.
+- **Banner** : `id`, `name`, `description`, `category`, `startsAt`, `endsAt`, `costKind` (NORMAL / SPECIAL), `weight` (part des cartes issues de la bannière).
+- **BannerCharacter** : `bannerId`, `characterId`.
+- **CurrencyLedger.reason** : ajout de `CRYSTAL_BUY` ; `PACK_BUY` conservé pour l'historique.
+- **Migration** : la base ne contient que des comptes de test, on repart d'une base propre (aucun joueur réel à convertir). Pour mémoire, un joueur existant convertirait chaque paquet en stock en 5 cristaux.
+
+### 11. Impact sur l'existant
+- Scène 3D : le HUD affiche les cristaux au lieu des paquets ; boutons **Ouvrir ×5** (animation actuelle) et **Ouvrir ×10** (résumé) ; sélecteur de bannière.
+- `/packs`, ouverture de secours sans WebGL, accueil, barre du haut, album (bouton d'achat) : « paquets » devient « cristaux ».
+- Récompenses de succès : chacune peut donner des Ryō et/ou des cristaux (à répartir dans une passe d'équilibrage).
+- `npm run simulate` et `npm run simulate:crystals` à fusionner et à mettre à jour quand le tirage sera codé.
+
+### 12. Critères pour dire que l'étape 4 bis est finie
+- [ ] Un ×5 coûte 5 cristaux, un ×10 en coûte 10, jamais plus que le stock, même avec des ouvertures simultanées.
+- [ ] La simulation du code de production confirme : ×5 ≈ actuel (à 2 % près), ×10 = +16 / +9 / +5 % de SR / SSR / UR, SSR au plus tard à la 75ᵉ carte, UR à la 500ᵉ.
+- [ ] Une bannière ne modifie ni les taux de rareté ni le pity ; un seul compteur de pity.
+- [ ] Les cristaux (normaux et spéciaux) sont inscrits dans un journal et ne sont ni vendables ni échangeables.
+- [ ] Achat limité à 25 cristaux par jour, solde de Ryō toujours égal à la somme du journal.
+- [ ] Le cadeau de bienvenue donne 50 cartes, pas plus.
 
 ---
 
