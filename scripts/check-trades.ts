@@ -2,6 +2,7 @@
 // expiration, double acceptation, limites, ancienneté du compte, journal des Ryō. Joueurs jetables.
 // Usage : npm run check:trades
 
+import { ACHIEVEMENTS } from "../src/lib/achievements";
 import { prisma } from "../src/lib/db";
 import { MAX_PENDING_TRADES } from "../src/lib/economy";
 import { acceptTrade, cancelTrade, createTrade, refuseTrade, TradeError, traders, setForTrade } from "../src/lib/trades";
@@ -23,6 +24,8 @@ async function main() {
       data: { id, name: id, username: id, email: `${id}@test.local`, balance, createdAt: new Date(Date.now() - (veteran ? day : 1000)) },
       select: { id: true },
     });
+    // Succès déjà « obtenus » : leurs Ryō ne doivent pas fausser les soldes vérifiés ici (voir check:achievements)
+    await prisma.userAchievement.createMany({ data: ACHIEVEMENTS.map((x) => ({ userId: id, key: x.key })) });
     if (balance) await prisma.currencyLedger.create({ data: { userId: id, amount: balance, reason: "DAILY" } });
     if (veteran) await prisma.packOpening.createMany({ data: Array.from({ length: 20 }, () => ({ userId: id, pityTriggered: "NONE" as const })) });
     return u.id;

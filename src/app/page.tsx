@@ -82,9 +82,9 @@ async function Menu() {
             hint={available > 0 ? `${available} prêt${available > 1 ? "s" : ""}` : "Le prochain arrive bientôt"}
           />
           <Item href="/album" title="Mon album" hint={`${num.format(s.owned)} sur ${num.format(s.total)} personnages`} />
-          <Item title="Marché" hint="Bientôt" />
-          <Item title="Duels" hint="Bientôt" />
-          <Item title="Classement" hint="Bientôt" />
+          <Item href="/market" title="Marché" hint="Enchères entre joueurs" />
+          <Item href="/duels" title="Duels" hint="Quiz et combats de cartes" />
+          <Item href="/leaderboard" title="Classement" hint="Duel et collection" />
         </MenuNav>
       </div>
 

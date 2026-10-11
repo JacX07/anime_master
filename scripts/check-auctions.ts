@@ -2,6 +2,7 @@
 // anti-sniping, achat immédiat, clôture unique, taxe de 5 %, limites. Joueurs jetables.
 // Usage : npm run check:auctions   (Node 24)
 
+import { ACHIEVEMENTS } from "../src/lib/achievements";
 import { prisma } from "../src/lib/db";
 import { buyNow, cancelAuction, closeAuction, closeDueAuctions, createAuction, AuctionError, placeBid } from "../src/lib/auctions";
 import { ANTI_SNIPING_MS, MAX_ACTIVE_AUCTIONS, minBid, sellerProceeds } from "../src/lib/economy";
@@ -21,6 +22,8 @@ async function main() {
   const day = 25 * 3600 * 1000;
   async function mk(id: string, balance: number, veteran = true) {
     await prisma.user.create({ data: { id, name: id, username: id, email: `${id}@test.local`, balance, createdAt: new Date(Date.now() - (veteran ? day : 1000)) } });
+    // Succès déjà « obtenus » : leurs Ryō ne doivent pas fausser les soldes vérifiés ici (voir check:achievements)
+    await prisma.userAchievement.createMany({ data: ACHIEVEMENTS.map((x) => ({ userId: id, key: x.key })) });
     if (balance) await prisma.currencyLedger.create({ data: { userId: id, amount: balance, reason: "DAILY" } });
     if (veteran) await prisma.packOpening.createMany({ data: Array.from({ length: 20 }, () => ({ userId: id, pityTriggered: "NONE" as const })) });
     return id;

@@ -113,8 +113,9 @@ async function activeDuel(userId: string, duelId: string, now: Date) {
 
 /** Commence la défense : génère les 12 questions sur les cartes adverses (une seule fois, même en cas de double clic). */
 export async function startDefense(userId: string, duelId: string, now = new Date()) {
-  const d = await activeDuel(userId, duelId, now);
+  // Session déjà commencée (ou finie, même si le duel vient d'être résolu) : rien à faire
   if (await prisma.duelDefense.findUnique({ where: { duelId_userId: { duelId, userId } } })) return;
+  const d = await activeDuel(userId, duelId, now);
   const slots = await prisma.duelSlot.findMany({ where: { duelId, userId: d.attackerId }, orderBy: { position: "asc" } });
   const questions: Prisma.DuelQuestionCreateManyInput[] = [];
   for (const s of slots) {
@@ -341,7 +342,7 @@ export async function listDuels(userId: string, now = new Date()) {
       playDeadline: d.playDeadline,
       iPlayed: !!myDefense?.finishedAt,
       theyPlayed: !!theirDefense?.finishedAt,
-      outcome: d.status === "DONE" || d.status === "FORFEIT" ? (d.winnerId === null ? "draw" : d.winnerId === userId ? "win" : "loss") : null,
+      outcome: (d.status === "DONE" || d.status === "FORFEIT" ? (d.winnerId === null ? "draw" : d.winnerId === userId ? "win" : "loss") : null) as "win" | "draw" | "loss" | null,
       eloChange: mine ? d.eloChangeChallenger : d.eloChangeOpponent,
     };
   });
