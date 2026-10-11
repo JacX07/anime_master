@@ -135,13 +135,13 @@ export async function start() {
   let camLift = 0, variant = "fusion", stage = "idle", items = [], busy = false, opening = false, time = 0, spinStart = 0, threads = null;
   const hint = document.getElementById("hint"), desc = document.getElementById("desc"), btn = document.getElementById("replay");
   const bounce = (item) => tween(0.4, (k) => { const s = 1 + 0.16 * Math.sin(k * Math.PI * 3) * (1 - k); item.root.scale.set(1 - (s - 1) * 0.6, s, 1 - (s - 1) * 0.6); }, ease.lin);
-  const land = (item, i) => { A.land(); emit(slot(i).clone().add(new THREE.Vector3(0, -0.5, 0)), 14, { speed: 1.2, life: 0.5 }); item.state = "ready"; item.beam.visible = true; item.beam.scale.y = 0.01; tween(0.7, (k) => (item.beam.scale.y = 0.01 + 1.59 * k), ease.out); return bounce(item); };
+  const land = (item, i) => { A.land(); emit(slot(i).clone().add(new THREE.Vector3(0, -0.5, 0)), 14, { speed: 1.2, life: 0.5 }); item.state = "ready"; item.root.traverse((o) => (o.renderOrder = 0)); item.beam.visible = true; item.beam.scale.y = 0.01; tween(0.7, (k) => (item.beam.scale.y = 0.01 + 1.59 * k), ease.out); return bounce(item); };
   const portalPos = () => decor.portal.getWorldPosition(new THREE.Vector3());
   const bottomY = () => pod.group.position.y + pod.pedY - 0.2, topY = () => pod.group.position.y + pod.L / 2 + pod.H + 0.4;
   const setLabel = (label, text) => { btn.textContent = label; hint.textContent = text; };
 
   function fillPod() {
-    items = CHARS.map((c) => { const it = noyaux.buildItem(BLUE, c, 0, 0, 0); pod.inner.add(it.root); it.root.scale.setScalar(0.4); it.beam.visible = false; it.state = "inside"; return it; });
+    items = CHARS.map((c) => { const it = noyaux.buildItem(BLUE, c, 0, 0, 0); pod.inner.add(it.root); it.root.scale.setScalar(0.4); it.beam.visible = false; it.state = "inside"; it.root.traverse((o) => (o.renderOrder = -5)); return it; });
   }
   function resetPod(visible) {
     pod.group.visible = visible; pod.group.position.copy(HOME); pod.group.scale.setScalar(1);
@@ -199,7 +199,8 @@ export async function start() {
     resetPod(true); fillPod(); pod.inner.visible = false; items.forEach((i) => i.root.scale.setScalar(0.001));
     clip.constant = bottomY(); scanRing.visible = true; A.scan();
     await tween(1.7, (k) => { const h = bottomY() + (topY() - bottomY()) * k; clip.constant = h; scanRing.position.set(pod.group.position.x, h, pod.group.position.z); if (k > 0.02) emit(new THREE.Vector3(pod.group.position.x + (Math.random() - 0.5) * 1.6, h, pod.group.position.z + (Math.random() - 0.5) * 1.6), 2, { speed: 0.4, life: 0.5 }); }, ease.inOut);
-    clip.constant = 1e4; scanRing.visible = false; A.latch(); pod.inner.visible = true; items.forEach((it) => it.root.scale.setScalar(0.4)); // cachés par la coque opaque : rien ne surgit
+    clip.constant = 1e4; scanRing.visible = false; A.latch(); pod.inner.visible = true;
+    await tween(0.9, (k) => items.forEach((it) => it.root.scale.setScalar(0.4 * k)), ease.out); // ils grandissent derrière le verre dépoli : rien ne surgit
   }
 
   // ---------- Machine à tisser : un rail descend du plafond, un anneau à six têtes trace les arêtes de la capsule ----------
@@ -321,7 +322,7 @@ export async function start() {
       const level = Math.floor(Math.min(1, Math.max(0, u)) * M); if (level !== lastLevel) { lastLevel = level; wg.setDrawRange(0, Math.min(M, level) * 12); }
       if (Math.random() < 0.4) tips.forEach((tp, i) => { if (Math.random() < 0.3) emit(pod.group.localToWorld(tp.clone()), 1, { speed: 0.3, life: 0.35 }); });
     }, ease.lin);
-    wg.setDrawRange(0, M * 12); warp.forEach((g) => g.setDrawRange(0, K)); clip.constant = 1e4; pod.inner.visible = true; items.forEach((it) => it.root.scale.setScalar(0.4));
+    wg.setDrawRange(0, M * 12); warp.forEach((g) => g.setDrawRange(0, K)); clip.constant = 1e4; pod.inner.visible = true; items.forEach((it) => it.root.scale.setScalar(0.001)); tween(0.9, (k) => items.forEach((it) => it.root.scale.setScalar(0.4 * k)), ease.out); // ils grandissent derrière le verre dépoli
     // 3 · elle remonte en repliant ses pattes, le verre se forme, les fils s'éteignent
     A.latch(); A.shimmer(); A.skitter();
     tween(1.3, (k) => { const by = yTop + BODY_H + (14 - yTop - BODY_H) * ease.in(k); placeMachine(m, by, m.legs.slice(0, 6).map((l, i) => legTarget(l, i, apex(i, by - BODY_H, 0.3 * (1 - k * 0.5)), 3))); }, ease.in).then(() => { m.group.visible = false; });

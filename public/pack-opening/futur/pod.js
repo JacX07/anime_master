@@ -1,5 +1,5 @@
-// Capsule « reliquaire » : une coque opaque à facettes (prisme hexagonal et deux pyramides), arêtes lumineuses, cœur qui brille
-// à l'intérieur. On ne voit pas dedans : les cinq noyaux n'apparaissent qu'à l'ouverture.
+// Capsule « reliquaire » : une coque de verre teinté à facettes (prisme hexagonal et deux pyramides), arêtes lumineuses, cœur qui brille
+// à l'intérieur. Une couche de verre dépoli double la coque : on devine le cœur et les formes, on ne distingue pas les noyaux.
 import * as THREE from "three";
 
 const R = 0.78, L = 1.1, H = 0.62; // rayon, hauteur du prisme, hauteur d'une pyramide
@@ -10,8 +10,10 @@ export function buildPod({ decor, BLUE, MINT }) {
   const body = new THREE.Group(); group.add(body);
   const top = new THREE.Group(), bottom = new THREE.Group(); body.add(top, bottom);
 
-  // Coque opaque : bleu nuit laqué, facettes marquées. Double face pour qu'on voie l'intérieur quand le couvercle saute.
-  const glass = new THREE.MeshPhysicalMaterial({ color: "#2a4a8c", emissive: "#0b2150", emissiveIntensity: 0.6, metalness: 0.35, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 2.2, flatShading: true, side: THREE.DoubleSide });
+  // Verre teinté bleu pâle : reflets de l'environnement bien marqués, facettes nettes
+  const glass = new THREE.MeshPhysicalMaterial({ color: "#b4ccf6", transparent: true, opacity: 0.55, metalness: 0.1, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.6, iridescence: 0.35, flatShading: true, side: THREE.DoubleSide, depthWrite: false });
+  // Verre dépoli juste dessous : il floute ce qu'il y a dedans
+  const frost = new THREE.MeshPhysicalMaterial({ color: "#d3e2fb", transparent: true, opacity: 0.82, roughness: 0.85, metalness: 0, flatShading: true, side: THREE.DoubleSide, depthWrite: false });
   const edgeMat = new THREE.LineBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.1), transparent: true, opacity: 0.95 });
   const prism = new THREE.CylinderGeometry(R, R, L / 2, 6, 1, true), cone = new THREE.ConeGeometry(R, H, 6, 1, true);
   const prismEdges = new THREE.EdgesGeometry(prism), coneEdges = new THREE.EdgesGeometry(cone);
@@ -19,11 +21,15 @@ export function buildPod({ decor, BLUE, MINT }) {
   // Moitié haute ; la moitié basse est la même, retournée
   const half = () => {
     const g = new THREE.Group();
-    const p = new THREE.Mesh(prism, glass); p.position.y = L / 4; p.castShadow = true;
-    const c = new THREE.Mesh(cone, glass); c.position.y = L / 2 + H / 2; c.castShadow = true;
+    const p = new THREE.Mesh(prism, glass); p.position.y = L / 4;
+    const c = new THREE.Mesh(cone, glass); c.position.y = L / 2 + H / 2;
+    const pf = new THREE.Mesh(prism, frost); pf.position.copy(p.position); pf.scale.set(0.95, 1, 0.95);
+    const cf = new THREE.Mesh(cone, frost); cf.position.copy(c.position); cf.scale.set(0.95, 0.97, 0.95);
     const pe = new THREE.LineSegments(prismEdges, edgeMat); pe.position.copy(p.position);
     const ce = new THREE.LineSegments(coneEdges, edgeMat); ce.position.copy(c.position);
-    g.add(p, c, pe, ce);
+    // Ordre de dessin : ce qu'il y a dedans d'abord (réglé dans lab.js), puis le verre dépoli, puis le verre teinté, puis les arêtes
+    pf.renderOrder = cf.renderOrder = 2; p.renderOrder = c.renderOrder = 3; pe.renderOrder = ce.renderOrder = 4;
+    g.add(pf, cf, p, c, pe, ce);
     return g;
   };
   const topHalf = half(), bottomHalf = half(); bottomHalf.rotation.x = Math.PI;
@@ -31,7 +37,7 @@ export function buildPod({ decor, BLUE, MINT }) {
 
   // Cœur lumineux, caché par la coque jusqu'à l'ouverture
   const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(3) });
-  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 0), coreMat); core.scale.set(1, 1.5, 1); body.add(core);
+  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 0), coreMat); core.scale.set(1, 1.5, 1); core.renderOrder = -5; body.add(core);
 
   // Socle hexagonal et sa couronne de lumière
   const pedY = -(L / 2 + H) - 0.3;
