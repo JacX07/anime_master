@@ -2,7 +2,7 @@
 //   1 · Portail + capsule : « Ouvrir » embrase le portail (anneaux, son), la capsule se matérialise, puis s'ouvre.
 //   2 · Capsule sortie du portail : le portail la dépose, on clique ensuite sur la capsule pour l'ouvrir.
 //   3 · Portail seul : les noyaux jaillissent directement du portail.
-//   4 · Tisserand : des fils de lumière tissent la capsule, puis elle s'ouvre.
+//   4 · Machine à tisser : un anneau à six têtes, suspendu à un rail, tisse la capsule, puis elle s'ouvre.
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -21,7 +21,7 @@ const DESC = {
   fusion: ["1 · Portail + capsule", "« Ouvrir » : le portail s'embrase, ses anneaux s'emballent avec une montée sonore, puis la capsule se matérialise du socle vers le haut, en une ligne de scan. Elle s'ouvre ensuite toute seule."],
   sortie: ["2 · Capsule sortie du portail", "Deux temps. « Invoquer » : le portail s'embrase et dépose la capsule, qui descend en arc jusqu'à son socle. Puis on clique sur la capsule (ou « Ouvrir ») pour l'ouvrir."],
   portail: ["3 · Portail seul", "Pas de capsule : les noyaux jaillissent du portail en arc, avec une traînée de lumière, et se posent à leur place. Son plus grave et plus sérieux que la première maquette."],
-  tisserand: ["4 · Tisserand", "Des fils de lumière arrivent de partout, se tendent et tissent les arêtes de la capsule du bas vers le haut ; le verre apparaît quand le dernier fil est tendu. Puis elle s'ouvre."],
+  tisserand: ["4 · Machine à tisser", "Un rail descend du plafond avec un anneau à six têtes. Il part de la pointe du haut, s'ouvre sur les épaules, descend le long du ventre et se referme sur la pointe du bas, en traçant les arêtes pendant que la trame se tisse niveau par niveau. La machine remonte, le verre se forme, puis la capsule s'ouvre."],
 };
 
 // ---------- Son : basses, cloches de verre, réverbération. Rien de cartoon. ----------
@@ -66,6 +66,10 @@ const A = {
   chime(i) { this.bell([392, 440, 523.25, 587.33, 659.25][i] * 1.5, 1.8, 0.05); },
   land() { this.sub(120, 52, 0.22, 0.2); this.bell(1760, 0.9, 0.018); },
   scan() { this.noise(1.7, { from: 400, to: 6500, gain: 0.05, q: 6, wet: 0.5 }); this.tone(110, 330, 1.7, { type: "triangle", gain: 0.05, a: 0.8, wet: 0.5 }); },
+  // Moteur : grondement qui monte, avec un souffle de mécanisme ; tic sec à chaque niveau tissé ; scintillement quand le verre se forme
+  motor(dur) { this.tone(62, 118, dur, { type: "sawtooth", gain: 0.05, a: 0.9, cutoff: 520, wet: 0.2 }); this.noise(dur, { from: 700, to: 1500, gain: 0.014, q: 3, wet: 0.2 }); },
+  tick() { this.noise(0.012, { type: "highpass", from: 4600, to: 4500, gain: 0.03, wet: 0.15 }); this.sub(320, 230, 0.025, 0.05); },
+  shimmer() { [0, 1, 2, 3, 4].forEach((i) => this.bell(1568 * 1.19 ** i, 1.2, 0.02, i * 0.07)); },
   ring(i) { this.bell(520 * 1.26 ** i, 1.6, 0.035); },
 };
 
@@ -144,6 +148,7 @@ export async function start() {
   function reset() {
     tweens.clear(); items.forEach((i) => i.root.removeFromParent()); noyaux.clear(); items = []; opening = false; stage = "idle";
     if (threads) { threads.removeFromParent(); threads = null; }
+    if (machine) machine.group.visible = false;
     pm.uK.value = 0.2; decor.setSpin(1); shock.material.opacity = 0;
     resetPod(false);
     if (variant === "sortie") setLabel("Invoquer", "Clique « Invoquer » pour faire sortir la capsule du portail");
@@ -192,36 +197,76 @@ export async function start() {
     await tween(0.5, (k) => items.forEach((it) => it.root.scale.setScalar(0.4 * k)), ease.out);
   }
 
-  // Tissage : des fils arrivent de partout, se tendent sur les arêtes de la capsule (du bas vers le haut), puis le verre apparaît
+  // ---------- Machine à tisser : un rail descend du plafond, un anneau à six têtes trace les arêtes de la capsule ----------
+  let machine = null;
+  function ensureMachine() {
+    if (machine) return machine;
+    const chrome = decor.materials.chrome, glowMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(3) });
+    const group = new THREE.Group(); scene.add(group);
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 14, 10), chrome); rail.position.y = 7.5; group.add(rail);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.36, 0.4, 6), chrome); hub.position.y = 0.55; group.add(hub);
+    const hubGlow = new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), glowMat); hubGlow.position.y = 0.55; group.add(hubGlow);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1, 0.035, 8, 6), chrome); ring.rotation.x = Math.PI / 2; group.add(ring);
+    const arms = [], heads = [];
+    for (let i = 0; i < 6; i++) {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1, 6), chrome); group.add(arm); arms.push(arm);
+      const head = new THREE.Mesh(new THREE.OctahedronGeometry(0.07, 0), glowMat); group.add(head); heads.push(head);
+    }
+    machine = { group, ring, arms, heads, hubY: 0.55 };
+    return machine;
+  }
+  const UP = new THREE.Vector3(0, 1, 0);
+  // Pose l'anneau à la hauteur locale y (repère de la capsule) avec les têtes sur un hexagone de rayon r
+  function placeMachine(m, y, r) {
+    m.group.position.set(HOME.x, HOME.y + y, HOME.z); const rr = r + 0.2;
+    m.ring.scale.set(rr, rr, 1);
+    const hub = new THREE.Vector3(0, m.hubY, 0), d = new THREE.Vector3(), mid = new THREE.Vector3();
+    m.heads.forEach((h, i) => {
+      const th = (i * Math.PI) / 3; h.position.set(Math.sin(th) * r, 0, Math.cos(th) * r);
+      d.subVectors(h.position, hub); const len = d.length(); mid.addVectors(h.position, hub).multiplyScalar(0.5);
+      m.arms[i].position.copy(mid); m.arms[i].scale.set(1, Math.max(0.001, len), 1); m.arms[i].quaternion.setFromUnitVectors(UP, d.normalize());
+    });
+  }
+
   async function weave() {
-    resetPod(true); pod.body.visible = false; fillPod(); items.forEach((i) => i.root.scale.setScalar(0.001));
-    pod.group.updateMatrixWorld(true);
-    const segs = [];
-    pod.body.updateMatrixWorld(true);
-    pod.body.traverse((o) => { if (o.isLineSegments) { const pos = o.geometry.attributes.position; for (let i = 0; i < pos.count; i += 2) { const a = new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld), b = new THREE.Vector3().fromBufferAttribute(pos, i + 1).applyMatrix4(o.matrixWorld); pod.group.worldToLocal(a); pod.group.worldToLocal(b); segs.push([a, b]); } } });
-    const n = segs.length, arr = new Float32Array(n * 6);
-    const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+    resetPod(true); pod.body.visible = false; fillPod(); items.forEach((i) => i.root.scale.setScalar(0.001)); opening = true;
+    const m = ensureMachine(); m.group.visible = true;
+    const { R, L, H } = pod, yTop = L / 2 + H;
+    // Chemin des têtes : pointe du haut → épaule → ventre → épaule → pointe du bas (rayon et hauteur dans le repère de la capsule)
+    const path = (u) => { const d = u * (2 * H + L); if (d < H) return { y: yTop - d, r: (d / H) * R }; if (d < H + L) return { y: L / 2 - (d - H), r: R }; const e = (d - H - L) / H; return { y: -L / 2 - e * H, r: R * (1 - e) }; };
+    const K = 90, M = 36, vert = (i, r, y) => { const th = (i * Math.PI) / 3; return [Math.sin(th) * r, y, Math.cos(th) * r]; };
+    // Chaîne : une ligne par tête, révélée au fil de la descente. Trame : des hexagones à chaque niveau, révélés par la navette.
+    const lines = new THREE.Group(); pod.group.add(lines); threads = lines;
     const mat = new THREE.LineBasicMaterial({ color: new THREE.Color(BLUE).multiplyScalar(2.6), transparent: true, opacity: 1 });
-    threads = new THREE.LineSegments(geo, mat); threads.frustumCulled = false; pod.group.add(threads);
-    let minY = 1e9, maxY = -1e9; segs.forEach(([a, b]) => { minY = Math.min(minY, a.y, b.y); maxY = Math.max(maxY, a.y, b.y); });
-    const away = () => new THREE.Vector3().randomDirection().multiplyScalar(3 + Math.random() * 3).add(new THREE.Vector3(0, 1.5, 0));
-    const plan = segs.map(([a, b]) => ({ a, b, sa: away(), sb: away(), delay: 0.65 * ((a.y + b.y) / 2 - minY) / (maxY - minY || 1) }));
-    A.scan(); [0, 1, 2, 3, 4, 5].forEach((i) => wait(0.15 + i * 0.28).then(() => A.bell(1800 + i * 320, 0.9, 0.025)));
-    const p = new THREE.Vector3(), q = new THREE.Vector3(), mid = new THREE.Vector3();
-    await tween(2.0, (k) => {
-      plan.forEach((s, i) => {
-        const t = Math.min(1, Math.max(0, (k - s.delay) / 0.35)), e = ease.out(t), swirl = (1 - e) * Math.PI * 1.2, cs = Math.cos(swirl), sn = Math.sin(swirl);
-        const rot = (v, out) => out.set(v.x * cs - v.z * sn, v.y, v.x * sn + v.z * cs);
-        p.copy(s.sa); rot(p, p); p.lerp(s.a, e); q.copy(s.sb); rot(q, q); q.lerp(s.b, e);
-        arr.set([p.x, p.y, p.z, q.x, q.y, q.z], i * 6);
-        if (t > 0 && t < 1 && Math.random() < 0.15) { mid.copy(p).lerp(q, Math.random()); emit(pod.group.localToWorld(mid.clone()), 1, { speed: 0.3, life: 0.4 }); }
-      });
-      geo.attributes.position.needsUpdate = true;
+    const warp = [];
+    for (let i = 0; i < 6; i++) {
+      const arr = new Float32Array(K * 3); for (let k = 0; k < K; k++) { const { y, r } = path(k / (K - 1)); arr.set(vert(i, r, y), k * 3); }
+      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(arr, 3)); g.setDrawRange(0, 0);
+      const line = new THREE.Line(g, mat); line.frustumCulled = false; lines.add(line); warp.push(g);
+    }
+    const weftArr = new Float32Array(M * 12 * 3);
+    for (let k = 0; k < M; k++) { const { y, r } = path((k + 0.5) / M); for (let i = 0; i < 6; i++) weftArr.set([...vert(i, r, y), ...vert((i + 1) % 6, r, y)], (k * 12 + i * 2) * 3); }
+    const wg = new THREE.BufferGeometry(); wg.setAttribute("position", new THREE.BufferAttribute(weftArr, 3)); wg.setDrawRange(0, 0);
+    const weft = new THREE.LineSegments(wg, mat); weft.frustumCulled = false; lines.add(weft);
+
+    // 1 · la machine descend du plafond jusqu'à la pointe de la capsule
+    A.motor(5.2); A.riser(1.0, 0.03);
+    placeMachine(m, 6.2, 0);
+    await tween(1.0, (k) => placeMachine(m, 6.2 + (yTop - 6.2) * k, 0), ease.inOut);
+    // 2 · elle tisse : l'anneau s'ouvre sur les épaules, descend le long du ventre, se referme sur la pointe du bas
+    let lastLevel = -1;
+    await tween(3.2, (u) => {
+      const { y, r } = path(u); placeMachine(m, y, r);
+      const n = Math.max(0, Math.min(K, Math.round(u * (K - 1)) + 1)); warp.forEach((g) => g.setDrawRange(0, n));
+      const level = Math.floor(u * M); if (level !== lastLevel) { lastLevel = level; wg.setDrawRange(0, Math.min(M, level) * 12); A.tick(); }
+      if (Math.random() < 0.5) m.heads.forEach((h, i) => { if (i % 2 === (level % 2)) emit(h.getWorldPosition(new THREE.Vector3()), 1, { speed: 0.3, life: 0.35 }); });
     }, ease.lin);
-    // Le dernier fil est tendu : le verre se forme et les fils s'éteignent
-    pod.body.visible = true; pod.glass.opacity = 0; pod.edgeMat.opacity = 0; A.latch();
-    await tween(0.7, (k) => { pod.glass.opacity = 0.42 * k; pod.edgeMat.opacity = 0.95 * k; mat.opacity = 1 - k; items.forEach((it) => it.root.scale.setScalar(0.4 * k)); }, ease.out);
-    threads.removeFromParent(); threads = null; spinStart = time;
+    wg.setDrawRange(0, M * 12);
+    // 3 · la machine remonte, le verre se forme, les fils s'éteignent
+    pod.body.visible = true; pod.glass.opacity = 0; pod.edgeMat.opacity = 0; A.latch(); A.shimmer();
+    tween(1.1, (k) => placeMachine(m, -yTop + (7 + yTop) * ease.in(k), 0.0 + (1 - k) * 0), ease.in).then(() => { m.group.visible = false; });
+    await tween(0.8, (k) => { pod.glass.opacity = 0.42 * k; pod.edgeMat.opacity = 0.95 * k; mat.opacity = 1 - k; items.forEach((it) => it.root.scale.setScalar(0.4 * k)); }, ease.out);
+    threads.removeFromParent(); threads = null; spinStart = time; opening = false;
   }
 
   // Sortie du portail : la capsule descend en arc jusqu'à son socle
