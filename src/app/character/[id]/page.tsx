@@ -112,6 +112,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
                     cardId={copy.id}
                     locked={copy.locked}
                     forTrade={copy.forTrade}
+                    inAuction={copy.inAuction}
                     price={quickSellPrice(c.rarity, copy.finish)}
                     label={`#${copy.serial} · ${FINISH_NAMES[copy.finish]}`}
                     characterName={c.name}

@@ -45,6 +45,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       <Icon name="echange" />
                       Échanges
                     </Link>
+                    <Link href="/market" className="site-link">
+                      <Icon name="nav-marche" />
+                      Marché
+                    </Link>
                   </>
                 }
               >
@@ -55,11 +59,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <NavLink href="/trades" icon="echange">
                   Échanges
                 </NavLink>
+                <NavLink href="/market" icon="nav-marche">
+                  Marché
+                </NavLink>
               </Suspense>
-              <span className="site-link site-soon" title="Bientôt">
-                <Icon name="nav-marche" />
-                Marché
-              </span>
               <span className="site-link site-soon" title="Bientôt">
                 <Icon name="nav-duels" />
                 Duels

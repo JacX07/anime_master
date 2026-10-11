@@ -1107,3 +1107,110 @@ body.scene-night {
   background: #00c8b433;
   color: #00c8b4;
 }
+
+/* ---------- Marché ---------- */
+.market-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.market-filters input,
+.market-filters select,
+.bid-row input,
+.sell-form input,
+.sell-form select {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #ffffff24;
+  border-radius: 4px;
+  background: #0b1424;
+  color: inherit;
+  font: inherit;
+  font-size: 0.88rem;
+}
+.market-filters input[type="number"] {
+  width: 7rem;
+}
+.auction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 0.9rem;
+}
+.auction-card {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.7rem;
+  border: 1px solid #ffffff14;
+  border-radius: 6px;
+  background: #0f1c33;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.auction-card:hover {
+  border-color: #4b8bff;
+  transform: translateY(-2px);
+}
+.auction-card img {
+  width: 5.5rem;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.auction-card > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  min-width: 0;
+}
+.auction-name {
+  font-size: 0.95rem;
+}
+.auction-price {
+  margin-top: auto;
+  font-weight: 700;
+}
+.auction-time[data-urgent="true"] {
+  color: #ff8b95;
+}
+.auction-detail {
+  display: grid;
+  grid-template-columns: minmax(12rem, 18rem) 1fr;
+  gap: 2rem;
+}
+.auction-detail img {
+  width: 100%;
+  border-radius: 8px;
+}
+.auction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.auction-big {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.bid-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+.bid-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.bid-list li {
+  padding: 0.3rem 0;
+  font-size: 0.88rem;
+}
+.sell-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.sell-form input[type="number"] {
+  width: 6rem;
+}

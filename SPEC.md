@@ -445,9 +445,9 @@ Dans le site uniquement (cloche, pas d'email) : offre dépassée, enchère gagn�
 - [x] Le solde de chaque joueur est toujours égal à la somme de son journal, et n'est jamais négatif (`npm run check:economy`).
 - [x] La vente rapide respecte les prix ; la vente groupée ne touche ni aux cartes verrouillées, ni aux cartes en échange ou aux enchères, ni au meilleur exemplaire de chaque personnage (cartes en échange / aux enchères : à vérifier quand ces fonctions existeront).
 - [x] Un échange accepté transfère tout ou rien ; une offre devient invalide si un élément n'est plus disponible (`npm run check:trades`).
-- [ ] Impossible de gagner une enchère sans les Ryō ; l'enchérisseur dépassé est remboursé immédiatement.
-- [ ] L'anti-sniping prolonge l'enchère ; la clôture n'a lieu qu'une seule fois.
-- [ ] Les limites (5 paquets achetés par jour, 10 offres, 10 enchères, ancienneté du compte) sont respectées. *(paquets : fait, `npm run check:economy` ; 10 offres et ancienneté du compte : faits, `npm run check:trades` ; 10 enchères : à venir)*
+- [x] Impossible de gagner une enchère sans les Ryō ; l'enchérisseur dépassé est remboursé immédiatement.
+- [x] L'anti-sniping prolonge l'enchère ; la clôture n'a lieu qu'une seule fois.
+- [x] Les limites (5 paquets achetés par jour, 10 offres, 10 enchères, ancienneté du compte) sont respectées. *(paquets : fait, `npm run check:economy` ; 10 offres et ancienneté du compte : faits, `npm run check:trades` ; 10 enchères : fait, `npm run check:auctions`)*
 
 ---
 
