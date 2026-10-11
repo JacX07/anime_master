@@ -54,3 +54,17 @@ export function pickDuplicates<T extends SellableCopy>(copies: T[]): T[] {
   }
   return sold;
 }
+
+// ---------- Échanges (SPEC étape 3, §3 et §7) ----------
+
+export const TRADE_MIN_ACCOUNT_AGE_MS = 24 * 60 * 60 * 1000;
+export const TRADE_MIN_OPENINGS = 20;
+export const TRADE_LIFETIME_MS = 48 * 60 * 60 * 1000;
+export const MAX_PENDING_TRADES = 10;
+
+/** Échanges et enchères : compte de plus de 24 h et au moins 20 paquets ouverts. */
+export function tradeEligibility(createdAt: Date, openings: number, now: Date): { ok: true } | { ok: false; reason: string } {
+  if (now.getTime() - createdAt.getTime() < TRADE_MIN_ACCOUNT_AGE_MS) return { ok: false, reason: "le compte a moins de 24 h" };
+  if (openings < TRADE_MIN_OPENINGS) return { ok: false, reason: `il faut au moins ${TRADE_MIN_OPENINGS} paquets ouverts (${openings} pour l'instant)` };
+  return { ok: true };
+}

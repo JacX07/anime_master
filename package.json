@@ -14,7 +14,8 @@
     "postinstall": "prisma generate",
     "simulate": "tsx scripts/simulate.ts",
     "check:recharge": "tsx scripts/check-recharge.ts",
-    "check:economy": "tsx scripts/check-economy.ts"
+    "check:economy": "tsx scripts/check-economy.ts",
+    "check:trades": "tsx scripts/check-trades.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

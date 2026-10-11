@@ -1,0 +1,30 @@
+// Notifications dans le site (SPEC étape 3, §6). Écrites dans la transaction qui les provoque.
+
+import type { Prisma } from "../generated/prisma/client";
+import { prisma } from "./db";
+
+export type NotificationType = "TRADE_RECEIVED" | "TRADE_ACCEPTED" | "TRADE_REFUSED" | "TRADE_INVALID" | "TRADE_EXPIRED";
+
+export interface NotificationPayload {
+  tradeId?: string;
+  /** L'autre joueur concerné */
+  username?: string;
+  reason?: string;
+}
+
+type Db = Prisma.TransactionClient | typeof prisma;
+
+export async function notify(db: Db, userId: string, type: NotificationType, payload: NotificationPayload) {
+  await db.notification.create({ data: { userId, type, payload: payload as Prisma.InputJsonObject } });
+}
+
+export const unreadCount = (userId: string) => prisma.notification.count({ where: { userId, readAt: null } });
+
+export async function listNotifications(userId: string, take = 50) {
+  const rows = await prisma.notification.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take });
+  return rows.map((n) => ({ id: n.id, type: n.type as NotificationType, payload: n.payload as NotificationPayload, read: n.readAt !== null, createdAt: n.createdAt }));
+}
+
+export async function markAllRead(userId: string) {
+  await prisma.notification.updateMany({ where: { userId, readAt: null }, data: { readAt: new Date() } });
+}

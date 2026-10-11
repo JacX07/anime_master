@@ -137,6 +137,9 @@ model User {
   packsBoughtToday Int              @default(0)
   packsBoughtDate  DateTime?
   ledger           CurrencyLedger[]
+  tradesSent       Trade[]          @relation("TradeFrom")
+  tradesReceived   Trade[]          @relation("TradeTo")
+  notifications    Notification[]
   sessions         Session[]
   accounts         Account[]
   cards            Card[]
@@ -206,6 +209,11 @@ model Card {
   obtainedAt    DateTime    @default(now())
   /// Cadenas : une carte verrouillée ne peut être ni vendue, ni échangée, ni mise aux enchères
   locked        Boolean     @default(false)
+  /// Tag « À échanger » : la fiche du personnage liste les joueurs qui le proposent
+  forTrade      Boolean     @default(false)
+  /// Bloquée pendant une enchère (étape 3, enchères)
+  inAuction     Boolean     @default(false)
+  tradeItems    TradeItem[]
 
   @@unique([characterId, serial])
   @@index([ownerId, characterId])
@@ -250,4 +258,61 @@ model CurrencyLedger {
   createdAt DateTime     @default(now())
 
   @@index([userId, createdAt])
+}
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
+  CANCELLED
+  EXPIRED
+  INVALID
+}
+
+enum TradeSide {
+  FROM
+  TO
+}
+
+/// Offre d'échange : `from` donne ses cartes + Ryō (côté FROM) contre les cartes + Ryō de `to` (côté TO).
+model Trade {
+  id           String      @id @default(cuid())
+  fromId       String
+  from         User        @relation("TradeFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId         String
+  to           User        @relation("TradeTo", fields: [toId], references: [id], onDelete: Cascade)
+  fromCurrency Int         @default(0)
+  toCurrency   Int         @default(0)
+  status       TradeStatus @default(PENDING)
+  items        TradeItem[]
+  createdAt    DateTime    @default(now())
+  expiresAt    DateTime
+  resolvedAt   DateTime?
+
+  @@index([fromId, status])
+  @@index([toId, status])
+}
+
+model TradeItem {
+  tradeId String
+  trade   Trade     @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  cardId  String
+  card    Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  side    TradeSide
+
+  @@id([tradeId, cardId])
+}
+
+/// Notification dans le site (cloche).
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  /// Données propres au type (JSON sérialisé)
+  payload   Json
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
 }
