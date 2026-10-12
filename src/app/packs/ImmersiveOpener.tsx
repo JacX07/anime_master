@@ -12,17 +12,26 @@ import { buyCrystalsAction, openPackAction } from "./actions";
 import { BulkSummary } from "./BulkSummary";
 import { PackOpener } from "./PackOpener";
 
+const ORDER = ["UR", "SSR", "SR", "R", "N"] as const;
+
 // Scène 3D d'ouverture (public/pack-opening) : elle vit dans une iframe de même origine et ne fait confiance qu'à nous.
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null };
+type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" };
 
 export function ImmersiveOpener({ initialState, banners }: { initialState: PlayerPackState; banners: BannerInfo[] }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [bulk, setBulk] = useState<OpenedPack | null>(null);
+  const pendingBulk = useRef<OpenedPack | null>(null);
+  const revealTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const showBulk = () => {
+    clearTimeout(revealTimer.current);
+    if (pendingBulk.current) setBulk(pendingBulk.current);
+    pendingBulk.current = null;
+  };
 
   useEffect(() => {
     const send = (msg: object) => frame.current?.contentWindow?.postMessage(msg, location.origin);
@@ -57,12 +66,16 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
         send(r.ok ? { type: "buy-result", id: msg.id, ok: true, state: r.state } : { type: "buy-result", id: msg.id, ok: false, error: r.error });
       } else if (msg.type === "bulk-request") {
         const r = await openPackAction(msg.count, msg.bannerId ?? null);
-        // La scène remet son HUD à jour (stock, pity, puissance) et rouvre ses boutons, succès ou non
-        send(r.ok ? { type: "bulk-done", ok: true, state: r.pack.state } : { type: "bulk-done", ok: false, error: r.error });
-        if (r.ok) {
-          setBulk(r.pack);
-          for (let i = 0; i < r.pack.cards.length; i++) window.dispatchEvent(new Event(ALBUM_STORED));
-        }
+        // La scène joue l'ouverture de la capsule, puis demande le résumé ("bulk-reveal") ; sans réponse, il s'affiche quand même
+        if (!r.ok) return send({ type: "bulk-done", ok: false, error: r.error });
+        const best = ORDER.find((x) => r.pack.cards.some((c) => c.rarity === x)) ?? "N";
+        send({ type: "bulk-done", ok: true, state: r.pack.state, best });
+        pendingBulk.current = r.pack;
+        for (let i = 0; i < r.pack.cards.length; i++) window.dispatchEvent(new Event(ALBUM_STORED));
+        clearTimeout(revealTimer.current);
+        revealTimer.current = setTimeout(showBulk, 6000);
+      } else if (msg.type === "bulk-reveal") {
+        showBulk();
       } else if (msg.type === "open-request") {
         const result = await openPackAction(5, msg.bannerId ?? null);
         if (!result.ok) return send({ type: "pack-result", id: msg.id, ok: false, error: result.error });

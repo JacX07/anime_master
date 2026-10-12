@@ -266,12 +266,39 @@ export async function start(modeId) {
   // Ouverture groupée : sans animation, la page hôte affiche le résumé des cartes
   let bulking = false;
   document.querySelector(".bulk-row").toggleAttribute("data-embed", EMBED); // hors page hôte il n'y a personne pour afficher le résumé
+  let bulkReply = null;
   for (const n of [5, 10]) el("bulk" + n).addEventListener("click", () => {
     if (!EMBED || bulking || busy || (phase !== "idle" && phase !== "stored") || budgetOf(currentBanner()) < n) return;
     if (phase === "stored") backToIdle();
-    bulking = true; ui.hint.textContent = `Ouverture de ${n} cartes…`; hud();
+    bulking = true; S.init(T); ui.booster.blur(); ui.booster.hidden = true; capsuleHover = false; ui.hint.textContent = `Ouverture de ${n} cartes…`; hud();
+    const reply = new Promise((resolve) => { bulkReply = resolve; setTimeout(() => resolve({ ok: false, error: "Le serveur ne répond pas, réessaie." }), 20000); });
     post({ type: "bulk-request", count: n, bannerId: bannerId || null });
+    bulkAnimation(n, reply);
   });
+  // La capsule s'ouvre pendant que le serveur tire les cartes ; le ×10 double l'explosion, teintée par la meilleure rareté
+  async function bulkAnimation(n, reply) {
+    let m = { ok: false, error: "L'ouverture a échoué." };
+    try {
+      Sfx.tear();
+      const opening = capsule.open(ctx);
+      [m] = await Promise.all([reply, opening]);
+      if (m.ok) {
+        const best = m.best ?? "N", color = RC[best] ?? BLUE, rank = RANK[best] ?? 0, at = new THREE.Vector3(0, 1.5, 2.6);
+        Sfx.flip(best); zoomPunch(0.1 + rank * 0.05);
+        burst(at, [color, "#ffffff", BLUE], { n: 200 + rank * 70, speed: 3.6, additive: true }); fxPulse(color, 12 + rank * 6, at);
+        if (best === "SSR" || best === "UR") { Sfx.ssr(); flash(); }
+        if (n === 10) { await wait(0.22); Sfx.flip(best); burst(at, [color, "#ffffff", MINT], { n: 260, speed: 4.4, additive: true }); fxPulse(color, 18, at); zoomPunch(0.2); }
+        await wait(n === 10 ? 0.5 : 0.35);
+      }
+    } catch (err) {
+      console.error("Animation de l'ouverture groupée interrompue :", err);
+      if (!m.ok && !m.error) m = { ok: false, error: "L'animation a échoué." };
+    }
+    bulkReply = null; bulking = false;
+    if (m.ok) { setPack(m.state); ui.hint.textContent = txt.open; post({ type: "bulk-reveal" }); }
+    else { ui.hint.textContent = m.error; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); }
+    ui.booster.hidden = false; capsule.show(); hud();
+  }
   setInterval(hud, 1000); hud();
 
   // Dialogue avec la page hôte
@@ -281,11 +308,7 @@ export async function start(modeId) {
     const m = e.data ?? {};
     if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
-    else if (m.type === "bulk-done") {
-      bulking = false;
-      if (m.ok) { setPack(m.state); ui.hint.textContent = txt.open; } else { ui.hint.textContent = m.error; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); }
-      hud();
-    }
+    else if (m.type === "bulk-done") bulkReply?.(m);
     else if (m.type === "pack-result" || m.type === "buy-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
   });
   // Achat de 5 cristaux (même circuit que l'ouverture ; hors iframe, simulé localement)
@@ -322,7 +345,7 @@ export async function start(modeId) {
     }
   }
   async function openBoosterFlow() {
-    if (busy || phase !== "idle") return;
+    if (busy || bulking || phase !== "idle") return;
     if (budgetOf(currentBanner()) < 5) { ui.hint.textContent = currentBanner() ? `Il te faut 5 ${unitOf(currentBanner())}.` : txt.empty; return; }
     S.init(T); busy = true; skip = false; ui.hint.textContent = "Ouverture…";
     const res = await requestPack();
