@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                     </Link>
                     <Link href="/market" className="site-link">
                       <Icon name="nav-marche" />
-                      Marché
+                      Bourse des brèches
                     </Link>
                     <Link href="/wishlist" className="site-link">
                       <Icon name="souhait" />
@@ -72,7 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   Échanges
                 </NavLink>
                 <NavLink href="/market" icon="nav-marche">
-                  Marché
+                  Bourse des brèches
                 </NavLink>
                 <NavLink href="/wishlist" icon="souhait">
                   Souhaits

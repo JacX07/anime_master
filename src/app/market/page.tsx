@@ -7,7 +7,7 @@ import { listAuctions, type MarketFilters } from "@/lib/auctions";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { Countdown } from "./Countdown";
 
-export const metadata: Metadata = { title: "Marché — Anime Masters" };
+export const metadata: Metadata = { title: "Bourse des brèches — Anime Masters" };
 
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
 const TYPES = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"] as const;
@@ -56,7 +56,7 @@ async function Market({ searchParams }: { searchParams: PageProps<"/market">["se
   return (
     <div className="vt-inner">
       <header>
-        <h1 className="vt-title">Marché</h1>
+        <h1 className="vt-title">Bourse des brèches</h1>
         <p className="vt-sub">Les enchères en cours. Pour vendre une carte, ouvre sa fiche depuis l&apos;album.</p>
       </header>
       <form action="/market" className="market-filters">

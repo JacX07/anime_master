@@ -695,9 +695,9 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - 30 cristaux normaux + **20 tirages sur une bannière de catégorie choisie par le joueur** parmi les catégories de §5, à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
 - Le cadeau injecte **autant de cartes qu'aujourd'hui** (50), pas plus.
 
-### 9. Vocabulaire et clarté (renommage de « marché noir » : à décider)
+### 9. Vocabulaire et clarté (« marché noir » renommé « Bourse des brèches », décidé le 2026-10-12)
 - Chaque terme (cristal, cristal spécial, bannière, pity, Ryō) est défini à l'écran à sa première apparition.
-- Renommer « marché noir » (enchères) en un terme moins négatif, par exemple « Bourse des brèches ». À décider avec la direction du lore.
+- Les enchères s'appellent « Bourse des brèches » dans l'interface (adresses `/market` inchangées).
 
 ### 10. Modèle de données (changements)
 - **User** : ajout de `crystals`, `crystalsUpdatedAt`, `specialCrystals`, `crystalsBoughtToday`, `crystalsBoughtDate` ; renommage `packsSinceSSR` → `cardsSinceSSR`, `packsSinceUR` → `cardsSinceUR` ; suppression de `packsStored`, `lastPackAt`, `packsBoughtToday`, `packsBoughtDate`.

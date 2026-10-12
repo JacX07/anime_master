@@ -32,7 +32,7 @@ async function Auction({ params }: { params: PageProps<"/market/[id]">["params"]
   const active = a.status === "ACTIVE";
   return (
     <div className="vt-inner">
-      <Link href="/market" className="vt-muted">← Marché</Link>
+      <Link href="/market" className="vt-muted">← Bourse des brèches</Link>
       <div className="auction-detail">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={ch.imageUrl} alt={ch.name} referrerPolicy="no-referrer" />
