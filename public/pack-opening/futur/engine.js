@@ -19,6 +19,8 @@ export const MODES = [
 ];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const PERF = new URLSearchParams(location.search).has("perf");
+// ?lite : décor, reflets, halo et ombres coupés (fond uni) pour visualiser une fonctionnalité vite ; window.__scene.demoBulk(n, ["UR","SSR",…]) joue un lot sans serveur
+const LITE = new URLSearchParams(location.search).has("lite");
 // Intégré dans /packs (?embed) : la page hôte détient la session et appelle le serveur ; on lui parle par postMessage.
 // Hors iframe, la maquette tourne seule avec des cartes d'exemple.
 const EMBED = new URLSearchParams(location.search).has("embed") && parent !== window;
@@ -72,6 +74,7 @@ export async function start(modeId) {
   const LOOK = new THREE.Vector3(0, 1.45, 0);
   let camDist = 8.5;
   const decor = buildDecor({ scene, renderer });
+  const decorKids = [...scene.children];
   const fxLight = new THREE.PointLight("#ffffff", 0, 9, 1.5); scene.add(fxLight);
 
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 2 }));
@@ -526,6 +529,10 @@ export async function start(modeId) {
     const it = mode.nextItem(items, camera); if (it) { e.preventDefault(); reveal(it); }
   });
 
+  if (LITE) {
+    decorKids.forEach((o) => { if (!o.isLight) o.visible = false; });
+    scene.background = new THREE.Color("#dfe6ee"); scene.environment = null; bloom.enabled = false; decor.key.castShadow = false;
+  }
   // ?perf : affichage de mesure et interrupteurs (voir perf.js)
   const perf = PERF ? createPerf({
     renderer,
@@ -622,5 +629,13 @@ export async function start(modeId) {
   // La page hôte peut ne pas être encore à l'écoute : on se signale jusqu'à recevoir l'init
   if (EMBED) { const ping = setInterval(() => (inited ? clearInterval(ping) : post({ type: "ready" })), 400); post({ type: "ready" }); }
   // Accès en lecture pour les tests automatisés de la maquette
-  window.__scene = { three: { scene, camera }, get phase() { return phase === "ready" ? "ring" : phase; }, get busy() { return busy; }, get states() { return items.map((i) => (i.state === "ready" ? "ring" : i.state)); }, get ur() { return !ui.ur.hidden; } };
+  const demoBulk = (n = 5, rarities = []) => {
+    const base = { series: "Démo", type: "Magie", typeId: "MAGIE", atk: 3000, def: 2000, power: 5000, finish: "NORMAL", holo: false, isNew: true, img: "" };
+    const order = ["N", "R", "SR", "SSR", "UR"];
+    const cards = Array.from({ length: n }, (_, i) => { const rarity = rarities[i] ?? "N"; return { ...base, rarity, name: `${rarity} ${i + 1}`, serial: i + 1 }; });
+    const best = order[Math.max(...cards.map((c) => order.indexOf(c.rarity)))];
+    S.init(T); bulking = true; ui.booster.hidden = true; capsule.show();
+    return bulkAnimation(n, Promise.resolve({ ok: true, best, cards }));
+  };
+  window.__scene = { demoBulk, three: { scene, camera }, get phase() { return phase === "ready" ? "ring" : phase; }, get busy() { return busy; }, get states() { return items.map((i) => (i.state === "ready" ? "ring" : i.state)); }, get ur() { return !ui.ur.hidden; } };
 }
