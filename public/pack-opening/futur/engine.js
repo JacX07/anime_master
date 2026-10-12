@@ -159,6 +159,7 @@ export async function start(modeId) {
   const requestSkip = () => { if (skip) return; skip = true; stopUntil = 0; for (const tw of tweens) tw.dur = 0.001; [...waiters].forEach((f) => f()); };
   const zoomPunch = (a) => { if (!reduced) punch = Math.max(punch, a); };
   const flash = () => { if (reduced) return; ui.flash.classList.remove("go"); void ui.flash.offsetWidth; ui.flash.classList.add("go"); };
+  const HALO = { N: 0.04, R: 0.2, SR: 0.34, SSR: 0.55, UR: 0.75 }; // lueur permanente des cartes rangées en ligne : la rareté se voit de loin
   const TIER = { N: [0, 0], R: [0, 0.15], SR: [0.05, 0.35], SSR: [0.12, 1], UR: [0.16, 1.3] };
 
   // Moments clés partagés par les variantes
@@ -312,7 +313,7 @@ export async function start(modeId) {
     await Promise.all(cards.map(async (c) => { images[c.img] ??= await painter.loadImg(c.img); }));
     line.forEach(dropCard); line = [];
     busy = true; skip = false; bulkMode = true; phase = "popping"; hud();
-    const small = n > 5, sc = small ? 0.58 : 0.7, dx = small ? 1.12 : 1.34, shift = -0.6, rows = small ? [2.15, 0.8] : [1.45]; // décalé à gauche : le panneau de droite masque le reste
+    const small = n > 5, sc = small ? 0.58 : 0.7, dx = small ? 1.06 : 1.3, shift = -1.0, rows = small ? [2.15, 0.8] : [1.45]; // décalé à gauche : le panneau de droite masque le reste
     const order = [...cards].sort((a, b) => (RANK[a.rarity] ?? 0) - (RANK[b.rarity] ?? 0));
     const pops = [];
     for (let i = 0; i < order.length; i++) {
@@ -566,7 +567,7 @@ export async function start(modeId) {
         u.body.scale.setScalar(1 + u.hoverK * 0.12);
         if (u.landT !== undefined && u.landT < 0.6) { u.landT += sdt; const sq = 0.16 * Math.exp(-u.landT * 9) * Math.cos(u.landT * 26); u.body.scale.x *= 1 + sq; u.body.scale.y *= 1 - sq * 0.7; }
         u.body.position.y = u.hoverK * 0.25; u.body.rotation.x = u.hoverK * -mouse.y * 0.25; u.body.rotation.y = u.hoverK * mouse.x * 0.35;
-        u.halo.material.opacity = 0.12 + u.hoverK * 0.5;
+        u.halo.material.opacity = (HALO[u.c.rarity] ?? 0.12) * (RANK[u.c.rarity] >= 3 ? 1 + Math.sin(time * 2.2 + u.c.serial) * 0.25 : 1) + u.hoverK * 0.4;
       }
       if (u.holo) u.holo.material.map.offset.set(time * 0.15 + mouse.x * 0.3, mouse.y * 0.3);
     }

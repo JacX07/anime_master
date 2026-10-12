@@ -164,15 +164,23 @@ export function cardPainter(T, images) {
     if (r === "SSR") { const f = g.createLinearGradient(0, 0, w, h); ["#fff1b0", "#e0a020", "#fff6d0", "#b87a00"].forEach((s, i) => f.addColorStop(i / 3, s)); return f; }
     return RC[r];
   };
+  // Plus la carte est rare, plus le cadre est épais et lumineux : la rareté se lit de loin, même quand la carte est petite
+  const FRAME = { N: 10, R: 16, SR: 21, SSR: 27, UR: 32 };
   function drawFront(c) {
     return canvasTex(512, 716, (g, w, h) => {
-      const col = RC[c.rarity], rad = C.radius;
+      const col = RC[c.rarity], rad = C.radius, bw = FRAME[c.rarity] ?? 14;
       g.save(); g.beginPath(); g.roundRect(0, 0, w, h, rad); g.clip();
       g.fillStyle = frameFill(g, c.rarity, w, h); g.fillRect(0, 0, w, h);
-      g.beginPath(); g.roundRect(14, 14, w - 28, h - 28, Math.max(4, rad - 10)); g.clip();
+      if (c.rarity !== "N") { // reflet diagonal sur le cadre
+        const sh = g.createLinearGradient(0, 0, w, h); sh.addColorStop(0, "#ffffff66"); sh.addColorStop(0.35, "#ffffff00"); sh.addColorStop(0.65, "#00000000"); sh.addColorStop(1, "#00000055");
+        g.fillStyle = sh; g.fillRect(0, 0, w, h);
+      }
+      g.beginPath(); g.roundRect(bw, bw, w - 2 * bw, h - 2 * bw, Math.max(4, rad - bw + 4)); g.clip();
       g.fillStyle = C.panel; g.fillRect(0, 0, w, h);
       const im = images[c.img];
-      if (im) { const s = Math.max((w - 28) / im.width, (h - 28) / im.height); g.drawImage(im, 14 + ((w - 28) - im.width * s) / 2, 14, im.width * s, im.height * s); }
+      if (im) { const s = Math.max((w - 2 * bw) / im.width, (h - 2 * bw) / im.height); g.drawImage(im, bw + ((w - 2 * bw) - im.width * s) / 2, bw, im.width * s, im.height * s); }
+      // Liseré intérieur lumineux (SR et au-dessus)
+      if (RANK[c.rarity] >= 2) { g.lineWidth = 3 + RANK[c.rarity]; g.strokeStyle = "#ffffffcc"; g.shadowColor = col; g.shadowBlur = 14; g.beginPath(); g.roundRect(bw, bw, w - 2 * bw, h - 2 * bw, Math.max(4, rad - bw + 4)); g.stroke(); g.shadowBlur = 0; }
       const grad = g.createLinearGradient(0, h * 0.55, 0, h); grad.addColorStop(0, C.shade + "00"); grad.addColorStop(0.45, C.shade + "e0"); grad.addColorStop(1, C.shade + "f8");
       g.fillStyle = grad; g.fillRect(0, h * 0.55, w, h);
       g.restore();
