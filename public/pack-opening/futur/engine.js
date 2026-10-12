@@ -235,11 +235,12 @@ export async function start(modeId) {
     bar("stock", cfg.max, Math.min(available, cfg.max)); el("count").textContent = available;
     el("maxPacks").textContent = available > cfg.max ? " cristaux" : ` / ${cfg.max} cristaux`; // au-delà de la réserve : cristaux achetés
     // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
-    for (const n of [5, 10]) el("bulk" + n).disabled = bulking || busy || phase !== "idle" || budget < n;
+    const free = !busy && (phase === "idle" || phase === "stored");
+    for (const n of [5, 10]) el("bulk" + n).disabled = bulking || !free || budget < n;
     // Pourquoi les boutons sont grisés (affiché sous eux et en infobulle)
     const b = currentBanner();
     const why = bulking ? "Ouverture en cours…"
-      : busy || phase !== "idle" ? "Termine l'ouverture en cours : révèle les cartes (clic ou « Tout révéler »)."
+      : !free ? "Termine l'ouverture en cours : révèle les cartes (clic ou « Tout révéler »)."
       : budget < 5 ? `Il te faut 5 ${unitOf(b)} pour ouvrir (tu en as ${budget}).${b ? " Change de bannière ou choisis « Standard »." : ""}`
       : budget < 10 ? `Il te faut 10 ${unitOf(b)} pour le ×10 (tu en as ${budget}).` : "";
     el("bulkWhy").textContent = why; el("bulkWhy").hidden = !why;
@@ -266,7 +267,8 @@ export async function start(modeId) {
   let bulking = false;
   document.querySelector(".bulk-row").toggleAttribute("data-embed", EMBED); // hors page hôte il n'y a personne pour afficher le résumé
   for (const n of [5, 10]) el("bulk" + n).addEventListener("click", () => {
-    if (!EMBED || bulking || busy || phase !== "idle" || budgetOf(currentBanner()) < n) return;
+    if (!EMBED || bulking || busy || (phase !== "idle" && phase !== "stored") || budgetOf(currentBanner()) < n) return;
+    if (phase === "stored") backToIdle();
     bulking = true; ui.hint.textContent = `Ouverture de ${n} cartes…`; hud();
     post({ type: "bulk-request", count: n, bannerId: bannerId || null });
   });
@@ -310,7 +312,16 @@ export async function start(modeId) {
   }
   const linePos = (i) => new THREE.Vector3((i - 2) * 1.35, 0.85, 3.2);
 
+  // Si l'animation plante, on ne laisse pas la scène bloquée (boutons grisés) : les cartes sont déjà dans l'album
   async function openBooster() {
+    try { await openBoosterFlow(); } catch (err) {
+      console.error("Ouverture animée interrompue :", err);
+      mode.clear?.(ctx); items = []; line.forEach(dropCard); line = [];
+      busy = false; phase = "idle"; ui.all.hidden = true; ui.next.hidden = true; ui.booster.hidden = false; capsule.show();
+      ui.hint.textContent = "L'animation a échoué : les cartes sont dans ton album.";
+    }
+  }
+  async function openBoosterFlow() {
     if (busy || phase !== "idle") return;
     if (budgetOf(currentBanner()) < 5) { ui.hint.textContent = currentBanner() ? `Il te faut 5 ${unitOf(currentBanner())}.` : txt.empty; return; }
     S.init(T); busy = true; skip = false; ui.hint.textContent = "Ouverture…";
@@ -412,12 +423,13 @@ export async function start(modeId) {
   }
   ui.booster.addEventListener("click", openBooster);
   ui.all.addEventListener("click", revealAll);
-  ui.next.addEventListener("click", async () => {
+  function backToIdle() {
     ui.next.hidden = true;
     mode.clear?.(ctx); items = [];
     phase = "idle"; ui.booster.hidden = false; ui.hint.textContent = txt.open; ui.booster.focus({ preventScroll: true });
     capsule.show();
-  });
+  }
+  ui.next.addEventListener("click", backToIdle);
 
   // Pointeur et clavier
   const ZERO2 = new THREE.Vector2();
