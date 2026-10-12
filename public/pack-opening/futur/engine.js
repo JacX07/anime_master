@@ -660,6 +660,25 @@ export async function start(modeId) {
     for (const n of rv.names) { const b = document.createElement("button"); b.textContent = NAMES[n] ?? n; b.addEventListener("click", () => { S.init(T); rv.play(n, { ...CHARS[n.startsWith("ur") ? 0 : 1], isNew: true }); }); bar.append(b); }
     document.body.append(bar);
     window.__reveal = rv;
+    // Palettes sonores : on choisit une palette, ses sons remplacent ceux de la scène (animations incluses)
+    const { createPalettes, PALETTE_ORDER } = await import("./sounds-lab.js");
+    let pal = null;
+    const sbar = document.createElement("div"); sbar.className = "labbar"; sbar.style.top = "auto"; sbar.style.bottom = "14px";
+    const row = (html) => { const d = document.createElement("div"); d.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;width:100%"; d.innerHTML = html; sbar.append(d); return d; };
+    const SOUNDS = [["Ouverture", "tear"], ["Carte N", "flip", "N"], ["Carte R", "flip", "R"], ["Carte SR", "flip", "SR"], ["SSR", "ssr"], ["UR : montée", "urCharge"], ["UR : impact", "urImpact"], ["Rangement", "collect"]];
+    const info = row("<b>Palettes sonores : choisis-en une, teste ses sons, puis lance une animation au-dessus</b>");
+    const palRow = row(""), testRow = row(""), note = document.createElement("div"); note.style.cssText = "width:100%;color:#cfe0ff;font-weight:400"; sbar.append(note);
+    const select = (key) => {
+      S.init(T); const P = createPalettes(S); pal = P[key];
+      Object.assign(Sfx, { tear: () => pal.tear(), flip: (r) => pal.flip(r), ssr: () => pal.ssr(), urCharge: () => pal.urCharge(), urImpact: () => pal.urImpact(), gather: () => pal.gather(), collect: () => pal.collect() });
+      note.textContent = `${pal.name} : ${pal.blurb}`;
+      testRow.innerHTML = ""; for (const [label, fn, arg] of SOUNDS) { const b = document.createElement("button"); b.textContent = label; b.addEventListener("click", () => { S.init(T); pal[fn](arg); }); testRow.append(b); }
+      palRow.querySelectorAll("button").forEach((b) => (b.style.borderColor = b.dataset.k === key ? "#7fb0ff" : ""));
+    };
+    for (const k of PALETTE_ORDER) { const b = document.createElement("button"); b.dataset.k = k; b.textContent = { orchestre: "A · Orchestre shonen", wa: "B · Japonais", feerique: "C · Féérique", piano: "D · Piano émotionnel" }[k]; b.addEventListener("click", () => select(k)); palRow.append(b); }
+    const mute = document.createElement("button"); mute.textContent = "Couper / remettre la musique de fond"; let muted = false;
+    mute.addEventListener("click", () => { S.init(T); muted = !muted; S.bus.amb.gain.setTargetAtTime(muted ? 0.0001 : Math.pow(10, S.ambDb / 20), S.ctx.currentTime, 0.05); }); palRow.append(mute);
+    document.body.append(sbar);
   }
   window.__scene = { demoBulk, three: { scene, camera }, get phase() { return phase === "ready" ? "ring" : phase; }, get busy() { return busy; }, get states() { return items.map((i) => (i.state === "ready" ? "ring" : i.state)); }, get ur() { return !ui.ur.hidden; } };
 }
