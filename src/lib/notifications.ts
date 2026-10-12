@@ -6,7 +6,7 @@ import { prisma } from "./db";
 export type NotificationType =
   | "TRADE_RECEIVED" | "TRADE_ACCEPTED" | "TRADE_REFUSED" | "TRADE_INVALID" | "TRADE_EXPIRED"
   | "OUTBID" | "AUCTION_WON" | "CARD_SOLD" | "AUCTION_UNSOLD" | "WISHED_AVAILABLE" | "ACHIEVEMENT"
-  | "DUEL_RECEIVED" | "DUEL_ACCEPTED" | "DUEL_DECLINED" | "DUEL_EXPIRED" | "DUEL_RESULT";
+  | "DUEL_RECEIVED" | "DUEL_ACCEPTED" | "DUEL_DECLINED" | "DUEL_EXPIRED" | "DUEL_RESULT" | "EXPEDITION_DONE";
 
 export interface NotificationPayload {
   tradeId?: string;

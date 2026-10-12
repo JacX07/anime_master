@@ -12,6 +12,7 @@ interface Props {
   locked: boolean;
   forTrade: boolean;
   inAuction: boolean;
+  inExpedition: boolean;
   price: number;
   /** Description de la carte pour l'avertissement, ex. « #12 · Holo » */
   label: string;
@@ -22,7 +23,7 @@ interface Props {
 
 
 /** Cadenas et vente rapide d'un exemplaire, avec avertissement avant la vente. */
-export function CopyActions({ cardId, locked, forTrade, inAuction, price, label, characterName, lastCopy }: Props) {
+export function CopyActions({ cardId, locked, forTrade, inAuction, inExpedition, price, label, characterName, lastCopy }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [auctioning, setAuctioning] = useState(false);
   const [start, setStart] = useState(price * 2);
@@ -42,6 +43,13 @@ export function CopyActions({ cardId, locked, forTrade, inAuction, price, label,
     return (
       <Link href="/market" className="rounded-lg border border-[#4b8bff] px-3 py-1 text-xs font-semibold text-[#8fb5ff]">
         Aux enchères →
+      </Link>
+    );
+
+  if (inExpedition)
+    return (
+      <Link href="/expeditions" className="rounded-lg border border-[#4b8bff] px-3 py-1 text-xs font-semibold text-[#8fb5ff]">
+        En expédition →
       </Link>
     );
 

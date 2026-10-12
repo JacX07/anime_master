@@ -43,6 +43,7 @@ const COPY_SELECT = {
   serial: true,
   locked: true,
   inAuction: true,
+  inExpedition: true,
   character: { select: { name: true, rarity: true } },
 } as const;
 
@@ -57,7 +58,7 @@ export interface SalePreview {
 async function duplicatesFor(userId: string, rarities: Rarity[]) {
   const rows = await prisma.card.findMany({ where: { ownerId: userId }, select: COPY_SELECT });
   // Une carte aux enchères est intouchable, comme une carte verrouillée
-  const copies = rows.map((c) => ({ ...c, locked: c.locked || c.inAuction }));
+  const copies = rows.map((c) => ({ ...c, locked: c.locked || c.inAuction || c.inExpedition }));
   return pickDuplicates(copies).filter((c) => rarities.includes(c.character.rarity));
 }
 
@@ -78,7 +79,7 @@ async function sell(userId: string, cards: { id: string; finish: Finish; charact
   if (cards.length === 0) throw new SaleError("Aucune carte à vendre.");
   const total = cards.reduce((n, c) => n + quickSellPrice(c.character.rarity, c.finish), 0);
   await prisma.$transaction(async (tx) => {
-    const removed = await tx.card.deleteMany({ where: { id: { in: cards.map((c) => c.id) }, ownerId: userId, locked: false, inAuction: false } });
+    const removed = await tx.card.deleteMany({ where: { id: { in: cards.map((c) => c.id) }, ownerId: userId, locked: false, inAuction: false, inExpedition: false } });
     if (removed.count !== cards.length) throw new SaleError("Une des cartes n'est plus disponible à la vente.");
     await tx.user.update({ where: { id: userId }, data: { balance: { increment: total } } });
     await tx.currencyLedger.createMany({
@@ -94,6 +95,7 @@ export async function sellCard(userId: string, cardId: string): Promise<number> 
   if (!card) throw new SaleError("Carte introuvable.");
   if (card.locked) throw new SaleError("Cette carte est verrouillée.");
   if (card.inAuction) throw new SaleError("Cette carte est aux enchères.");
+  if (card.inExpedition) throw new SaleError("Cette carte est en expédition.");
   return sell(userId, [card]);
 }
 

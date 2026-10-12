@@ -27,11 +27,11 @@ async function main() {
 
   try {
     // --- Règles pures
-    const none = { openings: 0, hasSSR: false, hasUR: false, hasHolo: false, hasGold: false, unique: 0, completedSeries: false, types: 0, auctionSales: 0, trades: 0, duelWins: 0 };
+    const none = { openings: 0, hasSSR: false, hasUR: false, hasHolo: false, hasGold: false, unique: 0, completedSeries: false, types: 0, auctionSales: 0, trades: 0, duelWins: 0, expeditions: 0, triumphs: 0 };
     check("Rien de fait : aucun succès", earned(none).length === 0);
     check("99 uniques : pas unique_100 ; 100 : oui", !earned({ ...none, unique: 99 }).includes("unique_100") && earned({ ...none, unique: 100 }).includes("unique_100"));
     check("2 500 uniques débloque les 4 paliers", ["unique_100", "unique_500", "unique_1000", "unique_2500"].every((k) => earned({ ...none, unique: 2500 }).includes(k)));
-    check("Il y a un succès par clé de la spec (16)", ACHIEVEMENTS.length === 16 && new Set(ACHIEVEMENTS.map((a) => a.key)).size === 16);
+    check("Il y a un succès par clé de la spec (20)", ACHIEVEMENTS.length === 20 && new Set(ACHIEVEMENTS.map((a) => a.key)).size === 20);
 
     // --- Valeur de collection
     check("Valeur : UR = 200, UR Holo = 300, UR Holo + Gold = 500, N Gold = 2", collectionValue("UR", false, false) === 200 && collectionValue("UR", true, false) === 300 && collectionValue("UR", true, true) === 500 && collectionValue("N", false, true) === 2);

@@ -138,6 +138,9 @@ model User {
   /// Tirages de bienvenue restants (bannière de catégorie choisie à la première utilisation, SPEC étape 4 bis §8)
   welcomeDraws        Int                    @default(20)
   welcomeBannerId     String?
+  /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
+  expeditionsDone     Int                    @default(0)
+  expeditions         Expedition[]
   specialLedger       SpecialCrystalLedger[]
   /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
   balance             Int                    @default(0)
@@ -217,27 +220,30 @@ model Verification {
 
 /// Un exemplaire possédé par un joueur.
 model Card {
-  id            String      @id @default(cuid())
-  ownerId       String
-  owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  characterId   Int
-  character     Character   @relation(fields: [characterId], references: [id])
-  finish        Finish
+  id              String           @id @default(cuid())
+  ownerId         String
+  owner           User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  characterId     Int
+  character       Character        @relation(fields: [characterId], references: [id])
+  finish          Finish
   /// n-ième exemplaire de ce personnage tiré sur le site
-  serial        Int
+  serial          Int
   /// Rareté au moment du tirage (historique uniquement : la carte affiche la rareté actuelle)
-  rarityAtPull  Rarity
-  packOpeningId String
-  packOpening   PackOpening @relation(fields: [packOpeningId], references: [id], onDelete: Cascade)
-  obtainedAt    DateTime    @default(now())
+  rarityAtPull    Rarity
+  packOpeningId   String
+  packOpening     PackOpening      @relation(fields: [packOpeningId], references: [id], onDelete: Cascade)
+  obtainedAt      DateTime         @default(now())
   /// Cadenas : une carte verrouillée ne peut être ni vendue, ni échangée, ni mise aux enchères
-  locked        Boolean     @default(false)
+  locked          Boolean          @default(false)
   /// Tag « À échanger » : la fiche du personnage liste les joueurs qui le proposent
-  forTrade      Boolean     @default(false)
+  forTrade        Boolean          @default(false)
   /// Bloquée pendant une enchère (étape 3, enchères)
-  inAuction     Boolean     @default(false)
-  tradeItems    TradeItem[]
-  auctions      Auction[]
+  inAuction       Boolean          @default(false)
+  /// Bloquée pendant une expédition (étape 4 ter)
+  inExpedition    Boolean          @default(false)
+  expeditionCards ExpeditionCard[]
+  tradeItems      TradeItem[]
+  auctions        Auction[]
 
   @@unique([characterId, serial])
   @@index([ownerId, characterId])
@@ -332,6 +338,7 @@ enum LedgerReason {
   TRADE_OUT
   DUEL_REWARD
   ACHIEVEMENT
+  EXPEDITION
 }
 
 /// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).
@@ -563,4 +570,48 @@ model DuelQuestion {
   answerIndex  Int?
 
   @@unique([duelId, defenderId, slotPosition, index])
+}
+
+// ---------- Étape 4 ter : expéditions ----------
+
+enum ExpeditionStatus {
+  RUNNING
+  CLAIMED
+}
+
+/// Une équipe envoyée explorer une brèche. Le résultat se calcule à la récupération, à partir de `seed` (tirée au lancement).
+model Expedition {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Brèche (définie dans le code, src/lib/expeditions.ts)
+  breachId   String
+  startedAt  DateTime         @default(now())
+  endsAt     DateTime
+  seed       Int
+  status     ExpeditionStatus @default(RUNNING)
+  /// FAIL / SUCCESS / TRIUMPH, une fois récupérée
+  outcome    String?
+  ryo        Int              @default(0)
+  crystals   Int              @default(0)
+  special    Int              @default(0)
+  claimedAt  DateTime?
+  /// Notification « terminée » envoyée
+  notifiedAt DateTime?
+  cards      ExpeditionCard[]
+
+  @@index([userId, status])
+  @@index([status, endsAt])
+}
+
+model ExpeditionCard {
+  id           String     @id @default(cuid())
+  expeditionId String
+  expedition   Expedition @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  cardId       String
+  card         Card       @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  characterId  Int
+  type         CardType
+  /// Puissance au lancement (instantané)
+  power        Int
 }

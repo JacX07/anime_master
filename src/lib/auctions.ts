@@ -38,7 +38,7 @@ export async function createAuction(sellerId: string, d: AuctionDraft, now = new
     const active = await tx.auction.count({ where: { sellerId, status: "ACTIVE" } });
     if (active >= MAX_ACTIVE_AUCTIONS) throw new AuctionError(`Tu as déjà ${MAX_ACTIVE_AUCTIONS} enchères actives.`);
     // Le blocage conditionnel de la carte empêche de la mettre deux fois aux enchères ou de la vendre en parallèle
-    const claimed = await tx.card.updateMany({ where: { id: d.cardId, ownerId: sellerId, locked: false, inAuction: false }, data: { inAuction: true, forTrade: false } });
+    const claimed = await tx.card.updateMany({ where: { id: d.cardId, ownerId: sellerId, locked: false, inAuction: false, inExpedition: false }, data: { inAuction: true, forTrade: false } });
     if (claimed.count !== 1) throw new AuctionError("Cette carte n'est pas disponible (verrouillée, déjà aux enchères ou introuvable).");
     const a = await tx.auction.create({
       data: { sellerId, cardId: d.cardId, startPrice: d.startPrice, buyNowPrice: buyNow, endsAt: new Date(now.getTime() + d.durationHours * 3600_000) },

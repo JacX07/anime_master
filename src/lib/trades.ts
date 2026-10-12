@@ -30,7 +30,7 @@ const isCount = (n: number) => Number.isInteger(n) && n >= 0 && n <= 1_000_000_0
 async function assertCards(ownerId: string, ids: string[], who: string) {
   if (new Set(ids).size !== ids.length) throw new TradeError("Une carte est indiquée deux fois.");
   if (ids.length === 0) return;
-  const ok = await prisma.card.count({ where: { id: { in: ids }, ownerId, locked: false, inAuction: false } });
+  const ok = await prisma.card.count({ where: { id: { in: ids }, ownerId, locked: false, inAuction: false, inExpedition: false } });
   if (ok !== ids.length) throw new TradeError(`Une des cartes de ${who} n'est plus disponible (verrouillée, aux enchères ou déjà échangée).`);
 }
 
@@ -97,7 +97,7 @@ export async function acceptTrade(userId: string, tradeId: string, now = new Dat
 
       for (const [ownerId, ids] of [[t.fromId, fromCards], [t.toId, toCards]] as const) {
         if (ids.length === 0) continue;
-        const ok = await tx.card.count({ where: { id: { in: ids }, ownerId, locked: false, inAuction: false } });
+        const ok = await tx.card.count({ where: { id: { in: ids }, ownerId, locked: false, inAuction: false, inExpedition: false } });
         if (ok !== ids.length) throw new InvalidTrade("une des cartes n'est plus disponible");
       }
       if (fromCards.length) await tx.card.updateMany({ where: { id: { in: fromCards } }, data: { ownerId: t.toId, forTrade: false } });
@@ -173,7 +173,7 @@ export type TradeRow = Awaited<ReturnType<typeof listTrades>>[number];
 /** Cartes proposables à l'échange (pour composer une offre). */
 export async function tradableCards(userId: string) {
   const rows = await prisma.card.findMany({
-    where: { ownerId: userId, locked: false, inAuction: false },
+    where: { ownerId: userId, locked: false, inAuction: false, inExpedition: false },
     select: { id: true, serial: true, finish: true, forTrade: true, character: { select: { name: true, rarity: true } } },
     orderBy: [{ character: { favourites: "desc" } }, { serial: "asc" }],
   });
@@ -181,7 +181,7 @@ export async function tradableCards(userId: string) {
 }
 
 export async function setForTrade(userId: string, cardId: string, forTrade: boolean) {
-  const r = await prisma.card.updateMany({ where: { id: cardId, ownerId: userId, ...(forTrade ? { locked: false, inAuction: false } : {}) }, data: { forTrade } });
+  const r = await prisma.card.updateMany({ where: { id: cardId, ownerId: userId, ...(forTrade ? { locked: false, inAuction: false, inExpedition: false } : {}) }, data: { forTrade } });
   if (r.count !== 1) throw new TradeError("Carte introuvable ou indisponible.");
   if (forTrade) {
     const c = await prisma.card.findUniqueOrThrow({ where: { id: cardId }, select: { finish: true, characterId: true, owner: { select: { username: true } }, character: { select: { name: true } } } });
@@ -192,7 +192,7 @@ export async function setForTrade(userId: string, cardId: string, forTrade: bool
 /** Joueurs qui proposent ce personnage à l'échange. */
 export async function traders(characterId: number) {
   const cards = await prisma.card.findMany({
-    where: { characterId, forTrade: true, locked: false, inAuction: false },
+    where: { characterId, forTrade: true, locked: false, inAuction: false, inExpedition: false },
     select: { id: true, serial: true, finish: true, owner: { select: { username: true } } },
     orderBy: { serial: "asc" },
     take: 30,

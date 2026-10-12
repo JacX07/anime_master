@@ -29,6 +29,7 @@ const TEXT: Record<NotificationType, (p: Payload) => string> = {
   DUEL_EXPIRED: (p) => (p.username ? `${p.username} n'a pas répondu à ton duel à temps.` : "Un duel a expiré : personne n'a joué sa défense à temps."),
   DUEL_RESULT: (p) =>
     `${p.outcome === "win" ? "Victoire" : p.outcome === "draw" ? "Match nul" : "Défaite"}${p.forfeit ? " par forfait" : ""} contre ${p.username}${p.amount ? ` (+${ryo(p.amount)})` : ""}.`,
+  EXPEDITION_DONE: (p) => `Ton expédition « ${p.label} » est terminée : va récupérer le butin.`,
   AUCTION_UNSOLD: (p) => `Ton enchère sur ${p.character} s'est terminée sans offre : la carte est revenue dans ton album.`,
 };
 
