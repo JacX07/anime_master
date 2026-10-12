@@ -80,7 +80,8 @@ export default {
     await moveTo(root, { pos: spot, scale: 1.15 }, quick ? 0.22 : 0.35, ease.inOut);
     // Surcharge : le noyau s'emballe, les attaches s'écartent, la couleur de rareté perce
     const col = new THREE.Color(RC[c.rarity]);
-    await charge(c, (k) => {
+    const fancy = (c.rarity === "SSR" || c.rarity === "UR") && ctx.reveals; // les SSR / UR ont leur propre mise en scène (reveals.js)
+    await charge(fancy ? { ...c, rarity: "R" } : c, (k) => {
       item.spin = 0.6 + k * 14; body.position.x = (Math.random() - 0.5) * 0.03 * k;
       item.clamps[0].position.y = -0.52 - k * 0.25; item.clamps[1].position.y = 0.52 + k * 0.25;
       item.coreMat.color.copy(new THREE.Color(ctx.BLUE).lerp(col, k)).multiplyScalar(1.95 + k * 3); item.light.color.copy(item.coreMat.color); item.light.intensity = 1.2 + k * 10;
@@ -104,7 +105,7 @@ export default {
     place(1);
     root.visible = false;
     burst(spot, [RC[c.rarity], "#ffffff", "#cfdcff"], { n: 220, speed: 4, size: 0.06, gravity: 0.6, additive: true });
-    const imp = impact(c, spot);
+    const imp = fancy ? Promise.resolve() : impact(c, spot);
     // Les éclats s'envolent, freinent, puis sont aspirés vers le contour de la carte
     let last = 0;
     await tween(0.28, (k) => { const dt = k - last; last = k; for (let i = 0; i < SHARDS; i++) { P[i].addScaledVector(V[i], dt * 0.55 * (1.4 - k)); R[i].addScalar(dt * 4); } place(1); }, (k) => k);
@@ -112,10 +113,12 @@ export default {
     const start = P.map((p) => p.clone());
     await tween(0.3, (k) => { for (let i = 0; i < SHARDS; i++) { P[i].lerpVectors(start[i], target[i], k); R[i].addScalar(0.05); } place(1 - k * 0.6); }, ease.inOut);
     const card = makeCard(c); card.position.copy(FOCUS); card.scale.setScalar(1.1); scene.add(card);
-    const mat = materialize(card, 0.43);
+    if (fancy) card.visible = false;
+    const mat = fancy ? Promise.resolve() : materialize(card, 0.43);
     tween(0.25, (k) => place(0.4 * (1 - k))).then(() => { scene.remove(shards); shards.dispose(); });
     await mat;
     await imp;
+    if (fancy) await ctx.reveals.run(c.rarity === "UR" ? "urB" : "ssrC", c, card);
     await wait(0.15);
     group.remove(root);
     return card;

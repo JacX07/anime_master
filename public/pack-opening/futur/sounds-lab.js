@@ -7,7 +7,8 @@ export function createPalettes(s) {
   const env = (g, t, peak, a, d) => { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); };
   let nb = null;
   const noiseBuf = () => { const c = C(); if (!nb) { nb = c.createBuffer(1, c.sampleRate, c.sampleRate); const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return nb; };
-  const route = (node, pan = 0, wet = 0.4, bus = "sfx") => { const p = C().createStereoPanner(); p.pan.value = pan; node.connect(p); s.out(p, bus, wet); };
+  let BUS = "sfx"; // bus de sortie des instruments : "sfx" pour les effets, "amb" pour la musique de fond
+  const route = (node, pan = 0, wet = 0.4, bus = BUS) => { const p = C().createStereoPanner(); p.pan.value = pan; node.connect(p); s.out(p, bus, wet); };
 
   // Une voix : oscillateur(s) → filtre → enveloppe
   function voice(t, f, { type = "sine", gain = 0.1, a = 0.01, d = 0.6, wet = 0.4, pan = 0, lp = 0, det = 0, slide = 0, sustain = 0 } = {}) {
@@ -61,6 +62,7 @@ export function createPalettes(s) {
   const D = 62; // ré4 (MIDI)
 
   return {
+    inst: { voice, noise, pluck, bell, taiko, timpani, flute, strings, hz, setBus: (b) => (BUS = b) },
     // ----- A · Orchestre shonen : cuivres, timbales, cordes, chœur -----
     orchestre: {
       name: "A · Orchestre shonen", blurb: "Cuivres, timbales, cymbale, cordes et chœur : l'ouverture d'un shonen épique.",
@@ -80,6 +82,8 @@ export function createPalettes(s) {
       ssr() { const t = now(); bell(t, hz(D + 12), { gain: 0.12, dur: 4, parts: [1, 2.01, 3.0, 4.2] }); [0, 3, 7, 8, 12, 14].forEach((k, i) => pluck(t + 0.2 + i * 0.09, hz(D + 12 + k), { gain: 0.15, dur: 2.2 })); flute(t + 0.4, D + 19, 1.4, 0.08); taiko(t, 0.8); },
       urCharge() { const t = now(); flute(t, D + 7, 3, 0.1, { bend: 3 }); for (let i = 0, at = 0, gap = 0.7; at < 2.8; i++, at += gap, gap *= 0.82) taiko(t + at, 0.35 + at / 5); noise(t, { from: 500, to: 3500, q: 0.7, gain: 0.07, a: 2.6, d: 0.4, wet: 0.5 }); [0, 3, 7].forEach((k, i) => pluck(t + 1.6 + i * 0.4, hz(D + 12 + k), { gain: 0.1 + i * 0.03, dur: 2.4 })); },
       urImpact() { const t = now(); taiko(t, 1.4); taiko(t + 0.18, 1); taiko(t + 0.36, 1.2); bell(t, hz(D), { gain: 0.16, dur: 6, parts: [1, 2.01, 3.0, 4.2] }); [0, 3, 7, 12, 15].forEach((k, i) => pluck(t + 0.05 + i * 0.03, hz(D + 12 + k), { gain: 0.18, dur: 3 })); flute(t + 0.3, D + 24, 2.6, 0.1); },
+      select() { const t = now(); pluck(t, hz(D + 12), { gain: 0.14, dur: 1.4 }); pluck(t + 0.1, hz(D + 19), { gain: 0.12, dur: 1.4 }); },
+      shatter(p = 1) { const t = now(); taiko(t, 0.7 * p); noise(t, { from: 4000, q: 2, gain: 0.1 * p, d: 0.08, wet: 0.3 }); [0, 3, 7, 12].forEach((k, i) => pluck(t + 0.04 + i * 0.05, hz(D + 24 + k), { gain: 0.13 * p, dur: 1.8 })); },
       gather() { const t = now(); [7, 3, 0].forEach((k, i) => pluck(t + i * 0.1, hz(D + 24 - k), { gain: 0.1 })); },
       collect() { const t = now(); pluck(t, hz(D + 24), { gain: 0.14, dur: 1.5 }); bell(t + 0.05, hz(D + 36), { gain: 0.05, dur: 1.8, parts: [1, 2.01, 3.0] }); },
     },

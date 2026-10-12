@@ -5,7 +5,7 @@ import { buildBreche } from "./breche.js";
 
 export function createReveals(ctx, { loadCard }) {
   const { scene, tween, wait, ease, burst, fxPulse, flash, zoomPunch, hitStop, Sfx, S, RC, BLUE, MINT, makeCard, materialize, FOCUS, CARD_W, CARD_H, canvasTex, GLSL_NOISE } = ctx;
-  const vig = document.getElementById("vignette");
+  const theatre = ctx.theatre ?? (async () => {});
   const GOLD = "#f2a516", PALE = "#ffd36b";
   const mat = (color, opacity = 1, extra = {}) => new THREE.MeshBasicMaterial({ color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, ...extra });
   const raysTex = (n) => canvasTex(512, 512, (g, w, h) => {
@@ -23,10 +23,12 @@ export function createReveals(ctx, { loadCard }) {
 
   let objs = [];
   const track = (o) => { objs.push(o); scene.add(o); return o; };
-  const cleanup = () => { objs.forEach((o) => { scene.remove(o); o.traverse?.((n) => { n.geometry?.dispose?.(); n.material?.dispose?.(); }); }); objs = []; vig.classList.remove("on"); S.duck?.(0, 0.1); };
+  const cleanup = () => { objs.forEach((o) => { scene.remove(o); o.traverse?.((n) => { n.geometry?.dispose?.(); n.material?.dispose?.(); }); }); objs = []; };
   const plane = (size, color, tex, z = -0.4) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), mat(color, 0, tex ? { map: tex } : {})); m.position.set(FOCUS.x, FOCUS.y, FOCUS.z + z); return track(m); };
   const ring = (color, r = 1, t = 0.04) => { const m = new THREE.Mesh(new THREE.TorusGeometry(r, t, 8, 96), mat(color, 0)); m.position.copy(FOCUS); return track(m); };
   const newCard = async (c) => { const card = makeCard(c); card.position.copy(FOCUS); card.scale.setScalar(1.1); card.visible = false; track(card); return card; };
+  // Dans le jeu on réutilise la carte déjà créée par la scène (posée au centre) ; dans le labo on en crée une
+  const getCard = async (c, ex, force) => { if (!ex) return newCard(force(c)); ex.visible = false; ex.position.copy(FOCUS); ex.scale.setScalar(1.1); return ex; };
   const hue = (t) => new THREE.Color().setHSL(((t % 1) + 1) % 1, 0.95, 0.6);
   const label = (text) => {
     const d = document.createElement("div");
@@ -38,17 +40,17 @@ export function createReveals(ctx, { loadCard }) {
 
   const V = {
     // ---- SSR ----
-    async ssrA(c) { // Éclair doré : choc, rayons qui s'ouvrent, onde dorée, fontaine d'étincelles
-      const card = await newCard(ssr(c)), rays = plane(11, GOLD, raysTex(28)), sh = ring(PALE, 1, 0.07);
-      vig.classList.add("on"); flash(); Sfx.ssr(); zoomPunch(0.6); hitStop(0.1);
+    async ssrA(c, ex) { // Éclair doré : choc, rayons qui s'ouvrent, onde dorée, fontaine d'étincelles
+      const card = await getCard(c, ex, ssr), rays = plane(11, GOLD, raysTex(28)), sh = ring(PALE, 1, 0.07);
+      await theatre(true); flash(); Sfx.ssr(); zoomPunch(0.6); hitStop(0.1);
       burst(FOCUS, [GOLD, PALE, "#ffffff"], { n: 420, speed: 4.2, rise: 2.2, gravity: 0.9, size: 0.08, additive: true });
       fxPulse(GOLD, 40, FOCUS);
       const grow = tween(2.2, (k) => { rays.material.opacity = Math.min(1, k * 5) * (1 - k) * 0.95; rays.rotation.z = k * 0.9; rays.scale.setScalar(0.5 + k * 0.9); sh.scale.setScalar(0.2 + k * 7.5); sh.material.opacity = (1 - k) * 0.9; }, ease.out);
       await wait(0.35); await materialize(card, 1.2); await grow; await wait(1.3);
     },
-    async ssrB(c) { // Pluie d'étoiles : la scène s'assombrit, un trait d'or tombe, les étoiles pleuvent, la carte monte
-      const card = await newCard(ssr(c)); card.position.y = FOCUS.y - 1.8;
-      vig.classList.add("on"); S.duck?.(-16, 3); Sfx.gather(); await wait(0.7);
+    async ssrB(c, ex) { // Pluie d'étoiles : la scène s'assombrit, un trait d'or tombe, les étoiles pleuvent, la carte monte
+      const card = await getCard(c, ex, ssr); card.position.y = FOCUS.y - 1.8;
+      await theatre(true); S.duck?.(-16, 3); Sfx.gather(); await wait(0.7);
       const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 9, 8), mat(PALE, 0)); beam.position.set(FOCUS.x, FOCUS.y + 4.5, FOCUS.z - 0.2); track(beam);
       const N = 360, pos = new Float32Array(N * 3), vy = [], geo = new THREE.BufferGeometry();
       for (let i = 0; i < N; i++) { pos.set([FOCUS.x + (Math.random() - 0.5) * 7, FOCUS.y + 2 + Math.random() * 7, FOCUS.z - 1 + Math.random() * 2], i * 3); vy.push(1.2 + Math.random() * 2.5); }
@@ -62,9 +64,9 @@ export function createReveals(ctx, { loadCard }) {
       burst(FOCUS, [GOLD, PALE, "#ffffff"], { n: 300, speed: 3, additive: true }); fxPulse(GOLD, 30, FOCUS);
       await materialize(card, 1.3); await rise; await wait(1.6);
     },
-    async ssrC(c) { // Sceau doré : un cercle runique converge, se verrouille, puis explose
-      const card = await newCard(ssr(c)), seal = plane(5.4, GOLD, sealTex, 0.1), seal2 = plane(4, PALE, sealTex, 0.12);
-      vig.classList.add("on"); S.duck?.(-16, 3.5); Sfx.gather();
+    async ssrC(c, ex) { // Sceau doré : un cercle runique converge, se verrouille, puis explose
+      const card = await getCard(c, ex, ssr), seal = plane(5.4, GOLD, sealTex, 0.1), seal2 = plane(4, PALE, sealTex, 0.12);
+      await theatre(true); S.duck?.(-16, 3.5); Sfx.gather();
       await tween(1.5, (k) => { seal.material.opacity = k * 0.95; seal2.material.opacity = k * 0.7; seal.scale.setScalar(1.7 - 0.7 * k); seal2.scale.setScalar(1.2 - 0.2 * k); seal.rotation.z = k * 2.2; seal2.rotation.z = -k * 3; fxPulse(GOLD, 14 * k, FOCUS); }, ease.inOut);
       Sfx.ssr(); flash(); hitStop(0.12); zoomPunch(0.7);
       burst(FOCUS, [GOLD, PALE, "#ffffff"], { n: 500, speed: 4.5, additive: true, size: 0.08 });
@@ -73,10 +75,10 @@ export function createReveals(ctx, { loadCard }) {
       await materialize(card, 1.1); await out; await wait(1.5);
     },
     // ---- UR ----
-    async urA(c) { // Fissure du multivers : une brèche s'ouvre au centre de l'écran et laisse passer la carte
-      const card = await newCard(ur(c)), rays = plane(13, "#ffffff", raysTex(40), -0.9), b = buildBreche({ GLSL_NOISE, BLUE, MINT });
+    async urA(c, ex) { // Fissure du multivers : une brèche s'ouvre au centre de l'écran et laisse passer la carte
+      const card = await getCard(c, ex, ur), rays = plane(13, "#ffffff", raysTex(40), -0.9), b = buildBreche({ GLSL_NOISE, BLUE, MINT });
       b.group.position.set(FOCUS.x, FOCUS.y, FOCUS.z - 0.5); b.group.rotation.set(0, 0, 0); track(b.group); b.group.scale.setScalar(0.02);
-      vig.classList.add("on"); S.duck?.(-26, 7); Sfx.urCharge();
+      await theatre(true); S.duck?.(-26, 7); Sfx.urCharge();
       let t = 0; const upd = (dt) => b.update(dt, (t += dt));
       await tween(2.2, (k) => { upd(0.016); b.group.scale.set(0.05 + k * 1.1, 0.4 + k * 1.3, 1); b.group.position.x = FOCUS.x + (Math.random() - 0.5) * 0.05 * (1 - k); fxPulse(BLUE, 30 * k, FOCUS); }, ease.in);
       Sfx.urImpact(); flash(); hitStop(0.18); zoomPunch(1);
@@ -87,9 +89,9 @@ export function createReveals(ctx, { loadCard }) {
       await tween(0.8, (k) => { upd(0.016); b.group.scale.set(1.35 * (1 - k) + 0.01, 2.1 * (1 - k) + 0.01, 1); }, ease.in);
       await wait(1.6); stop();
     },
-    async urB(c) { // Convergence : la lumière afflue de partout, blanc total, onde prismatique
-      const card = await newCard(ur(c)), rays = plane(14, "#ffffff", raysTex(36), -0.9);
-      vig.classList.add("on"); S.duck?.(-26, 7); Sfx.urCharge();
+    async urB(c, ex) { // Convergence : la lumière afflue de partout, blanc total, onde prismatique
+      const card = await getCard(c, ex, ur), rays = plane(14, "#ffffff", raysTex(36), -0.9);
+      await theatre(true); S.duck?.(-26, 7); Sfx.urCharge();
       const N = 520, pos = new Float32Array(N * 3), col = new Float32Array(N * 3), dirs = [], geo = new THREE.BufferGeometry();
       for (let i = 0; i < N; i++) { const d = new THREE.Vector3().randomDirection().multiplyScalar(5 + Math.random() * 4); dirs.push(d); const cc = hue(i / N); col.set([cc.r, cc.g, cc.b], i * 3); }
       geo.setAttribute("position", new THREE.BufferAttribute(pos, 3)); geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
@@ -102,11 +104,11 @@ export function createReveals(ctx, { loadCard }) {
       const wave = tween(3.4, (k) => { rs.forEach((r, i) => { const kk = Math.max(0, k - i * 0.12); r.scale.setScalar(0.2 + kk * 9); r.material.opacity = (1 - kk) * 0.9; r.material.color.copy(hue(kk + i / 3)); }); rays.material.color.copy(hue(k * 3)); rays.material.opacity = Math.sin(k * Math.PI) * 0.85; rays.rotation.z = k * 0.5; }, (k) => k);
       await materialize(card, 1.6); await wave; await wait(1.4); stop();
     },
-    async urC(c) { // Ascension : un pilier de lumière tombe, la carte s'élève en tournant, couronne prismatique au sommet
-      const card = await newCard(ur(c)); card.position.y = FOCUS.y - 2.4;
+    async urC(c, ex) { // Ascension : un pilier de lumière tombe, la carte s'élève en tournant, couronne prismatique au sommet
+      const card = await getCard(c, ex, ur); card.position.y = FOCUS.y - 2.4;
       const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 12, 32, 1, true), mat("#bcd8ff", 0)); beam.position.set(FOCUS.x, FOCUS.y, FOCUS.z - 0.3); track(beam);
       const crown = [0, 1, 2].map((i) => ring(hue(i / 3), 1.2 + i * 0.35, 0.05)); crown.forEach((r) => (r.position.y = FOCUS.y + 1.4));
-      vig.classList.add("on"); S.duck?.(-28, 8); Sfx.urCharge();
+      await theatre(true); S.duck?.(-28, 8); Sfx.urCharge();
       await tween(1.4, (k) => { beam.material.opacity = k * 0.5; beam.scale.x = beam.scale.z = 0.2 + k * 0.8; fxPulse(BLUE, 20 * k, FOCUS); }, ease.out);
       card.visible = true; card.userData.front.material.opacity = 1;
       const timer = setInterval(() => burst(new THREE.Vector3(FOCUS.x + (Math.random() - 0.5) * 1.4, card.position.y - 0.8, FOCUS.z), [BLUE, MINT, "#ffffff", PALE], { n: 40, speed: 0.8, rise: 2.5, gravity: -0.3, size: 0.07, additive: true }), 150);
@@ -121,10 +123,12 @@ export function createReveals(ctx, { loadCard }) {
   };
 
   let running = false;
-  async function play(name, character) {
+  // Joue une variante ; `existing` = carte déjà créée par la scène (elle reste en place à la fin)
+  async function run(name, c, existing) {
     if (running || !V[name]) return;
     running = true;
-    try { await V[name](await loadCard(character)); } finally { cleanup(); running = false; }
+    try { await V[name](c, existing); } finally { cleanup(); running = false; await theatre(false); }
   }
-  return { play, names: Object.keys(V), get running() { return running; } };
+  async function play(name, character) { if (!running) await run(name, await loadCard(character)); }
+  return { play, run, names: Object.keys(V), get running() { return running; } };
 }

@@ -12,6 +12,7 @@ import { buildDecor, BLUE, MINT } from "./decor.js";
 import { futurAudio } from "./audio.js";
 import { buildCapsule } from "./capsule.js";
 import { buildBreche } from "./breche.js";
+import { createReveals } from "./reveals.js";
 import { createPerf } from "./perf.js";
 import { icon, installSprite, loadIcons } from "../opening/icons.js";
 
@@ -208,6 +209,19 @@ export async function start(modeId) {
     tween, wait, ease, moveTo, burst, fxPulse, hitStop, zoomPunch, flash, makeCard, materialize, charge, impact, FOCUS, CARD_W, CARD_H,
     setHint: (t) => (ui.hint.textContent = t) };
 
+  // « Théâtre » : pour les révélations SSR / UR, le décor s'efface (fondu au noir) afin que les lueurs ressortent
+  const theatreEl = document.createElement("div"); theatreEl.style.cssText = "position:fixed;inset:0;background:#05070d;opacity:0;pointer-events:none;transition:opacity .35s"; canvas.after(theatreEl);
+  const hiddenByTheatre = [];
+  ctx.theatre = async (on) => {
+    if (LITE || on === (hiddenByTheatre.length > 0)) return;
+    theatreEl.style.opacity = "1"; await wait(0.4);
+    if (on) { decorKids.forEach((o) => { if (!o.isLight && o.visible) { o.visible = false; hiddenByTheatre.push(o); } }); scene.background = new THREE.Color("#070a14"); }
+    else { hiddenByTheatre.splice(0).forEach((o) => (o.visible = true)); scene.background = null; }
+    theatreEl.style.opacity = "0";
+  };
+  const reveals = createReveals(ctx, { loadCard: async (c) => { images[c.img] ??= await painter.loadImg(c.img); return c; } });
+  ctx.reveals = reveals;
+
   // Déroulé
   let modeReady = false, busy = false, phase = "idle", items = [], line = [], autoTimer = 0, capsuleHover = false;
   const bar = (id, n, on) => (document.getElementById(id).innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join(""));
@@ -330,17 +344,16 @@ export async function start(modeId) {
       const pos = new THREE.Vector3((i % 5 - (inRow - 1) / 2) * dx + shift, rows[row] ?? rows[0], 3.2);
       const card = makeCard(c); card.position.copy(pos).add(new THREE.Vector3(0, 0.5, 0)); card.scale.setScalar(sc * 0.3); card.visible = false; card.userData.state = "moving";
       scene.add(card); line.push(card);
-      if (rank === 4) { // UR : la scène retient son souffle, puis tout explose
-        S.duck?.(-20, 2.5); Sfx.urCharge?.(); ui.vignette.classList.add("on");
-        await tween(1.1, (k) => fxPulse(RC.UR, 28 * k, pos));
-        ui.vignette.classList.remove("on"); Sfx.urImpact?.(); flash(); hitStop(0.12); zoomPunch(0.7);
-        burst(pos, [RC.UR, "#f2a516", "#2b6cff", "#00c8b4", "#ffffff"], { n: 520, speed: 5, size: 0.09 }); fxPulse(RC.UR, 40, pos);
+      if (rank >= 3) { // SSR : sceau doré ; UR : convergence. La carte est révélée au centre, puis rejoint sa place.
+        await reveals.run(rank === 4 ? "urB" : "ssrC", c, card);
+        pops.push(moveTo(card, { pos, scale: sc }, 0.7, ease.inOut).then(() => { card.userData.state = "line"; card.userData.landT = 0; }));
+        await wait(0.6);
+        continue;
       }
       Sfx.flip(c.rarity); fxPulse(RC[c.rarity], 5 + rank * 5, pos);
       burst(pos, [RC[c.rarity], "#ffffff"], { n: 50 + rank * 60, speed: 2.1 + rank * 0.3, additive: true });
-      if (rank === 3) { Sfx.ssr(); flash(); zoomPunch(0.35); burst(pos, ["#f2a516", "#ffd36b", "#ffffff"], { n: 260, speed: 4, size: 0.08 }); }
       pops.push(Promise.all([materialize(card, 0.95), moveTo(card, { pos, scale: sc }, 0.65, ease.back)]).then(() => { card.userData.state = "line"; card.userData.landT = 0; }));
-      await wait(rank >= 3 ? 1.3 : small ? 0.6 : 0.85);
+      await wait(small ? 0.6 : 0.85);
     }
     await Promise.all(pops);
     skip = false; busy = false; phase = "done"; S.music?.setLevel(0);
@@ -648,8 +661,7 @@ export async function start(modeId) {
     return bulkAnimation(n, Promise.resolve({ ok: true, best, cards }));
   };
   if (LAB) {
-    const { createReveals } = await import("./reveals.js");
-    const rv = createReveals(ctx, { loadCard: async (c) => { images[c.img] ??= await painter.loadImg(c.img); return c; } });
+    const rv = reveals;
     scene.background = new THREE.Color("#070a14");
     capsule.group.visible = false; breche.group.visible = false;
     const st = document.createElement("style"); st.textContent = ".hud,.banners,.gate,.bottom,header{display:none!important} .labbar{position:fixed;top:14px;left:14px;z-index:40;display:flex;flex-wrap:wrap;gap:8px;max-width:760px;font:600 13px Sora,sans-serif} .labbar b{width:100%;color:#fff} .labbar button{padding:8px 14px;border-radius:10px;border:1.5px solid #ffffff55;background:#10182cdd;color:#fff;cursor:pointer;font:inherit} .labbar button:hover{border-color:#7fb0ff}";
