@@ -275,7 +275,9 @@ export async function start(modeId) {
     post({ type: "bulk-request", count: n, bannerId: bannerId || null });
     bulkAnimation(n, reply);
   });
-  // La capsule s'ouvre pendant que le serveur tire les cartes ; le ×10 double l'explosion, teintée par la meilleure rareté
+  // La capsule s'ouvre pendant que le serveur tire les cartes ; le ×10 double l'explosion, teintée par la meilleure rareté.
+  // Les cartes éclosent ensuite une à une (la plus rare en dernier), puis filent vers l'album comme pour une ouverture normale.
+  let bulkMode = false;
   async function bulkAnimation(n, reply) {
     let m = { ok: false, error: "L'ouverture a échoué." };
     try {
@@ -288,16 +290,45 @@ export async function start(modeId) {
         burst(at, [color, "#ffffff", BLUE], { n: 200 + rank * 70, speed: 3.6, additive: true }); fxPulse(color, 12 + rank * 6, at);
         if (best === "SSR" || best === "UR") { Sfx.ssr(); flash(); }
         if (n === 10) { await wait(0.22); Sfx.flip(best); burst(at, [color, "#ffffff", MINT], { n: 260, speed: 4.4, additive: true }); fxPulse(color, 18, at); zoomPunch(0.2); }
-        await wait(n === 10 ? 0.5 : 0.35);
+        await wait(0.3);
+        await popCards(n, m.cards);
+        return; // la suite (résumé, retour à la capsule) se joue quand les cartes sont rangées : checkStored()
       }
     } catch (err) {
       console.error("Animation de l'ouverture groupée interrompue :", err);
-      if (!m.ok && !m.error) m = { ok: false, error: "L'animation a échoué." };
+      if (!m.error) m = { ok: false, error: "L'animation a échoué : les cartes sont dans ton album." };
+      if (m.ok) { endBulk(true); return; }
     }
-    bulkReply = null; bulking = false;
-    if (m.ok) { setPack(m.state); ui.hint.textContent = txt.open; post({ type: "bulk-reveal" }); }
-    else { ui.hint.textContent = m.error; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); }
-    ui.booster.hidden = false; capsule.show(); hud();
+    endBulk(false);
+    ui.hint.textContent = m.error ?? "L'ouverture a échoué."; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500);
+  }
+  function endBulk(ok) {
+    bulkMode = false; bulkReply = null; bulking = false; busy = false; skip = false;
+    line.forEach(dropCard); line = []; clearTimeout(autoTimer);
+    if (ok) post({ type: "bulk-reveal" });
+    backToIdle(); hud();
+  }
+  async function popCards(n, cards) {
+    await Promise.all(cards.map(async (c) => { images[c.img] ??= await painter.loadImg(c.img); }));
+    line.forEach(dropCard); line = [];
+    busy = true; skip = false; bulkMode = true; phase = "popping"; hud();
+    const small = n > 5, sc = small ? 0.58 : 0.7, dx = small ? 1.12 : 1.34, shift = -0.6, rows = small ? [2.15, 0.8] : [1.45]; // décalé à gauche : le panneau de droite masque le reste
+    const order = [...cards].sort((a, b) => (RANK[a.rarity] ?? 0) - (RANK[b.rarity] ?? 0));
+    const pops = [];
+    for (let i = 0; i < order.length; i++) {
+      const c = order[i], row = Math.floor(i / 5), inRow = Math.min(5, order.length - row * 5), rank = RANK[c.rarity] ?? 0;
+      const pos = new THREE.Vector3((i % 5 - (inRow - 1) / 2) * dx + shift, rows[row] ?? rows[0], 3.2);
+      const card = makeCard(c); card.position.copy(pos).add(new THREE.Vector3(0, 0.5, 0)); card.scale.setScalar(sc * 0.3); card.visible = false; card.userData.state = "moving";
+      scene.add(card); line.push(card);
+      Sfx.flip(c.rarity); fxPulse(RC[c.rarity], 5 + rank * 5, pos);
+      burst(pos, [RC[c.rarity], "#ffffff"], { n: 50 + rank * 60, speed: 2.1 + rank * 0.3, additive: true });
+      if (rank >= 3) { Sfx.ssr(); flash(); zoomPunch(0.3); }
+      pops.push(Promise.all([materialize(card, 0.5), moveTo(card, { pos, scale: sc }, 0.4, ease.back)]).then(() => { card.userData.state = "line"; card.userData.landT = 0; }));
+      await wait(rank >= 3 ? 0.45 : 0.2);
+    }
+    await Promise.all(pops);
+    skip = false; busy = false; phase = "done"; S.music?.setLevel(0);
+    ui.hint.textContent = txt.done; autoTimer = setTimeout(sendAll, 6000);
   }
   setInterval(hud, 1000); hud();
 
@@ -434,6 +465,7 @@ export async function start(modeId) {
   }
   function checkStored() {
     if (phase !== "done" || line.length) return;
+    if (bulkMode) return endBulk(true);
     phase = "stored"; clearTimeout(autoTimer); ui.hint.textContent = txt.stored; ui.next.hidden = liveStock().available < 5;
     if (!ui.next.hidden) ui.next.focus({ preventScroll: true });
   }

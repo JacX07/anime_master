@@ -14,6 +14,24 @@ import { PackOpener } from "./PackOpener";
 
 const ORDER = ["UR", "SSR", "SR", "R", "N"] as const;
 
+// Une carte tirée, au format que la scène sait dessiner
+const toSceneCards = (cards: OpenedPack["cards"]) =>
+  cards.map((c) => ({
+    name: c.name,
+    series: c.series ?? "",
+    img: c.imageUrl,
+    rarity: c.rarity,
+    type: TYPE_LABELS[c.type].name,
+    typeId: c.type,
+    atk: c.attack,
+    def: c.defense,
+    power: c.power,
+    serial: c.serial,
+    finish: c.finish,
+    holo: c.finish !== "NORMAL",
+    isNew: c.isNew,
+  }));
+
 // Scène 3D d'ouverture (public/pack-opening) : elle vit dans une iframe de même origine et ne fait confiance qu'à nous.
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
@@ -69,11 +87,10 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
         // La scène joue l'ouverture de la capsule, puis demande le résumé ("bulk-reveal") ; sans réponse, il s'affiche quand même
         if (!r.ok) return send({ type: "bulk-done", ok: false, error: r.error });
         const best = ORDER.find((x) => r.pack.cards.some((c) => c.rarity === x)) ?? "N";
-        send({ type: "bulk-done", ok: true, state: r.pack.state, best });
+        send({ type: "bulk-done", ok: true, state: r.pack.state, best, cards: toSceneCards(r.pack.cards) });
         pendingBulk.current = r.pack;
-        for (let i = 0; i < r.pack.cards.length; i++) window.dispatchEvent(new Event(ALBUM_STORED));
         clearTimeout(revealTimer.current);
-        revealTimer.current = setTimeout(showBulk, 6000);
+        revealTimer.current = setTimeout(showBulk, 40000); // filet de sécurité si la scène ne répond plus
       } else if (msg.type === "bulk-reveal") {
         showBulk();
       } else if (msg.type === "open-request") {
@@ -86,21 +103,7 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
           ok: true,
           state,
           pity: pity === "NONE" ? null : pity,
-          cards: cards.map((c) => ({
-            name: c.name,
-            series: c.series ?? "",
-            img: c.imageUrl,
-            rarity: c.rarity,
-            type: TYPE_LABELS[c.type].name,
-            typeId: c.type,
-            atk: c.attack,
-            def: c.defense,
-            power: c.power,
-            serial: c.serial,
-            finish: c.finish,
-            holo: c.finish !== "NORMAL",
-            isNew: c.isNew,
-          })),
+          cards: toSceneCards(cards),
         });
       }
     }
