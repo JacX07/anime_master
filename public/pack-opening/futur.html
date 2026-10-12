@@ -54,6 +54,10 @@
   .bulk-row .btn:disabled { opacity: .45; cursor: not-allowed; }
   .bulk-row:not([data-embed]) { display: none; }
   .hud p.why { font-size: 12px; color: var(--UR); margin-top: -6px; }
+  .gate { position: absolute; left: 118px; top: 69%; font: 700 13px var(--font-body); letter-spacing: .04em; color: var(--ink); background: var(--panel); border: 1.5px solid var(--panel-line); border-radius: 99px; padding: 8px 16px; cursor: pointer; transition: opacity .3s, border-color .2s, box-shadow .2s; }
+  .gate[data-dim] { opacity: 0; pointer-events: none; }
+  .gate:hover { border-color: var(--accent); box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .gate-badge { margin-left: 8px; padding: 1px 7px; border-radius: 99px; background: #2fbf71; color: #fff; font-size: 11px; }
   /* Bannières : rangée de cartes en bas de l'écran (masquée pendant une ouverture, pour laisser la place aux cartes) */
   .banners { position: absolute; left: 28px; bottom: 78px; width: calc(100% - 340px); display: flex; gap: 12px; overflow-x: auto; padding: 8px 6px 10px; scrollbar-width: thin; transition: opacity .3s; }
   .banners[hidden] { display: none; }
@@ -171,6 +175,7 @@
     <div class="leds"><p>UR garanti <span>dans <b id="urLeft">71</b></span></p><div class="bar" style="--c:var(--UR)" id="ur"></div></div>
   </aside>
   <button class="booster" id="booster" aria-label="Ouvrir le booster"></button>
+  <button class="gate" id="gate" type="button" title="Envoyer tes cartes explorer une brèche">Expéditions<span class="gate-badge" id="gateBadge" hidden></span></button>
   <div class="banners" id="bannerBox" role="radiogroup" aria-label="Bannière" hidden></div>
   <div class="bottom"><span class="hint" id="hint" aria-live="polite">Clique sur le booster pour l'ouvrir</span><button class="btn" id="all" hidden>Tout révéler</button><button class="btn primary" id="next" hidden>Ouvrir le suivant</button></div>
   <div class="vig"></div>

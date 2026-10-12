@@ -11,6 +11,7 @@ import THEME from "../opening/themes/futur.js";
 import { buildDecor, BLUE, MINT } from "./decor.js";
 import { futurAudio } from "./audio.js";
 import { buildCapsule } from "./capsule.js";
+import { buildBreche } from "./breche.js";
 import { createPerf } from "./perf.js";
 import { icon, installSprite, loadIcons } from "../opening/icons.js";
 
@@ -45,7 +46,7 @@ export async function start(modeId) {
   // La capsule est un objet 3D : le bouton ne sert plus qu'à l'accessibilité clavier (invisible, ne capte pas la souris)
   ui.hint.textContent = txt.open; ui.booster.innerHTML = ""; ui.booster.style.cssText = "opacity:0;pointer-events:none;animation:none";
   const albumEl = document.getElementById("albumLink"), albumBadge = document.getElementById("albumBadge");
-  let capsule = null, stored = 0;
+  let capsule = null, breche = null, stored = 0;
   // Stock et pity : fournis par le serveur (init / réponse d'ouverture), valeurs d'exemple hors iframe
   let cfg = { interval: 600000, max: 10, ssrPity: 15, urPity: 100 };
   let pack = { available: 45, nextCrystalAt: null, cardsSinceSSR: 45, cardsSinceUR: 20, collectionPower: 123456, balance: 650, crystalPrice: 20, crystalsLeft: 25, specialCrystals: 0, welcomeDraws: 0, welcomeBannerId: null }, hostAlbum = null, banners = [], bannerId = "";
@@ -221,7 +222,8 @@ export async function start(modeId) {
   function syncBanners() {
     const box = el("bannerBox"), vis = visibleBanners();
     box.hidden = vis.length === 0;
-    box.toggleAttribute("data-dim", !(!busy && !bulking && (phase === "idle" || phase === "stored")));
+    const calm = !busy && !bulking && (phase === "idle" || phase === "stored");
+    box.toggleAttribute("data-dim", !calm); el("gate").toggleAttribute("data-dim", !calm);
     if (!vis.some((b) => b.id === bannerId)) bannerId = vis.find((b) => b.costKind === "WELCOME")?.id ?? "";
     const entries = [{ id: "", name: "Standard", sub: `${liveStock().available} cristaux`, color: "#7f9fff", icon: "paquet", tag: "Tous les persos", title: "Tirage dans tous les personnages." },
       ...vis.map((b) => ({ id: b.id, name: b.name, color: CAT_COLOR[b.category] ?? "#7f9fff", icon: b.costKind === "WELCOME" ? "bonus" : b.costKind === "SPECIAL" ? "r-SSR" : CAT_ICON[b.category] ?? "paquet",
@@ -343,6 +345,9 @@ export async function start(modeId) {
     skip = false; busy = false; phase = "done"; S.music?.setLevel(0);
     ui.hint.textContent = txt.done; autoTimer = setTimeout(sendAll, 8000);
   }
+  // Brèche des expéditions : l'objet 3D et le bouton mènent à la même page (la page hôte navigue)
+  const openGate = () => { Sfx.select?.(); if (EMBED) post({ type: "open-expeditions" }); };
+  el("gate").addEventListener("click", openGate);
   el("devGrant").addEventListener("click", () => post({ type: "dev-grant" })); // TEMPORAIRE : bouton de test, visible seulement hors production
   setInterval(hud, 1000); hud();
 
@@ -351,7 +356,7 @@ export async function start(modeId) {
   addEventListener("message", (e) => {
     if (!EMBED || e.source !== parent || e.origin !== location.origin) return;
     const m = e.data ?? {};
-    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; el("devGrant").hidden = !m.dev; setPack(m.state); }
+    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; el("devGrant").hidden = !m.dev; el("gateBadge").textContent = m.expeditionsReady || ""; el("gateBadge").hidden = !m.expeditionsReady; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
     else if (m.type === "bulk-done") bulkReply?.(m);
     else if (m.type === "buy-result" && m.id === -1) setPack(m.state); // cadeau de test
@@ -507,21 +512,21 @@ export async function start(modeId) {
   let hoverItem = null, hoverCard = null;
   const pick = () => {
     ray.setFromCamera(mouse, camera);
-    const hits = ray.intersectObjects([...(phase === "idle" && capsule?.group.visible ? [capsule.hit] : []), ...mode.pickables(items), ...line.map((c) => c.userData.front)], false);
-    for (const h of hits) { if (h.object === capsule?.hit) return { capsule: true }; if (h.object.userData.card) return { card: h.object.userData.card }; if (h.object.userData.item) return { item: h.object.userData.item }; }
+    const hits = ray.intersectObjects([...(phase === "idle" && capsule?.group.visible ? [capsule.hit] : []), ...(breche?.group.visible ? [breche.hit] : []), ...mode.pickables(items), ...line.map((c) => c.userData.front)], false);
+    for (const h of hits) { if (h.object === capsule?.hit) return { capsule: true }; if (h.object === breche?.hit) return { breche: true }; if (h.object.userData.card) return { card: h.object.userData.card }; if (h.object.userData.item) return { item: h.object.userData.item }; }
     return {};
   };
   canvas.addEventListener("pointermove", (e) => {
     mouse.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     const p = pick(), it = p.item && p.item.state === "ready" && phase === "ready" ? p.item : null, cd = p.card?.userData.state === "line" ? p.card : null;
     if ((it && it !== hoverItem) || (cd && cd !== hoverCard)) Sfx.hover();
-    hoverItem = it; hoverCard = cd; capsuleHover = !!p.capsule && !busy; capsule?.set(capsuleHover);
-    canvas.style.cursor = (it && !busy) || capsuleHover || (cd && phase === "done") ? "pointer" : "default";
+    hoverItem = it; hoverCard = cd; capsuleHover = !!p.capsule && !busy; capsule?.set(capsuleHover); breche?.set(!!p.breche);
+    canvas.style.cursor = (it && !busy) || capsuleHover || p.breche || (cd && phase === "done") ? "pointer" : "default";
   });
   canvas.addEventListener("click", () => {
     if (busy) return requestSkip();
     const p = pick();
-    if (p.capsule) openBooster(); else if (p.item) reveal(p.item); else if (p.card && phase === "done") toAlbum(p.card);
+    if (p.breche) openGate(); else if (p.capsule) openBooster(); else if (p.item) reveal(p.item); else if (p.card && phase === "done") toAlbum(p.card);
   });
   addEventListener("keydown", (e) => {
     if (busy && ["Enter", " ", "Escape"].includes(e.key) && !e.target.closest?.("button, a")) { e.preventDefault(); return requestSkip(); }
@@ -576,6 +581,7 @@ export async function start(modeId) {
     }
     fxLight.intensity *= Math.pow(0.08, dt);
     capsule?.update(dt, time, mouseSmooth);
+    if (breche) { breche.group.visible = !bulking && !busy && (phase === "idle" || phase === "stored"); breche.update(dt, time); }
     for (const card of line) {
       const u = card.userData; if (u.state === "leaving") continue;
       u.hoverK += ((card === hoverCard ? 1 : 0) - u.hoverK) * Math.min(1, dt * 10);
@@ -626,6 +632,7 @@ export async function start(modeId) {
   backTex = painter.makeBack();
   mode.init?.(ctx); modeReady = true;
   capsule = buildCapsule({ decor, ctx, backTex, BLUE, MINT }); scene.add(capsule.group); capsule.show();
+  breche = buildBreche({ GLSL_NOISE, BLUE, MINT }); scene.add(breche.group);
   await warmUp();
   ui.booster.disabled = false;
   // La page hôte peut ne pas être encore à l'écoute : on se signale jusqu'à recevoir l'init

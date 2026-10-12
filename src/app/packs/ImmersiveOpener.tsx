@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { TYPE_LABELS } from "@/lib/labels";
 import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
@@ -36,9 +37,10 @@ const toSceneCards = (cards: OpenedPack["cards"]) =>
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" } | { type: "dev-grant" };
+type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" } | { type: "dev-grant" } | { type: "open-expeditions" };
 
-export function ImmersiveOpener({ initialState, banners }: { initialState: PlayerPackState; banners: BannerInfo[] }) {
+export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { initialState: PlayerPackState; banners: BannerInfo[]; expeditionsReady: number }) {
+  const router = useRouter();
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -72,6 +74,7 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
           config: { interval: CRYSTAL_INTERVAL_MS, max: MAX_CRYSTALS, ssrPity: SSR_PITY, urPity: UR_PITY },
           state: initialState,
           banners,
+          expeditionsReady,
           dev: process.env.NODE_ENV !== "production",
           albumRect: albumRect(),
         });
@@ -92,6 +95,8 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
         pendingBulk.current = r.pack;
         clearTimeout(revealTimer.current);
         revealTimer.current = setTimeout(showBulk, 120000); // filet de sécurité si la scène ne répond plus
+      } else if (msg.type === "open-expeditions") {
+        router.push("/expeditions");
       } else if (msg.type === "dev-grant") {
         const r = await devGrantCrystalsAction();
         if (r.ok) send({ type: "buy-result", id: -1, ok: true, state: r.state });
@@ -119,7 +124,7 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
       window.removeEventListener("message", onMessage);
       window.removeEventListener("resize", sendAlbumRect);
     };
-  }, [initialState, banners]);
+  }, [initialState, banners, expeditionsReady, router]);
 
   // Menu flottant et plein écran uniquement tant que la scène est affichée (l'effet est coupé quand on quitte la page)
   useEffect(() => {
