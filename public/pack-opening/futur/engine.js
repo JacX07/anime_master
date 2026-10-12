@@ -159,7 +159,7 @@ export async function start(modeId) {
   const requestSkip = () => { if (skip) return; skip = true; stopUntil = 0; for (const tw of tweens) tw.dur = 0.001; [...waiters].forEach((f) => f()); };
   const zoomPunch = (a) => { if (!reduced) punch = Math.max(punch, a); };
   const flash = () => { if (reduced) return; ui.flash.classList.remove("go"); void ui.flash.offsetWidth; ui.flash.classList.add("go"); };
-  const HALO = { N: 0.04, R: 0.2, SR: 0.34, SSR: 0.55, UR: 0.75 }; // lueur permanente des cartes rangées en ligne : la rareté se voit de loin
+  const HALO = { N: 0, R: 0.4, SR: 0.6, SSR: 0.85, UR: 1 }; // lueur permanente des cartes rangées en ligne : la rareté se voit de loin
   const TIER = { N: [0, 0], R: [0, 0.15], SR: [0.05, 0.35], SSR: [0.12, 1], UR: [0.16, 1.3] };
 
   // Moments clés partagés par les variantes
@@ -286,6 +286,7 @@ export async function start(modeId) {
       const opening = capsule.open(ctx);
       [m] = await Promise.all([reply, opening]);
       if (m.ok) {
+        if (m.state) setPack(m.state); // stock, pity et puissance à jour dès le tirage
         const best = m.best ?? "N", color = RC[best] ?? BLUE, rank = RANK[best] ?? 0, at = new THREE.Vector3(0, 1.5, 2.6);
         Sfx.flip(best); zoomPunch(0.1 + rank * 0.05);
         burst(at, [color, "#ffffff", BLUE], { n: 200 + rank * 70, speed: 3.6, additive: true }); fxPulse(color, 12 + rank * 6, at);
@@ -313,7 +314,7 @@ export async function start(modeId) {
     await Promise.all(cards.map(async (c) => { images[c.img] ??= await painter.loadImg(c.img); }));
     line.forEach(dropCard); line = [];
     busy = true; skip = false; bulkMode = true; phase = "popping"; hud();
-    const small = n > 5, sc = small ? 0.58 : 0.7, dx = small ? 1.06 : 1.3, shift = -1.0, rows = small ? [2.15, 0.8] : [1.45]; // décalé à gauche : le panneau de droite masque le reste
+    const small = n > 5, sc = small ? 0.6 : 0.7, dx = 1.04, shift = -0.83, rows = small ? [2.15, 0.8] : [1.45]; // décalé à gauche : le panneau de droite masque le reste
     const order = [...cards].sort((a, b) => (RANK[a.rarity] ?? 0) - (RANK[b.rarity] ?? 0));
     const pops = [];
     for (let i = 0; i < order.length; i++) {
@@ -321,15 +322,21 @@ export async function start(modeId) {
       const pos = new THREE.Vector3((i % 5 - (inRow - 1) / 2) * dx + shift, rows[row] ?? rows[0], 3.2);
       const card = makeCard(c); card.position.copy(pos).add(new THREE.Vector3(0, 0.5, 0)); card.scale.setScalar(sc * 0.3); card.visible = false; card.userData.state = "moving";
       scene.add(card); line.push(card);
+      if (rank === 4) { // UR : la scène retient son souffle, puis tout explose
+        S.duck?.(-20, 2.5); Sfx.urCharge?.(); ui.vignette.classList.add("on");
+        await tween(1.1, (k) => fxPulse(RC.UR, 28 * k, pos));
+        ui.vignette.classList.remove("on"); Sfx.urImpact?.(); flash(); hitStop(0.12); zoomPunch(0.7);
+        burst(pos, [RC.UR, "#f2a516", "#2b6cff", "#00c8b4", "#ffffff"], { n: 520, speed: 5, size: 0.09 }); fxPulse(RC.UR, 40, pos);
+      }
       Sfx.flip(c.rarity); fxPulse(RC[c.rarity], 5 + rank * 5, pos);
       burst(pos, [RC[c.rarity], "#ffffff"], { n: 50 + rank * 60, speed: 2.1 + rank * 0.3, additive: true });
-      if (rank >= 3) { Sfx.ssr(); flash(); zoomPunch(0.3); }
-      pops.push(Promise.all([materialize(card, 0.5), moveTo(card, { pos, scale: sc }, 0.4, ease.back)]).then(() => { card.userData.state = "line"; card.userData.landT = 0; }));
-      await wait(rank >= 3 ? 0.45 : 0.2);
+      if (rank === 3) { Sfx.ssr(); flash(); zoomPunch(0.35); burst(pos, ["#f2a516", "#ffd36b", "#ffffff"], { n: 260, speed: 4, size: 0.08 }); }
+      pops.push(Promise.all([materialize(card, 0.95), moveTo(card, { pos, scale: sc }, 0.65, ease.back)]).then(() => { card.userData.state = "line"; card.userData.landT = 0; }));
+      await wait(rank >= 3 ? 1.3 : small ? 0.6 : 0.85);
     }
     await Promise.all(pops);
     skip = false; busy = false; phase = "done"; S.music?.setLevel(0);
-    ui.hint.textContent = txt.done; autoTimer = setTimeout(sendAll, 6000);
+    ui.hint.textContent = txt.done; autoTimer = setTimeout(sendAll, 8000);
   }
   el("devGrant").addEventListener("click", () => post({ type: "dev-grant" })); // TEMPORAIRE : bouton de test, visible seulement hors production
   setInterval(hud, 1000); hud();
@@ -567,7 +574,18 @@ export async function start(modeId) {
         u.body.scale.setScalar(1 + u.hoverK * 0.12);
         if (u.landT !== undefined && u.landT < 0.6) { u.landT += sdt; const sq = 0.16 * Math.exp(-u.landT * 9) * Math.cos(u.landT * 26); u.body.scale.x *= 1 + sq; u.body.scale.y *= 1 - sq * 0.7; }
         u.body.position.y = u.hoverK * 0.25; u.body.rotation.x = u.hoverK * -mouse.y * 0.25; u.body.rotation.y = u.hoverK * mouse.x * 0.35;
-        u.halo.material.opacity = (HALO[u.c.rarity] ?? 0.12) * (RANK[u.c.rarity] >= 3 ? 1 + Math.sin(time * 2.2 + u.c.serial) * 0.25 : 1) + u.hoverK * 0.4;
+        const rk = RANK[u.c.rarity] ?? 0;
+        u.halo.material.opacity = Math.min(1, (HALO[u.c.rarity] ?? 0.12) * (rk >= 3 ? 1 + Math.sin(time * 2.2 + u.c.serial) * 0.2 : 1) + u.hoverK * 0.3);
+        u.halo.scale.setScalar(1 + rk * 0.1 + (rk >= 3 ? Math.sin(time * 2.2 + u.c.serial) * 0.03 : 0));
+        if (rk === 4) u.halo.material.color.setHSL((time * 0.12 + u.c.serial * 0.07) % 1, 0.95, 0.55); // UR : lueur arc-en-ciel qui tourne
+        if (rk >= 3 && !reduced) { // SSR / UR : étincelles qui s'échappent en continu
+          u.sparkT = (u.sparkT ?? 0) - sdt;
+          if (u.sparkT < 0) {
+            u.sparkT = rk === 4 ? 0.12 : 0.3;
+            const sp = card.position.clone().add(new THREE.Vector3((Math.random() - 0.5) * CARD_W * card.scale.x * 1.1, (Math.random() - 0.5) * CARD_H * card.scale.x * 1.1, 0.1));
+            burst(sp, rk === 4 ? [RC.UR, "#f2a516", "#2b6cff", "#00c8b4"] : ["#f2a516", "#ffd36b"], { n: rk === 4 ? 9 : 5, speed: 0.7, size: 0.075, gravity: -0.25, life: 1.2 });
+          }
+        }
       }
       if (u.holo) u.holo.material.map.offset.set(time * 0.15 + mouse.x * 0.3, mouse.y * 0.3);
     }

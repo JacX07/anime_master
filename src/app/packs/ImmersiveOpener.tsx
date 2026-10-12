@@ -91,7 +91,7 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
         send({ type: "bulk-done", ok: true, state: r.pack.state, best, cards: toSceneCards(r.pack.cards) });
         pendingBulk.current = r.pack;
         clearTimeout(revealTimer.current);
-        revealTimer.current = setTimeout(showBulk, 40000); // filet de sécurité si la scène ne répond plus
+        revealTimer.current = setTimeout(showBulk, 120000); // filet de sécurité si la scène ne répond plus
       } else if (msg.type === "dev-grant") {
         const r = await devGrantCrystalsAction();
         if (r.ok) send({ type: "buy-result", id: -1, ok: true, state: r.state });

@@ -1718,6 +1718,11 @@ body.scene-night {
   flex: none;
   width: 10.5rem;
 }
+/* Résumé d'ouverture : la rareté se lit de loin grâce à une lueur de sa couleur */
+.bulk-grid > .card[data-rarity="R"] { box-shadow: 0 0 14px 2px color-mix(in srgb, var(--rarity) 60%, transparent), 0 8px 24px rgb(0 0 0 / 0.45); }
+.bulk-grid > .card[data-rarity="SR"] { box-shadow: 0 0 22px 5px color-mix(in srgb, var(--rarity) 75%, transparent), 0 8px 24px rgb(0 0 0 / 0.45); }
+.bulk-grid > .card[data-rarity="SSR"] { box-shadow: 0 0 32px 9px color-mix(in srgb, var(--rarity) 85%, transparent), 0 8px 24px rgb(0 0 0 / 0.45); }
+.bulk-grid > .card[data-rarity="UR"] { box-shadow: 0 0 22px 6px #f43f5e99, 0 0 44px 12px #22d3ee88, 0 8px 24px rgb(0 0 0 / 0.45); }
 .bulk footer {
   display: flex;
   justify-content: flex-end;

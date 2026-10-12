@@ -165,10 +165,10 @@ export function cardPainter(T, images) {
     return RC[r];
   };
   // Plus la carte est rare, plus le cadre est épais et lumineux : la rareté se lit de loin, même quand la carte est petite
-  const FRAME = { N: 10, R: 16, SR: 21, SSR: 27, UR: 32 };
+  const FRAME = { N: 10, R: 22, SR: 28, SSR: 34, UR: 42 };
   function drawFront(c) {
     return canvasTex(512, 716, (g, w, h) => {
-      const col = RC[c.rarity], rad = C.radius, bw = FRAME[c.rarity] ?? 14;
+      const col = RC[c.rarity], rad = C.radius, bw = FRAME[c.rarity] ?? 14, off = Math.max(0, bw - 14), m = Math.max(40, bw + 12);
       g.save(); g.beginPath(); g.roundRect(0, 0, w, h, rad); g.clip();
       g.fillStyle = frameFill(g, c.rarity, w, h); g.fillRect(0, 0, w, h);
       if (c.rarity !== "N") { // reflet diagonal sur le cadre
@@ -186,23 +186,30 @@ export function cardPainter(T, images) {
       g.restore();
       C.ornament?.(g, c, w, h, col);
       // Cristal de rareté en haut à gauche, finition dessous, plaque du type en haut à droite
-      drawIcon(g, `r-${c.rarity}`, 24, 24, 76, { color: col });
-      if (c.finish === "HOLO" || c.finish === "GOLD") drawIcon(g, c.finish === "GOLD" ? "f-gold" : "f-holo", 32, 106, 50, { color: "#e8f0ff" });
-      g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 24 - 72, 28, 72, 72, 16); g.fill();
-      drawIcon(g, `t-${(c.typeId ?? "MAGIE").toLowerCase()}`, w - 24 - 72 + 12, 40, 48, { color: "#ffffff", accent: TYPE_ACCENT[c.typeId] ?? "#5fb8ff" });
-      if (c.isNew) { g.font = `700 22px "${C.body}"`; const nw = g.measureText("NOUVEAU").width + 28, nx = (w - nw) / 2; g.fillStyle = "#2b6cff"; g.beginPath(); g.roundRect(nx, 100, nw, 40, 20); g.fill(); g.fillStyle = "#fff"; g.fillText("NOUVEAU", nx + 14, 129); }
-      g.fillStyle = C.ink; g.font = `400 38px "${C.display}"`; g.fillText(c.name, 40, h - 124, w - 80);
+      drawIcon(g, `r-${c.rarity}`, 24 + off, 24 + off, 76, { color: col });
+      // Plaque de rareté à côté du cristal : le nom de la rareté se lit même sur une carte rangée en petit
+      if (c.rarity !== "N") {
+        g.font = `800 32px "${C.body}"`; const tw = g.measureText(c.rarity).width + 36, px = 24 + off + 84, py = 24 + off + 14;
+        g.fillStyle = C.badge; g.beginPath(); g.roundRect(px, py, tw, 48, 24); g.fill();
+        g.lineWidth = 4; g.strokeStyle = c.rarity === "UR" ? frameFill(g, "UR", w, h) : col; g.stroke();
+        g.fillStyle = c.rarity === "SSR" ? "#ffd36b" : c.rarity === "UR" ? "#ffffff" : "#ffffff"; g.fillText(c.rarity, px + 18, py + 35);
+      }
+      if (c.finish === "HOLO" || c.finish === "GOLD") drawIcon(g, c.finish === "GOLD" ? "f-gold" : "f-holo", 32 + off, 106 + off, 50, { color: "#e8f0ff" });
+      g.fillStyle = C.badge; g.beginPath(); g.roundRect(w - 24 - off - 72, 28 + off, 72, 72, 16); g.fill();
+      drawIcon(g, `t-${(c.typeId ?? "MAGIE").toLowerCase()}`, w - 24 - off - 72 + 12, 40 + off, 48, { color: "#ffffff", accent: TYPE_ACCENT[c.typeId] ?? "#5fb8ff" });
+      if (c.isNew) { g.font = `700 22px "${C.body}"`; const nw = g.measureText("NOUVEAU").width + 28, nx = (w - nw) / 2; g.fillStyle = "#2b6cff"; g.beginPath(); g.roundRect(nx, 100 + off, nw, 40, 20); g.fill(); g.fillStyle = "#fff"; g.fillText("NOUVEAU", nx + 14, 129 + off); }
+      g.fillStyle = C.ink; g.font = `400 38px "${C.display}"`; g.fillText(c.name, m, h - 124, w - 2 * m);
       g.font = `500 24px "${C.body}"`; const sn = `#${c.serial}`, snw = g.measureText(sn).width;
-      g.fillStyle = C.sub; g.fillText(`${c.type} · ${c.series}`, 40, h - 84, w - 80 - snw - 16);
-      g.textAlign = "right"; g.fillText(sn, w - 40, h - 84); g.textAlign = "left";
+      g.fillStyle = C.sub; g.fillText(`${c.type} · ${c.series}`, m, h - 84, w - 2 * m - snw - 16);
+      g.textAlign = "right"; g.fillText(sn, w - m, h - 84); g.textAlign = "left";
       // Puissance en grand avec son hexagone, ATK et DEF en petit avec leurs icônes
-      drawIcon(g, "puissance", 36, h - 80, 52, { color: col, accent: col });
-      g.fillStyle = col; g.font = `700 46px "${C.body}"`; g.fillText(c.power.toLocaleString("fr-FR"), 98, h - 34);
+      drawIcon(g, "puissance", m - 4, h - 80, 52, { color: col, accent: col });
+      g.fillStyle = col; g.font = `700 46px "${C.body}"`; g.fillText(c.power.toLocaleString("fr-FR"), m + 58, h - 34);
       g.fillStyle = C.sub; g.font = `600 22px "${C.body}"`; g.textAlign = "right";
       const at = c.atk.toLocaleString("fr-FR"), df = c.def.toLocaleString("fr-FR");
-      g.fillText(at, w - 40, h - 58); g.fillText(df, w - 40, h - 30); g.textAlign = "left";
-      drawIcon(g, "atk", w - 40 - g.measureText(at).width - 30, h - 77, 22, { color: C.sub });
-      drawIcon(g, "def", w - 40 - g.measureText(df).width - 30, h - 49, 22, { color: C.sub });
+      g.fillText(at, w - m, h - 58); g.fillText(df, w - m, h - 30); g.textAlign = "left";
+      drawIcon(g, "atk", w - m - g.measureText(at).width - 30, h - 77, 22, { color: C.sub });
+      drawIcon(g, "def", w - m - g.measureText(df).width - 30, h - 49, 22, { color: C.sub });
     });
   }
   const makeBack = () => canvasTex(512, 716, (g, w, h) => { g.beginPath(); g.roundRect(0, 0, w, h, C.radius); g.clip(); C.back(g, w, h); });
