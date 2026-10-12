@@ -19,7 +19,8 @@
     "check:auctions": "tsx scripts/check-auctions.ts",
     "check:achievements": "tsx scripts/check-achievements.ts",
     "check:duels": "tsx scripts/check-duels.ts",
-    "check:bulk": "tsx scripts/check-bulk.ts"
+    "check:bulk": "tsx scripts/check-bulk.ts",
+    "check:banners": "tsx scripts/check-banners.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

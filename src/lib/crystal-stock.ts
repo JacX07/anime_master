@@ -3,8 +3,9 @@
 
 export const CRYSTAL_INTERVAL_MS = 2 * 60 * 1000;
 export const MAX_CRYSTALS = 50;
-/** Cadeau de bienvenue : 50 cartes (SPEC §8). Les 20 tirages de bannière viendront avec les bannières ; d'ici là tout est en cristaux normaux. */
-export const WELCOME_CRYSTALS = 50;
+/** Cadeau de bienvenue : 50 cartes en tout (SPEC §8) = 30 cristaux normaux + 20 tirages sur une bannière de catégorie au choix. */
+export const WELCOME_CRYSTALS = 30;
+export const WELCOME_DRAWS = 20;
 
 export interface CrystalStock {
   /** Cristaux utilisables maintenant */

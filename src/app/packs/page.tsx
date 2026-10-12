@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { listBanners } from "@/lib/banners";
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { ImmersiveOpener } from "./ImmersiveOpener";
@@ -19,5 +20,6 @@ export default function PacksPage() {
 async function Packs() {
   const user = await requireUser();
   const state = await getPackState(user.id);
-  return <ImmersiveOpener initialState={state} />;
+  const banners = await listBanners(state);
+  return <ImmersiveOpener initialState={state} banners={banners} />;
 }

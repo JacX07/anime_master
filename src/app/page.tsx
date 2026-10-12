@@ -4,7 +4,7 @@ import { Money, Stat } from "@/components/icons";
 import { MenuNav } from "@/components/MenuNav";
 import { SceneFrame } from "@/components/SceneFrame";
 import { SceneBody } from "@/components/SceneBody";
-import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS, WELCOME_CRYSTALS } from "@/lib/crystal-stock";
+import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS, WELCOME_CRYSTALS, WELCOME_DRAWS } from "@/lib/crystal-stock";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { getSessionUser } from "@/lib/session";
 import { getPlayerSummary } from "@/lib/summary";
@@ -56,7 +56,7 @@ function Guest() {
     <div className="gm-content">
       <Wordmark />
       <MenuNav label="Menu principal">
-        <Item href="/signup" title="Créer un compte" hint={`${WELCOME_CRYSTALS} cristaux offerts`} />
+        <Item href="/signup" title="Créer un compte" hint={`${WELCOME_CRYSTALS + WELCOME_DRAWS} cartes offertes`} />
         <Item href="/login" title="Se connecter" hint="Retrouve ta collection" />
       </MenuNav>
       <p className="gm-note">

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ConcurrentOpeningError, NoPackAvailableError, openPack, type OpenedPack } from "@/lib/packs";
+import { BannerError, ConcurrentOpeningError, NoPackAvailableError, openPack, type OpenedPack } from "@/lib/packs";
 import { LOT_SIZES, type LotSize } from "@/lib/pull";
 import { checkAchievementsSafe } from "@/lib/achievements";
 import { getSessionUser } from "@/lib/session";
@@ -12,16 +12,17 @@ import { SaleError } from "@/lib/wallet";
 export type OpenPackResult = { ok: true; pack: OpenedPack } | { ok: false; error: string };
 
 /** Ouvre un lot de 5 (animation 3D) ou de 10 cartes : 1 cristal par carte. */
-export async function openPackAction(size: number = 5): Promise<OpenPackResult> {
+export async function openPackAction(size: number = 5, bannerId: string | null = null): Promise<OpenPackResult> {
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   if (!(LOT_SIZES as readonly number[]).includes(size)) return { ok: false, error: "Taille de lot invalide." };
   try {
-    const pack = await openPack(user.id, size as LotSize);
+    const pack = await openPack(user.id, size as LotSize, undefined, bannerId ? String(bannerId) : null);
     await checkAchievementsSafe(user.id);
     revalidatePath("/album"); // l'album affiche les nouvelles cartes à la prochaine visite
     return { ok: true, pack };
   } catch (err) {
+    if (err instanceof BannerError) return { ok: false, error: err.message };
     if (err instanceof NoPackAvailableError) return { ok: false, error: `Il te faut ${size} cristaux pour ce tirage.` };
     if (err instanceof ConcurrentOpeningError) return { ok: false, error: "Un paquet est déjà en cours d'ouverture." };
     console.error("Échec de l'ouverture :", err);

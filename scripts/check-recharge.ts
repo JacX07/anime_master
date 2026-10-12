@@ -32,15 +32,15 @@ async function setStock(userId: string, crystals: number, agoMs: number) {
 async function main() {
   const tag = `recharge-${Date.now()}`;
   const user = await prisma.user.create({
-    data: { id: tag, name: tag, username: tag, email: `${tag}@test.local` },
+    data: { id: tag, name: tag, username: tag, email: `${tag}@test.local`, crystals: MAX_CRYSTALS },
     select: { id: true },
   });
   const refuses = async (p: Promise<unknown>) => p.then(() => false, (e) => e instanceof NoPackAvailableError);
 
   try {
-    // 1. Joueur neuf : stock plein, pas de compte à rebours
+    // 1. Joueur à stock plein, pas de compte à rebours
     let s = await getPackState(user.id);
-    check("Nouveau joueur : 50 cristaux, stock plein", s.available === MAX_CRYSTALS && s.nextCrystalAt === null, `${s.available}`);
+    check("Stock plein : 50 cristaux, pas de compte à rebours", s.available === MAX_CRYSTALS && s.nextCrystalAt === null, `${s.available}`);
 
     // 2. Ouvrir depuis un stock plein relance la recharge à partir de maintenant
     let opened = await openPack(user.id, 5);

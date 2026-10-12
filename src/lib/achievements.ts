@@ -9,25 +9,27 @@ export interface AchievementDef {
   label: string;
   description: string;
   reward: number;
+  /** Cristaux spéciaux offerts (≈ 100 au total sur la vie d'un compte, SPEC étape 4 bis §6) */
+  special?: number;
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "first_pack", label: "Premier paquet", description: "Ouvrir ton premier paquet.", reward: 20 },
-  { key: "first_ssr", label: "Éclat doré", description: "Obtenir une première carte SSR.", reward: 50 },
-  { key: "first_ur", label: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200 },
+  { key: "first_ssr", label: "Éclat doré", description: "Obtenir une première carte SSR.", reward: 50, special: 5 },
+  { key: "first_ur", label: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200, special: 10 },
   { key: "first_holo", label: "Reflets", description: "Obtenir une première Holo.", reward: 30 },
-  { key: "first_gold", label: "Pur or", description: "Obtenir une première Gold.", reward: 300 },
-  { key: "unique_100", label: "Collectionneur", description: "Posséder 100 personnages différents.", reward: 100 },
-  { key: "unique_500", label: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300 },
-  { key: "unique_1000", label: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800 },
-  { key: "unique_2500", label: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000 },
-  { key: "series_complete", label: "Série complète", description: `Posséder tous les personnages d'une série (au moins ${3}).`, reward: 150 },
-  { key: "all_types", label: "Tous les types", description: "Posséder au moins un personnage de chaque type.", reward: 50 },
+  { key: "first_gold", label: "Pur or", description: "Obtenir une première Gold.", reward: 300, special: 10 },
+  { key: "unique_100", label: "Collectionneur", description: "Posséder 100 personnages différents.", reward: 100, special: 5 },
+  { key: "unique_500", label: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300, special: 10 },
+  { key: "unique_1000", label: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800, special: 15 },
+  { key: "unique_2500", label: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000, special: 25 },
+  { key: "series_complete", label: "Série complète", description: `Posséder tous les personnages d'une série (au moins ${3}).`, reward: 150, special: 5 },
+  { key: "all_types", label: "Tous les types", description: "Posséder au moins un personnage de chaque type.", reward: 50, special: 5 },
   { key: "duel_win_1", label: "Premier duel", description: "Gagner un duel.", reward: 30 },
   { key: "duel_win_10", label: "Duelliste", description: "Gagner 10 duels.", reward: 150 },
-  { key: "duel_win_50", label: "Champion", description: "Gagner 50 duels.", reward: 500 },
+  { key: "duel_win_50", label: "Champion", description: "Gagner 50 duels.", reward: 500, special: 5 },
   { key: "first_auction_sale", label: "Première vente", description: "Vendre une carte aux enchères.", reward: 30 },
-  { key: "first_trade", label: "Premier échange", description: "Conclure un échange avec un joueur.", reward: 30 },
+  { key: "first_trade", label: "Premier échange", description: "Conclure un échange avec un joueur.", reward: 30, special: 5 },
 ];
 
 const MIN_SERIES_SIZE = 3;
@@ -123,7 +125,11 @@ export async function checkAchievements(userId: string): Promise<AchievementDef[
         await tx.userAchievement.create({ data: { userId, key } });
         await tx.user.update({ where: { id: userId }, data: { balance: { increment: def.reward } } });
         await tx.currencyLedger.create({ data: { userId, amount: def.reward, reason: "ACHIEVEMENT", refId: key } });
-        await notify(tx, userId, "ACHIEVEMENT", { label: def.label, amount: def.reward });
+        if (def.special) {
+          await tx.user.update({ where: { id: userId }, data: { specialCrystals: { increment: def.special } } });
+          await tx.specialCrystalLedger.create({ data: { userId, amount: def.special, reason: "ACHIEVEMENT", refId: key } });
+        }
+        await notify(tx, userId, "ACHIEVEMENT", { label: def.label, amount: def.reward, special: def.special ?? 0 });
       });
       unlocked.push(def);
     } catch (err) {

@@ -592,7 +592,7 @@ Définis dans le code, vérifiés après chaque événement (paquet ouvert, duel
 
 ## Étape 4 bis — Cristaux et bannières (refonte du tirage)
 
-> **Statut : spec écrite le 2026-10-12, pas encore codée.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
+> **Statut : phase 1 (cristaux, lots) et phase 2 (bannières, cristaux spéciaux, cadeau de bienvenue) codées le 2026-10-12.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
 
 ### Objectif
 Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 cristal = 1 carte tirée**. Cela permet des récompenses de toute taille, des tirages ×5 et ×10, et des **bannières** pour viser des catégories de personnages. Les cristaux sont aussi l'énergie du lore (la machine-araignée en consomme pour capturer).
@@ -680,6 +680,13 @@ Le ×5 reste équivalent à aujourd'hui, le ×10 est meilleur : il est donc l'un
 - Règle de garde-fou : toutes les sources spéciales réunies restent **sous 5 % des cartes créées par jour** par les cristaux normaux.
 - Journal dédié : table `SpecialCrystalLedger` (`userId`, `amount`, `reason`, `refId`).
 
+### 5 bis. Réalisation des bannières (codé)
+- Catégories construites ainsi : **sport** = séries au genre « Sports » ; **shonen** = tag « Shounen » ; **isekai** = tag « Isekai » ; **waifu** = `gender` Female ; **husbando** = `gender` Male.
+- Rotation sans tâche planifiée : chaque semaine (lundi 00:00 UTC) **2 bannières de catégorie** (`weeklyCategories`) en cristaux normaux, et **1 bannière spéciale** « Élus » (SSR et UR de sa catégorie) payée en cristaux spéciaux. Elles sont créées à la première lecture de la semaine. Cinq bannières de bienvenue permanentes (`welcome-<catégorie>`).
+- Coût d'un lot : cristaux normaux, cristaux spéciaux (×5 = 5, ×10 = 10) ou tirages de bienvenue. Le pity est commun à tout.
+- Cadeau de bienvenue : 30 cristaux + 20 tirages de bienvenue. La bannière de bienvenue est **choisie à la première utilisation** puis verrouillée ; il n'y a pas encore de conversion automatique en cristaux si le joueur ne s'en sert pas.
+- Succès : 11 succès donnent des cristaux spéciaux, **100 au total** (journal `SpecialCrystalLedger`).
+
 ### 7. Expéditions (à explorer, hors périmètre de cette étape)
 Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencent le résultat ; un boss à la fin rapporte des cristaux spéciaux. Cette étape ne code que les **hooks** : les cristaux spéciaux existent et les succès en donnent. Les expéditions auront leur propre spec.
 
@@ -718,7 +725,7 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 
 ## Étape 4 ter — Expéditions dans les brèches
 
-> **Statut : spec écrite le 2026-10-12, pas encore codée.** Les décisions de principe sont validées ; les chiffres marqués *(à équilibrer)* sont des valeurs de départ à tester.
+> **Statut : phase 1 (cristaux, lots) et phase 2 (bannières, cristaux spéciaux, cadeau de bienvenue) codées le 2026-10-12.** Les décisions de principe sont validées ; les chiffres marqués *(à équilibrer)* sont des valeurs de départ à tester.
 
 ### Objectif
 Donner une utilité de jeu aux cartes en dehors des duels : envoyer une équipe explorer une brèche pendant quelques heures, et revenir chercher le butin. Les expéditions sont la source de **cristaux spéciaux** (et un petit revenu en Ryō et en cristaux).

@@ -1,10 +1,12 @@
 // Ouverture d'un paquet côté serveur (SPEC étape 2, §6).
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
+import type { Prisma } from "../generated/prisma/client";
 import { getCollectionPower } from "./collection";
 import { prisma } from "./db";
 import { CRYSTAL_PRICE, crystalsLeft } from "./economy";
 import { afterSpend, crystalStock } from "./crystal-stock";
+import { isBannerOpen } from "./banners";
 import { rollLot, secureRandom, type Finish, type LotSize, type PityTrigger, type Random } from "./pull";
 
 export class NoPackAvailableError extends Error {
@@ -37,6 +39,9 @@ export interface OpenedCard {
   isNew: boolean;
 }
 
+/** Bannière refusée : inconnue, fermée, ou pas de quoi la payer. */
+export class BannerError extends Error {}
+
 export interface PlayerPackState {
   /** Cristaux utilisables maintenant */
   available: number;
@@ -49,6 +54,11 @@ export interface PlayerPackState {
   balance: number;
   crystalPrice: number;
   crystalsLeft: number;
+  /** Cristaux spéciaux (bannières spéciales) */
+  specialCrystals: number;
+  /** Tirages de bienvenue restants et bannière choisie (null tant que le joueur n'a pas choisi) */
+  welcomeDraws: number;
+  welcomeBannerId: string | null;
 }
 
 export interface OpenedPack {
@@ -67,6 +77,9 @@ const USER_PACK_FIELDS = {
   balance: true,
   crystalsBoughtToday: true,
   crystalsBoughtDate: true,
+  specialCrystals: true,
+  welcomeDraws: true,
+  welcomeBannerId: true,
 } as const;
 
 export async function getPackState(userId: string, now = new Date()): Promise<PlayerPackState> {
@@ -81,6 +94,9 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     balance: user.balance,
     crystalPrice: CRYSTAL_PRICE,
     crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
+    specialCrystals: user.specialCrystals,
+    welcomeDraws: user.welcomeDraws,
+    welcomeBannerId: user.welcomeBannerId,
   };
 }
 
@@ -89,26 +105,48 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
  * Le stock est décrémenté par une mise à jour conditionnelle : si une autre ouverture
  * est passée entre-temps, aucune ligne ne correspond et la transaction est annulée.
  */
-export async function openPack(userId: string, size: LotSize = 5, rng: Random = secureRandom): Promise<OpenedPack> {
+export async function openPack(userId: string, size: LotSize = 5, rng: Random = secureRandom, bannerId: string | null = null): Promise<OpenedPack> {
   return prisma.$transaction(async (tx) => {
     const now = new Date();
     const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
-    if (crystalStock(user.crystals, user.crystalsUpdatedAt, now).available < size) throw new NoPackAvailableError();
+    const banner = bannerId ? await tx.banner.findUnique({ where: { id: bannerId }, select: { id: true, costKind: true, weight: true, startsAt: true, endsAt: true } }) : null;
+    if (bannerId && (!banner || !isBannerOpen(banner, now))) throw new BannerError("Cette bannière n'est plus disponible.");
+
+    // Ce que le lot coûte : cristaux normaux, cristaux spéciaux ou tirages de bienvenue. Le pity, lui, est commun à tout.
+    let payment: Prisma.UserUpdateManyMutationInput = {};
+    if (banner?.costKind === "SPECIAL") {
+      if (user.specialCrystals < size) throw new BannerError(`Il te faut ${size} cristaux spéciaux pour cette bannière.`);
+      payment = { specialCrystals: user.specialCrystals - size };
+    } else if (banner?.costKind === "WELCOME") {
+      if (user.welcomeBannerId && user.welcomeBannerId !== banner.id) throw new BannerError("Tu as déjà choisi ta bannière de bienvenue.");
+      if (user.welcomeDraws < size) throw new BannerError(`Il te reste ${user.welcomeDraws} tirage${user.welcomeDraws > 1 ? "s" : ""} de bienvenue.`);
+      payment = { welcomeDraws: user.welcomeDraws - size, welcomeBannerId: banner.id };
+    } else {
+      if (crystalStock(user.crystals, user.crystalsUpdatedAt, now).available < size) throw new NoPackAvailableError();
+      payment = afterSpend(user.crystals, user.crystalsUpdatedAt, now, size);
+    }
 
     const roll = rollLot(user, size, rng);
-    const nextStock = afterSpend(user.crystals, user.crystalsUpdatedAt, now, size);
-
     const updated = await tx.user.updateMany({
       where: { id: userId, ...user },
-      data: { ...nextStock, ...roll.next },
+      data: { ...payment, ...roll.next },
     });
     if (updated.count !== 1) throw new ConcurrentOpeningError();
 
-    // Un personnage au hasard, uniformément, parmi ceux de la rareté tirée
+    // Un personnage au hasard, uniformément, parmi ceux de la rareté tirée. Avec une bannière, `weight` des cartes
+    // viennent de ses personnages (de cette rareté) ; le reste, ou une bannière sans personnage de cette rareté, du pool complet.
     const characterIds: number[] = [];
     for (const card of roll.cards) {
-      const where = { rarity: card.rarity, disabled: false };
-      const count = await tx.character.count({ where });
+      let where: Prisma.CharacterWhereInput = { rarity: card.rarity, disabled: false };
+      let count = 0;
+      if (banner && rng() < banner.weight) {
+        where = { ...where, banners: { some: { bannerId: banner.id } } };
+        count = await tx.character.count({ where });
+      }
+      if (count === 0) {
+        where = { rarity: card.rarity, disabled: false };
+        count = await tx.character.count({ where });
+      }
       if (count === 0) throw new Error(`Aucun personnage de rareté ${card.rarity}`);
       const picked = await tx.character.findFirstOrThrow({
         where,
@@ -129,7 +167,10 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
       ).map((c) => c.characterId),
     );
 
-    const opening = await tx.packOpening.create({ data: { userId, pityTriggered: roll.pity, lotSize: size }, select: { id: true } });
+    const opening = await tx.packOpening.create({ data: { userId, pityTriggered: roll.pity, lotSize: size, bannerId: banner?.id ?? null }, select: { id: true } });
+    if (banner?.costKind === "SPECIAL") {
+      await tx.specialCrystalLedger.create({ data: { userId, amount: -size, reason: "BANNER_SPEND", refId: opening.id } });
+    }
 
     const cards: OpenedCard[] = [];
     for (const [i, card] of roll.cards.entries()) {
@@ -178,7 +219,7 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
       });
     }
 
-    const stock = crystalStock(nextStock.crystals, nextStock.crystalsUpdatedAt, now);
+    const stock = crystalStock(payment.crystals !== undefined ? (payment.crystals as number) : user.crystals, (payment.crystalsUpdatedAt as Date | undefined) ?? user.crystalsUpdatedAt, now);
     return {
       cards,
       pity: roll.pity,
@@ -191,6 +232,9 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
         balance: user.balance,
         crystalPrice: CRYSTAL_PRICE,
         crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
+        specialCrystals: (payment.specialCrystals as number | undefined) ?? user.specialCrystals,
+        welcomeDraws: (payment.welcomeDraws as number | undefined) ?? user.welcomeDraws,
+        welcomeBannerId: (payment.welcomeBannerId as string | undefined) ?? user.welcomeBannerId,
       },
     };
   });

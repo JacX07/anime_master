@@ -47,7 +47,7 @@ enum PityTrigger {
 /// Un personnage AniList (étape 1).
 model Character {
   /// id AniList
-  id             Int              @id
+  id             Int               @id
   name           String
   nameNative     String?
   /// URL de l'image sur le CDN AniList (on ne stocke pas le fichier)
@@ -64,20 +64,21 @@ model Character {
   attack         Int
   defense        Int
   /// Puissance : stat à part (popularité), indépendante d'ATK/DEF
-  power          Int              @default(0)
+  power          Int               @default(0)
   /// Série principale (sert au type et au rôle)
   mainMediaId    Int?
-  mainMedia      Media?           @relation("MainMedia", fields: [mainMediaId], references: [id])
+  mainMedia      Media?            @relation("MainMedia", fields: [mainMediaId], references: [id])
   mainRole       CharacterRole
   /// Nombre d'exemplaires tirés (numéros d'exemplaire, étape 2)
-  pullCount      Int              @default(0)
+  pullCount      Int               @default(0)
   /// Retrait à la demande d'un ayant droit (étape 6)
-  disabled       Boolean          @default(false)
+  disabled       Boolean           @default(false)
   wishedBy       WishlistItem[]
   media          CharacterMedia[]
   cards          Card[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  banners        BannerCharacter[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
   @@index([rarity])
   @@index([type])
@@ -119,49 +120,55 @@ model CharacterMedia {
 
 /// Joueur. Les champs d'authentification sont gérés par Better Auth.
 model User {
-  id                  String            @id
+  id                  String                 @id
   name                String
   /// Pseudo unique (plugin username de Better Auth, stocké en minuscules)
-  username            String            @unique
-  email               String            @unique
-  emailVerified       Boolean           @default(false)
+  username            String                 @unique
+  email               String                 @unique
+  emailVerified       Boolean                @default(false)
   image               String?
   /// Cristaux en stock au moment de `crystalsUpdatedAt` (1 cristal = 1 carte ; recharge calculée à la lecture, SPEC étape 4 bis §1)
-  crystals            Int               @default(50)
-  crystalsUpdatedAt   DateTime          @default(now())
+  crystals            Int                    @default(30)
+  crystalsUpdatedAt   DateTime               @default(now())
   /// Compteurs de pity, en cartes (SPEC étape 4 bis §4)
-  cardsSinceSSR       Int               @default(0)
-  cardsSinceUR        Int               @default(0)
+  cardsSinceSSR       Int                    @default(0)
+  cardsSinceUR        Int                    @default(0)
+  /// Cristaux spéciaux (bannières spéciales ; ni achetables ni échangeables) — journal : SpecialCrystalLedger
+  specialCrystals     Int                    @default(0)
+  /// Tirages de bienvenue restants (bannière de catégorie choisie à la première utilisation, SPEC étape 4 bis §8)
+  welcomeDraws        Int                    @default(20)
+  welcomeBannerId     String?
+  specialLedger       SpecialCrystalLedger[]
   /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
-  balance             Int               @default(0)
+  balance             Int                    @default(0)
   lastDailyBonusAt    DateTime?
   /// Cristaux achetés pendant la journée `crystalsBoughtDate` (remise à zéro à minuit, heure du serveur)
-  crystalsBoughtToday Int               @default(0)
+  crystalsBoughtToday Int                    @default(0)
   crystalsBoughtDate  DateTime?
   ledger              CurrencyLedger[]
-  tradesSent          Trade[]           @relation("TradeFrom")
-  tradesReceived      Trade[]           @relation("TradeTo")
+  tradesSent          Trade[]                @relation("TradeFrom")
+  tradesReceived      Trade[]                @relation("TradeTo")
   notifications       Notification[]
-  auctionsSold        Auction[]         @relation("AuctionSeller")
-  auctionsLeading     Auction[]         @relation("AuctionLeader")
+  auctionsSold        Auction[]              @relation("AuctionSeller")
+  auctionsLeading     Auction[]              @relation("AuctionLeader")
   bids                Bid[]
   wishlist            WishlistItem[]
   achievements        UserAchievement[]
   /// Classement Duel (étape 4)
-  elo                 Int               @default(1000)
+  elo                 Int                    @default(1000)
   /// Duels lancés pendant la journée `duelsStartedDate`
-  duelsStartedToday   Int               @default(0)
+  duelsStartedToday   Int                    @default(0)
   duelsStartedDate    DateTime?
-  duelsSent           Duel[]            @relation("DuelChallenger")
-  duelsReceived       Duel[]            @relation("DuelOpponent")
+  duelsSent           Duel[]                 @relation("DuelChallenger")
+  duelsReceived       Duel[]                 @relation("DuelOpponent")
   duelSlots           DuelSlot[]
   duelDefenses        DuelDefense[]
   sessions            Session[]
   accounts            Account[]
   cards               Card[]
   packOpenings        PackOpening[]
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
 }
 
 model Session {
@@ -244,10 +251,70 @@ model PackOpening {
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   pityTriggered PityTrigger
+  /// Bannière utilisée (null = tirage standard)
+  bannerId      String?
+  banner        Banner?     @relation(fields: [bannerId], references: [id])
   cards         Card[]
   openedAt      DateTime    @default(now())
 
   @@index([userId, openedAt])
+}
+
+/// Coût d'une bannière : cristaux normaux, spéciaux, ou tirages de bienvenue
+enum BannerCost {
+  NORMAL
+  SPECIAL
+  WELCOME
+}
+
+/// Bannière : elle ne change jamais les taux de rareté, seulement le personnage tiré (SPEC étape 4 bis §5).
+model Banner {
+  id          String            @id @default(cuid())
+  /// Clé stable (ex. `cat-shonen-2026-W41`, `welcome-isekai`) pour recréer sans doublon
+  key         String            @unique
+  name        String
+  description String
+  /// sport | shonen | isekai | waifu | husbando
+  category    String
+  costKind    BannerCost        @default(NORMAL)
+  /// Part des cartes issues de la bannière (le reste vient du pool complet)
+  weight      Float             @default(0.5)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  characters  BannerCharacter[]
+  openings    PackOpening[]
+  createdAt   DateTime          @default(now())
+
+  @@index([costKind, startsAt, endsAt])
+}
+
+model BannerCharacter {
+  bannerId    String
+  characterId Int
+  banner      Banner    @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@id([bannerId, characterId])
+  @@index([characterId])
+}
+
+enum SpecialCrystalReason {
+  ACHIEVEMENT
+  EXPEDITION
+  BANNER_SPEND
+}
+
+/// Journal des cristaux spéciaux (la somme par joueur égale `User.specialCrystals`).
+model SpecialCrystalLedger {
+  id        String               @id @default(cuid())
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  reason    SpecialCrystalReason
+  refId     String?
+  createdAt DateTime             @default(now())
+
+  @@index([userId, createdAt])
 }
 
 // ---------- Étape 3 : économie ----------

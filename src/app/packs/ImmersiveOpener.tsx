@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TYPE_LABELS } from "@/lib/labels";
 import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
+import type { BannerInfo } from "@/lib/banners";
 import type { PlayerPackState } from "@/lib/packs";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { ALBUM_BUMP, ALBUM_STORED } from "@/components/AlbumLink";
@@ -15,9 +16,9 @@ import { PackOpener } from "./PackOpener";
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number };
+type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null };
 
-export function ImmersiveOpener({ initialState }: { initialState: PlayerPackState }) {
+export function ImmersiveOpener({ initialState, banners }: { initialState: PlayerPackState; banners: BannerInfo[] }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -43,6 +44,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
           type: "init",
           config: { interval: CRYSTAL_INTERVAL_MS, max: MAX_CRYSTALS, ssrPity: SSR_PITY, urPity: UR_PITY },
           state: initialState,
+          banners,
           albumRect: albumRect(),
         });
       } else if (msg.type === "unsupported") {
@@ -54,7 +56,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
         const r = await buyCrystalsAction(msg.count === 25 ? 25 : 5);
         send(r.ok ? { type: "buy-result", id: msg.id, ok: true, state: r.state } : { type: "buy-result", id: msg.id, ok: false, error: r.error });
       } else if (msg.type === "bulk-request") {
-        const r = await openPackAction(msg.count);
+        const r = await openPackAction(msg.count, msg.bannerId ?? null);
         // La scène remet son HUD à jour (stock, pity, puissance) et rouvre ses boutons, succès ou non
         send(r.ok ? { type: "bulk-done", ok: true, state: r.pack.state } : { type: "bulk-done", ok: false, error: r.error });
         if (r.ok) {
@@ -62,7 +64,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
           for (let i = 0; i < r.pack.cards.length; i++) window.dispatchEvent(new Event(ALBUM_STORED));
         }
       } else if (msg.type === "open-request") {
-        const result = await openPackAction();
+        const result = await openPackAction(5, msg.bannerId ?? null);
         if (!result.ok) return send({ type: "pack-result", id: msg.id, ok: false, error: result.error });
         const { cards, state, pity } = result.pack;
         send({
@@ -97,7 +99,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
       window.removeEventListener("message", onMessage);
       window.removeEventListener("resize", sendAlbumRect);
     };
-  }, [initialState]);
+  }, [initialState, banners]);
 
   // Menu flottant et plein écran uniquement tant que la scène est affichée (l'effet est coupé quand on quitte la page)
   useEffect(() => {

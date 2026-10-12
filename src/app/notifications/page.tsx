@@ -22,7 +22,7 @@ const TEXT: Record<NotificationType, (p: Payload) => string> = {
   AUCTION_WON: (p) => `Tu as remporté ${p.character} pour ${ryo(p.amount)}.`,
   CARD_SOLD: (p) => `${p.character} est vendu : tu reçois ${ryo(p.amount)} (taxe de 5 % déduite).`,
   WISHED_AVAILABLE: (p) => (p.source === "auction" ? `${p.character}, dans ta liste de souhaits, vient d'être mis aux enchères.` : `${p.username} propose ${p.character} (ta liste de souhaits) à l'échange.`),
-  ACHIEVEMENT: (p) => `Succès débloqué : ${p.label} (+${ryo(p.amount)}).`,
+  ACHIEVEMENT: (p) => `Succès débloqué : ${p.label} (+${ryo(p.amount)}${p.special ? `, +${p.special} cristaux spéciaux` : ""}).`,
   DUEL_RECEIVED: (p) => `${p.username} te défie en duel.`,
   DUEL_ACCEPTED: (p) => `${p.username} a accepté ton duel : à toi de jouer ta défense.`,
   DUEL_DECLINED: (p) => `${p.username} a refusé ton duel.`,

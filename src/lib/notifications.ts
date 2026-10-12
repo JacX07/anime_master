@@ -14,6 +14,8 @@ export interface NotificationPayload {
   /// Nom du personnage et montant (enchères)
   character?: string;
   amount?: number;
+  /** Cristaux spéciaux gagnés (succès) */
+  special?: number;
   characterId?: number;
   label?: string;
   source?: "auction" | "trade";

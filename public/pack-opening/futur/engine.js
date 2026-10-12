@@ -46,7 +46,7 @@ export async function start(modeId) {
   let capsule = null, stored = 0;
   // Stock et pity : fournis par le serveur (init / réponse d'ouverture), valeurs d'exemple hors iframe
   let cfg = { interval: 600000, max: 10, ssrPity: 15, urPity: 100 };
-  let pack = { available: 45, nextCrystalAt: null, cardsSinceSSR: 45, cardsSinceUR: 20, collectionPower: 123456, balance: 650, crystalPrice: 20, crystalsLeft: 25 }, hostAlbum = null;
+  let pack = { available: 45, nextCrystalAt: null, cardsSinceSSR: 45, cardsSinceUR: 20, collectionPower: 123456, balance: 650, crystalPrice: 20, crystalsLeft: 25, specialCrystals: 0, welcomeDraws: 0, welcomeBannerId: null }, hostAlbum = null, banners = [], bannerId = "";
   const liveStock = () => {
     const next = pack.nextCrystalAt ? new Date(pack.nextCrystalAt).getTime() : null, now = Date.now();
     if (next === null || now < next) return { available: pack.available, msLeft: next === null ? null : next - now };
@@ -206,12 +206,36 @@ export async function start(modeId) {
   let modeReady = false, busy = false, phase = "idle", items = [], line = [], autoTimer = 0, capsuleHover = false;
   const bar = (id, n, on) => (document.getElementById(id).innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join(""));
   const el = (id) => document.getElementById(id);
+  // Bannières : le coût se paie en cristaux normaux, spéciaux ou en tirages de bienvenue
+  const currentBanner = () => banners.find((b) => b.id === bannerId) ?? null;
+  const budgetOf = (b) => (b?.costKind === "SPECIAL" ? pack.specialCrystals : b?.costKind === "WELCOME" ? pack.welcomeDraws : liveStock().available);
+  const unitOf = (b) => (b?.costKind === "SPECIAL" ? "cristaux spéciaux" : b?.costKind === "WELCOME" ? "tirages de bienvenue" : "cristaux");
+  const visibleBanners = () => banners.filter((b) => b.costKind !== "WELCOME" || (pack.welcomeDraws > 0 && (!pack.welcomeBannerId || pack.welcomeBannerId === b.id)));
+  function syncBanners() {
+    const sel = el("bannerSel"), vis = visibleBanners();
+    el("bannerBox").hidden = vis.length === 0;
+    const key = vis.map((b) => b.id).join();
+    if (sel.dataset.key !== key) {
+      sel.dataset.key = key;
+      sel.innerHTML = `<option value="">Standard (cristaux)</option>` + vis.map((b) => `<option value="${b.id}">${b.name}${b.costKind === "SPECIAL" ? " ✦" : ""}</option>`).join("");
+      if (!vis.some((b) => b.id === bannerId)) bannerId = vis.find((b) => b.costKind === "WELCOME")?.id ?? "";
+    }
+    sel.value = bannerId;
+    const b = currentBanner();
+    el("bannerInfo").textContent = b
+      ? `${b.weightPercent} % des cartes viennent de cette bannière, les taux de rareté ne changent pas. Il te reste ${budgetOf(b)} ${unitOf(b)}.`
+      : "Tirage dans tous les personnages.";
+  }
+  el("bannerSel").addEventListener("change", (e) => { bannerId = e.target.value; hud(); });
+  el("bannerSel").addEventListener("change", () => { el("bannerSel").title = currentBanner()?.description ?? ""; });
   function hud() {
+    syncBanners();
     const { available, msLeft } = liveStock();
+    const budget = budgetOf(currentBanner());
     bar("stock", cfg.max, Math.min(available, cfg.max)); el("count").textContent = available;
     el("maxPacks").textContent = available > cfg.max ? " cristaux" : ` / ${cfg.max} cristaux`; // au-delà de la réserve : cristaux achetés
     // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
-    for (const n of [5, 10]) el("bulk" + n).disabled = bulking || busy || phase !== "idle" || available < n;
+    for (const n of [5, 10]) el("bulk" + n).disabled = bulking || busy || phase !== "idle" || budget < n;
     el("buy").disabled = buying || pack.crystalsLeft < 5 || pack.balance < pack.crystalPrice * 5;
     if (!buyMsg) el("buyInfo").innerHTML = `${pack.crystalPrice * 5}${icon("ryo", "--acc:#f2a516")} les 5 · ${pack.crystalsLeft} cristal${pack.crystalsLeft > 1 ? "ux" : ""} achetable${pack.crystalsLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")}${icon("ryo", "--acc:#f2a516")}`;
     el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain cristal dans ${mmss(msLeft)}`;
@@ -234,9 +258,9 @@ export async function start(modeId) {
   let bulking = false;
   document.querySelector(".bulk-row").toggleAttribute("data-embed", EMBED); // hors page hôte il n'y a personne pour afficher le résumé
   for (const n of [5, 10]) el("bulk" + n).addEventListener("click", () => {
-    if (!EMBED || bulking || busy || phase !== "idle" || liveStock().available < n) return;
+    if (!EMBED || bulking || busy || phase !== "idle" || budgetOf(currentBanner()) < n) return;
     bulking = true; ui.hint.textContent = `Ouverture de ${n} cartes…`; hud();
-    post({ type: "bulk-request", count: n });
+    post({ type: "bulk-request", count: n, bannerId: bannerId || null });
   });
   setInterval(hud, 1000); hud();
 
@@ -245,7 +269,7 @@ export async function start(modeId) {
   addEventListener("message", (e) => {
     if (!EMBED || e.source !== parent || e.origin !== location.origin) return;
     const m = e.data ?? {};
-    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; setPack(m.state); }
+    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
     else if (m.type === "bulk-done") {
       bulking = false;
@@ -272,7 +296,7 @@ export async function start(modeId) {
       return Promise.resolve({ ok: true, cards: [...CHARS], state, pity: null });
     }
     return new Promise((resolve) => {
-      const id = ++reqId; waiting.set(id, resolve); post({ type: "open-request", id });
+      const id = ++reqId; waiting.set(id, resolve); post({ type: "open-request", id, bannerId: bannerId || null });
       setTimeout(() => { if (waiting.delete(id)) resolve({ ok: false, error: "Le serveur ne répond pas, réessaie." }); }, 20000);
     });
   }
@@ -280,7 +304,7 @@ export async function start(modeId) {
 
   async function openBooster() {
     if (busy || phase !== "idle") return;
-    if (liveStock().available < 5) { ui.hint.textContent = txt.empty; return; }
+    if (budgetOf(currentBanner()) < 5) { ui.hint.textContent = currentBanner() ? `Il te faut 5 ${unitOf(currentBanner())}.` : txt.empty; return; }
     S.init(T); busy = true; skip = false; ui.hint.textContent = "Ouverture…";
     const res = await requestPack();
     if (!res.ok) { ui.hint.textContent = res.error; busy = false; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); return; }

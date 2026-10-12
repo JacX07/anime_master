@@ -53,6 +53,12 @@
   .bulk-row .btn { padding: 9px 8px; }
   .bulk-row .btn:disabled { opacity: .45; cursor: not-allowed; }
   .bulk-row:not([data-embed]) { display: none; }
+  .banner { display: grid; gap: 6px; }
+  .banner[hidden] { display: none; }
+  .banner label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .banner select { width: 100%; font: 600 14px var(--font-body); color: var(--ink); background: var(--btn); border: 1.5px solid var(--btn-line); border-radius: 12px; padding: 9px 10px; }
+  .banner select:focus-visible { outline: 3px solid var(--hl); outline-offset: 2px; }
+  .banner p { margin: 0; font-size: 12px; color: var(--muted); }
   .shop { display: grid; gap: 6px; }
   .shop .btn { width: 100%; }
   .shop .btn:disabled { opacity: .45; cursor: not-allowed; }
@@ -146,6 +152,7 @@
   <aside class="hud">
     <div><div class="big"><span id="count">9</span><small id="maxPacks"> / 50 cristaux</small></div><div class="stock" id="stock"></div></div>
     <p id="nextIn"></p>
+    <div class="banner" id="bannerBox" hidden><label for="bannerSel">Bannière</label><select id="bannerSel"></select><p id="bannerInfo"></p></div>
     <div class="bulk-row"><button class="btn" id="bulk5" type="button" title="Tire 5 cartes (5 cristaux) d'un coup, sans animation">Ouvrir ×5</button><button class="btn" id="bulk10" type="button" title="Tire 10 cartes (10 cristaux) d'un coup, sans animation, avec une 10e carte améliorée">Ouvrir ×10</button></div>
     <div class="shop"><button class="btn" id="buy" type="button">Acheter 5 cristaux</button><p id="buyInfo"></p></div>
     <div class="leds"><p>Puissance totale <span id="totalPower" class="stat"></span></p></div>

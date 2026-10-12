@@ -23,7 +23,7 @@ async function invariant(userId: string, label: string) {
 
 async function main() {
   const tag = `eco-${Date.now()}`;
-  const mk = (id: string) => prisma.user.create({ data: { id, name: id, username: id, email: `${id}@test.local` }, select: { id: true } });
+  const mk = (id: string) => prisma.user.create({ data: { id, name: id, username: id, email: `${id}@test.local`, crystals: 50 }, select: { id: true } });
   const user = await mk(tag), other = await mk(`${tag}-b`);
   const shoppers: string[] = [], openedBy: number[] = [];
   const opening = await prisma.packOpening.create({ data: { userId: user.id, pityTriggered: "NONE" }, select: { id: true } });

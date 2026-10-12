@@ -27,7 +27,7 @@ async function Achievements() {
     <div className="vt-inner">
       <header>
         <h1 className="vt-title">Succès</h1>
-        <p className="vt-sub">{done} sur {list.length} débloqués. Chaque succès rapporte des Ryō, une seule fois.</p>
+        <p className="vt-sub">{done} sur {list.length} débloqués. Chaque succès rapporte des Ryō, et parfois des cristaux spéciaux, une seule fois.</p>
       </header>
       <ul className="ach-grid">
         {list.map((a) => (
@@ -36,6 +36,7 @@ async function Achievements() {
             <span className="vt-muted">{a.description}</span>
             <span className="ach-foot">
               <Money n={a.reward} />
+              {a.special ? <span className="vt-muted">+{a.special} cristaux spéciaux</span> : null}
               {a.unlockedAt && <time className="vt-muted">{dateFmt.format(a.unlockedAt)}</time>}
             </span>
           </li>
