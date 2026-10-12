@@ -8,6 +8,8 @@ import { getSessionUser } from "@/lib/session";
 import { getPackState } from "@/lib/packs";
 import { buyCrystals } from "@/lib/shop";
 import { SaleError } from "@/lib/wallet";
+import { prisma } from "@/lib/db";
+import { afterGain } from "@/lib/crystal-stock";
 
 export type OpenPackResult = { ok: true; pack: OpenedPack } | { ok: false; error: string };
 
@@ -45,4 +47,14 @@ export async function buyCrystalsAction(count: number = 5): Promise<BuyCrystalsR
     console.error("Échec de l'achat :", err);
     return { ok: false, error: "L'achat a échoué, réessaie." };
   }
+}
+
+/** TEMPORAIRE (tests) : donne 50 cristaux et 10 cristaux spéciaux. Refusé en production ; à retirer avant la mise en ligne. */
+export async function devGrantCrystalsAction(): Promise<BuyCrystalsResult> {
+  if (process.env.NODE_ENV === "production") return { ok: false, error: "Indisponible." };
+  const user = await getSessionUser();
+  if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
+  const u = await prisma.user.findUniqueOrThrow({ where: { id: user.id }, select: { crystals: true, crystalsUpdatedAt: true } });
+  await prisma.user.update({ where: { id: user.id }, data: { ...afterGain(u.crystals, u.crystalsUpdatedAt, new Date(), 50), specialCrystals: { increment: 10 } } });
+  return { ok: true, state: await getPackState(user.id) };
 }

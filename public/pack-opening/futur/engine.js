@@ -330,6 +330,7 @@ export async function start(modeId) {
     skip = false; busy = false; phase = "done"; S.music?.setLevel(0);
     ui.hint.textContent = txt.done; autoTimer = setTimeout(sendAll, 6000);
   }
+  el("devGrant").addEventListener("click", () => post({ type: "dev-grant" })); // TEMPORAIRE : bouton de test, visible seulement hors production
   setInterval(hud, 1000); hud();
 
   // Dialogue avec la page hôte
@@ -337,9 +338,10 @@ export async function start(modeId) {
   addEventListener("message", (e) => {
     if (!EMBED || e.source !== parent || e.origin !== location.origin) return;
     const m = e.data ?? {};
-    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; setPack(m.state); }
+    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; el("devGrant").hidden = !m.dev; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
     else if (m.type === "bulk-done") bulkReply?.(m);
+    else if (m.type === "buy-result" && m.id === -1) setPack(m.state); // cadeau de test
     else if (m.type === "pack-result" || m.type === "buy-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
   });
   // Achat de 5 cristaux (même circuit que l'ouverture ; hors iframe, simulé localement)

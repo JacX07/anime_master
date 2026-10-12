@@ -8,7 +8,7 @@ import type { PlayerPackState } from "@/lib/packs";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { ALBUM_BUMP, ALBUM_STORED } from "@/components/AlbumLink";
 import type { OpenedPack } from "@/lib/packs";
-import { buyCrystalsAction, openPackAction } from "./actions";
+import { buyCrystalsAction, devGrantCrystalsAction, openPackAction } from "./actions";
 import { BulkSummary } from "./BulkSummary";
 import { PackOpener } from "./PackOpener";
 
@@ -36,7 +36,7 @@ const toSceneCards = (cards: OpenedPack["cards"]) =>
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" };
+type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" } | { type: "dev-grant" };
 
 export function ImmersiveOpener({ initialState, banners }: { initialState: PlayerPackState; banners: BannerInfo[] }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -72,6 +72,7 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
           config: { interval: CRYSTAL_INTERVAL_MS, max: MAX_CRYSTALS, ssrPity: SSR_PITY, urPity: UR_PITY },
           state: initialState,
           banners,
+          dev: process.env.NODE_ENV !== "production",
           albumRect: albumRect(),
         });
       } else if (msg.type === "unsupported") {
@@ -91,6 +92,9 @@ export function ImmersiveOpener({ initialState, banners }: { initialState: Playe
         pendingBulk.current = r.pack;
         clearTimeout(revealTimer.current);
         revealTimer.current = setTimeout(showBulk, 40000); // filet de sécurité si la scène ne répond plus
+      } else if (msg.type === "dev-grant") {
+        const r = await devGrantCrystalsAction();
+        if (r.ok) send({ type: "buy-result", id: -1, ok: true, state: r.state });
       } else if (msg.type === "bulk-reveal") {
         showBulk();
       } else if (msg.type === "open-request") {
