@@ -3,20 +3,32 @@
 //   les changements de couche tombent sur la mesure suivante pour rester musicaux.
 // - Sons de verre : tintements en sinusoïdes (tink) et, pour le verre brisé, claquement + grains de bruit brillants.
 
+const BPM = 84, STEP = 60 / BPM / 4; // double croche
+// Ré majeur, progression « générique d'anime » : D(add9) · A/C# · Bm7 · G(6/9) — lumineuse, calme, avec un côté héroïque
+const BARS = [
+  { root: 73.42, chord: [146.83, 185.0, 220.0, 293.66, 329.63] },
+  { root: 69.3, chord: [138.59, 164.81, 220.0, 277.18, 329.63] },
+  { root: 61.74, chord: [123.47, 146.83, 185.0, 220.0, 293.66] },
+  { root: 49.0, chord: [196.0, 246.94, 293.66, 329.63, 440.0] },
+];
+const ARP = [0, 1, 2, 3, 4, 3, 2, 1]; // une note par croche
+// Mélodie (pas de double croche, demi-tons au-dessus de ré5, durée en pas) : un motif simple et chantable, joué au glockenspiel
+const MELODY = [
+  [[0, 4, 6], [8, 7, 6], [12, 9, 4]],
+  [[0, 11, 6], [8, 9, 6], [12, 7, 4]],
+  [[0, 9, 6], [8, 7, 6], [12, 4, 4]],
+  [[0, 5, 6], [8, 7, 4], [12, 9, 8]],
+];
+const LEVEL = [
+  { cutoff: 1800, arp: 4, lead: false, bass: false, drum: 0 },
+  { cutoff: 4200, arp: 2, lead: true, bass: true, drum: 0 },
+  { cutoff: 9000, arp: 2, lead: true, bass: true, drum: 1 },
+];
+
 import { createPalettes } from "./sounds-lab.js";
 
-const BPM = 66, STEP = 60 / BPM / 4; // double croche
-// Gamme japonaise (hirajoshi sur ré) : ré mi fa la si♭ ; phrases de koto sur 4 mesures, [pas, degré, octave]
-const SCALE = [0, 2, 3, 7, 8];
-const PHRASES = [
-  [[0, 0, 0], [4, 3, 0], [7, 4, 0], [10, 3, 0], [12, 2, 0]],
-  [[0, 3, 0], [3, 4, 0], [6, 0, 1], [10, 4, 0], [14, 3, 0]],
-  [[0, 0, 0], [5, 2, 0], [8, 3, 0], [11, 4, 0], [14, 0, 1]],
-  [[0, 4, 0], [4, 3, 0], [8, 2, 0], [10, 0, 0], [13, 3, -1]],
-];
-const D4 = 62;
-
 export function futurAudio(s) {
+  const W = createPalettes(s).wa; // palette japonaise, réservée aux SSR et UR
   let noiseBuf = null;
   const noise = (ctx) => { if (!noiseBuf) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; };
   const env = (g, t, peak, a, d) => { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); };
@@ -31,40 +43,64 @@ export function futurAudio(s) {
     s.out(pan, "sfx", wet);
   }
 
-  // Musique : drone grave, koto dispersé, flûte et taiko qui entrent avec l'intensité (même palette que les effets)
-  const wa = createPalettes(s);
+  // Musique
   function startMusic() {
-    const ctx = s.ctx, I = wa.inst;
+    const ctx = s.ctx;
+    const out = ctx.createBiquadFilter(); out.type = "lowpass"; out.frequency.value = LEVEL[0].cutoff; out.Q.value = 0.5; out.connect(s.bus.amb);
+    // Bus des cordes et de la basse
+    const pump = ctx.createGain(); pump.connect(out);
+    const delay = ctx.createDelay(1), fb = ctx.createGain(), dlp = ctx.createBiquadFilter();
+    delay.delayTime.value = STEP * 3; fb.gain.value = 0.36; dlp.type = "lowpass"; dlp.frequency.value = 2400;
+    delay.connect(dlp).connect(fb).connect(delay); dlp.connect(out);
+    const rev = ctx.createGain(); rev.gain.value = 0.35; rev.connect(s.bus.rev);
+
+    const voice = (t, f, { type = "triangle", gain = 0.05, a = 0.005, d = 0.4, dest = out, send = 0 } = {}) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.value = f;
+      env(g, t, gain, a, d); o.connect(g).connect(dest);
+      if (send) { const sg = ctx.createGain(); sg.gain.value = send; g.connect(sg).connect(delay); g.connect(rev); }
+      o.start(t); o.stop(t + a + d + 0.05);
+    };
+    // Cordes : scies désaccordées, filtrées, attaque lente (nappe chaude plutôt que synthé froid)
+    const strings = (t, chord, dur) => {
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1100; lp.connect(pump);
+      chord.slice(0, 4).forEach((f) => [-9, 9].forEach((c) => {
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sawtooth"; o.frequency.value = f * 2 ** (c / 1200);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.0065, t + 1.5); g.gain.setValueAtTime(0.0065, t + dur - 0.8); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.5);
+        o.connect(g).connect(lp); g.connect(rev); o.start(t); o.stop(t + dur + 0.6);
+      }));
+    };
+    const bass = (t, f, d = 0.9) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f; env(g, t, 0.1, 0.02, d); o.connect(g).connect(pump); o.start(t); o.stop(t + d + 0.1); };
+    // Glockenspiel : sinus + partiel brillant, longue réverbération
+    const bell = (t, f, len) => { voice(t, f, { type: "sine", gain: 0.05, a: 0.004, d: 0.5 + len * STEP * 0.5, send: 0.8 }); voice(t, f * 4, { type: "sine", gain: 0.012, a: 0.002, d: 0.25, send: 0.5 }); };
+    // Taiko doux : coup grave arrondi, jamais agressif
+    const taiko = (t, power = 1) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.18);
+      env(g, t, 0.16 * power, 0.004, 0.5); o.connect(g).connect(out); g.connect(rev); o.start(t); o.stop(t + 0.6);
+    };
+    const shaker = (t) => { const src = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), g = ctx.createGain(); src.buffer = noise(ctx); hp.type = "highpass"; hp.frequency.value = 7500; env(g, t, 0.006, 0.002, 0.05); src.connect(hp).connect(g).connect(out); src.start(t, Math.random() * 0.3, 0.1); };
+
     let level = 0, pending = 0, step = 0, next = ctx.currentTime + 0.1;
     const tick = () => {
       if (next < ctx.currentTime - 0.2) { next = ctx.currentTime + 0.05; step = 0; } // onglet en arrière-plan : on se recale
-      I.setBus("amb");
       while (next < ctx.currentTime + 0.15) {
-        const t = next, bar = Math.floor(step / 16), i = step % 16, ph = PHRASES[bar % 4];
+        const t = next, barIx = Math.floor(step / 16) % 4, bar = BARS[barIx], i = step % 16;
         if (i === 0) {
-          level = pending;
-          if (bar % 2 === 0) { I.voice(t, I.hz(D4 - 24), { gain: 0.05, a: 2.5, d: 6, wet: 0.6 }); I.voice(t, I.hz(D4 - 17), { gain: 0.028, a: 3, d: 6, wet: 0.6 }); }
-          if (level >= 1 && bar % 4 === 0) I.bell(t, I.hz(D4 + 24), { gain: 0.025, dur: 5 });
-          if (level >= 1 && bar % 4 === 1) I.flute(t + 0.2, D4 + 12 + SCALE[bar % 5], 4.2, 0.045);
-          if (level >= 1 && bar % 4 === 3) I.flute(t, D4 + SCALE[3], 3.4, 0.04);
-          if (level >= 2 && bar % 2 === 0) I.taiko(t, 0.22);
+          if (pending !== level) { level = pending; out.frequency.setTargetAtTime(LEVEL[level].cutoff, t, 0.6); }
+          strings(t, bar.chord, STEP * 16);
         }
-        ph.forEach(([at, deg, oct], k) => {
-          if (at !== i) return;
-          if (level === 0 && k % 2 === 1) return; // intensité faible : un koto sur deux
-          I.pluck(t, I.hz(D4 + SCALE[deg] + 12 * oct), { gain: level ? 0.075 : 0.06, decay: 0.998, dur: 2.2, wet: 0.55, pan: (deg - 2) * 0.12 });
-          if (level >= 2) I.pluck(t + 0.02, I.hz(D4 + SCALE[deg] + 12 * (oct + 1)), { gain: 0.035, dur: 1.4, wet: 0.6 });
-        });
-        if (level >= 2 && i === 8) I.taiko(t, 0.16);
+        const L = LEVEL[level];
+        if (i % L.arp === 0) voice(t, bar.chord[ARP[(i / L.arp * (L.arp === 4 ? 2 : 1)) % ARP.length]] * 2, { gain: level ? 0.032 : 0.026, d: 0.55, send: 0.6 });
+        if (L.bass && (i === 0 || i === 8)) bass(t, bar.root);
+        if (L.lead) MELODY[barIx].forEach(([at, semi, len]) => at === i && bell(t, 587.33 * 2 ** (semi / 12), len));
+        if (L.drum && (i === 0 || i === 8 || (barIx === 3 && (i === 12 || i === 14)))) taiko(t, i === 0 ? 1 : 0.7);
+        if (L.drum && i % 2 === 0) shaker(t);
         next += STEP; step++;
       }
-      I.setBus("sfx");
     };
     setInterval(tick, 25); tick();
     s.music = { setLevel: (n) => (pending = Math.max(0, Math.min(2, n))) };
   }
 
-  const W = wa.wa;
   const base = {
     ambience: startMusic,
     // SSR : carillon doré qui monte (arpège de ré majeur) avec une longue résonance
@@ -114,6 +150,6 @@ export function futurAudio(s) {
     whoosh: () => { const t = s.ctx.currentTime; for (let i = 0; i < 16; i++) tink(t + i * 0.025, 5200 - i * 200, 0.02, 0.2); s.tone(110, 0.6, { gain: 0.12, slide: 0.5, wet: 0.3 }); },
     launch: () => s.tone(440, 0.4, { type: "triangle", gain: 0.04, slide: 2.5, wet: 0.5 }),
   };
-  // Effets : palette japonaise (koto, flûte, taiko, cloche de temple) par-dessus les anciens sons de verre
-  return { ...base, tear: () => W.tear(), flip: (r) => W.flip(r), ssr: () => W.ssr(), urCharge: () => W.urCharge(), urImpact: () => W.urImpact(), gather: () => W.gather(), collect: () => W.collect(), select: () => W.select(), shatter: (p) => W.shatter(p) };
+  // SSR et UR : koto, flûte, taiko et cloche de temple ; tout le reste garde les sons de verre d'origine
+  return { ...base, ssr: () => W.ssr(), urCharge: () => W.urCharge(), urImpact: () => W.urImpact() };
 }

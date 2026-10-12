@@ -76,16 +76,17 @@ export function createPalettes(s) {
     },
     // ----- B · Japonais : koto, shakuhachi, taiko, cloche de temple (gamme hirajoshi) -----
     wa: {
-      name: "B · Japonais (wa)", blurb: "Koto, flûte shakuhachi, gros taiko et cloche de temple : calme et solennel.",
-      tear() { const t = now(); [0, 2, 3, 7].forEach((k, i) => pluck(t + i * 0.05, hz(D + 12 + k), { gain: 0.16, decay: 0.998, dur: 2.2 })); noise(t, { from: 3500, q: 4, gain: 0.06, d: 0.05, wet: 0.2 }); },
-      flip(r) { const t = now(); const rank = ["N", "R", "SR"].indexOf(r); pluck(t, hz(D + 12 + [0, 3, 7][Math.max(0, rank)]), { gain: 0.15, dur: 1.6 }); if (rank >= 1) pluck(t + 0.08, hz(D + 19 + (rank === 2 ? 3 : 0)), { gain: 0.12, dur: 1.6 }); },
-      ssr() { const t = now(); bell(t, hz(D + 12), { gain: 0.12, dur: 4, parts: [1, 2.01, 3.0, 4.2] }); [0, 3, 7, 8, 12, 14].forEach((k, i) => pluck(t + 0.2 + i * 0.09, hz(D + 12 + k), { gain: 0.15, dur: 2.2 })); flute(t + 0.4, D + 19, 1.4, 0.08); taiko(t, 0.8); },
-      urCharge() { const t = now(); flute(t, D + 7, 3, 0.1, { bend: 3 }); for (let i = 0, at = 0, gap = 0.7; at < 2.8; i++, at += gap, gap *= 0.82) taiko(t + at, 0.35 + at / 5); noise(t, { from: 500, to: 3500, q: 0.7, gain: 0.07, a: 2.6, d: 0.4, wet: 0.5 }); [0, 3, 7].forEach((k, i) => pluck(t + 1.6 + i * 0.4, hz(D + 12 + k), { gain: 0.1 + i * 0.03, dur: 2.4 })); },
-      urImpact() { const t = now(); taiko(t, 1.4); taiko(t + 0.18, 1); taiko(t + 0.36, 1.2); bell(t, hz(D), { gain: 0.16, dur: 6, parts: [1, 2.01, 3.0, 4.2] }); [0, 3, 7, 12, 15].forEach((k, i) => pluck(t + 0.05 + i * 0.03, hz(D + 12 + k), { gain: 0.18, dur: 3 })); flute(t + 0.3, D + 24, 2.6, 0.1); },
-      select() { const t = now(); pluck(t, hz(D + 12), { gain: 0.14, dur: 1.4 }); pluck(t + 0.1, hz(D + 19), { gain: 0.12, dur: 1.4 }); },
-      shatter(p = 1) { const t = now(); taiko(t, 0.7 * p); noise(t, { from: 4000, q: 2, gain: 0.1 * p, d: 0.08, wet: 0.3 }); [0, 3, 7, 12].forEach((k, i) => pluck(t + 0.04 + i * 0.05, hz(D + 24 + k), { gain: 0.13 * p, dur: 1.8 })); },
-      gather() { const t = now(); [7, 3, 0].forEach((k, i) => pluck(t + i * 0.1, hz(D + 24 - k), { gain: 0.1 })); },
-      collect() { const t = now(); pluck(t, hz(D + 24), { gain: 0.14, dur: 1.5 }); bell(t + 0.05, hz(D + 36), { gain: 0.05, dur: 1.8, parts: [1, 2.01, 3.0] }); },
+      name: "B · Japonais (wa)", blurb: "Koto, flûte shakuhachi, gros taiko et cloche de temple : calme et solennel (SSR et UR seulement dans le jeu).",
+      tear() { const t = now(); [0, 2, 3, 7].forEach((k, i) => pluck(t + i * 0.05, hz(D + k), { gain: 0.09, decay: 0.998, dur: 2.2 })); },
+      flip(r) { const t = now(); const rank = ["N", "R", "SR"].indexOf(r); pluck(t, hz(D + [0, 3, 7][Math.max(0, rank)]), { gain: 0.09, dur: 1.6 }); },
+      select() { const t = now(); pluck(t, hz(D), { gain: 0.09, dur: 1.4 }); pluck(t + 0.1, hz(D + 7), { gain: 0.08, dur: 1.4 }); },
+      shatter(p = 1) { const t = now(); taiko(t, 0.5 * p); [0, 3, 7].forEach((k, i) => pluck(t + 0.04 + i * 0.05, hz(D + 12 + k), { gain: 0.08 * p, dur: 1.8 })); },
+      // Plus grave et plus doux que la première version : les notes sont une octave plus bas, les gains réduits, peu de bruit aigu
+      ssr() { const t = now(); bell(t, hz(D), { gain: 0.07, dur: 4, parts: [1, 2.01, 3.0] }); [0, 3, 7, 8, 12, 14].forEach((k, i) => pluck(t + 0.2 + i * 0.1, hz(D + k), { gain: 0.09, dur: 2.2 })); flute(t + 0.4, D + 7, 1.6, 0.05); taiko(t, 0.55); },
+      urCharge() { const t = now(); flute(t, D - 5, 3, 0.06, { bend: 3 }); for (let i = 0, at = 0, gap = 0.7; at < 2.8; i++, at += gap, gap *= 0.82) taiko(t + at, 0.25 + at / 7); noise(t, { from: 300, to: 1600, q: 0.7, gain: 0.035, a: 2.6, d: 0.4, wet: 0.5 }); [0, 3, 7].forEach((k, i) => pluck(t + 1.6 + i * 0.4, hz(D + k), { gain: 0.07 + i * 0.02, dur: 2.4 })); },
+      urImpact() { const t = now(); taiko(t, 1); taiko(t + 0.18, 0.7); taiko(t + 0.36, 0.9); bell(t, hz(D - 12), { gain: 0.1, dur: 6, parts: [1, 2.01, 3.0] }); [0, 3, 7, 12, 15].forEach((k, i) => pluck(t + 0.05 + i * 0.04, hz(D + k), { gain: 0.11, dur: 3 })); flute(t + 0.3, D + 12, 2.6, 0.06); },
+      gather() { const t = now(); [7, 3, 0].forEach((k, i) => pluck(t + i * 0.1, hz(D + 12 - k), { gain: 0.07 })); },
+      collect() { const t = now(); pluck(t, hz(D + 12), { gain: 0.09, dur: 1.5 }); },
     },
     // ----- C · Féérique : harpe, célesta, chœur doux (magical girl / fantasy) -----
     feerique: {
