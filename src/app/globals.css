@@ -1728,3 +1728,33 @@ body.scene-night {
   justify-content: flex-end;
   gap: 0.6rem;
 }
+
+/* ---------- Expéditions ---------- */
+.exp { display: grid; gap: 1.6rem; }
+.exp section { display: grid; gap: 0.8rem; }
+.exp-report { padding: 0.7rem 1rem; border-radius: 0.8rem; background: #2fbf7122; border: 1px solid #2fbf71; }
+.exp-breaches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.8rem; }
+.exp-breaches button {
+  --c: #2b9bff; width: 100%; height: 100%; text-align: left; display: grid; gap: 0.3rem; padding: 0.9rem 1rem; cursor: pointer; color: inherit; font: inherit;
+  border-radius: 1rem; border: 1.5px solid #ffffff22; position: relative; overflow: hidden;
+  background: radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--c) 45%, transparent), transparent 60%), #0e1626;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.exp-breaches button[data-tier="Brèche"] { --c: #7a5cff; }
+.exp-breaches button[data-tier="Gouffre"] { --c: #ff3b4a; }
+.exp-breaches button:hover { transform: translateY(-3px); }
+.exp-breaches button[aria-checked="true"] { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 0 24px color-mix(in srgb, var(--c) 55%, transparent); }
+.exp-tier { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c); }
+.exp-breaches small { opacity: 0.75; line-height: 1.35; }
+.exp-meta { font-size: 0.8rem; opacity: 0.85; display: flex; align-items: center; gap: 0.4rem; }
+.exp-open { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.exp-open li { display: flex; align-items: center; gap: 1rem; padding: 0.7rem 1rem; border-radius: 1rem; background: #0e1626; border: 1px solid #ffffff22; }
+.exp-open li[data-ready="true"] { border-color: #2fbf71; box-shadow: 0 0 18px #2fbf7155; }
+.exp-open .vt-btn { margin-left: auto; }
+.exp-team { display: flex; gap: 0.4rem; }
+.exp-team img { width: 2.6rem; height: 3.4rem; object-fit: cover; object-position: top; border-radius: 0.4rem; }
+.exp-team.big { min-height: 5.2rem; }
+.exp-team.big img { width: 3.8rem; height: 5rem; }
+.exp-team.big button { padding: 0; border: 0; background: none; cursor: pointer; }
+.exp-search { max-width: 22rem; }
+.exp-history { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.3rem; }

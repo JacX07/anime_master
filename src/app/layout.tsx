@@ -57,6 +57,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       <Icon name="nav-duels" />
                       Duels
                     </Link>
+                    <Link href="/expeditions" className="site-link">
+                      <Icon name="unlock" />
+                      Expéditions
+                    </Link>
                     <Link href="/leaderboard" className="site-link">
                       <Icon name="nav-classement" />
                       Classement
@@ -79,6 +83,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </NavLink>
                 <NavLink href="/duels" icon="nav-duels">
                   Duels
+                </NavLink>
+                <NavLink href="/expeditions" icon="unlock">
+                  Expéditions
                 </NavLink>
                 <NavLink href="/leaderboard" icon="nav-classement">
                   Classement
