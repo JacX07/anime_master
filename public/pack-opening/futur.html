@@ -53,6 +53,7 @@
   .bulk-row .btn { padding: 9px 8px; }
   .bulk-row .btn:disabled { opacity: .45; cursor: not-allowed; }
   .bulk-row:not([data-embed]) { display: none; }
+  .hud p.why { font-size: 12px; color: var(--UR); margin-top: -6px; }
   .banner { display: grid; gap: 6px; }
   .banner[hidden] { display: none; }
   .banner label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
@@ -154,6 +155,7 @@
     <p id="nextIn"></p>
     <div class="banner" id="bannerBox" hidden><label for="bannerSel">Bannière</label><select id="bannerSel"></select><p id="bannerInfo"></p></div>
     <div class="bulk-row"><button class="btn" id="bulk5" type="button" title="Tire 5 cartes (5 cristaux) d'un coup, sans animation">Ouvrir ×5</button><button class="btn" id="bulk10" type="button" title="Tire 10 cartes (10 cristaux) d'un coup, sans animation, avec une 10e carte améliorée">Ouvrir ×10</button></div>
+    <p id="bulkWhy" class="why" hidden></p>
     <div class="shop"><button class="btn" id="buy" type="button">Acheter 5 cristaux</button><p id="buyInfo"></p></div>
     <div class="leds"><p>Puissance totale <span id="totalPower" class="stat"></span></p></div>
     <div class="leds"><p>SSR garanti <span>dans <b id="ssrLeft">6</b></span></p><div class="bar" style="--c:var(--SSR)" id="ssr"></div></div>

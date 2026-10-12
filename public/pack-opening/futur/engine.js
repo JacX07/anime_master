@@ -236,6 +236,14 @@ export async function start(modeId) {
     el("maxPacks").textContent = available > cfg.max ? " cristaux" : ` / ${cfg.max} cristaux`; // au-delà de la réserve : cristaux achetés
     // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
     for (const n of [5, 10]) el("bulk" + n).disabled = bulking || busy || phase !== "idle" || budget < n;
+    // Pourquoi les boutons sont grisés (affiché sous eux et en infobulle)
+    const b = currentBanner();
+    const why = bulking ? "Ouverture en cours…"
+      : busy || phase !== "idle" ? "Termine l'ouverture en cours : révèle les cartes (clic ou « Tout révéler »)."
+      : budget < 5 ? `Il te faut 5 ${unitOf(b)} pour ouvrir (tu en as ${budget}).${b ? " Change de bannière ou choisis « Standard »." : ""}`
+      : budget < 10 ? `Il te faut 10 ${unitOf(b)} pour le ×10 (tu en as ${budget}).` : "";
+    el("bulkWhy").textContent = why; el("bulkWhy").hidden = !why;
+    for (const n of [5, 10]) el("bulk" + n).title = budget >= n && !why ? `Tire ${n} cartes d'un coup` : why;
     el("buy").disabled = buying || pack.crystalsLeft < 5 || pack.balance < pack.crystalPrice * 5;
     if (!buyMsg) el("buyInfo").innerHTML = `${pack.crystalPrice * 5}${icon("ryo", "--acc:#f2a516")} les 5 · ${pack.crystalsLeft} cristal${pack.crystalsLeft > 1 ? "ux" : ""} achetable${pack.crystalsLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")}${icon("ryo", "--acc:#f2a516")}`;
     el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain cristal dans ${mmss(msLeft)}`;
