@@ -54,12 +54,22 @@
   .bulk-row .btn:disabled { opacity: .45; cursor: not-allowed; }
   .bulk-row:not([data-embed]) { display: none; }
   .hud p.why { font-size: 12px; color: var(--UR); margin-top: -6px; }
-  .banner { display: grid; gap: 6px; }
-  .banner[hidden] { display: none; }
-  .banner label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .banner select { width: 100%; font: 600 14px var(--font-body); color: var(--ink); background: var(--btn); border: 1.5px solid var(--btn-line); border-radius: 12px; padding: 9px 10px; }
-  .banner select:focus-visible { outline: 3px solid var(--hl); outline-offset: 2px; }
-  .banner p { margin: 0; font-size: 12px; color: var(--muted); }
+  /* Bannières : rangée de cartes en bas de l'écran (masquée pendant une ouverture, pour laisser la place aux cartes) */
+  .banners { position: absolute; left: 28px; bottom: 78px; width: calc(100% - 340px); display: flex; gap: 12px; overflow-x: auto; padding: 8px 6px 10px; scrollbar-width: thin; transition: opacity .3s; }
+  .banners[hidden] { display: none; }
+  .banners[data-dim] { opacity: 0; pointer-events: none; }
+  .bn { --c: var(--accent); flex: none; width: 184px; display: grid; grid-template-columns: 34px 1fr; gap: 2px 10px; align-items: center; text-align: left; cursor: pointer; font: 600 13px var(--font-body); color: var(--ink);
+    background: var(--panel); border: 1.5px solid var(--panel-line); border-radius: 14px; padding: 10px 12px; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s; }
+  .bn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, color-mix(in srgb, var(--c) 38%, transparent), transparent 70%); pointer-events: none; }
+  .bn:hover { transform: translateY(-3px); border-color: var(--c); }
+  .bn[aria-checked="true"] { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 0 22px color-mix(in srgb, var(--c) 60%, transparent); transform: translateY(-4px); }
+  .bn:focus-visible { outline: 3px solid var(--hl); outline-offset: 3px; }
+  .bn:disabled { opacity: .5; cursor: not-allowed; }
+  .bn .ic { grid-row: span 3; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--c) 28%, transparent); color: var(--c); position: relative; }
+  .bn .ic .i { width: 22px; height: 22px; }
+  .bn b { grid-column: 2; grid-row: 2; font-size: 13px; line-height: 1.15; position: relative; }
+  .bn small { grid-column: 2; grid-row: 3; font-size: 11px; color: var(--muted); font-weight: 600; position: relative; }
+  .bn .tag { grid-column: 2; grid-row: 1; position: relative; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
   .shop { display: grid; gap: 6px; }
   .shop .btn { width: 100%; }
   .shop .btn:disabled { opacity: .45; cursor: not-allowed; }
@@ -153,7 +163,6 @@
   <aside class="hud">
     <div><div class="big"><span id="count">9</span><small id="maxPacks"> / 50 cristaux</small></div><div class="stock" id="stock"></div></div>
     <p id="nextIn"></p>
-    <div class="banner" id="bannerBox" hidden><label for="bannerSel">Bannière</label><select id="bannerSel"></select><p id="bannerInfo"></p></div>
     <div class="bulk-row"><button class="btn" id="bulk5" type="button" title="Tire 5 cartes (5 cristaux) d'un coup, sans animation">Ouvrir ×5</button><button class="btn" id="bulk10" type="button" title="Tire 10 cartes (10 cristaux) d'un coup, sans animation, avec une 10e carte améliorée">Ouvrir ×10</button></div>
     <p id="bulkWhy" class="why" hidden></p>
     <div class="shop"><button class="btn" id="buy" type="button">Acheter 5 cristaux</button><p id="buyInfo"></p><button class="btn" id="devGrant" type="button" hidden>+50 cristaux (test)</button></div>
@@ -162,6 +171,7 @@
     <div class="leds"><p>UR garanti <span>dans <b id="urLeft">71</b></span></p><div class="bar" style="--c:var(--UR)" id="ur"></div></div>
   </aside>
   <button class="booster" id="booster" aria-label="Ouvrir le booster"></button>
+  <div class="banners" id="bannerBox" role="radiogroup" aria-label="Bannière" hidden></div>
   <div class="bottom"><span class="hint" id="hint" aria-live="polite">Clique sur le booster pour l'ouvrir</span><button class="btn" id="all" hidden>Tout révéler</button><button class="btn primary" id="next" hidden>Ouvrir le suivant</button></div>
   <div class="vig"></div>
   <div class="vignette" id="vignette"></div>

@@ -215,23 +215,25 @@ export async function start(modeId) {
   const budgetOf = (b) => (b?.costKind === "SPECIAL" ? pack.specialCrystals : b?.costKind === "WELCOME" ? pack.welcomeDraws : liveStock().available);
   const unitOf = (b) => (b?.costKind === "SPECIAL" ? "cristaux spéciaux" : b?.costKind === "WELCOME" ? "tirages de bienvenue" : "cristaux");
   const visibleBanners = () => banners.filter((b) => b.costKind !== "WELCOME" || (pack.welcomeDraws > 0 && (!pack.welcomeBannerId || pack.welcomeBannerId === b.id)));
+  const CAT_ICON = { sport: "t-combat", shonen: "t-aventure", isekai: "t-magie", waifu: "t-coeur", husbando: "t-mystere" };
+  const CAT_COLOR = { sport: "#2fbf71", shonen: "#ff7a2f", isekai: "#7a5cff", waifu: "#ff5fa8", husbando: "#2b9bff" };
+  const leftLabel = (b) => { const ms = new Date(b.endsAt) - Date.now(), d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5); return d >= 1 ? `${d} j restant${d > 1 ? "s" : ""}` : `${Math.max(1, h)} h restante${h > 1 ? "s" : ""}`; };
   function syncBanners() {
-    const sel = el("bannerSel"), vis = visibleBanners();
-    el("bannerBox").hidden = vis.length === 0;
-    const key = vis.map((b) => b.id).join();
-    if (sel.dataset.key !== key) {
-      sel.dataset.key = key;
-      sel.innerHTML = `<option value="">Standard (cristaux)</option>` + vis.map((b) => `<option value="${b.id}">${b.name}${b.costKind === "SPECIAL" ? " ✦" : ""}</option>`).join("");
-      if (!vis.some((b) => b.id === bannerId)) bannerId = vis.find((b) => b.costKind === "WELCOME")?.id ?? "";
-    }
-    sel.value = bannerId;
-    const b = currentBanner();
-    el("bannerInfo").textContent = b
-      ? `${b.weightPercent} % des cartes viennent de cette bannière, les taux de rareté ne changent pas. Il te reste ${budgetOf(b)} ${unitOf(b)}.`
-      : "Tirage dans tous les personnages.";
+    const box = el("bannerBox"), vis = visibleBanners();
+    box.hidden = vis.length === 0;
+    box.toggleAttribute("data-dim", !(!busy && !bulking && (phase === "idle" || phase === "stored")));
+    if (!vis.some((b) => b.id === bannerId)) bannerId = vis.find((b) => b.costKind === "WELCOME")?.id ?? "";
+    const entries = [{ id: "", name: "Standard", sub: `${liveStock().available} cristaux`, color: "#7f9fff", icon: "paquet", tag: "Tous les persos", title: "Tirage dans tous les personnages." },
+      ...vis.map((b) => ({ id: b.id, name: b.name, color: CAT_COLOR[b.category] ?? "#7f9fff", icon: b.costKind === "WELCOME" ? "bonus" : b.costKind === "SPECIAL" ? "r-SSR" : CAT_ICON[b.category] ?? "paquet",
+        tag: b.costKind === "SPECIAL" ? "✦ Spécial" : b.costKind === "WELCOME" ? "Bienvenue" : "Semaine",
+        sub: `${budgetOf(b)} ${b.costKind === "SPECIAL" ? "spéciaux" : b.costKind === "WELCOME" ? "tirages" : "cristaux"}${b.endsAt ? " · " + leftLabel(b) : ""}`,
+        title: `${b.description} ${b.weightPercent} % des cartes viennent de cette bannière ; les taux de rareté ne changent pas.` }))];
+    const key = entries.map((e) => e.id + e.sub).join("|") + "#" + bannerId;
+    if (box.dataset.key === key) return;
+    box.dataset.key = key;
+    box.innerHTML = entries.map((e) => `<button class="bn" type="button" role="radio" aria-checked="${e.id === bannerId}" data-id="${e.id}" style="--c:${e.color}" title="${e.title.replace(/"/g, "&quot;")}"><span class="ic">${icon(e.icon, "--acc:currentColor")}</span><b>${e.name}</b><small>${e.sub}</small><span class="tag">${e.tag}</span></button>`).join("");
   }
-  el("bannerSel").addEventListener("change", (e) => { bannerId = e.target.value; hud(); });
-  el("bannerSel").addEventListener("change", () => { el("bannerSel").title = currentBanner()?.description ?? ""; });
+  el("bannerBox").addEventListener("click", (e) => { const b = e.target.closest(".bn"); if (!b) return; bannerId = b.dataset.id; hud(); });
   function hud() {
     syncBanners();
     const { available, msLeft } = liveStock();
