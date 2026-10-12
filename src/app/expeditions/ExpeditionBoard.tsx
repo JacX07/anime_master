@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { claimExpeditionAction, startExpeditionAction } from "@/app/expedition-actions";
@@ -96,6 +97,14 @@ export function ExpeditionBoard({ slots, done, nextSlotAt, breaches, cards, open
               </button>
             </li>
           ))}
+          <li>
+            <Link href="/tour" className="exp-tower exp-lock">
+              <span className="exp-tier">Univers 0 · bientôt</span>
+              <b>La Tour</b>
+              <small>500 étages, un univers par étage. L&apos;accès est scellé pour l&apos;instant.</small>
+              <span className="exp-meta">Verrouillée</span>
+            </Link>
+          </li>
         </ul>
       </section>
 

@@ -592,7 +592,7 @@ Définis dans le code, vérifiés après chaque événement (paquet ouvert, duel
 
 ## Étape 4 bis — Cristaux et bannières (refonte du tirage)
 
-> **Statut : phase 1 (cristaux, lots) et phase 2 (bannières, cristaux spéciaux, cadeau de bienvenue) codées le 2026-10-12.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
+> **Statut : phase 1 (cristaux, lots), phase 2 (bannières, cristaux spéciaux, cadeau de bienvenue) et phase 3 (expéditions) codées les 2026-10-12 et 2026-10-13.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
 
 ### Objectif
 Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 cristal = 1 carte tirée**. Cela permet des récompenses de toute taille, des tirages ×5 et ×10, et des **bannières** pour viser des catégories de personnages. Les cristaux sont aussi l'énergie du lore (la machine-araignée en consomme pour capturer).
@@ -813,6 +813,10 @@ Nouveaux succès *(à définir et équilibrer)* : première expédition, 5 et 20
 | `/expeditions` | Emplacements, expéditions en cours avec compte à rebours, à récupérer, historique, formulaire de lancement |
 | Accueil / menu | Entrée « Expéditions » avec le nombre à récupérer |
 
+### 8 bis. Réalisation (2026-10-13)
+- Brèches : 2 par niveau, seuils de puissance 1 500 (Faille 1 h), 8 000 (Brèche 6 h), 30 000 (Gouffre 24 h) ; Ryō 10 / 60 / 140 (le Gouffre est passé de 250 à 140 pour tenir le plafond de ~600 Ryō par jour) ; plafond de **600 Ryō et 10 cristaux par jour** appliqué à la récupération.
+- La page `/expeditions` montre une estimation (puissance de l'équipe contre le seuil). Un lien verrouillé vers `/tour` y figure (voir Étape 7, « Préparation v1 »). Dans la scène des paquets, une brèche cliquable à gauche mène à la page.
+
 ### 9. Critères pour dire que l'étape 4 ter est finie
 - [ ] Une carte en expédition ne peut ni être vendue, ni échangée, ni mise aux enchères, ni envoyée dans une autre expédition.
 - [ ] Le résultat est identique quel que soit le nombre de rechargements (seed enregistrée) ; récupérer deux fois ne paie qu'une fois.
@@ -993,6 +997,10 @@ Donner aux cartes un but de progression qui ne dépend pas de la chance des tira
 - **La v1 couvre les étages 1 à 50.**
 
 ---
+
+### 0. Préparation v1 (faite le 2026-10-13)
+- Page `/tour` d'attente (accès scellé, lore, aucune mécanique), liée depuis `/expeditions` comme brèche verrouillée « Univers 0 ». Elle ne bloque pas les expéditions et ne crée aucune table.
+- Les expéditions utilisent déjà `Character.power` (futur « Popularité ») : le renommage ne touche que l'interface.
 
 ### 1. Structure
 - La Tour est le méta-univers 0 : 500 étages, un univers par étage.
