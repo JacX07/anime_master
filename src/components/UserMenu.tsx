@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { signOut } from "@/app/auth-actions";
+import { MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { getPackState } from "@/lib/packs";
 import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
@@ -32,10 +33,10 @@ export async function UserMenu() {
       <span className="res-item" title="Ryō">
         <Money n={wallet.balance} />
       </span>
-      <span className="res-item" title="Paquets en réserve">
+      <span className="res-item" title="Cristaux en réserve">
         <Icon name="paquet" />
         {packs.available}
-        {packs.available <= 10 && <span className="res-max"> / 10</span>}
+        {packs.available <= MAX_CRYSTALS && <span className="res-max"> / {MAX_CRYSTALS}</span>}
       </span>
       <span className="res-item res-power" title="Puissance totale de la collection">
         <Icon name="puissance" style={{ "--acc": "currentColor" } as React.CSSProperties} />

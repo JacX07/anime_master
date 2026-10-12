@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TYPE_LABELS } from "@/lib/labels";
-import { MAX_PACKS, PACK_INTERVAL_MS } from "@/lib/pack-stock";
+import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
 import type { PlayerPackState } from "@/lib/packs";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { ALBUM_BUMP, ALBUM_STORED } from "@/components/AlbumLink";
-import type { OpenedBulk } from "@/lib/packs";
-import { buyPackAction, openPackAction, openPacksAction } from "./actions";
+import type { OpenedPack } from "@/lib/packs";
+import { buyCrystalsAction, openPackAction } from "./actions";
 import { BulkSummary } from "./BulkSummary";
 import { PackOpener } from "./PackOpener";
 
@@ -15,13 +15,13 @@ import { PackOpener } from "./PackOpener";
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request" | "buy-request"; id: number } | { type: "bulk-request"; count: number };
+type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number };
 
 export function ImmersiveOpener({ initialState }: { initialState: PlayerPackState }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [bulk, setBulk] = useState<OpenedBulk | null>(null);
+  const [bulk, setBulk] = useState<OpenedPack | null>(null);
 
   useEffect(() => {
     const send = (msg: object) => frame.current?.contentWindow?.postMessage(msg, location.origin);
@@ -41,7 +41,7 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
         setLoaded(true); // la scène a compilé ses shaders : l'écran de chargement s'efface
         send({
           type: "init",
-          config: { interval: PACK_INTERVAL_MS, max: MAX_PACKS, ssrPity: SSR_PITY, urPity: UR_PITY },
+          config: { interval: CRYSTAL_INTERVAL_MS, max: MAX_CRYSTALS, ssrPity: SSR_PITY, urPity: UR_PITY },
           state: initialState,
           albumRect: albumRect(),
         });
@@ -51,15 +51,15 @@ export function ImmersiveOpener({ initialState }: { initialState: PlayerPackStat
         // Le lien « Album » du menu (AlbumLink) réagit : impulsion, et compteur à chaque carte rangée
         window.dispatchEvent(new Event(msg.type === "album-stored" ? ALBUM_STORED : ALBUM_BUMP));
       } else if (msg.type === "buy-request") {
-        const r = await buyPackAction();
+        const r = await buyCrystalsAction(msg.count === 25 ? 25 : 5);
         send(r.ok ? { type: "buy-result", id: msg.id, ok: true, state: r.state } : { type: "buy-result", id: msg.id, ok: false, error: r.error });
       } else if (msg.type === "bulk-request") {
-        const r = await openPacksAction(msg.count);
+        const r = await openPackAction(msg.count);
         // La scène remet son HUD à jour (stock, pity, puissance) et rouvre ses boutons, succès ou non
-        send(r.ok ? { type: "bulk-done", ok: true, state: r.bulk.state } : { type: "bulk-done", ok: false, error: r.error });
+        send(r.ok ? { type: "bulk-done", ok: true, state: r.pack.state } : { type: "bulk-done", ok: false, error: r.error });
         if (r.ok) {
-          setBulk(r.bulk);
-          for (let i = 0; i < r.bulk.cards.length; i++) window.dispatchEvent(new Event(ALBUM_STORED));
+          setBulk(r.pack);
+          for (let i = 0; i < r.pack.cards.length; i++) window.dispatchEvent(new Event(ALBUM_STORED));
         }
       } else if (msg.type === "open-request") {
         const result = await openPackAction();

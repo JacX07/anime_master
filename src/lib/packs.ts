@@ -3,13 +3,13 @@
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { getCollectionPower } from "./collection";
 import { prisma } from "./db";
-import { PACK_PRICE, purchasesLeft } from "./economy";
-import { afterOpening, packStock } from "./pack-stock";
-import { rollPack, secureRandom, type Finish, type PityTrigger, type Random } from "./pull";
+import { CRYSTAL_PRICE, crystalsLeft } from "./economy";
+import { afterSpend, crystalStock } from "./crystal-stock";
+import { rollLot, secureRandom, type Finish, type LotSize, type PityTrigger, type Random } from "./pull";
 
 export class NoPackAvailableError extends Error {
   constructor() {
-    super("Aucun paquet disponible");
+    super("Pas assez de cristaux");
   }
 }
 
@@ -38,62 +38,65 @@ export interface OpenedCard {
 }
 
 export interface PlayerPackState {
+  /** Cristaux utilisables maintenant */
   available: number;
-  nextPackAt: string | null;
-  packsSinceSSR: number;
-  packsSinceUR: number;
+  nextCrystalAt: string | null;
+  cardsSinceSSR: number;
+  cardsSinceUR: number;
   /** Puissance totale de la collection (somme de la puissance de chaque carte) */
   collectionPower: number;
-  /** Boutique : solde en Ryō, prix d'un paquet et achats restants aujourd'hui */
+  /** Boutique : solde en Ryō, prix d'un cristal et cristaux encore achetables aujourd'hui */
   balance: number;
-  packPrice: number;
-  purchasesLeft: number;
+  crystalPrice: number;
+  crystalsLeft: number;
 }
 
 export interface OpenedPack {
   cards: OpenedCard[];
   pity: PityTrigger;
+  /** Taille du lot (5 ou 10) */
+  lotSize: LotSize;
   state: PlayerPackState;
 }
 
 const USER_PACK_FIELDS = {
-  packsStored: true,
-  lastPackAt: true,
-  packsSinceSSR: true,
-  packsSinceUR: true,
+  crystals: true,
+  crystalsUpdatedAt: true,
+  cardsSinceSSR: true,
+  cardsSinceUR: true,
   balance: true,
-  packsBoughtToday: true,
-  packsBoughtDate: true,
+  crystalsBoughtToday: true,
+  crystalsBoughtDate: true,
 } as const;
 
 export async function getPackState(userId: string, now = new Date()): Promise<PlayerPackState> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
-  const stock = packStock(user.packsStored, user.lastPackAt, now);
+  const stock = crystalStock(user.crystals, user.crystalsUpdatedAt, now);
   return {
     available: stock.available,
-    nextPackAt: stock.nextPackAt?.toISOString() ?? null,
-    packsSinceSSR: user.packsSinceSSR,
-    packsSinceUR: user.packsSinceUR,
+    nextCrystalAt: stock.nextCrystalAt?.toISOString() ?? null,
+    cardsSinceSSR: user.cardsSinceSSR,
+    cardsSinceUR: user.cardsSinceUR,
     collectionPower: await getCollectionPower(userId),
     balance: user.balance,
-    packPrice: PACK_PRICE,
-    purchasesLeft: purchasesLeft(user.packsBoughtToday, user.packsBoughtDate, now),
+    crystalPrice: CRYSTAL_PRICE,
+    crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
   };
 }
 
 /**
- * Tire 5 cartes et enregistre tout dans une seule transaction.
+ * Tire un lot de 5 ou 10 cartes (1 cristal par carte) et enregistre tout dans une seule transaction.
  * Le stock est décrémenté par une mise à jour conditionnelle : si une autre ouverture
  * est passée entre-temps, aucune ligne ne correspond et la transaction est annulée.
  */
-export async function openPack(userId: string, rng: Random = secureRandom): Promise<OpenedPack> {
+export async function openPack(userId: string, size: LotSize = 5, rng: Random = secureRandom): Promise<OpenedPack> {
   return prisma.$transaction(async (tx) => {
     const now = new Date();
     const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
-    if (packStock(user.packsStored, user.lastPackAt, now).available < 1) throw new NoPackAvailableError();
+    if (crystalStock(user.crystals, user.crystalsUpdatedAt, now).available < size) throw new NoPackAvailableError();
 
-    const roll = rollPack(user, rng);
-    const nextStock = afterOpening(user.packsStored, user.lastPackAt, now);
+    const roll = rollLot(user, size, rng);
+    const nextStock = afterSpend(user.crystals, user.crystalsUpdatedAt, now, size);
 
     const updated = await tx.user.updateMany({
       where: { id: userId, ...user },
@@ -126,7 +129,7 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
       ).map((c) => c.characterId),
     );
 
-    const opening = await tx.packOpening.create({ data: { userId, pityTriggered: roll.pity }, select: { id: true } });
+    const opening = await tx.packOpening.create({ data: { userId, pityTriggered: roll.pity, lotSize: size }, select: { id: true } });
 
     const cards: OpenedCard[] = [];
     for (const [i, card] of roll.cards.entries()) {
@@ -175,56 +178,20 @@ export async function openPack(userId: string, rng: Random = secureRandom): Prom
       });
     }
 
-    const stock = packStock(nextStock.packsStored, nextStock.lastPackAt, now);
+    const stock = crystalStock(nextStock.crystals, nextStock.crystalsUpdatedAt, now);
     return {
       cards,
       pity: roll.pity,
+      lotSize: size,
       state: {
         available: stock.available,
-        nextPackAt: stock.nextPackAt?.toISOString() ?? null,
+        nextCrystalAt: stock.nextCrystalAt?.toISOString() ?? null,
         ...roll.next,
         collectionPower: await getCollectionPower(userId, tx),
         balance: user.balance,
-        packPrice: PACK_PRICE,
-        purchasesLeft: purchasesLeft(user.packsBoughtToday, user.packsBoughtDate, now),
+        crystalPrice: CRYSTAL_PRICE,
+        crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
       },
     };
   });
-}
-
-export const BULK_SIZES = [5, 10] as const;
-
-export interface OpenedBulk {
-  /** Toutes les cartes tirées, paquet après paquet */
-  cards: OpenedCard[];
-  /** Nombre de paquets réellement ouverts (moins que demandé si le stock ou un conflit l'a arrêté) */
-  opened: number;
-  /** Pity déclenchés pendant la série */
-  pities: PityTrigger[];
-  state: PlayerPackState;
-}
-
-/**
- * Ouvre `count` paquets d'affilée, chacun dans sa propre transaction (stock, pity et numéros d'exemplaire
- * se comportent exactement comme pour des ouvertures successives). Refuse tout si le stock est insuffisant.
- */
-export async function openPacks(userId: string, count: number, rng: Random = secureRandom): Promise<OpenedBulk> {
-  const before = await getPackState(userId);
-  if (before.available < count) throw new NoPackAvailableError();
-  const cards: OpenedCard[] = [];
-  const pities: PityTrigger[] = [];
-  let state = before;
-  let opened = 0;
-  try {
-    for (; opened < count; opened++) {
-      const pack = await openPack(userId, rng);
-      cards.push(...pack.cards);
-      if (pack.pity !== "NONE") pities.push(pack.pity);
-      state = pack.state;
-    }
-  } catch (err) {
-    // Les paquets déjà ouverts sont acquis : on les renvoie plutôt que de les perdre de vue
-    if (opened === 0) throw err;
-  }
-  return { cards, opened, pities, state };
 }

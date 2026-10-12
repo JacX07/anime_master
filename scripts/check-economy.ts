@@ -4,8 +4,8 @@
 
 import { prisma } from "../src/lib/db";
 import { getPackState, openPack } from "../src/lib/packs";
-import { buyPack } from "../src/lib/shop";
-import { DAILY_BONUS, MAX_PACK_PURCHASES_PER_DAY, PACK_PRICE, quickSellPrice } from "../src/lib/economy";
+import { buyCrystals } from "../src/lib/shop";
+import { CRYSTAL_PRICE, DAILY_BONUS, MAX_CRYSTAL_PURCHASES_PER_DAY, quickSellPrice } from "../src/lib/economy";
 import { claimDailyBonus, getWallet, previewDuplicateSale, sellCard, sellDuplicates, SaleError, setLocked } from "../src/lib/wallet";
 
 let failures = 0;
@@ -96,38 +96,39 @@ async function main() {
     await invariant(user.id, "après les bonus");
     await invariant(other.id, "autre joueur, sans mouvement");
 
-    // --- Achat de paquets
+    // --- Achat de cristaux
     const credit = async (userId: string, n: number) => {
       await prisma.user.update({ where: { id: userId }, data: { balance: { increment: n } } });
       await prisma.currencyLedger.create({ data: { userId, amount: n, reason: n >= 0 ? "DAILY" : "TRADE_OUT" } });
     };
     const shopper = (await mk(`${tag}-s`)).id;
     shoppers.push(shopper);
-    check("Achat sans Ryō : refusé", await rejects(buyPack(shopper)));
+    check("Achat sans Ryō : refusé", await rejects(buyCrystals(shopper, 5)));
     await credit(shopper, 1000);
-    await buyPack(shopper);
+    await buyCrystals(shopper, 5);
     let st = await getPackState(shopper);
-    check("Achat : 10 → 11 paquets (au-delà de la réserve), -100 Ryō, 4 achats restants", st.available === 11 && st.balance === 900 && st.purchasesLeft === MAX_PACK_PURCHASES_PER_DAY - 1, `${st.available} paquets, ${st.balance} Ryō, ${st.purchasesLeft} restants`);
+    check("Achat de 5 : 50 → 55 cristaux (au-delà de la réserve), -100 Ryō, 20 achetables restants", st.available === 55 && st.balance === 900 && st.crystalsLeft === MAX_CRYSTAL_PURCHASES_PER_DAY - 5, `${st.available} cristaux, ${st.balance} Ryō, ${st.crystalsLeft} restants`);
+    check("Quantité hors 5 / 25 refusée", await rejects(buyCrystals(shopper, 3)));
     await invariant(shopper, "après un achat");
-    await prisma.user.update({ where: { id: shopper }, data: { lastPackAt: new Date(Date.now() - 3 * 3600 * 1000) } });
-    check("Au-delà de 10, pas de recharge automatique", (await getPackState(shopper)).available === 11);
-    let op = await openPack(shopper); openedBy.push(...op.cards.map((c) => c.characterId));
-    check("Ouvrir depuis 11 paquets : 10 restants, réserve pleine", op.state.available === 10 && op.state.nextPackAt === null, `${op.state.available}`);
-    op = await openPack(shopper); openedBy.push(...op.cards.map((c) => c.characterId));
-    check("Puis 9 restants, la recharge repart (prochain dans ~10 min)", op.state.available === 9 && op.state.nextPackAt !== null && Math.abs(new Date(op.state.nextPackAt).getTime() - (Date.now() + 600_000)) < 5000);
-    for (let i = 0; i < MAX_PACK_PURCHASES_PER_DAY - 1; i++) await buyPack(shopper);
-    check(`${MAX_PACK_PURCHASES_PER_DAY} achats autorisés, le suivant refusé même avec assez de Ryō`, (await getPackState(shopper)).purchasesLeft === 0 && (await getPackState(shopper)).balance >= PACK_PRICE && (await rejects(buyPack(shopper))));
-    await invariant(shopper, "après 5 achats");
-    await prisma.user.update({ where: { id: shopper }, data: { packsBoughtDate: new Date(Date.now() - 24 * 3600 * 1000) } });
-    check("Le lendemain, les achats sont remis à zéro", (await getPackState(shopper)).purchasesLeft === MAX_PACK_PURCHASES_PER_DAY);
-    // Deux achats simultanés avec un solde de 100 Ryō exactement : un seul passe
+    await prisma.user.update({ where: { id: shopper }, data: { crystalsUpdatedAt: new Date(Date.now() - 3 * 3600 * 1000) } });
+    check("Au-delà de 50, pas de recharge automatique", (await getPackState(shopper)).available === 55);
+    let op = await openPack(shopper, 5); openedBy.push(...op.cards.map((c) => c.characterId));
+    check("Ouvrir ×5 depuis 55 : 50 restants, réserve pleine", op.state.available === 50 && op.state.nextCrystalAt === null, `${op.state.available}`);
+    op = await openPack(shopper, 5); openedBy.push(...op.cards.map((c) => c.characterId));
+    check("Puis 45 restants, la recharge repart (prochain dans ~2 min)", op.state.available === 45 && op.state.nextCrystalAt !== null && Math.abs(new Date(op.state.nextCrystalAt).getTime() - (Date.now() + 120_000)) < 5000);
+    for (let i = 0; i < MAX_CRYSTAL_PURCHASES_PER_DAY / 5 - 1; i++) await buyCrystals(shopper, 5);
+    check(`${MAX_CRYSTAL_PURCHASES_PER_DAY} cristaux autorisés par jour, le suivant refusé même avec assez de Ryō`, (await getPackState(shopper)).crystalsLeft === 0 && (await getPackState(shopper)).balance >= CRYSTAL_PRICE * 5 && (await rejects(buyCrystals(shopper, 5))));
+    await invariant(shopper, "après 25 cristaux achetés");
+    await prisma.user.update({ where: { id: shopper }, data: { crystalsBoughtDate: new Date(Date.now() - 24 * 3600 * 1000) } });
+    check("Le lendemain, les achats sont remis à zéro", (await getPackState(shopper)).crystalsLeft === MAX_CRYSTAL_PURCHASES_PER_DAY);
+    // Deux achats de 5 cristaux simultanés avec un solde de 100 Ryō exactement : un seul passe
     const bal = (await getWallet(shopper)).balance;
-    await credit(shopper, -(bal - PACK_PRICE));
+    await credit(shopper, -(bal - CRYSTAL_PRICE * 5));
     const before2 = (await getPackState(shopper)).available;
-    const both = await Promise.allSettled([buyPack(shopper), buyPack(shopper)]);
+    const both = await Promise.allSettled([buyCrystals(shopper, 5), buyCrystals(shopper, 5)]);
     const bought = both.filter((r) => r.status === "fulfilled").length;
     st = await getPackState(shopper);
-    check("Deux achats simultanés avec 100 Ryō : un seul passe, solde à 0", bought === 1 && st.balance === 0 && st.available === before2 + 1, `${bought} réussi(s), solde ${st.balance}`);
+    check("Deux achats de 5 simultanés avec 100 Ryō : un seul passe, solde à 0", bought === 1 && st.balance === 0 && st.available === before2 + 5, `${bought} réussi(s), solde ${st.balance}`);
     await invariant(shopper, "après un double achat");
   } finally {
     // Rend les numéros d'exemplaire consommés, puis supprime les joueurs jetables (cartes et journal en cascade)

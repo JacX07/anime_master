@@ -1,9 +1,10 @@
-// Simulation comparée : tirage actuel (paquets de 5) contre tirage « cristaux » (1 cristal = 1 carte, lots ×5 / ×10).
-// Ne touche ni à la base ni au code de production : les règles du système proposé sont recodées ici, à partir du conseil.
+// Simulation comparée : ancien tirage (paquets de 5, recodé ici comme référence figée) contre tirage « cristaux »
+// (1 cristal = 1 carte, lots ×5 / ×10). Les variantes B, C, D sont un modèle indépendant des règles de la spec ; la
+// variante C est ensuite comparée statistiquement au code de production (`rollLot`). Ne touche pas à la base.
 // Usage : npx tsx scripts/simulate-crystals.ts [--cards 2000000] [--seed 42] [--players 20000]
 
 import type { Rarity } from "../src/generated/prisma/enums";
-import { RARITY_RATES, rollPack, type PityState, type Random } from "../src/lib/pull";
+import { RARITY_RATES, rollLot, type LotSize, type Random } from "../src/lib/pull";
 
 const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 const BASE = Object.fromEntries(RARITY_RATES) as Record<Rarity, number>;
@@ -123,14 +124,32 @@ function firstOf(r: Rules, n: 5 | 10, what: "SSR" | "UR") {
   return { mean: res.reduce((a, b) => a + b, 0) / res.length, median: q(0.5), p90: q(0.9), max: res[res.length - 1] };
 }
 
-// ---------- Système actuel (code de production) ----------
+// ---------- Ancien système (paquets de 5), recodé ici comme référence figée ----------
+
+interface LegacyState {
+  packsSinceSSR: number;
+  packsSinceUR: number;
+}
+
+/** Règles de l'ancien `rollPack` : pity UR au 100ᵉ paquet, SSR au 15ᵉ, carte R+ garantie. */
+function legacyPack(state: LegacyState): { rarities: Rarity[]; next: LegacyState } {
+  const rarities = Array.from({ length: 5 }, () => pick(BASE as Table));
+  const has = (set: Rarity[]) => rarities.some((r) => set.includes(r));
+  if (state.packsSinceUR >= 99 && !has(["UR"])) rarities[4] = "UR";
+  if (state.packsSinceSSR >= 14 && !has(["SSR", "UR"])) rarities[4] = pick(SSR_PLUS);
+  if (!has(["R", "SR", "SSR", "UR"])) rarities[4] = pick(R_PLUS);
+  return {
+    rarities,
+    next: { packsSinceSSR: has(["SSR", "UR"]) ? 0 : state.packsSinceSSR + 1, packsSinceUR: has(["UR"]) ? 0 : state.packsSinceUR + 1 },
+  };
+}
 
 function runCurrent(cards: number) {
   const counts = zero();
-  let state: PityState = { packsSinceSSR: 0, packsSinceUR: 0 };
+  let state: LegacyState = { packsSinceSSR: 0, packsSinceUR: 0 };
   for (let i = 0; i < cards / 5; i++) {
-    const roll = rollPack(state, rng);
-    for (const x of roll.cards) counts[x.rarity]++;
+    const roll = legacyPack(state);
+    for (const x of roll.rarities) counts[x]++;
     state = roll.next;
   }
   return counts;
@@ -138,10 +157,10 @@ function runCurrent(cards: number) {
 function firstCurrent(what: "SSR" | "UR") {
   const res: number[] = [];
   for (let p = 0; p < PLAYERS; p++) {
-    let s: PityState = { packsSinceSSR: 0, packsSinceUR: 0 };
+    let s: LegacyState = { packsSinceSSR: 0, packsSinceUR: 0 };
     for (let n = 1; ; n++) {
-      const roll = rollPack(s, rng);
-      const hit = roll.cards.findIndex((x) => (what === "UR" ? x.rarity === "UR" : x.rarity === "SSR" || x.rarity === "UR"));
+      const roll = legacyPack(s);
+      const hit = roll.rarities.findIndex((x) => (what === "UR" ? x === "UR" : x === "SSR" || x === "UR"));
       if (hit >= 0) {
         res.push((n - 1) * 5 + hit + 1);
         break;
@@ -152,6 +171,27 @@ function firstCurrent(what: "SSR" | "UR") {
   res.sort((a, b) => a - b);
   const q = (x: number) => res[Math.min(res.length - 1, Math.floor(x * res.length))];
   return { mean: res.reduce((a, b) => a + b, 0) / res.length, median: q(0.5), p90: q(0.9), max: res[res.length - 1] };
+}
+
+// ---------- Code de production (rollLot) ----------
+
+function runProduction(n: LotSize, cards: number) {
+  const counts = zero();
+  let state = { cardsSinceSSR: 0, cardsSinceUR: 0 };
+  let drawn = 0;
+  let longestSSR = 0;
+  let longestUR = 0;
+  let neverN10th = true;
+  while (drawn < cards) {
+    const roll = rollLot(state, n, rng);
+    for (const c of roll.cards) counts[c.rarity]++;
+    if (n === 10 && roll.cards[9].rarity === "N") neverN10th = false;
+    state = roll.next;
+    drawn += n;
+    longestSSR = Math.max(longestSSR, state.cardsSinceSSR);
+    longestUR = Math.max(longestUR, state.cardsSinceUR);
+  }
+  return { counts, drawn, longestSSR, longestUR, neverN10th };
 }
 
 // ---------- Affichage ----------
@@ -206,3 +246,23 @@ for (const v of VARIANTS.slice(0, 2)) {
   }
 }
 void CURRENT_RULES;
+
+// ---------- Production contre modèle C ----------
+
+console.log("\nCode de production (rollLot) contre le modèle de la variante C — écart en écarts-types (|z| < 4 attendu)");
+let ok = true;
+for (const n of [5, 10] as const) {
+  const prod = runProduction(n, CARDS);
+  const model = results.get(`C${n}`)!;
+  const cells = RARITIES.map((r) => {
+    const p = (prod.counts[r] + model.counts[r]) / (prod.drawn + model.drawn);
+    const z = (prod.counts[r] / prod.drawn - model.counts[r] / model.drawn) / Math.sqrt(p * (1 - p) * (1 / prod.drawn + 1 / model.drawn));
+    ok &&= Math.abs(z) < 4;
+    return `${r} ${z >= 0 ? "+" : ""}${z.toFixed(1)}σ`;
+  });
+  const bounded = prod.longestSSR <= 74 && prod.longestUR <= 499;
+  ok &&= bounded && prod.neverN10th;
+  console.log(`×${String(n).padEnd(2)} ${cells.join("  ")}  | plus longue série sans SSR+ : ${prod.longestSSR} (max 74), sans UR : ${prod.longestUR} (max 499)${n === 10 ? `, 10ᵉ carte jamais N : ${prod.neverN10th ? "oui" : "NON"}` : ""}`);
+}
+console.log(ok ? "\n✅ Le code de production correspond au modèle." : "\n❌ Écart entre le code de production et le modèle.");
+if (!ok) process.exitCode = 1;

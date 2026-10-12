@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
-import { MAX_PACKS, PACK_INTERVAL_MS } from "@/lib/pack-stock";
+import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
 import type { OpenedCard, PlayerPackState } from "@/lib/packs";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { openPackAction } from "./actions";
@@ -17,14 +17,14 @@ function useLiveStock(state: PlayerPackState) {
     return () => clearInterval(timer);
   }, []);
 
-  if (now === null || !state.nextPackAt) return { available: state.available, msLeft: null };
-  const next = new Date(state.nextPackAt).getTime();
+  if (now === null || !state.nextCrystalAt) return { available: state.available, msLeft: null };
+  const next = new Date(state.nextCrystalAt).getTime();
   if (now < next) return { available: state.available, msLeft: next - now };
-  const gained = 1 + Math.floor((now - next) / PACK_INTERVAL_MS);
-  const available = Math.min(MAX_PACKS, state.available + gained);
+  const gained = 1 + Math.floor((now - next) / CRYSTAL_INTERVAL_MS);
+  const available = Math.min(MAX_CRYSTALS, state.available + gained);
   return {
     available,
-    msLeft: available >= MAX_PACKS ? null : next + gained * PACK_INTERVAL_MS - now,
+    msLeft: available >= MAX_CRYSTALS ? null : next + gained * CRYSTAL_INTERVAL_MS - now,
   };
 }
 
@@ -47,7 +47,7 @@ export function PackOpener({ initialState }: { initialState: PlayerPackState }) 
   function open() {
     setError(null);
     startTransition(async () => {
-      const result = await openPackAction();
+      const result = await openPackAction(5);
       if (!result.ok) {
         setError(result.error);
         return;
@@ -68,27 +68,27 @@ export function PackOpener({ initialState }: { initialState: PlayerPackState }) 
       <section className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-2xl bg-panel p-5">
         <div>
           <div className="text-3xl font-extrabold tabular-nums">
-            {available} <span className="text-base font-medium text-muted">/ {MAX_PACKS} paquets</span>
+            {available} <span className="text-base font-medium text-muted">/ {MAX_CRYSTALS} cristaux</span>
           </div>
           <div className="text-sm text-muted">
-            {msLeft === null ? "Stock plein" : `Prochain paquet dans ${formatDuration(msLeft)}`}
+            {msLeft === null ? "Stock plein" : `Prochain cristal dans ${formatDuration(msLeft)}`}
           </div>
         </div>
         <div className="text-sm text-muted">
           <div>
-            SSR garanti dans <b className="text-[var(--rarity-SSR)]">{SSR_PITY - state.packsSinceSSR}</b> paquet(s)
+            SSR garanti dans <b className="text-[var(--rarity-SSR)]">{SSR_PITY - state.cardsSinceSSR}</b> carte(s)
           </div>
           <div>
-            UR garanti dans <b className="text-[var(--rarity-UR)]">{UR_PITY - state.packsSinceUR}</b> paquet(s)
+            UR garanti dans <b className="text-[var(--rarity-UR)]">{UR_PITY - state.cardsSinceUR}</b> carte(s)
           </div>
         </div>
         <button
           type="button"
           onClick={open}
-          disabled={pending || available < 1 || (cards !== null && !allRevealed)}
+          disabled={pending || available < 5 || (cards !== null && !allRevealed)}
           className="ml-auto rounded-xl bg-[#2b6cff] px-6 py-3 font-bold text-white shadow-lg shadow-[#2b6cff]/20 hover:bg-[#4b8bff] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {pending ? "Ouverture…" : cards ? "Ouvrir le suivant" : "Ouvrir un paquet"}
+          {pending ? "Ouverture…" : cards ? "Ouvrir 5 de plus" : "Ouvrir 5 cartes (5 cristaux)"}
         </button>
       </section>
 

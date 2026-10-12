@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { BuyPackButton } from "@/components/BuyPackButton";
+import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Stat } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
@@ -94,7 +94,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
             {num.format(packs.collectionPower)}
           </Stat>
         </span>
-        <BuyPackButton price={packs.packPrice} left={packs.purchasesLeft} balance={packs.balance} available={packs.available} />
+        <BuyCrystalsButton price={packs.crystalPrice} left={packs.crystalsLeft} balance={packs.balance} available={packs.available} />
       </footer>
     </>
   );

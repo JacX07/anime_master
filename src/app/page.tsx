@@ -4,7 +4,7 @@ import { Money, Stat } from "@/components/icons";
 import { MenuNav } from "@/components/MenuNav";
 import { SceneFrame } from "@/components/SceneFrame";
 import { SceneBody } from "@/components/SceneBody";
-import { MAX_PACKS, PACK_INTERVAL_MS, WELCOME_PACKS } from "@/lib/pack-stock";
+import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS, WELCOME_CRYSTALS } from "@/lib/crystal-stock";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { getSessionUser } from "@/lib/session";
 import { getPlayerSummary } from "@/lib/summary";
@@ -56,11 +56,11 @@ function Guest() {
     <div className="gm-content">
       <Wordmark />
       <MenuNav label="Menu principal">
-        <Item href="/signup" title="Créer un compte" hint={`${WELCOME_PACKS} paquets offerts`} />
+        <Item href="/signup" title="Créer un compte" hint={`${WELCOME_CRYSTALS} cristaux offerts`} />
         <Item href="/login" title="Se connecter" hint="Retrouve ta collection" />
       </MenuNav>
       <p className="gm-note">
-        Ensuite, un paquet toutes les {PACK_INTERVAL_MS / 60_000} minutes, jusqu&apos;à {MAX_PACKS} en réserve.
+        Ensuite, un cristal (= une carte) toutes les {CRYSTAL_INTERVAL_MS / 60_000} minutes, jusqu&apos;à {MAX_CRYSTALS} en réserve.
       </p>
     </div>
   );
@@ -78,8 +78,8 @@ async function Menu() {
         <MenuNav label="Menu principal">
           <Item
             href="/packs"
-            title="Ouvrir des paquets"
-            hint={available > 0 ? `${available} prêt${available > 1 ? "s" : ""}` : "Le prochain arrive bientôt"}
+            title="Ouvrir des cartes"
+            hint={available > 0 ? `${available} cristal${available > 1 ? "ux" : ""} en réserve` : "Le prochain cristal arrive bientôt"}
           />
           <Item href="/album" title="Mon album" hint={`${num.format(s.owned)} sur ${num.format(s.total)} personnages`} />
           <Item href="/market" title="Marché" hint="Enchères entre joueurs" />
@@ -110,15 +110,15 @@ async function Menu() {
             <dd>{num.format(s.cards)}</dd>
           </div>
           <div>
-            <dt>Paquets</dt>
+            <dt>Cristaux</dt>
             <dd>
-              {available} / {MAX_PACKS}
+              {available} / {MAX_CRYSTALS}
             </dd>
           </div>
           <div>
             <dt>Garanties</dt>
             <dd>
-              SSR dans {SSR_PITY - s.packs.packsSinceSSR}, UR dans {UR_PITY - s.packs.packsSinceUR}
+              SSR dans {SSR_PITY - s.packs.cardsSinceSSR}, UR dans {UR_PITY - s.packs.cardsSinceUR}
             </dd>
           </div>
         </dl>

@@ -4,8 +4,10 @@ import type { Rarity } from "../generated/prisma/enums";
 import type { Finish } from "./pull";
 
 export const DAILY_BONUS = 50;
-export const PACK_PRICE = 100;
-export const MAX_PACK_PURCHASES_PER_DAY = 5;
+/** Cristaux (SPEC étape 4 bis §2) : 20 Ryō l'un, 25 par jour au maximum, achetés par lots de 5 ou 25. */
+export const CRYSTAL_PRICE = 20;
+export const MAX_CRYSTAL_PURCHASES_PER_DAY = 25;
+export const CRYSTAL_BUY_SIZES = [5, 25] as const;
 
 export const QUICK_SELL_PRICES: Record<Rarity, number> = { N: 1, R: 3, SR: 10, SSR: 40, UR: 200 };
 export const FINISH_MULTIPLIER: Record<Finish, number> = { NORMAL: 1, HOLO: 3, GOLD: 10 };
@@ -20,10 +22,10 @@ export function startOfDay(now: Date) {
   return d;
 }
 
-/** Achats restants aujourd'hui, sachant combien en ont été faits le jour `boughtDate`. */
-export function purchasesLeft(boughtToday: number, boughtDate: Date | null, now: Date) {
+/** Cristaux encore achetables aujourd'hui, sachant combien en ont été achetés le jour `boughtDate`. */
+export function crystalsLeft(boughtToday: number, boughtDate: Date | null, now: Date) {
   const done = boughtDate && boughtDate >= startOfDay(now) ? boughtToday : 0;
-  return Math.max(0, MAX_PACK_PURCHASES_PER_DAY - done);
+  return Math.max(0, MAX_CRYSTAL_PURCHASES_PER_DAY - done);
 }
 
 export const canClaimDailyBonus = (lastClaim: Date | null, now: Date) => lastClaim === null || lastClaim < startOfDay(now);

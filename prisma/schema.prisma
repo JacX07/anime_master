@@ -119,48 +119,49 @@ model CharacterMedia {
 
 /// Joueur. Les champs d'authentification sont gérés par Better Auth.
 model User {
-  id                String            @id
-  name              String
+  id                  String            @id
+  name                String
   /// Pseudo unique (plugin username de Better Auth, stocké en minuscules)
-  username          String            @unique
-  email             String            @unique
-  emailVerified     Boolean           @default(false)
-  image             String?
-  /// Paquets en stock au moment de `lastPackAt` (recharge calculée à la lecture, SPEC étape 2 §3)
-  packsStored       Int               @default(10)
-  lastPackAt        DateTime          @default(now())
-  packsSinceSSR     Int               @default(0)
-  packsSinceUR      Int               @default(0)
+  username            String            @unique
+  email               String            @unique
+  emailVerified       Boolean           @default(false)
+  image               String?
+  /// Cristaux en stock au moment de `crystalsUpdatedAt` (1 cristal = 1 carte ; recharge calculée à la lecture, SPEC étape 4 bis §1)
+  crystals            Int               @default(50)
+  crystalsUpdatedAt   DateTime          @default(now())
+  /// Compteurs de pity, en cartes (SPEC étape 4 bis §4)
+  cardsSinceSSR       Int               @default(0)
+  cardsSinceUR        Int               @default(0)
   /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
-  balance           Int               @default(0)
-  lastDailyBonusAt  DateTime?
-  /// Paquets achetés pendant la journée `packsBoughtDate` (remise à zéro à minuit, heure du serveur)
-  packsBoughtToday  Int               @default(0)
-  packsBoughtDate   DateTime?
-  ledger            CurrencyLedger[]
-  tradesSent        Trade[]           @relation("TradeFrom")
-  tradesReceived    Trade[]           @relation("TradeTo")
-  notifications     Notification[]
-  auctionsSold      Auction[]         @relation("AuctionSeller")
-  auctionsLeading   Auction[]         @relation("AuctionLeader")
-  bids              Bid[]
-  wishlist          WishlistItem[]
-  achievements      UserAchievement[]
+  balance             Int               @default(0)
+  lastDailyBonusAt    DateTime?
+  /// Cristaux achetés pendant la journée `crystalsBoughtDate` (remise à zéro à minuit, heure du serveur)
+  crystalsBoughtToday Int               @default(0)
+  crystalsBoughtDate  DateTime?
+  ledger              CurrencyLedger[]
+  tradesSent          Trade[]           @relation("TradeFrom")
+  tradesReceived      Trade[]           @relation("TradeTo")
+  notifications       Notification[]
+  auctionsSold        Auction[]         @relation("AuctionSeller")
+  auctionsLeading     Auction[]         @relation("AuctionLeader")
+  bids                Bid[]
+  wishlist            WishlistItem[]
+  achievements        UserAchievement[]
   /// Classement Duel (étape 4)
-  elo               Int               @default(1000)
+  elo                 Int               @default(1000)
   /// Duels lancés pendant la journée `duelsStartedDate`
-  duelsStartedToday Int               @default(0)
-  duelsStartedDate  DateTime?
-  duelsSent         Duel[]            @relation("DuelChallenger")
-  duelsReceived     Duel[]            @relation("DuelOpponent")
-  duelSlots         DuelSlot[]
-  duelDefenses      DuelDefense[]
-  sessions          Session[]
-  accounts          Account[]
-  cards             Card[]
-  packOpenings      PackOpening[]
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  duelsStartedToday   Int               @default(0)
+  duelsStartedDate    DateTime?
+  duelsSent           Duel[]            @relation("DuelChallenger")
+  duelsReceived       Duel[]            @relation("DuelOpponent")
+  duelSlots           DuelSlot[]
+  duelDefenses        DuelDefense[]
+  sessions            Session[]
+  accounts            Account[]
+  cards               Card[]
+  packOpenings        PackOpening[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 }
 
 model Session {
@@ -238,6 +239,8 @@ model Card {
 /// Historique des ouvertures de paquets.
 model PackOpening {
   id            String      @id @default(cuid())
+  /// Nombre de cartes du lot (5 ou 10)
+  lotSize       Int         @default(5)
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   pityTriggered PityTrigger
@@ -253,6 +256,7 @@ enum LedgerReason {
   QUICK_SELL
   DAILY
   PACK_BUY
+  CRYSTAL_BUY
   BID_HOLD
   BID_REFUND
   AUCTION_SALE

@@ -38,7 +38,7 @@ export async function start(modeId) {
     flash: document.getElementById("flash"), vignette: document.getElementById("vignette"), ur: document.getElementById("urScreen"), snd: document.getElementById("snd") };
   txt.done = "Clique une carte pour la ranger dans l'album, sinon elles partent toutes seules";
   txt.stored = "Cartes rangées dans l'album";
-  txt.empty = "Plus de paquet pour l'instant, le prochain arrive bientôt";
+  txt.empty = "Il te faut 5 cristaux pour ouvrir le booster, le prochain arrive bientôt";
   document.getElementById("urLabel").innerHTML = txt.ur;
   // La capsule est un objet 3D : le bouton ne sert plus qu'à l'accessibilité clavier (invisible, ne capte pas la souris)
   ui.hint.textContent = txt.open; ui.booster.innerHTML = ""; ui.booster.style.cssText = "opacity:0;pointer-events:none;animation:none";
@@ -46,9 +46,9 @@ export async function start(modeId) {
   let capsule = null, stored = 0;
   // Stock et pity : fournis par le serveur (init / réponse d'ouverture), valeurs d'exemple hors iframe
   let cfg = { interval: 600000, max: 10, ssrPity: 15, urPity: 100 };
-  let pack = { available: 9, nextPackAt: null, packsSinceSSR: 9, packsSinceUR: 4, collectionPower: 123456, balance: 650, packPrice: 100, purchasesLeft: 5 }, hostAlbum = null;
+  let pack = { available: 45, nextCrystalAt: null, cardsSinceSSR: 45, cardsSinceUR: 20, collectionPower: 123456, balance: 650, crystalPrice: 20, crystalsLeft: 25 }, hostAlbum = null;
   const liveStock = () => {
-    const next = pack.nextPackAt ? new Date(pack.nextPackAt).getTime() : null, now = Date.now();
+    const next = pack.nextCrystalAt ? new Date(pack.nextCrystalAt).getTime() : null, now = Date.now();
     if (next === null || now < next) return { available: pack.available, msLeft: next === null ? null : next - now };
     const gained = 1 + Math.floor((now - next) / cfg.interval), available = Math.min(cfg.max, pack.available + gained);
     return { available, msLeft: available >= cfg.max ? null : next + gained * cfg.interval - now };
@@ -209,15 +209,15 @@ export async function start(modeId) {
   function hud() {
     const { available, msLeft } = liveStock();
     bar("stock", cfg.max, Math.min(available, cfg.max)); el("count").textContent = available;
-    el("maxPacks").textContent = available > cfg.max ? " boosters" : ` / ${cfg.max} boosters`; // au-delà de la réserve : paquets achetés
+    el("maxPacks").textContent = available > cfg.max ? " cristaux" : ` / ${cfg.max} cristaux`; // au-delà de la réserve : cristaux achetés
     // Boutique : le message d'erreur d'un achat reste affiché quelques secondes, puis les conditions reprennent la main
     for (const n of [5, 10]) el("bulk" + n).disabled = bulking || busy || phase !== "idle" || available < n;
-    el("buy").disabled = buying || pack.purchasesLeft < 1 || pack.balance < pack.packPrice;
-    if (!buyMsg) el("buyInfo").innerHTML = `${pack.packPrice}${icon("ryo", "--acc:#f2a516")} · ${pack.purchasesLeft} achat${pack.purchasesLeft > 1 ? "s" : ""} restant${pack.purchasesLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")}${icon("ryo", "--acc:#f2a516")}`;
-    el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain booster dans ${mmss(msLeft)}`;
+    el("buy").disabled = buying || pack.crystalsLeft < 5 || pack.balance < pack.crystalPrice * 5;
+    if (!buyMsg) el("buyInfo").innerHTML = `${pack.crystalPrice * 5}${icon("ryo", "--acc:#f2a516")} les 5 · ${pack.crystalsLeft} cristal${pack.crystalsLeft > 1 ? "ux" : ""} achetable${pack.crystalsLeft > 1 ? "s" : ""} aujourd'hui · solde ${pack.balance.toLocaleString("fr-FR")}${icon("ryo", "--acc:#f2a516")}`;
+    el("nextIn").textContent = msLeft === null ? "Stock plein" : `Prochain cristal dans ${mmss(msLeft)}`;
     el("totalPower").innerHTML = `${icon("puissance", "--acc:currentColor")}${(pack.collectionPower ?? 0).toLocaleString("fr-FR")}`;
-    el("ssrLeft").textContent = cfg.ssrPity - pack.packsSinceSSR; el("urLeft").textContent = cfg.urPity - pack.packsSinceUR;
-    bar("ssr", 15, Math.round((15 * pack.packsSinceSSR) / cfg.ssrPity)); bar("ur", 15, Math.round((15 * pack.packsSinceUR) / cfg.urPity));
+    el("ssrLeft").textContent = cfg.ssrPity - pack.cardsSinceSSR; el("urLeft").textContent = cfg.urPity - pack.cardsSinceUR;
+    bar("ssr", 15, Math.round((15 * pack.cardsSinceSSR) / cfg.ssrPity)); bar("ur", 15, Math.round((15 * pack.cardsSinceUR) / cfg.urPity));
   }
   const setPack = (state) => { pack = state; hud(); };
   let buying = false, buyMsg = "";
@@ -235,7 +235,7 @@ export async function start(modeId) {
   document.querySelector(".bulk-row").toggleAttribute("data-embed", EMBED); // hors page hôte il n'y a personne pour afficher le résumé
   for (const n of [5, 10]) el("bulk" + n).addEventListener("click", () => {
     if (!EMBED || bulking || busy || phase !== "idle" || liveStock().available < n) return;
-    bulking = true; ui.hint.textContent = `Ouverture de ${n} paquets…`; hud();
+    bulking = true; ui.hint.textContent = `Ouverture de ${n} cartes…`; hud();
     post({ type: "bulk-request", count: n });
   });
   setInterval(hud, 1000); hud();
@@ -254,21 +254,21 @@ export async function start(modeId) {
     }
     else if (m.type === "pack-result" || m.type === "buy-result") { waiting.get(m.id)?.(m); waiting.delete(m.id); }
   });
-  // Achat d'un paquet (même circuit que l'ouverture ; hors iframe, simulé localement)
+  // Achat de 5 cristaux (même circuit que l'ouverture ; hors iframe, simulé localement)
   function requestBuy() {
     if (!EMBED) {
-      if (pack.balance < pack.packPrice) return Promise.resolve({ ok: false, error: "Pas assez de Ryō." });
-      return Promise.resolve({ ok: true, state: { ...pack, available: liveStock().available + 1, balance: pack.balance - pack.packPrice, purchasesLeft: pack.purchasesLeft - 1 } });
+      if (pack.balance < pack.crystalPrice * 5) return Promise.resolve({ ok: false, error: "Pas assez de Ryō." });
+      return Promise.resolve({ ok: true, state: { ...pack, available: liveStock().available + 5, balance: pack.balance - pack.crystalPrice * 5, crystalsLeft: pack.crystalsLeft - 5 } });
     }
     return new Promise((resolve) => {
-      const id = ++reqId; waiting.set(id, resolve); post({ type: "buy-request", id });
+      const id = ++reqId; waiting.set(id, resolve); post({ type: "buy-request", id, count: 5 });
       setTimeout(() => { if (waiting.delete(id)) resolve({ ok: false, error: "Le serveur ne répond pas, réessaie." }); }, 20000);
     });
   }
   // Demande un paquet au serveur (ou en tire un d'exemple hors iframe)
   function requestPack() {
     if (!EMBED) {
-      const state = { ...pack, available: liveStock().available - 1, nextPackAt: new Date(Date.now() + cfg.interval).toISOString() };
+      const state = { ...pack, available: liveStock().available - 5, nextCrystalAt: new Date(Date.now() + cfg.interval).toISOString() };
       return Promise.resolve({ ok: true, cards: [...CHARS], state, pity: null });
     }
     return new Promise((resolve) => {
@@ -280,7 +280,7 @@ export async function start(modeId) {
 
   async function openBooster() {
     if (busy || phase !== "idle") return;
-    if (liveStock().available < 1) { ui.hint.textContent = txt.empty; return; }
+    if (liveStock().available < 5) { ui.hint.textContent = txt.empty; return; }
     S.init(T); busy = true; skip = false; ui.hint.textContent = "Ouverture…";
     const res = await requestPack();
     if (!res.ok) { ui.hint.textContent = res.error; busy = false; setTimeout(() => phase === "idle" && !busy && (ui.hint.textContent = txt.open), 3500); return; }
@@ -368,7 +368,7 @@ export async function start(modeId) {
   }
   function checkStored() {
     if (phase !== "done" || line.length) return;
-    phase = "stored"; clearTimeout(autoTimer); ui.hint.textContent = txt.stored; ui.next.hidden = liveStock().available < 1;
+    phase = "stored"; clearTimeout(autoTimer); ui.hint.textContent = txt.stored; ui.next.hidden = liveStock().available < 5;
     if (!ui.next.hidden) ui.next.focus({ preventScroll: true });
   }
   async function revealAll() {
