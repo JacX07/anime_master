@@ -21,7 +21,8 @@ export const MODES = [
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const PERF = new URLSearchParams(location.search).has("perf");
 // ?lite : décor, reflets, halo et ombres coupés (fond uni) pour visualiser une fonctionnalité vite ; window.__scene.demoBulk(n, ["UR","SSR",…]) joue un lot sans serveur
-const LITE = new URLSearchParams(location.search).has("lite");
+const LAB = new URLSearchParams(location.search).has("lab"); // ?lab : maquettes des animations SSR / UR (reveals.js), implique ?lite
+const LITE = LAB || new URLSearchParams(location.search).has("lite");
 // Intégré dans /packs (?embed) : la page hôte détient la session et appelle le serveur ; on lui parle par postMessage.
 // Hors iframe, la maquette tourne seule avec des cartes d'exemple.
 const EMBED = new URLSearchParams(location.search).has("embed") && parent !== window;
@@ -581,7 +582,7 @@ export async function start(modeId) {
     }
     fxLight.intensity *= Math.pow(0.08, dt);
     capsule?.update(dt, time, mouseSmooth);
-    if (breche) { breche.group.visible = !bulking && !busy && (phase === "idle" || phase === "stored"); breche.update(dt, time); }
+    if (breche) { breche.group.visible = !LAB && !bulking && !busy && (phase === "idle" || phase === "stored"); breche.update(dt, time); }
     for (const card of line) {
       const u = card.userData; if (u.state === "leaving") continue;
       u.hoverK += ((card === hoverCard ? 1 : 0) - u.hoverK) * Math.min(1, dt * 10);
@@ -646,5 +647,19 @@ export async function start(modeId) {
     S.init(T); bulking = true; ui.booster.hidden = true; capsule.show();
     return bulkAnimation(n, Promise.resolve({ ok: true, best, cards }));
   };
+  if (LAB) {
+    const { createReveals } = await import("./reveals.js");
+    const rv = createReveals(ctx, { loadCard: async (c) => { images[c.img] ??= await painter.loadImg(c.img); return c; } });
+    scene.background = new THREE.Color("#070a14");
+    capsule.group.visible = false; breche.group.visible = false;
+    const st = document.createElement("style"); st.textContent = ".hud,.banners,.gate,.bottom,header{display:none!important} .labbar{position:fixed;top:14px;left:14px;z-index:40;display:flex;flex-wrap:wrap;gap:8px;max-width:760px;font:600 13px Sora,sans-serif} .labbar b{width:100%;color:#fff} .labbar button{padding:8px 14px;border-radius:10px;border:1.5px solid #ffffff55;background:#10182cdd;color:#fff;cursor:pointer;font:inherit} .labbar button:hover{border-color:#7fb0ff}";
+    document.head.append(st);
+    const bar = document.createElement("div"); bar.className = "labbar";
+    const NAMES = { ssrA: "SSR A · Éclair doré", ssrB: "SSR B · Pluie d'étoiles", ssrC: "SSR C · Sceau doré", urA: "UR A · Fissure du multivers", urB: "UR B · Convergence", urC: "UR C · Ascension" };
+    bar.innerHTML = "<b>Maquettes de révélation (clique pour jouer)</b>";
+    for (const n of rv.names) { const b = document.createElement("button"); b.textContent = NAMES[n] ?? n; b.addEventListener("click", () => { S.init(T); rv.play(n, { ...CHARS[n.startsWith("ur") ? 0 : 1], isNew: true }); }); bar.append(b); }
+    document.body.append(bar);
+    window.__reveal = rv;
+  }
   window.__scene = { demoBulk, three: { scene, camera }, get phase() { return phase === "ready" ? "ring" : phase; }, get busy() { return busy; }, get states() { return items.map((i) => (i.state === "ready" ? "ring" : i.state)); }, get ur() { return !ui.ur.hidden; } };
 }
