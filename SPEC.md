@@ -972,3 +972,90 @@ Limites connues du plan gratuit Supabase : mise en pause après 7 jours sans act
 - [ ] Pages légales en ligne ; la suppression de compte fonctionne.
 - [ ] Les erreurs remontent dans Sentry ; une sauvegarde a été restaurée avec succès en test.
 - [ ] L'inscription en bêta exige un code d'invitation valide et à usage unique.
+
+---
+
+## Étape 7 — Après le MVP : la Tour
+
+> **Statut : idée validée le 2026-10-12, rien n'est codé.** Elle vient d'un conseil (5 avis + relecture croisée) et d'une discussion. L'histoire est dans `lore.md`. Les chiffres marqués *(à équilibrer)* sont des valeurs de départ à tester avec un script de simulation.
+
+### Objectif
+Donner aux cartes un but de progression qui ne dépend pas de la chance des tirages : un mode PvE où le joueur compose son équipe face à un boss connu d'avance.
+
+### Décisions validées
+- **La Tour remplace les brèches aléatoires de rang D à S** (qui refaisaient les expéditions). Les rangs sont gardés, répartis par tranches d'étages.
+- **La Puissance ne sert pas de PV** (elle va de 100 à 104 000 et mesure la popularité). Elle est renommée **« Popularité »** dans l'interface ; le champ `Character.power` ne change pas. Les expéditions continuent de l'utiliser.
+- **Les combats réutilisent la logique des duels** (ATK, DEF, modificateurs de type), sans quiz.
+- **Pas de stats brutes ajoutées par des artefacts** : un N équipé ne doit jamais battre un UR nu.
+- **Pas de 500 boss faits à la main** : étages générés, environ 10 jalons écrits à la main pour la v1.
+- **Récompenses au premier passage seulement**, avec un budget fermé.
+- **Sorts génériques** : pas de sort écrit personnage par personnage au début.
+- **La v1 couvre les étages 1 à 50.**
+
+---
+
+### 1. Structure
+- La Tour est le méta-univers 0 : 500 étages, un univers par étage.
+- Rangs : étages 1–100 = D, 101–200 = C, 201–300 = B, 301–400 = A, 401–499 = S, étage 500 = SS.
+- Chaque étage est **identique pour tous les joueurs** (graine fixée par le numéro d'étage).
+- **Étage normal** : 3 ennemis tirés du pool de personnages avec cette graine, stats multipliées par `1 + étage / 100` *(à équilibrer)*.
+- **Jalon** (tous les 10 étages) : un boss nommé, choisi à la main, avec une ligne de lore et un **trait** visible. 10 jalons pour la v1, 50 à terme.
+- L'étage 500 reste verrouillé tant que le mystère du lore n'est pas tranché.
+
+### 2. Combat
+- Équipe de **3 cartes** du joueur ; les cartes ne sont pas bloquées (comme en duel, leurs stats sont copiées).
+- PV de l'équipe = somme des DEF modifiées, comme en duel. Les modificateurs de type des duels s'appliquent.
+- Le combat est **résolu par le serveur**, rejouable grâce à la graine. Il se joue en tours, chaque carte agissant à son tour.
+- Le boss est **révélé avant le combat** : type, PV, trait. Le joueur choisit son équipe en conséquence. C'est sa décision.
+- Exemples de traits *(à écrire)* : « résiste à Magie », « frappe en premier », « ignore 30 % de la DEF ».
+- **3 tentatives par jour** *(à équilibrer)*. Une défaite consomme une tentative, sans autre pénalité.
+
+### 3. Sorts
+Chaque carte possède, dans le combat de la Tour :
+1. **Sort d'attaque** : un coup dont les dégâts suivent l'ATK. Disponible à chaque tour.
+2. **Sort spécial de type** : un effet propre au type de la carte (5 types, donc 5 sorts), avec un **cooldown** en tours.
+3. **Sort de personnage** (SSR et UR seulement) : un sort spécial avec cooldown. Il est **générique** au début, déduit du type et du rôle (principal / secondaire) du personnage. Quelques sorts écrits à la main pourront être ajoutés plus tard pour des personnages populaires.
+
+Effets du sort de type *(à écrire et équilibrer)* : pistes à valider, une par type (Combat, Mystère, Magie, Cœur, Aventure), en cohérence avec les atouts et défauts déjà définis pour les duels.
+
+### 4. Récompenses *(à équilibrer)*
+Uniquement au **premier passage** d'un étage :
+| Étage | Récompense |
+|---|---|
+| Normal | `10 + étage / 5` Ryō |
+| Tous les 10 | 5 cristaux et la **carte du boss du jalon** (une fois) |
+| Tous les 50 | 1 cristal spécial (dans le plafond hebdomadaire de 10) et un titre |
+
+- Avec 3 tentatives par jour, finir les 500 étages prend au moins environ 170 jours. Le total de Ryō reste sous environ 20 000, étalé sur des mois.
+- La carte offerte au premier passage d'un jalon vient du lore de la capture ; au plus 50 cartes par joueur, à vie.
+
+### 5. Artefacts (phase 2)
+Après la v1, si les joueurs reviennent :
+- **Effets latéraux seulement** : changer le type de dégât, +1 tentative, modifier un cooldown, cosmétique. Jamais de stats brutes.
+- Liés au compte, non échangeables, pour ne pas créer de second marché.
+- Raretés, sources et emplacements : à spécifier dans une étape à part.
+
+### 6. Pew
+Compagnon-guide, **hors combat**. Il peut signaler des pistes (par exemple l'étage ou le jalon à regarder), sans résoudre l'enquête à la place du joueur. Son histoire est dans `lore.md`.
+
+### 7. Classement
+Classement « **étage maximum atteint** », en cas d'égalité le joueur arrivé le premier.
+
+### 8. Modèle de données (ajouts)
+- **TowerProgress** : `userId`, `maxFloor`, `updatedAt`
+- **TowerAttempt** : `id`, `userId`, `floor`, `team` (JSON, instantané), `result` (JSON du combat pour le replay), `won`, `createdAt`
+- **TowerFloorClaim** : `userId`, `floor`, `claimedAt` (une récompense par étage, passage conditionnel)
+- **TowerBoss** : définitions dans le code (jalons : personnage, trait, lore)
+
+### 9. Critères pour dire que l'étape 7 est finie
+- [ ] `scripts/simulate-tower.ts` affiche le taux de victoire par étage pour trois équipes types : l'équipe R bloque vers les étages 40–60, l'équipe SSR vers 200–300, l'équipe UR doit avoir le bon type et éviter le trait du boss pour passer l'étage 400.
+- [ ] Les étages sont les mêmes pour tous les joueurs et le replay correspond au combat calculé.
+- [ ] Les récompenses ne sont versées qu'une fois par étage, même en cas de double clic.
+- [ ] Les 3 tentatives par jour sont comptées côté serveur.
+- [ ] La stat « Puissance » est renommée « Popularité » dans l'interface.
+
+### 10. Questions ouvertes
+- Effets exacts des 5 sorts de type et des sorts génériques SSR / UR.
+- Liste des 10 premiers jalons et leurs traits (AniList n'indique pas qui est un méchant : choix à la main).
+- Durée d'un combat : une habitude quotidienne ou une corvée ?
+- Cause du dérèglement, origine de Pew, nature de l'étage 500 (voir `lore.md`).
