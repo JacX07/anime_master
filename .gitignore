@@ -49,3 +49,6 @@ next-env.d.ts
 
 # Cache généré par graphify
 graphify-out/cache/ast/
+
+# copie locale de three.js (scripts/vendor-three.mjs)
+/public/vendor/

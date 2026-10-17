@@ -4,16 +4,21 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Anime Masters · Menu</title>
+<!-- Chargés dès le HTML : sinon polices et three.js n'étaient demandés qu'après l'exécution des modules (cascade de requêtes) -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@400;600&display=swap" />
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #e9eff6; }
   canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 </style>
 <script type="importmap">
 { "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+  "three": "/vendor/three@0.186.0/build/three.module.js",
+  "three/addons/": "/vendor/three@0.186.0/addons/"
 } }
 </script>
+<link rel="modulepreload" href="/vendor/three@0.186.0/build/three.module.js" />
+<link rel="modulepreload" href="/vendor/three@0.186.0/build/three.core.js" />
 </head>
 <body>
 <canvas id="scene" aria-hidden="true"></canvas>
