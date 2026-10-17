@@ -6,7 +6,7 @@ import { getCollectionPower } from "./collection";
 import { prisma } from "./db";
 import { CRYSTAL_PRICE, crystalsLeft } from "./economy";
 import { afterSpend, crystalStock } from "./crystal-stock";
-import { isBannerOpen } from "./banners";
+import { isBannerOpen, WELCOME_KEYS } from "./banners";
 import { rollLot, secureRandom, type Finish, type LotSize, type PityTrigger, type Random } from "./pull";
 
 export class NoPackAvailableError extends Error {
@@ -109,7 +109,7 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
   return prisma.$transaction(async (tx) => {
     const now = new Date();
     const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
-    const banner = bannerId ? await tx.banner.findUnique({ where: { id: bannerId }, select: { id: true, costKind: true, weight: true, startsAt: true, endsAt: true } }) : null;
+    const banner = bannerId ? await tx.banner.findUnique({ where: { id: bannerId }, select: { id: true, key: true, costKind: true, weight: true, startsAt: true, endsAt: true } }) : null;
     if (bannerId && (!banner || !isBannerOpen(banner, now))) throw new BannerError("Cette bannière n'est plus disponible.");
 
     // Ce que le lot coûte : cristaux normaux, cristaux spéciaux ou tirages de bienvenue. Le pity, lui, est commun à tout.
@@ -119,6 +119,7 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
       payment = { specialCrystals: user.specialCrystals - size };
     } else if (banner?.costKind === "WELCOME") {
       if (user.welcomeBannerId && user.welcomeBannerId !== banner.id) throw new BannerError("Tu as déjà choisi ta bannière de bienvenue.");
+      if (!user.welcomeBannerId && !WELCOME_KEYS.includes(banner.key)) throw new BannerError("Cette bannière de bienvenue n'est plus proposée.");
       if (user.welcomeDraws < size) throw new BannerError(`Il te reste ${user.welcomeDraws} tirage${user.welcomeDraws > 1 ? "s" : ""} de bienvenue.`);
       payment = { welcomeDraws: user.welcomeDraws - size, welcomeBannerId: banner.id };
     } else {

@@ -669,33 +669,37 @@ Le ×5 reste équivalent à aujourd'hui, le ×10 est meilleur : il est donc l'un
 - Remise à zéro : `cardsSinceSSR` si une carte SSR ou UR est obtenue, `cardsSinceUR` si une carte UR est obtenue ; sinon +1 par carte.
 - Affichage : « SSR garanti dans X cartes », « UR garanti dans Y cartes ».
 
-### 5. Bannières
-- Une **bannière** = un nom, une description (lore), une **liste de personnages** (catégorie ou sélection), des dates d'ouverture et de fermeture éventuelles, un coût en cristaux (normaux ou spéciaux).
-- Catégories prévues : **sport, shonen, isekai, waifu, husbando** (à construire à partir des tags/genres AniList et du champ `gender`) ; des bannières de **personnages ciblés** viendront ensuite.
-- **Une bannière ne change jamais les taux de rareté** ni le pity. Elle change seulement le choix du personnage : la rareté est tirée comme d'habitude, puis **50 %** des cartes viennent des personnages de la bannière (de la rareté tirée), 50 % du pool complet de cette rareté. Si la bannière n'a aucun personnage de la rareté tirée, on prend le pool complet.
-- Pas de « 100 % de la catégorie » : la demande reste répartie sur tous les personnages.
-- Les bannières de catégorie **tournent dans le temps** ; seules les bannières de bienvenue (§8) sont permanentes pour les nouveaux joueurs.
+### 5. Bannières (refonte décidée le 2026-10-17)
+- Une **bannière** = un nom, une description (lore), une **liste de personnages**, des dates d'ouverture et de fermeture éventuelles, un coût en cristaux (normaux ou spéciaux).
+- **Bannières permanentes**, en cristaux normaux : **Générale** (tout le catalogue : c'est le tirage standard), **Waifu** (personnages féminins) et **Husbando** (personnages masculins), à partir du champ `gender` d'AniList.
+- **Bannières spéciales temporaires**, en **cristaux spéciaux** uniquement : un anime ou un groupe d'animes, avec des dates. Elles sont définies dans `src/lib/banner-events.ts` (identifiants AniList des séries) ; aucune pour l'instant.
+- **Une bannière ne change jamais les taux de rareté** ni le pity. La rareté est tirée comme d'habitude, puis le personnage est pris **parmi ceux de la bannière** à cette rareté (100 %) ; s'il n'y en a aucun de cette rareté, on prend le catalogue complet.
 - Les lots ×5 et ×10 fonctionnent de la même manière sur une bannière (mêmes règles de lot, mêmes garanties).
+- **Taux affichés** : un bouton « Taux » au bout du bandeau des bannières ouvre un panneau avec les taux par rareté, le nombre de personnages disponibles par rareté dans la bannière choisie, les garanties (bloc de 5, 10ᵉ carte du ×10, pity) et les taux de finition. Les valeurs viennent directement de `src/lib/pull.ts`.
+- Abandonné : la rotation hebdomadaire Sport / Shonen / Isekai et la bannière « Élus » (les anciennes encore ouvertes sont fermées automatiquement).
 
 ### 6. Cristaux spéciaux
 - Ressource séparée (`User.specialCrystals`), utilisable seulement sur les bannières qui en demandent. **Ni achetable, ni vendable, ni échangeable.**
 - Sources : d'abord les **succès** (stock total limité, environ 100 sur la vie d'un compte), puis les **expéditions** 10 par semaine au plus.
+- Usage (2026-10-17) : réservés aux **bannières spéciales temporaires** d'anime ou de groupes d'animes.
 - Règle de garde-fou : toutes les sources spéciales réunies restent **sous 5 % des cartes créées par jour** par les cristaux normaux.
 - Journal dédié : table `SpecialCrystalLedger` (`userId`, `amount`, `reason`, `refId`).
 
-### 5 bis. Réalisation des bannières (codé)
-- Catégories construites ainsi : **sport** = séries au genre « Sports » ; **shonen** = tag « Shounen » ; **isekai** = tag « Isekai » ; **waifu** = `gender` Female ; **husbando** = `gender` Male.
-- Rotation sans tâche planifiée : chaque semaine (lundi 00:00 UTC) **2 bannières de catégorie** (`weeklyCategories`) en cristaux normaux, et **1 bannière spéciale** « Élus » (SSR et UR de sa catégorie) payée en cristaux spéciaux. Elles sont créées à la première lecture de la semaine. Cinq bannières de bienvenue permanentes (`welcome-<catégorie>`).
-- Coût d'un lot : cristaux normaux, cristaux spéciaux (×5 = 5, ×10 = 10) ou tirages de bienvenue. Le pity est commun à tout.
-- Cadeau de bienvenue : 30 cristaux + 20 tirages de bienvenue. La bannière de bienvenue est **choisie à la première utilisation** puis verrouillée ; il n'y a pas encore de conversion automatique en cristaux si le joueur ne s'en sert pas.
+### 5 bis. Réalisation des bannières (codé, refonte du 2026-10-17)
+- Bannières permanentes `perm-waifu` et `perm-husbando` (part 100 %) ; la Générale est le tirage sans bannière.
+- Bienvenue : `welcome-general` (catalogue complet), `welcome-waifu`, `welcome-husbando`. Le choix est **verrouillé au premier tirage** ; un joueur qui avait déjà choisi une ancienne bannière de bienvenue (Sport, Shonen, Isekai) la garde jusqu'à la fin de ses tirages, un nouveau joueur ne peut plus la prendre.
+- Événements : créés à la première lecture pendant leurs dates, clé `event-…`, payés en cristaux spéciaux (×5 = 5, ×10 = 10).
+- Coût d'un lot : cristaux normaux, cristaux spéciaux ou tirages de bienvenue. Le pity est commun à tout.
+- Cadeau de bienvenue : 30 cristaux + 20 tirages de bienvenue ; il n'y a pas encore de conversion automatique en cristaux si le joueur ne s'en sert pas.
 - Succès : 11 succès donnent des cristaux spéciaux, **100 au total** (journal `SpecialCrystalLedger`).
+- Vérification : `npm run check:banners`.
 
 ### 7. Expéditions (à explorer, hors périmètre de cette étape)
 Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencent le résultat ; un boss à la fin rapporte des cristaux spéciaux. Cette étape ne code que les **hooks** : les cristaux spéciaux existent et les succès en donnent. Les expéditions auront leur propre spec.
 
 ### 8. Cadeau de bienvenue
 - Remplace les 10 paquets : **50 cartes** en tout.
-- 30 cristaux normaux + **20 tirages sur une bannière de catégorie choisie par le joueur** parmi les catégories de §5, à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
+- 30 cristaux normaux + **20 tirages sur une bannière choisie par le joueur** (Générale, Waifu ou Husbando, §5), à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
 - Le cadeau injecte **autant de cartes qu'aujourd'hui** (50), pas plus.
 
 ### 8 bis. Calendrier quotidien de bienvenue

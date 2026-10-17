@@ -253,8 +253,8 @@ export async function start(modeId) {
   const budgetOf = (b) => (b?.costKind === "SPECIAL" ? pack.specialCrystals : b?.costKind === "WELCOME" ? pack.welcomeDraws : liveStock().available);
   const unitOf = (b) => (b?.costKind === "SPECIAL" ? "cristaux spéciaux" : b?.costKind === "WELCOME" ? "tirages de bienvenue" : "cristaux");
   const visibleBanners = () => banners.filter((b) => b.costKind !== "WELCOME" || (pack.welcomeDraws > 0 && (!pack.welcomeBannerId || pack.welcomeBannerId === b.id)));
-  const CAT_ICON = { sport: "t-combat", shonen: "t-aventure", isekai: "t-magie", waifu: "t-coeur", husbando: "t-mystere" };
-  const CAT_COLOR = { sport: "#2fbf71", shonen: "#ff7a2f", isekai: "#7a5cff", waifu: "#ff5fa8", husbando: "#2b9bff" };
+  const CAT_ICON = { general: "paquet", waifu: "t-coeur", husbando: "t-mystere", event: "r-SSR", sport: "t-combat", shonen: "t-aventure", isekai: "t-magie" };
+  const CAT_COLOR = { general: "#7f9fff", waifu: "#ff5fa8", husbando: "#2b9bff", event: "#f2a516", sport: "#2fbf71", shonen: "#ff7a2f", isekai: "#7a5cff" };
   const leftLabel = (b) => { const ms = new Date(b.endsAt) - Date.now(), d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5); return d >= 1 ? `${d} j restant${d > 1 ? "s" : ""}` : `${Math.max(1, h)} h restante${h > 1 ? "s" : ""}`; };
   function syncBanners() {
     const box = el("bannerBox"), vis = visibleBanners();
@@ -262,17 +262,48 @@ export async function start(modeId) {
     const calm = !busy && !bulking && (phase === "idle" || phase === "stored");
     box.toggleAttribute("data-dim", !calm); el("gate").toggleAttribute("data-dim", !calm);
     if (!vis.some((b) => b.id === bannerId)) bannerId = vis.find((b) => b.costKind === "WELCOME")?.id ?? "";
-    const entries = [{ id: "", name: "Standard", sub: `${liveStock().available} cristaux`, color: "#7f9fff", icon: "paquet", tag: "Tous les persos", title: "Tirage dans tous les personnages." },
-      ...vis.map((b) => ({ id: b.id, name: b.name, color: CAT_COLOR[b.category] ?? "#7f9fff", icon: b.costKind === "WELCOME" ? "bonus" : b.costKind === "SPECIAL" ? "r-SSR" : CAT_ICON[b.category] ?? "paquet",
-        tag: b.costKind === "SPECIAL" ? "✦ Spécial" : b.costKind === "WELCOME" ? "Bienvenue" : "Semaine",
+    const entries = [{ id: "", name: "Générale", sub: `${liveStock().available} cristaux`, color: CAT_COLOR.general, icon: "paquet", tag: "Permanente", title: "Tous les personnages de la brèche." },
+      ...vis.map((b) => ({ id: b.id, name: b.name, color: CAT_COLOR[b.category] ?? "#7f9fff", icon: b.costKind === "WELCOME" ? "bonus" : CAT_ICON[b.category] ?? "paquet",
+        tag: b.costKind === "SPECIAL" ? "✦ Événement" : b.costKind === "WELCOME" ? "Bienvenue" : "Permanente",
         sub: `${budgetOf(b)} ${b.costKind === "SPECIAL" ? "spéciaux" : b.costKind === "WELCOME" ? "tirages" : "cristaux"}${b.endsAt ? " · " + leftLabel(b) : ""}`,
-        title: `${b.description} ${b.weightPercent} % des cartes viennent de cette bannière ; les taux de rareté ne changent pas.` }))];
+        title: `${b.description} Les taux de rareté ne changent pas (voir « Taux »).` }))];
     const key = entries.map((e) => e.id + e.sub).join("|") + "#" + bannerId;
     if (box.dataset.key === key) return;
     box.dataset.key = key;
-    box.innerHTML = entries.map((e) => `<button class="bn" type="button" role="radio" aria-checked="${e.id === bannerId}" data-id="${e.id}" style="--c:${e.color}" title="${e.title.replace(/"/g, "&quot;")}"><span class="ic">${icon(e.icon, "--acc:currentColor")}</span><b>${e.name}</b><small>${e.sub}</small><span class="tag">${e.tag}</span></button>`).join("");
+    box.innerHTML = entries.map((e) => `<button class="bn" type="button" role="radio" aria-checked="${e.id === bannerId}" data-id="${e.id}" style="--c:${e.color}" title="${e.title.replace(/"/g, "&quot;")}"><span class="ic">${icon(e.icon, "--acc:currentColor")}</span><b>${e.name}</b><small>${e.sub}</small><span class="tag">${e.tag}</span></button>`).join("")
+      + `<button class="bn-rates" type="button" aria-haspopup="dialog" title="Taux de la bannière choisie">Taux</button>`;
   }
-  el("bannerBox").addEventListener("click", (e) => { const b = e.target.closest(".bn"); if (!b) return; bannerId = b.dataset.id; hud(); });
+  el("bannerBox").addEventListener("click", (e) => {
+    if (e.target.closest(".bn-rates")) return showRates();
+    const b = e.target.closest(".bn"); if (!b) return; bannerId = b.dataset.id; hud();
+  });
+
+  // Panneau « Taux » : les vraies valeurs du tirage, envoyées par la page hôte (src/lib/pull.ts), et les personnages disponibles
+  let rates = null;
+  const pct = (x) => `${(x * 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} %`;
+  function showRates() {
+    if (!rates) return;
+    const b = currentBanner(), pool = b?.pool ?? rates.standardPool, RCOL = T.rarity;
+    const name = b?.name ?? "Générale", desc = b?.description ?? "Tous les personnages de la brèche.";
+    const cost = b?.costKind === "SPECIAL" ? "1 cristal spécial par carte" : b?.costKind === "WELCOME" ? "1 tirage de bienvenue par carte" : "1 cristal par carte";
+    const scope = b && b.weightPercent >= 100
+      ? "Toutes les cartes viennent des personnages de cette bannière, à la rareté tirée (s'il n'y en a aucun de cette rareté, on prend tout le catalogue)."
+      : "Toutes les cartes viennent de l'ensemble du catalogue.";
+    const rows = [...rates.rarity].reverse().map(([r, p]) => `<tr><td><span class="dot" style="--c:${RCOL[r]}"></span>${r}</td><td>${pct(p)}</td><td>${(pool[r] ?? 0).toLocaleString("fr-FR")} perso${(pool[r] ?? 0) > 1 ? "s" : ""}</td></tr>`).join("");
+    const list = (t) => t.map(([k, p]) => `${k} ${pct(p)}`).join(" · ");
+    const FIN = { NORMAL: "Normale", HOLO: "Holo", GOLD: "Or" };
+    el("ratesBox").innerHTML = `<h2 id="ratesTitle">Taux — ${name}</h2><p class="desc">${desc}</p>
+      <h3>Rareté de chaque carte</h3><table>${rows}</table>
+      <p>${scope} Une bannière ne change jamais ces taux. Coût : ${cost}.</p>
+      <h3>Garanties</h3>
+      <p>Dans chaque bloc de 5 cartes, si les 4 premières sont N, la 5ᵉ est au moins R.<br>Ouvrir ×10 : la 10ᵉ carte est au moins R (${list(rates.tenth)}).<br>SSR ou mieux au plus tard à la ${cfg.ssrPity}ᵉ carte, UR au plus tard à la ${cfg.urPity}ᵉ. Ce compteur est commun à toutes les bannières.</p>
+      <h3>Finition</h3><p>${rates.finish.map(([f, p]) => `${FIN[f] ?? f} ${pct(p)}`).join(" · ")}</p>
+      <button class="close" type="button">Fermer</button>`;
+    el("ratesPanel").hidden = false; el("ratesBox").querySelector(".close").focus();
+  }
+  const hideRates = () => { el("ratesPanel").hidden = true; el("bannerBox").querySelector(".bn-rates")?.focus(); };
+  el("ratesPanel").addEventListener("click", (e) => { if (e.target === el("ratesPanel") || e.target.closest(".close")) hideRates(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !el("ratesPanel").hidden) hideRates(); });
   function hud() {
     syncBanners();
     const { available, msLeft } = liveStock();
@@ -286,7 +317,7 @@ export async function start(modeId) {
     const b = currentBanner();
     const why = bulking ? "Ouverture en cours…"
       : !free ? "Termine l'ouverture en cours : révèle les cartes (clic ou « Tout révéler »)."
-      : budget < 5 ? `Il te faut 5 ${unitOf(b)} pour ouvrir (tu en as ${budget}).${b ? " Change de bannière ou choisis « Standard »." : ""}`
+      : budget < 5 ? `Il te faut 5 ${unitOf(b)} pour ouvrir (tu en as ${budget}).${b ? " Change de bannière ou choisis « Générale »." : ""}`
       : budget < 10 ? `Il te faut 10 ${unitOf(b)} pour le ×10 (tu en as ${budget}).` : "";
     el("bulkWhy").textContent = why; el("bulkWhy").hidden = !why;
     for (const n of [5, 10]) el("bulk" + n).title = budget >= n && !why ? `Tire ${n} cartes d'un coup` : why;
@@ -392,7 +423,7 @@ export async function start(modeId) {
   addEventListener("message", (e) => {
     if (!EMBED || e.source !== parent || e.origin !== location.origin) return;
     const m = e.data ?? {};
-    if (m.type === "init") { inited = true; cfg = m.config; hostAlbum = m.albumRect; banners = m.banners ?? []; el("devGrant").hidden = !m.dev; el("gateBadge").textContent = m.expeditionsReady || ""; el("gateBadge").hidden = !m.expeditionsReady; setPack(m.state); }
+    if (m.type === "init") { inited = true; cfg = m.config; rates = m.rates ?? null; hostAlbum = m.albumRect; banners = m.banners ?? []; el("devGrant").hidden = !m.dev; el("gateBadge").textContent = m.expeditionsReady || ""; el("gateBadge").hidden = !m.expeditionsReady; setPack(m.state); }
     else if (m.type === "album-rect") hostAlbum = m.albumRect;
     else if (m.type === "bulk-done") bulkReply?.(m);
     else if (m.type === "buy-result" && m.id === -1) setPack(m.state); // cadeau de test

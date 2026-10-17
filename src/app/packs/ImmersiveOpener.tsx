@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { TYPE_LABELS } from "@/lib/labels";
 import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
-import type { BannerInfo } from "@/lib/banners";
+import type { BannerInfo, RarityCounts } from "@/lib/banners";
 import type { PlayerPackState } from "@/lib/packs";
-import { SSR_PITY, UR_PITY } from "@/lib/pull";
+import { FINISH_RATES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY } from "@/lib/pull";
 import { ALBUM_BUMP, ALBUM_STORED } from "@/components/AlbumLink";
 import { isSceneProgress, SceneLoader, type SceneProgress } from "@/components/SceneLoader";
 import type { OpenedPack } from "@/lib/packs";
@@ -40,7 +40,7 @@ const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
 type SceneMessage = SceneProgress | { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" } | { type: "dev-grant" } | { type: "open-expeditions" };
 
-export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { initialState: PlayerPackState; banners: BannerInfo[]; expeditionsReady: number }) {
+export function ImmersiveOpener({ initialState, banners, standardPool, expeditionsReady }: { initialState: PlayerPackState; banners: BannerInfo[]; standardPool: RarityCounts; expeditionsReady: number }) {
   const router = useRouter();
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
@@ -75,6 +75,8 @@ export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { i
         send({
           type: "init",
           config: { interval: CRYSTAL_INTERVAL_MS, max: MAX_CRYSTALS, ssrPity: SSR_PITY, urPity: UR_PITY },
+          // Panneau « Taux » de la scène : les vraies valeurs du tirage (src/lib/pull.ts)
+          rates: { rarity: RARITY_RATES, tenth: TENTH_CARD_RATES, finish: FINISH_RATES, standardPool },
           state: initialState,
           banners,
           expeditionsReady,
@@ -127,7 +129,7 @@ export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { i
       window.removeEventListener("message", onMessage);
       window.removeEventListener("resize", sendAlbumRect);
     };
-  }, [initialState, banners, expeditionsReady, router]);
+  }, [initialState, banners, standardPool, expeditionsReady, router]);
 
   // Menu flottant et plein écran uniquement tant que la scène est affichée (l'effet est coupé quand on quitte la page)
   useEffect(() => {

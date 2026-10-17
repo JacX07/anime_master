@@ -77,6 +77,23 @@
   .bn b { grid-column: 2; grid-row: 2; font-size: 13px; line-height: 1.15; position: relative; }
   .bn small { grid-column: 2; grid-row: 3; font-size: 11px; color: var(--muted); font-weight: 600; position: relative; }
   .bn .tag { grid-column: 2; grid-row: 1; position: relative; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+  /* Bouton « Taux » au bout du bandeau, et panneau des taux de la bannière choisie */
+  .bn-rates { flex: none; align-self: center; width: 64px; height: 64px; border-radius: 50%; border: 1.5px solid var(--panel-line); background: var(--panel); color: var(--ink); font: 600 12px var(--font-body); cursor: pointer; backdrop-filter: blur(8px); display: grid; place-items: center; gap: 0; transition: transform .15s, border-color .15s; }
+  .bn-rates:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .bn-rates:focus-visible { outline: 3px solid var(--hl); outline-offset: 3px; }
+  .rates { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: #050a16a8; backdrop-filter: blur(4px); }
+  .rates[hidden] { display: none; }
+  .rates .box { width: min(460px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; padding: 22px 24px; border-radius: 18px; background: var(--panel); border: 1.5px solid var(--panel-line); box-shadow: 0 20px 60px #000a; display: grid; gap: 14px; font-size: 13px; }
+  .rates h2 { margin: 0; font: var(--display-weight) 18px var(--font-display); }
+  .rates .desc { margin: -8px 0 0; color: var(--muted); }
+  .rates h3 { margin: 4px 0 -4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .rates table { width: 100%; border-collapse: collapse; }
+  .rates td { padding: 6px 4px; border-bottom: 1px solid var(--panel-line); }
+  .rates td:nth-child(2), .rates td:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+  .rates td:nth-child(3) { color: var(--muted); }
+  .rates .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; background: var(--c); box-shadow: 0 0 8px var(--c); }
+  .rates p { margin: 0; line-height: 1.5; }
+  .rates .close { justify-self: end; padding: 8px 18px; border-radius: 10px; border: 1.5px solid var(--btn-line); background: var(--btn); color: var(--ink); font: 600 13px var(--font-body); cursor: pointer; }
   .shop { display: grid; gap: 6px; }
   .shop .btn { width: 100%; }
   .shop .btn:disabled { opacity: .45; cursor: not-allowed; }
@@ -182,6 +199,7 @@
   <button class="booster" id="booster" aria-label="Ouvrir le booster"></button>
   <button class="gate" id="gate" type="button" title="Envoyer tes cartes explorer une brèche">Expéditions<span class="gate-badge" id="gateBadge" hidden></span></button>
   <div class="banners" id="bannerBox" role="radiogroup" aria-label="Bannière" hidden></div>
+  <div class="rates" id="ratesPanel" role="dialog" aria-modal="true" aria-labelledby="ratesTitle" hidden><div class="box" id="ratesBox"></div></div>
   <div class="bottom"><span class="hint" id="hint" aria-live="polite">Clique sur le booster pour l'ouvrir</span><button class="btn" id="all" hidden>Tout révéler</button><button class="btn primary" id="next" hidden>Ouvrir le suivant</button></div>
   <div class="vig"></div>
   <div class="vignette" id="vignette"></div>
