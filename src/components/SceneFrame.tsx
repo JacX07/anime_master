@@ -5,7 +5,7 @@ import { isSceneProgress, SceneLoader } from "./SceneLoader";
 
 /**
  * Fond 3D du menu d'accueil dans une iframe, avec un écran de chargement (barre suivant les étapes envoyées par la scène) qui s'efface quand la scène a fini de
- * compiler ses shaders (message `scene-ready`). Le menu, lui, reste affiché et utilisable par-dessus.
+ * compiler ses shaders (message `scene-ready`).
  */
 export function SceneFrame({ src }: { src: string }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -31,7 +31,7 @@ export function SceneFrame({ src }: { src: string }) {
   return (
     <>
       <iframe ref={frame} src={src} title="" aria-hidden="true" tabIndex={-1} className="gm-bg" />
-      <SceneLoader target={progress.p} label={progress.label} ready={ready} under />
+      <SceneLoader target={progress.p} label={progress.label} ready={ready} />
     </>
   );
 }

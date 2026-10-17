@@ -9,10 +9,9 @@ export const isSceneProgress = (d: unknown): d is SceneProgress => (d as ScenePr
 /**
  * Écran de chargement des scènes 3D : illustration plein écran et barre qui suit les étapes réelles du démarrage
  * (moteur, décor, images, compilation des shaders). Entre deux étapes, la barre avance doucement d'elle-même sans
- * dépasser la suivante, pour ne pas paraître figée pendant la compilation. `under` : le menu de l'accueil reste
- * affiché par-dessus.
+ * dépasser la suivante, pour ne pas paraître figée pendant la compilation. Il couvre toute la page, en-tête compris.
  */
-export function SceneLoader({ target, label, ready, under = false }: { target: number; label?: string; ready: boolean; under?: boolean }) {
+export function SceneLoader({ target, label, ready }: { target: number; label?: string; ready: boolean }) {
   // Avance d'attente ajoutée à la dernière étape annoncée (repart de zéro à chaque nouvelle étape)
   const [wait, setWait] = useState({ at: target, c: 0 });
   const [gone, setGone] = useState(false);
@@ -31,10 +30,10 @@ export function SceneLoader({ target, label, ready, under = false }: { target: n
 
   const pct = ready ? 100 : Math.min(97, target + creep);
   return (
-    <div className={`scene-loader${under ? " scene-loader-under" : ""}`} data-ready={gone} aria-hidden="true">
+    <div className="scene-loader" data-ready={gone} aria-hidden="true">
       <img className="scene-loader-art" src="/loading/foret.webp" srcSet="/loading/foret-960.webp 960w, /loading/foret.webp 1582w" sizes="100vw" alt="" fetchPriority="high" />
       <div className="scene-loader-panel">
-        {!under && <span className="scene-loader-name">Anime Masters</span>}
+        <span className="scene-loader-name">Anime Masters</span>
         <div className="scene-loader-track">
           <span className="scene-loader-fill" style={{ width: `${pct}%` }} />
         </div>
