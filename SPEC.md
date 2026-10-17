@@ -762,7 +762,7 @@ Calculée par le serveur **au retour**, à partir d'une `seed` tirée et enregis
 
 ```
 score(carte) = puissance × affinité        (type favorisé ×1,25 ; autre type ×1,0)
-score(équipe) = Σ score(carte) × aléa      (aléa dans [0,85 ; 1,15] fixé par la seed)
+score(équipe) = Σ score(carte) × aléa      (aléa dans [0,7 ; 1,3] fixé par la seed, élargi le 2026-10-17)
 ratio = score(équipe) / seuil de la brèche
 ```
 | Résultat | Condition | Butin |
@@ -814,7 +814,7 @@ Nouveaux succès *(à définir et équilibrer)* : première expédition, 5 et 20
 | Accueil / menu | Entrée « Expéditions » avec le nombre à récupérer |
 
 ### 8 bis. Réalisation (2026-10-13)
-- Brèches : 2 par niveau, seuils de puissance 1 500 (Faille 1 h), 8 000 (Brèche 6 h), 30 000 (Gouffre 24 h) ; Ryō 10 / 60 / 140 (le Gouffre est passé de 250 à 140 pour tenir le plafond de ~600 Ryō par jour) ; plafond de **600 Ryō et 10 cristaux par jour** appliqué à la récupération.
+- Brèches : 2 par niveau, seuils de puissance **650** (Faille 1 h), **6 000** (Brèche 6 h), **24 000** (Gouffre 24 h) ; Ryō **10 / 70 / 200** (équilibrage validé le 2026-10-17 par simulation : 3 N réussissent une Faille environ 2 fois sur 3, 1 SR + 2 R une Brèche ~9 fois sur 10, 1 SSR + 2 SR un Gouffre de ~60 % à presque toujours selon les types favorisés ; aléa ±30 % pour garder du suspense près du seuil) ; plafond de **600 Ryō et 10 cristaux par jour** appliqué à la récupération.
 - La page `/expeditions` montre une estimation (puissance de l'équipe contre le seuil). Un lien verrouillé vers `/tour` y figure (voir Étape 7, « Préparation v1 »). Dans la scène des paquets, une brèche cliquable à gauche mène à la page.
 
 ### 9. Critères pour dire que l'étape 4 ter est finie
