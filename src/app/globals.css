@@ -838,6 +838,42 @@ body.scene-night {
 .vt-search input:focus {
   border-bottom-color: #4b8bff;
 }
+.vt-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: #8ea3c4;
+}
+.vt-select select {
+  max-width: min(26rem, 80vw);
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid #ffffff33;
+  background: #0b1424;
+  color: #e8f0ff;
+  font: inherit;
+}
+.vt-select select:focus-visible {
+  outline: 2px solid #4b8bff;
+}
+.vt-anime {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ffffff1f;
+  background: #ffffff0a;
+  max-width: 40rem;
+}
+.vt-anime h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.vt-done {
+  color: #7fe0c4;
+  font-size: 0.85rem;
+}
 .vt-chips {
   display: flex;
   flex-wrap: wrap;

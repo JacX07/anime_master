@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { AlbumFilters as Filters } from "@/lib/album";
 import { TypeIcon } from "@/components/icons";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
+import { AnimeSelect, type AnimeOptions } from "./AnimeSelect";
 
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
 const TYPES = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"] as const;
@@ -20,6 +21,7 @@ export function albumHref(filters: Filters, patch: Partial<Filters> = {}) {
   if (f.rarity) p.set("rarity", f.rarity);
   if (f.type) p.set("type", f.type);
   if (f.owned !== "all") p.set("owned", f.owned);
+  if (f.anime) p.set("anime", f.anime);
   if (f.page > 1) p.set("page", String(f.page));
   const s = p.toString();
   return s ? `/album?${s}` : "/album";
@@ -34,7 +36,7 @@ function Chip({ href, active, children, color, title }: { href: string; active: 
 }
 
 /** Filtres de l'album : des pastilles qu'on active et désactive d'un clic, la recherche reste un champ simple. */
-export function AlbumFilters({ filters }: { filters: Filters }) {
+export function AlbumFilters({ filters, anime }: { filters: Filters; anime: AnimeOptions }) {
   return (
     <div className="vt-filters">
       <div className="vt-row">
@@ -42,6 +44,7 @@ export function AlbumFilters({ filters }: { filters: Filters }) {
           {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
           {filters.type && <input type="hidden" name="type" value={filters.type} />}
           {filters.owned !== "all" && <input type="hidden" name="owned" value={filters.owned} />}
+          {filters.anime && <input type="hidden" name="anime" value={filters.anime} />}
           <input type="search" name="q" defaultValue={filters.q} placeholder="Rechercher un personnage" aria-label="Rechercher un personnage" />
         </form>
         <div className="vt-chips" role="group" aria-label="Possession">
@@ -51,6 +54,9 @@ export function AlbumFilters({ filters }: { filters: Filters }) {
             </Chip>
           ))}
         </div>
+      </div>
+      <div className="vt-row">
+        <AnimeSelect {...anime} />
       </div>
       <div className="vt-row">
         <div className="vt-chips" role="group" aria-label="Rareté">

@@ -48,7 +48,9 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           </p>
         </header>
 
-        <AlbumFilters filters={filters} />
+        <AlbumFilters filters={filters} anime={{ listed: album.anime.listed, others: album.anime.others, value: filters.anime }} />
+
+        {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
         <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
 
         <p className="vt-count">
@@ -97,6 +99,29 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
         <BuyCrystalsButton price={packs.crystalPrice} left={packs.crystalsLeft} balance={packs.balance} available={packs.available} />
       </footer>
     </>
+  );
+}
+
+/** Progression de l'anime choisi : on repère d'un coup d'œil s'il est complet. */
+function AnimeHeader({ anime }: { anime: NonNullable<Awaited<ReturnType<typeof getAlbum>>["anime"]["selected"]> }) {
+  const done = anime.total > 0 && anime.owned === anime.total;
+  return (
+    <section className="vt-anime" aria-label={`Progression : ${anime.title}`}>
+      <h2>
+        {anime.title}
+        {anime.count ? <span className="vt-muted"> · {anime.count} anime de moins de 5 personnages</span> : null}
+      </h2>
+      <div className="vt-progress">
+        <span>
+          {num.format(anime.owned)} / {num.format(anime.total)}
+        </span>
+        <span className="vt-bar" role="img" aria-label={`${pct(anime.owned, anime.total)} % de complétion`}>
+          <i style={{ width: `${pct(anime.owned, anime.total)}%` }} />
+        </span>
+        <span className="vt-muted">{pct(anime.owned, anime.total)} %</span>
+        {done && <b className="vt-done">Collection complète</b>}
+      </div>
+    </section>
   );
 }
 

@@ -1,6 +1,7 @@
 // Succès (SPEC étape 4, §6) : définis dans le code, vérifiés après chaque événement. Chacun ne se débloque qu'une fois
 // (clé primaire userId + key) et crédite ses Ryō dans le journal (reason ACHIEVEMENT), dans la même transaction.
 
+import { loadAnimeIndex } from "./anime";
 import { prisma } from "./db";
 import { notify } from "./notifications";
 
@@ -23,7 +24,10 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "unique_500", label: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300, special: 10 },
   { key: "unique_1000", label: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800, special: 15 },
   { key: "unique_2500", label: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000, special: 25 },
-  { key: "series_complete", label: "Série complète", description: `Posséder tous les personnages d'une série (au moins ${3}).`, reward: 150, special: 5 },
+  // Récompenses provisoires, à équilibrer (SPEC §6). Seuls comptent les anime listés dans l'album (au moins 5 personnages).
+  { key: "series_complete_1", label: "Anime complet", description: "Compléter un anime : posséder tous ses personnages (au moins 5).", reward: 150, special: 3 },
+  { key: "series_complete_5", label: "Cinq collections", description: "Compléter 5 anime.", reward: 500, special: 1 },
+  { key: "series_complete_10", label: "Bibliothécaire", description: "Compléter 10 anime.", reward: 1500, special: 1 },
   { key: "all_types", label: "Tous les types", description: "Posséder au moins un personnage de chaque type.", reward: 50, special: 5 },
   { key: "duel_win_1", label: "Premier duel", description: "Gagner un duel.", reward: 30 },
   { key: "duel_win_10", label: "Duelliste", description: "Gagner 10 duels.", reward: 150 },
@@ -36,8 +40,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "first_trade", label: "Premier échange", description: "Conclure un échange avec un joueur.", reward: 30, special: 5 },
 ];
 
-const MIN_SERIES_SIZE = 3;
-
 /** État du joueur dont dépendent les succès. */
 export interface AchievementFacts {
   openings: number;
@@ -46,7 +48,8 @@ export interface AchievementFacts {
   hasHolo: boolean;
   hasGold: boolean;
   unique: number;
-  completedSeries: boolean;
+  /** Nombre d'anime de l'album dont tous les personnages sont possédés */
+  completedAnime: number;
   types: number;
   auctionSales: number;
   trades: number;
@@ -67,7 +70,9 @@ export function earned(f: AchievementFacts): string[] {
     unique_500: f.unique >= 500,
     unique_1000: f.unique >= 1000,
     unique_2500: f.unique >= 2500,
-    series_complete: f.completedSeries,
+    series_complete_1: f.completedAnime >= 1,
+    series_complete_5: f.completedAnime >= 5,
+    series_complete_10: f.completedAnime >= 10,
     all_types: f.types >= 5,
     first_auction_sale: f.auctionSales >= 1,
     first_trade: f.trades >= 1,
@@ -94,18 +99,9 @@ async function gather(userId: string): Promise<AchievementFacts> {
   ]);
   const ids = new Set(owned.map((c) => c.characterId));
   const rarities = new Set(owned.flatMap((c) => [c.rarityAtPull, c.character.rarity]));
-  // Série complète : parmi les séries des personnages possédés, une dont tous les personnages sont possédés
-  let completedSeries = false;
-  if (ids.size >= MIN_SERIES_SIZE) {
-    const mine = await prisma.characterMedia.findMany({ where: { characterId: { in: [...ids] } }, select: { mediaId: true } });
-    const ownedPerMedia = new Map<number, number>();
-    for (const m of mine) ownedPerMedia.set(m.mediaId, (ownedPerMedia.get(m.mediaId) ?? 0) + 1);
-    const candidates = [...ownedPerMedia].filter(([, n]) => n >= MIN_SERIES_SIZE).map(([id]) => id);
-    if (candidates.length > 0) {
-      const totals = await prisma.characterMedia.groupBy({ by: ["mediaId"], where: { mediaId: { in: candidates }, character: { disabled: false } }, _count: { _all: true } });
-      completedSeries = totals.some((t) => t._count._all === ownedPerMedia.get(t.mediaId));
-    }
-  }
+  // Anime complets : les anime de l'album (src/lib/anime.ts) dont tous les personnages sont possédés
+  const anime = await loadAnimeIndex();
+  const completedAnime = anime.listed.filter((a) => a.characterIds.every((id) => ids.has(id))).length;
   return {
     openings,
     hasSSR: rarities.has("SSR"),
@@ -113,7 +109,7 @@ async function gather(userId: string): Promise<AchievementFacts> {
     hasHolo: owned.some((c) => c.finish === "HOLO"),
     hasGold: owned.some((c) => c.finish === "GOLD"),
     unique: ids.size,
-    completedSeries,
+    completedAnime,
     types: new Set(owned.map((c) => c.character.type)).size,
     auctionSales,
     trades,

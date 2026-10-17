@@ -336,6 +336,12 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - **Petits anime** : regrouper les anime ayant moins de 5 personnages dans une entrée « Autres anime ». Cette entrée filtre leur union ; la complétion reste calculée séparément pour chaque anime.
 - Pagination ou défilement infini (plusieurs milliers de cartes).
 
+### 7 bis. Réalisation de l'album par anime (codé le 2026-10-17)
+- **Un anime = une franchise.** AniList sépare les saisons, films et spéciaux en fiches distinctes ; une fiche rejoint celle d'une autre quand son titre commence exactement par le titre de cette autre fiche, suivi de « : », d'un tiret ou d'une marque de saison (« 2 », « Season 2 », « 2nd Season », « II », « Final », « Movie »…). Un personnage appartient à l'anime de sa série principale. Règle dans `src/lib/anime.ts` (prudente : elle peut laisser deux fiches séparées si leurs titres diffèrent, jamais fusionner sans préfixe commun).
+- Sur les 1 544 séries principales, on obtient **292 anime listés** (au moins 5 personnages, 2 900 personnages) et **994 petits anime** regroupés dans « Autres anime » (1 817 personnages).
+- Filtre « Anime » (liste déroulante avec la progression de chacun, ✓ quand il est complet), adresse `/album?anime=<id>` ou `anime=autres`. En-tête de progression avec « Collection complète ».
+- La complétion se calcule par anime, y compris pour les petits : « Autres anime » n'est qu'un regroupement d'affichage.
+
 ### 8. Critères pour dire que l'étape 2 est finie
 - [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit le cadeau de bienvenue de 50 cartes (voir Étape 4 bis §8).
 - [x] Un paquet se recharge toutes les 10 minutes, avec un maximum de 10 (`npm run check:recharge`).
@@ -345,7 +351,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - [x] Deux ouvertures simultanées ne consomment pas plus de paquets que disponible.
 - [x] Les numéros d'exemplaire sont uniques et consécutifs par personnage.
 - [x] L'album affiche possédés et manquants, avec filtres (rareté, type, possession, recherche) et progression globale et par rareté.
-- [ ] L'album filtre par anime, affiche les personnages manquants et la progression de chaque anime, et regroupe les anime sous le seuil dans « Autres anime ».
+- [x] L'album filtre par anime, affiche les personnages manquants et la progression de chaque anime, et regroupe les anime sous le seuil dans « Autres anime ». *(Codé le 2026-10-17, voir « Réalisation » ci-dessous.)*
 
 ---
 
@@ -558,7 +564,7 @@ Définis dans le code, vérifiés après chaque événement pertinent (tirage, d
 | `first_holo` | Obtenir une première Holo | 30 |
 | `first_gold` | Obtenir une première Gold | 300 |
 | `unique_100` / `500` / `1000` / `2500` | Posséder N personnages uniques | 100 / 300 / 800 / 2 000 |
-| `series_complete_1` / `series_complete_5` / `series_complete_10` | Compléter 1 / 5 / 10 anime (tous les personnages présents dans la base) | à équilibrer |
+| `series_complete_1` / `series_complete_5` / `series_complete_10` | Compléter 1 / 5 / 10 anime (tous les personnages présents dans la base ; seuls comptent les anime de l'album, soit au moins 5 personnages) | 150 / 500 / 1 500 *(provisoire, à équilibrer)* ; cristaux spéciaux 3 / 1 / 1 |
 | `all_types` | Posséder au moins un personnage de chaque type | 50 |
 | `login_streak_7` / `login_streak_30` | Réclamer les cadeaux de connexion 7 / 30 jours consécutifs | Ryō / cristaux, à équilibrer |
 | `duel_win_1` / `10` / `50` | Gagner N duels | 30 / 150 / 500 |

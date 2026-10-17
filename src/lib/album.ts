@@ -2,6 +2,7 @@
 
 import "server-only";
 import type { CardType, Rarity } from "../generated/prisma/enums";
+import { loadAnimeIndex, MIN_ANIME_SIZE, OTHERS } from "./anime";
 import { cleanDescription } from "./clean";
 import { prisma } from "./db";
 import type { Finish } from "./pull";
@@ -13,12 +14,15 @@ export const OWNED_FILTERS = ["all", "owned", "missing", "duplicates"] as const;
 export type OwnedFilter = (typeof OWNED_FILTERS)[number];
 
 export const PAGE_SIZE = 60;
+export { MIN_ANIME_SIZE };
 
 export interface AlbumFilters {
   q: string;
   rarity: Rarity | null;
   type: CardType | null;
   owned: OwnedFilter;
+  /** Clé d'un anime de l'album (identifiant de sa fiche racine), ou « autres » ; vide : tous */
+  anime: string;
   page: number;
 }
 
@@ -34,6 +38,7 @@ export function parseAlbumFilters(params: RawParams): AlbumFilters {
     rarity: pick(RARITY_ORDER, one(params.rarity)),
     type: pick(TYPE_ORDER, one(params.type)),
     owned: pick(OWNED_FILTERS, one(params.owned)) ?? "all",
+    anime: /^(\d{1,9}|autres)$/.test(one(params.anime)) ? one(params.anime) : "",
     page: Number.isFinite(page) && page > 1 ? page : 1,
   };
 }
@@ -79,8 +84,18 @@ export interface AlbumEntry {
   owned: Ownership | null;
 }
 
+/** Un anime de l'album avec la progression du joueur */
+export interface AnimeProgress {
+  key: string;
+  title: string;
+  owned: number;
+  total: number;
+}
+
 export interface AlbumPage {
   entries: AlbumEntry[];
+  /** Anime ayant leur entrée (≥ 5 personnages), par ordre alphabétique, plus « Autres anime » regroupant les petits */
+  anime: { listed: AnimeProgress[]; others: AnimeProgress & { count: number }; selected: (AnimeProgress & { count?: number }) | null };
   /** Nombre de personnages correspondant aux filtres */
   matching: number;
   pages: number;
@@ -88,7 +103,7 @@ export interface AlbumPage {
 }
 
 export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPage> {
-  const owned = await ownershipMap(userId);
+  const [owned, animeIndex] = await Promise.all([ownershipMap(userId), loadAnimeIndex()]);
 
   // Index léger de tous les personnages (quelques milliers) : tri par rareté puis favoris en mémoire,
   // car l'ordre des raretés n'est pas l'ordre alphabétique de l'énumération.
@@ -103,9 +118,17 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     if (owned.has(c.id)) byRarity[c.rarity].owned++;
   }
 
+  // Progression de chaque anime (la complétion des petits anime se calcule séparément, seule leur entrée est regroupée)
+  const count = (ids: number[]) => ids.reduce((n, id) => n + (owned.has(id) ? 1 : 0), 0);
+  const listed = animeIndex.listed.map((a) => ({ key: String(a.key), title: a.title, owned: count(a.characterIds), total: a.characterIds.length })).sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
+  const otherIds = animeIndex.others.flatMap((a) => a.characterIds);
+  const others = { key: OTHERS, title: "Autres anime", owned: count(otherIds), total: otherIds.length, count: animeIndex.others.length };
+  const selected = f.anime === OTHERS ? others : listed.find((a) => a.key === f.anime) ?? null;
+
   const q = f.q.toLocaleLowerCase();
   const matching = all
     .filter((c) => {
+      if (selected && String(animeIndex.keyOf(c.id)) !== selected.key) return false;
       if (f.rarity && c.rarity !== f.rarity) return false;
       if (f.type && c.type !== f.type) return false;
       const o = owned.get(c.id);
@@ -140,6 +163,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
       const { mainMedia, ...c } = byId.get(id)!;
       return { ...c, series: seriesTitle(mainMedia), owned: owned.get(id) ?? null };
     }),
+    anime: { listed, others, selected },
     matching: matching.length,
     pages,
     progress: { owned: owned.size, total: all.length, byRarity },
