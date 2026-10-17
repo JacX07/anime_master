@@ -382,7 +382,7 @@ export async function start(modeId) {
     ui.hint.textContent = txt.done; autoTimer = setTimeout(sendAll, 8000);
   }
   // Brèche des expéditions : l'objet 3D et le bouton mènent à la même page (la page hôte navigue)
-  const openGate = () => { Sfx.select?.(); if (EMBED) post({ type: "open-expeditions" }); };
+  const openGate = () => { Sfx.select?.(); breche?.burst(); if (EMBED) setTimeout(() => post({ type: "open-expeditions" }), reduced ? 0 : 380); }; // l'éclat de la brèche se voit avant de changer de page
   el("gate").addEventListener("click", openGate);
   el("devGrant").addEventListener("click", () => post({ type: "dev-grant" })); // TEMPORAIRE : bouton de test, visible seulement hors production
   setInterval(hud, 1000); hud();
@@ -669,7 +669,7 @@ export async function start(modeId) {
   backTex = painter.makeBack();
   mode.init?.(ctx); modeReady = true;
   capsule = buildCapsule({ decor, ctx, backTex, BLUE, MINT }); scene.add(capsule.group); capsule.show();
-  breche = buildBreche({ GLSL_NOISE, BLUE, MINT }); scene.add(breche.group);
+  breche = buildBreche({ GLSL_NOISE, BLUE, MINT, materials: decor.materials }); scene.add(breche.group);
   progress(62, "Préparation des effets…");
   await warmUp();
   progress(100, "Prêt");
