@@ -31,7 +31,7 @@ export function SceneLoader({ target, label, ready }: { target: number; label?: 
   const pct = ready ? 100 : Math.min(97, target + creep);
   return (
     <div className="scene-loader" data-ready={gone} aria-hidden="true">
-      <img className="scene-loader-art" src="/loading/foret.webp" srcSet="/loading/foret-960.webp 960w, /loading/foret.webp 1582w" sizes="100vw" alt="" fetchPriority="high" />
+      <img className="scene-loader-art" src="/loading/breche.webp" srcSet="/loading/breche-960.webp 960w, /loading/breche.webp 1672w" sizes="100vw" alt="" fetchPriority="high" />
       <div className="scene-loader-panel">
         <span className="scene-loader-name">Anime Masters</span>
         <div className="scene-loader-track">
