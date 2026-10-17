@@ -6,8 +6,8 @@ Jeu de cartes à collectionner de personnages d'anime, inspiré de WikiMasters.
 Objectif : ouvrir des paquets et voir sa collection, en local.
 
 - **Étape 1** complète, sauf : reprise de l'import page par page, table `ImportRun` (résumé dans la console), `attributes`, `descriptionFr`.
-- **Étape 2** minimale : comptes, paquets (recharge, stock, bienvenue), tirage complet (taux, finitions, carte garantie, pity SSR/UR, numéros d'exemplaire), ouverture (retournement, Holo/Gold, « NOUVEAU »), album (filtres rareté / type, recherche, doublons), fiche perso, script de simulation des taux.
-- **Repoussé** : lueur de rareté au dos des cartes, progression par série, indicateurs de finition, filtre par série, page `/profile`, étapes 3 à 6.
+- **Étape 2** minimale : comptes, cristaux, bienvenue et calendrier de connexion quotidien sur 30 jours, tirage complet (taux, finitions, carte garantie, pity SSR/UR, numéros d'exemplaire), ouverture (retournement, Holo/Gold, « NOUVEAU »), album (filtres rareté / type / anime, recherche, doublons, progression par anime), fiche perso, script de simulation des taux.
+- **Repoussé** : lueur de rareté au dos des cartes, indicateurs de finition, page `/profile`, étapes 3 à 6.
 
 Ordre : 1. initialisation → 2. import (vérification dans Prisma Studio) → 3. tirage + simulation (vérification des taux) → 4. comptes, paquets, ouverture → 5. album et fiche perso.
 
@@ -331,19 +331,21 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - **Possédés** : affichés avec la meilleure finition possédée, et un compteur ×N pour les doublons.
 - **Manquants** : carte grisée et floutée avec un « ? », nom visible.
 - **Emplacements par finition** : pour chaque personnage, indicateurs Normal / Holo / Gold possédés ou non.
-- **Filtres** : rareté, type, série, finition, possédés ou manquants, recherche par nom.
-- **Progression** : complétion globale et par série (« Jujutsu Kaisen : 12/18 »).
+- **Filtres** : rareté, type, anime, finition, possédés ou manquants, recherche par nom.
+- **Vue par anime** : affiche les personnages possédés et manquants, ainsi que la progression (« Jujutsu Kaisen : 12/18 »), pour repérer les collections complétées.
+- **Petits anime** : regrouper les anime ayant moins de 5 personnages dans une entrée « Autres anime ». Cette entrée filtre leur union ; la complétion reste calculée séparément pour chaque anime.
 - Pagination ou défilement infini (plusieurs milliers de cartes).
 
 ### 8. Critères pour dire que l'étape 2 est finie
-- [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit 10 paquets.
+- [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit le cadeau de bienvenue de 50 cartes (voir Étape 4 bis §8).
 - [x] Un paquet se recharge toutes les 10 minutes, avec un maximum de 10 (`npm run check:recharge`).
 - [x] Chaque paquet contient 5 cartes, dont au moins une R ou mieux.
 - [x] Le pity SSR se déclenche au 15ᵉ paquet sans SSR ou mieux, et le pity UR au 100ᵉ sans UR.
 - [x] Sur 10 000 paquets simulés, les taux observés correspondent à la spec (en tenant compte des garanties).
 - [x] Deux ouvertures simultanées ne consomment pas plus de paquets que disponible.
 - [x] Les numéros d'exemplaire sont uniques et consécutifs par personnage.
-- [x] L'album affiche possédés et manquants, avec filtres (rareté, type, possession, recherche) et progression globale et par rareté. Progression par série : repoussée (voir MVP).
+- [x] L'album affiche possédés et manquants, avec filtres (rareté, type, possession, recherche) et progression globale et par rareté.
+- [ ] L'album filtre par anime, affiche les personnages manquants et la progression de chaque anime, et regroupe les anime sous le seuil dans « Autres anime ».
 
 ---
 
@@ -546,9 +548,9 @@ Les chiffres sont indicatifs et seront équilibrés après des tests.
 - Affichage : top 100 et position du joueur. *(Plus tard : saisons mensuelles.)*
 
 ### 6. Succès
-Définis dans le code, vérifiés après chaque événement (paquet ouvert, duel terminé, vente aux enchères, échange accepté). Chaque succès ne se débloque qu'une fois et crédite les Ryō dans le journal (`reason = ACHIEVEMENT`).
+Définis dans le code, vérifiés après chaque événement pertinent (tirage, duel terminé, vente aux enchères, échange accepté, cadeau de connexion réclamé, personnage ajouté à la collection). Chaque succès ne se débloque qu'une fois et crédite la récompense prévue ; les Ryō sont inscrits au journal (`reason = ACHIEVEMENT`).
 
-| Clé | Condition | Ryō |
+| Clé | Condition | Récompense (Ryō, sauf mention contraire) |
 |---|---|---|
 | `first_pack` | Ouvrir son premier paquet | 20 |
 | `first_ssr` | Obtenir un premier SSR | 50 |
@@ -556,8 +558,9 @@ Définis dans le code, vérifiés après chaque événement (paquet ouvert, duel
 | `first_holo` | Obtenir une première Holo | 30 |
 | `first_gold` | Obtenir une première Gold | 300 |
 | `unique_100` / `500` / `1000` / `2500` | Posséder N personnages uniques | 100 / 300 / 800 / 2 000 |
-| `series_complete` | Compléter une série (tous ses personnages présents dans la base) — une fois | 150 |
+| `series_complete_1` / `series_complete_5` / `series_complete_10` | Compléter 1 / 5 / 10 anime (tous les personnages présents dans la base) | à équilibrer |
 | `all_types` | Posséder au moins un personnage de chaque type | 50 |
+| `login_streak_7` / `login_streak_30` | Réclamer les cadeaux de connexion 7 / 30 jours consécutifs | Ryō / cristaux, à équilibrer |
 | `duel_win_1` / `10` / `50` | Gagner N duels | 30 / 150 / 500 |
 | `first_auction_sale` | Première vente aux enchères | 30 |
 | `first_trade` | Premier échange accepté | 30 |
@@ -695,12 +698,19 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - 30 cristaux normaux + **20 tirages sur une bannière de catégorie choisie par le joueur** parmi les catégories de §5, à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
 - Le cadeau injecte **autant de cartes qu'aujourd'hui** (50), pas plus.
 
+### 8 bis. Calendrier quotidien de bienvenue
+- Calendrier d'un cadeau par jour pendant **30 jours** à compter de l'inscription ; les 7 premiers jours forment le palier de bienvenue d'une semaine.
+- Une seule case peut être réclamée par jour, côté serveur. Une case manquée ne peut pas être réclamée rétroactivement.
+- Les récompenses peuvent inclure des Ryō, des cristaux normaux et des cristaux spéciaux. Le contenu et les quantités restent à équilibrer ; les cristaux spéciaux sont comptés dans le budget de sources du §6.
+- Les succès de connexion (`login_streak_7`, `login_streak_30`) sont distincts des cadeaux quotidiens et se débloquent une fois après 7 puis 30 jours consécutifs.
+- **À préciser** : reprise du calendrier après une journée manquée, contenu et quantités des 30 cases, et si le calendrier recommence après le jour 30.
+
 ### 9. Vocabulaire et clarté (« marché noir » renommé « Bourse des brèches », décidé le 2026-10-12)
 - Chaque terme (cristal, cristal spécial, bannière, pity, Ryō) est défini à l'écran à sa première apparition.
 - Les enchères s'appellent « Bourse des brèches » dans l'interface (adresses `/market` inchangées).
 
 ### 10. Modèle de données (changements)
-- **User** : ajout de `crystals`, `crystalsUpdatedAt`, `specialCrystals`, `crystalsBoughtToday`, `crystalsBoughtDate` ; renommage `packsSinceSSR` → `cardsSinceSSR`, `packsSinceUR` → `cardsSinceUR` ; suppression de `packsStored`, `lastPackAt`, `packsBoughtToday`, `packsBoughtDate`.
+- **User** : ajout de `crystals`, `crystalsUpdatedAt`, `specialCrystals`, `crystalsBoughtToday`, `crystalsBoughtDate`, `loginStreak`, `lastLoginRewardAt`, `welcomeLoginRewardDay` ; renommage `packsSinceSSR` → `cardsSinceSSR`, `packsSinceUR` → `cardsSinceUR` ; suppression de `packsStored`, `lastPackAt`, `packsBoughtToday`, `packsBoughtDate`.
 - **PackOpening** → **Opening** : `lotSize` (5 ou 10), `bannerId` (nullable), `pityTriggered`.
 - **Banner** : `id`, `name`, `description`, `category`, `startsAt`, `endsAt`, `costKind` (NORMAL / SPECIAL), `weight` (part des cartes issues de la bannière).
 - **BannerCharacter** : `bannerId`, `characterId`.
@@ -720,6 +730,7 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - [ ] Les cristaux (normaux et spéciaux) sont inscrits dans un journal et ne sont ni vendables ni échangeables.
 - [ ] Achat limité à 25 cristaux par jour, solde de Ryō toujours égal à la somme du journal.
 - [ ] Le cadeau de bienvenue donne 50 cartes, pas plus.
+- [ ] Le calendrier de bienvenue propose une récompense quotidienne pendant 30 jours et reconnaît les paliers de connexion de 7 et 30 jours.
 
 ---
 
