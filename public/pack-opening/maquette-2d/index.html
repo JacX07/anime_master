@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Maquette 2D · Anime Masters</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@400;600;700&display=swap" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<!-- Maquette sans WebGL : un décor vectoriel fixe, la brèche animée en CSS, et les cartes en éléments HTML.
+     Toutes les animations ne touchent qu'aux transformations et à l'opacité (gérées par le compositeur, sans recalcul de page). -->
+<div class="stage" id="stage">
+  <img class="decor" src="decor.svg" alt="" />
+  <div class="orbit" aria-hidden="true">
+    <span class="mini" style="--a:0deg;--r:31cqw;--d:38s"></span>
+    <span class="mini holo" style="--a:70deg;--r:27cqw;--d:44s"></span>
+    <span class="mini" style="--a:150deg;--r:33cqw;--d:52s"></span>
+    <span class="mini holo" style="--a:215deg;--r:29cqw;--d:40s"></span>
+    <span class="mini" style="--a:290deg;--r:34cqw;--d:48s"></span>
+  </div>
+  <button class="rift" id="rift" aria-label="Invoquer une carte">
+    <span class="rift-glow"></span>
+    <img src="rift.svg" alt="" />
+  </button>
+  <canvas class="fx" id="fx" aria-hidden="true"></canvas>
+  <div class="cards" id="cards"></div>
+</div>
+<div class="flash" id="flash"></div>
+<div class="callout" id="callout"></div>
+
+<header class="top">
+  <span class="brand">◆ Anime Masters</span>
+  <nav><a class="on">Paquets</a><a id="album">Album <b id="albumBadge" hidden></b></a><a>Échanges</a><a>Bourse</a><a>Expéditions</a><a>Classement</a></nav>
+  <span class="wallet"><span>1 455 Ryō</span><span id="topCrystals">68 ◇</span></span>
+</header>
+
+<aside class="hud ui">
+  <div class="big"><b id="crystals">68</b> cristaux</div>
+  <div class="pips" id="pips"></div>
+  <div class="row"><button data-n="1">Ouvrir ×1</button><button data-n="5">Ouvrir ×5</button><button data-n="10">Ouvrir ×10</button></div>
+  <p class="line"><span>SSR garanti</span><b>dans 34</b></p>
+  <div class="bar ssr"><i style="width:66%"></i></div>
+  <p class="line"><span>UR garanti</span><b>dans 330</b></p>
+  <div class="bar ur"><i style="width:18%"></i></div>
+</aside>
+
+<button class="gate ui" aria-label="Expéditions"><img src="rift.svg" alt="" /><span>Expéditions</span><b>2</b></button>
+
+<div class="banners ui" role="radiogroup" aria-label="Bannière">
+  <button class="bn on" role="radio" aria-checked="true"><small>Tous les persos</small><b>Standard</b><span>1 cristal</span></button>
+  <button class="bn" role="radio" aria-checked="false"><small>Semaine</small><b>Brèche Isekai</b><span>1 j restant</span></button>
+  <button class="bn" role="radio" aria-checked="false"><small>Semaine</small><b>Brèche Shōnen</b><span>1 j restant</span></button>
+  <button class="bn sp" role="radio" aria-checked="false"><small>✦ Spécial</small><b>Élus</b><span>40 spéciaux</span></button>
+</div>
+
+<p class="hint ui" id="hint">Touche la brèche pour invoquer une carte</p>
+<button class="store" id="store" hidden>Ranger dans l'album</button>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

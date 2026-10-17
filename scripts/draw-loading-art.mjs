@@ -1,7 +1,9 @@
 // Dessine l'illustration de l'écran de chargement (public/loading/breche.svg) : l'atrium futuriste, la brèche au centre,
 // des éclats de cristal et des cartes qui s'en échappent. Tout est vectoriel (net à toute résolution) et original.
+// Écrit aussi deux couches séparées pour la maquette 2D (public/pack-opening/maquette-2d) : le décor seul et la brèche seule,
+// que la page anime indépendamment.
 // Relancer après modification : node scripts/draw-loading-art.mjs
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 
 const W = 1920, H = 1080, CX = 960, HY = 700; // HY : ligne d'horizon (pied des verrières)
 let seed = 7;
@@ -36,8 +38,11 @@ const crack = (x, y, ang, len) => {
   return d;
 };
 
+// Chaque morceau est rangé dans une couche : decor (fond fixe), rift (la brèche), fx (éclats, cartes, étincelles),
+// reflect (reflet de la brèche au sol), all (en-tête et définitions communes)
 const out = [];
-const add = (s) => out.push(s);
+let layer = "all";
+const add = (s) => out.push({ layer, s });
 
 add(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">`);
 add(`<defs>
@@ -65,6 +70,7 @@ add(`<defs>
   <filter id="reflect" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7 2"/></filter>
 </defs>`);
 
+layer = "decor";
 // Ciel et ville lointaine vus à travers les verrières
 add(`<rect width="${W}" height="${HY}" fill="url(#sky)"/>`);
 for (let i = 0; i < 46; i++) { // étoiles discrètes en haut du ciel
@@ -105,6 +111,7 @@ add(`<path d="M-80,170 Q${CX},-40 ${W + 80},170" fill="none" stroke="#e9f0fb" st
 add(`<path d="M-80,200 Q${CX},-8 ${W + 80},200" fill="none" stroke="#2b6cff" stroke-width="5" opacity=".9"/>`);
 add(`<path d="M-80,200 Q${CX},-8 ${W + 80},200" fill="none" stroke="#7fb0ff" stroke-width="16" opacity=".35" filter="url(#blur12)"/>`);
 
+layer = "rift";
 // La brèche : halo, corps, tourbillons, bord lumineux, cœur
 add(`<ellipse cx="${CX}" cy="400" rx="520" ry="470" fill="url(#riftGlow)" filter="url(#blur40)" opacity=".9"/>`);
 add(`<path d="${lens(1.18)}" fill="#8f6bff" opacity=".45" filter="url(#blur12)"/>`);
@@ -128,6 +135,7 @@ const cracks = [
 ];
 add(`<g fill="none" stroke-linecap="round" stroke-linejoin="round">${cracks.map((d) => `<path d="${d}" stroke="#b9a8ff" stroke-width="7" opacity=".35" filter="url(#blur4)"/><path d="${d}" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>`).join("")}</g>`);
 
+layer = "fx";
 // Éclats de cristal qui s'échappent de la brèche
 const shards = [];
 for (let i = 0; i < 70; i++) {
@@ -165,15 +173,18 @@ for (let i = 0; i < 140; i++) {
   add(`<circle cx="${f(x)}" cy="${f(y)}" r="${f(rnd(0.8, 2.6))}" fill="${pick(["#ffffff", "#bff6ff", "#d9c8ff"])}" opacity="${f(rnd(0.35, 1))}"/>`);
 }
 
+layer = "decor";
 // Sol réfléchissant : fond, plinthe lumineuse, reflet de la brèche, anneaux lumineux
 add(`<rect y="${HY}" width="${W}" height="${H - HY}" fill="url(#floor)"/>`);
 add(`<rect y="${HY - 14}" width="${W}" height="16" fill="#cfdcf0"/><rect y="${HY + 1}" width="${W}" height="3" fill="#2b6cff"/><rect y="${HY - 4}" width="${W}" height="14" fill="#2b6cff" opacity=".35" filter="url(#blur4)"/>`);
+layer = "reflect";
 add(`<g transform="translate(0 ${2 * HY}) scale(1 -1)" opacity=".42" filter="url(#reflect)" clip-path="url(#aboveFloor)">
   <ellipse cx="${CX}" cy="400" rx="420" ry="380" fill="url(#riftGlow)" opacity=".8"/>
   <path d="${jagged}" fill="url(#riftFill)"/>
   <ellipse cx="${CX}" cy="395" rx="150" ry="300" fill="url(#riftCore)"/>
 </g>`);
 add(`<ellipse cx="${CX}" cy="${HY + 60}" rx="560" ry="70" fill="url(#floorShine)"/>`);
+layer = "decor";
 [[1280, 190, "#2b6cff", 3, 0.55], [900, 130, "#2b6cff", 4, 0.8], [560, 78, "#00c8b4", 3, 0.85], [300, 40, "#9fd0ff", 2, 0.6]].forEach(([rx, ry, c, sw, o]) => {
   const cy = HY + 150;
   add(`<ellipse cx="${CX}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${c}" stroke-width="${sw * 4}" opacity="${f(o * 0.35)}" filter="url(#blur4)"/>`);
@@ -190,7 +201,17 @@ add(`<rect x="196" y="0" width="12" height="${H}" fill="#2b6cff" opacity=".7"/><
 add(`<g transform="translate(${W} 0) scale(-1 1)"><rect x="-40" y="0" width="230" height="${H}" fill="url(#pillarFront)"/><rect x="196" y="0" width="12" height="${H}" fill="#00c8b4" opacity=".7"/><rect x="190" y="0" width="24" height="${H}" fill="#00c8b4" opacity=".25" filter="url(#blur12)"/></g>`);
 
 add(`<rect width="${W}" height="${H}" fill="url(#vignette)"/>`);
+layer = "all";
 add(`</svg>`);
 
-writeFileSync("public/loading/breche.svg", out.join("\n"));
-console.log("public/loading/breche.svg", Math.round(out.join("\n").length / 1024), "Ko");
+const write = (file, layers, viewBox) => {
+  let svg = out.filter((o) => layers.includes(o.layer)).map((o) => o.s).join("\n");
+  if (viewBox) svg = svg.replace(/viewBox="[^"]*" preserveAspectRatio="[^"]*"/, `viewBox="${viewBox}"`);
+  writeFileSync(file, svg);
+  console.log(file, Math.round(svg.length / 1024), "Ko");
+};
+write("public/loading/breche.svg", ["all", "decor", "rift", "fx", "reflect"]);
+mkdirSync("public/pack-opening/maquette-2d", { recursive: true });
+write("public/pack-opening/maquette-2d/decor.svg", ["all", "decor"]);
+// La brèche seule, recadrée autour d'elle (le halo déborde largement) : la page la place au centre du décor
+write("public/pack-opening/maquette-2d/rift.svg", ["all", "rift"], `${CX - 560} -100 1120 960`);
