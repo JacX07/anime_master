@@ -100,9 +100,13 @@ model Media {
   /// Tags AniList [{ name, rank }] (tableau JSON, sert au type)
   tags           Json?
   studio         String?
+  /// Franchise (saisons, films, spin-offs reliés par AniList) : identifiant de la série la plus populaire du groupe (npm run import:franchises)
+  franchiseId    Int?
   characters     CharacterMedia[]
   mainCharacters Character[]      @relation("MainMedia")
   updatedAt      DateTime         @updatedAt
+
+  @@index([franchiseId])
 }
 
 model CharacterMedia {

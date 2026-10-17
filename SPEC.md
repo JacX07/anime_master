@@ -336,11 +336,12 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - **Petits anime** : regrouper les anime ayant moins de 5 personnages dans une entrée « Autres anime ». Cette entrée filtre leur union ; la complétion reste calculée séparément pour chaque anime.
 - Pagination ou défilement infini (plusieurs milliers de cartes).
 
-### 7 bis. Réalisation de l'album par anime (codé le 2026-10-17)
-- **Un anime = une franchise.** AniList sépare les saisons, films et spéciaux en fiches distinctes ; une fiche rejoint celle d'une autre quand son titre commence exactement par le titre de cette autre fiche, suivi de « : », d'un tiret ou d'une marque de saison (« 2 », « Season 2 », « 2nd Season », « II », « Final », « Movie »…). Un personnage appartient à l'anime de sa série principale. Règle dans `src/lib/anime.ts` (prudente : elle peut laisser deux fiches séparées si leurs titres diffèrent, jamais fusionner sans préfixe commun).
-- Sur les 1 544 séries principales, on obtient **292 anime listés** (au moins 5 personnages, 2 900 personnages) et **994 petits anime** regroupés dans « Autres anime » (1 817 personnages).
-- Filtre « Anime » (liste déroulante avec la progression de chacun, ✓ quand il est complet), adresse `/album?anime=<id>` ou `anime=autres`. En-tête de progression avec « Collection complète ».
-- La complétion se calcule par anime, y compris pour les petits : « Autres anime » n'est qu'un regroupement d'affichage.
+### 7 bis. Réalisation de l'album par anime (codé le 2026-10-17, regroupement revu le jour même)
+- **Un anime = une franchise entière** : saisons, films, OVA, spin-offs et histoires parallèles ensemble (NARUTO, Shippuden, tous les films dont *Road to Ninja* et Boruto ; Magi et *Adventure of Sinbad*…). Le regroupement vient des **relations d'AniList** (suite, préquelle, histoire parallèle, spin-off, alternative, parent, résumé), suivies de proche en proche, y compris à travers des séries absentes de la base. Résultat rangé dans `Media.franchiseId` (la série la plus populaire du groupe) par `npm run import:franchises` (relations en cache dans `data/anilist-relations.json`).
+- Les **crossovers** qui fusionneraient deux franchises distinctes sont ignorés à la main (liste `IGNORED_LINKS` du script) : Lupin III ≠ Détective Conan, Captain Harlock ≠ Galaxy Express 999, Tsubasa ≠ xxxHOLiC, Megalo Box ≠ Tomorrow's Joe.
+- Sur les 3 411 séries, on obtient **1 340 franchises**. Les franchises d'au moins **5 personnages** (≈ 285) ont leur entrée dans l'album ; les plus petites sont rassemblées en **blocs de 5 anime tirés au hasard** (« Autres anime n°1, n°2… », ordre fixé par un hachage de l'identifiant : stable d'une visite à l'autre, mais un bloc peut changer quand de nouveaux personnages sont importés).
+- Filtre « Anime » (liste déroulante avec la progression de chaque anime, ✓ quand il est complet ; les blocs sont dans un groupe à part), adresse `/album?anime=<id>` ou `anime=autres-<n>`. En-tête de progression avec « Collection complète » ; pour un bloc, la progression de chacun de ses anime.
+- La complétion se calcule par franchise, y compris pour les petites : le bloc n'est qu'un regroupement d'affichage. Les succès « anime complet » ne comptent que les franchises listées (au moins 5 personnages).
 
 ### 8. Critères pour dire que l'étape 2 est finie
 - [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit le cadeau de bienvenue de 50 cartes (voir Étape 4 bis §8).

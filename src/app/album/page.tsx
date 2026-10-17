@@ -48,7 +48,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           </p>
         </header>
 
-        <AlbumFilters filters={filters} anime={{ listed: album.anime.listed, others: album.anime.others, value: filters.anime }} />
+        <AlbumFilters filters={filters} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
 
         {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
         <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
@@ -107,10 +107,7 @@ function AnimeHeader({ anime }: { anime: NonNullable<Awaited<ReturnType<typeof g
   const done = anime.total > 0 && anime.owned === anime.total;
   return (
     <section className="vt-anime" aria-label={`Progression : ${anime.title}`}>
-      <h2>
-        {anime.title}
-        {anime.count ? <span className="vt-muted"> · {anime.count} anime de moins de 5 personnages</span> : null}
-      </h2>
+      <h2>{anime.title}</h2>
       <div className="vt-progress">
         <span>
           {num.format(anime.owned)} / {num.format(anime.total)}
@@ -121,6 +118,16 @@ function AnimeHeader({ anime }: { anime: NonNullable<Awaited<ReturnType<typeof g
         <span className="vt-muted">{pct(anime.owned, anime.total)} %</span>
         {done && <b className="vt-done">Collection complète</b>}
       </div>
+      {anime.members && (
+        <ul className="vt-members">
+          {anime.members.map((m) => (
+            <li key={m.title} data-done={m.owned === m.total}>
+              {m.owned === m.total ? "✓ " : ""}
+              {m.title} <span className="vt-muted">{m.owned}/{m.total}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

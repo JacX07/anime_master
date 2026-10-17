@@ -870,6 +870,18 @@ body.scene-night {
   margin: 0;
   font-size: 1.05rem;
 }
+.vt-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+.vt-members li[data-done="true"] {
+  color: #7fe0c4;
+}
 .vt-done {
   color: #7fe0c4;
   font-size: 0.85rem;

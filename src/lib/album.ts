@@ -2,7 +2,7 @@
 
 import "server-only";
 import type { CardType, Rarity } from "../generated/prisma/enums";
-import { loadAnimeIndex, MIN_ANIME_SIZE, OTHERS } from "./anime";
+import { loadAnimeIndex, MIN_ANIME_SIZE } from "./anime";
 import { cleanDescription } from "./clean";
 import { prisma } from "./db";
 import type { Finish } from "./pull";
@@ -21,7 +21,7 @@ export interface AlbumFilters {
   rarity: Rarity | null;
   type: CardType | null;
   owned: OwnedFilter;
-  /** Clé d'un anime de l'album (identifiant de sa fiche racine), ou « autres » ; vide : tous */
+  /** Clé d'un anime de l'album (identifiant de sa franchise) ou d'un bloc « autres-N » ; vide : tous */
   anime: string;
   page: number;
 }
@@ -38,7 +38,7 @@ export function parseAlbumFilters(params: RawParams): AlbumFilters {
     rarity: pick(RARITY_ORDER, one(params.rarity)),
     type: pick(TYPE_ORDER, one(params.type)),
     owned: pick(OWNED_FILTERS, one(params.owned)) ?? "all",
-    anime: /^(\d{1,9}|autres)$/.test(one(params.anime)) ? one(params.anime) : "",
+    anime: /^(\d{1,9}|autres-\d{1,4})$/.test(one(params.anime)) ? one(params.anime) : "",
     page: Number.isFinite(page) && page > 1 ? page : 1,
   };
 }
@@ -90,12 +90,14 @@ export interface AnimeProgress {
   title: string;
   owned: number;
   total: number;
+  /** Pour un bloc « Autres anime » : les anime qu'il regroupe, chacun avec sa propre progression */
+  members?: { title: string; owned: number; total: number }[];
 }
 
 export interface AlbumPage {
   entries: AlbumEntry[];
-  /** Anime ayant leur entrée (≥ 5 personnages), par ordre alphabétique, plus « Autres anime » regroupant les petits */
-  anime: { listed: AnimeProgress[]; others: AnimeProgress & { count: number }; selected: (AnimeProgress & { count?: number }) | null };
+  /** Franchises ayant leur entrée (≥ 5 personnages), par ordre alphabétique, puis les blocs d'« Autres anime » */
+  anime: { listed: AnimeProgress[]; blocks: AnimeProgress[]; selected: AnimeProgress | null };
   /** Nombre de personnages correspondant aux filtres */
   matching: number;
   pages: number;
@@ -121,14 +123,16 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   // Progression de chaque anime (la complétion des petits anime se calcule séparément, seule leur entrée est regroupée)
   const count = (ids: number[]) => ids.reduce((n, id) => n + (owned.has(id) ? 1 : 0), 0);
   const listed = animeIndex.listed.map((a) => ({ key: String(a.key), title: a.title, owned: count(a.characterIds), total: a.characterIds.length })).sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
-  const otherIds = animeIndex.others.flatMap((a) => a.characterIds);
-  const others = { key: OTHERS, title: "Autres anime", owned: count(otherIds), total: otherIds.length, count: animeIndex.others.length };
-  const selected = f.anime === OTHERS ? others : listed.find((a) => a.key === f.anime) ?? null;
+  const blocks = animeIndex.blocks.map((b) => {
+    const members = b.animes.map((a) => ({ title: a.title, owned: count(a.characterIds), total: a.characterIds.length }));
+    return { key: b.key, title: b.title, owned: members.reduce((n, m) => n + m.owned, 0), total: members.reduce((n, m) => n + m.total, 0), members };
+  });
+  const selected = [...listed, ...blocks].find((a) => a.key === f.anime) ?? null;
 
   const q = f.q.toLocaleLowerCase();
   const matching = all
     .filter((c) => {
-      if (selected && String(animeIndex.keyOf(c.id)) !== selected.key) return false;
+      if (selected && animeIndex.keyOf(c.id) !== selected.key) return false;
       if (f.rarity && c.rarity !== f.rarity) return false;
       if (f.type && c.type !== f.type) return false;
       const o = owned.get(c.id);
@@ -163,7 +167,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
       const { mainMedia, ...c } = byId.get(id)!;
       return { ...c, series: seriesTitle(mainMedia), owned: owned.get(id) ?? null };
     }),
-    anime: { listed, others, selected },
+    anime: { listed, blocks, selected },
     matching: matching.length,
     pages,
     progress: { owned: owned.size, total: all.length, byRarity },

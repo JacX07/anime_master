@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "import": "tsx scripts/import.ts",
+    "import:franchises": "tsx scripts/franchises.ts",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio --port 5555 --url \"file://$PWD/data/app.db\"",

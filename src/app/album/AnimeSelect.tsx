@@ -5,12 +5,12 @@ import type { AnimeProgress } from "@/lib/album";
 
 export interface AnimeOptions {
   listed: AnimeProgress[];
-  others: AnimeProgress & { count: number };
+  blocks: AnimeProgress[];
   value: string;
 }
 
 /** Choix de l'anime : la liste montre la progression de chacun (✓ quand la collection est complète). */
-export function AnimeSelect({ listed, others, value }: AnimeOptions) {
+export function AnimeSelect({ listed, blocks, value }: AnimeOptions) {
   const router = useRouter();
   const params = useSearchParams();
   const label = (a: AnimeProgress) => `${a.owned === a.total ? "✓ " : ""}${a.title} — ${a.owned}/${a.total}`;
@@ -34,7 +34,13 @@ export function AnimeSelect({ listed, others, value }: AnimeOptions) {
             {label(a)}
           </option>
         ))}
-        <option value={others.key}>{`${others.title} (${others.count}) — ${others.owned}/${others.total}`}</option>
+        <optgroup label="Petits anime (regroupés par 5)">
+          {blocks.map((b) => (
+            <option key={b.key} value={b.key}>
+              {label(b)}
+            </option>
+          ))}
+        </optgroup>
       </select>
     </label>
   );

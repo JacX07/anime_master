@@ -79,7 +79,7 @@ query ($page: Int, $perPage: Int) {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function request<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+export async function request<T>(query: string, variables: Record<string, unknown>): Promise<T> {
   for (let attempt = 1; ; attempt++) {
     const res = await fetch(ENDPOINT, {
       method: "POST",
