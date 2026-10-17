@@ -685,40 +685,97 @@ a.gm-item:focus-visible small {
   z-index: 10;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  background: #0b1424;
-  color: #e8f0ff;
-  transition: opacity 0.7s ease;
+  overflow: hidden;
+  background: #0d2a2a;
+  color: #eef6f2;
+  transition: opacity 0.8s ease, visibility 0s linear 0.8s;
   pointer-events: none;
 }
 .scene-loader[data-ready="true"] {
   opacity: 0;
+  visibility: hidden;
+}
+.scene-loader-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  animation: scene-loader-drift 18s ease-out both;
+}
+/* Voile sombre en bas : la barre et le texte restent lisibles sur l'illustration */
+.scene-loader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, #061512cc 82%, #061512f2);
+}
+.scene-loader-panel {
+  position: relative;
+  z-index: 1;
+  width: min(34rem, 86vw);
+  margin-bottom: 3.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
 }
 /* Sur l'accueil, le menu reste visible par-dessus : le chargement ne couvre que le fond */
 .scene-loader-under {
   z-index: 1;
-  justify-content: flex-end;
-  padding-bottom: 4rem;
+}
+/* Accueil : voile à gauche pour garder le menu lisible, barre à droite au-dessus de la bande du profil */
+.scene-loader-under::after {
+  background: linear-gradient(90deg, #061512e6, #06151299 30%, transparent 55%), linear-gradient(180deg, transparent 55%, #061512cc);
+}
+.scene-loader-under .scene-loader-panel {
+  position: absolute;
+  right: 5vw;
+  bottom: 7.5rem;
+  margin: 0;
+  width: min(24rem, 80vw);
 }
 .scene-loader-name {
   font-family: var(--font-michroma), sans-serif;
-  letter-spacing: 0.06em;
-  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  font-size: 1.5rem;
+  text-shadow: 0 2px 18px #000a;
 }
-.scene-loader-bar {
-  width: 9rem;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, transparent, #4b8bff, transparent) 0 0 / 200% 100%;
-  animation: scene-loader-slide 1.2s linear infinite;
+.scene-loader-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: #ffffff22;
+  box-shadow: inset 0 0 0 1px #ffffff1f;
+  overflow: hidden;
 }
-@keyframes scene-loader-slide {
-  to { background-position: -200% 0; }
+.scene-loader-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7fe0c4, #c8f5ff 60%, #ffffff);
+  box-shadow: 0 0 14px #9ff0dcaa;
+  transition: width 0.4s ease-out;
+}
+.scene-loader-meta {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  color: #d6ebe4;
+  text-shadow: 0 1px 6px #000c;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes scene-loader-drift {
+  from { transform: scale(1.08); }
+  to { transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scene-loader-bar { animation: none; }
+  .scene-loader-art { animation: none; }
   .scene-loader { transition: none; }
 }
 

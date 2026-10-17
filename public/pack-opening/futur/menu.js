@@ -15,7 +15,11 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const TEST = new URLSearchParams(location.search).has("test");
 const PERF = new URLSearchParams(location.search).has("perf");
 
+// Étapes du démarrage, pour la barre de l'écran de chargement de l'accueil (src/components/SceneLoader.tsx)
+const progress = (p, label) => parent !== window && parent.postMessage({ type: "scene-progress", p, label }, location.origin);
+
 export async function start() {
+  progress(20, "Moteur chargé");
   // Polices du dos de carte (Michroma / Sora), chargées avant de le peindre
   const link = document.createElement("link"); link.rel = "stylesheet"; link.href = THEME.fonts; document.head.append(link);
   await Promise.all([document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
@@ -27,7 +31,9 @@ export async function start() {
   renderer.shadowMap.enabled = true;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
+  progress(35, "Construction de l'atrium…");
   const decor = buildDecor({ scene, renderer });
+  progress(55, "Préparation des effets…");
 
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: TEST ? 0 : 2 }));
   composer.addPass(new RenderPass(scene, camera));
@@ -93,6 +99,7 @@ export async function start() {
   });
   // Préchauffage : shaders compilés et deux images rendues avant d'annoncer que la scène est prête
   await renderer.compileAsync(scene, camera);
+  progress(92, "Ouverture…");
   for (let i = 0; i < 2; i++) await new Promise((r) => requestAnimationFrame(r));
   window.__menu = { ready: true };
   // La page hôte peut ne pas être encore à l'écoute : on répète jusqu'à son accusé de réception

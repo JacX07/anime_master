@@ -8,6 +8,7 @@ import type { BannerInfo } from "@/lib/banners";
 import type { PlayerPackState } from "@/lib/packs";
 import { SSR_PITY, UR_PITY } from "@/lib/pull";
 import { ALBUM_BUMP, ALBUM_STORED } from "@/components/AlbumLink";
+import { isSceneProgress, SceneLoader, type SceneProgress } from "@/components/SceneLoader";
 import type { OpenedPack } from "@/lib/packs";
 import { buyCrystalsAction, devGrantCrystalsAction, openPackAction } from "./actions";
 import { BulkSummary } from "./BulkSummary";
@@ -37,13 +38,14 @@ const toSceneCards = (cards: OpenedPack["cards"]) =>
 // Le tirage reste côté serveur : la scène demande l'ouverture par message, on appelle l'action et on lui renvoie les cartes.
 const SCENE_URL = "/pack-opening/futur.html?embed=1";
 
-type SceneMessage = { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" } | { type: "dev-grant" } | { type: "open-expeditions" };
+type SceneMessage = SceneProgress | { type: "ready" | "unsupported" | "album-bump" | "album-stored" } | { type: "open-request"; id: number; bannerId?: string | null } | { type: "buy-request"; id: number; count?: number } | { type: "bulk-request"; count: number; bannerId?: string | null } | { type: "bulk-reveal" } | { type: "dev-grant" } | { type: "open-expeditions" };
 
 export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { initialState: PlayerPackState; banners: BannerInfo[]; expeditionsReady: number }) {
   const router = useRouter();
   const frame = useRef<HTMLIFrameElement>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [progress, setProgress] = useState<{ p: number; label?: string }>({ p: 0 });
   const [bulk, setBulk] = useState<OpenedPack | null>(null);
   const pendingBulk = useRef<OpenedPack | null>(null);
   const revealTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -66,6 +68,7 @@ export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { i
 
     async function onMessage(e: MessageEvent<SceneMessage>) {
       if (e.origin !== location.origin || e.source !== frame.current?.contentWindow) return;
+      if (isSceneProgress(e.data)) return setProgress({ p: e.data.p, label: e.data.label });
       const msg = e.data;
       if (msg.type === "ready") {
         setLoaded(true); // la scène a compilé ses shaders : l'écran de chargement s'efface
@@ -147,10 +150,7 @@ export function ImmersiveOpener({ initialState, banners, expeditionsReady }: { i
     <div className="relative" style={{ height: "100dvh", minHeight: 560 }}>
       <iframe ref={frame} src={SCENE_URL} title="Ouverture de paquets" allow="autoplay" className="scene-page block h-full w-full border-0 bg-[#e9eff6]" />
       {bulk && <BulkSummary bulk={bulk} onClose={() => setBulk(null)} />}
-      <div className="scene-loader" data-ready={loaded} aria-hidden="true">
-        <span className="scene-loader-name">Anime Masters</span>
-        <span className="scene-loader-bar" />
-      </div>
+      <SceneLoader target={progress.p} label={progress.label} ready={loaded} />
     </div>
   );
 }

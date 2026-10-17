@@ -28,10 +28,13 @@ const LITE = LAB || new URLSearchParams(location.search).has("lite");
 // Hors iframe, la maquette tourne seule avec des cartes d'exemple.
 const EMBED = new URLSearchParams(location.search).has("embed") && parent !== window;
 const post = (msg) => parent.postMessage(msg, location.origin);
+// Étapes du démarrage, pour la barre de l'écran de chargement de la page hôte (src/components/SceneLoader.tsx)
+const progress = (p, label) => parent !== window && post({ type: "scene-progress", p, label });
 const CARD_W = 1.4, CARD_H = 1.96;
 export const FOCUS = new THREE.Vector3(0, 2.05, 5.0);
 
 export async function start(modeId) {
+  progress(20, "Moteur chargé");
   const mode = (await import(`./${modeId}.js`)).default;
   await loadIcons(); installSprite(); // icônes du HUD et des cartes (même jeu que le site)
   const T = { ...THEME, ambienceDb: -13 }, RC = T.rarity;
@@ -77,6 +80,7 @@ export async function start(modeId) {
   const LOOK = new THREE.Vector3(0, 1.45, 0);
   let camDist = 8.5;
   const decor = buildDecor({ scene, renderer });
+  progress(38, "Construction de l'atrium…");
   const decorKids = [...scene.children];
   const fxLight = new THREE.PointLight("#ffffff", 0, 9, 1.5); scene.add(fxLight);
 
@@ -660,12 +664,15 @@ export async function start(modeId) {
   }
 
   ui.booster.disabled = true;
+  progress(45, "Invocation des cartes…");
   await Promise.all([...(EMBED ? [] : CHARS).map(async (c) => (images[c.img] = await painter.loadImg(c.img))), document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
   backTex = painter.makeBack();
   mode.init?.(ctx); modeReady = true;
   capsule = buildCapsule({ decor, ctx, backTex, BLUE, MINT }); scene.add(capsule.group); capsule.show();
   breche = buildBreche({ GLSL_NOISE, BLUE, MINT }); scene.add(breche.group);
+  progress(62, "Préparation des effets…");
   await warmUp();
+  progress(100, "Prêt");
   ui.booster.disabled = false;
   // La page hôte peut ne pas être encore à l'écoute : on se signale jusqu'à recevoir l'init
   if (EMBED) { const ping = setInterval(() => (inited ? clearInterval(ping) : post({ type: "ready" })), 400); post({ type: "ready" }); }
