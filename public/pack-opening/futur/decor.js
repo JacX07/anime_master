@@ -3,10 +3,32 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { Reflector } from "three/addons/objects/Reflector.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { canvasTex, softDot, rng, GLSL_NOISE } from "../opening/core.js";
 
 export const BLUE = "#2b6cff", MINT = "#00c8b4";
 const hdr = (hex, k) => new THREE.Color(hex).multiplyScalar(k);
+
+// Fusionne les maillages fixes d'un groupe en un seul par matériau : le décor passait de ~330 appels de dessin à une quarantaine
+// (et le miroir, qui redessine la scène, en profite autant). Les positions sont cuites dans la géométrie, relative au groupe.
+function flatten(group) {
+  group.updateMatrixWorld(true);
+  const inv = group.matrixWorld.clone().invert(), byKey = new Map(), drop = [];
+  group.traverse((o) => {
+    if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material) || o.userData.keep) return;
+    const k = o.material.uuid + (o.castShadow ? "s" : "");
+    if (!byKey.has(k)) byKey.set(k, { mat: o.material, shadow: o.castShadow, geos: [] });
+    const g = o.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
+    for (const n of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(n)) g.deleteAttribute(n);
+    byKey.get(k).geos.push(g); drop.push(o);
+  });
+  drop.forEach((o) => o.removeFromParent());
+  for (const { mat, shadow, geos } of byKey.values()) {
+    const mixed = geos.some((g) => !g.index);
+    const m = new THREE.Mesh(mergeGeometries(mixed ? geos.map((g) => (g.index ? g.toNonIndexed() : g)) : geos), mat);
+    m.castShadow = shadow; group.add(m);
+  }
+}
 
 export function buildDecor({ scene, renderer }) {
   const R = rng(77);
@@ -76,21 +98,22 @@ export function buildDecor({ scene, renderer }) {
   scene.add(beacons);
 
   // Colonnade : piliers arrondis, verrières, bandeau lumineux et poutre circulaire
+  const still = new THREE.Group(); scene.add(still); // tout ce qui ne bouge jamais, fusionné à la fin
   const RAD = 24, N = 28;
   const pillarGeo = new RoundedBoxGeometry(1.1, 15, 1.8, 4, 0.35);
   const finGeo = new RoundedBoxGeometry(0.18, 13.6, 0.5, 2, 0.08);
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2, x = Math.sin(a) * RAD, z = -Math.cos(a) * RAD;
-    const p = new THREE.Mesh(pillarGeo, ceramic); p.position.set(x, 6.9, z); p.rotation.y = -a; p.castShadow = true; scene.add(p);
-    const fin = new THREE.Mesh(finGeo, glowWhite); fin.position.set(x * 0.985, 6.9, z * 0.985); fin.rotation.y = -a; scene.add(fin);
+    const p = new THREE.Mesh(pillarGeo, ceramic); p.position.set(x, 6.9, z); p.rotation.y = -a; p.castShadow = true; still.add(p);
+    const fin = new THREE.Mesh(finGeo, glowWhite); fin.position.set(x * 0.985, 6.9, z * 0.985); fin.rotation.y = -a; still.add(fin);
     const a2 = a + Math.PI / N, w = 2 * RAD * Math.sin(Math.PI / N) - 1.2;
-    const pane = new THREE.Mesh(new THREE.PlaneGeometry(w, 14.6), glass); pane.position.set(Math.sin(a2) * RAD, 6.9, -Math.cos(a2) * RAD); pane.rotation.y = -a2; scene.add(pane);
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(w, 14.6), glass); pane.position.set(Math.sin(a2) * RAD, 6.9, -Math.cos(a2) * RAD); pane.rotation.y = -a2; still.add(pane);
     // traverses fines dans les verrières
-    [2.2, 7.5, 12.4].forEach((y) => { const bar = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, 0.06), satin); bar.position.set(Math.sin(a2) * RAD, y, -Math.cos(a2) * RAD); bar.rotation.y = -a2; scene.add(bar); });
+    [2.2, 7.5, 12.4].forEach((y) => { const bar = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, 0.06), satin); bar.position.set(Math.sin(a2) * RAD, y, -Math.cos(a2) * RAD); bar.rotation.y = -a2; still.add(bar); });
   }
-  const beam = new THREE.Mesh(new THREE.TorusGeometry(RAD, 0.7, 24, 192), ceramic); beam.rotation.x = Math.PI / 2; beam.position.y = 14.2; scene.add(beam);
-  const beamGlow = new THREE.Mesh(new THREE.TorusGeometry(RAD - 0.75, 0.05, 8, 192), glowBlue); beamGlow.rotation.x = Math.PI / 2; beamGlow.position.y = 13.7; scene.add(beamGlow);
-  const plinth = new THREE.Mesh(new THREE.TorusGeometry(RAD, 0.5, 16, 192), satin); plinth.rotation.x = Math.PI / 2; plinth.position.y = -0.55; scene.add(plinth);
+  const beam = new THREE.Mesh(new THREE.TorusGeometry(RAD, 0.7, 24, 192), ceramic); beam.rotation.x = Math.PI / 2; beam.position.y = 14.2; still.add(beam);
+  const beamGlow = new THREE.Mesh(new THREE.TorusGeometry(RAD - 0.75, 0.05, 8, 192), glowBlue); beamGlow.rotation.x = Math.PI / 2; beamGlow.position.y = 13.7; still.add(beamGlow);
+  const plinth = new THREE.Mesh(new THREE.TorusGeometry(RAD, 0.5, 16, 192), satin); plinth.rotation.x = Math.PI / 2; plinth.position.y = -0.55; still.add(plinth);
 
   // Ville lointaine derrière les verrières : flèches profilées
   const spireMat = new THREE.MeshPhysicalMaterial({ color: "#eef3f9", roughness: 0.3, clearcoat: 1 });
@@ -98,8 +121,8 @@ export function buildDecor({ scene, renderer }) {
     const hgt = 25 + R() * 55, base = 2 + R() * 3, pts = [];
     for (let k = 0; k <= 12; k++) { const y = (k / 12) * hgt; pts.push(new THREE.Vector2(base * (1 - Math.pow(k / 12, 1.6)) * (k === 12 ? 0 : 1) + 0.15, y)); }
     const sp = new THREE.Mesh(new THREE.LatheGeometry(pts, 24), spireMat), a = -1.3 + (i / 13) * 2.6, d = 55 + R() * 45;
-    sp.position.set(Math.sin(a) * d, -0.6, -Math.cos(a) * d); scene.add(sp);
-    const band = new THREE.Mesh(new THREE.TorusGeometry(base * 0.7, 0.08, 6, 32), glowBlue); band.rotation.x = Math.PI / 2; band.position.set(sp.position.x, hgt * 0.35, sp.position.z); scene.add(band);
+    sp.position.set(Math.sin(a) * d, -0.6, -Math.cos(a) * d); still.add(sp);
+    const band = new THREE.Mesh(new THREE.TorusGeometry(base * 0.7, 0.08, 6, 32), glowBlue); band.rotation.x = Math.PI / 2; band.position.set(sp.position.x, hgt * 0.35, sp.position.z); still.add(band);
   }
 
   // Gyroscope : trois anneaux imbriqués qui tournent sur des axes différents
@@ -157,7 +180,7 @@ export function buildDecor({ scene, renderer }) {
   const panels = [["Flux de cartes", -8.2, 3.6, -5, 0.55, 1], ["Taux de rareté", 8.4, 4.2, -6, -0.55, 2], ["Séries actives", -10.5, 6.2, -11, 0.4, 3], ["Collection", 10.8, 6.8, -12, -0.4, 4]].map(([t, x, y, z, ry, sd]) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.1), new THREE.MeshBasicMaterial({ map: panelTex(t, sd), transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false }));
     m.position.set(x, y, z); m.rotation.y = ry; scene.add(m);
-    const frame = new THREE.Mesh(new RoundedBoxGeometry(0.06, 1.2, 0.06, 1, 0.02), chrome); frame.position.set(x, y - 1.65, z); scene.add(frame);
+    const frame = new THREE.Mesh(new RoundedBoxGeometry(0.06, 1.2, 0.06, 1, 0.02), chrome); frame.position.set(x, y - 1.65, z); still.add(frame);
     return { m, y, seed: sd };
   });
   updaters.push((dt, t) => panels.forEach((p) => { p.m.position.y = p.y + Math.sin(t * 0.6 + p.seed) * 0.08; p.m.material.opacity = 0.85 + Math.sin(t * 3 + p.seed * 2) * 0.05 + (Math.sin(t * 17 + p.seed) > 0.98 ? -0.4 : 0); }));
@@ -179,6 +202,8 @@ export function buildDecor({ scene, renderer }) {
   const dGeo = new THREE.BufferGeometry(); dGeo.setAttribute("position", new THREE.BufferAttribute(dp, 3));
   scene.add(new THREE.Points(dGeo, new THREE.PointsMaterial({ size: 0.04, map: softDot, color: "#9fb8ff", transparent: true, opacity: 0.7, depthWrite: false })));
   updaters.push((dt, t) => { const a = dGeo.attributes.position.array; for (let i = 0; i < D; i++) { a[i * 3 + 1] += dt * 0.08; a[i * 3] += Math.sin(t * 0.3 + i) * 0.002; if (a[i * 3 + 1] > 8.5) a[i * 3 + 1] = -0.5; } dGeo.attributes.position.needsUpdate = true; });
+
+  flatten(still); flatten(outer); flatten(middle);
 
   return {
     sky, mirror, key, root: scene,

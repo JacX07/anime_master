@@ -66,12 +66,12 @@ export async function start(modeId) {
 
   // Rendu : tons neutres (les couleurs des cartes restent fidèles), ombres douces, MSAA
   const canvas = document.getElementById("scene");
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" }); // l'anticrénelage est fait dans la cible du compositeur (samples 2) : celui du canevas serait payé pour rien
   // ?test : résolution réduite pour les captures automatiques en rendu logiciel
   const TEST = new URLSearchParams(location.search).has("test");
   renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 1.5));
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.7;
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap; // PCFSoft n'existe plus en r186 (three retombait dessus avec un avertissement)
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
   const LOOK = new THREE.Vector3(0, 1.45, 0);
@@ -152,13 +152,31 @@ export async function start(modeId) {
   });
   const moveTo = (obj, { pos, rotY, scale }, dur, e) => { const p0 = obj.position.clone(), r0 = obj.rotation.y, s0 = obj.scale.x; return tween(dur, (k) => { if (pos) obj.position.lerpVectors(p0, pos, k); if (rotY !== undefined) obj.rotation.y = r0 + (rotY - r0) * k; if (scale !== undefined) obj.scale.setScalar(s0 + (scale - s0) * k); }, e); };
   const bursts = new Set();
+  // Les gerbes mortes sont gardées et réutilisées (même nombre de particules, même texture) : les étincelles des cartes rangées
+  // en lançaient une dizaine par seconde, chacune avec sa géométrie et son matériau neufs à envoyer au GPU
+  const burstPool = new Map();
+  const tmpCol = new THREE.Color(), tmpDir = new THREE.Vector3();
   function burst(pos, colors, { n = 200, speed = 3, size = 0.07, gravity = 0.4, life = 1.6, rise = 0, tex = softDot, additive = false } = {}) {
-    const p = new Float32Array(n * 3), v = new Float32Array(n * 3), col = new Float32Array(n * 3), tmp = new THREE.Color();
-    for (let i = 0; i < n; i++) { p.set([pos.x, pos.y, pos.z], i * 3); const d = new THREE.Vector3().randomDirection().multiplyScalar(speed * (0.3 + Math.random())); d.y += rise; v.set([d.x, d.y, d.z], i * 3); tmp.set(colors[i % colors.length]); col.set([tmp.r, tmp.g, tmp.b], i * 3); }
-    const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(p, 3)); geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size, map: tex, vertexColors: true, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending }));
-    scene.add(pts); bursts.add({ pts, v, life: 0, max: life, gravity });
+    const key = `${n}|${tex.uuid}|${additive}`;
+    let b = burstPool.get(key)?.pop();
+    if (!b) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3).setUsage(THREE.DynamicDrawUsage)); geo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+      const pts = new THREE.Points(geo, new THREE.PointsMaterial({ map: tex, vertexColors: true, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending }));
+      pts.frustumCulled = false; // les particules s'éloignent de leur boîte d'origine
+      b = { pts, v: new Float32Array(n * 3), key };
+    }
+    const p = b.pts.geometry.attributes.position, col = b.pts.geometry.attributes.color;
+    for (let i = 0; i < n; i++) {
+      p.setXYZ(i, pos.x, pos.y, pos.z);
+      tmpDir.randomDirection().multiplyScalar(speed * (0.3 + Math.random())); b.v[i * 3] = tmpDir.x; b.v[i * 3 + 1] = tmpDir.y + rise; b.v[i * 3 + 2] = tmpDir.z;
+      tmpCol.set(colors[i % colors.length]); col.setXYZ(i, tmpCol.r, tmpCol.g, tmpCol.b);
+    }
+    p.needsUpdate = col.needsUpdate = true;
+    b.pts.material.size = size; b.pts.material.opacity = 1; b.life = 0; b.max = life; b.gravity = gravity;
+    scene.add(b.pts); bursts.add(b);
   }
+  const retire = (b) => { scene.remove(b.pts); bursts.delete(b); if (!burstPool.has(b.key)) burstPool.set(b.key, []); burstPool.get(b.key).push(b); };
   const fxPulse = (color, intensity, pos = FOCUS) => { fxLight.color.set(color); fxLight.intensity = intensity; fxLight.position.set(pos.x, pos.y + 0.3, pos.z + 0.8); };
   let stopUntil = 0, punch = 0;
   const hitStop = (s) => { if (!reduced && !skip) stopUntil = performance.now() + s * 1000; };
@@ -591,7 +609,7 @@ export async function start(modeId) {
       b.life += sdt; const a = b.pts.geometry.attributes.position.array;
       for (let i = 0; i < a.length; i += 3) { a[i] += b.v[i] * sdt; a[i + 1] += b.v[i + 1] * sdt; a[i + 2] += b.v[i + 2] * sdt; b.v[i + 1] -= b.gravity * sdt; b.v[i] *= 0.98; b.v[i + 2] *= 0.98; }
       b.pts.geometry.attributes.position.needsUpdate = true; b.pts.material.opacity = Math.max(0, 1 - b.life / b.max);
-      if (b.life > b.max) { scene.remove(b.pts); b.pts.geometry.dispose(); bursts.delete(b); }
+      if (b.life > b.max) retire(b);
     }
     fxLight.intensity *= Math.pow(0.08, dt);
     capsule?.update(dt, time, mouseSmooth);

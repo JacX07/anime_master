@@ -21,7 +21,7 @@ export async function start() {
   await Promise.all([document.fonts.load('400 44px "Michroma"'), document.fonts.load('400 26px "Sora"')]);
 
   const canvas = document.getElementById("scene");
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" }); // l'anticrénelage est fait dans la cible du compositeur (samples 2) : celui du canevas serait payé pour rien
   renderer.setPixelRatio(TEST ? 0.5 : Math.min(devicePixelRatio, 1.5));
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.38; // crépuscule : le décor est volontairement sombre
   renderer.shadowMap.enabled = true;
