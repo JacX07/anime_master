@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Cadres — échelle N → UR</title>
+<style>
+:root{--panel:#0f1a2e}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0,#14213d,#070b14 70%);color:#dbe6fb;font:14px/1.4 system-ui,sans-serif;padding:32px}
+h1{font-size:20px;margin:0 0 4px}p.s{color:#8ea3c4;margin:0 0 28px}
+h2{font-size:15px;margin:36px 0 4px;color:#fff}h2 small{color:#8ea3c4;font-weight:400}
+.row{display:flex;gap:70px;flex-wrap:wrap;padding:34px 20px}
+.slot{width:220px;text-align:center}.slot b{display:block;margin-top:34px;color:#8ea3c4;font-weight:600}
+.frame{position:relative;width:220px;height:330px;--c:#ffb62e;--c2:#fff1b8;--d:#7a4a00}
+.frame[data-r=UR]{--c:#ff2d4a;--c2:#ffb3bd;--d:#5a0010}
+.frame[data-r=SR]{--c:#a855f7;--c2:#e2c4ff;--d:#3b0a66}
+.frame[data-r=R]{--c:#38bdf8;--c2:#c2ecff;--d:#054a6b}
+.frame[data-r=N]{--c:#94a3b8;--c2:#dbe3ee;--d:#2a3442}
+.frame[data-r=N] .card{box-shadow:inset 0 0 0 1px #0008;border-width:2px}
+.frame[data-r=R] .card{box-shadow:0 0 8px color-mix(in srgb,var(--c) 35%,transparent),inset 0 0 0 1px #0008;border-width:2px}
+.frame[data-r=SR] .card{box-shadow:0 0 12px color-mix(in srgb,var(--c) 45%,transparent),inset 0 0 0 1px #0008}
+.tick{width:22px;height:22px}.tick.tl{left:-6px;top:-6px}.tick.tr{right:-6px;top:-6px;transform:scaleX(-1)}.tick.bl{left:-6px;bottom:-6px;transform:scaleY(-1)}.tick.br{right:-6px;bottom:-6px;transform:scale(-1)}
+.mini{left:50%;top:-9px;transform:translateX(-50%)}
+.frame .card{border-color:var(--c)}
+.card{position:absolute;inset:0;border-radius:14px;overflow:hidden;container-type:inline-size;
+ background:linear-gradient(160deg,#2b3f6e,#101a30 60%,#2a1530);border:3px solid var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) 55%,transparent),inset 0 0 0 1px #0008}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#ffffff22,transparent 55%)}
+.who{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 10px;background:linear-gradient(transparent,#000c);font-weight:700}
+.who small{display:block;color:#aab8d4;font-weight:500}.who em{color:var(--c);font-style:normal;font-size:20px}
+.gem{position:absolute;top:8px;left:8px;width:40px;height:40px;filter:drop-shadow(0 0 4px #000) drop-shadow(0 0 8px var(--c))}
+.deco{position:absolute;inset:0;pointer-events:none;color:var(--c);overflow:visible}
+.deco svg{position:absolute;overflow:visible}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}@keyframes spin{to{--a:360deg}}@keyframes float{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-70px);opacity:0}}
+@keyframes pulse{50%{opacity:.55}}
+/* A — couronne + coins */
+.A .crest{left:50%;top:-24px;transform:translateX(-50%)}
+.A .corner{width:46px;height:46px}.A .tl{left:-12px;top:-12px}.A .tr{right:-12px;top:-12px;transform:scaleX(-1)}
+.A .bl{left:-12px;bottom:-12px;transform:scaleY(-1)}.A .br{right:-12px;bottom:-12px;transform:scale(-1)}
+/* B — cristaux */
+.B .shard{background:linear-gradient(var(--c2),var(--c) 60%,var(--d));clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 0 6px var(--c))}
+.B .card{border-width:2px}
+/* C — ailes */
+.C .wing{width:64px;height:190px;top:60px}.C .wl{left:-54px}.C .wr{right:-54px;transform:scaleX(-1)}
+.C .crest{left:50%;top:-26px;transform:translateX(-50%);z-index:3}
+/* D — aura */
+.D .aura{position:absolute;inset:-14px;border-radius:26px;background:conic-gradient(from var(--a),var(--c),transparent 20%,var(--c2) 40%,transparent 60%,var(--c) 80%,transparent);filter:blur(10px);opacity:.85;animation:spin 5s linear infinite}
+.D .aura2{position:absolute;inset:-6px;border-radius:20px;border:2px solid var(--c);opacity:.7;animation:pulse 2s infinite}
+.D .sp{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--c2);box-shadow:0 0 8px 2px var(--c);animation:float 2.6s infinite}
+.D .frame[data-r=UR] .card{border-color:var(--c2)}
+.C .wing{width:64px;height:190px;top:60px}
+</style>
+<h1>Échelle de cadres N → UR</h1>
+<p class="s">Deux jeux de propositions. Seul le contour change ; les cartes sont des maquettes. UR a l'aura animée.</p>
+<div id="app"></div>
+<script>
+const crest=`<svg class="crest" width="64" height="40" viewBox="0 0 64 40" fill="currentColor"><path d="M32 2 40 14 32 38 24 14Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.5"/><path d="M22 20C12 20 6 14 2 8c8 0 14 2 18 6ZM42 20c10 0 16-6 20-12-8 0-14 2-18 6Z" fill="var(--c)" opacity=".9"/><circle cx="32" cy="14" r="2.5" fill="var(--c2)"/></svg>`;
+const corner=`<svg class="corner" viewBox="0 0 46 46" fill="none" stroke="var(--c)" stroke-width="3" stroke-linecap="round"><path d="M4 42V14Q4 4 14 4H42"/><path d="M12 42V20Q12 12 20 12H42" stroke-width="1.5" stroke="var(--c2)" opacity=".8"/><circle cx="4" cy="4" r="4" fill="var(--c2)" stroke="none"/></svg>`;
+const wing=`<svg viewBox="0 0 70 190" fill="var(--c)"><path d="M70 10C40 14 14 40 4 84c14-10 28-14 40-14C30 82 18 98 12 124c14-10 28-14 36-14-8 14-12 30-12 46 8-10 20-16 34-18Z" opacity=".92"/><path d="M70 30C50 36 30 56 20 84M70 70C52 76 38 90 30 110" stroke="var(--c2)" stroke-width="1.5" fill="none"/></svg>`;
+const gem=`<svg class="gem" viewBox="0 0 32 32" fill="none" stroke="var(--c)" stroke-width="1.6"><circle cx="16" cy="16" r="14.4" opacity=".8" stroke-width="1"/><path d="M16 4.5 25.5 16 16 27.5 6.5 16Z" fill="var(--c)" fill-opacity=".5"/><path d="M6.5 16h19M16 4.5v23" stroke-width="1.2"/><path d="M16 1v3M16 28v3M1 16h3M28 16h3" stroke-linecap="round"/></svg>`;
+const shards=()=>{let h="";const e=(x,y,w,hh,rot)=>`<div class="shard" style="position:absolute;left:${x};top:${y};width:${w}px;height:${hh}px;transform:rotate(${rot}deg)"></div>`;
+ for(let i=0;i<5;i++){h+=e(`${14+i*17}%`,`-${14+(i%2)*8}px`,16,26+(i%2)*10,0)+e(`${14+i*17}%`,`calc(100% - 6px)`,16,26+(i%2)*10,180)}
+ for(let i=0;i<4;i++){h+=e(`-18px`,`${16+i*22}%`,14,24+(i%2)*8,-90)+e(`calc(100% + 2px)`,`${16+i*22}%`,14,24+(i%2)*8,90)}return h};
+const sp=()=>Array.from({length:10},(_,i)=>`<i class="sp" style="left:${6+i*9}%;bottom:${(i*37)%30}px;animation-delay:${(i*.37).toFixed(2)}s"></i>`).join("");
+
+const tick=(c)=>`<svg class="tick ${c}" viewBox="0 0 22 22" fill="none" stroke="var(--c)" stroke-width="2.4" stroke-linecap="round"><path d="M3 19V7Q3 3 7 3H19"/></svg>`;
+const ticks=()=>["tl","tr","bl","br"].map(tick).join("");
+const mini=`<svg class="mini" width="18" height="16" viewBox="0 0 18 16"><path d="M9 1 14 8 9 15 4 8Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/></svg>`;
+const A=()=>`<div class="deco">${crest}${["tl","tr","bl","br"].map(c=>corner.replace('class="corner"',`class="corner ${c}"`)).join("")}</div>`;
+const Alight=()=>`<div class="deco">${mini}${ticks()}</div>`;
+const D=()=>`<div class="aura"></div><div class="aura2"></div><div class="deco">${sp()}</div>`;
+const C=()=>`<div class="deco">${wing.replace("<svg",'<svg class="wing wl"')}${wing.replace("<svg",'<svg class="wing wr"')}${crest.replace('class="crest"','class="crest" style="z-index:3;left:50%;top:-26px;transform:translateX(-50%)"')}</div>`;
+const SETS=[
+ {n:"Jeu 1 · ce que tu as demandé : UR = A + D, SSR = A, puis R et N légers",
+  f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:A,UR:()=>A()+D()}},
+ {n:"Jeu 2 · SSR et UR bien différents : SSR = coins et petit cimier, UR = ailes + aura",
+  f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:Alight,UR:()=>C()+D()}},
+];
+const app=document.getElementById("app");
+for(const set of SETS){
+ app.insertAdjacentHTML("beforeend",`<h2>${set.n}</h2><div class="row A C D">${["N","R","SR","SSR","UR"].map(r=>`<div class="slot"><div class="frame" data-r="${r}">${set.f[r]()}<div class="card">${gem}<div class="who"><small>Chainsaw Man</small>Denji <em>${({N:"1 240",R:"3 800",SR:"9 450",SSR:"21 180",UR:"44 402"})[r]}</em></div></div></div><b>${r}</b></div>`).join("")}</div>`);
+}
+</script></html>
