@@ -148,7 +148,7 @@ h3 {
   width: 20cqw;
   height: 20cqw;
   z-index: 2;
-  filter: drop-shadow(0 0 1cqw rgb(0 0 0 / 0.85)) drop-shadow(0 0 2.5cqw color-mix(in srgb, var(--rarity) 80%, transparent));
+  filter: drop-shadow(0 0 1.6cqw color-mix(in srgb, var(--rarity) 85%, #000));
 }
 .card-finish { position: absolute; top: 24cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
@@ -256,26 +256,8 @@ h3 {
 
 /* ---------- Décors du cadre (R et au-dessus) : voir CardDeco.tsx ---------- */
 /* Les décors dépassent du cadre : la carte ne rogne plus, l'image et les reflets suivent donc ses coins arrondis */
-/* .card[data-rarity]:not([data-rarity="N"]):not([data-missing]) { overflow: visible; }  -- désactivé avec les décors (lag) */
-.card-deco { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-.card-deco > svg { position: absolute; overflow: visible; }
-.deco-tick { width: 10cqw; height: 10cqw; }
-.deco-tick.tl, .deco-corner.tl { left: -2.7cqw; top: -2.7cqw; }
-.deco-tick.tr, .deco-corner.tr { right: -2.7cqw; top: -2.7cqw; transform: scaleX(-1); }
-.deco-tick.bl, .deco-corner.bl { left: -2.7cqw; bottom: -2.7cqw; transform: scaleY(-1); }
-.deco-tick.br, .deco-corner.br { right: -2.7cqw; bottom: -2.7cqw; transform: scale(-1); }
-.deco-corner { width: 21cqw; height: 21cqw; }
-.deco-corner.tl { left: -5.5cqw; top: -5.5cqw; }
-.deco-corner.tr { right: -5.5cqw; top: -5.5cqw; }
-.deco-corner.bl { left: -5.5cqw; bottom: -5.5cqw; }
-.deco-corner.br { right: -5.5cqw; bottom: -5.5cqw; }
-.deco-mini { width: 8cqw; height: 7cqw; left: 50%; top: -4.2cqw; margin-left: -4cqw; }
-.deco-crest { width: 33cqw; height: 20.6cqw; left: 50%; top: -12cqw; margin-left: -16.5cqw; }
-.deco-fil { width: 109cqw; height: 10cqw; left: 50%; top: -4.5cqw; margin-left: -54.5cqw; }
-.deco-side { width: 8cqw; height: 12.7cqw; top: 50%; margin-top: -6.3cqw; }
-.deco-side.l { left: -4cqw; }
-.deco-side.r { right: -4cqw; }
-.deco-pearl { position: absolute; width: 2.7cqw; height: 2.7cqw; margin-left: -1.35cqw; border-radius: 50%; background: var(--rarity-light); box-shadow: 0 0 2.5cqw var(--rarity); }
+.card[data-rarity]:not([data-rarity="N"]):not([data-missing]) { overflow: visible; }
+.card-deco { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; overflow: visible; pointer-events: none; }
 
 /* ---------- Retournement ---------- */
 
