@@ -50,7 +50,7 @@ h2{font-size:15px;margin:36px 0 4px;color:#fff}h2 small{color:#8ea3c4;font-weigh
 <p class="s">Deux jeux de propositions. Seul le contour change ; les cartes sont des maquettes. UR a l'aura animée.</p>
 <div id="app"></div>
 <script>
-const crest=`<svg class="crest" width="64" height="40" viewBox="0 0 64 40" fill="currentColor"><path d="M32 2 40 14 32 38 24 14Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.5"/><path d="M22 20C12 20 6 14 2 8c8 0 14 2 18 6ZM42 20c10 0 16-6 20-12-8 0-14 2-18 6Z" fill="var(--c)" opacity=".9"/><circle cx="32" cy="14" r="2.5" fill="var(--c2)"/></svg>`;
+const crest=(w)=>`<svg class="crest" style="z-index:3;left:50%;top:${-w*0.6}px;transform:translateX(-50%)" width="${w}" height="${w*0.625}" viewBox="0 0 64 40" fill="currentColor"><path d="M32 2 40 14 32 38 24 14Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.5"/><path d="M22 20C12 20 6 14 2 8c8 0 14 2 18 6ZM42 20c10 0 16-6 20-12-8 0-14 2-18 6Z" fill="var(--c)" opacity=".9"/><circle cx="32" cy="14" r="2.5" fill="var(--c2)"/></svg>`;
 const corner=`<svg class="corner" viewBox="0 0 46 46" fill="none" stroke="var(--c)" stroke-width="3" stroke-linecap="round"><path d="M4 42V14Q4 4 14 4H42"/><path d="M12 42V20Q12 12 20 12H42" stroke-width="1.5" stroke="var(--c2)" opacity=".8"/><circle cx="4" cy="4" r="4" fill="var(--c2)" stroke="none"/></svg>`;
 const wing=`<svg viewBox="0 0 70 190" fill="var(--c)"><path d="M70 10C40 14 14 40 4 84c14-10 28-14 40-14C30 82 18 98 12 124c14-10 28-14 36-14-8 14-12 30-12 46 8-10 20-16 34-18Z" opacity=".92"/><path d="M70 30C50 36 30 56 20 84M70 70C52 76 38 90 30 110" stroke="var(--c2)" stroke-width="1.5" fill="none"/></svg>`;
 const gem=`<svg class="gem" viewBox="0 0 32 32" fill="none" stroke="var(--c)" stroke-width="1.6"><circle cx="16" cy="16" r="14.4" opacity=".8" stroke-width="1"/><path d="M16 4.5 25.5 16 16 27.5 6.5 16Z" fill="var(--c)" fill-opacity=".5"/><path d="M6.5 16h19M16 4.5v23" stroke-width="1.2"/><path d="M16 1v3M16 28v3M1 16h3M28 16h3" stroke-linecap="round"/></svg>`;
@@ -70,13 +70,13 @@ let cid=0;const crown=(w)=>{const g='cg'+(cid++);return `<svg class="crest" styl
 const tick=(c)=>`<svg class="tick ${c}" viewBox="0 0 22 22" fill="none" stroke="var(--c)" stroke-width="2.4" stroke-linecap="round"><path d="M3 19V7Q3 3 7 3H19"/></svg>`;
 const ticks=()=>["tl","tr","bl","br"].map(tick).join("");
 const mini=`<svg class="mini" width="18" height="16" viewBox="0 0 18 16"><path d="M9 1 14 8 9 15 4 8Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/></svg>`;
-const A=(w=96)=>`<div class="deco">${crown(w)}${["tl","tr","bl","br"].map(c=>corner.replace('class="corner"',`class="corner ${c}"`)).join("")}</div>`;
+const A=(w=84)=>`<div class="deco">${crest(w)}${["tl","tr","bl","br"].map(c=>corner.replace('class="corner"',`class="corner ${c}"`)).join("")}</div>`;
 const Alight=()=>`<div class="deco">${mini}${ticks()}</div>`;
 const D=()=>`<div class="aura"></div><div class="aura2"></div><div class="deco">${sp()}</div>`;
-const C=()=>`<div class="deco">${wing.replace("<svg",'<svg class="wing wl"')}${wing.replace("<svg",'<svg class="wing wr"')}${crown(140)}</div>`;
+const C=()=>`<div class="deco">${wing.replace("<svg",'<svg class="wing wl"')}${wing.replace("<svg",'<svg class="wing wr"')}${crest(96)}</div>`;
 const SETS=[
  {n:"Jeu 1 · UR = A + D, SSR = A, puis R et N légers",
-  f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:()=>A(96),UR:()=>A(130)+D()}},
+  f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:()=>A(84),UR:()=>A(96)+D()}},
  {n:"Jeu 2 · SSR et UR bien différents : SSR = coins et petit cimier, UR = ailes + aura",
   f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:Alight,UR:()=>C()+D()}},
 ];
