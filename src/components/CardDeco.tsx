@@ -3,8 +3,6 @@ import type { Rarity } from "@/generated/prisma/enums";
 // Décors autour du cadre d'une carte (R et au-dessus) : coins, couronne, filigrane et perles de l'UR (sans animation ni flou : trop lourd à l'écran). Tout est positionné en cqw
 // pour suivre la taille de la carte ; la couleur vient de --rarity. La carte laisse déborder ces décors (voir .card dans globals.css).
 
-export const RARITY_RANK: Record<Rarity, number> = { N: 1, R: 2, SR: 3, SSR: 4, UR: 5 };
-
 const C = "var(--rarity)";
 const C2 = "var(--rarity-light)";
 
@@ -71,20 +69,6 @@ export function CardDeco({ rarity }: { rarity: Rarity }) {
           ))}
         </>
       )}
-    </span>
-  );
-}
-
-/** Rareté en petites gemmes : une pour N, jusqu'à cinq pour UR */
-export function RarityGems({ rarity }: { rarity: Rarity }) {
-  return (
-    <span className="card-gem" role="img" aria-label={rarity} title={rarity}>
-      {Array.from({ length: RARITY_RANK[rarity] }, (_, i) => (
-        <svg key={i} viewBox="0 0 16 20">
-          <path d="M8 1 15 10 8 19 1 10Z" fill={C} fillOpacity=".55" stroke={C} strokeWidth="1.5" />
-          <path d="M1 10h14M8 1v18" stroke={C2} strokeWidth=".8" />
-        </svg>
-      ))}
     </span>
   );
 }

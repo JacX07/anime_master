@@ -140,18 +140,8 @@ h3 {
   background: rgb(0 0 0 / 0.65);
   z-index: 2;
 }
-/* Rareté en petites gemmes (1 à 5) en haut à gauche, finition dessous, type en haut à droite */
-.card-gem {
-  position: absolute;
-  top: 3.5cqw;
-  left: 3.5cqw;
-  z-index: 2;
-  display: flex;
-  gap: 0.8cqw;
-  filter: drop-shadow(0 0 1cqw rgb(0 0 0 / 0.85)) drop-shadow(0 0 2.5cqw color-mix(in srgb, var(--rarity) 80%, transparent));
-}
-.card-gem svg { width: 7cqw; height: 9cqw; }
-.card-finish { position: absolute; top: 15.5cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+/* Finition en haut à gauche, type en haut à droite (la rareté se lit au cadre) */
+.card-finish { position: absolute; top: 4cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
   position: absolute;
   top: 3cqw;
