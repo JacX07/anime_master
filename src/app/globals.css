@@ -140,8 +140,17 @@ h3 {
   background: rgb(0 0 0 / 0.65);
   z-index: 2;
 }
-/* Finition en haut à gauche, type en haut à droite (la rareté se lit au cadre) */
-.card-finish { position: absolute; top: 4cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+/* Cristal de rareté en haut à gauche, finition dessous, plaque du type en haut à droite */
+.card-gem {
+  position: absolute;
+  top: 2.5cqw;
+  left: 2.5cqw;
+  width: 20cqw;
+  height: 20cqw;
+  z-index: 2;
+  filter: drop-shadow(0 0 1cqw rgb(0 0 0 / 0.85)) drop-shadow(0 0 2.5cqw color-mix(in srgb, var(--rarity) 80%, transparent));
+}
+.card-finish { position: absolute; top: 24cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
   position: absolute;
   top: 3cqw;
@@ -247,7 +256,7 @@ h3 {
 
 /* ---------- Décors du cadre (R et au-dessus) : voir CardDeco.tsx ---------- */
 /* Les décors dépassent du cadre : la carte ne rogne plus, l'image et les reflets suivent donc ses coins arrondis */
-.card[data-rarity]:not([data-rarity="N"]):not([data-missing]) { overflow: visible; }
+/* .card[data-rarity]:not([data-rarity="N"]):not([data-missing]) { overflow: visible; }  -- désactivé avec les décors (lag) */
 .card-deco { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .card-deco > svg { position: absolute; overflow: visible; }
 .deco-tick { width: 10cqw; height: 10cqw; }
