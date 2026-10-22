@@ -795,6 +795,23 @@ body.scene-night {
 .vt-muted {
   color: #8ea3c4;
 }
+.vt-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  margin: 0.8rem 0 0.4rem;
+  font-size: 0.85rem;
+  color: #c3d0e6;
+}
+.vt-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.vt-legend svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
 .vt-count {
   font-size: 0.85rem;
   color: #8ea3c4;

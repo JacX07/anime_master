@@ -59,8 +59,7 @@ export function CharacterCard({
           {name}
         </div>
         <div className="card-series" title={series ?? undefined}>
-          {t.name}
-          {series ? ` · ${series}` : ""}
+          {series}
           {serial !== undefined && <span className="card-serial">#{serial}</span>}
         </div>
         {!missing && (

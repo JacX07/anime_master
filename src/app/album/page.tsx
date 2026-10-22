@@ -3,9 +3,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
 import { CharacterCard } from "@/components/CharacterCard";
-import { Stat } from "@/components/icons";
+import { Stat, TypeIcon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
-import { getAlbum, parseAlbumFilters, RARITY_ORDER, type AlbumFilters as Filters } from "@/lib/album";
+import { TYPE_LABELS } from "@/lib/labels";
+import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER, type AlbumFilters as Filters } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
@@ -52,6 +53,14 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
 
         {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
         <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
+
+        <ul className="vt-legend" aria-label="Légende des types">
+          {TYPE_ORDER.map((t) => (
+            <li key={t}>
+              <TypeIcon type={t} /> {TYPE_LABELS[t].name}
+            </li>
+          ))}
+        </ul>
 
         <p className="vt-count">
           {album.matching} personnage{album.matching > 1 ? "s" : ""}
