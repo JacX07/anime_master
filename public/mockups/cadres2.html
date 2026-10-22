@@ -45,7 +45,7 @@ h2{font-size:15px;margin:36px 0 4px;color:#fff}h2 small{color:#8ea3c4;font-weigh
 .D .sp{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--c2);box-shadow:0 0 8px 2px var(--c);animation:float 2.6s infinite}
 .D .frame[data-r=UR] .card{border-color:var(--c2)}
 .C .wing{width:64px;height:190px;top:60px}
-.pe{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--c2);box-shadow:0 0 6px var(--c);z-index:3}.fil,.sd{position:absolute;z-index:2;overflow:visible;filter:drop-shadow(0 0 4px var(--c))}</style>
+.pe{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--c2);box-shadow:0 0 6px var(--c);z-index:3}.fil,.sd{position:absolute;z-index:2;overflow:visible;filter:drop-shadow(0 0 4px var(--c))}.mk{position:absolute;top:10px;left:10px;display:flex;gap:2px;filter:drop-shadow(0 0 3px #000) drop-shadow(0 0 7px var(--c));z-index:2}</style>
 <h1>Échelle de cadres N → UR</h1>
 <p class="s">Même couronne en SSR et UR, pas d'ailes. Seul le contour change ; les cartes sont des maquettes. UR a l'aura animée.</p>
 <div id="app"></div>
@@ -81,14 +81,23 @@ const pearls=()=>[-1,1].flatMap(d=>[0,1,2].map(k=>`<i class="pe" style="left:cal
 const URa=()=>`<div class="deco">${fil()}${side()}</div>`;
 const URb=()=>`<div class="deco">${fil()}${side()}${pearls()}</div>`;
 const ladder={N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:()=>A(72)};
+const RANK={N:1,R:2,SR:3,SSR:4,UR:5};
+const starPath="M10 1.5 12.6 7.2 18.8 7.9 14.2 12.1 15.5 18.2 10 15.1 4.5 18.2 5.8 12.1 1.2 7.9 7.4 7.2Z";
+const stars=r=>`<div class="mk">${Array.from({length:RANK[r]},()=>`<svg width="19" height="19" viewBox="0 0 20 20"><path d="${starPath}" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2" stroke-linejoin="round"/></svg>`).join("")}</div>`;
+const gems=r=>`<div class="mk">${Array.from({length:RANK[r]},()=>`<svg width="15" height="19" viewBox="0 0 16 20"><path d="M8 1 15 10 8 19 1 10Z" fill="var(--c)" fill-opacity=".55" stroke="var(--c)" stroke-width="1.5"/><path d="M1 10h14M8 1v18" stroke="var(--c2)" stroke-width=".8"/></svg>`).join("")}</div>`;
+
 const SETS=[
  {n:"Couronne identique SSR / UR · UR avec plus de détails (filigrane le long du bord, losanges sur les côtés) + aura",
   f:{...ladder,UR:()=>A(72)+URa()+D()}},
  {n:"Même idée, UR encore plus ornée (en plus : perles de part et d'autre de la couronne)",
   f:{...ladder,UR:()=>A(72)+URb()+D()}},
+ {n:"UR avec perles · rareté en étoiles à la place du logo (1 étoile = N … 5 = UR)",m:stars,
+  f:{...ladder,UR:()=>A(72)+URb()+D()}},
+ {n:"UR avec perles · rareté en plusieurs petites gemmes à la place du logo",m:gems,
+  f:{...ladder,UR:()=>A(72)+URb()+D()}},
 ];
 const app=document.getElementById("app");
 for(const set of SETS){
- app.insertAdjacentHTML("beforeend",`<h2>${set.n}</h2><div class="row A C D">${["N","R","SR","SSR","UR"].map(r=>`<div class="slot"><div class="frame" data-r="${r}">${set.f[r]()}<div class="card">${gem}<div class="who"><small>Chainsaw Man</small>Denji <em>${({N:"1 240",R:"3 800",SR:"9 450",SSR:"21 180",UR:"44 402"})[r]}</em></div></div></div><b>${r}</b></div>`).join("")}</div>`);
+ app.insertAdjacentHTML("beforeend",`<h2>${set.n}</h2><div class="row A C D">${["N","R","SR","SSR","UR"].map(r=>`<div class="slot"><div class="frame" data-r="${r}">${set.f[r]()}<div class="card">${set.m?set.m(r):gem}<div class="who"><small>Chainsaw Man</small>Denji <em>${({N:"1 240",R:"3 800",SR:"9 450",SSR:"21 180",UR:"44 402"})[r]}</em></div></div></div><b>${r}</b></div>`).join("")}</div>`);
 }
 </script></html>
