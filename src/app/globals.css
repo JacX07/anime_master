@@ -58,7 +58,8 @@ h3 {
   border-color: transparent;
   background:
     linear-gradient(var(--panel), var(--panel)) padding-box,
-    linear-gradient(135deg, #f43f5e, #f59e0b, #22d3ee, #a855f7, #f43f5e) border-box;
+    linear-gradient(135deg, #ff1f3d, #8a0016, #ff5a6a, #b3001b, #ff1f3d) border-box;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 8px 24px rgb(255 31 61 / 0.35);
 }
 
 /* L'image (portrait 2:3 sur AniList) occupe toute la carte ; les infos passent par-dessus */
@@ -137,8 +138,21 @@ h3 {
   z-index: 2;
 }
 /* Cristal de rareté en haut à gauche, finition dessous, plaque du type en haut à droite */
-.card-gem { position: absolute; top: 2.5cqw; left: 2.5cqw; width: 12cqw; height: 12cqw; z-index: 2; }
-.card-finish { position: absolute; top: 16.5cqw; left: 3.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+.card-gem {
+  position: absolute;
+  top: 2.5cqw;
+  left: 2.5cqw;
+  width: 16cqw;
+  height: 16cqw;
+  padding: 1.5cqw;
+  box-sizing: border-box;
+  z-index: 2;
+  border-radius: 3.5cqw;
+  background: rgb(11 20 36 / 0.7);
+  border: 1px solid color-mix(in srgb, var(--rarity) 55%, transparent);
+  filter: drop-shadow(0 0 2.2cqw color-mix(in srgb, var(--rarity) 70%, transparent));
+}
+.card-finish { position: absolute; top: 21cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
   position: absolute;
   top: 3cqw;

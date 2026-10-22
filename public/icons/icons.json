@@ -579,7 +579,7 @@
      "stroke": "currentColor",
      "stroke-width": "1.6",
      "stroke-linejoin": "round",
-     "fill-opacity": "0.12"
+     "fill-opacity": "0.5"
     }
    }
   ]
@@ -595,7 +595,7 @@
      "stroke": "currentColor",
      "stroke-width": "1.6",
      "stroke-linejoin": "round",
-     "fill-opacity": "0.15"
+     "fill-opacity": "0.5"
     }
    },
    {
@@ -619,7 +619,7 @@
      "stroke": "currentColor",
      "stroke-width": "1.6",
      "stroke-linejoin": "round",
-     "fill-opacity": "0.18"
+     "fill-opacity": "0.5"
     }
    },
    {
@@ -655,7 +655,7 @@
      "stroke": "currentColor",
      "stroke-width": "1.6",
      "stroke-linejoin": "round",
-     "fill-opacity": "0.22"
+     "fill-opacity": "0.5"
     }
    },
    {
@@ -703,7 +703,7 @@
      "stroke": "currentColor",
      "stroke-width": "1.6",
      "stroke-linejoin": "round",
-     "fill-opacity": "0.25"
+     "fill-opacity": "0.5"
     }
    },
    {
