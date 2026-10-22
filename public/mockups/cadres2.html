@@ -6,7 +6,7 @@
 body{margin:0;background:radial-gradient(ellipse at 50% 0,#14213d,#070b14 70%);color:#dbe6fb;font:14px/1.4 system-ui,sans-serif;padding:32px}
 h1{font-size:20px;margin:0 0 4px}p.s{color:#8ea3c4;margin:0 0 28px}
 h2{font-size:15px;margin:36px 0 4px;color:#fff}h2 small{color:#8ea3c4;font-weight:400}
-.row{display:flex;gap:70px;flex-wrap:wrap;padding:34px 20px}
+.row{display:flex;gap:70px;flex-wrap:wrap;padding:90px 20px 34px}
 .slot{width:220px;text-align:center}.slot b{display:block;margin-top:34px;color:#8ea3c4;font-weight:600}
 .frame{position:relative;width:220px;height:330px;--c:#ffb62e;--c2:#fff1b8;--d:#7a4a00}
 .frame[data-r=UR]{--c:#ff2d4a;--c2:#ffb3bd;--d:#5a0010}
@@ -59,16 +59,24 @@ const shards=()=>{let h="";const e=(x,y,w,hh,rot)=>`<div class="shard" style="po
  for(let i=0;i<4;i++){h+=e(`-18px`,`${16+i*22}%`,14,24+(i%2)*8,-90)+e(`calc(100% + 2px)`,`${16+i*22}%`,14,24+(i%2)*8,90)}return h};
 const sp=()=>Array.from({length:10},(_,i)=>`<i class="sp" style="left:${6+i*9}%;bottom:${(i*37)%30}px;animation-delay:${(i*.37).toFixed(2)}s"></i>`).join("");
 
+let cid=0;const crown=(w)=>{const g='cg'+(cid++);return `<svg class="crest" style="z-index:3;left:50%;top:${-w*0.62}px;transform:translateX(-50%)" width="${w}" height="${w*0.66}" viewBox="0 0 120 80" overflow="visible">
+<defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c2)"/><stop offset=".45" stop-color="var(--c)"/><stop offset="1" stop-color="var(--d)"/></linearGradient></defs>
+<path d="M8 62 2 18 30 38 46 8 60 30 74 8 90 38 118 18 112 62Z" fill="url(#${g})" stroke="var(--c2)" stroke-width="2" stroke-linejoin="round"/>
+<path d="M8 62h104v10c-30 6-74 6-104 0Z" fill="var(--c)" stroke="var(--c2)" stroke-width="2" stroke-linejoin="round"/>
+<path d="M60 30 52 52 60 60 68 52ZM30 38 26 52 34 54ZM90 38 94 52 86 54Z" fill="var(--d)" opacity=".55"/>
+<circle cx="2" cy="16" r="5" fill="var(--c2)"/><circle cx="118" cy="16" r="5" fill="var(--c2)"/><circle cx="46" cy="6" r="4.5" fill="var(--c2)"/><circle cx="74" cy="6" r="4.5" fill="var(--c2)"/><circle cx="60" cy="26" r="5.5" fill="#fff" stroke="var(--c)" stroke-width="2"/>
+<path d="M60 -6 64 2 60 10 56 2Z" fill="#fff" stroke="var(--c)" stroke-width="1.5" transform="translate(0 -8)"/>
+<circle cx="24" cy="68" r="3" fill="var(--c2)"/><circle cx="60" cy="69" r="4" fill="#fff"/><circle cx="96" cy="68" r="3" fill="var(--c2)"/></svg>`};
 const tick=(c)=>`<svg class="tick ${c}" viewBox="0 0 22 22" fill="none" stroke="var(--c)" stroke-width="2.4" stroke-linecap="round"><path d="M3 19V7Q3 3 7 3H19"/></svg>`;
 const ticks=()=>["tl","tr","bl","br"].map(tick).join("");
 const mini=`<svg class="mini" width="18" height="16" viewBox="0 0 18 16"><path d="M9 1 14 8 9 15 4 8Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/></svg>`;
-const A=()=>`<div class="deco">${crest}${["tl","tr","bl","br"].map(c=>corner.replace('class="corner"',`class="corner ${c}"`)).join("")}</div>`;
+const A=(w=96)=>`<div class="deco">${crown(w)}${["tl","tr","bl","br"].map(c=>corner.replace('class="corner"',`class="corner ${c}"`)).join("")}</div>`;
 const Alight=()=>`<div class="deco">${mini}${ticks()}</div>`;
 const D=()=>`<div class="aura"></div><div class="aura2"></div><div class="deco">${sp()}</div>`;
-const C=()=>`<div class="deco">${wing.replace("<svg",'<svg class="wing wl"')}${wing.replace("<svg",'<svg class="wing wr"')}${crest.replace('class="crest"','class="crest" style="z-index:3;left:50%;top:-26px;transform:translateX(-50%)"')}</div>`;
+const C=()=>`<div class="deco">${wing.replace("<svg",'<svg class="wing wl"')}${wing.replace("<svg",'<svg class="wing wr"')}${crown(140)}</div>`;
 const SETS=[
- {n:"Jeu 1 · ce que tu as demandé : UR = A + D, SSR = A, puis R et N légers",
-  f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:A,UR:()=>A()+D()}},
+ {n:"Jeu 1 · UR = A + D, SSR = A, puis R et N légers",
+  f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:()=>A(96),UR:()=>A(130)+D()}},
  {n:"Jeu 2 · SSR et UR bien différents : SSR = coins et petit cimier, UR = ailes + aura",
   f:{N:()=>"",R:()=>`<div class="deco">${ticks()}</div>`,SR:()=>`<div class="deco">${mini}${ticks()}</div>`,SSR:Alight,UR:()=>C()+D()}},
 ];
