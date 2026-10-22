@@ -17,6 +17,7 @@
     "db:studio": "prisma studio --port 5555 --url \"file://$PWD/data/app.db\"",
     "postinstall": "prisma generate",
     "simulate": "tsx scripts/simulate-crystals.ts",
+    "simulate:battle": "tsx scripts/simulate-battle.ts",
     "check:recharge": "tsx scripts/check-recharge.ts",
     "check:economy": "tsx scripts/check-economy.ts",
     "check:trades": "tsx scripts/check-trades.ts",
