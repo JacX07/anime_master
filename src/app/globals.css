@@ -40,6 +40,7 @@ h3 {
 
 .card {
   --rarity: var(--rarity-N);
+  --rarity-light: color-mix(in srgb, var(--rarity) 45%, white);
   position: relative;
   aspect-ratio: 5 / 7;
   width: 100%;
@@ -68,6 +69,7 @@ h3 {
   inset: 0;
   width: 100%;
   height: 100%;
+  border-radius: calc(0.75rem - 3px);
   object-fit: cover;
   object-position: center top;
 }
@@ -76,6 +78,7 @@ h3 {
   position: absolute;
   inset: auto 0 0 0;
   z-index: 2;
+  border-radius: 0 0 calc(0.75rem - 3px) calc(0.75rem - 3px);
   padding: 16cqw 6cqw 5cqw;
   display: flex;
   flex-direction: column;
@@ -137,17 +140,18 @@ h3 {
   background: rgb(0 0 0 / 0.65);
   z-index: 2;
 }
-/* Cristal de rareté en haut à gauche, finition dessous, plaque du type en haut à droite */
+/* Rareté en petites gemmes (1 à 5) en haut à gauche, finition dessous, type en haut à droite */
 .card-gem {
   position: absolute;
-  top: 2.5cqw;
-  left: 2.5cqw;
-  width: 20cqw;
-  height: 20cqw;
+  top: 3.5cqw;
+  left: 3.5cqw;
   z-index: 2;
+  display: flex;
+  gap: 0.8cqw;
   filter: drop-shadow(0 0 1cqw rgb(0 0 0 / 0.85)) drop-shadow(0 0 2.5cqw color-mix(in srgb, var(--rarity) 80%, transparent));
 }
-.card-finish { position: absolute; top: 24cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+.card-gem svg { width: 7cqw; height: 9cqw; }
+.card-finish { position: absolute; top: 15.5cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
   position: absolute;
   top: 3cqw;
@@ -219,6 +223,7 @@ h3 {
   background: linear-gradient(115deg, transparent 20%, #ff4d6d55 30%, #ffd16655 40%, #4ade8055 50%, #38bdf855 60%, #c084fc55 70%, transparent 80%);
   background-size: 250% 250%;
   mix-blend-mode: color-dodge;
+  border-radius: inherit;
   animation: holo 4s linear infinite;
 }
 @keyframes holo {
@@ -242,12 +247,51 @@ h3 {
   pointer-events: none;
   background: linear-gradient(105deg, transparent 40%, #fff7d6aa 50%, transparent 60%);
   background-size: 300% 100%;
+  border-radius: inherit;
   animation: shine 2.8s ease-in-out infinite;
 }
 @keyframes shine {
   from { background-position: 150% 0; }
   to { background-position: -50% 0; }
 }
+
+/* ---------- Décors du cadre (R et au-dessus) : voir CardDeco.tsx ---------- */
+/* Les décors dépassent du cadre : la carte ne rogne plus, l'image et les reflets suivent donc ses coins arrondis */
+.card[data-rarity]:not([data-rarity="N"]):not([data-missing]) { overflow: visible; }
+.card-deco { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.card-deco > svg { position: absolute; overflow: visible; filter: drop-shadow(0 0 1.6cqw color-mix(in srgb, var(--rarity) 80%, transparent)); }
+.deco-tick { width: 10cqw; height: 10cqw; }
+.deco-tick.tl, .deco-corner.tl { left: -2.7cqw; top: -2.7cqw; }
+.deco-tick.tr, .deco-corner.tr { right: -2.7cqw; top: -2.7cqw; transform: scaleX(-1); }
+.deco-tick.bl, .deco-corner.bl { left: -2.7cqw; bottom: -2.7cqw; transform: scaleY(-1); }
+.deco-tick.br, .deco-corner.br { right: -2.7cqw; bottom: -2.7cqw; transform: scale(-1); }
+.deco-corner { width: 21cqw; height: 21cqw; }
+.deco-corner.tl { left: -5.5cqw; top: -5.5cqw; }
+.deco-corner.tr { right: -5.5cqw; top: -5.5cqw; }
+.deco-corner.bl { left: -5.5cqw; bottom: -5.5cqw; }
+.deco-corner.br { right: -5.5cqw; bottom: -5.5cqw; }
+.deco-mini { width: 8cqw; height: 7cqw; left: 50%; top: -4.2cqw; margin-left: -4cqw; }
+.deco-crest { width: 33cqw; height: 20.6cqw; left: 50%; top: -20cqw; margin-left: -16.5cqw; }
+.deco-fil { width: 109cqw; height: 10cqw; left: 50%; top: -4.5cqw; margin-left: -54.5cqw; }
+.deco-side { width: 8cqw; height: 12.7cqw; top: 50%; margin-top: -6.3cqw; }
+.deco-side.l { left: -4cqw; }
+.deco-side.r { right: -4cqw; }
+.deco-pearl { position: absolute; width: 2.7cqw; height: 2.7cqw; margin-left: -1.35cqw; border-radius: 50%; background: var(--rarity-light); box-shadow: 0 0 2.5cqw var(--rarity); }
+/* Aura de l'UR : un halo qui tourne derrière la carte, animé seulement au survol (il y en a vite beaucoup à l'écran) */
+@property --aura-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.deco-aura {
+  position: absolute;
+  inset: -5cqw;
+  z-index: -1;
+  border-radius: 12cqw;
+  background: conic-gradient(from var(--aura-a), var(--rarity), transparent 20%, var(--rarity-light) 40%, transparent 60%, var(--rarity) 80%, transparent);
+  filter: blur(5cqw);
+  opacity: 0.8;
+  animation: aura-spin 5s linear infinite paused;
+}
+.card:hover .deco-aura { animation-play-state: running; }
+@keyframes aura-spin { to { --aura-a: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .deco-aura { animation: none; } }
 
 /* ---------- Retournement ---------- */
 
@@ -944,7 +988,8 @@ body.scene-night {
 .vt-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
-  gap: 1.5rem 1.25rem;
+  gap: 2.6rem 1.5rem;
+  padding-top: 2.2rem; /* place pour la couronne des cartes SSR et UR */
 }
 /* La carte se soulève ; une lueur à la couleur de sa rareté se pose sous elle, comme sur le sol d'une vitrine */
 .vt-card {

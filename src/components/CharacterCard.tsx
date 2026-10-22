@@ -1,6 +1,7 @@
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { TYPE_LABELS } from "@/lib/labels";
-import { Icon, RarityGem, Stat, TypeIcon } from "./icons";
+import { CardDeco, RarityGems } from "./CardDeco";
+import { Icon, Stat, TypeIcon } from "./icons";
 import type { Finish } from "@/lib/pull";
 
 export interface CharacterCardProps {
@@ -46,7 +47,8 @@ export function CharacterCard({
       {/* Image servie par le CDN AniList : <img> simple, pas de copie côté serveur */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="card-art" src={imageUrl} alt={name} loading="lazy" referrerPolicy="no-referrer" />
-      <RarityGem rarity={rarity} className="card-gem" />
+      <RarityGems rarity={rarity} />
+      {!missing && <CardDeco rarity={rarity} />}
       {!missing && finish !== "NORMAL" && <Icon name={finish === "GOLD" ? "f-gold" : "f-holo"} className="card-finish" title={finish === "GOLD" ? "Gold" : "Holo"} />}
       <span className="card-kind" title={t.name}>
         <TypeIcon type={type} />
