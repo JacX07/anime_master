@@ -259,7 +259,7 @@ h3 {
 /* Les décors dépassent du cadre : la carte ne rogne plus, l'image et les reflets suivent donc ses coins arrondis */
 .card[data-rarity]:not([data-rarity="N"]):not([data-missing]) { overflow: visible; }
 .card-deco { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-.card-deco > svg { position: absolute; overflow: visible; filter: drop-shadow(0 0 1.6cqw color-mix(in srgb, var(--rarity) 80%, transparent)); }
+.card-deco > svg { position: absolute; overflow: visible; }
 .deco-tick { width: 10cqw; height: 10cqw; }
 .deco-tick.tl, .deco-corner.tl { left: -2.7cqw; top: -2.7cqw; }
 .deco-tick.tr, .deco-corner.tr { right: -2.7cqw; top: -2.7cqw; transform: scaleX(-1); }
@@ -271,27 +271,12 @@ h3 {
 .deco-corner.bl { left: -5.5cqw; bottom: -5.5cqw; }
 .deco-corner.br { right: -5.5cqw; bottom: -5.5cqw; }
 .deco-mini { width: 8cqw; height: 7cqw; left: 50%; top: -4.2cqw; margin-left: -4cqw; }
-.deco-crest { width: 33cqw; height: 20.6cqw; left: 50%; top: -20cqw; margin-left: -16.5cqw; }
+.deco-crest { width: 33cqw; height: 20.6cqw; left: 50%; top: -12cqw; margin-left: -16.5cqw; }
 .deco-fil { width: 109cqw; height: 10cqw; left: 50%; top: -4.5cqw; margin-left: -54.5cqw; }
 .deco-side { width: 8cqw; height: 12.7cqw; top: 50%; margin-top: -6.3cqw; }
 .deco-side.l { left: -4cqw; }
 .deco-side.r { right: -4cqw; }
 .deco-pearl { position: absolute; width: 2.7cqw; height: 2.7cqw; margin-left: -1.35cqw; border-radius: 50%; background: var(--rarity-light); box-shadow: 0 0 2.5cqw var(--rarity); }
-/* Aura de l'UR : un halo qui tourne derrière la carte, animé seulement au survol (il y en a vite beaucoup à l'écran) */
-@property --aura-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.deco-aura {
-  position: absolute;
-  inset: -5cqw;
-  z-index: -1;
-  border-radius: 12cqw;
-  background: conic-gradient(from var(--aura-a), var(--rarity), transparent 20%, var(--rarity-light) 40%, transparent 60%, var(--rarity) 80%, transparent);
-  filter: blur(5cqw);
-  opacity: 0.8;
-  animation: aura-spin 5s linear infinite paused;
-}
-.card:hover .deco-aura { animation-play-state: running; }
-@keyframes aura-spin { to { --aura-a: 360deg; } }
-@media (prefers-reduced-motion: reduce) { .deco-aura { animation: none; } }
 
 /* ---------- Retournement ---------- */
 
@@ -989,7 +974,7 @@ body.scene-night {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
   gap: 2.6rem 1.5rem;
-  padding-top: 2.2rem; /* place pour la couronne des cartes SSR et UR */
+  padding-top: 1.4rem; /* place pour la couronne des cartes SSR et UR */
 }
 /* La carte se soulève ; une lueur à la couleur de sa rareté se pose sous elle, comme sur le sol d'une vitrine */
 .vt-card {

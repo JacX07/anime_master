@@ -1,6 +1,6 @@
 import type { Rarity } from "@/generated/prisma/enums";
 
-// Décors autour du cadre d'une carte (R et au-dessus) : coins, couronne, filigrane et perles de l'UR. Tout est positionné en cqw
+// Décors autour du cadre d'une carte (R et au-dessus) : coins, couronne, filigrane et perles de l'UR (sans animation ni flou : trop lourd à l'écran). Tout est positionné en cqw
 // pour suivre la taille de la carte ; la couleur vient de --rarity. La carte laisse déborder ces décors (voir .card dans globals.css).
 
 export const RARITY_RANK: Record<Rarity, number> = { N: 1, R: 2, SR: 3, SSR: 4, UR: 5 };
@@ -59,7 +59,6 @@ export function CardDeco({ rarity }: { rarity: Rarity }) {
   if (rarity === "N") return null;
   return (
     <span className="card-deco" aria-hidden>
-      {rarity === "UR" && <i className="deco-aura" />}
       <Corners big={rarity === "SSR" || rarity === "UR"} />
       {rarity === "SR" && <Mini />}
       {(rarity === "SSR" || rarity === "UR") && <Crest />}
