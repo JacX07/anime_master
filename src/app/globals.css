@@ -142,17 +142,12 @@ h3 {
   position: absolute;
   top: 2.5cqw;
   left: 2.5cqw;
-  width: 16cqw;
-  height: 16cqw;
-  padding: 1.5cqw;
-  box-sizing: border-box;
+  width: 20cqw;
+  height: 20cqw;
   z-index: 2;
-  border-radius: 3.5cqw;
-  background: rgb(11 20 36 / 0.7);
-  border: 1px solid color-mix(in srgb, var(--rarity) 55%, transparent);
-  filter: drop-shadow(0 0 2.2cqw color-mix(in srgb, var(--rarity) 70%, transparent));
+  filter: drop-shadow(0 0 1cqw rgb(0 0 0 / 0.85)) drop-shadow(0 0 2.5cqw color-mix(in srgb, var(--rarity) 80%, transparent));
 }
-.card-finish { position: absolute; top: 21cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+.card-finish { position: absolute; top: 24cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
   position: absolute;
   top: 3cqw;
@@ -160,15 +155,14 @@ h3 {
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 11cqw;
-  height: 11cqw;
-  border-radius: 2.5cqw;
-  background: rgb(11 20 36 / 0.7);
-  font-size: 7cqw;
+  width: 13cqw;
+  height: 13cqw;
+  font-size: 9cqw;
+  filter: drop-shadow(0 0 1cqw rgb(0 0 0 / 0.85)) drop-shadow(0 0 2cqw rgb(0 0 0 / 0.6));
 }
 .card-count {
   position: absolute;
-  top: 16cqw;
+  top: 18cqw;
   right: 3cqw;
   z-index: 2;
   padding: 0.5cqw 2.5cqw;
