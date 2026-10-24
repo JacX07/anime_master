@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Cadres — thème futuriste / multivers</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0,#14213d,#070b14 70%);color:#dbe6fb;font:14px/1.4 system-ui,sans-serif;padding:32px}
+h1{font-size:20px;margin:0 0 4px}p.s{color:#8ea3c4;margin:0 0 20px;max-width:760px}
+h2{font-size:15px;margin:44px 0 2px;color:#fff}h2 small{color:#8ea3c4;font-weight:400;display:block;margin-top:2px}
+.row{display:flex;gap:64px;flex-wrap:wrap;padding:46px 24px 30px}
+.slot{width:220px;text-align:center}.slot b{display:block;margin-top:30px;color:#8ea3c4;font-weight:600}
+.frame{position:relative;width:220px;height:308px;--c:#38bdf8;--c2:#c2ecff;--d:#054a6b}
+.frame[data-r=SR]{--c:#a855f7;--c2:#e2c4ff;--d:#3b0a66}
+.frame[data-r=SSR]{--c:#f59e0b;--c2:#ffe9a8;--d:#7a4a00}
+.frame[data-r=UR]{--c:#ff3b4a;--c2:#ffb3bd;--d:#5a0010}
+.card{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#2b3f6e,#101a30 60%,#2a1530);border:2px solid var(--c);box-shadow:0 0 14px color-mix(in srgb,var(--c) 40%,transparent),inset 0 0 0 1px #0008}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#ffffff22,transparent 55%)}
+.who{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 10px;background:linear-gradient(transparent,#000c);font-weight:700;text-align:left}
+.who small{display:block;color:#aab8d4;font-weight:500}
+.gem{position:absolute;top:8px;left:8px;width:38px;height:38px;filter:drop-shadow(0 0 4px var(--c))}
+svg.deco{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:3}
+</style>
+<h1>Cadres — thème futuriste / multivers</h1>
+<p class="s">Quatre pistes qui sortent du « royal » (couronne, filigrane) pour aller vers l'interface de science-fiction et les portails entre mondes. Chaque ligne montre l'échelle R → SR → SSR → UR ; les N restent sans décor. Tout est statique (aucune animation, aucun filtre) pour ne pas relancer le lag.</p>
+<div id="app"></div>
+<script>
+const W=220,H=308;
+const RAR=["R","SR","SSR","UR"];
+const hex=(cx,cy,r)=>Array.from({length:6},(_,i)=>{const a=Math.PI/3*i+Math.PI/6;return`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`}).join(" ");
+const mirror=(s)=>{ // renvoie les 4 coins d'un motif dessiné en haut à gauche
+ return `<g>${s}</g><g transform="translate(${W} 0) scale(-1 1)">${s}</g><g transform="translate(0 ${H}) scale(1 -1)">${s}</g><g transform="translate(${W} ${H}) scale(-1 -1)">${s}</g>`};
+const S=(w=2)=>`stroke="var(--c)" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
+
+/* A — HUD : équerres biseautées, étiquette de données */
+function A(l){
+ let corner=`<path d="M-7 26V4L4 -7H26" ${S(2.4)}/>`;
+ if(l>=2)corner+=`<path d="M-1 16V8L8 -1H16" stroke="var(--c2)" stroke-width="1.2" fill="none" opacity=".8"/><rect x="-10" y="28" width="6" height="6" fill="var(--c)"/>`;
+ if(l>=3)corner+=`<path d="M-7 40v14M34 -7h14" ${S(2.4)}/><path d="M30 -3h5M-3 30v5" stroke="var(--c2)" stroke-width="1.4"/>`;
+ if(l>=4)corner+=`<path d="M-12 12 12 -12" stroke="var(--c2)" stroke-width="1.2" opacity=".7"/><circle cx="-7" cy="26" r="2.6" fill="var(--c2)"/><circle cx="26" cy="-7" r="2.6" fill="var(--c2)"/>`;
+ let top="";
+ if(l>=2)top+=`<path d="M92 -8H128L122 2H98Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/>`;
+ if(l>=3)top+=`<path d="M82 -3H70M138 -3h12" ${S(2)}/><circle cx="66" cy="-3" r="2.2" fill="var(--c2)"/><circle cx="154" cy="-3" r="2.2" fill="var(--c2)"/>`;
+ if(l>=4)top+=`<path d="M92 -8 110 -22 128 -8" ${S(2.4)}/><path d="M104 -8 110 -15 116 -8Z" fill="var(--c2)"/><path d="M60 -3H40M180 -3h-20" stroke="var(--c)" stroke-width="3"/>`;
+ let bot=l>=3?`<path d="M90 ${H+3}H130" ${S(2)}/><path d="M100 ${H+8}H120" stroke="var(--c2)" stroke-width="1.4" opacity=".8"/>`:"";
+ let rails=l>=4?[-7,W+7].map(x=>`<path d="M${x} 110V198" ${S(2)}/>`+[120,134,148,162,176,190].map(y=>`<path d="M${x-3} ${y}h6" stroke="var(--c2)" stroke-width="1.2"/>`).join("")).join(""):"";
+ return mirror(corner)+top+bot+rails;
+}
+
+/* B — portail multivers : anneau + faisceaux */
+function B(l){
+ let o="";
+ const cx=110,cy=-4;
+ if(l===1)o+=`<circle cx="${cx}" cy="${cy+4}" r="5" ${S(2)}/>`+[10,50,90,130].map(()=>"").join("");
+ if(l>=2)o+=`<circle cx="${cx}" cy="${cy}" r="9" ${S(2.2)}/><circle cx="${cx}" cy="${cy}" r="3" fill="var(--c2)"/>`;
+ if(l>=3)o+=`<circle cx="${cx}" cy="${cy}" r="15" ${S(1.6)} stroke-dasharray="5 4"/><path d="M${cx-24} ${cy}H${cx-62}M${cx+24} ${cy}H${cx+62}" ${S(2)}/><circle cx="${cx-66}" cy="${cy}" r="2.6" fill="var(--c2)"/><circle cx="${cx+66}" cy="${cy}" r="2.6" fill="var(--c2)"/>`;
+ if(l>=4)o+=`<circle cx="${cx}" cy="${cy}" r="22" ${S(1.2)} opacity=".7"/><circle cx="${cx+15.5}" cy="${cy-15.5}" r="3" fill="var(--c2)"/><circle cx="${cx-21}" cy="${cy+6}" r="2.4" fill="var(--c2)"/><path d="M${cx-62} ${cy}H${cx-90}M${cx+62} ${cy}H${cx+90}" ${S(3)}/><path d="M${cx-90} ${cy-5}V${cy+5}M${cx+90} ${cy-5}V${cy+5}" stroke="var(--c2)" stroke-width="1.6"/>`;
+ // portail en bas (reflet) pour SSR+
+ if(l>=3)o+=`<circle cx="${cx}" cy="${H+4}" r="6" ${S(2)}/><circle cx="${cx}" cy="${H+4}" r="2" fill="var(--c2)"/>`;
+ // coins : petites équerres
+ const k=`<path d="M-5 16V2Q-5 -5 2 -5H16" ${S(2)}/>`;
+ o+=mirror(k);
+ if(l>=3)o+=[-6,W+6].map(x=>[70,238].map(y=>`<circle cx="${x}" cy="${y}" r="3" fill="var(--c)"/>`).join("")).join("");
+ if(l>=4)o+=[-6,W+6].map(x=>`<path d="M${x} 84V224" ${S(1.6)}/>`+Array.from({length:8},(_,i)=>`<path d="M${x-3} ${96+i*18}h6" stroke="var(--c2)" stroke-width="1.2"/>`).join("")).join("");
+ return o;
+}
+
+/* C — circuits : traces + nœuds hexagonaux */
+function C(l){
+ let c=`<polygon points="${hex(0,0,8)}" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/>`;
+ if(l>=2)c+=`<path d="M10 0H34L42 -8H60" ${S(1.6)}/><path d="M0 10V34L-8 42V60" ${S(1.6)}/><circle cx="62" cy="-8" r="2.4" fill="var(--c2)"/><circle cx="-8" cy="62" r="2.4" fill="var(--c2)"/>`;
+ if(l>=3)c+=`<path d="M42 -8 50 -16H72" ${S(1.2)} opacity=".8"/><path d="M-8 42-16 50V72" ${S(1.2)} opacity=".8"/><rect x="72" y="-19" width="6" height="6" fill="var(--c)"/><rect x="-19" y="72" width="6" height="6" fill="var(--c)"/>`;
+ if(l>=4)c+=`<path d="M10 0 20 -10H30" stroke="var(--c2)" stroke-width="1.2" fill="none"/><path d="M-6 6 -16 16V26" stroke="var(--c2)" stroke-width="1.2" fill="none"/><polygon points="${hex(0,0,13)}" ${S(1.2)} opacity=".7"/>`;
+ let o=mirror(c);
+ if(l>=3){ // pastille hexagonale en haut
+  o+=`<polygon points="${hex(110,-6,11)}" fill="var(--c)" stroke="var(--c2)" stroke-width="1.4"/><circle cx="110" cy="-6" r="3.2" fill="var(--c2)"/>`;
+ }
+ if(l>=4){
+  o+=`<path d="M121 -6H138L146 -14H160M99 -6H82L74 -14H60" ${S(1.6)}/>`;
+  o+=[-7,W+7].map(x=>`<path d="M${x} 120V188" ${S(1.6)}/><polygon points="${hex(x,154,7)}" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/>`).join("");
+  o+=`<polygon points="${hex(110,H+6,9)}" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/>`;
+ }
+ return o;
+}
+
+/* D — fracture : rift, écho chromatique décalé */
+function D(l){
+ const gh1="#22d3ee",gh2="#e879f9";
+ let o="";
+ if(l>=3){ // écho décalé du cadre
+  o+=`<rect x="-4" y="-4" width="${W}" height="${H}" rx="16" fill="none" stroke="${gh1}" stroke-width="1.4" opacity=".75" stroke-dasharray="26 10 6 10"/>`;
+  o+=`<rect x="4" y="4" width="${W}" height="${H}" rx="16" fill="none" stroke="${gh2}" stroke-width="1.4" opacity=".75" stroke-dasharray="6 10 26 10"/>`;
+ }
+ // fissures aux coins (haut-gauche et bas-droite)
+ const crackA=`<path d="M-6 30 4 22 -2 14 8 6 2 -2 14 -6 22 4 30 -6" ${S(2)}/>`;
+ const crackB=`<path d="M-6 30 4 22 -2 14 8 6 2 -2 14 -6 22 4 30 -6" stroke="var(--c2)" stroke-width="1" fill="none" opacity=".8"/>`;
+ o+=`<g>${crackA}${crackB}</g><g transform="translate(${W} ${H}) scale(-1 -1)">${crackA}${crackB}</g>`;
+ if(l>=2)o+=`<g transform="translate(${W} 0) scale(-1 1)"><path d="M-4 22 4 14 -2 6 6 0 14 -6 22 -4" ${S(1.6)}/></g><g transform="translate(0 ${H}) scale(1 -1)"><path d="M-4 22 4 14 -2 6 6 0 14 -6 22 -4" ${S(1.6)}/></g>`;
+ if(l>=2)o+=`<rect x="-8" y="48" width="10" height="4" fill="${gh1}" opacity=".9"/><rect x="${W-2}" y="${H-52}" width="10" height="4" fill="${gh2}" opacity=".9"/>`;
+ if(l>=3)o+=`<rect x="${W-30}" y="-7" width="22" height="4" fill="${gh2}"/><rect x="8" y="${H+3}" width="22" height="4" fill="${gh1}"/><path d="M96 -6 110 -18 124 -6 110 2Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.4"/>`;
+ if(l>=4)o+=`<path d="M70 -4 80 -10H96M150 -4 140 -10H124" ${S(1.8)}/><rect x="-9" y="96" width="14" height="3" fill="${gh2}"/><rect x="${W-5}" y="150" width="14" height="3" fill="${gh1}"/><rect x="-9" y="104" width="8" height="3" fill="${gh1}"/><rect x="${W+1}" y="158" width="8" height="3" fill="${gh2}"/>`;
+ return o;
+}
+
+const GEM=`<svg class="gem" viewBox="0 0 32 32" fill="none" stroke="var(--c)" stroke-width="1.6"><circle cx="16" cy="16" r="14.4" opacity=".8" stroke-width="1"/><path d="M16 4.5 25.5 16 16 27.5 6.5 16Z" fill="var(--c)" fill-opacity=".5"/><path d="M6.5 16h19M16 4.5v23" stroke-width="1.2"/></svg>`;
+const SETS=[
+ ["A — HUD d'interface","équerres biseautées, étiquette de données en haut, rails graduées sur les côtés en UR",A],
+ ["B — Portail multivers","un anneau-portail remplace la couronne ; il gagne des anneaux, des satellites et des faisceaux avec la rareté",B],
+ ["C — Circuits dimensionnels","nœuds hexagonaux aux coins, traces de circuit qui s'allongent et se ramifient, pastille hexagonale en haut",C],
+ ["D — Fracture / glitch","bords fissurés, double écho cyan / magenta décalé (SSR+), éclats de pixels : l'ambiance « faille entre deux mondes »",D],
+];
+document.getElementById("app").innerHTML=SETS.map(([t,d,f])=>`<h2>${t}<small>${d}</small></h2><div class="row">${RAR.map((r,i)=>`<div class="slot"><div class="frame" data-r="${r}"><div class="card">${GEM}<div class="who"><small>Personnage · Série</small>Nom ${r}</div></div><svg class="deco" viewBox="0 0 ${W} ${H}">${f(i+1)}</svg></div><b>${r}</b></div>`).join("")}</div>`).join("");
+</script>
