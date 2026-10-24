@@ -13,6 +13,8 @@ h2{font-size:15px;margin:44px 0 2px;color:#fff}h2 small{color:#8ea3c4;font-weigh
 .frame[data-r=UR]{--c:#ff3b4a;--c2:#ffb3bd;--d:#5a0010}
 .card{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#2b3f6e,#101a30 60%,#2a1530);border:2px solid var(--c);box-shadow:0 0 14px color-mix(in srgb,var(--c) 40%,transparent),inset 0 0 0 1px #0008}
 .card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#ffffff22,transparent 55%)}
+.art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.gem{z-index:2}
 .who{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 10px;background:linear-gradient(transparent,#000c);font-weight:700;text-align:left}
 .who small{display:block;color:#aab8d4;font-weight:500}
 .gem{position:absolute;top:8px;left:8px;width:38px;height:38px;filter:drop-shadow(0 0 4px var(--c))}
@@ -24,6 +26,7 @@ svg.deco{position:absolute;inset:0;width:100%;height:100%;overflow:visible;point
 <script>
 const W=220,H=308;
 const RAR=["R","SR","SSR","UR"];
+const CH={R:["Rem","https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png"],SR:["Denji","https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png"],SSR:["Makima","https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png"],UR:["Rem","https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png"]};
 const hex=(cx,cy,r)=>Array.from({length:6},(_,i)=>{const a=Math.PI/3*i+Math.PI/6;return`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`}).join(" ");
 const mirror=(s)=>{ // renvoie les 4 coins d'un motif dessiné en haut à gauche
  return `<g>${s}</g><g transform="translate(${W} 0) scale(-1 1)">${s}</g><g transform="translate(0 ${H}) scale(1 -1)">${s}</g><g transform="translate(${W} ${H}) scale(-1 -1)">${s}</g>`};
@@ -106,5 +109,5 @@ const SETS=[
  ["C — Circuits dimensionnels","nœuds hexagonaux aux coins, traces de circuit qui s'allongent et se ramifient, pastille hexagonale en haut",C],
  ["D — Fracture / glitch","bords fissurés, double écho cyan / magenta décalé (SSR+), éclats de pixels : l'ambiance « faille entre deux mondes »",D],
 ];
-document.getElementById("app").innerHTML=SETS.map(([t,d,f])=>`<h2>${t}<small>${d}</small></h2><div class="row">${RAR.map((r,i)=>`<div class="slot"><div class="frame" data-r="${r}"><div class="card">${GEM}<div class="who"><small>Personnage · Série</small>Nom ${r}</div></div><svg class="deco" viewBox="0 0 ${W} ${H}">${f(i+1)}</svg></div><b>${r}</b></div>`).join("")}</div>`).join("");
+document.getElementById("app").innerHTML=SETS.map(([t,d,f])=>`<h2>${t}<small>${d}</small></h2><div class="row">${RAR.map((r,i)=>`<div class="slot"><div class="frame" data-r="${r}"><div class="card"><img class="art" src="${CH[r][1]}" referrerpolicy="no-referrer" alt="">${GEM}<div class="who"><small>Personnage · Série</small>${CH[r][0]}</div></div><svg class="deco" viewBox="0 0 ${W} ${H}">${f(i+1)}</svg></div><b>${r}</b></div>`).join("")}</div>`).join("");
 </script>
