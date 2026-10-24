@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Cadres A — variantes UR</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0,#14213d,#070b14 70%);color:#dbe6fb;font:14px/1.4 system-ui,sans-serif;padding:32px}
+h1{font-size:20px;margin:0 0 4px}p.s{color:#8ea3c4;margin:0 0 20px;max-width:760px}
+h2{font-size:15px;margin:44px 0 2px;color:#fff}h2 small{color:#8ea3c4;font-weight:400;display:block;margin-top:2px}
+.row{display:flex;gap:64px;flex-wrap:wrap;padding:46px 24px 30px}
+.slot{width:220px;text-align:center}.slot b{display:block;margin-top:30px;color:#8ea3c4;font-weight:600}
+.frame{position:relative;width:220px;height:308px;--c:#38bdf8;--c2:#c2ecff;--d:#054a6b}
+.frame[data-r=SR]{--c:#a855f7;--c2:#e2c4ff;--d:#3b0a66}
+.frame[data-r=SSR]{--c:#f59e0b;--c2:#ffe9a8;--d:#7a4a00}
+.frame[data-r=UR]{--c:#ff3b4a;--c2:#ffb3bd;--d:#5a0010}
+.card{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#2b3f6e,#101a30 60%,#2a1530);border:2px solid var(--c);box-shadow:0 0 14px color-mix(in srgb,var(--c) 40%,transparent),inset 0 0 0 1px #0008}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#ffffff22,transparent 55%)}
+.art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.gem{z-index:2}
+.who{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 10px;background:linear-gradient(transparent,#000c);font-weight:700;text-align:left}
+.who small{display:block;color:#aab8d4;font-weight:500}
+.gem{position:absolute;top:8px;left:8px;width:38px;height:38px;filter:drop-shadow(0 0 4px var(--c))}
+svg.deco{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:3}
+</style>
+<h1>Cadres A — nouvelles UR</h1>
+<p class="s">On garde la A (coins doublés). Les rails graduées sont retirées ; quatre idées pour la finition de l UR. Statique, sans filtre.</p>
+<div id="app"></div>
+<script>
+const W=220,H=308;
+const RAR=["R","SR","SSR","UR"];
+const CH={R:["Rem","https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png"],SR:["Denji","https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png"],SSR:["Makima","https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png"],UR:["Rem","https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png"]};
+const hex=(cx,cy,r)=>Array.from({length:6},(_,i)=>{const a=Math.PI/3*i+Math.PI/6;return`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`}).join(" ");
+const mirror=(s)=>{ // renvoie les 4 coins d'un motif dessiné en haut à gauche
+ return `<g>${s}</g><g transform="translate(${W} 0) scale(-1 1)">${s}</g><g transform="translate(0 ${H}) scale(1 -1)">${s}</g><g transform="translate(${W} ${H}) scale(-1 -1)">${s}</g>`};
+const S=(w=2)=>`stroke="var(--c)" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
+
+/* A — HUD, base (R→SSR inchangés, UR sans les rails) + variantes d'UR */
+function base(l,extra4=true){
+ let corner=`<path d="M-7 26V4L4 -7H26" ${S(2.4)}/>`;
+ if(l>=2)corner+=`<path d="M-1 16V8L8 -1H16" stroke="var(--c2)" stroke-width="1.2" fill="none" opacity=".8"/><rect x="-10" y="28" width="6" height="6" fill="var(--c)"/>`;
+ if(l>=3)corner+=`<path d="M-7 40v14M34 -7h14" ${S(2.4)}/><path d="M30 -3h5M-3 30v5" stroke="var(--c2)" stroke-width="1.4"/>`;
+ if(l>=4&&extra4)corner+=`<path d="M-12 12 12 -12" stroke="var(--c2)" stroke-width="1.2" opacity=".7"/><circle cx="-7" cy="26" r="2.6" fill="var(--c2)"/><circle cx="26" cy="-7" r="2.6" fill="var(--c2)"/>`;
+ let top="";
+ if(l>=2)top+=`<path d="M92 -8H128L122 2H98Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/>`;
+ if(l>=3)top+=`<path d="M82 -3H70M138 -3h12" ${S(2)}/><circle cx="66" cy="-3" r="2.2" fill="var(--c2)"/><circle cx="154" cy="-3" r="2.2" fill="var(--c2)"/>`;
+ if(l>=4&&extra4)top+=`<path d="M92 -8 110 -22 128 -8" ${S(2.4)}/><path d="M104 -8 110 -15 116 -8Z" fill="var(--c2)"/><path d="M60 -3H40M180 -3h-20" stroke="var(--c)" stroke-width="3"/>`;
+ let bot=l>=3?`<path d="M90 ${H+3}H130" ${S(2)}/><path d="M100 ${H+8}H120" stroke="var(--c2)" stroke-width="1.4" opacity=".8"/>`:"";
+ return mirror(corner)+top+bot;
+}
+const ladder=l=>base(l);
+/* U1 — chevrons latéraux : pointe vers l'intérieur au milieu de chaque côté */
+const U1=()=>base(4)+[ -7,W+7].map((x,i)=>{const d=i?-1:1;return `<path d="M${x} 112 ${x+d*9} 128V180L${x} 196" ${S(2.2)}/><path d="M${x+d*3} 138 ${x+d*7} 146V162L${x+d*3} 170" stroke="var(--c2)" stroke-width="1.2" fill="none"/><circle cx="${x}" cy="154" r="2.6" fill="var(--c2)"/>`}).join("");
+/* U2 — double filet : second cadre à coins coupés, interrompu aux milieux */
+const U2=()=>{const o=-6,x0=o,y0=o,x1=W-o,y1=H-o,c=16;
+ const seg=`<path d="M${x0+c} ${y0}H${x0+78}M${x1-78} ${y0}H${x1-c}L${x1} ${y0+c}V${y0+74}M${x1} ${y1-74}V${y1-c}L${x1-c} ${y1}H${x1-78}M${x0+78} ${y1}H${x0+c}L${x0} ${y1-c}V${y1-74}M${x0} ${y0+74}V${y0+c}Z" stroke="var(--c)" stroke-width="1.4" fill="none" opacity=".85"/>`;
+ return base(4,false)+seg+`<path d="M92 -8 110 -22 128 -8" ${S(2.4)}/><path d="M104 -8 110 -15 116 -8Z" fill="var(--c2)"/>`;};
+/* U3 — plaque basse : étiquette en bas symétrique + nœuds hexagonaux sur les côtés */
+const U3=()=>base(4)+`<path d="M86 ${H+9}H134L126 ${H-1}H94Z" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/><path d="M92 ${H+14}H128" stroke="var(--c2)" stroke-width="1.4" opacity=".8"/>`+[-7,W+7].map(x=>`<polygon points="${hex(x,154,8)}" fill="var(--c)" stroke="var(--c2)" stroke-width="1.2"/><path d="M${x} 118V138M${x} 170V190" ${S(1.6)}/>`).join("");
+/* U4 — hachures d'énergie : bandes obliques aux coins + traits de scan en haut/bas */
+const U4=()=>{const hatch=`<path d="M10 -7 3 0M18 -7 3 8M26 -7 3 16M34 -7 3 24" stroke="var(--c2)" stroke-width="1.4" opacity=".75" fill="none"/>`;
+ return base(4,false)+`<g>${hatch}</g><g transform="translate(${W} 0) scale(-1 1)">${hatch}</g><g transform="translate(0 ${H}) scale(1 -1)">${hatch}</g><g transform="translate(${W} ${H}) scale(-1 -1)">${hatch}</g>`+`<path d="M92 -8 110 -22 128 -8" ${S(2.4)}/><path d="M104 -8 110 -15 116 -8Z" fill="var(--c2)"/><path d="M58 -3H40M180 -3h-18" stroke="var(--c)" stroke-width="3"/><path d="M40 ${H+3}H70M150 ${H+3}h30" ${S(2)}/>`;};
+const GEM=`<svg class="gem" viewBox="0 0 32 32" fill="none" stroke="var(--c)" stroke-width="1.6"><circle cx="16" cy="16" r="14.4" opacity=".8" stroke-width="1"/><path d="M16 4.5 25.5 16 16 27.5 6.5 16Z" fill="var(--c)" fill-opacity=".5"/><path d="M6.5 16h19M16 4.5v23" stroke-width="1.2"/></svg>`;
+const card=(r,svg,label)=>`<div class="slot"><div class="frame" data-r="${r}"><div class="card"><img class="art" src="${CH[r][1]}" referrerpolicy="no-referrer" alt="">${GEM}<div class="who"><small>Personnage · Série</small>${CH[r][0]}</div></div><svg class="deco" viewBox="0 0 ${W} ${H}">${svg}</svg></div><b>${label||r}</b></div>`;
+document.getElementById("app").innerHTML=
+ `<h2>Échelle A (R → UR sans rails)<small>R, SR, SSR inchangés ; l'UR affichée est la version sans rails, avant les variantes ci-dessous</small></h2><div class="row">${RAR.map((r,i)=>card(r,ladder(i+1))).join("")}</div>`+
+ `<h2>Variantes d'UR<small>même base que SSR + couronne en chevron, avec un détail différent à la place des rails</small></h2><div class="row">${[["U1 — chevrons latéraux",U1],["U2 — double filet coupé",U2],["U3 — plaque basse + nœuds hex",U3],["U4 — hachures d'énergie",U4]].map(([t,f])=>card("UR",f(),t)).join("")}</div>`;
+</script>
