@@ -41,10 +41,10 @@ const Corners = () => (
 
 /** Cimier : large de 72 unités, posé sur le bord haut */
 const Crest = () => (
-  <g transform="translate(84.4 -28) scale(0.8)">
-    <path d="M32 2 40 14 32 38 24 14Z" fill={C} stroke={C2} strokeWidth="1.5" />
+  <g transform="translate(74 -31) scale(1.125)">
+    <path d="M32 6 40 16 32 30 24 16Z" fill={C} stroke={C2} strokeWidth="1.5" />
     <path d="M22 20C12 20 6 14 2 8c8 0 14 2 18 6ZM42 20c10 0 16-6 20-12-8 0-14 2-18 6Z" fill={C} opacity=".9" />
-    <circle cx="32" cy="14" r="2.5" fill={C2} />
+    <circle cx="32" cy="15" r="2.5" fill={C2} />
   </g>
 );
 
