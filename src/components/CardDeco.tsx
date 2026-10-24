@@ -1,100 +1,123 @@
 import type { ReactNode } from "react";
 import type { Rarity } from "@/generated/prisma/enums";
 
-// Décors autour du cadre d'une carte (R et au-dessus) : coins, couronne, filigrane et perles de l'UR. Un seul SVG par carte, sans
-// filtre ni animation (mesuré : des dizaines d'éléments SVG séparés avec ombres lumineuses faisaient ramer l'album). Les coordonnées
-// sont celles d'une carte large de 220 unités (haute de 308) ; la couleur vient de --rarity. La carte laisse déborder ces décors
-// (voir .card dans globals.css).
+// Décors autour du cadre d'une carte (R et au-dessus), style interface futuriste : équerres biseautées qui se doublent avec la rareté,
+// étiquette de données en haut, plaque symétrique et nœuds hexagonaux de l'UR. Un seul SVG par carte, sans filtre ni animation
+// (mesuré : des dizaines d'éléments SVG séparés avec ombres lumineuses faisaient ramer l'album). Les coordonnées sont celles d'une
+// carte large de 220 unités (haute de 308) ; la couleur vient de --rarity. La carte laisse déborder ces décors (voir .card dans globals.css).
 
 const C = "var(--rarity)";
 const C2 = "var(--rarity-light)";
+const W = 220;
+const H = 308;
 
-const Tick = ({ t }: { t: string }) => (
-  <g transform={t} fill="none" stroke={C} strokeWidth="2.4" strokeLinecap="round">
-    <path d="M3 19V7Q3 3 7 3H19" />
-  </g>
-);
-const Ticks = () => (
+const hex = (cx: number, cy: number, r: number) =>
+  Array.from({ length: 6 }, (_, i) => {
+    const a = (Math.PI / 3) * i + Math.PI / 6;
+    return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+  }).join(" ");
+
+/** Un motif dessiné pour le coin haut-gauche, répété aux quatre coins */
+const Mirror = ({ children }: { children: ReactNode }) => (
   <>
-    <Tick t="translate(-6 -6)" />
-    <Tick t="translate(226 -6) scale(-1 1)" />
-    <Tick t="translate(-6 314) scale(1 -1)" />
-    <Tick t="translate(226 314) scale(-1 -1)" />
+    <g>{children}</g>
+    <g transform={`translate(${W} 0) scale(-1 1)`}>{children}</g>
+    <g transform={`translate(0 ${H}) scale(1 -1)`}>{children}</g>
+    <g transform={`translate(${W} ${H}) scale(-1 -1)`}>{children}</g>
   </>
 );
 
-const Corner = ({ t }: { t: string }) => (
-  <g transform={t} fill="none" stroke={C} strokeWidth="3" strokeLinecap="round">
-    <path d="M4 42V14Q4 4 14 4H42" />
-    <path d="M12 42V20Q12 12 20 12H42" strokeWidth="1.5" stroke={C2} opacity=".8" />
-    <circle cx="4" cy="4" r="4" fill={C2} stroke="none" />
-  </g>
-);
-const Corners = () => (
+const Corner = ({ level }: { level: number }) => (
   <>
-    <Corner t="translate(-12 -12)" />
-    <Corner t="translate(232 -12) scale(-1 1)" />
-    <Corner t="translate(-12 320) scale(1 -1)" />
-    <Corner t="translate(232 320) scale(-1 -1)" />
+    <path d="M-7 26V4L4 -7H26" fill="none" stroke={C} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    {level >= 2 && (
+      <>
+        <path d="M-1 16V8L8 -1H16" fill="none" stroke={C2} strokeWidth="1.2" opacity=".8" />
+        <rect x="-10" y="28" width="6" height="6" fill={C} />
+      </>
+    )}
+    {level >= 3 && (
+      <>
+        <path d="M-7 40v14M34 -7h14" fill="none" stroke={C} strokeWidth="2.4" strokeLinecap="round" />
+        <path d="M30 -3h5M-3 30v5" stroke={C2} strokeWidth="1.4" />
+      </>
+    )}
+    {level >= 4 && (
+      <>
+        <path d="M-12 12 12 -12" stroke={C2} strokeWidth="1.2" opacity=".7" />
+        <circle cx="-7" cy="26" r="2.6" fill={C2} />
+        <circle cx="26" cy="-7" r="2.6" fill={C2} />
+      </>
+    )}
   </>
 );
 
-/** Cimier : large de 72 unités, posé sur le bord haut */
-const Crest = () => (
-  <g transform="translate(74 -31) scale(1.125)">
-    <path d="M32 6 40 16 32 30 24 16Z" fill={C} stroke={C2} strokeWidth="1.5" />
-    <path d="M22 20C12 20 6 14 2 8c8 0 14 2 18 6ZM42 20c10 0 16-6 20-12-8 0-14 2-18 6Z" fill={C} opacity=".9" />
-    <circle cx="32" cy="15" r="2.5" fill={C2} />
-  </g>
+/** Étiquette de données en haut (SR et au-dessus), qui s'enrichit en SSR puis en UR */
+const Tag = ({ level }: { level: number }) => (
+  <>
+    <path d="M92 -8H128L122 2H98Z" fill={C} stroke={C2} strokeWidth="1.2" />
+    {level >= 3 && (
+      <>
+        <path d="M82 -3H70M138 -3h12" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round" />
+        <circle cx="66" cy="-3" r="2.2" fill={C2} />
+        <circle cx="154" cy="-3" r="2.2" fill={C2} />
+        <path d="M90 311H130" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round" />
+        <path d="M100 316H120" stroke={C2} strokeWidth="1.4" opacity=".8" />
+      </>
+    )}
+    {level >= 4 && (
+      <>
+        <path d="M92 -8 110 -22 128 -8" fill="none" stroke={C} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M104 -8 110 -15 116 -8Z" fill={C2} />
+        <path d="M60 -3H40M180 -3h-20" stroke={C} strokeWidth="3" />
+      </>
+    )}
+  </>
 );
 
-const Mini = () => (
-  <g transform="translate(101 -9)">
-    <path d="M9 1 14 8 9 15 4 8Z" fill={C} stroke={C2} strokeWidth="1.2" />
-  </g>
+/** UR : plaque basse symétrique à l'étiquette, et un nœud hexagonal relié sur chaque côté */
+const Plate = () => (
+  <>
+    <path d="M86 317H134L126 307H94Z" fill={C} stroke={C2} strokeWidth="1.2" />
+    <path d="M92 322H128" stroke={C2} strokeWidth="1.4" opacity=".8" />
+    {[-7, W + 7].map((x) => (
+      <g key={x}>
+        <polygon points={hex(x, 154, 8)} fill={C} stroke={C2} strokeWidth="1.2" />
+        <path d={`M${x} 118V138M${x} 170V190`} fill="none" stroke={C} strokeWidth="1.6" strokeLinecap="round" />
+      </g>
+    ))}
+  </>
 );
-
-const Filigree = () => (
-  <g transform="translate(-10 -10)" fill="none" stroke={C2} strokeWidth="1.6" strokeLinecap="round">
-    <path d="M70 12H18Q8 12 4 20M170 12h52Q232 12 236 20" />
-    <path d="M62 12H30M178 12h32" stroke={C} strokeWidth="3" />
-    <path d="M22 12 16 6 10 12 16 18ZM224 12 218 6 212 12 218 18Z" fill={C} strokeWidth="1.2" />
-  </g>
-);
-
-const Side = ({ x }: { x: number }) => (
-  <g transform={`translate(${x} 140)`}>
-    <path d="M9 1 16 14 9 27 2 14Z" fill={C} stroke={C2} strokeWidth="1.4" />
-    <path d="M9 7v14" stroke={C2} strokeWidth="1" />
-  </g>
-);
-
-const PEARLS = [-1, 1].flatMap((d) => [0, 1, 2].map((k) => ({ x: 110 + d * (52 + k * 14), y: -14 + k * 3 })));
 
 const DECO: Partial<Record<Rarity, ReactNode>> = {
-  R: <Ticks />,
+  R: (
+    <Mirror>
+      <Corner level={1} />
+    </Mirror>
+  ),
   SR: (
     <>
-      <Ticks />
-      <Mini />
+      <Mirror>
+        <Corner level={2} />
+      </Mirror>
+      <Tag level={2} />
     </>
   ),
   SSR: (
     <>
-      <Corners />
-      <Crest />
+      <Mirror>
+        <Corner level={3} />
+      </Mirror>
+      <Tag level={3} />
     </>
   ),
   UR: (
     <>
-      <Corners />
-      <Crest />
-      <Filigree />
-      <Side x={-9} />
-      <Side x={211} />
-      {PEARLS.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="3" fill={C2} />
-      ))}
+      <Mirror>
+        <Corner level={4} />
+      </Mirror>
+      <Tag level={4} />
+      <Plate />
     </>
   ),
 };
