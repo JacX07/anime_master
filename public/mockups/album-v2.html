@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Album — pistes d'identité</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800;900&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#09090f;--plate:#13131d;--line:#ffffff1c;--bone:#ebe7dc;--mute:#8d8a99;--N:#94a3b8;--R:#38bdf8;--SR:#a855f7;--SSR:#f59e0b;--UR:#ff3b4a}
+*{box-sizing:border-box;margin:0}
+body{background:#000;color:var(--bone);font:15px/1.45 'Hanken Grotesk',system-ui,sans-serif;padding:28px}
+h1.top{font:800 22px 'Big Shoulders Display';letter-spacing:.04em;margin-bottom:4px}p.top{color:var(--mute);max-width:720px;margin-bottom:30px}
+.v{background:var(--ink);border:1px solid var(--line);margin-bottom:46px;position:relative;overflow:hidden;padding:34px 36px 40px}
+.vlabel{position:absolute;right:14px;top:10px;font-size:12px;color:var(--mute)}
+.disp{font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;line-height:.82;letter-spacing:.01em}
+.c{position:relative;aspect-ratio:220/308;background:#1b2238;border:2px solid var(--rc);border-radius:10px;overflow:hidden}
+.c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.c .nm{position:absolute;left:0;right:0;bottom:0;padding:22px 8px 7px;background:linear-gradient(transparent,#000d);font-weight:600;font-size:12px}
+.c[data-r=N]{--rc:var(--N)}.c[data-r=R]{--rc:var(--R)}.c[data-r=SR]{--rc:var(--SR)}.c[data-r=SSR]{--rc:var(--SSR)}.c[data-r=UR]{--rc:var(--UR)}
+.c i{position:absolute;top:6px;left:6px;width:9px;height:9px;background:var(--rc);transform:rotate(45deg)}
+.slot{position:relative;aspect-ratio:220/308;border:1.5px dashed #ffffff30;border-radius:10px;overflow:hidden;display:grid;place-items:center}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:brightness(0);opacity:.55}
+.slot span{position:relative;font:800 34px 'Big Shoulders Display';color:#ffffff40}
+/* ---------- A : Atlas ---------- */
+.A .nodes{display:flex;gap:26px;align-items:center;padding-bottom:26px;border-bottom:1px solid var(--line);margin-bottom:30px}
+.node{width:64px;text-align:center;font-size:11px;color:var(--mute)}
+.ring{--p:60;width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--w) calc(var(--p)*1%),#ffffff18 0);display:grid;place-items:center;margin-bottom:6px}
+.ring b{width:54px;height:54px;border-radius:50%;background:var(--ink);display:grid;place-items:center;font:800 17px 'Big Shoulders Display';color:var(--w)}
+.node.on{color:var(--bone)}.node.on .ring{box-shadow:0 0 0 3px var(--ink),0 0 0 4px var(--w)}
+.A .stage{display:grid;grid-template-columns:auto 1fr;gap:34px}
+.A .big{font-size:150px;writing-mode:vertical-rl;transform:rotate(180deg);color:var(--w);align-self:stretch;white-space:nowrap}
+.A .shelf{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;align-content:start}
+.A .meta{grid-column:1/-1;display:flex;gap:28px;color:var(--mute);margin-bottom:4px}.A .meta b{color:var(--bone);font:800 28px 'Big Shoulders Display'}
+/* ---------- B : Registre (bandes de monde) ---------- */
+.band{display:grid;grid-template-columns:150px 1fr;margin-bottom:22px;background:linear-gradient(90deg,color-mix(in srgb,var(--w) 22%,transparent),transparent 55%);border-top:2px solid var(--w)}
+.band .spine{padding:14px 14px 14px 0;display:flex;flex-direction:column;justify-content:space-between}
+.band .spine .disp{font-size:44px;color:var(--w)}
+.band .spine small{color:var(--mute);display:block;margin-top:8px}
+.band .row{display:flex;gap:12px;padding:14px 0;overflow:hidden}.band .row>*{width:104px;flex:none}
+.bar{height:3px;background:#ffffff1c;margin-top:10px}.bar i{display:block;height:100%;background:var(--w)}
+/* ---------- C : Planche ---------- */
+.C{background:#0d0d14}
+.C .head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;border-bottom:1px solid var(--line);padding-bottom:16px}
+.C .head .disp{font-size:96px}.C .head p{color:var(--mute);text-align:right}
+.C .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:34px 22px}
+.pl{position:relative;padding:10px}
+.pl::before,.pl::after{content:"";position:absolute;width:12px;height:12px;border:solid var(--mute);border-width:0}
+.pl::before{left:0;top:0;border-left-width:1px;border-top-width:1px}.pl::after{right:0;bottom:0;border-right-width:1px;border-bottom-width:1px}
+.pl .cap{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--mute)}
+.pl .cap b{color:var(--bone);font-weight:600}
+.pl.miss .cap{color:#ffffff3a}
+</style>
+<h1 class="top">Album — trois pistes d'identité</h1>
+<p class="top">Même contenu dans les trois : Chainsaw Man avec 4 cartes possédées et des emplacements vides. Chaque monde porte sa propre teinte ; les couleurs de rareté ne servent qu'aux cartes. Tout est statique.</p>
+<div id="app"></div>
+<script>
+const IMG={rem:"https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png",rem2:"https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png",denji:"https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png",mak:"https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png"};
+const card=(k,n,r)=>`<div class="c" data-r="${r}"><img src="${IMG[k]}" referrerpolicy="no-referrer" alt=""><i></i><div class="nm">${n}</div></div>`;
+const slot=(k,i)=>`<div class="slot"><img src="${IMG[k]}" referrerpolicy="no-referrer" alt=""><span>${String(i).padStart(2,"0")}</span></div>`;
+const OWN=[["denji","Denji","SR"],["mak","Makima","SSR"],["rem","Rem","R"],["rem2","Rem","UR"]];
+const owned=OWN.map(o=>card(...o));
+const miss=(n,from=5)=>Array.from({length:n},(_,i)=>slot(["denji","mak","rem","rem2"][i%4],from+i)).join("");
+
+const A=`<div class="v A" style="--w:#ff6a3d"><span class="vlabel">A · Atlas des mondes</span>
+<div class="nodes">${[["CSM",70,"#ff6a3d",1],["RZE",38,"#7ee0c3"],["JJK",92,"#8f7bff"],["FMA",15,"#e8c34a"],["OPM",55,"#ff5d8f"],["DBZ",100,"#ffa23b"]].map(([a,p,c,on])=>`<div class="node ${on?"on":""}" style="--w:${c}"><div class="ring" style="--p:${p}"><b>${a}</b></div>${p}%</div>`).join("")}</div>
+<div class="stage"><div class="disp big">Chainsaw Man</div>
+<div class="shelf"><div class="meta"><div><b>4</b> / 14 cartes</div><div><b>1</b> UR · <b>1</b> SSR</div><div>Monde relevé le 12 oct.</div></div>${owned.join("")}${miss(6)}</div></div></div>`;
+
+const B=`<div class="v B"><span class="vlabel">B · Registre en bandes</span>
+${[["Chainsaw Man","#ff6a3d",4,14,1],["Re:Zero","#7ee0c3",3,22,0],["Jujutsu Kaisen","#8f7bff",9,24,0]].map(([n,c,o,t,first])=>`<div class="band" style="--w:${c}"><div class="spine"><div><div class="disp">${n}</div><small>${o} / ${t}</small></div><div class="bar"><i style="width:${o/t*100}%"></i></div></div>
+<div class="row">${(first?owned:owned.slice(0,o)).join("")}${miss(5,o+1)}</div></div>`).join("")}</div>`;
+
+const C=`<div class="v C"><span class="vlabel">C · Planche d'observation</span>
+<div class="head"><div class="disp" style="color:#ff6a3d">Chainsaw<br>Man</div><p><b style="font:800 54px 'Big Shoulders Display';color:var(--bone)">4/14</b><br>cartes relevées</p></div>
+<div class="grid">${OWN.map(([k,n,r],i)=>`<div class="pl">${card(k,n,r)}<div class="cap"><b>${String(i+1).padStart(2,"0")}</b><span>${r}</span></div></div>`).join("")}${Array.from({length:8},(_,i)=>`<div class="pl miss">${slot(["denji","mak","rem","rem2"][i%4],i+5)}<div class="cap"><span>non relevé</span><span>?</span></div></div>`).join("")}</div></div>`;
+document.getElementById("app").innerHTML=A+B+C;
+</script>
