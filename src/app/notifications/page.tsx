@@ -49,7 +49,7 @@ async function Notifications() {
   const list = await listNotifications(user.id);
   return (
     <div className="vt-inner">
-      <header>
+      <header className="pg-head">
         <h1 className="vt-title">Notifications</h1>
       </header>
       {list.some((n) => !n.read) && <MarkRead />}

@@ -33,7 +33,7 @@ async function Expeditions() {
   const toIso = (d: Date | null) => d?.toISOString() ?? null;
   return (
     <div className="vt-inner">
-      <header>
+      <header className="pg-head">
         <h1 className="vt-title">Expéditions</h1>
         <p className="vt-sub">
           Envoie jusqu&apos;à {MAX_TEAM} cartes explorer une brèche. Plus l&apos;équipe est puissante, plus le butin est riche, et un échec ne coûte rien. Les cartes parties sont indisponibles (vente, échange, enchère) jusqu&apos;au retour.
