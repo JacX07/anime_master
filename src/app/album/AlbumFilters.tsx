@@ -6,6 +6,12 @@ import { AnimeSelect, type AnimeOptions } from "./AnimeSelect";
 
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
 const TYPES = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"] as const;
+const SORTS = [
+  ["popular", "Popularité"],
+  ["completion", "Complétion"],
+  ["owned", "Possédées"],
+  ["alpha", "A → Z"],
+] as const;
 const OWNED = [
   ["all", "Tous"],
   ["owned", "Possédés"],
@@ -22,6 +28,7 @@ export function albumHref(filters: Filters, patch: Partial<Filters> = {}) {
   if (f.type) p.set("type", f.type);
   if (f.owned !== "all") p.set("owned", f.owned);
   if (f.anime) p.set("anime", f.anime);
+  if (f.sort !== "popular") p.set("sort", f.sort);
   if (f.page > 1) p.set("page", String(f.page));
   const s = p.toString();
   return s ? `/album?${s}` : "/album";
@@ -36,7 +43,7 @@ function Chip({ href, active, children, color, title }: { href: string; active: 
 }
 
 /** Filtres de l'album : des pastilles qu'on active et désactive d'un clic, la recherche reste un champ simple. */
-export function AlbumFilters({ filters, anime }: { filters: Filters; anime: AnimeOptions }) {
+export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; anime: AnimeOptions; sortable?: boolean }) {
   return (
     <div className="vt-filters">
       <div className="vt-row">
@@ -45,6 +52,7 @@ export function AlbumFilters({ filters, anime }: { filters: Filters; anime: Anim
           {filters.type && <input type="hidden" name="type" value={filters.type} />}
           {filters.owned !== "all" && <input type="hidden" name="owned" value={filters.owned} />}
           {filters.anime && <input type="hidden" name="anime" value={filters.anime} />}
+          {filters.sort !== "popular" && <input type="hidden" name="sort" value={filters.sort} />}
           <input type="search" name="q" defaultValue={filters.q} placeholder="Rechercher un personnage" aria-label="Rechercher un personnage" />
         </form>
         <div className="vt-chips" role="group" aria-label="Possession">
@@ -58,6 +66,15 @@ export function AlbumFilters({ filters, anime }: { filters: Filters; anime: Anim
       <div className="vt-row">
         <AnimeSelect {...anime} />
       </div>
+      {sortable && (
+        <div className="vt-chips" role="group" aria-label="Tri des mondes">
+          {SORTS.map(([v, label]) => (
+            <Chip key={v} href={albumHref(filters, { sort: v })} active={filters.sort === v}>
+              {label}
+            </Chip>
+          ))}
+        </div>
+      )}
       <div className="vt-row">
         <div className="vt-chips" role="group" aria-label="Rareté">
           {RARITIES.map((r) => (

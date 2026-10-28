@@ -12,6 +12,9 @@ export const TYPE_ORDER: CardType[] = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "A
 const FINISH_ORDER: Finish[] = ["GOLD", "HOLO", "NORMAL"];
 export const OWNED_FILTERS = ["all", "owned", "missing", "duplicates"] as const;
 export type OwnedFilter = (typeof OWNED_FILTERS)[number];
+/** Ordre des mondes dans la vue par défaut : popularité de la collection (défaut), complétion, nombre de cartes possédées, alphabétique */
+export const WORLD_SORTS = ["popular", "completion", "owned", "alpha"] as const;
+export type WorldSort = (typeof WORLD_SORTS)[number];
 
 export const PAGE_SIZE = 60;
 export { MIN_ANIME_SIZE };
@@ -23,6 +26,7 @@ export interface AlbumFilters {
   owned: OwnedFilter;
   /** Clé d'un anime de l'album (identifiant de sa franchise) ou d'un bloc « autres-N » ; vide : tous */
   anime: string;
+  sort: WorldSort;
   page: number;
 }
 
@@ -39,6 +43,7 @@ export function parseAlbumFilters(params: RawParams): AlbumFilters {
     type: pick(TYPE_ORDER, one(params.type)),
     owned: pick(OWNED_FILTERS, one(params.owned)) ?? "all",
     anime: /^(\d{1,9}|autres-\d{1,4})$/.test(one(params.anime)) ? one(params.anime) : "",
+    sort: pick(WORLD_SORTS, one(params.sort)) ?? "popular",
     page: Number.isFinite(page) && page > 1 ? page : 1,
   };
 }
@@ -172,9 +177,16 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     const idsOf = new Map<string, number[]>();
     for (const a of animeIndex.listed) idsOf.set(String(a.key), a.characterIds);
     for (const b of animeIndex.blocks) idsOf.set(b.key, b.animes.flatMap((a) => a.characterIds));
-    const known = [...listed, ...blocks]
-      .filter((a) => a.owned > 0)
-      .sort((a, b) => b.owned / b.total - a.owned / a.total || b.owned - a.owned || a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
+    // Popularité d'un monde : total des favoris de ses personnages (AniList)
+    const popularity = (key: string) => (idsOf.get(key) ?? []).reduce((n, id) => n + (rank.get(id)?.favourites ?? 0), 0);
+    const byTitle = (a: AnimeProgress, b: AnimeProgress) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
+    const compare: Record<WorldSort, (a: AnimeProgress, b: AnimeProgress) => number> = {
+      popular: (a, b) => popularity(b.key) - popularity(a.key) || byTitle(a, b),
+      completion: (a, b) => b.owned / b.total - a.owned / a.total || b.owned - a.owned || byTitle(a, b),
+      owned: (a, b) => b.owned - a.owned || byTitle(a, b),
+      alpha: byTitle,
+    };
+    const known = [...listed, ...blocks].filter((a) => a.owned > 0).sort(compare[f.sort]);
     const pages = Math.max(1, Math.ceil(known.length / WORLDS_PER_PAGE));
     const page = Math.min(f.page, pages);
     const slice = known.slice((page - 1) * WORLDS_PER_PAGE, page * WORLDS_PER_PAGE);

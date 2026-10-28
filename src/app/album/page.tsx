@@ -49,7 +49,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           </p>
         </header>
 
-        <AlbumFilters filters={filters} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
+        <AlbumFilters filters={filters} sortable={album.worlds !== null} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
 
         {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
         <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
