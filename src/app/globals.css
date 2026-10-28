@@ -1037,88 +1037,85 @@ body.scene-night {
   transform: rotate(5deg);
   transition: opacity 0.15s ease;
 }
-/* Bulle qui sort à côté de la tuile au survol (à droite, ou à gauche en bout de ligne : voir WorldBubble) */
-.wd-bubble {
+/* Vitrine : s'ouvre au clic sur une tuile de monde */
+.wd-tile { cursor: pointer; }
+.wd-vitrine {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem 6.5rem;
+  cursor: default;
+  background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--w) 20%, #000d), #000e 72%);
+  animation: wd-v-in 0.2s ease-out;
+}
+@keyframes wd-v-in {
+  from { opacity: 0; }
+}
+.wd-v-body {
+  display: contents;
+}
+.wd-v-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.2rem 2rem;
+  max-height: 100%;
+  overflow: auto;
+}
+.wd-v-hero { width: min(15rem, 62vw); }
+.wd-v-rest { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+.wd-v-rest > div { width: min(9.5rem, 28vw); }
+.wd-v-bar {
   position: absolute;
-  z-index: 6;
-  top: 0.8rem;
-  left: calc(100% + 0.7rem);
-  width: 17rem;
-  padding: 0.8rem 0.9rem 0.7rem;
-  border: 1px solid var(--w);
-  border-radius: 0.9rem;
-  background: #0d1424;
-  box-shadow: 0 14px 34px #000c;
-  pointer-events: none;
-  visibility: hidden;
-  opacity: 0;
-  transform: translateX(-6px);
-  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0.18s;
-}
-.wd-bubble[data-side="left"] {
-  left: auto;
-  right: calc(100% + 0.7rem);
-  transform: translateX(6px);
-}
-.wd-bubble[data-side="below"] {
-  top: calc(100% + 0.7rem);
   left: 0;
   right: 0;
-  width: auto;
-  transform: translateY(-6px);
-}
-/* Pointe de la bulle, tournée vers la tuile */
-.wd-bubble::before {
-  content: "";
-  position: absolute;
-  top: 1.6rem;
-  left: -0.45rem;
-  width: 0.8rem;
-  height: 0.8rem;
-  border-bottom: 1px solid var(--w);
-  border-left: 1px solid var(--w);
-  background: #0d1424;
-  transform: rotate(45deg);
-}
-.wd-bubble[data-side="below"]::before {
-  top: -0.45rem;
-  left: 2.2rem;
-  border-top: 1px solid var(--w);
-  border-bottom: 0;
-}
-.wd-bubble[data-side="left"]::before {
-  left: auto;
-  right: -0.45rem;
-  transform: rotate(225deg);
-}
-.wd-bubble ul {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0.6rem 0 0;
-  list-style: none;
-}
-.wd-bubble p {
+  bottom: 0;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  margin: 0.7rem 0 0;
-  padding-top: 0.55rem;
-  border-top: 1px solid #ffffff1c;
-  font-size: 0.8rem;
-  color: #8ea3c4;
+  justify-content: space-between;
+  gap: 0.8rem 1.5rem;
+  padding: 0.9rem 1.6rem;
+  background: #000b;
+  border-top: 1px solid color-mix(in srgb, var(--w) 40%, transparent);
 }
-.wd-bubble p .stat,
-.wd-bubble p svg {
+.wd-v-bar h2 {
+  margin: 0;
+  font-family: var(--font-shoulders), var(--font-sora), sans-serif;
+  font-weight: 900;
+  font-size: 1.7rem;
+  line-height: 1;
+  text-transform: uppercase;
   color: var(--w);
 }
-.wd-tile:hover .wd-bubble,
-.wd-tile:focus-visible .wd-bubble {
-  visibility: visible;
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+.wd-v-bar span { color: #8ea3c4; font-size: 0.85rem; }
+.wd-v-power { display: inline-flex; align-items: center; gap: 0.6rem; }
+.wd-v-power .stat, .wd-v-power svg { color: var(--w); font-size: 1.1rem; }
+.wd-v-go {
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.6rem;
+  background: var(--w);
+  color: #0b1424;
+  font-weight: 700;
+  text-decoration: none;
+}
+.wd-v-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1.1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid #ffffff33;
+  border-radius: 50%;
+  background: #0008;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
 }
 .wd-foot {
   position: relative;
