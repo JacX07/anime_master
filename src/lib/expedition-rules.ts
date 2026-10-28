@@ -22,18 +22,18 @@ export interface Breach {
 // Équilibrage validé le 2026-10-17 (simulation par équipes types) : une Faille est à la portée de 3 N une fois sur deux,
 // une Brèche de 1 SR + 2 R, un Gouffre de 1 SSR + 2 SR environ deux fois sur trois. Repères de puissance : R ≈ 1 100, SR ≈ 4 500, SSR ≈ 16 000, UR ≈ 49 000.
 export const BREACHES: Breach[] = [
-  { id: "faille-echo", name: "Faille de l'Écho", tier: "Faille", hours: 1, threshold: 650, favored: ["MAGIE"], ryo: 10, crystals: 0, special: 0,
-    lore: "Une fissure minuscule qui répète les voix de mondes voisins. Idéale pour s'échauffer." },
-  { id: "faille-neon", name: "Faille Néon", tier: "Faille", hours: 1, threshold: 650, favored: ["COMBAT"], ryo: 10, crystals: 0, special: 0,
-    lore: "Des rues lumineuses apparaissent de l'autre côté ; quelqu'un s'y bat toujours." },
-  { id: "breche-archives", name: "Brèche des Archives", tier: "Brèche", hours: 6, threshold: 6000, favored: ["MYSTERE", "MAGIE"], ryo: 70, crystals: 1, special: 0.05,
-    lore: "Une bibliothèque sans fin dont les rayons mènent chacun vers un autre univers." },
-  { id: "breche-horizon", name: "Brèche de l'Horizon", tier: "Brèche", hours: 6, threshold: 6000, favored: ["AVENTURE", "COEUR"], ryo: 70, crystals: 1, special: 0.05,
-    lore: "Un ciel d'un autre monde, des routes ouvertes et des rencontres qui ne devaient pas avoir lieu." },
-  { id: "gouffre-signal", name: "Gouffre du Signal", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["COMBAT", "AVENTURE"], ryo: 200, crystals: 3, special: 0.2,
-    lore: "Un puits sans fond d'où remonte un signal puissant, plein de signatures qui ne sont pas d'ici." },
-  { id: "gouffre-nexus", name: "Gouffre du Nexus", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["MYSTERE", "COEUR"], ryo: 200, crystals: 3, special: 0.2,
-    lore: "Là où les brèches se croisent. On dit qu'il touche le cœur de la Tour." },
+  { id: "faille-echo", name: "Lycée Jujutsu de Tokyo", tier: "Faille", hours: 1, threshold: 650, favored: ["MAGIE"], ryo: 10, crystals: 0, special: 0,
+    lore: "Les élèves du lycée y exorcisent leurs premières malédictions. Une sortie d'entraînement qui peut mal tourner." },
+  { id: "faille-neon", name: "Tenkaichi Budokai", tier: "Faille", hours: 1, threshold: 650, favored: ["COMBAT"], ryo: 10, crystals: 0, special: 0,
+    lore: "Le grand tournoi d'arts martiaux : un ring, des poings et un public qui hurle." },
+  { id: "breche-archives", name: "Porte de la Vérité", tier: "Brèche", hours: 6, threshold: 6000, favored: ["MYSTERE", "MAGIE"], ryo: 70, crystals: 1, special: 0.05,
+    lore: "Un seuil d'où personne ne revient intact. L'échange équivalent se paie toujours." },
+  { id: "breche-horizon", name: "Grand Line", tier: "Brèche", hours: 6, threshold: 6000, favored: ["AVENTURE", "COEUR"], ryo: 70, crystals: 1, special: 0.05,
+    lore: "La route la plus dangereuse de la mer : des îles folles, des rivaux et un trésor au bout." },
+  { id: "gouffre-signal", name: "Royaume des Fourmis-Chimères", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["COMBAT", "AVENTURE"], ryo: 200, crystals: 3, special: 0.2,
+    lore: "Un royaume de monstres qui évolue à chaque victime. Seuls des chasseurs hors pair en reviennent." },
+  { id: "gouffre-nexus", name: "Sous-sol de Shiganshina", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["MYSTERE", "COEUR"], ryo: 200, crystals: 3, special: 0.2,
+    lore: "La cave où dort la vérité sur les Titans. Y entrer, c'est apprendre ce qu'on aurait préféré ignorer." },
 ];
 export const breachById = (id: string) => BREACHES.find((b) => b.id === id);
 
