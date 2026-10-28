@@ -1036,11 +1036,57 @@ body.scene-night {
   bottom: 0.7rem;
   width: 8rem;
   transform: rotate(5deg);
-  transition: transform 0.25s ease;
+  transition: opacity 0.15s ease;
+}
+.wd-fan {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.6rem;
+  width: 62%;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s 0.2s;
+}
+.wd-fan li {
+  flex: none;
+  width: 4.6rem;
+  margin-left: -1.3rem;
+  box-shadow: 0 6px 16px #000a;
+}
+.wd-fan li:nth-child(odd) {
+  transform: rotate(-4deg);
+}
+.wd-fan li:nth-child(even) {
+  transform: translateY(-6px) rotate(3deg);
+}
+.wd-tile:hover .wd-fan,
+.wd-tile:focus-visible .wd-fan {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .wd-tile:hover .wd-star,
 .wd-tile:focus-visible .wd-star {
-  transform: rotate(2deg) translateY(-6px);
+  opacity: 0;
+}
+.wd-power {
+  height: 1.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--w);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.wd-tile:hover .wd-power,
+.wd-tile:focus-visible .wd-power {
+  opacity: 1;
 }
 .wd-foot {
   position: relative;

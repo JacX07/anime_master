@@ -101,11 +101,14 @@ export interface AnimeProgress {
 
 /** Un « monde » de la vue par défaut : un anime avec sa progression et un aperçu de ses cartes */
 export interface WorldBand extends AnimeProgress {
+  /** Cartes en aperçu, la vedette (la plus rare possédée) en premier */
   preview: AlbumEntry[];
+  /** Puissance de toutes les cartes que le joueur possède dans ce monde (somme sur chaque exemplaire) */
+  power: number;
 }
 
 export const WORLDS_PER_PAGE = 12;
-const WORLD_PREVIEW = 1;
+const WORLD_PREVIEW = 4;
 
 export interface AlbumPage {
   entries: AlbumEntry[];
@@ -148,7 +151,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   // car l'ordre des raretés n'est pas l'ordre alphabétique de l'énumération.
   const all = await prisma.character.findMany({
     where: { disabled: false },
-    select: { id: true, name: true, rarity: true, type: true, favourites: true },
+    select: { id: true, name: true, rarity: true, type: true, favourites: true, power: true },
   });
 
   const byRarity = Object.fromEntries(RARITY_ORDER.map((r) => [r, { owned: 0, total: 0 }])) as AlbumPage["progress"]["byRarity"];
@@ -190,7 +193,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     const pages = Math.max(1, Math.ceil(known.length / WORLDS_PER_PAGE));
     const page = Math.min(f.page, pages);
     const slice = known.slice((page - 1) * WORLDS_PER_PAGE, page * WORLDS_PER_PAGE);
-    // Aperçu : la carte vedette du monde, la plus rare que le joueur possède
+    // Aperçu : d'abord les cartes possédées (les plus rares en tête, la vedette), puis les manquantes
     const previews = slice.map((a) => {
       const ids = [...(idsOf.get(a.key) ?? [])].sort(order);
       const mine = ids.filter((id) => owned.has(id));
@@ -202,7 +205,11 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     return {
       entries: [],
       worlds: {
-        bands: slice.map((a, i) => ({ ...a, preview: previews[i].map((id) => entryById.get(id)!) })),
+        bands: slice.map((a, i) => ({
+          ...a,
+          preview: previews[i].map((id) => entryById.get(id)!),
+          power: (idsOf.get(a.key) ?? []).reduce((n, id) => n + (rank.get(id)?.power ?? 0) * (owned.get(id)?.count ?? 0), 0),
+        })),
         unknown: listed.length + blocks.length - known.length,
       },
       anime: { listed, blocks, selected },
