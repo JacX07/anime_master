@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Aperçu d'un monde — alternatives à la bulle</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1424;color:#e8f0ff;font:14px/1.4 system-ui,sans-serif;padding:32px}
+h1{font-size:20px;margin:0 0 4px}p.s{color:#8ea3c4;margin:0 0 10px;max-width:780px}
+h2{font-size:15px;margin:40px 0 2px}h2 small{display:block;color:#8ea3c4;font-weight:400}
+.stage{position:relative;height:540px;margin-top:12px;border:1px solid #ffffff1c;border-radius:14px;background:#0a101e;overflow:hidden;padding:18px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tile{position:relative;min-height:150px;padding:14px 16px;border:1px solid #ffffff1c;background:linear-gradient(160deg,#2a3a12,#0b0b12 70%);--w:#bef264;display:flex;flex-direction:column;justify-content:space-between}
+.tile.t2{--w:#38bdf8;background:linear-gradient(160deg,#0f3350,#0b0b12 70%)}.tile.t3{--w:#f472b6;background:linear-gradient(160deg,#4a1233,#0b0b12 70%)}
+.tile h3{margin:0;font-size:30px;line-height:.9;font-weight:900;text-transform:uppercase;color:var(--w);letter-spacing:.5px}
+.tile small{color:#8ea3c4}.tile b{font-size:26px}
+.hot{border-color:var(--w)}
+.card{position:relative;width:var(--w2,150px);aspect-ratio:220/308;border-radius:10px;overflow:hidden;border:2px solid var(--c);background:#101a30;box-shadow:0 8px 20px #000a;flex:none}
+.card img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+.card .n{position:absolute;left:0;right:0;bottom:0;padding:22px 8px 6px;background:linear-gradient(transparent,#000d);font-size:11px;font-weight:700}
+.card .n i{display:block;font-style:normal;color:#aab8d4;font-weight:500;font-size:9px}
+.card .n em{font-style:normal;color:#ffd166}
+.R{--c:#38bdf8}.SR{--c:#a855f7}.SSR{--c:#f59e0b}.UR{--c:#ff3b4a}
+.pw{display:flex;justify-content:space-between;align-items:center;color:#8ea3c4;font-size:13px;border-top:1px solid #ffffff1c;padding-top:10px;margin-top:12px}.pw b{color:#bef264;font-size:18px}
+/* A tiroir */
+.A .grid{width:calc(100% - 420px)}.A .grid .tile:nth-child(n+4){display:none}
+.A .drawer{position:absolute;top:0;right:0;bottom:0;width:400px;padding:20px;background:#0d1424;border-left:2px solid #bef264;box-shadow:-20px 0 40px #0009}
+.A .drawer h3{margin:0 0 12px;font-size:26px;color:#bef264;text-transform:uppercase;font-weight:900}
+.A .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;justify-items:center;--w2:150px}
+/* B déploiement */
+.B .grid{grid-template-columns:repeat(3,1fr)}.B .wide{grid-column:1/-1;flex-direction:row;gap:22px;align-items:center;min-height:0;padding:16px 20px}
+.B .wide .l{flex:1}.B .wide .cards{display:flex;gap:14px;--w2:150px}
+/* C éventail */
+.C .grid{padding-top:230px}.C .fan{position:absolute;left:30px;top:-6px;height:260px;width:520px;pointer-events:none}
+.C .fan .card{position:absolute;bottom:0;--w2:170px}
+.C .fan .card:nth-child(1){left:0;transform:rotate(-9deg)}.C .fan .card:nth-child(2){left:120px;transform:rotate(-3deg) translateY(-14px)}
+.C .fan .card:nth-child(3){left:240px;transform:rotate(3deg) translateY(-14px)}.C .fan .card:nth-child(4){left:360px;transform:rotate(9deg)}
+.C .fan .tag{position:absolute;left:0;top:-4px}
+.C .tile:first-child{margin-top:0}
+/* D vitrine */
+.D .grid{filter:blur(2px) brightness(.4)}
+.D .over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:34px;padding:24px;background:radial-gradient(ellipse at 50% 40%,#bef26422,#000c 70%)}
+.D .hero .card{--w2:230px}.D .rest{display:flex;gap:14px;--w2:150px;align-items:flex-end}
+.D .info{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:14px 26px;background:#000a;border-top:1px solid #bef26455}
+.D .info h3{margin:0;font-size:24px;color:#bef264;text-transform:uppercase;font-weight:900}
+</style>
+<h1>Aperçu d'un monde — alternatives à la bulle</h1>
+<p class="s">Les cartes de l'aperçu y sont bien plus grandes (150 à 230 px de large au lieu de ~85 px). Les mockups montrent l'état « survol / clic » de la tuile ONE PIECE. Quatre pistes.</p>
+<script>
+const IM={a:"https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png",b:"https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png",c:"https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png",d:"https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png"};
+const card=(k,r,n,p)=>`<div class="card ${r}"><img src="${IM[k]}" referrerpolicy="no-referrer" alt=""><div class="n">${n}<i>ONE PIECE</i><em>⚡ ${p}</em></div></div>`;
+const four=()=>card("a","SSR","Sanji","28 867")+card("b","SR","Law Trafalgar","17 113")+card("c","SR","Ace Portgas","14 273")+card("d","R","Chopper","13 639");
+const tiles=(hot)=>`<div class="tile ${hot?"hot":""}"><h3>One Piece</h3><div><b>23</b><br><small>sur 70 cartes</small></div></div><div class="tile t2"><h3>Jujutsu Kaisen</h3><div><b>18</b><br><small>sur 62 cartes</small></div></div><div class="tile t3"><h3>Chainsaw Man</h3><div><b>31</b><br><small>sur 54 cartes</small></div></div>`;
+const pw=`<div class="pw"><span>Puissance du monde</span><b>⚡ 117 400</b></div>`;
+document.write(`
+<h2>A — Tiroir latéral<small>Le survol d'une tuile ouvre un panneau fixe à droite de l'écran : grandes cartes en 2×2, puissance en dessous. Rien ne recouvre les tuiles.</small></h2>
+<div class="stage A"><div class="grid">${tiles(true)}</div><aside class="drawer"><h3>One Piece</h3><div class="cards">${four()}</div>${pw}</aside></div>
+<h2>B — Tuile qui se déploie<small>La tuile survolée s'étire sur toute la ligne et pousse les autres vers le bas : titre à gauche, quatre grandes cartes à droite.</small></h2>
+<div class="stage B"><div class="grid"><div class="tile wide hot"><div class="l"><h3 style="font-size:42px">One Piece</h3><div style="margin-top:20px"><b>23</b> <small>sur 70 cartes</small></div>${pw}</div><div class="cards">${four()}</div></div><div class="tile t2"><h3>Jujutsu Kaisen</h3><div><b>18</b><br><small>sur 62 cartes</small></div></div><div class="tile t3"><h3>Chainsaw Man</h3><div><b>31</b><br><small>sur 54 cartes</small></div></div><div class="tile"><h3>Naruto</h3><div><b>12</b><br><small>sur 80 cartes</small></div></div></div></div>
+<h2>C — Éventail<small>Pas de cadre : quatre grandes cartes se déploient en éventail au-dessus de la tuile, comme une main de cartes qu'on sort du deck.</small></h2>
+<div class="stage C"><div class="fan">${four()}</div><div class="grid">${tiles(true)}</div></div>
+<h2>D — Vitrine<small>Un clic ouvre une vitrine plein cadre : la carte star en grand, les autres à côté, bandeau avec le total. Le reste de la page s'assombrit.</small></h2>
+<div class="stage D"><div class="grid">${tiles(false)}</div><div class="over"><div class="hero">${card("a","SSR","Sanji","28 867")}</div><div class="rest">${card("b","SR","Law Trafalgar","17 113")}${card("c","SR","Ace Portgas","14 273")}${card("d","R","Chopper","13 639")}</div><div class="info"><h3>One Piece · 23 / 70</h3><span style="color:#8ea3c4">Puissance du monde <b style="color:#bef264;font-size:18px">⚡ 117 400</b></span></div></div></div>`);
+</script>
