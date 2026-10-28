@@ -143,7 +143,7 @@ export async function cancelTrade(userId: string, tradeId: string, now = new Dat
   if (r.count !== 1) throw new TradeError("Cette offre n'est plus disponible.");
 }
 
-const CARD_SELECT = { select: { id: true, serial: true, finish: true, character: { select: { id: true, name: true, rarity: true } } } } as const;
+const CARD_SELECT = { select: { id: true, serial: true, finish: true, character: { select: { id: true, name: true, rarity: true, imageUrl: true } } } } as const;
 
 export async function listTrades(userId: string, now = new Date()) {
   await expireTrades(now);
