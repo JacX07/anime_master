@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
-import { CharacterCard } from "@/components/CharacterCard";
 import { Stat, TypeIcon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { TYPE_LABELS } from "@/lib/labels";
-import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER, WORLDS_PER_PAGE, type AlbumFilters as Filters, type WorldBand } from "@/lib/album";
+import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
+import { loadAlbumMore } from "./actions";
 import { AlbumFilters, albumHref } from "./AlbumFilters";
+import { InfiniteList } from "./InfiniteList";
+import { CardItem, World } from "./items";
 import { DuplicateSale } from "./DuplicateSale";
 
 export const metadata: Metadata = { title: "Album — Anime Masters" };
@@ -33,7 +34,9 @@ export default function AlbumPage({ searchParams }: PageProps<"/album">) {
 async function Album({ searchParams }: { searchParams: PageProps<"/album">["searchParams"] }) {
   const user = await requireUser();
   const filters = parseAlbumFilters(await searchParams);
-  const album = await getAlbum(user.id, filters);
+  // Le défilement continu remplace les pages : on charge toujours la première, la suite arrive au fil du scroll
+  const album = await getAlbum(user.id, { ...filters, page: 1 });
+  const listKey = albumHref(filters);
   const packs = await getPackState(user.id);
   const saleRarities = ["N", "R"] as const;
   const salePreview = await previewDuplicateSale(user.id, [...saleRarities]);
@@ -68,11 +71,11 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
               {album.matching} monde{album.matching > 1 ? "s" : ""} relevé{album.matching > 1 ? "s" : ""}
               {album.worlds.unknown > 0 && ` · ${album.worlds.unknown} encore inconnus`}
             </p>
-            <div className="wd-list">
+            <InfiniteList key={listKey} as="div" className="wd-list" pages={album.pages} load={loadAlbumMore.bind(null, filters)}>
               {album.worlds.bands.map((w) => (
                 <World key={w.key} world={w} filters={filters} />
               ))}
-            </div>
+            </InfiniteList>
           </>
         ) : (
           <p className="vt-count">
@@ -83,18 +86,13 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
         {album.worlds ? null : album.entries.length === 0 ? (
           <p className="vt-empty">Aucun personnage ne correspond à ces filtres.</p>
         ) : (
-          <ul className="vt-grid">
+          <InfiniteList key={listKey} as="ul" className="vt-grid" pages={album.pages} load={loadAlbumMore.bind(null, filters)}>
             {album.entries.map((e) => (
-              <li key={e.id}>
-                <Link href={`/character/${e.id}`} className="vt-card" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
-                  <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
-                </Link>
-              </li>
+              <CardItem key={e.id} entry={e} />
             ))}
-          </ul>
+          </InfiniteList>
         )}
 
-        <Pagination filters={filters} pages={album.pages} />
       </div>
 
       <footer className="vt-status" aria-label="Ta collection">
@@ -125,49 +123,6 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
   );
 }
 
-/** Teinte propre à chaque monde, dérivée de son nom (stable d'une visite à l'autre) */
-function worldHue(title: string) {
-  let h = 0;
-  for (const c of title) h = (h * 31 + c.charCodeAt(0)) % 360;
-  return h;
-}
-
-/** Une tuile par monde : nom en grand, carte vedette inclinée, progression */
-function World({ world, filters }: { world: WorldBand; filters: Filters }) {
-  const p = pct(world.owned, world.total);
-  const star = world.preview[0];
-  return (
-    <Link
-      href={albumHref(filters, { anime: world.key, page: 1 })}
-      className="wd-tile"
-      style={{ "--w": `hsl(${worldHue(world.title)} 85% 62%)` } as React.CSSProperties}
-      aria-label={`${world.title} : ${world.owned} cartes sur ${world.total}`}
-    >
-      <h2>{world.title}</h2>
-      {star && (
-        <div className="wd-star" style={{ "--rar": `var(--rarity-${star.rarity})` } as React.CSSProperties}>
-          <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} missing={!star.owned} />
-        </div>
-      )}
-      {/* Au survol : quelques personnages du monde se déploient en éventail au-dessus de la tuile */}
-      <div className="wd-fan" aria-hidden>
-        {world.preview.map((e) => (
-          <div key={e.id}>
-            <CharacterCard {...e} finish={e.owned?.best} count={undefined} missing={!e.owned} />
-          </div>
-        ))}
-      </div>
-      <div className="wd-foot">
-        <b className="wd-count">{num.format(world.owned)}</b>
-        <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
-        <span className="wd-bar" role="img" aria-label={`${p} % de complétion`}>
-          <i style={{ width: `${p}%` }} />
-        </span>
-      </div>
-    </Link>
-  );
-}
-
 /** Progression de l'anime choisi : on repère d'un coup d'œil s'il est complet. */
 function AnimeHeader({ anime }: { anime: NonNullable<Awaited<ReturnType<typeof getAlbum>>["anime"]["selected"]> }) {
   const done = anime.total > 0 && anime.owned === anime.total;
@@ -195,19 +150,5 @@ function AnimeHeader({ anime }: { anime: NonNullable<Awaited<ReturnType<typeof g
         </ul>
       )}
     </section>
-  );
-}
-
-function Pagination({ filters, pages }: { filters: Filters; pages: number }) {
-  if (pages <= 1) return null;
-  const page = Math.min(filters.page, pages);
-  return (
-    <nav className="vt-pager" aria-label="Pagination">
-      {page > 1 ? <Link href={albumHref(filters, { page: page - 1 })}>Précédent</Link> : <span aria-disabled="true">Précédent</span>}
-      <span className="vt-muted">
-        Page {page} sur {pages}
-      </span>
-      {page < pages ? <Link href={albumHref(filters, { page: page + 1 })}>Suivant</Link> : <span aria-disabled="true">Suivant</span>}
-    </nav>
   );
 }
