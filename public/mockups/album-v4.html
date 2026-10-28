@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Album — mix registre + planche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800;900&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#09090f;--plate:#13131d;--line:#ffffff1c;--bone:#ebe7dc;--mute:#8d8a99;--N:#94a3b8;--R:#38bdf8;--SR:#a855f7;--SSR:#f59e0b;--UR:#ff3b4a}
+*{box-sizing:border-box;margin:0}
+body{background:#000;color:var(--bone);font:15px/1.45 'Hanken Grotesk',system-ui,sans-serif;padding:28px}
+h1.top{font:800 22px 'Big Shoulders Display';letter-spacing:.04em;margin-bottom:4px}p.top{color:var(--mute);max-width:720px;margin-bottom:30px}
+.v{background:var(--ink);border:1px solid var(--line);margin-bottom:46px;position:relative;overflow:hidden;padding:34px 36px 40px}
+.vlabel{position:absolute;right:14px;top:10px;font-size:12px;color:var(--mute)}
+.disp{font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;line-height:.82;letter-spacing:.01em}
+.c{position:relative;aspect-ratio:220/308;background:#1b2238;border:2px solid var(--rc);border-radius:10px;overflow:hidden}
+.c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.c .nm{position:absolute;left:0;right:0;bottom:0;padding:22px 8px 7px;background:linear-gradient(transparent,#000d);font-weight:600;font-size:12px}
+.c[data-r=N]{--rc:var(--N)}.c[data-r=R]{--rc:var(--R)}.c[data-r=SR]{--rc:var(--SR)}.c[data-r=SSR]{--rc:var(--SSR)}.c[data-r=UR]{--rc:var(--UR)}
+.c i{position:absolute;top:6px;left:6px;width:9px;height:9px;background:var(--rc);transform:rotate(45deg)}
+.slot{position:relative;aspect-ratio:220/308;border:1.5px dashed #ffffff30;border-radius:10px;overflow:hidden;display:grid;place-items:center}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:brightness(0);opacity:.55}
+.slot span{position:relative;font:800 34px 'Big Shoulders Display';color:#ffffff40}
+
+.G{background:#0b0b12;padding:34px 40px 44px}
+.G h2.t{font:900 64px/.85 'Big Shoulders Display';text-transform:uppercase;margin-bottom:26px}
+.lbl{position:absolute;right:14px;top:10px;font-size:12px;color:var(--mute)}
+/* 1 : paquets en éventail */
+.fans{display:grid;grid-template-columns:repeat(4,1fr);gap:46px 28px}
+.fan{position:relative;height:230px;display:flex;justify-content:center}
+.fan .c{position:absolute;bottom:34px;width:104px;transform-origin:50% 120%;box-shadow:0 6px 18px #000a}
+.fan .c:nth-child(1){transform:rotate(-16deg) translateX(-26px)}.fan .c:nth-child(2){transform:rotate(-5deg) translateX(-9px)}.fan .c:nth-child(3){transform:rotate(7deg) translateX(10px)}.fan .c:nth-child(4){transform:rotate(18deg) translateX(28px)}
+.fan .slot{position:absolute;bottom:34px;width:104px;transform:rotate(18deg) translateX(28px);transform-origin:50% 120%;background:#0b0b12}
+.fan .nm2{position:absolute;left:0;right:0;bottom:0;text-align:center}
+.nm2 b{display:block;font:900 24px/.9 'Big Shoulders Display';text-transform:uppercase;color:var(--w)}.nm2 small{color:var(--mute)}
+/* 2 : tuiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tile{position:relative;padding:18px;border:1px solid var(--line);background:linear-gradient(160deg,color-mix(in srgb,var(--w) 28%,#0b0b12),#0b0b12 70%);min-height:214px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.tile .disp{font-size:44px;color:var(--w);max-width:60%}
+.tile .big{position:absolute;right:-6px;bottom:-4px;width:46%;transform:rotate(5deg)}
+.tile .cnt{font:800 30px/1 'Big Shoulders Display'}.tile .cnt small{font:400 12px 'Hanken Grotesk';color:var(--mute);display:block}
+.tile .bar{height:3px;background:#ffffff1c;margin-top:8px;width:55%}.tile .bar i{display:block;height:100%;background:var(--w)}
+/* 3 : héros + emplacements */
+.hero{display:grid;grid-template-columns:170px 1fr;gap:22px;margin-bottom:22px;padding:16px;border-left:3px solid var(--w);background:linear-gradient(90deg,color-mix(in srgb,var(--w) 14%,transparent),transparent 60%)}
+.hero .info{display:flex;flex-direction:column;gap:10px}
+.hero .info .disp{font-size:48px;color:var(--w)}.hero .info small{color:var(--mute)}.hero .info small b{color:var(--bone)}
+.dots{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto}.dots i{width:14px;height:14px;background:var(--w)}.dots i.o{background:transparent;border:1px solid #ffffff30}
+.hr{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-content:start}
+.hr .c{grid-row:span 1}
+</style>
+<h1 class="top">Album — autres designs pour la vue « mondes »</h1>
+<p class="top">Sans aucune barre de défilement : tout tient dans la largeur. Même contenu (Chainsaw Man, Re:Zero, Jujutsu Kaisen, Cooking with Valkyries).</p>
+<div id="app"></div>
+<script>
+const IMG={rem:"https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png",rem2:"https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png",denji:"https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png",mak:"https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png"};
+const K=["denji","mak","rem","rem2"],N=["Denji","Makima","Rem","Rem"],R=["SR","SSR","R","UR"];
+const card=i=>`<div class="c" data-r="${R[i%4]}"><img src="${IMG[K[i%4]]}" referrerpolicy="no-referrer" alt=""><i></i><div class="nm">${N[i%4]}</div></div>`;
+const slot=i=>`<div class="slot"><img src="${IMG[K[i%4]]}" referrerpolicy="no-referrer" alt=""><span>?</span></div>`;
+const W=[["Chainsaw Man","#ff6a3d",4,14],["Re:Zero","#7ee0c3",3,22],["Jujutsu Kaisen","#8f7bff",3,24],["Cooking with Valkyries","#ffa23b",4,6],["Symphogear","#ff5d8f",4,6],["Girls Band Cry","#e8c34a",4,5]];
+const fans=`<div class="v G"><span class="lbl">1 · Paquets en éventail</span><h2 class="t">Album <span style="font-size:28px;color:var(--mute);font-weight:500;letter-spacing:0">128 / 640</span></h2><div class="fans">${W.map(([n,c,o,t])=>`<div style="--w:${c}"><div class="fan">${Array.from({length:4},(_,i)=>i<o?card(i):slot(i)).join("")}</div><div class="nm2" style="position:static;margin-top:-26px"><b>${n}</b><small>${o} / ${t} cartes</small></div></div>`).join("")}</div></div>`;
+const tiles=`<div class="v G"><span class="lbl">2 · Tuiles de mondes</span><h2 class="t">Album</h2><div class="tiles">${W.slice(0,6).map(([n,c,o,t],i)=>`<div class="tile" style="--w:${c}"><div class="disp">${n}</div><div class="big">${card(i)}</div><div><div class="cnt">${o}<small>sur ${t} cartes</small></div><div class="bar"><i style="width:${o/t*100}%"></i></div></div></div>`).join("")}</div></div>`;
+const hero=`<div class="v G"><span class="lbl">3 · Carte vedette + pastilles</span><h2 class="t">Album</h2>${W.slice(0,3).map(([n,c,o,t],i)=>`<div class="hero" style="--w:${c}"><div class="info"><div class="disp">${n}</div><small><b>${o} / ${t}</b> cartes</small><div class="dots">${Array.from({length:t},(_,k)=>`<i class="${k<o?"":"o"}"></i>`).join("")}</div></div><div class="hr">${Array.from({length:6},(_,k)=>k<o?card(k+i):slot(k)).join("")}</div></div>`).join("")}</div>`;
+document.getElementById("app").innerHTML=fans+tiles+hero;
+</script>

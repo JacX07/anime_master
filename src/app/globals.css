@@ -23,6 +23,9 @@
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }
 
+html {
+  color-scheme: dark; /* barres de défilement sombres, pas blanches */
+}
 body {
   background: var(--background);
   color: var(--foreground);
@@ -1046,6 +1049,7 @@ body.scene-night {
   background: var(--w);
 }
 .wd-row {
+  scrollbar-width: none; /* pas de barre de défilement blanche : le rang se parcourt au toucher ou à la molette */
   display: flex;
   gap: 0.9rem;
   padding: 1.5rem 0.4rem 0.7rem;
