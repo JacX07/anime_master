@@ -2731,3 +2731,29 @@ body.scene-night {
     display: none;
   }
 }
+
+/* Souhaits : une planche de cartes, une légende et un bouton par souhait */
+.wish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 1.6rem 1.2rem;
+}
+.wish-grid > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.wish-grid .tp-card {
+  width: 100%;
+}
+.wish-grid > li[data-owned] .tp-card {
+  opacity: 0.55;
+}
+.wish-grid .tp-cap b {
+  color: #7ee0c3;
+  font-weight: 600;
+}
+.wish-grid .vt-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+}

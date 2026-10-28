@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { RarityGem } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { FINISH_NAMES } from "@/lib/labels";
 import { requireUser } from "@/lib/session";
@@ -26,26 +25,35 @@ async function Wishlist() {
   const wishes = await listWishes(user.id);
   return (
     <div className="vt-inner">
-      <header>
+      <header className="pg-head">
         <h1 className="vt-title">Souhaits</h1>
         <p className="vt-sub">Tu es prévenu quand un de ces personnages est mis aux enchères ou proposé à l&apos;échange. Ajoute-les depuis leur fiche.</p>
       </header>
       {wishes.length === 0 ? (
-        <p className="vt-empty">Ta liste est vide.</p>
+        <p className="vt-empty">Ta liste est vide. Ajoute des personnages depuis leur fiche.</p>
       ) : (
-        <ul className="notif-list">
-          {wishes.map((w) => (
-            <li key={w.id}>
-              <span className="flex items-center gap-2">
-                <RarityGem rarity={w.character.rarity} />
-                <Link href={`/character/${w.character.id}`}>{w.character.name}</Link>
-                <span className="vt-muted">{w.finish ? FINISH_NAMES[w.finish] : "toute finition"}</span>
-                {w.owned && <span className="trade-tag">Déjà possédé</span>}
-              </span>
-              <RemoveWish id={w.id} />
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className="vt-count">
+            {wishes.length} souhait{wishes.length > 1 ? "s" : ""} · {wishes.filter((w) => w.owned).length} déjà possédé{wishes.filter((w) => w.owned).length > 1 ? "s" : ""}
+          </p>
+          <ul className="wish-grid">
+            {wishes.map((w) => (
+              <li key={w.id} data-owned={w.owned || undefined}>
+                <Link href={`/character/${w.character.id}`} className="tp-card" data-r={w.character.rarity} title={w.character.name}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={w.character.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                  <i aria-hidden />
+                  <span className="tp-nm">{w.character.name}</span>
+                </Link>
+                <span className="tp-cap">
+                  {w.finish ? FINISH_NAMES[w.finish] : "Toute finition"}
+                  {w.owned && <b> · possédé</b>}
+                </span>
+                <RemoveWish id={w.id} />
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

@@ -28,7 +28,7 @@ export async function listWishes(userId: string) {
   const rows = await prisma.wishlistItem.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    select: { id: true, finish: true, character: { select: { id: true, name: true, rarity: true } } },
+    select: { id: true, finish: true, character: { select: { id: true, name: true, rarity: true, imageUrl: true } } },
   });
   const owned = await prisma.card.findMany({ where: { ownerId: userId, characterId: { in: rows.map((r) => r.character.id) } }, select: { characterId: true, finish: true } });
   return rows.map((r) => ({ ...r, owned: owned.some((c) => c.characterId === r.character.id && (r.finish === null || c.finish === r.finish)) }));
