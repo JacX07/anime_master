@@ -1060,6 +1060,13 @@ body.scene-night {
   right: calc(100% + 0.7rem);
   transform: translateX(6px);
 }
+.wd-bubble[data-side="below"] {
+  top: calc(100% + 0.7rem);
+  left: 0;
+  right: 0;
+  width: auto;
+  transform: translateY(-6px);
+}
 /* Pointe de la bulle, tournée vers la tuile */
 .wd-bubble::before {
   content: "";
@@ -1072,6 +1079,12 @@ body.scene-night {
   border-left: 1px solid var(--w);
   background: #0d1424;
   transform: rotate(45deg);
+}
+.wd-bubble[data-side="below"]::before {
+  top: -0.45rem;
+  left: 2.2rem;
+  border-top: 1px solid var(--w);
+  border-bottom: 0;
 }
 .wd-bubble[data-side="left"]::before {
   left: auto;
