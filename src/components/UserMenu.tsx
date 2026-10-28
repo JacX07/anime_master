@@ -45,6 +45,9 @@ export async function UserMenu() {
       <Suspense fallback={null}>
         <NotificationBell userId={user.id} />
       </Suspense>
+      <Link href={`/u/${encodeURIComponent(user.username)}`} className="site-link">
+        Profil
+      </Link>
       <button type="submit" className="avatar" title={`${user.username} · se déconnecter`} aria-label={`Se déconnecter (${user.username})`}>
         {user.username.slice(0, 1).toUpperCase()}
       </button>

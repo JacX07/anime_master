@@ -1,10 +1,12 @@
 // Classement Collection (SPEC étape 4, §5) : somme sur les personnages uniques possédés.
 
+import { titleOf } from "./achievements";
 import { prisma } from "./db";
 
 export interface CollectionRow {
   userId: string;
   username: string;
+  title: string | null;
   score: number;
   unique: number;
   rank: number;
@@ -36,8 +38,8 @@ async function scores(): Promise<Raw[]> {
 export async function collectionLeaderboard(me: string | null, top = 100) {
   const raw = (await scores()).map((r) => ({ userId: r.userId, score: Math.floor(Number(r.score)), unique: Number(r.uniq) }));
   raw.sort((a, b) => b.score - a.score || b.unique - a.unique || a.userId.localeCompare(b.userId));
-  const users = await prisma.user.findMany({ where: { id: { in: raw.map((r) => r.userId) } }, select: { id: true, username: true } });
-  const name = new Map(users.map((u) => [u.id, u.username]));
-  const ranked: CollectionRow[] = raw.map((r, i) => ({ ...r, username: name.get(r.userId) ?? "?", rank: i + 1 }));
+  const users = await prisma.user.findMany({ where: { id: { in: raw.map((r) => r.userId) } }, select: { id: true, username: true, title: true } });
+  const who = new Map(users.map((u) => [u.id, u]));
+  const ranked: CollectionRow[] = raw.map((r, i) => ({ ...r, username: who.get(r.userId)?.username ?? "?", title: titleOf(who.get(r.userId)?.title), rank: i + 1 }));
   return { top: ranked.slice(0, top), me: me ? (ranked.find((r) => r.userId === me) ?? null) : null, players: ranked.length };
 }

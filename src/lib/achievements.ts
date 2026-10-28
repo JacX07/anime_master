@@ -10,34 +10,36 @@ export interface AchievementDef {
   label: string;
   description: string;
   reward: number;
+  /** Titre débloqué avec ce succès : on en équipe un seul, affiché à côté du pseudo */
+  title: string;
   /** Cristaux spéciaux offerts (≈ 100 au total sur la vie d'un compte, SPEC étape 4 bis §6) */
   special?: number;
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
-  { key: "first_pack", label: "Premier paquet", description: "Ouvrir ton premier paquet.", reward: 20 },
-  { key: "first_ssr", label: "Éclat doré", description: "Obtenir une première carte SSR.", reward: 50, special: 5 },
-  { key: "first_ur", label: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200, special: 10 },
-  { key: "first_holo", label: "Reflets", description: "Obtenir une première Holo.", reward: 30 },
-  { key: "first_gold", label: "Pur or", description: "Obtenir une première Gold.", reward: 300, special: 10 },
-  { key: "unique_100", label: "Collectionneur", description: "Posséder 100 personnages différents.", reward: 100, special: 5 },
-  { key: "unique_500", label: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300, special: 10 },
-  { key: "unique_1000", label: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800, special: 15 },
-  { key: "unique_2500", label: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000, special: 25 },
+  { key: "first_pack", label: "Premier paquet", title: "Recrue", description: "Ouvrir ton premier paquet.", reward: 20 },
+  { key: "first_ssr", label: "Éclat doré", title: "Étoile montante", description: "Obtenir une première carte SSR.", reward: 50, special: 5 },
+  { key: "first_ur", label: "Rouge légendaire", title: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200, special: 10 },
+  { key: "first_holo", label: "Reflets", title: "Prisme", description: "Obtenir une première Holo.", reward: 30 },
+  { key: "first_gold", label: "Pur or", title: "Main d'or", description: "Obtenir une première Gold.", reward: 300, special: 10 },
+  { key: "unique_100", label: "Collectionneur", title: "Collectionneur", description: "Posséder 100 personnages différents.", reward: 100, special: 5 },
+  { key: "unique_500", label: "Archiviste", title: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300, special: 10 },
+  { key: "unique_1000", label: "Conservateur", title: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800, special: 15 },
+  { key: "unique_2500", label: "Maître des cartes", title: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000, special: 25 },
   // Récompenses provisoires, à équilibrer (SPEC §6). Seuls comptent les anime listés dans l'album (au moins 5 personnages).
-  { key: "series_complete_1", label: "Anime complet", description: "Compléter un anime : posséder tous ses personnages (au moins 5).", reward: 150, special: 3 },
-  { key: "series_complete_5", label: "Cinq collections", description: "Compléter 5 anime.", reward: 500, special: 1 },
-  { key: "series_complete_10", label: "Bibliothécaire", description: "Compléter 10 anime.", reward: 1500, special: 1 },
-  { key: "all_types", label: "Tous les types", description: "Posséder au moins un personnage de chaque type.", reward: 50, special: 5 },
-  { key: "duel_win_1", label: "Premier duel", description: "Gagner un duel.", reward: 30 },
-  { key: "duel_win_10", label: "Duelliste", description: "Gagner 10 duels.", reward: 150 },
-  { key: "duel_win_50", label: "Champion", description: "Gagner 50 duels.", reward: 500, special: 5 },
-  { key: "first_auction_sale", label: "Première vente", description: "Vendre une carte aux enchères.", reward: 30 },
-  { key: "first_expedition", label: "Première expédition", description: "Récupérer le butin d'une première expédition.", reward: 20 },
-  { key: "expeditions_5", label: "Explorateur", description: "Récupérer 5 expéditions (débloque un 2ᵉ emplacement).", reward: 100 },
-  { key: "expeditions_20", label: "Chef d'expédition", description: "Récupérer 20 expéditions (débloque un 3ᵉ emplacement).", reward: 300 },
-  { key: "first_triumph", label: "Triomphe", description: "Réussir une expédition en triomphe.", reward: 50 },
-  { key: "first_trade", label: "Premier échange", description: "Conclure un échange avec un joueur.", reward: 30, special: 5 },
+  { key: "series_complete_1", label: "Anime complet", title: "Fan", description: "Compléter un anime : posséder tous ses personnages (au moins 5).", reward: 150, special: 3 },
+  { key: "series_complete_5", label: "Cinq collections", title: "Otaku", description: "Compléter 5 anime.", reward: 500, special: 1 },
+  { key: "series_complete_10", label: "Bibliothécaire", title: "Sage des anime", description: "Compléter 10 anime.", reward: 1500, special: 1 },
+  { key: "all_types", label: "Tous les types", title: "Polyvalent", description: "Posséder au moins un personnage de chaque type.", reward: 50, special: 5 },
+  { key: "duel_win_1", label: "Premier duel", title: "Rival", description: "Gagner un duel.", reward: 30 },
+  { key: "duel_win_10", label: "Duelliste", title: "Duelliste", description: "Gagner 10 duels.", reward: 150 },
+  { key: "duel_win_50", label: "Champion", title: "Champion", description: "Gagner 50 duels.", reward: 500, special: 5 },
+  { key: "first_auction_sale", label: "Première vente", title: "Marchand", description: "Vendre une carte aux enchères.", reward: 30 },
+  { key: "first_expedition", label: "Première expédition", title: "Éclaireur", description: "Récupérer le butin d'une première expédition.", reward: 20 },
+  { key: "expeditions_5", label: "Explorateur", title: "Explorateur", description: "Récupérer 5 expéditions (débloque un 2ᵉ emplacement).", reward: 100 },
+  { key: "expeditions_20", label: "Chef d'expédition", title: "Chef d'expédition", description: "Récupérer 20 expéditions (débloque un 3ᵉ emplacement).", reward: 300 },
+  { key: "first_triumph", label: "Triomphe", title: "Héros de l'arc", description: "Réussir une expédition en triomphe.", reward: 50 },
+  { key: "first_trade", label: "Premier échange", title: "Négociant", description: "Conclure un échange avec un joueur.", reward: 30, special: 5 },
 ];
 
 /** État du joueur dont dépendent les succès. */
@@ -166,3 +168,6 @@ export async function listAchievements(userId: string) {
   const at = new Map(rows.map((r) => [r.key, r.unlockedAt]));
   return ACHIEVEMENTS.map((a) => ({ ...a, unlockedAt: at.get(a.key) ?? null }));
 }
+
+/** Titre associé à une clé de succès (null si la clé est inconnue). */
+export const titleOf = (key: string | null | undefined) => ACHIEVEMENTS.find((a) => a.key === key)?.title ?? null;

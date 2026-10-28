@@ -1,6 +1,7 @@
 // Duels asynchrones (SPEC étape 4, §1 à §4). Les délais sont appliqués paresseusement (`sweepDuels`, à chaque consultation).
 // Chaque changement d'état est un passage conditionnel (updateMany sur le statut) : un double clic ne l'exécute jamais deux fois.
 
+import { titleOf } from "./achievements";
 import type { Prisma } from "../generated/prisma/client";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { checkAchievementsSafe } from "./achievements";
@@ -421,9 +422,9 @@ export async function eloLeaderboard(me: string | null, top = 100) {
       stats.set(id, s);
     }
   }
-  const users = await prisma.user.findMany({ where: { id: { in: [...stats.keys()] } }, select: { id: true, username: true, elo: true } });
+  const users = await prisma.user.findMany({ where: { id: { in: [...stats.keys()] } }, select: { id: true, username: true, elo: true, title: true } });
   const ranked = users
     .sort((a, b) => b.elo - a.elo || a.username.localeCompare(b.username))
-    .map((u, i) => ({ userId: u.id, username: u.username, elo: u.elo, ...stats.get(u.id)!, rank: i + 1 }));
+    .map((u, i) => ({ userId: u.id, username: u.username, title: titleOf(u.title), elo: u.elo, ...stats.get(u.id)!, rank: i + 1 }));
   return { top: ranked.slice(0, top), me: me ? (ranked.find((r) => r.userId === me) ?? null) : null, players: ranked.length };
 }

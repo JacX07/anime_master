@@ -144,6 +144,11 @@ async function loadEntries(ids: number[], owned: Map<number, Ownership>): Promis
   });
 }
 
+/** Fiches de personnages précis, avec ce que ce joueur en possède (vitrine du profil). */
+export async function entriesFor(userId: string, ids: number[]): Promise<AlbumEntry[]> {
+  return loadEntries(ids, await ownershipMap(userId));
+}
+
 export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPage> {
   const [owned, animeIndex] = await Promise.all([ownershipMap(userId), loadAnimeIndex()]);
 

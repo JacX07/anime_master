@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { PlayerName } from "@/components/PlayerName";
 import { SceneBody } from "@/components/SceneBody";
 import { eloLeaderboard } from "@/lib/duels";
 import { collectionLeaderboard } from "@/lib/leaderboard";
@@ -43,7 +44,7 @@ async function Leaderboard({
   const eloRow = (r: (typeof elo.top)[number]) => (
     <li key={r.userId} data-me={r.userId === user?.id}>
       <span className="rank">{r.rank}</span>
-      <b>{r.username}</b>
+      <PlayerName username={r.username} title={r.title} />
       <span className="vt-muted">
         {r.wins} victoire{r.wins > 1 ? "s" : ""} sur {r.played} duel
         {r.played > 1 ? "s" : ""}
@@ -54,7 +55,7 @@ async function Leaderboard({
   const row = (r: (typeof top)[number]) => (
     <li key={r.userId} data-me={r.userId === user?.id}>
       <span className="rank">{r.rank}</span>
-      <b>{r.username}</b>
+      <PlayerName username={r.username} title={r.title} />
       <span className="vt-muted">{num.format(r.unique)} personnages</span>
       <span className="score">{num.format(r.score)}</span>
     </li>

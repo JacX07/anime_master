@@ -47,7 +47,7 @@ enum PityTrigger {
 /// Un personnage AniList (étape 1).
 model Character {
   /// id AniList
-  id             Int               @id
+  id             Int                 @id
   name           String
   nameNative     String?
   /// URL de l'image sur le CDN AniList (on ne stocke pas le fichier)
@@ -64,21 +64,22 @@ model Character {
   attack         Int
   defense        Int
   /// Puissance : stat à part (popularité), indépendante d'ATK/DEF
-  power          Int               @default(0)
+  power          Int                 @default(0)
   /// Série principale (sert au type et au rôle)
   mainMediaId    Int?
-  mainMedia      Media?            @relation("MainMedia", fields: [mainMediaId], references: [id])
+  mainMedia      Media?              @relation("MainMedia", fields: [mainMediaId], references: [id])
   mainRole       CharacterRole
   /// Nombre d'exemplaires tirés (numéros d'exemplaire, étape 2)
-  pullCount      Int               @default(0)
+  pullCount      Int                 @default(0)
   /// Retrait à la demande d'un ayant droit (étape 6)
-  disabled       Boolean           @default(false)
+  disabled       Boolean             @default(false)
   wishedBy       WishlistItem[]
   media          CharacterMedia[]
   cards          Card[]
   banners        BannerCharacter[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  showcased      ShowcaseCharacter[]
 
   @@index([rarity])
   @@index([type])
@@ -161,6 +162,10 @@ model User {
   bids                Bid[]
   wishlist            WishlistItem[]
   achievements        UserAchievement[]
+  /// Titre équipé : clé du succès dont il vient (affiché à côté du pseudo)
+  title               String?
+  /// Vitrine du profil : personnages épinglés (6 au plus), ignorés s'ils ne sont plus possédés
+  showcase            ShowcaseCharacter[]
   /// Classement Duel (étape 4)
   elo                 Int                    @default(1000)
   /// Duels lancés pendant la journée `duelsStartedDate`
@@ -476,6 +481,16 @@ model WishlistItem {
 }
 
 /// Succès débloqués (étape 4) : une seule fois par joueur et par clé.
+model ShowcaseCharacter {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  position    Int
+
+  @@id([userId, characterId])
+}
+
 model UserAchievement {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
