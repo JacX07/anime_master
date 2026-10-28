@@ -8,7 +8,6 @@ import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER } from "@/lib/alb
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
-import { loadAlbumMore } from "./actions";
 import { AlbumFilters, albumHref } from "./AlbumFilters";
 import { InfiniteList } from "./InfiniteList";
 import { CardItem, World } from "./items";
@@ -71,7 +70,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
               {album.matching} monde{album.matching > 1 ? "s" : ""} relevé{album.matching > 1 ? "s" : ""}
               {album.worlds.unknown > 0 && ` · ${album.worlds.unknown} encore inconnus`}
             </p>
-            <InfiniteList key={listKey} as="div" className="wd-list" pages={album.pages} load={loadAlbumMore.bind(null, filters)}>
+            <InfiniteList key={listKey} as="div" className="wd-list" pages={album.pages} filters={filters}>
               {album.worlds.bands.map((w) => (
                 <World key={w.key} world={w} filters={filters} />
               ))}
@@ -86,7 +85,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
         {album.worlds ? null : album.entries.length === 0 ? (
           <p className="vt-empty">Aucun personnage ne correspond à ces filtres.</p>
         ) : (
-          <InfiniteList key={listKey} as="ul" className="vt-grid" pages={album.pages} load={loadAlbumMore.bind(null, filters)}>
+          <InfiniteList key={listKey} as="ul" className="vt-grid" pages={album.pages} filters={filters}>
             {album.entries.map((e) => (
               <CardItem key={e.id} entry={e} />
             ))}
