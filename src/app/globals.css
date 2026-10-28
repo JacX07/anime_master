@@ -1037,13 +1037,13 @@ body.scene-night {
   transform: rotate(5deg);
   transition: opacity 0.15s ease;
 }
-/* Bulle qui sort sous la tuile au survol */
+/* Bulle qui sort à côté de la tuile au survol (à droite, ou à gauche en bout de ligne : voir WorldBubble) */
 .wd-bubble {
   position: absolute;
   z-index: 6;
-  top: calc(100% + 0.7rem);
-  left: 0;
-  right: 0;
+  top: 0.8rem;
+  left: calc(100% + 0.7rem);
+  width: 17rem;
   padding: 0.8rem 0.9rem 0.7rem;
   border: 1px solid var(--w);
   border-radius: 0.9rem;
@@ -1052,21 +1052,31 @@ body.scene-night {
   pointer-events: none;
   visibility: hidden;
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateX(-6px);
   transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0.18s;
+}
+.wd-bubble[data-side="left"] {
+  left: auto;
+  right: calc(100% + 0.7rem);
+  transform: translateX(6px);
 }
 /* Pointe de la bulle, tournée vers la tuile */
 .wd-bubble::before {
   content: "";
   position: absolute;
-  top: -0.45rem;
-  left: 2.2rem;
+  top: 1.6rem;
+  left: -0.45rem;
   width: 0.8rem;
   height: 0.8rem;
-  border-top: 1px solid var(--w);
+  border-bottom: 1px solid var(--w);
   border-left: 1px solid var(--w);
   background: #0d1424;
   transform: rotate(45deg);
+}
+.wd-bubble[data-side="left"]::before {
+  left: auto;
+  right: -0.45rem;
+  transform: rotate(225deg);
 }
 .wd-bubble ul {
   display: grid;

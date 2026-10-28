@@ -5,6 +5,7 @@ import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Stat, TypeIcon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
+import { WorldBubble } from "@/components/WorldBubble";
 import { TYPE_LABELS } from "@/lib/labels";
 import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER, WORLDS_PER_PAGE, type AlbumFilters as Filters, type WorldBand } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
@@ -149,8 +150,8 @@ function World({ world, filters }: { world: WorldBand; filters: Filters }) {
           <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} missing={!star.owned} />
         </div>
       )}
-      {/* Au survol : une bulle sort de la tuile avec quelques personnages du monde et la puissance totale */}
-      <div className="wd-bubble" aria-hidden>
+      {/* Au survol : une bulle sort à côté de la tuile avec quelques personnages du monde et la puissance totale */}
+      <WorldBubble>
         <ul>
           {world.preview.map((e) => (
             <li key={e.id} style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
@@ -164,7 +165,7 @@ function World({ world, filters }: { world: WorldBand; filters: Filters }) {
             {num.format(world.power)}
           </Stat>
         </p>
-      </div>
+      </WorldBubble>
       <div className="wd-foot">
         <b className="wd-count">{num.format(world.owned)}</b>
         <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
