@@ -61,8 +61,9 @@ const Tag = ({ level }: { level: number }) => (
         <path d="M82 -3H70M138 -3h12" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round" />
         <circle cx="66" cy="-3" r="2.2" fill={C2} />
         <circle cx="154" cy="-3" r="2.2" fill={C2} />
-        <path d="M90 311H130" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round" />
-        <path d="M100 316H120" stroke={C2} strokeWidth="1.4" opacity=".8" />
+        {[-8, W + 8].map((x) => (
+          <path key={x} d={`M${x} 134V174`} fill="none" stroke={C} strokeWidth="2" strokeLinecap="round" />
+        ))}
       </>
     )}
     {level >= 4 && (
@@ -75,17 +76,19 @@ const Tag = ({ level }: { level: number }) => (
   </>
 );
 
-/** UR : plaque basse symétrique à l'étiquette, et un nœud hexagonal relié sur chaque côté */
+/** UR : plaque verticale sur chaque côté, symétrique à l'étiquette du haut */
 const Plate = () => (
   <>
-    <path d="M86 317H134L126 307H94Z" fill={C} stroke={C2} strokeWidth="1.2" />
-    <path d="M92 322H128" stroke={C2} strokeWidth="1.4" opacity=".8" />
-    {[-7, W + 7].map((x) => (
-      <g key={x}>
-        <polygon points={hex(x, 154, 8)} fill={C} stroke={C2} strokeWidth="1.2" />
-        <path d={`M${x} 118V138M${x} 170V190`} fill="none" stroke={C} strokeWidth="1.6" strokeLinecap="round" />
-      </g>
-    ))}
+    {[1, -1].map((d) => {
+      const x = d === 1 ? 0 : W; // d = 1 : côté gauche
+      const p = (dx: number, y: number) => `${x - d * dx},${y}`;
+      return (
+        <g key={d}>
+          <polygon points={`${p(13, 122)} ${p(13, 186)} ${p(3, 178)} ${p(3, 130)}`} fill={C} stroke={C2} strokeWidth="1.2" />
+          <path d={`M${x - d * 18} 134V174`} stroke={C2} strokeWidth="1.4" opacity=".8" />
+        </g>
+      );
+    })}
   </>
 );
 
