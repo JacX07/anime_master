@@ -1007,7 +1007,6 @@ body.scene-night {
   gap: 1.2rem;
   min-height: 14rem;
   padding: 1.1rem 1.2rem;
-  overflow: hidden;
   border: 1px solid #ffffff1c;
   background: linear-gradient(160deg, color-mix(in srgb, var(--w) 28%, #0b0b12), #0b0b12 70%);
   transition: border-color 0.2s ease;
@@ -1038,55 +1037,65 @@ body.scene-night {
   transform: rotate(5deg);
   transition: opacity 0.15s ease;
 }
-.wd-fan {
+/* Bulle qui sort sous la tuile au survol */
+.wd-bubble {
   position: absolute;
-  right: 0.8rem;
-  bottom: 0.6rem;
-  width: 62%;
-  display: flex;
-  justify-content: flex-end;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  z-index: 6;
+  top: calc(100% + 0.7rem);
+  left: 0;
+  right: 0;
+  padding: 0.8rem 0.9rem 0.7rem;
+  border: 1px solid var(--w);
+  border-radius: 0.9rem;
+  background: #0d1424;
+  box-shadow: 0 14px 34px #000c;
+  pointer-events: none;
   visibility: hidden;
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s 0.2s;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0.18s;
 }
-.wd-fan li {
-  flex: none;
-  width: 4.6rem;
-  margin-left: -1.3rem;
-  box-shadow: 0 6px 16px #000a;
+/* Pointe de la bulle, tournée vers la tuile */
+.wd-bubble::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 2.2rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-top: 1px solid var(--w);
+  border-left: 1px solid var(--w);
+  background: #0d1424;
+  transform: rotate(45deg);
 }
-.wd-fan li:nth-child(odd) {
-  transform: rotate(-4deg);
+.wd-bubble ul {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.6rem 0 0;
+  list-style: none;
 }
-.wd-fan li:nth-child(even) {
-  transform: translateY(-6px) rotate(3deg);
+.wd-bubble p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.7rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid #ffffff1c;
+  font-size: 0.8rem;
+  color: #8ea3c4;
 }
-.wd-tile:hover .wd-fan,
-.wd-tile:focus-visible .wd-fan {
+.wd-bubble p .stat,
+.wd-bubble p svg {
+  color: var(--w);
+}
+.wd-tile:hover .wd-bubble,
+.wd-tile:focus-visible .wd-bubble {
   visibility: visible;
   opacity: 1;
   transform: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.wd-tile:hover .wd-star,
-.wd-tile:focus-visible .wd-star {
-  opacity: 0;
-}
-.wd-power {
-  height: 1.3rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--w);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-.wd-tile:hover .wd-power,
-.wd-tile:focus-visible .wd-power {
-  opacity: 1;
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 .wd-foot {
   position: relative;

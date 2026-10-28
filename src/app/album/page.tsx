@@ -149,22 +149,25 @@ function World({ world, filters }: { world: WorldBand; filters: Filters }) {
           <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} missing={!star.owned} />
         </div>
       )}
-      {/* Au survol : un aperçu de quelques personnages du monde, en éventail, à la place de la vedette */}
-      <ul className="wd-fan" aria-hidden>
-        {world.preview.map((e) => (
-          <li key={e.id} style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
-            <CharacterCard {...e} finish={e.owned?.best} count={undefined} missing={!e.owned} />
-          </li>
-        ))}
-      </ul>
-      <div className="wd-foot">
-        <b className="wd-count">{num.format(world.owned)}</b>
-        <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
-        <span className="wd-power" title="Puissance de tes cartes de ce monde">
+      {/* Au survol : une bulle sort de la tuile avec quelques personnages du monde et la puissance totale */}
+      <div className="wd-bubble" aria-hidden>
+        <ul>
+          {world.preview.map((e) => (
+            <li key={e.id} style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
+              <CharacterCard {...e} finish={e.owned?.best} count={undefined} missing={!e.owned} />
+            </li>
+          ))}
+        </ul>
+        <p>
+          <span>Puissance du monde</span>
           <Stat icon="puissance" accent="currentColor">
             {num.format(world.power)}
           </Stat>
-        </span>
+        </p>
+      </div>
+      <div className="wd-foot">
+        <b className="wd-count">{num.format(world.owned)}</b>
+        <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
         <span className="wd-bar" role="img" aria-label={`${p} % de complétion`}>
           <i style={{ width: `${p}%` }} />
         </span>
