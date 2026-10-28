@@ -6,7 +6,7 @@ import { CharacterCard } from "@/components/CharacterCard";
 import { Stat, TypeIcon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { TYPE_LABELS } from "@/lib/labels";
-import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER, type AlbumFilters as Filters } from "@/lib/album";
+import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER, WORLDS_PER_PAGE, type AlbumFilters as Filters, type WorldBand } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
@@ -62,11 +62,25 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           ))}
         </ul>
 
-        <p className="vt-count">
-          {album.matching} personnage{album.matching > 1 ? "s" : ""}
-        </p>
+        {album.worlds ? (
+          <>
+            <p className="vt-count">
+              {album.matching} monde{album.matching > 1 ? "s" : ""} relevé{album.matching > 1 ? "s" : ""}
+              {album.worlds.unknown > 0 && ` · ${album.worlds.unknown} encore inconnus`}
+            </p>
+            <div className="wd-list">
+              {album.worlds.bands.map((w) => (
+                <World key={w.key} world={w} filters={filters} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="vt-count">
+            {album.matching} personnage{album.matching > 1 ? "s" : ""}
+          </p>
+        )}
 
-        {album.entries.length === 0 ? (
+        {album.worlds ? null : album.entries.length === 0 ? (
           <p className="vt-empty">Aucun personnage ne correspond à ces filtres.</p>
         ) : (
           <ul className="vt-grid">
@@ -108,6 +122,58 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
         <BuyCrystalsButton price={packs.crystalPrice} left={packs.crystalsLeft} balance={packs.balance} available={packs.available} />
       </footer>
     </>
+  );
+}
+
+/** Teinte propre à chaque monde, dérivée de son nom (stable d'une visite à l'autre) */
+function worldHue(title: string) {
+  let h = 0;
+  for (const c of title) h = (h * 31 + c.charCodeAt(0)) % 360;
+  return h;
+}
+
+/** Une bande par monde : nom en grand, progression, puis un rang de cartes (possédées d'abord, puis silhouettes) */
+function World({ world, filters }: { world: WorldBand; filters: Filters }) {
+  const p = pct(world.owned, world.total);
+  const more = world.total - world.preview.length;
+  return (
+    <section className="wd-band" style={{ "--w": `hsl(${worldHue(world.title)} 85% 62%)` } as React.CSSProperties} aria-label={world.title}>
+      <div className="wd-spine">
+        <div>
+          <h2>
+            <Link href={albumHref(filters, { anime: world.key, page: 1 })}>{world.title}</Link>
+          </h2>
+          <p>
+            <b>
+              {num.format(world.owned)} / {num.format(world.total)}
+            </b>{" "}
+            cartes
+            {world.owned === world.total && <em> · complet</em>}
+          </p>
+        </div>
+        <span className="wd-bar" role="img" aria-label={`${p} % de complétion`}>
+          <i style={{ width: `${p}%` }} />
+        </span>
+      </div>
+      <ul className="wd-row">
+        {world.preview.map((e, i) => (
+          <li key={e.id}>
+            <Link href={`/character/${e.id}`} className="vt-card wd-plate" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
+              <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
+              <span className="wd-cap">
+                <b>{String(i + 1).padStart(2, "0")}</b>
+                <span>{e.owned ? e.rarity : "non relevé"}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+        {more > 0 && (
+          <li className="wd-more">
+            <Link href={albumHref(filters, { anime: world.key, page: 1 })}>+ {num.format(more)}</Link>
+          </li>
+        )}
+      </ul>
+    </section>
   );
 }
 

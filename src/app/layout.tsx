@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Michroma, Sora } from "next/font/google";
+import { Big_Shoulders, Michroma, Sora } from "next/font/google";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AlbumLink } from "@/components/AlbumLink";
@@ -11,6 +11,8 @@ import "./globals.css";
 // Les deux polices du jeu, partout : Michroma pour les titres, noms et logo, Sora pour l'interface et les chiffres
 const michroma = Michroma({ variable: "--font-michroma", weight: "400", subsets: ["latin"] });
 const sora = Sora({ variable: "--font-sora", subsets: ["latin"] });
+// Noms de mondes de l'album : très condensée, pour les grands titres
+const shoulders = Big_Shoulders({ variable: "--font-shoulders", weight: ["800", "900"], subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Anime Masters",
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${michroma.variable} ${sora.variable} h-full antialiased`}>
+    <html lang="fr" className={`${michroma.variable} ${sora.variable} ${shoulders.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         <IconSprite />
         <header className="site-header">

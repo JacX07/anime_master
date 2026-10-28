@@ -988,6 +988,115 @@ body.scene-night {
 .vt-card:focus-visible::after {
   opacity: 0.55;
 }
+/* ---------- Album : bandes de mondes ---------- */
+.wd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+.wd-band {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 1rem;
+  border-top: 2px solid var(--w);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--w) 18%, transparent), transparent 55%);
+}
+.wd-spine {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+}
+.wd-spine h2 {
+  margin: 0;
+  font-family: var(--font-shoulders), var(--font-sora), sans-serif;
+  font-weight: 900;
+  font-size: 2.7rem;
+  line-height: 0.88;
+  text-transform: uppercase;
+  color: var(--w);
+  overflow-wrap: anywhere;
+}
+.wd-spine h2 a:hover,
+.wd-spine h2 a:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+.wd-spine p {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: #8ea3c4;
+}
+.wd-spine p b {
+  color: #ebe7dc;
+  font-weight: 600;
+}
+.wd-spine p em {
+  color: var(--w);
+  font-style: normal;
+}
+.wd-bar {
+  height: 3px;
+  background: #ffffff1c;
+}
+.wd-bar i {
+  display: block;
+  height: 100%;
+  background: var(--w);
+}
+.wd-row {
+  display: flex;
+  gap: 0.9rem;
+  padding: 1.5rem 0.4rem 0.7rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.wd-row > li {
+  flex: none;
+  width: 8.4rem;
+}
+.wd-row > li.wd-more {
+  display: grid;
+  align-items: center;
+  width: auto;
+  padding: 0 0.6rem;
+  font-size: 0.85rem;
+  color: #8ea3c4;
+}
+.wd-plate {
+  padding: 0.4rem;
+}
+/* Repères de coins, comme une planche d'observation */
+.wd-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  --m: #8d8a99;
+  background:
+    linear-gradient(var(--m), var(--m)) 0 0 / 10px 1px no-repeat,
+    linear-gradient(var(--m), var(--m)) 0 0 / 1px 10px no-repeat,
+    linear-gradient(var(--m), var(--m)) 100% 100% / 10px 1px no-repeat,
+    linear-gradient(var(--m), var(--m)) 100% 100% / 1px 10px no-repeat;
+}
+.wd-cap {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  color: #8d8a99;
+}
+.wd-cap b {
+  color: #ebe7dc;
+  font-weight: 600;
+}
+@media (max-width: 40rem) {
+  .wd-band {
+    grid-template-columns: 1fr;
+  }
+}
 .vt-pager {
   display: flex;
   justify-content: center;

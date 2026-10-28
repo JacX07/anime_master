@@ -94,14 +94,46 @@ export interface AnimeProgress {
   members?: { title: string; owned: number; total: number }[];
 }
 
+/** Un « monde » de la vue par défaut : un anime avec sa progression et un aperçu de ses cartes */
+export interface WorldBand extends AnimeProgress {
+  preview: AlbumEntry[];
+}
+
+export const WORLDS_PER_PAGE = 8;
+const WORLD_PREVIEW = 7;
+
 export interface AlbumPage {
   entries: AlbumEntry[];
+  /** Vue par défaut (aucun filtre) : un monde par bande, en commençant par ceux que le joueur a déjà relevés ; null sinon */
+  worlds: { bands: WorldBand[]; unknown: number } | null;
   /** Franchises ayant leur entrée (≥ 5 personnages), par ordre alphabétique, puis les blocs d'« Autres anime » */
   anime: { listed: AnimeProgress[]; blocks: AnimeProgress[]; selected: AnimeProgress | null };
   /** Nombre de personnages correspondant aux filtres */
   matching: number;
   pages: number;
   progress: { owned: number; total: number; byRarity: Record<Rarity, { owned: number; total: number }> };
+}
+
+async function loadEntries(ids: number[], owned: Map<number, Ownership>): Promise<AlbumEntry[]> {
+  const rows = await prisma.character.findMany({
+    where: { id: { in: ids } },
+    select: {
+      id: true,
+      name: true,
+      imageUrl: true,
+      rarity: true,
+      type: true,
+      attack: true,
+      defense: true,
+      power: true,
+      mainMedia: { select: { titleRomaji: true, titleEnglish: true } },
+    },
+  });
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  return ids.map((id) => {
+    const { mainMedia, ...c } = byId.get(id)!;
+    return { ...c, series: seriesTitle(mainMedia), owned: owned.get(id) ?? null };
+  });
 }
 
 export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPage> {
@@ -129,6 +161,45 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   });
   const selected = [...listed, ...blocks].find((a) => a.key === f.anime) ?? null;
 
+  const rank = new Map(all.map((c) => [c.id, c]));
+  const order = (a: number, b: number) => {
+    const ca = rank.get(a)!;
+    const cb = rank.get(b)!;
+    return RARITY_ORDER.indexOf(ca.rarity) - RARITY_ORDER.indexOf(cb.rarity) || cb.favourites - ca.favourites || a - b;
+  };
+
+  if (!selected && !f.q && !f.rarity && !f.type && f.owned === "all") {
+    const idsOf = new Map<string, number[]>();
+    for (const a of animeIndex.listed) idsOf.set(String(a.key), a.characterIds);
+    for (const b of animeIndex.blocks) idsOf.set(b.key, b.animes.flatMap((a) => a.characterIds));
+    const known = [...listed, ...blocks]
+      .filter((a) => a.owned > 0)
+      .sort((a, b) => b.owned / b.total - a.owned / a.total || b.owned - a.owned || a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
+    const pages = Math.max(1, Math.ceil(known.length / WORLDS_PER_PAGE));
+    const page = Math.min(f.page, pages);
+    const slice = known.slice((page - 1) * WORLDS_PER_PAGE, page * WORLDS_PER_PAGE);
+    // Aperçu : d'abord les cartes possédées (les plus rares en tête), puis les manquantes
+    const previews = slice.map((a) => {
+      const ids = [...(idsOf.get(a.key) ?? [])].sort(order);
+      const mine = ids.filter((id) => owned.has(id));
+      const rest = ids.filter((id) => !owned.has(id));
+      return [...mine, ...rest].slice(0, WORLD_PREVIEW);
+    });
+    const entries = await loadEntries([...new Set(previews.flat())], owned);
+    const entryById = new Map(entries.map((e) => [e.id, e]));
+    return {
+      entries: [],
+      worlds: {
+        bands: slice.map((a, i) => ({ ...a, preview: previews[i].map((id) => entryById.get(id)!) })),
+        unknown: listed.length + blocks.length - known.length,
+      },
+      anime: { listed, blocks, selected },
+      matching: known.length,
+      pages,
+      progress: { owned: owned.size, total: all.length, byRarity },
+    };
+  }
+
   const q = f.q.toLocaleLowerCase();
   const matching = all
     .filter((c) => {
@@ -146,27 +217,10 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   const pages = Math.max(1, Math.ceil(matching.length / PAGE_SIZE));
   const page = Math.min(f.page, pages);
   const ids = matching.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((c) => c.id);
-  const rows = await prisma.character.findMany({
-    where: { id: { in: ids } },
-    select: {
-      id: true,
-      name: true,
-      imageUrl: true,
-      rarity: true,
-      type: true,
-      attack: true,
-      defense: true,
-      power: true,
-      mainMedia: { select: { titleRomaji: true, titleEnglish: true } },
-    },
-  });
-  const byId = new Map(rows.map((r) => [r.id, r]));
 
   return {
-    entries: ids.map((id) => {
-      const { mainMedia, ...c } = byId.get(id)!;
-      return { ...c, series: seriesTitle(mainMedia), owned: owned.get(id) ?? null };
-    }),
+    entries: await loadEntries(ids, owned),
+    worlds: null,
     anime: { listed, blocks, selected },
     matching: matching.length,
     pages,
