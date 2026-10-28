@@ -13,7 +13,7 @@ const FINISH_ORDER: Finish[] = ["GOLD", "HOLO", "NORMAL"];
 export const OWNED_FILTERS = ["all", "owned", "missing", "duplicates"] as const;
 export type OwnedFilter = (typeof OWNED_FILTERS)[number];
 /** Ordre des mondes dans la vue par défaut : popularité de la collection (défaut), complétion, nombre de cartes possédées, alphabétique */
-export const WORLD_SORTS = ["popular", "completion", "owned", "alpha"] as const;
+export const WORLD_SORTS = ["power", "popular", "completion", "owned", "alpha"] as const;
 export type WorldSort = (typeof WORLD_SORTS)[number];
 
 export const PAGE_SIZE = 60;
@@ -43,7 +43,7 @@ export function parseAlbumFilters(params: RawParams): AlbumFilters {
     type: pick(TYPE_ORDER, one(params.type)),
     owned: pick(OWNED_FILTERS, one(params.owned)) ?? "all",
     anime: /^(\d{1,9}|autres-\d{1,4})$/.test(one(params.anime)) ? one(params.anime) : "",
-    sort: pick(WORLD_SORTS, one(params.sort)) ?? "popular",
+    sort: pick(WORLD_SORTS, one(params.sort)) ?? "power",
     page: Number.isFinite(page) && page > 1 ? page : 1,
   };
 }
@@ -182,8 +182,11 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     for (const b of animeIndex.blocks) idsOf.set(b.key, b.animes.flatMap((a) => a.characterIds));
     // Popularité d'un monde : total des favoris de ses personnages (AniList)
     const popularity = (key: string) => (idsOf.get(key) ?? []).reduce((n, id) => n + (rank.get(id)?.favourites ?? 0), 0);
+    // Puissance d'un monde : somme de la puissance de chaque exemplaire possédé (affichée sur la tuile)
+    const powerOf = (key: string) => (idsOf.get(key) ?? []).reduce((n, id) => n + (rank.get(id)?.power ?? 0) * (owned.get(id)?.count ?? 0), 0);
     const byTitle = (a: AnimeProgress, b: AnimeProgress) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
     const compare: Record<WorldSort, (a: AnimeProgress, b: AnimeProgress) => number> = {
+      power: (a, b) => powerOf(b.key) - powerOf(a.key) || byTitle(a, b),
       popular: (a, b) => popularity(b.key) - popularity(a.key) || byTitle(a, b),
       completion: (a, b) => b.owned / b.total - a.owned / a.total || b.owned - a.owned || byTitle(a, b),
       owned: (a, b) => b.owned - a.owned || byTitle(a, b),
@@ -208,7 +211,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
         bands: slice.map((a, i) => ({
           ...a,
           preview: previews[i].map((id) => entryById.get(id)!),
-          power: (idsOf.get(a.key) ?? []).reduce((n, id) => n + (rank.get(id)?.power ?? 0) * (owned.get(id)?.count ?? 0), 0),
+          power: powerOf(a.key),
         })),
         unknown: listed.length + blocks.length - known.length,
       },

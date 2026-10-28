@@ -7,6 +7,7 @@ import { AnimeSelect, type AnimeOptions } from "./AnimeSelect";
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
 const TYPES = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"] as const;
 const SORTS = [
+  ["power", "Puissance"],
   ["popular", "Popularité"],
   ["completion", "Complétion"],
   ["owned", "Possédées"],
@@ -28,7 +29,7 @@ export function albumHref(filters: Filters, patch: Partial<Filters> = {}) {
   if (f.type) p.set("type", f.type);
   if (f.owned !== "all") p.set("owned", f.owned);
   if (f.anime) p.set("anime", f.anime);
-  if (f.sort !== "popular") p.set("sort", f.sort);
+  if (f.sort !== "power") p.set("sort", f.sort);
   if (f.page > 1) p.set("page", String(f.page));
   const s = p.toString();
   return s ? `/album?${s}` : "/album";
@@ -52,7 +53,7 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
           {filters.type && <input type="hidden" name="type" value={filters.type} />}
           {filters.owned !== "all" && <input type="hidden" name="owned" value={filters.owned} />}
           {filters.anime && <input type="hidden" name="anime" value={filters.anime} />}
-          {filters.sort !== "popular" && <input type="hidden" name="sort" value={filters.sort} />}
+          {filters.sort !== "power" && <input type="hidden" name="sort" value={filters.sort} />}
           <input type="search" name="q" defaultValue={filters.q} placeholder="Rechercher un personnage" aria-label="Rechercher un personnage" />
         </form>
         <div className="vt-chips" role="group" aria-label="Possession">
