@@ -5,7 +5,6 @@ import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Stat, TypeIcon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
-import { WorldTile } from "@/components/WorldTile";
 import { TYPE_LABELS } from "@/lib/labels";
 import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER, WORLDS_PER_PAGE, type AlbumFilters as Filters, type WorldBand } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
@@ -138,10 +137,11 @@ function World({ world, filters }: { world: WorldBand; filters: Filters }) {
   const p = pct(world.owned, world.total);
   const star = world.preview[0];
   return (
-    <WorldTile
+    <Link
+      href={albumHref(filters, { anime: world.key, page: 1 })}
+      className="wd-tile"
       style={{ "--w": `hsl(${worldHue(world.title)} 85% 62%)` } as React.CSSProperties}
-      label={`${world.title} : ${world.owned} cartes sur ${world.total}`}
-      vitrine={<Vitrine world={world} filters={filters} />}
+      aria-label={`${world.title} : ${world.owned} cartes sur ${world.total}`}
     >
       <h2>{world.title}</h2>
       {star && (
@@ -149,6 +149,14 @@ function World({ world, filters }: { world: WorldBand; filters: Filters }) {
           <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} missing={!star.owned} />
         </div>
       )}
+      {/* Au survol : quelques personnages du monde se déploient en éventail au-dessus de la tuile */}
+      <div className="wd-fan" aria-hidden>
+        {world.preview.map((e) => (
+          <div key={e.id}>
+            <CharacterCard {...e} finish={e.owned?.best} count={undefined} missing={!e.owned} />
+          </div>
+        ))}
+      </div>
       <div className="wd-foot">
         <b className="wd-count">{num.format(world.owned)}</b>
         <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
@@ -156,44 +164,7 @@ function World({ world, filters }: { world: WorldBand; filters: Filters }) {
           <i style={{ width: `${p}%` }} />
         </span>
       </div>
-    </WorldTile>
-  );
-}
-
-/** Vitrine d'un monde, ouverte au clic sur sa tuile : la carte vedette en grand, les autres à côté, le total et l'accès aux cartes */
-function Vitrine({ world, filters }: { world: WorldBand; filters: Filters }) {
-  const [star, ...rest] = world.preview;
-  const card = (e: (typeof world.preview)[number]) => (
-    <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
-  );
-  return (
-    <>
-      <div className="wd-v-cards">
-        {star && <div className="wd-v-hero">{card(star)}</div>}
-        <div className="wd-v-rest">
-          {rest.map((e) => (
-            <div key={e.id}>{card(e)}</div>
-          ))}
-        </div>
-      </div>
-      <div className="wd-v-bar">
-        <div>
-          <h2>{world.title}</h2>
-          <span>
-            {num.format(world.owned)} / {num.format(world.total)} cartes
-          </span>
-        </div>
-        <span className="wd-v-power">
-          Puissance du monde
-          <Stat icon="puissance" accent="currentColor">
-            {num.format(world.power)}
-          </Stat>
-        </span>
-        <Link href={albumHref(filters, { anime: world.key, page: 1 })} className="wd-v-go">
-          Voir les cartes
-        </Link>
-      </div>
-    </>
+    </Link>
   );
 }
 

@@ -1037,85 +1037,40 @@ body.scene-night {
   transform: rotate(5deg);
   transition: opacity 0.15s ease;
 }
-/* Vitrine : s'ouvre au clic sur une tuile de monde */
-.wd-tile { cursor: pointer; }
-.wd-vitrine {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem 1rem 6.5rem;
-  cursor: default;
-  background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--w) 20%, #000d), #000e 72%);
-  animation: wd-v-in 0.2s ease-out;
-}
-@keyframes wd-v-in {
-  from { opacity: 0; }
-}
-.wd-v-body {
-  display: contents;
-}
-.wd-v-cards {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 1.2rem 2rem;
-  max-height: 100%;
-  overflow: auto;
-}
-.wd-v-hero { width: min(15rem, 62vw); }
-.wd-v-rest { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
-.wd-v-rest > div { width: min(9.5rem, 28vw); }
-.wd-v-bar {
+/* Éventail : au survol, les cartes d'aperçu se déploient au-dessus de la tuile (tailles en cqw : elles suivent la largeur de la tuile) */
+.wd-tile { container-type: inline-size; }
+.wd-tile:hover,
+.wd-tile:focus-visible { z-index: 8; }
+.wd-fan {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem 1.5rem;
-  padding: 0.9rem 1.6rem;
-  background: #000b;
-  border-top: 1px solid color-mix(in srgb, var(--w) 40%, transparent);
+  bottom: calc(100% - 1.2rem);
+  height: 66cqw;
+  pointer-events: none;
+  visibility: hidden;
 }
-.wd-v-bar h2 {
-  margin: 0;
-  font-family: var(--font-shoulders), var(--font-sora), sans-serif;
-  font-weight: 900;
-  font-size: 1.7rem;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--w);
-}
-.wd-v-bar span { color: #8ea3c4; font-size: 0.85rem; }
-.wd-v-power { display: inline-flex; align-items: center; gap: 0.6rem; }
-.wd-v-power .stat, .wd-v-power svg { color: var(--w); font-size: 1.1rem; }
-.wd-v-go {
-  padding: 0.55rem 1.1rem;
-  border-radius: 0.6rem;
-  background: var(--w);
-  color: #0b1424;
-  font-weight: 700;
-  text-decoration: none;
-}
-.wd-v-close {
+.wd-fan > div {
   position: absolute;
-  top: 0.9rem;
-  right: 1.1rem;
-  width: 2.4rem;
-  height: 2.4rem;
-  border: 1px solid #ffffff33;
-  border-radius: 50%;
-  background: #0008;
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
+  bottom: 0;
+  left: calc(var(--i) * 18cqw);
+  width: 46cqw;
+  opacity: 0;
+  transform-origin: 50% 120%;
+  transform: translateY(1.5rem) rotate(0deg);
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity 0.2s ease;
+  transition-delay: calc(var(--i) * 25ms);
+}
+.wd-fan > div:nth-child(1) { --i: 0; --r: -9deg; --y: 0.4rem; }
+.wd-fan > div:nth-child(2) { --i: 1; --r: -3deg; --y: -0.6rem; }
+.wd-fan > div:nth-child(3) { --i: 2; --r: 3deg; --y: -0.6rem; }
+.wd-fan > div:nth-child(4) { --i: 3; --r: 9deg; --y: 0.4rem; }
+.wd-tile:hover .wd-fan,
+.wd-tile:focus-visible .wd-fan { visibility: visible; }
+.wd-tile:hover .wd-fan > div,
+.wd-tile:focus-visible .wd-fan > div {
+  opacity: 1;
+  transform: translateY(var(--y)) rotate(var(--r));
 }
 .wd-foot {
   position: relative;
