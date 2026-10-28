@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Échanges — maquette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800;900&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#09090f;--plate:#13131d;--line:#ffffff1c;--bone:#ebe7dc;--mute:#8d8a99;--N:#94a3b8;--R:#38bdf8;--SR:#a855f7;--SSR:#f59e0b;--UR:#ff3b4a}
+*{box-sizing:border-box;margin:0}
+body{background:#000;color:var(--bone);font:15px/1.45 'Hanken Grotesk',system-ui,sans-serif;padding:28px}
+h1.top{font:800 22px 'Big Shoulders Display';letter-spacing:.04em;margin-bottom:4px}p.top{color:var(--mute);max-width:720px;margin-bottom:30px}
+.v{background:var(--ink);border:1px solid var(--line);margin-bottom:46px;position:relative;overflow:hidden;padding:34px 36px 40px}
+.vlabel{position:absolute;right:14px;top:10px;font-size:12px;color:var(--mute)}
+.disp{font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;line-height:.82;letter-spacing:.01em}
+.c{position:relative;aspect-ratio:220/308;background:#1b2238;border:2px solid var(--rc);border-radius:10px;overflow:hidden}
+.c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.c .nm{position:absolute;left:0;right:0;bottom:0;padding:22px 8px 7px;background:linear-gradient(transparent,#000d);font-weight:600;font-size:12px}
+.c[data-r=N]{--rc:var(--N)}.c[data-r=R]{--rc:var(--R)}.c[data-r=SR]{--rc:var(--SR)}.c[data-r=SSR]{--rc:var(--SSR)}.c[data-r=UR]{--rc:var(--UR)}
+.c i{position:absolute;top:6px;left:6px;width:9px;height:9px;background:var(--rc);transform:rotate(45deg)}
+.slot{position:relative;aspect-ratio:220/308;border:1.5px dashed #ffffff30;border-radius:10px;overflow:hidden;display:grid;place-items:center}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:brightness(0);opacity:.55}
+.slot span{position:relative;font:800 34px 'Big Shoulders Display';color:#ffffff40}
+
+.X{background:#0b0b12;padding:34px 40px 44px;max-width:1080px}
+.X .top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:18px}
+.X .top .disp{font-size:88px}.X .top p{color:var(--mute);max-width:380px;text-align:right}
+.tabs{display:flex;gap:30px;margin:22px 0 6px;align-items:flex-end}
+.tabs a{font:800 26px/1 'Big Shoulders Display';text-transform:uppercase;color:var(--mute);padding-bottom:8px;border-bottom:2px solid transparent}
+.tabs a small{font:600 13px 'Hanken Grotesk';margin-left:6px}.tabs a.on{color:var(--bone);border-color:var(--bone)}
+.tabs .new{margin-left:auto;border:1px solid var(--bone);padding:9px 16px;font:600 14px 'Hanken Grotesk';text-transform:none;color:var(--bone);border-bottom-width:1px}
+.offer{margin-top:22px;border-top:2px solid var(--w);background:linear-gradient(90deg,color-mix(in srgb,var(--w) 14%,transparent),transparent 50%);padding:14px 0 18px}
+.oh{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+.oh .disp{font-size:34px;color:var(--w)}.oh span{color:var(--mute);font-size:13px}.oh .st{margin-left:auto;border:1px solid var(--w);color:var(--w);padding:2px 10px;font-size:12px}
+.oh .st.no{border-color:#ffffff30;color:var(--mute)}
+.deal{display:grid;grid-template-columns:1fr 64px 1fr;align-items:center}
+.side h4{font:600 12px 'Hanken Grotesk';color:var(--mute);margin-bottom:8px}
+.cards{display:flex;gap:12px;align-items:flex-start}.cards>*{width:86px;flex:none}
+.cards .ryo{width:auto;align-self:center;font:800 30px/1 'Big Shoulders Display'}.cards .ryo small{display:block;font:400 12px 'Hanken Grotesk';color:var(--mute)}
+.axis{align-self:stretch;position:relative;display:grid;place-items:center}
+.axis::before{content:"";position:absolute;top:0;bottom:0;left:50%;border-left:1px dashed #ffffff30}
+.axis b{position:relative;background:var(--ink);width:36px;height:36px;border:1px solid var(--w);transform:rotate(45deg);display:grid;place-items:center}
+.axis b i{transform:rotate(-45deg);font-style:normal;color:var(--w);font-size:16px}
+.act{display:flex;gap:10px;margin-top:14px}
+.btn{padding:9px 18px;font:600 14px 'Hanken Grotesk';border:1px solid var(--bone);color:var(--bone)}.btn.p{background:var(--w);color:#000;border-color:var(--w)}
+.btn.g{border-color:#ffffff30;color:var(--mute)}
+.pl{position:relative;padding:5px}
+.pl::before,.pl::after{content:"";position:absolute;width:9px;height:9px;border:0 solid var(--mute)}
+.pl::before{left:0;top:0;border-left-width:1px;border-top-width:1px}.pl::after{right:0;bottom:0;border-right-width:1px;border-bottom-width:1px}
+.card2{margin-top:30px}.card2 h3{font:800 18px 'Big Shoulders Display';text-transform:uppercase;color:var(--mute);margin-bottom:-8px}
+</style>
+<h1 class="top">Échanges — maquette</h1>
+<p class="top">Un échange = deux plateaux face à face, séparés par un axe. Même langage que l'album : titres Big Shoulders, repères de coins, teinte propre à chaque partenaire.</p>
+<div id="app"></div>
+<script>
+const IMG={rem:"https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png",rem2:"https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png",denji:"https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png",mak:"https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png"};
+const D={denji:["Denji","SR"],mak:["Makima","SSR"],rem:["Rem","R"],rem2:["Rem","UR"]};
+const pl=k=>`<div class="pl"><div class="c" data-r="${D[k][1]}"><img src="${IMG[k]}" referrerpolicy="no-referrer" alt=""><i></i><div class="nm">${D[k][0]}</div></div></div>`;
+const ryo=n=>`<div class="ryo">${n}<small>Ryō</small></div>`;
+const offer=({who,w,note,give,get,st,acts,no})=>`<div class="offer" style="--w:${w}"><div class="oh"><div class="disp">${who}</div><span>${note}</span><span class="st ${no?"no":""}">${st}</span></div>
+<div class="deal"><div class="side"><h4>Tu donnes</h4><div class="cards">${give}</div></div><div class="axis"><b><i>⇄</i></b></div><div class="side"><h4>Tu reçois</h4><div class="cards">${get}</div></div></div>${acts?`<div class="act">${acts}</div>`:""}</div>`;
+document.getElementById("app").innerHTML=`<div class="v X"><div class="top"><div class="disp">Échanges</div><p>Cartes et Ryō contre cartes et Ryō, entre joueurs. Réservé aux comptes de plus de 24 h ayant ouvert 20 paquets.</p></div>
+<div class="tabs"><a class="on">Reçues<small>1</small></a><a>Envoyées<small>1</small></a><a>Historique<small>6</small></a><a class="new">Nouvelle offre</a></div>
+${offer({who:"Kaori_77",w:"#7ee0c3",note:"Offre reçue il y a 2 h · expire dans 22 h",give:pl("denji")+ryo(150),get:pl("mak"),st:"En attente",acts:'<span class="btn p">Accepter</span><span class="btn g">Refuser</span>'})}
+<div class="card2"><h3>Envoyées</h3></div>
+${offer({who:"Zephyr",w:"#ff6a3d",note:"Envoyée hier · expire dans 3 h",give:pl("rem")+pl("denji"),get:pl("rem2"),st:"En attente",acts:'<span class="btn g">Annuler l\'offre</span>'})}
+<div class="card2"><h3>Historique</h3></div>
+${offer({who:"Nova",w:"#8f7bff",note:"Terminé le 21 oct.",give:pl("rem"),get:ryo(400),st:"Accepté",no:0})}
+${offer({who:"Kaori_77",w:"#7ee0c3",note:"Terminé le 18 oct.",give:pl("denji"),get:pl("rem"),st:"Refusé",no:1})}</div>`;
+</script>
