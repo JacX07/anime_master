@@ -99,8 +99,8 @@ export interface WorldBand extends AnimeProgress {
   preview: AlbumEntry[];
 }
 
-export const WORLDS_PER_PAGE = 8;
-const WORLD_PREVIEW = 7;
+export const WORLDS_PER_PAGE = 12;
+const WORLD_PREVIEW = 1;
 
 export interface AlbumPage {
   entries: AlbumEntry[];
@@ -178,7 +178,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     const pages = Math.max(1, Math.ceil(known.length / WORLDS_PER_PAGE));
     const page = Math.min(f.page, pages);
     const slice = known.slice((page - 1) * WORLDS_PER_PAGE, page * WORLDS_PER_PAGE);
-    // Aperçu : d'abord les cartes possédées (les plus rares en tête), puis les manquantes
+    // Aperçu : la carte vedette du monde, la plus rare que le joueur possède
     const previews = slice.map((a) => {
       const ids = [...(idsOf.get(a.key) ?? [])].sort(order);
       const mine = ids.filter((id) => owned.has(id));

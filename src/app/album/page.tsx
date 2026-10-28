@@ -132,48 +132,31 @@ function worldHue(title: string) {
   return h;
 }
 
-/** Une bande par monde : nom en grand, progression, puis un rang de cartes (possédées d'abord, puis silhouettes) */
+/** Une tuile par monde : nom en grand, carte vedette inclinée, progression */
 function World({ world, filters }: { world: WorldBand; filters: Filters }) {
   const p = pct(world.owned, world.total);
-  const more = world.total - world.preview.length;
+  const star = world.preview[0];
   return (
-    <section className="wd-band" style={{ "--w": `hsl(${worldHue(world.title)} 85% 62%)` } as React.CSSProperties} aria-label={world.title}>
-      <div className="wd-spine">
-        <div>
-          <h2>
-            <Link href={albumHref(filters, { anime: world.key, page: 1 })}>{world.title}</Link>
-          </h2>
-          <p>
-            <b>
-              {num.format(world.owned)} / {num.format(world.total)}
-            </b>{" "}
-            cartes
-            {world.owned === world.total && <em> · complet</em>}
-          </p>
+    <Link
+      href={albumHref(filters, { anime: world.key, page: 1 })}
+      className="wd-tile"
+      style={{ "--w": `hsl(${worldHue(world.title)} 85% 62%)` } as React.CSSProperties}
+      aria-label={`${world.title} : ${world.owned} cartes sur ${world.total}`}
+    >
+      <h2>{world.title}</h2>
+      {star && (
+        <div className="wd-star" style={{ "--rar": `var(--rarity-${star.rarity})` } as React.CSSProperties}>
+          <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} missing={!star.owned} />
         </div>
+      )}
+      <div className="wd-foot">
+        <b className="wd-count">{num.format(world.owned)}</b>
+        <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
         <span className="wd-bar" role="img" aria-label={`${p} % de complétion`}>
           <i style={{ width: `${p}%` }} />
         </span>
       </div>
-      <ul className="wd-row">
-        {world.preview.map((e, i) => (
-          <li key={e.id}>
-            <Link href={`/character/${e.id}`} className="vt-card wd-plate" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
-              <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
-              <span className="wd-cap">
-                <b>{String(i + 1).padStart(2, "0")}</b>
-                <span>{e.owned ? e.rarity : "non relevé"}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-        {more > 0 && (
-          <li className="wd-more">
-            <Link href={albumHref(filters, { anime: world.key, page: 1 })}>+ {num.format(more)}</Link>
-          </li>
-        )}
-      </ul>
-    </section>
+    </Link>
   );
 }
 
