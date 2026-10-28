@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><title>Album — mix registre + planche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800;900&family=Hanken+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#09090f;--plate:#13131d;--line:#ffffff1c;--bone:#ebe7dc;--mute:#8d8a99;--N:#94a3b8;--R:#38bdf8;--SR:#a855f7;--SSR:#f59e0b;--UR:#ff3b4a}
+*{box-sizing:border-box;margin:0}
+body{background:#000;color:var(--bone);font:15px/1.45 'Hanken Grotesk',system-ui,sans-serif;padding:28px}
+h1.top{font:800 22px 'Big Shoulders Display';letter-spacing:.04em;margin-bottom:4px}p.top{color:var(--mute);max-width:720px;margin-bottom:30px}
+.v{background:var(--ink);border:1px solid var(--line);margin-bottom:46px;position:relative;overflow:hidden;padding:34px 36px 40px}
+.vlabel{position:absolute;right:14px;top:10px;font-size:12px;color:var(--mute)}
+.disp{font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;line-height:.82;letter-spacing:.01em}
+.c{position:relative;aspect-ratio:220/308;background:#1b2238;border:2px solid var(--rc);border-radius:10px;overflow:hidden}
+.c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.c .nm{position:absolute;left:0;right:0;bottom:0;padding:22px 8px 7px;background:linear-gradient(transparent,#000d);font-weight:600;font-size:12px}
+.c[data-r=N]{--rc:var(--N)}.c[data-r=R]{--rc:var(--R)}.c[data-r=SR]{--rc:var(--SR)}.c[data-r=SSR]{--rc:var(--SSR)}.c[data-r=UR]{--rc:var(--UR)}
+.c i{position:absolute;top:6px;left:6px;width:9px;height:9px;background:var(--rc);transform:rotate(45deg)}
+.slot{position:relative;aspect-ratio:220/308;border:1.5px dashed #ffffff30;border-radius:10px;overflow:hidden;display:grid;place-items:center}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:brightness(0);opacity:.55}
+.slot span{position:relative;font:800 34px 'Big Shoulders Display';color:#ffffff40}
+<h1 class="top">Album — mix registre + planche</h1>
+<p class="top">Bandes par monde (piste 2) avec les cartes montées en planche d'observation : repères de coins, légende, emplacements « non relevé » (piste 3). L'en-tête garde le grand compteur.</p>
+<div id="app"></div>
+<script>
+const IMG={rem:"https://s4.anilist.co/file/anilistcdn/character/large/n1905-9GfCvLFKNRLR.png",rem2:"https://s4.anilist.co/file/anilistcdn/character/large/b88575-Ayu8UPDA8NS6.png",denji:"https://s4.anilist.co/file/anilistcdn/character/large/b130102-FO1VHNnEnLlB.png",mak:"https://s4.anilist.co/file/anilistcdn/character/large/b137080-UHcynYNjb5ZU.png"};
+const K=["denji","mak","rem","rem2"];
+const card=(k,n,r)=>`<div class="c" data-r="${r}"><img src="${IMG[k]}" referrerpolicy="no-referrer" alt=""><i></i><div class="nm">${n}</div></div>`;
+const slot=(k,i)=>`<div class="slot"><img src="${IMG[k]}" referrerpolicy="no-referrer" alt=""><span>${String(i).padStart(2,"0")}</span></div>`;
+const OWN=[["denji","Denji","SR"],["mak","Makima","SSR"],["rem","Rem","R"],["rem2","Rem","UR"]];
+const plO=(o,i)=>`<div class="pl">${card(...o)}<div class="cap"><b>${String(i).padStart(2,"0")}</b><span>${o[2]}</span></div></div>`;
+const plM=i=>`<div class="pl miss">${slot(K[i%4],i)}<div class="cap"><span>non relevé</span><span>?</span></div></div>`;
+const W=[["Chainsaw Man","#ff6a3d",4,14],["Re:Zero","#7ee0c3",3,22],["Jujutsu Kaisen","#8f7bff",3,24]];
+document.getElementById("app").innerHTML=`<div class="v M"><div class="top"><div class="disp">Album</div><div class="tot"><b>128 / 640</b>cartes relevées · 9 mondes</div></div>`+
+W.map(([n,c,o,t])=>`<div class="band" style="--w:${c}"><div class="spine"><div><div class="disp">${n}</div><small><b>${o} / ${t}</b> cartes</small></div><div class="bar"><i style="width:${o/t*100}%"></i></div></div><div class="row">${OWN.slice(0,o).map((x,i)=>plO(x,i+1)).join("")}${Array.from({length:5},(_,i)=>plM(o+i+1)).join("")}<span class="more">+ ${t-o-5}</span></div></div>`).join("")+`</div>`;
+</script>
