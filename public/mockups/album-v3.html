@@ -17,6 +17,21 @@ h1.top{font:800 22px 'Big Shoulders Display';letter-spacing:.04em;margin-bottom:
 .slot{position:relative;aspect-ratio:220/308;border:1.5px dashed #ffffff30;border-radius:10px;overflow:hidden;display:grid;place-items:center}
 .slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:brightness(0);opacity:.55}
 .slot span{position:relative;font:800 34px 'Big Shoulders Display';color:#ffffff40}
+.M{background:#0b0b12;padding:34px 40px 44px}
+.M .top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:8px}
+.M .top .disp{font-size:88px}.M .top .tot{text-align:right;color:var(--mute)}.M .top .tot b{display:block;font:900 60px/.9 'Big Shoulders Display';color:var(--bone)}
+.band{display:grid;grid-template-columns:170px 1fr;margin-top:26px;background:linear-gradient(90deg,color-mix(in srgb,var(--w) 20%,transparent),transparent 50%);border-top:2px solid var(--w)}
+.spine{padding:14px 16px 14px 0;display:flex;flex-direction:column;justify-content:space-between;gap:20px}
+.spine .disp{font-size:46px;color:var(--w)}.spine small{display:block;color:var(--mute);margin-top:10px}.spine small b{color:var(--bone);font-weight:600}
+.bar{height:3px;background:#ffffff1c}.bar i{display:block;height:100%;background:var(--w)}
+.row{display:flex;gap:14px;padding:14px 0 10px;overflow:hidden}.row>*{width:112px;flex:none}
+.pl{position:relative;padding:7px}
+.pl::before,.pl::after{content:"";position:absolute;width:10px;height:10px;border:0 solid var(--mute)}
+.pl::before{left:0;top:0;border-left-width:1px;border-top-width:1px}.pl::after{right:0;bottom:0;border-right-width:1px;border-bottom-width:1px}
+.pl .cap{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--mute)}.pl .cap b{color:var(--bone);font-weight:600}
+.pl.miss .cap{color:#ffffff38}
+.more{align-self:center;color:var(--mute);font-size:12px;padding-left:6px;width:auto!important}
+</style>
 <h1 class="top">Album — mix registre + planche</h1>
 <p class="top">Bandes par monde (piste 2) avec les cartes montées en planche d'observation : repères de coins, légende, emplacements « non relevé » (piste 3). L'en-tête garde le grand compteur.</p>
 <div id="app"></div>
