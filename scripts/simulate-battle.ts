@@ -1,9 +1,9 @@
 // Simulation du combat 4 contre 4 (src/lib/battle.ts) sur le vrai pool de personnages. Lecture seule.
 // Critères fixés avant lancement : aucun type au-delà de 40–60 % de victoires, combats de moins de 15 tours.
-// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--defK 2000] [--hpMult 1]
+// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--spells current|roles|ring|simple] [--defK 2000] [--hpMult 1]
 
 import type { CardType, Rarity } from "../src/generated/prisma/enums";
-import { BATTLE, battle, type BattleCard, type BattleOptions, type Random } from "../src/lib/battle";
+import { BATTLE, battle, type BattleCard, type BattleOptions, type Random, type SpellSet } from "../src/lib/battle";
 import { prisma } from "../src/lib/db";
 
 const arg = (name: string, d: number) => {
@@ -15,6 +15,7 @@ const SEED = arg("--seed", 42);
 
 /** Surcharges des valeurs du moteur pour comparer des variantes : --defK 2000 --hpMult 1 */
 BATTLE.defK = arg("--defK", BATTLE.defK);
+if (process.argv.includes("--spells")) BATTLE.spells = process.argv[process.argv.indexOf("--spells") + 1] as SpellSet;
 const HP_MULT = arg("--hpMult", 1);
 const baseHp = BATTLE.hp;
 BATTLE.hp = (a, d) => baseHp(a, d) * HP_MULT;
@@ -48,7 +49,7 @@ const pool: BattleCard[] = rows.map((r) => ({
 const byRarity = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
 const team = (rarities: Rarity[]) => rarities.map((r) => any(byRarity[r]));
 const four = (r: Rarity) => team([r, r, r, r]);
-console.log(`defK ${BATTLE.defK} · PV × ${HP_MULT} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
+console.log(`Sorts ${BATTLE.spells} · defK ${BATTLE.defK} · PV × ${HP_MULT} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
 
 const durations: number[] = [];
 let timeouts = 0;
@@ -188,7 +189,10 @@ const SYNERGY_TESTS: [string, () => BattleCard[], BattleOptions][] = [
   ["Aucune (SSR + 3 SR au hasard)", () => team(["SSR", "SR", "SR", "SR"]), {}],
   ["Franchise (4 cartes du même anime)", sameFranchise, { franchise: true }],
   ["Combo Mystère + Combat", duo("MYSTERE", "COMBAT"), { combos: true }],
-  ["Combo Cœur + Aventure", duo("COEUR", "AVENTURE"), { combos: true }],
+  ["Combo Combat + Magie", duo("COMBAT", "MAGIE"), { combos: true }],
+  ["Combo Magie + Aventure", duo("MAGIE", "AVENTURE"), { combos: true }],
+  ["Combo Aventure + Cœur", duo("AVENTURE", "COEUR"), { combos: true }],
+  ["Combo Cœur + Mystère", duo("COEUR", "MYSTERE"), { combos: true }],
   ["Combo Magie + Cœur", duo("MAGIE", "COEUR"), { combos: true }],
 ];
 console.table(
