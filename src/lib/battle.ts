@@ -101,7 +101,7 @@ export interface BattleResult {
 function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
   return team.map((c, i) => {
     const same = team.filter((o) => c.franchiseId != null && o.franchiseId === c.franchiseId);
-    const urs = same.filter((o, j) => o !== team[i] && o.rarity === "UR").length;
+    const urs = same.filter((o) => o !== team[i] && o.rarity === "UR").length;
     const passive = opts.passive ? Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr) : 0;
     const franchise = opts.franchise ? BATTLE.franchiseBonus[same.length] ?? 0 : 0;
     return passive + franchise;
