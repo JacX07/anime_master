@@ -1,9 +1,9 @@
 // Simulation du combat 4 contre 4 (src/lib/battle.ts) sur le vrai pool de personnages. Lecture seule.
 // Critères fixés avant lancement : aucun type au-delà de 40–60 % de victoires, combats de moins de 15 tours.
-// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42]
+// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--hp A|B|C|D]
 
 import type { CardType, Rarity } from "../src/generated/prisma/enums";
-import { battle, type BattleCard, type BattleOptions, type Random } from "../src/lib/battle";
+import { BATTLE, battle, type BattleCard, type BattleOptions, type Random } from "../src/lib/battle";
 import { prisma } from "../src/lib/db";
 
 const arg = (name: string, d: number) => {
@@ -12,6 +12,17 @@ const arg = (name: string, d: number) => {
 };
 const GAMES = arg("--games", 10_000);
 const SEED = arg("--seed", 42);
+
+/** Variantes de calcul des PV : --hp A|B|C|D */
+const HP_RULES: Record<string, [string, (atk: number, def: number) => number]> = {
+  A: ["DEF × 3", (_a, d) => d * 3],
+  B: ["(ATK + DEF) × 1,5", (a, d) => (a + d) * 1.5],
+  C: ["4 000 + ATK + DEF", (a, d) => 4000 + a + d],
+  D: ["8 000 pour tous", () => 8000],
+};
+const hpArg = process.argv[process.argv.indexOf("--hp") + 1];
+const HP = process.argv.includes("--hp") ? hpArg : "A";
+BATTLE.hp = HP_RULES[HP][1];
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
@@ -42,7 +53,7 @@ const pool: BattleCard[] = rows.map((r) => ({
 const byRarity = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
 const team = (rarities: Rarity[]) => rarities.map((r) => any(byRarity[r]));
 const four = (r: Rarity) => team([r, r, r, r]);
-console.log(`Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
+console.log(`PV : ${HP_RULES[HP][0]} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
 
 const durations: number[] = [];
 let timeouts = 0;

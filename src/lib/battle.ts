@@ -19,8 +19,8 @@ export interface BattleCard {
 
 export const BATTLE = {
   teamSize: 4,
-  /** PV = DEF × hpPerDef */
-  hpPerDef: 3,
+  /** PV à partir des stats de base (provisoire : DEF × 3) */
+  hp: (_attack: number, defense: number) => defense * 3,
   /** Dégâts minimum, en part de l'ATK */
   floor: 0.1,
   /** Variation aléatoire des dégâts (±) */
@@ -91,7 +91,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
   const bonus = opts.passive ? passiveBonus(team) : team.map(() => 0);
   return team.map((card, i) => {
     const def = card.defense * (1 + bonus[i]);
-    const maxHp = def * BATTLE.hpPerDef;
+    const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
     return {
       card, side, def, maxHp, hp: maxHp,
       atk: card.attack * (1 + bonus[i]),
