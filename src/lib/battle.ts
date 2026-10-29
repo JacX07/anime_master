@@ -44,6 +44,14 @@ export const BATTLE = {
   /** Passif UR : bonus ATK/DEF donné à chaque allié de la même franchise, cumulable entre UR, plafonné */
   passivePerUr: 0.1,
   passiveCap: 0.3,
+  /** Synergie de franchise : bonus ATK/DEF/PV selon le nombre de cartes de la même franchise (indice = nombre) */
+  franchiseBonus: [0, 0, 0.05, 0.1, 0.15],
+  /** Combos : coup puissant sur cible marquée, bouclier du soin, Aventure protégée, drain partagé */
+  comboMarked: 1.5,
+  comboHealShield: 0.1,
+  comboShielded: 1.2,
+  /** Formation : les `frontSize` premières positions encaissent les attaques ciblées tant qu'elles tiennent */
+  frontSize: 2,
 };
 
 /** Cycle d'affinités : chaque type est fort contre le suivant et faible contre le précédent. */
@@ -76,6 +84,9 @@ interface Unit {
 export interface BattleOptions {
   ultimates?: boolean;
   passive?: boolean;
+  franchise?: boolean;
+  combos?: boolean;
+  formation?: boolean;
 }
 
 export interface BattleResult {
@@ -86,16 +97,19 @@ export interface BattleResult {
   hpLeft: Record<Side, number>;
 }
 
-/** Bonus du passif UR pour chaque carte de l'équipe. */
-function passiveBonus(team: BattleCard[]) {
+/** Bonus de stats de chaque carte : passif UR et synergie de franchise. */
+function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
   return team.map((c, i) => {
-    const urs = team.filter((o, j) => j !== i && o.rarity === "UR" && o.franchiseId != null && o.franchiseId === c.franchiseId).length;
-    return Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr);
+    const same = team.filter((o) => c.franchiseId != null && o.franchiseId === c.franchiseId);
+    const urs = same.filter((o, j) => o !== team[i] && o.rarity === "UR").length;
+    const passive = opts.passive ? Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr) : 0;
+    const franchise = opts.franchise ? BATTLE.franchiseBonus[same.length] ?? 0 : 0;
+    return passive + franchise;
   });
 }
 
 function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>): Unit[] {
-  const bonus = opts.passive ? passiveBonus(team) : team.map(() => 0);
+  const bonus = statBonus(team, opts);
   return team.map((card, i) => {
     const def = card.defense * (1 + bonus[i]);
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
@@ -112,18 +126,24 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
 }
 
 export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleResult {
-  const opts = { ultimates: true, passive: true, ...options };
+  const opts = { ultimates: true, passive: true, franchise: true, combos: true, formation: true, ...options };
   const teams: Record<Side, Unit[]> = { A: makeUnits(a, "A", opts), B: makeUnits(b, "B", opts) };
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = maxPower(b) > maxPower(a) ? "B" : "A";
   const order: Side[] = first === "A" ? ["A", "B"] : ["B", "A"];
   const alive = (s: Side) => teams[s].filter((u) => u.hp > 0);
   const enemy = (s: Side): Side => (s === "A" ? "B" : "A");
+  /** Cibles d'une attaque ciblée : la première ligne d'abord si la formation est active. */
+  const targetable = (s: Side) => {
+    const front = teams[s].slice(0, BATTLE.frontSize).filter((u) => u.hp > 0);
+    return opts.formation && front.length ? front : alive(s);
+  };
 
   const hit = (u: Unit, t: Unit, mult: number, ignoreDef = 0) => {
     const def = t.def * (1 - ignoreDef);
     let dmg = u.atk * affinity(u.card.type, t.card.type) * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
     if (rng() < BATTLE.critRate) dmg *= BATTLE.critDamage;
+    if (opts.combos && u.card.type === "AVENTURE" && u.shield > 0) dmg *= BATTLE.comboShielded;
     if (t.markHits > 0) {
       dmg *= 1 + t.mark;
       t.markHits--;
@@ -136,25 +156,38 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
     return dmg;
   };
   const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m));
-  const heal = (t: Unit, part: number) => (t.hp = Math.min(t.maxHp, t.hp + t.maxHp * part));
+  const heal = (t: Unit, part: number) => {
+    t.hp = Math.min(t.maxHp, t.hp + t.maxHp * part);
+    if (opts.combos) t.shield += t.maxHp * BATTLE.comboHealShield;
+  };
 
   /** Sort affilié (power 1) ou ultime (power 2, version renforcée en attendant les gabarits d'ultimes). */
   const cast = (u: Unit, power: number) => {
     const foes = alive(enemy(u.side));
-    const target = weakest(foes);
+    const targets = targetable(enemy(u.side));
+    const target = weakest(targets);
     switch (u.card.type) {
-      case "COMBAT":
-        hit(u, target, 2 * power, 0.5);
+      case "COMBAT": {
+        const marked = opts.combos ? targets.filter((f) => f.markHits > 0) : [];
+        if (marked.length) {
+          const t = weakest(marked);
+          hit(u, t, 2 * power * BATTLE.comboMarked, 0.5);
+          t.markHits = 0;
+        } else hit(u, target, 2 * power, 0.5);
         break;
+      }
       case "MYSTERE":
         hit(u, target, power);
         for (const f of power > 1 ? foes : [target]) {
           if (f.hp > 0) Object.assign(f, { mark: 0.3 * power, markHits: 3 });
         }
         break;
-      case "MAGIE":
-        heal(u, (hit(u, target, 1.3 * power) * 0.5) / u.maxHp);
+      case "MAGIE": {
+        const drained = hit(u, target, 1.3 * power) * 0.5;
+        u.hp = Math.min(u.maxHp, u.hp + drained);
+        if (opts.combos) for (const x of alive(u.side)) if (x.card.type === "COEUR") x.hp = Math.min(x.maxHp, x.hp + drained);
         break;
+      }
       case "COEUR": {
         const allies = alive(u.side);
         if (power > 1) for (const x of allies) heal(x, 0.25);
@@ -179,7 +212,7 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
       u.spellIn = BATTLE.spellCooldown;
       cast(u, 1);
     } else {
-      hit(u, weakest(alive(enemy(u.side))), 1);
+      hit(u, weakest(targetable(enemy(u.side))), 1);
     }
     if (u.hasUltimate) u.gauge += BATTLE.gaugePerAction;
   };
@@ -194,7 +227,7 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
         if (u && u.hp > 0 && alive(enemy(s)).length) act(u);
       }
     }
-    if (rounds === 1) for (const u of teams[order[1]]) u.shield = 0;
+    if (rounds === 1) for (const u of teams[order[1]]) u.shield = Math.max(0, u.shield - u.maxHp * BATTLE.secondShield);
   }
 
   const hpLeft = (s: Side) => teams[s].reduce((n, u) => n + u.hp, 0) / teams[s].reduce((n, u) => n + u.maxHp, 0);
