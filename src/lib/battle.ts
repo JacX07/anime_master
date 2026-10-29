@@ -45,13 +45,19 @@ export const BATTLE = {
   passivePerUr: 0.1,
   passiveCap: 0.3,
   /** Synergie de franchise : bonus ATK/DEF/PV selon le nombre de cartes de la même franchise (indice = nombre) */
-  franchiseBonus: [0, 0, 0.05, 0.1, 0.15],
-  /** Combos : coup puissant sur cible marquée, bouclier du soin, Aventure protégée, drain partagé */
-  comboMarked: 1.5,
-  comboHealShield: 0.1,
-  comboShielded: 1.2,
+  franchiseBonus: [0, 0, 0.03, 0.06, 0.1],
+  /** Combos : coup puissant sur cible exposée par Mystère, bouclier du soin, Aventure protégée, drain partagé */
+  comboExposed: 2,
+  /** Combat garde son sort au plus N actions en attendant une cible exposée (si un allié Mystère est en vie) */
+  comboHold: 2,
+  comboHealShield: 0.2,
+  comboShielded: 1.5,
+  /** Avec un allié Cœur, le drain de Magie vaut 100 % des dégâts et soigne aussi les alliés Cœur */
+  comboDrain: 1,
   /** Formation : les `frontSize` premières positions encaissent les attaques ciblées tant qu'elles tiennent */
   frontSize: 2,
+  frontDef: 0.25,
+  backAtk: 0.15,
 };
 
 /** Cycle d'affinités : chaque type est fort contre le suivant et faible contre le précédent. */
@@ -79,6 +85,9 @@ interface Unit {
   /** Marque de Mystère : dégâts reçus augmentés pendant `markHits` coups */
   mark: number;
   markHits: number;
+  /** Exposé par Mystère : le prochain coup puissant de Combat sur cette cible est renforcé */
+  exposed: boolean;
+  held: number;
 }
 
 export interface BattleOptions {
@@ -111,11 +120,13 @@ function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
 function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>): Unit[] {
   const bonus = statBonus(team, opts);
   return team.map((card, i) => {
-    const def = card.defense * (1 + bonus[i]);
+    const front = opts.formation && i < BATTLE.frontSize;
+    const back = opts.formation && !front;
+    const def = card.defense * (1 + bonus[i] + (front ? BATTLE.frontDef : 0));
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
     return {
-      card, side, def, maxHp, hp: maxHp, shield: 0,
-      atk: card.attack * (1 + bonus[i]),
+      card, side, def, maxHp, hp: maxHp, shield: 0, exposed: false, held: 0,
+      atk: card.attack * (1 + bonus[i] + (back ? BATTLE.backAtk : 0)),
       spellIn: 2,
       gauge: 0,
       hasUltimate: opts.ultimates && BATTLE.ultimateRarities.includes(card.rarity),
@@ -168,24 +179,24 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
     const target = weakest(targets);
     switch (u.card.type) {
       case "COMBAT": {
-        const marked = opts.combos ? targets.filter((f) => f.markHits > 0) : [];
-        if (marked.length) {
-          const t = weakest(marked);
-          hit(u, t, 2 * power * BATTLE.comboMarked, 0.5);
-          t.markHits = 0;
+        const exposed = opts.combos ? targets.filter((f) => f.exposed) : [];
+        if (exposed.length) {
+          const t = weakest(exposed);
+          hit(u, t, 2 * power * BATTLE.comboExposed, 0.5);
+          t.exposed = false;
         } else hit(u, target, 2 * power, 0.5);
         break;
       }
       case "MYSTERE":
         hit(u, target, power);
         for (const f of power > 1 ? foes : [target]) {
-          if (f.hp > 0) Object.assign(f, { mark: 0.3 * power, markHits: 3 });
+          if (f.hp > 0) Object.assign(f, { mark: 0.3 * power, markHits: 3, exposed: opts.combos });
         }
         break;
       case "MAGIE": {
-        const drained = hit(u, target, 1.3 * power) * 0.5;
-        u.hp = Math.min(u.maxHp, u.hp + drained);
-        if (opts.combos) for (const x of alive(u.side)) if (x.card.type === "COEUR") x.hp = Math.min(x.maxHp, x.hp + drained);
+        const hearts = opts.combos ? alive(u.side).filter((x) => x.card.type === "COEUR") : [];
+        const drained = hit(u, target, 1.3 * power) * (hearts.length ? BATTLE.comboDrain : 0.5);
+        for (const x of [u, ...hearts]) x.hp = Math.min(x.maxHp, x.hp + drained);
         break;
       }
       case "COEUR": {
@@ -208,8 +219,15 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
       cast(u, 2);
       return;
     }
-    if (u.spellIn === 0 && (u.card.type !== "COEUR" || hurtAlly)) {
+    const waitForExposed =
+      opts.combos && u.card.type === "COMBAT" && u.held < BATTLE.comboHold &&
+      alive(u.side).some((x) => x.card.type === "MYSTERE") && !targetable(enemy(u.side)).some((f) => f.exposed);
+    if (u.spellIn === 0 && waitForExposed) {
+      u.held++;
+      hit(u, weakest(targetable(enemy(u.side))), 1);
+    } else if (u.spellIn === 0 && (u.card.type !== "COEUR" || hurtAlly)) {
       u.spellIn = BATTLE.spellCooldown;
+      u.held = 0;
       cast(u, 1);
     } else {
       hit(u, weakest(targetable(enemy(u.side))), 1);
