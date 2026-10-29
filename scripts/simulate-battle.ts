@@ -1,6 +1,6 @@
 // Simulation du combat 4 contre 4 (src/lib/battle.ts) sur le vrai pool de personnages. Lecture seule.
 // Critères fixés avant lancement : aucun type au-delà de 40–60 % de victoires, combats de moins de 15 tours.
-// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--hp A|B|C|D]
+// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--defK 2000] [--hpMult 1]
 
 import type { CardType, Rarity } from "../src/generated/prisma/enums";
 import { BATTLE, battle, type BattleCard, type BattleOptions, type Random } from "../src/lib/battle";
@@ -13,16 +13,11 @@ const arg = (name: string, d: number) => {
 const GAMES = arg("--games", 10_000);
 const SEED = arg("--seed", 42);
 
-/** Variantes de calcul des PV : --hp A|B|C|D */
-const HP_RULES: Record<string, [string, (atk: number, def: number) => number]> = {
-  A: ["DEF × 3", (_a, d) => d * 3],
-  B: ["(ATK + DEF) × 1,5", (a, d) => (a + d) * 1.5],
-  C: ["4 000 + ATK + DEF", (a, d) => 4000 + a + d],
-  D: ["8 000 pour tous", () => 8000],
-};
-const hpArg = process.argv[process.argv.indexOf("--hp") + 1];
-const HP = process.argv.includes("--hp") ? hpArg : "A";
-BATTLE.hp = HP_RULES[HP][1];
+/** Surcharges des valeurs du moteur pour comparer des variantes : --defK 2000 --hpMult 1 */
+BATTLE.defK = arg("--defK", BATTLE.defK);
+const HP_MULT = arg("--hpMult", 1);
+const baseHp = BATTLE.hp;
+BATTLE.hp = (a, d) => baseHp(a, d) * HP_MULT;
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
@@ -53,7 +48,7 @@ const pool: BattleCard[] = rows.map((r) => ({
 const byRarity = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
 const team = (rarities: Rarity[]) => rarities.map((r) => any(byRarity[r]));
 const four = (r: Rarity) => team([r, r, r, r]);
-console.log(`PV : ${HP_RULES[HP][0]} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
+console.log(`defK ${BATTLE.defK} · PV × ${HP_MULT} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
 
 const durations: number[] = [];
 let timeouts = 0;
@@ -156,6 +151,24 @@ const passiveMatch = (opts: BattleOptions) =>
     return [[ur, ...picked], [ur, ...others]];
   }, opts);
 console.log(`Avec passif : ${pct(passiveMatch({}))} · sans passif (témoin) : ${pct(passiveMatch({ passive: false }))}`);
+
+// 5 bis. Budget de coût d'équipe : compositions de même budget, ligne contre colonne.
+console.log("\n5 bis. Budget d'équipe (N 1, R 2, SR 3, SSR 5, UR 8 ; plafond 14) : ligne contre colonne");
+const COMPOS: [string, Rarity[]][] = [
+  ["4 SR (12)", ["SR", "SR", "SR", "SR"]],
+  ["1 SSR + 3 SR", ["SSR", "SR", "SR", "SR"]],
+  ["2 SSR + 2 R", ["SSR", "SSR", "R", "R"]],
+  ["2 SSR + SR + N", ["SSR", "SSR", "SR", "N"]],
+  ["UR + 3 R", ["UR", "R", "R", "R"]],
+  ["UR + SR + R + N", ["UR", "SR", "R", "N"]],
+];
+const budgetTable: Record<string, string>[] = [];
+for (const [label, a] of COMPOS) {
+  const row: Record<string, string> = { compo: label };
+  for (const [other, b] of COMPOS) row[other] = pct(rate(() => [team(a), team(b)]));
+  budgetTable.push(row);
+}
+console.table(budgetTable);
 
 // 6. Avantage du premier joueur : équipes miroir, A commence.
 console.log("\n6. Avantage du premier joueur (équipes miroir)");

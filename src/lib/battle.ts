@@ -19,16 +19,22 @@ export interface BattleCard {
 
 export const BATTLE = {
   teamSize: 4,
-  /** PV à partir des stats de base (provisoire : DEF × 3) */
-  hp: (_attack: number, defense: number) => defense * 3,
+  /** PV à partir des stats de base ; la DEF ne sert qu'à réduire les dégâts */
+  hp: (attack: number, defense: number) => attack + defense,
+  /** Dégâts = ATK × % du sort × defK / (defK + DEF) : la DEF réduit de moitié quand elle vaut defK */
+  defK: 2000,
   /** Dégâts minimum, en part de l'ATK */
   floor: 0.1,
+  critRate: 0.15,
+  critDamage: 1.5,
+  /** L'équipe qui joue en second reçoit un bouclier (part des PV max) qui disparaît à la fin du 1er tour */
+  secondShield: 0.15,
   /** Variation aléatoire des dégâts (±) */
   variance: 0.1,
   /** Au-delà, l'équipe avec le plus de PV restants (en %) gagne */
   maxRounds: 30,
-  strong: 1.25,
-  weak: 0.8,
+  strong: 1.15,
+  weak: 0.9,
   /** Actions du lanceur entre deux sorts affiliés ; le premier sort part à sa 2e action */
   spellCooldown: 3,
   gaugeMax: 100,
@@ -58,6 +64,7 @@ interface Unit {
   def: number;
   maxHp: number;
   hp: number;
+  shield: number;
   spellIn: number;
   gauge: number;
   hasUltimate: boolean;
@@ -93,7 +100,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
     const def = card.defense * (1 + bonus[i]);
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
     return {
-      card, side, def, maxHp, hp: maxHp,
+      card, side, def, maxHp, hp: maxHp, shield: 0,
       atk: card.attack * (1 + bonus[i]),
       spellIn: 2,
       gauge: 0,
@@ -115,13 +122,16 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
 
   const hit = (u: Unit, t: Unit, mult: number, ignoreDef = 0) => {
     const def = t.def * (1 - ignoreDef);
-    let dmg = u.atk * affinity(u.card.type, t.card.type) * mult * Math.max(BATTLE.floor, u.atk / (u.atk + def));
+    let dmg = u.atk * affinity(u.card.type, t.card.type) * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
+    if (rng() < BATTLE.critRate) dmg *= BATTLE.critDamage;
     if (t.markHits > 0) {
       dmg *= 1 + t.mark;
       t.markHits--;
     }
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
-    t.hp = Math.max(0, t.hp - dmg);
+    const absorbed = Math.min(t.shield, dmg);
+    t.shield -= absorbed;
+    t.hp = Math.max(0, t.hp - (dmg - absorbed));
     if (t.hasUltimate) t.gauge += BATTLE.gaugePerHit;
     return dmg;
   };
@@ -174,6 +184,7 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
     if (u.hasUltimate) u.gauge += BATTLE.gaugePerAction;
   };
 
+  for (const u of teams[order[1]]) u.shield = u.maxHp * BATTLE.secondShield;
   let rounds = 0;
   while (rounds < BATTLE.maxRounds && alive("A").length && alive("B").length) {
     rounds++;
@@ -183,6 +194,7 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
         if (u && u.hp > 0 && alive(enemy(s)).length) act(u);
       }
     }
+    if (rounds === 1) for (const u of teams[order[1]]) u.shield = 0;
   }
 
   const hpLeft = (s: Side) => teams[s].reduce((n, u) => n + u.hp, 0) / teams[s].reduce((n, u) => n + u.maxHp, 0);
