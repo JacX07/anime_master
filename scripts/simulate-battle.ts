@@ -173,7 +173,7 @@ console.table(budgetTable);
 // 5 ter. Synergies : une équipe SSR + 3 SR construite contre une équipe UR + 3 SR tirée au hasard.
 // Chaque synergie est mesurée seule (les autres coupées), activée puis désactivée.
 console.log("\n5 ter. Synergies : SSR + 3 SR construite contre UR + 3 SR au hasard");
-const NONE: BattleOptions = { franchise: false, combos: false, formation: false };
+const NONE: BattleOptions = { franchise: false, combos: false };
 const randomUr = () => team(["UR", "SR", "SR", "SR"]);
 const ofType = (r: Rarity, t: CardType) => any(byRarity[r].filter((c) => c.type === t));
 const franchiseTeams = [...franchiseOf.values()].filter((l) => l.some((c) => c.rarity === "SSR") && l.filter((c) => c.rarity === "SR").length >= 3);
@@ -183,15 +183,6 @@ const sameFranchise = () => {
   const srs = l.filter((c) => c.rarity === "SR").sort(() => rng() - 0.5);
   return [any(l.filter((c) => c.rarity === "SSR")), ...srs.slice(0, 3)];
 };
-/** Formation : les 2 SR les plus résistantes (sur 8 tirées) devant, la SSR et la SR la plus offensive derrière. */
-const formed = (cards: BattleCard[] = []) => {
-  const pickFrom = cards.length ? cards : [any(byRarity.SSR), ...Array.from({ length: 8 }, () => any(byRarity.SR))];
-  const ssr = pickFrom.find((c) => c.rarity === "SSR")!;
-  const srs = pickFrom.filter((c) => c !== ssr).sort((x, y) => y.defense - x.defense);
-  const front = srs.slice(0, 2);
-  const back = srs.slice(2).sort((x, y) => y.attack - x.attack).slice(0, 1);
-  return [...front, ssr, ...back];
-};
 const duo = (t1: CardType, t2: CardType) => () => [ofType("SSR", t1), ofType("SR", t2), ofType("SR", t1), ofType("SR", t2)];
 const SYNERGY_TESTS: [string, () => BattleCard[], BattleOptions][] = [
   ["Aucune (SSR + 3 SR au hasard)", () => team(["SSR", "SR", "SR", "SR"]), {}],
@@ -199,8 +190,6 @@ const SYNERGY_TESTS: [string, () => BattleCard[], BattleOptions][] = [
   ["Combo Mystère + Combat", duo("MYSTERE", "COMBAT"), { combos: true }],
   ["Combo Cœur + Aventure", duo("COEUR", "AVENTURE"), { combos: true }],
   ["Combo Magie + Cœur", duo("MAGIE", "COEUR"), { combos: true }],
-  ["Formation (tanks devant)", () => formed(), { formation: true }],
-  ["Tout : franchise + formation", () => formed(sameFranchise()), { franchise: true, combos: true, formation: true }],
 ];
 console.table(
   SYNERGY_TESTS.map(([label, make, on]) => {

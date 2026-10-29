@@ -54,10 +54,6 @@ export const BATTLE = {
   comboShielded: 1.5,
   /** Avec un allié Cœur, le drain de Magie vaut 100 % des dégâts et soigne aussi les alliés Cœur */
   comboDrain: 1,
-  /** Formation : les `frontSize` premières positions encaissent les attaques ciblées tant qu'elles tiennent */
-  frontSize: 2,
-  frontDef: 0.25,
-  backAtk: 0.15,
 };
 
 /** Cycle d'affinités : chaque type est fort contre le suivant et faible contre le précédent. */
@@ -95,7 +91,6 @@ export interface BattleOptions {
   passive?: boolean;
   franchise?: boolean;
   combos?: boolean;
-  formation?: boolean;
 }
 
 export interface BattleResult {
@@ -120,13 +115,11 @@ function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
 function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>): Unit[] {
   const bonus = statBonus(team, opts);
   return team.map((card, i) => {
-    const front = opts.formation && i < BATTLE.frontSize;
-    const back = opts.formation && !front;
-    const def = card.defense * (1 + bonus[i] + (front ? BATTLE.frontDef : 0));
+    const def = card.defense * (1 + bonus[i]);
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
     return {
       card, side, def, maxHp, hp: maxHp, shield: 0, exposed: false, held: 0,
-      atk: card.attack * (1 + bonus[i] + (back ? BATTLE.backAtk : 0)),
+      atk: card.attack * (1 + bonus[i]),
       spellIn: 2,
       gauge: 0,
       hasUltimate: opts.ultimates && BATTLE.ultimateRarities.includes(card.rarity),
@@ -137,18 +130,13 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
 }
 
 export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleResult {
-  const opts = { ultimates: true, passive: true, franchise: true, combos: true, formation: true, ...options };
+  const opts = { ultimates: true, passive: true, franchise: true, combos: true, ...options };
   const teams: Record<Side, Unit[]> = { A: makeUnits(a, "A", opts), B: makeUnits(b, "B", opts) };
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = maxPower(b) > maxPower(a) ? "B" : "A";
   const order: Side[] = first === "A" ? ["A", "B"] : ["B", "A"];
   const alive = (s: Side) => teams[s].filter((u) => u.hp > 0);
   const enemy = (s: Side): Side => (s === "A" ? "B" : "A");
-  /** Cibles d'une attaque ciblée : la première ligne d'abord si la formation est active. */
-  const targetable = (s: Side) => {
-    const front = teams[s].slice(0, BATTLE.frontSize).filter((u) => u.hp > 0);
-    return opts.formation && front.length ? front : alive(s);
-  };
 
   const hit = (u: Unit, t: Unit, mult: number, ignoreDef = 0) => {
     const def = t.def * (1 - ignoreDef);
@@ -175,7 +163,7 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
   /** Sort affilié (power 1) ou ultime (power 2, version renforcée en attendant les gabarits d'ultimes). */
   const cast = (u: Unit, power: number) => {
     const foes = alive(enemy(u.side));
-    const targets = targetable(enemy(u.side));
+    const targets = alive(enemy(u.side));
     const target = weakest(targets);
     switch (u.card.type) {
       case "COMBAT": {
@@ -221,16 +209,16 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
     }
     const waitForExposed =
       opts.combos && u.card.type === "COMBAT" && u.held < BATTLE.comboHold &&
-      alive(u.side).some((x) => x.card.type === "MYSTERE") && !targetable(enemy(u.side)).some((f) => f.exposed);
+      alive(u.side).some((x) => x.card.type === "MYSTERE") && !alive(enemy(u.side)).some((f) => f.exposed);
     if (u.spellIn === 0 && waitForExposed) {
       u.held++;
-      hit(u, weakest(targetable(enemy(u.side))), 1);
+      hit(u, weakest(alive(enemy(u.side))), 1);
     } else if (u.spellIn === 0 && (u.card.type !== "COEUR" || hurtAlly)) {
       u.spellIn = BATTLE.spellCooldown;
       u.held = 0;
       cast(u, 1);
     } else {
-      hit(u, weakest(targetable(enemy(u.side))), 1);
+      hit(u, weakest(alive(enemy(u.side))), 1);
     }
     if (u.hasUltimate) u.gauge += BATTLE.gaugePerAction;
   };
