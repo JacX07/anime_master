@@ -348,7 +348,9 @@ Page `/builder`, **réservée au développeur** : uniquement en dev (`NODE_ENV` 
 
 ---
 
-## Vitesse et ordre de jeu *(proposition du 2026-11-01, à choisir ; voir [donjons.md](donjons.md))*
+## Vitesse et ordre de jeu *(piste B retenue le 2026-11-01 ; voir [donjons.md](donjons.md))*
+
+> **Décidé** : jauge d'action (piste B), **sans plafond de vitesse**, et **vitesse de base différente par personnage, de 90 à 110**, selon l'impression de rapidité dans le lore (un personnage vif joue plus souvent). Les 236 SSR/UR reçoivent une valeur dans leur fiche (proposée par Claude, retouchable dans le builder) ; tous les autres ont 100. L'ancien texte de la piste A et le plafond +50 % ci-dessous sont gardés pour mémoire, **abandonnés**.
 
 Les bottes d'artefact donnent de la **vitesse**. Le moteur n'en a pas (alternance par position, §3). Deux pistes.
 
@@ -363,8 +365,8 @@ Les bottes d'artefact donnent de la **vitesse**. Le moteur n'en a pas (alternanc
 - **Contre** : réécriture de la boucle du moteur ; les rejeux existants changent (moteur à versionner pour garder les anciens combats) ; tout l'équilibrage est à refaire. Risque que la vitesse soit obligatoire : à limiter par un **plafond** (par exemple +50 % au total) et en gardant la vitesse de base **identique pour tous** au départ, pour ne pas bouleverser l'équilibre des personnages.
 - **À redéfinir avec la piste B** : le premier joueur (jauge initiale 0, égalité tranchée par la Puissance, comme aujourd'hui) ; la compensation du second (bouclier de 15 %) ; le plafond de 30 tours (devient un plafond de durée, soit 300 instants à vitesse 100) ; « prochain tour » des étourdissements (la jauge est vidée) ; sorts qui donnent ou retirent de la vitesse (à ajouter plus tard, sur le modèle des bonus d'ATK).
 
-### Décision à prendre
-Piste A (prudente) ou B (ambitieuse). Quel que soit le choix, il faut ensuite : la vitesse de base des ennemis (histoire, raid, donjons), le rejeu versionné, et de nouvelles mesures `simulate:battle`, `simulate:story`, `simulate:raid`, `simulate:tower`.
+### Suite
+Il faut maintenant : la vitesse de base des ennemis (histoire, raid, donjons), le rejeu versionné, et de nouvelles mesures `simulate:battle`, `simulate:story`, `simulate:raid`, `simulate:tower`.
 
 ---
 

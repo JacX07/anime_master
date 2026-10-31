@@ -28,7 +28,7 @@ Le raid et le boss mondial sont **deux modes séparés**. Tous utilisent le mote
 ## Artefacts
 
 ### Emplacements et stats
-Quatre emplacements *(trois annoncés au départ, les gants ont été ajoutés ensuite : à confirmer)*.
+Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **reliques de Honkai: Star Rail** : une stat principale et des sous-stats qui montent au fil des niveaux.
 
 | Emplacement | Stat principale |
 |---|---|
@@ -39,7 +39,13 @@ Quatre emplacements *(trois annoncés au départ, les gants ont été ajoutés e
 
 - Les % s'appliquent aux stats de base de la carte, comme les bonus actuels.
 - La stat principale monte avec la **rareté** et le **niveau** de la pièce.
-- Sous-stats (0 à 3 lignes selon la rareté) : à valider, pour donner de la profondeur sans devenir une loterie.
+
+### Sous-stats et amélioration *(à la Honkai: Star Rail, décidé le 2026-11-01 ; chiffres de départ à fixer au simulateur)*
+- **Sous-stats possibles** (jamais la même que la stat principale) : % PV, % ATK, % DEF, PV / ATK / DEF plats, vitesse plate, chance de critique, dégâts critiques, esquive.
+- **À la création**, selon la rareté : N 0 sous-stat, R 0 à 1, SR 1, SSR 1 à 2, UR 2 à 3. Chaque sous-stat est tirée avec une valeur « faible / moyenne / forte » (environ 80 / 90 / 100 % du maximum).
+- **Niveaux** : N 0 à 3, R 0 à 6, SR 0 à 9, SSR 0 à 12, UR 0 à 15. Tous les **3 niveaux**, la pièce **ajoute une sous-stat** (jusqu'à 4) ou **renforce l'une des existantes** d'un tirage. La stat principale monte à chaque niveau.
+- **Ressource d'amélioration** : les pièces en trop, recyclées (aucune pièce inutile).
+- **Pas de plafond de puissance voulu** : la limite vient de la rareté, du niveau maximum et du tirage des sous-stats. Ordre de grandeur d'une pièce UR niveau 15, pour viser une montée forte comme Honkai : % PV / % ATK ≈ +43 %, % DEF ≈ +54 %, chance de critique ≈ +32 points, dégâts critiques ≈ +65 points, vitesse ≈ +25. À ajuster au simulateur, avec les difficultés recalibrées derrière.
 - Une pièce est **liée au compte**, non échangeable, mais équipable sur n'importe quelle carte et déplaçable librement (pas de second marché de puissance).
 
 ### Raretés et niveaux
@@ -80,11 +86,9 @@ Quatre emplacements *(trois annoncés au départ, les gants ont été ajoutés e
 
 ## Questions ouvertes
 
-1. **Gants** : confirmer les 4 emplacements.
-2. **Vitesse** : le moteur n'a pas de stat de vitesse. L'ordre de jeu est aujourd'hui l'alternance par position ([combat.md](combat.md) §3). L'intention est de **changer le tour par tour** pour que la vitesse compte. Pistes : (a) ordre de jeu de tout le champ par vitesse décroissante à chaque tour ; (b) jauge d'action qui se remplit selon la vitesse (comme Honkai Star Rail). Il faut aussi une **vitesse de base** par carte (identique pour tous, ou selon type / rareté) et revoir la compensation du second joueur. Ce changement touche le moteur, les rejeux (`check:replay`) et toutes les simulations : à spécifier à part dans combat.md avant de coder.
-3. **Sous-stats** des artefacts : oui ou non, et combien.
-4. **Plafonds de stats** : valeurs de montée en puissance voulues (somme équipement + éveil + arme).
-5. Noms des boss de donjon, du boss mondial, des sets.
+1. **Vitesse** : jauge d'action, sans plafond, vitesse de base 90 à 110 par personnage : décidé, voir [combat.md](combat.md). À écrire : la valeur de chaque SSR/UR, la compensation du second joueur, la durée maximale d'un combat. Touche le moteur, les rejeux et toutes les simulations.
+2. **Valeurs exactes** des stats principales et sous-stats par rareté, et bonus de set : à fixer au simulateur.
+3. Noms des boss de donjon, du boss mondial, des sets.
 
 ## Modèle de données *(proposé)*
 
