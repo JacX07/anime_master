@@ -6,6 +6,7 @@ import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
 import { historyOf, holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
+import { attackVisual } from "@/lib/attack-visual";
 import { TypeIcon } from "../icons";
 import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
@@ -180,9 +181,32 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       const a = el(ev.actor);
       const t = ev.target && ev.target[0] !== ev.actor[0] ? el(ev.target) : null;
       if (!a) return;
+      const visual = ev.spell === "base" ? attackVisual(rp.info[ev.actor].characterId) : "melee";
       if (!t) {
         // Zone, soin ou soutien : la carte se lève sur place
         a.animate([{ transform: "none" }, { transform: "translateY(-6%) scale(1.1)", offset: 0.45 }, { transform: "none" }], { duration: ms(700), easing: "ease-in-out" });
+      } else if (visual === "magic" || visual === "gun") {
+        const ra = a.getBoundingClientRect();
+        const rt = t.getBoundingClientRect();
+        const rr = root.getBoundingClientRect();
+        const x = ra.left + ra.width / 2 - rr.left + root.scrollLeft;
+        const y = ra.top + ra.height / 2 - rr.top + root.scrollTop;
+        const dx = rt.left + rt.width / 2 - (ra.left + ra.width / 2);
+        const dy = rt.top + rt.height / 2 - (ra.top + ra.height / 2);
+        const shot = document.createElement("span");
+        shot.className = `bt-projectile bt-projectile--${visual}`;
+        shot.style.left = `${x}px`;
+        shot.style.top = `${y}px`;
+        shot.setAttribute("aria-hidden", "true");
+        root.appendChild(shot);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const flight = shot.animate([
+          { transform: `translate(-50%, -50%) rotate(${angle}deg) scale(.4)`, opacity: 0 },
+          { transform: `translate(-50%, -50%) rotate(${angle}deg) scale(1)`, opacity: 1, offset: .2 },
+          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${angle}deg) scale(1)`, opacity: 1 },
+        ], { duration: ms(480), easing: "ease-in" });
+        flight.onfinish = () => shot.remove();
+        a.animate([{ transform: "none" }, { transform: "scale(1.06)", offset: .3 }, { transform: "none" }], { duration: ms(480) });
       } else {
         const ra = a.getBoundingClientRect();
         const rt = t.getBoundingClientRect();
@@ -209,7 +233,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       );
       if (ev.crit) root.animate([{ transform: "none" }, { transform: "translate(-6px, 3px)" }, { transform: "translate(5px, -3px)" }, { transform: "none" }], { duration: ms(300) });
     }
-  }, [rp.idx, log]);
+  }, [rp.idx, rp.info, log]);
 
   const restart = () => {
     setRp(replayStart(log));
@@ -575,7 +599,7 @@ function PopView({ pop }: { pop: Pop }) {
 }
 
 /** Effet visuel d'un sort : un décor de particules par type, tracé en CSS (voir [data-fx] dans battle.css). */
-function Fx({ fx, big }: { fx: CardType | "base" | "heal"; big: boolean }) {
+function Fx({ fx, big }: { fx: CardType | "base" | "slash" | "heal"; big: boolean }) {
   const parts = fx === "COMBAT" || fx === "MAGIE" ? 8 : fx === "heal" || fx === "base" ? 5 : 3;
   return (
     <span className="bt-fx" data-fx={fx} data-big={big || undefined} aria-hidden>

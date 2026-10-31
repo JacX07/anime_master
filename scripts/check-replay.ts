@@ -3,6 +3,17 @@
 
 import { applyAction, autoAction, createBattle, currentActor, type BattleCard, type Random } from "../src/lib/battle";
 import { holdFor, replayAll } from "../src/lib/battle-replay";
+import { attackVisual } from "../src/lib/attack-visual";
+import { strict as assert } from "node:assert";
+
+assert.equal(attackVisual(127212), "melee");
+assert.equal(attackVisual(246), "melee");
+assert.equal(attackVisual(176754), "magic");
+assert.equal(attackVisual(183965), "magic");
+assert.equal(attackVisual(422), "slash");
+assert.equal(attackVisual(62), "slash");
+assert.equal(attackVisual(458), "gun");
+assert.equal(attackVisual(-1), "melee");
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
