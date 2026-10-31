@@ -187,6 +187,24 @@ export async function setAttackTeam(userId: string, cardIds: string[]) {
   });
 }
 
+/** Équipe d'attaque par défaut : les 4 cartes les plus rares du joueur (puis les plus populaires), hors enchères. */
+export async function autoAttackTeam(userId: string) {
+  const cards = await prisma.card.findMany({
+    where: { ownerId: userId, inAuction: false },
+    select: { id: true, characterId: true, character: { select: { rarity: true, power: true } } },
+  });
+  const rank = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 } as const;
+  cards.sort((a, b) => rank[b.character.rarity] - rank[a.character.rarity] || b.character.power - a.character.power);
+  const picked: string[] = [], seen = new Set<number>();
+  for (const c of cards) {
+    if (seen.has(c.characterId) || picked.length >= 4) continue;
+    seen.add(c.characterId);
+    picked.push(c.id);
+  }
+  if (picked.length < 4) throw new BattleError("Il te faut au moins 4 personnages différents.");
+  await setAttackTeam(userId, picked);
+}
+
 /** Équipe d'attaque, positions 1 à 4 (null = vide). Les cartes qui ont changé de main sont retirées. */
 export async function getAttackTeam(userId: string) {
   const team = await prisma.battleTeam.findUnique({
@@ -229,7 +247,7 @@ export interface BattleView {
   actor: UnitId | null;
   choices: { spell: Spell; targets: (UnitId | null)[] }[];
   /** Nom et image des 8 personnages, pour l'affichage */
-  characters: Record<number, { name: string; imageUrl: string }>;
+  characters: Record<number, { name: string; imageUrl: string; rarity: Rarity; type: CardType }>;
 }
 
 /** Rejoue un combat manuel : choix enregistrés pour A, stratégie automatique pour B, jusqu'au prochain choix de A. */
@@ -248,8 +266,8 @@ function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleStat
 
 async function charactersOf(teams: BattleTeams) {
   const ids = [...teams.A, ...teams.B].map((c) => c.characterId);
-  const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, imageUrl: true } });
-  return Object.fromEntries(rows.map((r) => [r.id, { name: r.name, imageUrl: r.imageUrl }]));
+  const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, imageUrl: true, rarity: true, type: true } });
+  return Object.fromEntries(rows.map((r) => [r.id, { name: r.name, imageUrl: r.imageUrl, rarity: r.rarity, type: r.type }]));
 }
 
 type BattleRow = Prisma.BattleGetPayload<object>;

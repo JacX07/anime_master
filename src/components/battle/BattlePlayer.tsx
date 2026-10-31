@@ -25,6 +25,8 @@ interface Props {
   names?: Record<Side, string>;
   /** Lien « nouveau combat » de l'écran de fin */
   nextHref?: string;
+  /** Appelé une fois, quand la lecture arrive au bout du journal */
+  onEnd?: () => void;
 }
 
 const SPEEDS = [1, 2, 4] as const;
@@ -35,7 +37,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref }: Props) {
+export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onEnd }: Props) {
   const [rp, setRp] = useState<Replay>(() => replayStart(log));
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
@@ -47,6 +49,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     const t = setTimeout(() => setRp((s) => replayStep(s, log)), holdFor(log, rp.idx - 1) / speed);
     return () => clearTimeout(t);
   }, [playing, finished, speed, rp.idx, log]);
+
+  useEffect(() => {
+    if (finished) onEnd?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished]);
 
   // Vitesse courante pour les animations et les sons programmés depuis des effets
   const speedRef = useRef(speed);

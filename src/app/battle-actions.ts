@@ -1,6 +1,6 @@
 "use server";
 
-import { abandonBattle, BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, autoAttackTeam, BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -19,6 +19,9 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
 
 export async function setAttackTeamAction(cardIds: string[]) {
   return run(async (id) => (await setAttackTeam(id, (cardIds ?? []).map(String)), {}));
+}
+export async function autoAttackTeamAction() {
+  return run(async (id) => (await autoAttackTeam(id), {}));
 }
 export async function startBattleAction(opponent: string, manual: boolean) {
   return run(async (id) => ({ battle: await startBattle(id, String(opponent), Boolean(manual)) }));
