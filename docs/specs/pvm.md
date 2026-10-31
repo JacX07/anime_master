@@ -49,9 +49,11 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 
 ### Ennemis
 - Les ennemis **gardent leurs sorts** (rôle par type, [combat.md](combat.md)) mais **pas leurs stats d'origine** : leurs stats viennent du **niveau du combat**, sinon un anime sans SR serait trop facile et un anime plein d'UR impossible.
-- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi (table niveau × rareté *(simulateur)*). **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
+- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi : **moyenne de sa rareté × échelle du niveau**, l'échelle montant de 0,3 (niveau 1) à 1,0 (niveau 15) en ligne droite. Valeurs validées le 2026-10-31 avec `npm run simulate:story`. **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
 - **Difficulté progressive, pas par paliers** : le joueur garde la même équipe principale, il ne doit pas écraser l'acte 1 puis l'acte 2 d'un coup. Chaque combat mélange des raretés qui montent peu à peu (un combat de début : surtout N et R ; milieu : SR, un SSR ; fin : SSR, un UR en boss final). La rareté de l'ennemi sert à son apparence et à son niveau.
-- **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de stats *(simulateur)*. Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
+- **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de **×1,25** sur l'ATK, la DEF et donc les PV (validé). Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
+- **Mélange de raretés par combat** (le boss est la 4ᵉ carte aux combats 5, 10 et 15) : 1–3 : N, N, N, R puis N, N, R, R puis N, R, R, R · 4–5 : R, R, R, SR puis R, R, SR, SR · 6–7 : R, SR, SR, SR · 8 : SR, SR, SR, SSR · 9 : SR, SR, SSR, SSR · 10–11 : SR, SSR, SSR, SSR · 12–13 : SSR ×4 · 14–15 : SSR, SSR, SSR, UR.
+- **Repères mesurés** (victoire en auto) : 4 R → jusqu'au combat 7 ; 4 SR → jusqu'au 9 (le boss du 10 est le premier mur) ; 4 SSR → jusqu'au 13, boss final 6 % ; 4 SSR 5★ avec arme → boss final 61 % ; 1 UR + 3 SSR 5★ → 91 % ; 4 UR → 95 %. **Un boss final difficile est voulu** (validé) : il pousse à éveiller et à farmer.
 - Chaque combat affiche une **puissance conseillée**.
 
 ### Ressources d'éveil
