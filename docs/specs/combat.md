@@ -82,11 +82,14 @@ Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec s
 | Poison | **Poison** : perd x % de ses **PV max** à chaque action, pendant N actions | Ne se cumule pas (le plus fort remplace) ; peut tuer |
 | Contrôle | **Silence** : la cible ne peut lancer que le **sort de base** pendant N actions | Durée 2 au maximum |
 | Protection | **Immunité aux altérations** pendant N actions : aucun nouveau malus (ATK/DEF −, critique −, poison, silence, exposition) | Ne retire pas les malus déjà posés |
+| Purge | **Purge** : retire tous les malus d'un allié ou de l'équipe (ATK/DEF −, critique −, poison, silence, exposition) | Ne protège pas contre les suivants |
 | Résurrection | **Réanimation** d'un allié mort, avec x % de ses PV max | Une seule fois par combat et par carte lanceuse ; l'allié repart avec un compteur de cooldown neuf |
 
 *(« Exposé » et « Affaibli » du jeu actuel deviennent des cas particuliers : exposition et ATK −20 %.)*
 
 **Équilibre** *(à fixer au simulateur)* : un sort d'attaque pure vaut environ 2,0× l'ATK (SSR) ou 2,4× (UR) ; un sort de zone 0,9× (SSR) ou 1,1× (UR) ; un sort qui ajoute un effet fort (silence, DEF −, poison) perd du multiplicateur. **Automatique** : lancé dès qu'il est prêt ; un soin, un bouclier ou une réanimation seulement si un allié en a besoin ; un silence sur la cible la plus dangereuse.
+
+**Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
 
 **Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier ; les autres univers au fil du temps.
 
@@ -99,7 +102,7 @@ Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec s
 | Law (SSR) | Shambles | 1,6× ATK qui traverse les boucliers ; DEF −20 %, 2 actions | Contrôle |
 | Nami (SSR) | Thunderbolt Tempo | 0,6× ATK en zone ; ATK −20 % sur tous les ennemis, 2 actions | Zone / malus |
 | Ace (SSR) | Hiken | 1,8× ATK ; vol de vie 40 % | Attaque / vol de vie |
-| Chopper (SSR) | Rumble Ball | soin de zone 15 % des PV max ; soin sur la durée 5 % × 3 actions | Soin |
+| Chopper (SSR) | Rumble Ball | soin de zone 15 % des PV max ; purge des malus de l'équipe | Soin / purge |
 | Usopp (SSR) | Kemuri Boshi | esquive 30 % pour l'équipe, 2 actions | Soutien |
 | Naruto (UR) | Mode Kyubi | ATK +20 % pour l'équipe, 2 actions ; soin sur la durée 5 % × 3 actions pour lui | Soutien |
 | Itachi (UR) | Tsukuyomi | 1,2× ATK ; silence 2 actions et ATK −20 % sur la cible | Contrôle |
