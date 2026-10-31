@@ -86,6 +86,7 @@ Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire e
 | Réduction | **Dégâts subis −x %**, soi ou équipe, avant les boucliers | Cumul plafonné à 70 % ; ne réduit pas le poison |
 | Poison | **Poison** : perd x % de ses **PV max** à chaque action, pendant N actions | Ne se cumule pas (le plus fort remplace) ; peut tuer |
 | Contrôle | **Silence** : la cible ne peut lancer que le **sort de base** pendant N actions | Durée 2 au maximum |
+| Étourdissement | **Tour passé** : aucune attaque ni compétence pendant le tour du porteur | Poison, régénération, recharges et durées continuent ; les boss et l'immunité aux malus le refusent ; une purge peut le retirer |
 | Protection | **Immunité aux altérations** pendant N actions : aucun nouveau malus (ATK/DEF −, critique −, poison, silence, exposition) | Ne retire pas les malus déjà posés |
 | Purge | **Purge** : retire tous les malus d'un allié ou de l'équipe (ATK/DEF −, critique −, poison, silence, exposition) | Ne protège pas contre les suivants |
 | Résurrection | **Réanimation** d'un allié mort, avec x % de ses PV max | Une seule fois par combat et par carte lanceuse ; l'allié repart avec un compteur de cooldown neuf |
@@ -94,7 +95,9 @@ Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire e
 
 **Automatique** : priorité à l'ultime, puis au secondaire et au tertiaire prêts. Les soins purs attendent un allié sous 70 % de PV, les purges un malus et les réanimations un allié mort ; le silence vise l'ennemi à l'ATK la plus élevée parmi les cibles autorisées.
 
-**Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
+**Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence et à l'étourdissement** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
+
+**Gojo — Extension du territoire** : remplace Pourpre comme ultime. À jauge pleine, étourdit automatiquement les **deux ennemis vivants à l'ATK la plus élevée** : chacun passe **son prochain tour**, puis peut rejouer. À égalité d'ATK, l'ordre des emplacements départage les cibles. Avec un seul ennemi vivant, une seule cible est touchée. Cet effet partiel de zone ignore la provocation. Les deux cibles sont choisies avant la résistance : un boss ou un ennemi immunisé résiste sans transfert vers une troisième cible. L'IA conserve la jauge si les deux cibles sont protégées. Chaque tour passé apparaît dans le journal et le rejeu. La résistance des boss couvre désormais aussi l'étourdissement.
 
 **Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier ; les autres univers au fil du temps.
 

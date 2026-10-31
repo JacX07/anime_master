@@ -232,7 +232,7 @@ export function History({
               </b>
               <span>
                 {spellLabel(h.spell, rp.info[h.actor].type, h.name)}
-                {h.target ? ` → ${name(h.target)}` : " → tous les ennemis"}
+                {h.target ? ` → ${name(h.target)}` : ""}
               </span>
               <ul>
                 {h.effects.map((e, i) => (

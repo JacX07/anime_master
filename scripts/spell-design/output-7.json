@@ -38,7 +38,7 @@
 {"id":127691,"orientation":"attaque",
  "secondary":{"name":"Bleu","target":"foe","effects":[{"k":"damage","mult":1.1},{"k":"mod","stat":"def","amount":-0.2,"turns":2,"to":"target"}]},
  "tertiary":{"name":"Infini","target":null,"effects":[{"k":"reduce","pct":0.35,"turns":2,"to":"team"},{"k":"mod","stat":"dodge","amount":0.4,"turns":1,"to":"team"}]},
- "ultimate":{"name":"Pourpre","target":"foe","effects":[{"k":"damage","mult":4.8,"pierce":true}]}},
+ "ultimate":{"name":"Extension du territoire","target":null,"effects":[{"k":"stun","turns":1,"count":2}]}},
 {"id":127212,"orientation":"attaque",
  "secondary":{"name":"Black Flash","target":"foe","effects":[{"k":"damage","mult":1.5,"critSure":true}]},
  "tertiary":{"name":"Corps de Sukuna","target":null,"effects":[{"k":"mod","stat":"atk","amount":0.3,"turns":2,"to":"self"},{"k":"mod","stat":"def","amount":0.25,"turns":2,"to":"self"}]},

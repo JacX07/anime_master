@@ -22,6 +22,7 @@ Si `target` est `null`, les effets n'utilisent pas le scope `"target"`.
 - `{"k":"shield","pct":0.15,"to":"team"}` bouclier en % des PV max.
 - `{"k":"poison","pct":0.05,"turns":3,"to":"target"}` perd pct des PV max par tour (mortel).
 - `{"k":"silence","turns":2,"to":"target"}` ne peut utiliser que l'attaque de base (sans effet sur les boss).
+- `{"k":"stun","turns":1,"count":2}` : les deux ennemis vivants à l'ATK la plus élevée passent leur prochain tour. Réservé aux ultimes sans cible manuelle ; 1–2 ennemis, 1–2 tours. Immunité et boss résistent ; la purge le retire. Les recharges, poisons et régénérations continuent pendant un tour passé.
 - `{"k":"immune","turns":2,"to":"team"}` immunité aux malus ; `{"k":"purge","to":"team"}` retire les malus.
 - `{"k":"revive","pct":0.4}` réanime un allié mort (`target:"deadAlly"`), une fois par combat.
 - **Nouveaux** : `{"k":"taunt","turns":2}` (le lanceur seul) : les ennemis ne peuvent viser que lui avec leurs attaques à cible unique pendant `turns` tours ; `{"k":"reduce","pct":0.3,"turns":2,"to":"self|team"}` : dégâts subis −pct.

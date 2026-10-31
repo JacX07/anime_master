@@ -10306,13 +10306,13 @@
       ]
     },
     "ultimate": {
-      "name": "Pourpre",
-      "target": "foe",
+      "name": "Extension du territoire",
+      "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 4.8,
-          "pierce": true
+          "k": "stun",
+          "turns": 1,
+          "count": 2
         }
       ]
     }

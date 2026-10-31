@@ -146,7 +146,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -179,6 +179,7 @@ export type BattleEvent =
   | { kind: "round"; round: number }
   /** Une carte agit ; target = null pour la zone d'Aventure. name personnalise le sort spécial ou l'attaque de base. */
   | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string }
+  | { kind: "skip"; actor: UnitId; reason: "stun" }
   | { kind: "ultimateGauge"; target: UnitId; amount: number; current: number; max: number }
   | {
       kind: "damage";
@@ -261,7 +262,7 @@ interface Fx {
   turns: number;
   fresh: boolean;
 }
-const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "silence", "poison"]);
+const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "silence", "poison", "stun"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -350,6 +351,7 @@ const alive = (st: BattleState, s: Side) => st.teams[s].filter((u) => u.hp > 0);
 const unit = (st: BattleState, id: UnitId) => st.teams[id[0] as Side][Number(id.slice(1)) - 1];
 const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m));
 const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.hp / m.maxHp ? x : m));
+const stunTargets = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
   const opts = { passive: true, franchise: true, combos: true, spells: true, ...options, startingSide: options.startingSide ?? null };
@@ -389,7 +391,42 @@ function nextSlot(st: BattleState) {
   }
 }
 
-/** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV et ouvre les tours. */
+function advanceCooldowns(u: Unit) {
+  if (u.spellIn > 0) u.spellIn--;
+  if (u.pIn > 0) u.pIn--;
+  if (u.tIn > 0) u.tIn--;
+}
+
+function finishUnitTurn(st: BattleState, u: Unit) {
+  for (const status of ["elan", "weaken"] as const) {
+    if (u[status] <= 0 || (status === "weaken" && u[status] > 1 && hasFx(u, "immune"))) continue;
+    if (--u[status] === 0) st.log.push({ kind: "status", target: u.id, status, on: false });
+  }
+  for (const effect of [...u.fx]) {
+    if (effect.key === "ignoreDef") continue;
+    if (effect.fresh) {
+      effect.fresh = false;
+      continue;
+    }
+    if (u.hp > 0 && effect.key === "poison") {
+      const amount = Math.min(u.hp, u.maxHp * effect.amount);
+      u.hp -= amount;
+      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp });
+      if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
+    }
+    if (u.hp > 0 && effect.key === "regen") {
+      const before = u.hp;
+      u.hp = Math.min(u.maxHp, u.hp + u.maxHp * effect.amount);
+      if (u.hp > before) st.log.push({ kind: "heal", source: u.id, target: u.id, amount: u.hp - before, hp: u.hp });
+    }
+    if (--effect.turns <= 0) {
+      u.fx = u.fx.filter((fx) => fx !== effect);
+      st.log.push({ kind: "status", target: u.id, status: effect.key, on: false });
+    }
+  }
+}
+
+/** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV ou étourdies et ouvre les tours. */
 export function currentActor(st: BattleState): UnitView | null {
   while (!st.result) {
     if (!alive(st, "A").length || !alive(st, "B").length) {
@@ -406,7 +443,12 @@ export function currentActor(st: BattleState): UnitView | null {
       st.log.push({ kind: "round", round: st.round });
     }
     const u = st.teams[st.order[st.slot % 2]][Math.floor(st.slot / 2)];
-    if (u && u.hp > 0) return view(u);
+    if (u && u.hp > 0) {
+      if (!hasFx(u, "stun")) return view(u);
+      st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
+      advanceCooldowns(u);
+      finishUnitTurn(st, u);
+    }
     nextSlot(st);
   }
   return null;
@@ -463,6 +505,7 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   const allies = alive(st, u.side), foes = foesFor(st, u);
   const fx = spell.effects;
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
+  if (only("stun") && !fx.some((effect) => effect.k === "stun" && stunTargets(st, u, effect.count).some((foe) => !foe.card.boss && !hasFx(foe, "immune")))) return null;
   if (spell.target === "deadAlly") return { spell: slot, target: targets[0] };
   if (fx.some((e) => e.k === "heal" || e.k === "purge") && fx.every((e) => e.k === "heal" || e.k === "purge")) {
     const hurt = allies.some((x) => x.hp < x.maxHp * BATTLE.healBelow);
@@ -517,9 +560,7 @@ export function applyAction(st: BattleState, action: Action) {
   if (!allowed?.targets.includes(action.target)) throw new Error("Action impossible");
   const u = unit(st, id);
   const { rng, opts, log } = st;
-  if (u.spellIn > 0) u.spellIn--;
-  if (u.pIn > 0) u.pIn--;
-  if (u.tIn > 0) u.tIn--;
+  advanceCooldowns(u);
 
   // Un bonus ignore-DEF reste applicable à tous les coups d'une même action (par exemple une zone).
   const pendingIgnoreFx = u.fx.find((f) => f.key === "ignoreDef");
@@ -569,12 +610,16 @@ export function applyAction(st: BattleState, action: Action) {
   /** Pose un effet durable ; un malus est refusé par l'immunité, et le silence par les boss. L'effet de même nature se renouvelle (le plus fort reste). */
   const addFx = (t: Unit, key: FxKey, amount: number, turns: number, stat?: ModStat) => {
     if (t.hp <= 0) return;
-    if (MALUS.has(key) && (hasFx(t, "immune") || (key === "silence" && t.card.boss))) {
+    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun") && t.card.boss))) {
       log.push({ kind: "resist", target: t.id });
       return;
     }
     const old = t.fx.find((f) => f.key === key);
     if (old) {
+      if (key === "stun") {
+        old.turns = Math.max(old.turns, turns);
+        return;
+      }
       if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u });
       else old.turns = Math.max(old.turns, turns);
       return;
@@ -678,6 +723,11 @@ export function applyAction(st: BattleState, action: Action) {
         case "silence":
           for (const t of who(e.to)) addFx(t, "silence", 0, e.turns);
           break;
+        case "stun": {
+          const targets = stunTargets(st, u, e.count);
+          for (const foe of targets) addFx(foe, "stun", 0, e.turns);
+          break;
+        }
         case "immune":
           for (const t of who(e.to)) addFx(t, "immune", 0, e.turns);
           break;
@@ -745,24 +795,7 @@ export function applyAction(st: BattleState, action: Action) {
     u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : BATTLE.ultimateGaugePerHit));
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
-  if (u.elan > 0) setStatus(u, "elan", u.elan - 1);
-  if (u.weaken > 0) setStatus(u, "weaken", u.weaken - 1);
-  // Fin de l'action du porteur : poison et soin sur la durée, puis les effets durables comptent un tour (sauf ceux posés pendant cette action)
-  for (const f of [...u.fx]) {
-    if (f.key === "ignoreDef") continue; // reste jusqu'à la prochaine action qui inflige des dégâts
-    if (f.fresh) {
-      f.fresh = false;
-      continue;
-    }
-    if (u.hp > 0 && f.key === "poison") {
-      const amount = Math.min(u.hp, u.maxHp * f.amount);
-      u.hp -= amount;
-      log.push({ kind: "poison", target: u.id, amount, hp: u.hp });
-      if (u.hp <= 0) log.push({ kind: "ko", target: u.id });
-    }
-    if (u.hp > 0 && f.key === "regen") heal(u, u.maxHp * f.amount);
-    if (--f.turns <= 0) dropFx(u, f);
-  }
+  finishUnitTurn(st, u);
 
   nextSlot(st);
   currentActor(st);

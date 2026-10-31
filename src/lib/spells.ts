@@ -20,6 +20,7 @@ export type Effect =
   | { k: "poison"; pct: number; turns: number; to: Scope }
   /** Ne peut lancer que le sort de base. Sans effet sur les boss. */
   | { k: "silence"; turns: number; to: Scope }
+  | { k: "stun"; turns: number; count: number }
   | { k: "immune"; turns: number; to: Scope }
   | { k: "purge"; to: Scope }
   /** Réanime l'allié mort ciblé, une fois par combat */
@@ -407,6 +408,7 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "shield": return `bouclier de ${pct(e.pct)} des PV max pour ${WHO[e.to]}`;
     case "poison": return `poison : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "silence": return `silence sur ${WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
+    case "stun": return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
     case "immune": return `immunité aux malus pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "purge": return `retire les malus de ${WHO[e.to]}`;
     case "revive": return `réanime un allié mort avec ${pct(e.pct)} de ses PV max (une fois par combat)`;

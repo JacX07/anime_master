@@ -3,7 +3,7 @@
 // Usage : npm run check:spells
 
 import { applyAction, autoAction, createBattle, currentActor, legalActions, seededRandom, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
-import { replayAll } from "../src/lib/battle-replay";
+import { historyOf, replayAll } from "../src/lib/battle-replay";
 import { SECONDARY_DATA, TERTIARY_DATA, ULTIMATE_DATA } from "../src/lib/skill-data";
 import { BATTLE } from "../src/lib/battle";
 import { describeSpell, type CharacterSpell } from "../src/lib/spells";
@@ -19,6 +19,7 @@ function check(label: string, ok: boolean, detail = "") {
 }
 
 const SASUKE = 13, ITACHI = 14, KAKASHI = 85, CHOPPER = 309, MEGUMI = 126635, GAARA = 1662;
+const GOJO = 127691;
 const card = (characterId: number, o: Partial<BattleCard> = {}): BattleCard => ({
   characterId, rarity: "SSR", type: "MAGIE", attack: 1000, defense: 100000, power: 10, franchiseId: null, ...o,
 });
@@ -199,6 +200,70 @@ check("Catalogues runtime : 236 personnages dans les trois emplacements", Object
   check("Critique : un malus ne descend pas sous 0 %", evs(attempt(-2, 0, 0), "damage")[0]?.crit === false);
   check("Esquive : 100 % permet d'esquiver un coup ordinaire", evs(attempt(0, 1, 0.999), "dodge").length === 1);
   check("Esquive : un malus ne descend pas sous 0 %", evs(attempt(0, -2, 0), "damage").length === 1);
+}
+
+{
+  const st = start([card(GOJO, { rarity: "UR" }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200 }), dummy(5, { attack: 150 }), dummy(6, { attack: 100 }), dummy(7, { attack: 50 })]);
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
+  play(st, "ultimate", null);
+  const stunned = evs(st, "status").filter((event) => event.status === "stun" && event.on).map((event) => event.target);
+  check("Gojo : Extension du territoire étourdit exactement les deux ennemis à l'ATK la plus élevée", ULTIMATE_DATA[GOJO].name === "Extension du territoire" && stunned.join() === "B1,B2" && st.teams.A[0].ultimateGauge === 0);
+  currentActor(st); currentActor(st);
+  check("Étourdissement : un tour sauté immédiatement, sans rejouer l'événement à la lecture de l'état", currentActor(st)?.id === "A2" && evs(st, "skip").length === 1 && !evs(st, "action").some((event) => event.actor === "B1"));
+  until(st, "A1");
+  check("Étourdissement : chacun passe exactement un tour", evs(st, "skip").map((event) => event.actor).join() === "B1,B2");
+  play(st, "base", "B3");
+  check("Étourdissement : la cible peut rejouer au tour suivant", currentActor(st)?.id === "B1" && !st.teams.B[0].fx.some((effect) => effect.key === "stun"));
+  const replay = replayAll(st.log);
+  check("Étourdissement : rejeu et historique annoncent les tours passés", historyOf(st.log, st.log.length).filter((entry) => entry.name === "Étourdissement : tour passé").length === 2 && !replay.units.B1.fx.includes("stun"));
+}
+{
+  const st = start([card(GOJO, { rarity: "UR", ultimate: { name: "Deux tours", target: null, effects: [{ k: "stun", turns: 2, count: 2 }] } }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200 }), dummy(5, { attack: 150 }), dummy(6), dummy(7)]);
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
+  play(st, "ultimate", null);
+  const loaded: BattleState = { ...JSON.parse(JSON.stringify(st)), rng: seededRandom(7) };
+  until(loaded, "A1");
+  play(loaded, "base", "B3");
+  until(loaded, "A1");
+  check("Étourdissement : durée de deux tours préservée après sérialisation serveur", evs(loaded, "skip").map((event) => event.actor).join() === "B1,B2,B1,B2");
+  play(loaded, "base", "B3");
+  check("Étourdissement : pas de troisième tour perdu", currentActor(loaded)?.id === "B1");
+}
+{
+  const st = start([card(GOJO, { rarity: "UR" }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200 }), dummy(5, { attack: 150 }), dummy(6), dummy(7)]);
+  st.teams.B[0].hp = 0;
+  st.teams.B[2].hp = 0;
+  st.teams.B[3].hp = 0;
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
+  play(st, "ultimate", null);
+  check("Gojo : un seul ennemi vivant ne reçoit qu'un étourdissement", evs(st, "status").filter((event) => event.status === "stun" && event.on).map((event) => event.target).join() === "B2");
+}
+{
+  const st = start([card(GOJO, { rarity: "UR" }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200 }), dummy(5, { attack: 150 }), dummy(6), dummy(7)]);
+  const target = st.teams.B[0];
+  st.teams.B[1].fx.push({ key: "stun", amount: 0, turns: 2, fresh: false });
+  target.hp = target.maxHp / 2;
+  target.pIn = 5;
+  target.fx.push({ key: "poison", amount: 0.01, turns: 2, fresh: false }, { key: "regen", amount: 0.02, turns: 2, fresh: false });
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
+  play(st, "ultimate", null);
+  check("Tour passé : poison, régénération et recharges avancent", Math.abs(target.hp - target.maxHp * 0.51) < 1e-6 && target.pIn === 4 && evs(st, "poison").length === 1 && evs(st, "heal").length === 1);
+  check("Étourdissement : une nouvelle application ne raccourcit pas une durée plus longue", st.teams.B[1].fx.find((effect) => effect.key === "stun")?.turns === 2);
+}
+{
+  const st = start([card(GOJO, { rarity: "UR" }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200, boss: true }), dummy(5, { attack: 150 }), dummy(6), dummy(7)]);
+  st.teams.B[1].fx.push({ key: "immune", amount: 0, turns: 2, fresh: false });
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
+  check("Gojo en auto : conserve l'ultime si ses deux cibles sont protégées", autoAction(st).spell !== "ultimate");
+  play(st, "ultimate", null);
+  check("Étourdissement : boss et immunité résistent, sans transfert vers une troisième cible", evs(st, "resist").length === 2 && !evs(st, "status").some((event) => event.status === "stun") && evs(st, "skip").length === 0);
+}
+{
+  const st = start([card(CHOPPER), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+  st.teams.A[1].fx.push({ key: "stun", amount: 0, turns: 1, fresh: false });
+  play(st, "tertiary", null);
+  until(st, "A2");
+  check("Purge : retire l'étourdissement avant le tour de l'allié", !st.teams.A[1].fx.some((effect) => effect.key === "stun") && evs(st, "skip").length === 0);
 }
 
 // Combats complets : équipes de SSR/UR écrits, journal rejouable, pas d'erreur

@@ -45,6 +45,7 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       }
       case "poison": return { ...effect, pct: Math.min(0.03, effect.pct * scale), turns: turns(effect.turns) };
       case "silence": return { ...effect, turns: turns(effect.turns) };
+      case "stun": return { ...effect, turns: turns(effect.turns) };
       case "immune": return { ...effect, turns: turns(effect.turns) };
       case "revive": return { ...effect, pct: Math.min(0.2, Math.max(0.15, effect.pct * scale)) };
       case "purge":

@@ -69,6 +69,7 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   dodgeUp: { label: "Esquive", glyph: "≈", help: "Elle a une chance d'esquiver les coups.", bad: false },
   dodgeDown: { label: "Esquive −", glyph: "≈", help: "Sa chance d'esquiver est réduite.", bad: true },
   silence: { label: "Silence", glyph: "✕", help: "Ne peut lancer que son sort de base.", bad: true },
+  stun: { label: "Étourdi", glyph: "✹", help: "Ne peut pas agir pendant l'étourdissement ; les effets durables continuent.", bad: true },
   immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },
   poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacun de ses tours.", bad: true },
   taunt: { label: "Provocation", glyph: "⚑", help: "Les ennemis ne peuvent viser que cette carte avec leurs attaques à cible unique.", bad: false },
@@ -105,7 +106,7 @@ export interface HistoryEntry {
   /** Nom du sort de personnage */
   name?: string;
   target: UnitId | null;
-  effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "ultimateGauge" | "end" }>[];
+  effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "skip" | "ultimateGauge" | "end" }>[];
 }
 
 /** Historique des actions déjà jouées (événements `log[0..upto[`). */
@@ -115,6 +116,7 @@ export function historyOf(log: BattleEvent[], upto: number): HistoryEntry[] {
   for (const ev of log.slice(0, upto)) {
     if (ev.kind === "round") round = ev.round;
     else if (ev.kind === "action") out.push({ n: out.length + 1, round, actor: ev.actor, spell: ev.spell, name: ev.name, target: ev.target, effects: [] });
+    else if (ev.kind === "skip") out.push({ n: out.length + 1, round, actor: ev.actor, spell: "base", name: "Étourdissement : tour passé", target: null, effects: [] });
     else if (ev.kind !== "start" && ev.kind !== "end" && ev.kind !== "ultimateGauge" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
   }
   return out;
@@ -151,6 +153,10 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "action":
       cur = { n: (state.cur?.n ?? 0) + 1, actor: ev.actor, spell: ev.spell, target: ev.target, type: state.info[ev.actor].type, name: ev.name };
+      break;
+    case "skip":
+      cur = { n: (state.cur?.n ?? 0) + 1, actor: ev.actor, spell: "base", target: null, type: state.info[ev.actor].type, name: "Étourdissement : tour passé" };
+      pop({ unit: ev.actor, kind: "status", status: "stun", on: true });
       break;
     case "ultimateGauge":
       info = { ...state.info, [ev.target]: { ...state.info[ev.target], ultimateGauge: ev.current } };
@@ -220,6 +226,8 @@ export function holdFor(log: BattleEvent[], i: number): number {
       return 480;
     case "ultimateGauge":
       return 30;
+    case "skip":
+      return 650;
     case "damage":
       if (next?.kind === "ko") return 150;
       // Zone : les coups s'enchaînent

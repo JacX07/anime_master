@@ -49,6 +49,11 @@ function checkEffect(id: number, slot: "secondary" | "tertiary" | "ultimate", sp
     case "shield": needScope(); band(e.pct, b.shield, "shield.pct"); break;
     case "poison": needScope(); band(e.pct, b.poison, "poison.pct"); if (!num(e.turns) || (e.turns as number) < 2 || (e.turns as number) > 4) err(id, slot, "poison.turns 2 à 4"); if (["self", "team"].includes(String(scope))) err(id, slot, "poison doit viser target/foes"); break;
     case "silence": needScope(); if (!num(e.turns) || (e.turns as number) < 1 || (e.turns as number) > 2) err(id, slot, "silence.turns 1 ou 2"); if (["self", "team"].includes(String(scope))) err(id, slot, "silence doit viser target/foes"); break;
+    case "stun":
+      if (slot !== "ultimate" || sp.target !== null) err(id, slot, "stun réservé à un ultime sans cible manuelle");
+      if (!Number.isInteger(e.turns) || Number(e.turns) < 1 || Number(e.turns) > 2) err(id, slot, "stun.turns 1 ou 2");
+      if (!Number.isInteger(e.count) || Number(e.count) < 1 || Number(e.count) > 2) err(id, slot, "stun.count 1 ou 2");
+      break;
     case "immune": needScope(); if (!num(e.turns) || (e.turns as number) < 1 || (e.turns as number) > 3) err(id, slot, "immune.turns 1 à 3"); break;
     case "purge": needScope(); break;
     case "revive": if (sp.target !== "deadAlly") err(id, slot, "revive demande target:\"deadAlly\""); band(e.pct, b.revive, "revive.pct"); break;
