@@ -27,7 +27,7 @@ Détaillé dans la section « Raid » ci-dessous.
 
 ---
 
-## Mode histoire *(discuté le 2026-10-31, rien n'est codé)*
+## Mode histoire *(discuté le 2026-10-31 ; serveur codé le 2026-10-31, pas encore d'interface)*
 
 > Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-battle.ts`. Tout le reste est décidé.
 
@@ -115,6 +115,11 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 - `Battle` existe déjà (`mode` STORY ou RAID, graine, copies des cartes, journal). On y ajoute la clé du combat joué (univers + niveau, ou boss + difficulté) et le butin versé.
 - Le butin d'un combat est versé **dans la même transaction** que l'enregistrement de sa fin, pour qu'un combat ne paie jamais deux fois.
 - **Moteur** : pas de nouveau code de combat. Il suffit de construire l'équipe adverse (stats par niveau, bonus boss, option « PV du boss ») à partir des définitions, et de lire la part de PV retirée dans l'événement `end` (`hpLeft`).
+
+### Réalisation (serveur, 2026-10-31)
+- `src/lib/story.ts` (pur) : univers de lancement, mélange de raretés, échelle, butin. `src/lib/battles.ts` : ennemis par niveau (personnages de la franchise, tirage fixé par univers + niveau), déverrouillage, butin versé dans la transaction de fin de combat (auto et manuel). Clé de combat : `story:<univers>:<niveau>` ; vérifié par `npm run check:story`.
+- Valeurs de départ **non spécifiées**, à équilibrer : Ryō du premier passage `10 + 5 × niveau` (+300 au boss final), cristaux 1 / 2 (boss d'acte) / 5 (boss final), 1 unité de ressource d'arme par victoire du boss final. Le plafond quotidien ne compte pas la ressource d'arme.
+- Pas encore fait : interface, cartes boss plus grandes, puissance conseillée, lots de combats auto, histoire racontée, éveil (coûts d'étoiles).
 
 ### À écrire / à décider
 - Univers de collision : voir la proposition ci-dessous (thèmes et noms à valider).
