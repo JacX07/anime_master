@@ -368,6 +368,42 @@ Les bottes d'artefact donnent de la **vitesse**. Le moteur n'en a pas (alternanc
 ### Suite
 Il faut maintenant : la vitesse de base des ennemis (histoire, raid, donjons), le rejeu versionné, et de nouvelles mesures `simulate:battle`, `simulate:story`, `simulate:raid`, `simulate:tower`.
 
+### Boucle à jauge : proposition d'implémentation *(2026-11-01, à valider)*
+Dans `battle.ts`, tout l'ordre de jeu tient dans `currentActor` et `nextSlot` (emplacement = position × 2 + rang). C'est la seule partie à remplacer ; sorts, effets, ultimes et cooldowns ne changent pas.
+
+**Principe**
+- Chaque carte a une `speed` (vitesse de base du personnage, [`speed-data.json`](../../src/lib/speed-data.json), + bonus d'artefacts) et une `gauge` qui démarre à 0. Seuil d'action : **10 000**.
+- On avance le temps par **ticks entiers** jusqu'à ce qu'une carte vivante atteigne le seuil : `ticks = min sur les cartes de ceil((10 000 − gauge) / speed)`. Toutes les jauges gagnent `ticks × speed`. À vitesse 100, une action tous les **100 ticks**.
+- La carte qui atteint le seuil joue ; elle retire 10 000 de sa jauge (le surplus est conservé, donc pas d'arrondi perdu). Plusieurs cartes au seuil : la plus grande jauge d'abord, puis l'ordre actuel (position × 2 + rang, l'équipe qui commence en premier).
+- **Propriété utile** : si toutes les vitesses sont égales, l'ordre est exactement A1, B1, A2, B2… **Les combats à vitesse égale restent identiques à aujourd'hui**, ce qui permet de tester la nouvelle boucle contre l'ancienne (`check:replay`) avant d'introduire les vitesses réelles.
+
+**Ce qui se traduit**
+| Aujourd'hui | Avec la jauge |
+|---|---|
+| Tour = chacun joue une fois | « Tour » = 100 ticks de temps (compteur de rounds et événement `round` conservés) |
+| Plafond de 30 tours | 3 000 ticks ; départage aux PV restants, inchangé |
+| Premier joueur = plus haute Puissance | Égalité de jauge départagée par l'équipe qui « commence », toujours choisie par la Puissance |
+| Bouclier de 15 % du second, retiré à la fin du tour 1 | Identique : retiré au tick 100 |
+| Étourdissement : saute le prochain tour | Identique : l'action est consommée (jauge vidée), événement `skip` |
+| Durées, poisons, cooldowns, jauge d'ultime « par action » | Inchangés : une carte rapide les voit passer plus vite en temps réel, ce qui est voulu |
+| Buff personnel instantané (« tour immédiat ») | Inchangé : il rend la main sans toucher à la jauge |
+
+**Effets de vitesse en combat**
+- Nouvelle stat modifiable `speed` (bonus ou malus en %, durée en actions), avec le plafond ±60 % déjà appliqué aux autres stats de combat. Plancher absolu : 20.
+- Les sorts n'ont pas besoin de « tour supplémentaire » : une vitesse haute le fait. On pourra ajouter plus tard « avancer la jauge de x % ».
+- La vitesse des artefacts n'a **pas** de plafond (décision), ni celle de base (90 à 110).
+
+**Interface** : `timeline(st, n)` renvoie les n prochains acteurs sans modifier l'état (même calcul que la boucle), pour afficher la barre d'ordre de jeu.
+
+**Ennemis** : mêmes vitesses de personnage que les joueurs ; pas d'échelle par niveau pour l'instant. Boss : 100 sauf indication, à régler par donjon.
+
+**Étapes**
+1. Ajouter `speed` à `BattleCard` et `Unit`, `gauge` à `Unit` ; pas de changement tant que toutes les vitesses valent 100.
+2. Remplacer `currentActor` / `nextSlot` par la boucle à jauge, derrière une option `gauge: false` par défaut. Vérifier que `check:battle` et `check:replay` donnent des journaux **identiques** à vitesse égale.
+3. Brancher `speedOf(id)` pour les SSR/UR, activer l'option, et mesurer avec `simulate:battle` ce que changent les vitesses 90 à 110 sur les taux de victoire (cible : écarts de quelques points, rien de dominant).
+4. Ajouter la stat `speed` au vocabulaire d'effets et au builder, puis `timeline`.
+5. Artefacts (bottes), recalibrage des difficultés.
+
 ---
 
 ## Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
@@ -386,7 +422,7 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 
 ### 2. Éveil
 - De 0 à 5 étoiles, sur la carte du joueur (l'exemplaire, pas le personnage).
-- **+2 % d'ATK, de DEF et de PV par étoile** (+10 % à 5 étoiles).
+- **+4 % d'ATK, de DEF et de PV par étoile** (+10 % à 5 étoiles).
 - **À 5 étoiles, le cooldown du sort affilié passe de 3 à 2 actions.**
 - **Coût** : étoiles 1 à 3 = ressource du mode histoire ; étoiles 4 et 5 = ressource rare du raid **et un seul doublon** du personnage. Un doublon consommé ne circule plus : en demander davantage ferait de la Bourse un marché de puissance.
 - À 5 étoiles, la carte peut équiper une **arme légendaire**.
