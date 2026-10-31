@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
-import { affinity, type BattleEvent, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
-import { historyOf, holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, type Replay } from "@/lib/battle-replay";
+import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
+import { historyOf, holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { TypeIcon } from "../icons";
 import { History, SpellsPanel } from "./BattlePanels";
@@ -64,13 +64,6 @@ export interface LiveControl {
 }
 
 const SPEEDS = [1, 2, 4] as const;
-const STATE_LABELS = { exposed: "Exposé", weaken: "Affaibli", elan: "Élan" } as const;
-const STATE_HELP = {
-  exposed: "Le prochain sort de Combat sur cette carte fait ×1,7. L'exposition disparaît ensuite.",
-  weaken: "ATK −20 % pendant 2 actions de cette carte.",
-  elan: "ATK +10 % pendant 2 actions de cette carte.",
-} as const;
-const STATE_GLYPHS ={ exposed: "◎", weaken: "▼", elan: "▲" } as const;
 const POSITIONS = [1, 2, 3, 4];
 const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
@@ -243,7 +236,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             : awaiting && live?.actor
               ? `À toi : ${characters[rp.info[live.actor].characterId]?.name ?? ""}`
               : rp.cur && actorName
-                ? `${actorName} · ${rp.cur.spell === "base" ? "Attaque" : SPELL_NAMES[rp.cur.type]}`
+                ? `${actorName} · ${spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name)}`
                 : ""}
         </span>
         <button type="button" className="bt-btn bt-drawer-btn" onClick={() => setDrawer(true)}>
@@ -383,6 +376,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                 choices: live.choices,
                 spell,
                 wait: live.wait[spellUnit] ?? 0,
+                waitSpecial: live.wait[`${spellUnit}:special`] ?? 0,
                 busy: live.busy,
                 error: live.error,
                 onSpell: (s) => {
@@ -425,7 +419,7 @@ function Unit({
   const st = rp.units[id];
   const ch = characters[info.characterId];
   const aimed = rp.cur?.target === id && !rp.end;
-  const cast = acting && rp.cur ? (rp.cur.spell === "base" ? "Attaque" : SPELL_NAMES[rp.cur.type]) : null;
+  const cast = acting && rp.cur ? spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name) : null;
   return (
     <div
       className="bt-unit"
@@ -464,18 +458,18 @@ function Unit({
       </div>
       {/* Hors de la carte (qui rogne ce qui dépasse) pour que l'infobulle puisse sortir */}
       <ul className="bt-states" aria-label="États">
-        {(["exposed", "weaken", "elan"] as const).map(
-          (k) =>
-            st[k] && (
-              <li key={k} data-state={k} tabIndex={0} aria-label={`${STATE_LABELS[k]} : ${STATE_HELP[k]}`} onClick={(e) => e.stopPropagation()}>
-                {STATE_GLYPHS[k]}
-                <span className="bt-tip" role="tooltip">
-                  <b>{STATE_LABELS[k]}</b>
-                  {STATE_HELP[k]}
-                </span>
-              </li>
-            ),
-        )}
+        {(["exposed", "weaken", "elan"] as const)
+          .filter((k) => st[k])
+          .concat(st.fx as never[])
+          .map((k: Status) => (
+            <li key={k} data-state={k} data-bad={STATUS_INFO[k].bad || undefined} tabIndex={0} aria-label={`${STATUS_INFO[k].label} : ${STATUS_INFO[k].help}`} onClick={(e) => e.stopPropagation()}>
+              {STATUS_INFO[k].glyph}
+              <span className="bt-tip" role="tooltip">
+                <b>{STATUS_INFO[k].label}</b>
+                {STATUS_INFO[k].help}
+              </span>
+            </li>
+          ))}
       </ul>
       {cast && (
         <span key={rp.cur!.n} className="bt-cast">
@@ -505,7 +499,6 @@ function Unit({
   );
 }
 
-const STATUS_POP = { exposed: "Exposé !", weaken: "Affaibli", elan: "Élan !" } as const;
 
 /** Nombre flottant ou effet de sort posé sur une carte ; il s'anime et s'efface tout seul (voir battle.css). */
 function PopView({ pop }: { pop: Pop }) {
@@ -551,10 +544,29 @@ function PopView({ pop }: { pop: Pop }) {
           Bouclier perdu
         </span>
       );
+    case "poison":
+      return (
+        <span className="bt-num" data-kind="damage" style={style}>
+          {num.format(Math.round(pop.amount))}
+          <small>Poison</small>
+        </span>
+      );
+    case "revive":
+      return (
+        <span className="bt-num" data-kind="heal" style={style}>
+          Réanimé !
+        </span>
+      );
+    case "resist":
+      return (
+        <span className="bt-num" data-kind="soaked" style={style}>
+          Résiste
+        </span>
+      );
     case "status":
       return pop.on ? (
         <span className="bt-num" data-kind="status" data-status={pop.status} style={style}>
-          {STATUS_POP[pop.status]}
+          {STATUS_INFO[pop.status].label}
         </span>
       ) : null;
   }

@@ -3,7 +3,7 @@
 // L'état ne contient que ce que l'écran montre (PV, boucliers, états, K.O.) et la liste des « pops » (nombres, effets) à animer.
 
 import type { CardType } from "../generated/prisma/enums";
-import type { BattleEvent, Side, Spell, UnitId, UnitView } from "./battle";
+import type { BattleEvent, FxKey, Side, Spell, Status, UnitId, UnitView } from "./battle";
 
 export interface UnitState {
   hp: number;
@@ -12,6 +12,8 @@ export interface UnitState {
   exposed: boolean;
   weaken: boolean;
   elan: boolean;
+  /** Effets durables des sorts de personnage (bonus, malus, silence, poison…) */
+  fx: FxKey[];
 }
 
 /** Élément éphémère posé sur une carte : nombre flottant, effet de type, étiquette d'état. */
@@ -20,7 +22,10 @@ export type Pop =
   | { id: number; unit: UnitId; kind: "dodge" }
   | { id: number; unit: UnitId; kind: "heal"; amount: number }
   | { id: number; unit: UnitId; kind: "shield"; amount: number }
-  | { id: number; unit: UnitId; kind: "status"; status: "exposed" | "weaken" | "elan"; on: boolean }
+  | { id: number; unit: UnitId; kind: "status"; status: Status; on: boolean }
+  | { id: number; unit: UnitId; kind: "poison"; amount: number }
+  | { id: number; unit: UnitId; kind: "revive" }
+  | { id: number; unit: UnitId; kind: "resist" }
   /** Effet visuel d'un sort sur sa cible : `fx` est le type du lanceur, ou "base" pour le sort de base */
   | { id: number; unit: UnitId; kind: "fx"; fx: CardType | "base"; big: boolean };
 
@@ -35,7 +40,7 @@ export interface Replay {
   first: Side;
   round: number;
   /** Sort en cours (n = numéro de l'action) : sert aux effets des événements qui suivent l'action */
-  cur: { n: number; actor: UnitId; spell: Spell; target: UnitId | null; type: CardType } | null;
+  cur: { n: number; actor: UnitId; spell: Spell; target: UnitId | null; type: CardType; name?: string } | null;
   pops: Pop[];
   popSeq: number;
   end: Extract<BattleEvent, { kind: "end" }> | null;
@@ -49,6 +54,28 @@ export const SPELL_NAMES: Record<CardType, string> = {
   COEUR: "Soutien",
   AVENTURE: "Zone",
 };
+
+/** Nom, pastille et aide de chaque état affiché sur une carte. */
+export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: string; bad: boolean }> = {
+  exposed: { label: "Exposé", glyph: "◎", help: "Le prochain sort de Combat sur cette carte fait ×1,7. L'exposition disparaît ensuite.", bad: true },
+  weaken: { label: "Affaibli", glyph: "▼", help: "ATK −20 % pendant 2 actions de cette carte.", bad: true },
+  elan: { label: "Élan", glyph: "▲", help: "ATK +10 % pendant 2 actions de cette carte.", bad: false },
+  atkUp: { label: "ATK +", glyph: "⚔", help: "Son ATK est augmentée.", bad: false },
+  atkDown: { label: "ATK −", glyph: "⚔", help: "Son ATK est réduite.", bad: true },
+  defUp: { label: "DEF +", glyph: "⛨", help: "Sa DEF est augmentée.", bad: false },
+  defDown: { label: "DEF −", glyph: "⛨", help: "Sa DEF est réduite.", bad: true },
+  critUp: { label: "Critique +", glyph: "✦", help: "Sa chance de coup critique est augmentée.", bad: false },
+  critDown: { label: "Critique −", glyph: "✦", help: "Sa chance de coup critique est réduite.", bad: true },
+  dodgeUp: { label: "Esquive", glyph: "≈", help: "Elle a une chance d'esquiver les coups.", bad: false },
+  dodgeDown: { label: "Esquive −", glyph: "≈", help: "Sa chance d'esquiver est réduite.", bad: true },
+  silence: { label: "Silence", glyph: "✕", help: "Ne peut lancer que son sort de base.", bad: true },
+  immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },
+  poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacune de ses actions.", bad: true },
+  regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacune de ses actions.", bad: false },
+};
+
+/** Nom du sort joué : base, rôle du type, ou nom du sort de personnage. */
+export const spellLabel = (spell: Spell, type: CardType, name?: string) => (spell === "base" ? "Attaque" : spell === "special" ? name ?? "Sort spécial" : SPELL_NAMES[type]);
 
 /** Texte des sorts affichés sous le plateau (docs/specs/combat.md §4). */
 export const SPELL_INFO: Record<CardType, { target: string; text: string }> = {
@@ -68,6 +95,8 @@ export interface HistoryEntry {
   round: number;
   actor: UnitId;
   spell: Spell;
+  /** Nom du sort de personnage */
+  name?: string;
   target: UnitId | null;
   effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "end" }>[];
 }
@@ -78,7 +107,7 @@ export function historyOf(log: BattleEvent[], upto: number): HistoryEntry[] {
   let round = 0;
   for (const ev of log.slice(0, upto)) {
     if (ev.kind === "round") round = ev.round;
-    else if (ev.kind === "action") out.push({ n: out.length + 1, round, actor: ev.actor, spell: ev.spell, target: ev.target, effects: [] });
+    else if (ev.kind === "action") out.push({ n: out.length + 1, round, actor: ev.actor, spell: ev.spell, name: ev.name, target: ev.target, effects: [] });
     else if (ev.kind !== "start" && ev.kind !== "end" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
   }
   return out;
@@ -93,7 +122,7 @@ export function replayStart(log: BattleEvent[]): Replay {
   const units = {} as Record<UnitId, UnitState>;
   for (const u of start.units) {
     info[u.id] = u;
-    units[u.id] = { hp: u.hp, shield: u.shield, ko: false, exposed: false, weaken: false, elan: false };
+    units[u.id] = { hp: u.hp, shield: u.shield, ko: false, exposed: false, weaken: false, elan: false, fx: [] };
   }
   return { idx: 1, info, units, first: start.first, round: 0, cur: null, pops: [], popSeq: 0, end: null };
 }
@@ -113,11 +142,11 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       round = ev.round;
       break;
     case "action":
-      cur = { n: (state.cur?.n ?? 0) + 1, actor: ev.actor, spell: ev.spell, target: ev.target, type: state.info[ev.actor].type };
+      cur = { n: (state.cur?.n ?? 0) + 1, actor: ev.actor, spell: ev.spell, target: ev.target, type: state.info[ev.actor].type, name: ev.name };
       break;
     case "damage":
       patch(ev.target, { hp: ev.hp, shield: ev.shield });
-      pop({ unit: ev.target, kind: "fx", fx: cur?.spell === "affinity" ? cur.type : "base", big: cur?.spell === "affinity" });
+      pop({ unit: ev.target, kind: "fx", fx: cur && cur.spell !== "base" ? cur.type : "base", big: !!cur && cur.spell !== "base" });
       pop({ unit: ev.target, kind: "damage", amount: ev.amount, absorbed: ev.absorbed, crit: ev.crit, affinity: ev.affinity, exposedBonus: ev.exposedBonus });
       break;
     case "dodge":
@@ -132,12 +161,24 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       pop({ unit: ev.target, kind: "shield", amount: ev.amount });
       break;
     case "status":
-      patch(ev.target, { [ev.status]: ev.on });
+      if (ev.status === "exposed" || ev.status === "weaken" || ev.status === "elan") patch(ev.target, { [ev.status]: ev.on });
+      else patch(ev.target, { fx: ev.on ? [...units[ev.target].fx, ev.status] : units[ev.target].fx.filter((k) => k !== ev.status) });
       pop({ unit: ev.target, kind: "status", status: ev.status, on: ev.on });
+      break;
+    case "poison":
+      patch(ev.target, { hp: ev.hp });
+      pop({ unit: ev.target, kind: "poison", amount: ev.amount });
+      break;
+    case "revive":
+      patch(ev.target, { hp: ev.hp, shield: 0, ko: false });
+      pop({ unit: ev.target, kind: "revive" });
+      break;
+    case "resist":
+      pop({ unit: ev.target, kind: "resist" });
       break;
     case "ko":
       // Une carte tombée perd ses états : le moteur ne les retire pas du journal
-      patch(ev.target, { hp: 0, ko: true, exposed: false, weaken: false, elan: false });
+      patch(ev.target, { hp: 0, ko: true, exposed: false, weaken: false, elan: false, fx: [] });
       break;
     case "end":
       end = ev;
@@ -180,6 +221,12 @@ export function holdFor(log: BattleEvent[], i: number): number {
       return next?.kind === "shield" ? 70 : 280;
     case "status":
       return 90;
+    case "poison":
+      return next?.kind === "ko" ? 150 : 340;
+    case "revive":
+      return 600;
+    case "resist":
+      return 300;
     case "ko":
       return 650;
     case "end":

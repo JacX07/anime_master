@@ -335,6 +335,9 @@ button.bt-spell { position: relative; }
 }
 .bt-states li[data-state="weaken"] { background: #b48cff; }
 .bt-states li[data-state="elan"] { background: #4fd6a0; }
+.bt-states li:not([data-bad]):not([data-state="elan"]) { background: #4fd6a0; }
+.bt-states li[data-bad]:not([data-state="exposed"]):not([data-state="weaken"]) { background: #ff7a8a; }
+.bt-spell[data-special] { border-color: #ffd166; }
 .bt-states li { position: relative; cursor: help; }
 /* Les pastilles suivent la carte quand elle avance (9 % de la hauteur de la carte = 12,6 cqw) */
 .bt-states { transition: translate calc(0.25s / var(--spd)) ease-out; }

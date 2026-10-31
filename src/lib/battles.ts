@@ -99,7 +99,7 @@ async function storyEnemies(universe: Universe, level: number): Promise<BattleCa
     } else c = pick(want, boss);
     used.add(c.id);
     const m = means[c.rarity], k = levelScale(level) * (boss ? BOSS_BONUS : 1);
-    return { ...toBattleCard(c), attack: Math.round(m.attack * k), defense: Math.round(m.defense * k) };
+    return { ...toBattleCard(c), attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss };
   });
 }
 
@@ -301,7 +301,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     choices: running ? legalActions(st) : [],
     // Prêt quand spellIn ≤ 1 au début de l'action (voir Unit.spellIn dans battle.ts)
     wait: running
-      ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].map((u) => [u.id, Math.max(0, u.spellIn - 1)])))
+      ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => [[u.id, Math.max(0, u.spellIn - 1)], [`${u.id}:special`, Math.max(0, u.pIn - 1)]])))
       : {},
     characters: await charactersOf(teams),
   };
@@ -356,7 +356,7 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
   return toView(row, replay(row.teams as unknown as BattleTeams, row.seed, row.actions as unknown as Action[]));
 }
 
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity";
+const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
 export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date()): Promise<BattleView> {

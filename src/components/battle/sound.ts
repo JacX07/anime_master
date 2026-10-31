@@ -136,7 +136,7 @@ export class BattleAudio {
    * Joue le son d'un événement du journal. `prev` est l'événement d'avant (pour ne pas répéter un son sur une zone ou une
    * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
    */
-  play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity"; type: CardType } | null, speed: number) {
+  play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special"; type: CardType } | null, speed: number) {
     if (!this.sfxOn) return;
     const ctx = this.init();
     if (ctx.state === "suspended") return;
