@@ -1,0 +1,10 @@
+{
+  "blade.ogg": {
+    "author": "Kenney",
+    "pack": "RPG Audio",
+    "source": "knifeSlice2.ogg",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "license": "CC0-1.0",
+    "processing": "Même couche de lame que la maquette : vitesse 1.3, passe-haut 380 Hz, passe-bas 8500 Hz, coupe à 250 ms et fondus courts."
+  }
+}

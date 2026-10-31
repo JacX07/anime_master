@@ -1,4 +1,4 @@
-// Sons du lecteur de combat : tout est synthétisé avec WebAudio, aucun fichier à charger.
+// Sons du lecteur de combat : synthèse WebAudio et prise de lame enregistrée pour les attaques de base.
 // Deux bus (effets, musique) passent par un master puis un compresseur, pour garder de la marge avant la saturation.
 // Les effets varient un peu à chaque coup (hauteur ±4 %) pour ne pas sonner en boucle, et la musique baisse un instant sous les gros impacts.
 
@@ -26,6 +26,8 @@ export class BattleAudio {
   private arpBus!: BiquadFilterNode;
   private bassBus!: BiquadFilterNode;
   private noise!: AudioBuffer;
+  private blade: AudioBuffer | null = null;
+  private bladeRequest: AbortController | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
   private step = 0;
   private nextTime = 0;
@@ -59,12 +61,14 @@ export class BattleAudio {
     const data = this.noise.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     this.ctx = ctx;
+    void this.loadBlade(ctx);
     return ctx;
   }
 
   /** À appeler depuis un geste de l'utilisateur : les navigateurs refusent de jouer du son avant. */
   unlock() {
     const ctx = this.init();
+    if (!this.blade && !this.bladeRequest) void this.loadBlade(ctx);
     // Le contexte peut être fermé avant la fin du resume (page quittée, double montage en dev) : sans importance
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
   }
@@ -72,6 +76,9 @@ export class BattleAudio {
   /** Ferme le contexte audio (fin de la page) */
   dispose() {
     this.stopMusic();
+    this.bladeRequest?.abort();
+    this.bladeRequest = null;
+    this.blade = null;
     this.ctx?.close().catch(() => {});
     this.ctx = null;
   }
@@ -82,6 +89,36 @@ export class BattleAudio {
   }
 
   // ---------- Briques ----------
+
+  private async loadBlade(ctx: AudioContext) {
+    const request = new AbortController();
+    this.bladeRequest = request;
+    try {
+      const response = await fetch("/audio/battle/blade.ogg", { signal: request.signal });
+      if (!response.ok) throw new Error(`Audio de lame indisponible (${response.status})`);
+      const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+      if (this.ctx === ctx) this.blade = buffer;
+    } catch (error) {
+      if (!request.signal.aborted) console.warn("Impossible de charger le son de lame.", error);
+    } finally {
+      if (this.bladeRequest === request) this.bladeRequest = null;
+    }
+  }
+
+  private bladeHit(t: number, speed: number, variation: number, power: number) {
+    if (!this.blade || !this.ctx) return;
+    const source = this.ctx.createBufferSource();
+    source.buffer = this.blade;
+    source.playbackRate.value = variation;
+    const duration = Math.min(this.blade.duration / variation, 0.26 / Math.sqrt(speed));
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.55 * power, t);
+    gain.gain.setValueAtTime(0.55 * power, t + Math.max(0, duration - 0.03));
+    gain.gain.linearRampToValueAtTime(0, t + duration);
+    source.connect(gain).connect(this.sfx);
+    source.start(t);
+    source.stop(t + duration + 0.01);
+  }
 
   /** Une note : oscillateur dont la fréquence glisse de f0 à f1, avec une enveloppe courte. */
   private tone(t: number, type: OscillatorType, f0: number, f1: number, dur: number, gain: number, dest: AudioNode = this.sfx) {
@@ -148,13 +185,17 @@ export class BattleAudio {
         this.tone(t, "sine", 150 * v, 90, 0.2 * k, 0.1);
         break;
       case "action":
-        if (ev.spell === "base") this.hiss(t, "bandpass", 500, 1500, 0.1 * k, 0.16, 2);
-        else this.cast(t, cur?.type ?? "COMBAT", k, v);
+        if (ev.spell !== "base") this.cast(t, cur?.type ?? "COMBAT", k, v);
         break;
       case "damage": {
         const chain = prev?.kind === "damage" ? 0.6 : 1;
         const soaked = ev.absorbed >= ev.amount * 0.999;
         const power = (ev.affinity === "strong" ? 1.2 : ev.affinity === "weak" ? 0.7 : 1) * chain;
+        if (cur?.spell === "base") {
+          this.bladeHit(t, speed, v, power * (soaked ? 0.55 : ev.crit ? 1.25 : 1));
+          if (ev.crit) this.duck(t);
+          break;
+        }
         if (soaked) {
           // Le bouclier encaisse : un tintement métallique, sans choc
           this.tone(t, "triangle", 1800 * v, 1200, 0.14 * k, 0.16 * chain);
@@ -172,6 +213,9 @@ export class BattleAudio {
         }
         break;
       }
+      case "dodge":
+        if (cur?.spell === "base") this.bladeHit(t, speed, v, 0.5);
+        break;
       case "heal":
         if (prev?.kind === "heal") break;
         this.tone(t, "sine", 660 * v, 660 * v, 0.28 * k, 0.12);
