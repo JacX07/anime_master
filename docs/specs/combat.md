@@ -215,6 +215,40 @@ L'ultime reste distinct des sorts secondaire et tertiaire (§4 bis). Une activat
 
 **Équilibrage** : la jauge, les quatre slots isolés et des équipes complètes ont été comparés par graines appariées, en inversant le camp qui commence. Les résultats finaux et les fiches extrêmes sont dans [le rapport de simulation SSR/UR](../reports/character-skills-simulation.md). Les résultats restent dépendants de l'IA automatique, des équipes miroirs et des effets actuellement pris en charge ; ils ne mesurent pas les mécaniques absentes du moteur comme une exécution conditionnelle ou un vrai tour supplémentaire.
 
+### 4 quater. Archétypes de sorts *(décrits le 2026-11-01, valeurs lues dans `src/lib/spells.ts`)*
+Un **archétype** est la forme d'un sort : sa cible et ses effets. Les SSR et UR dont le sort n'est pas écrit à la main (**206 fiches actives sur 236**, listées dans `ARCH_SPELLS`) en reçoivent un, avec leur nom de sort signature. Seul le **multiplicateur d'ATK** change selon la rareté (colonnes SSR / UR) ; il est réglé par `npm run calibrate:archetypes` pour que chaque archétype pèse environ +4 points de victoire, quelle que soit sa forme. Un sort écrit à la main (`CHARACTER_SPELLS`) l'emporte toujours. Ils fournissent aussi le **petit effet du coup de base** (dernière colonne, plafonds du §4 ter). Les sorts tertiaires et les ultimes ont leurs propres catalogues et n'en utilisent pas.
+
+Les durées sont en **actions du ciblé** ; « équipe » = alliés vivants, « ennemis » = ennemis vivants. Un malus peut être refusé (immunité, ou boss contre silence et étourdissement).
+
+| Famille | Archétype | Cible | Effet en plus des dégâts | ×ATK SSR / UR | Fiches SSR / UR | Coup de base |
+|---|---|---|---|---|---|---|
+| **Frappe** | `strike` | 1 ennemi | aucun | 1,13 / 1,07 | 8 / 0 | ATK −3 % à la cible |
+| | `rend` | 1 ennemi | ignore 30 % de la DEF | 0,94 / 0,92 | 8 / 2 | ignore 3 % de DEF |
+| | `pierce` | 1 ennemi | traverse les boucliers et l'esquive | 1,15 / 1,13 | 11 / 3 | ignore 3 % de DEF |
+| | `crit` | 1 ennemi | coup critique assuré | 0,82 / 0,76 | 8 / 1 | critique +3 pts |
+| | `drain` | 1 ennemi | rend 40 % des dégâts infligés | 1,04 / 1,02 | 7 / 1 | drain 2 % |
+| | `barrage` | tous les ennemis | zone | 0,56 / 0,56 | 11 / 2 | ATK −3 % à la cible |
+| **Élan** | `surge` | 1 ennemi | ATK +20 % du lanceur, 2 actions | 0,92 / 0,94 | 13 / 3 | ATK +3 % |
+| | `evade` | 1 ennemi | esquive +30 % du lanceur, 2 actions | 0,66 / 0,68 | 8 / 3 | esquive +3 pts |
+| **Contrôle** | `toxin` | 1 ennemi | poison 8 % des PV max, 3 actions | 0,96 / 0,92 | 3 / 2 | poison 0,5 % |
+| | `plague` | tous les ennemis | zone, poison 5 % des PV max, 3 actions | 0,22 / 0,20 | 2 / 2 | poison 0,5 % |
+| | `hex` | 1 ennemi | silence 2 actions | 1,10 / 1,23 | 10 / 6 | ATK −3 % à la cible |
+| | `seal` | tous les ennemis | zone, silence 1 action | 0,52 / 0,54 | 2 / 1 | ATK −3 % à la cible |
+| **Affaiblissement** | `sap` | 1 ennemi | ATK −20 %, 2 actions | 0,98 / 0,98 | 10 / 2 | ATK −3 % à la cible |
+| | `breach` | 1 ennemi | DEF −25 %, 2 actions | 0,85 / 0,72 | 11 / 2 | DEF −3 % à la cible |
+| | `blind` | tous les ennemis | zone, critique −30 % et DEF −15 %, 2 actions | 0,29 / 0,26 | 3 / 1 | critique −3 pts à la cible |
+| **Soutien** | `rally` | tous les ennemis | zone, ATK +12 % à l'équipe, 2 actions | 0,40 / 0,44 | 9 / 1 | ATK +3 % |
+| | `focus` | 1 ennemi | critique +25 % à l'équipe, 2 actions | 0,56 / 0,56 | 6 / 1 | critique +3 pts |
+| | `veil` | tous les ennemis | zone, esquive +12 % à l'équipe, 2 actions | 0,36 / 0,36 | 7 / 1 | esquive +3 pts |
+| **Protection** | `bulwark` | tous les ennemis | zone, DEF +20 % à l'équipe, 3 actions | 0,33 / 0,29 | 5 / 0 | DEF +3 % |
+| | `ward` | tous les ennemis | zone, bouclier 6 % des PV max à l'équipe | 0,29 / 0,26 | 5 / 0 | bouclier 2 % |
+| | `aegis` | tous les ennemis | zone, immunité 2 actions et bouclier 3 % à l'équipe | 0,36 / 0,29 | 5 / 0 | bouclier 2 % |
+| **Soin** | `tide` | tous les ennemis | zone, soin 15 % des PV max et purge à l'équipe | 0,49 / 0,49 | 7 / 1 | soin 2 % |
+| | `renew` | tous les ennemis | zone, régénération 6 % des PV max, 3 actions, à l'équipe | 0,40 / 0,42 | 10 / 2 | soin 2 % |
+| | `revive` | 1 allié KO | le ramène avec 20 % de ses PV, sans dégâts (une fois par combat et par carte) | 20 % des PV | 0 / 2 | bouclier 2 % |
+
+**Lecture** : les archétypes de **frappe** ont les plus gros multiplicateurs (autour de 1) parce qu'ils ne font que des dégâts ; ceux qui ajoutent un effet de **zone** ou d'**équipe** descendent entre 0,2 et 0,6 pour rester à valeur égale. Les plus bas sont `plague` (0,2) et `blind` (0,3) : leur effet touche **tous** les ennemis. `hex` est le seul qui monte pour les UR (1,23 contre 1,10) : c'est le résultat de la calibration, pas une règle de conception. Le silence est sans effet sur un boss. L'orientation de simulation (attaque / soutien / protection / contrôle / hybride, §4 bis) est une étiquette du simulateur, **pas** l'archétype.
+
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.
