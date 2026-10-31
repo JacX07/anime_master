@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratoire sonore — Anime Masters</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: var(--foreground, #0d1b2a);
+      --muted-ink: var(--muted-foreground, #53677c);
+      --line: var(--border, #c6d3e0);
+      --signal: #2b6cff;
+      --mint: #00a995;
+      --N: #718096;
+      --R: #2b6cff;
+      --SR: #8057cf;
+      --SSR: #bd8018;
+      --UR: #df4354;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink, #0d1b2a); }
+    button { font: inherit; }
+    main { width: min(100%, 900px); margin: 16px auto 24px; display: grid; gap: 16px; }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 24px; padding: 4px 2px 8px; }
+    .intro-copy { max-width: 600px; }
+    .kicker { margin: 0 0 9px; color: var(--signal); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 620px; font-size: clamp(28px, 5vw, 43px); line-height: 1.05; letter-spacing: -.045em; font-weight: 760; }
+    .intro p:last-child { margin: 11px 0 0; max-width: 590px; color: var(--muted-ink); line-height: 1.55; }
+    .wave { width: 134px; height: 52px; flex: 0 0 auto; color: var(--mint); }
+    .panel { padding: 16px; border: 1px solid var(--line, #c6d3e0); border-radius: 16px; background: var(--card, #fff); }
+    .panel-head { display: flex; justify-content: space-between; align-items: start; gap: 18px; margin-bottom: 14px; }
+    h2 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
+    .hint { margin: 5px 0 0; color: var(--muted-ink); font-size: 13px; line-height: 1.45; }
+    .status { display: flex; align-items: center; gap: 8px; color: var(--muted-ink); font-size: 12px; white-space: nowrap; }
+    .lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 13%, transparent); }
+    .lamp.busy { background: var(--signal); box-shadow: 0 0 0 4px color-mix(in srgb, var(--signal) 13%, transparent); }
+    .column-head, .rarity-row { display: grid; grid-template-columns: minmax(150px, 1.1fr) minmax(120px, 1fr) minmax(140px, 1fr); align-items: center; gap: 10px; }
+    .column-head { padding: 0 8px 7px; color: var(--muted-ink); font-size: 11px; font-weight: 700; }
+    .column-head span:not(:first-child) { text-align: center; }
+    .rarity-row { min-height: 58px; border-top: 1px solid var(--line, #c6d3e0); }
+    .rarity-name { display: flex; align-items: center; gap: 10px; padding-left: 8px; font-size: 13px; font-weight: 700; }
+    .gem { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid color-mix(in srgb, var(--tier) 40%, var(--card, #fff)); border-radius: 9px 9px 9px 3px; background: color-mix(in srgb, var(--tier) 10%, var(--card, #fff)); color: var(--tier); font-size: 12px; }
+    .listen { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 39px; padding: 7px 10px; border: 1px solid var(--line, #c6d3e0); border-radius: 9px; background: transparent; color: var(--ink, #0d1b2a); cursor: pointer; font-size: 12px; font-weight: 700; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
+    .listen:hover { border-color: var(--signal); background: color-mix(in srgb, var(--signal) 6%, var(--card, #fff)); }
+    .listen:active { transform: translateY(1px); }
+    .listen.proposed { border-color: color-mix(in srgb, var(--signal) 35%, var(--line)); background: color-mix(in srgb, var(--signal) 5%, var(--card, #fff)); }
+    .play-icon { color: var(--signal); font-size: 11px; }
+    .listen.proposed .play-icon { color: var(--mint); }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--signal) 55%, transparent); outline-offset: 2px; }
+    button:disabled { cursor: wait; opacity: .52; }
+    .bulk { display: grid; grid-template-columns: minmax(180px, .7fr) 1.3fr; gap: 18px; align-items: center; }
+    .best-picker { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
+    .best-picker button { width: 36px; height: 36px; border: 1px solid var(--line, #c6d3e0); border-radius: 9px; background: transparent; color: var(--tier); cursor: pointer; font-size: 12px; font-weight: 800; }
+    .best-picker button[aria-pressed="true"] { border-color: var(--tier); background: color-mix(in srgb, var(--tier) 11%, var(--card, #fff)); box-shadow: inset 0 0 0 1px var(--tier); }
+    .sequence-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .sequence { min-height: 72px; padding: 11px 13px; border: 1px solid var(--line, #c6d3e0); border-radius: 11px; background: transparent; color: var(--ink, #0d1b2a); text-align: left; cursor: pointer; }
+    .sequence strong, .sequence small { display: block; }
+    .sequence strong { font-size: 13px; }
+    .sequence small { margin-top: 5px; color: var(--muted-ink); font-size: 11px; line-height: 1.4; }
+    .sequence.proposed { border-color: color-mix(in srgb, var(--signal) 45%, var(--line)); background: color-mix(in srgb, var(--signal) 5%, var(--card, #fff)); }
+    .sequence.proposed strong { color: var(--signal); }
+    .foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; color: var(--muted-ink); font-size: 11px; line-height: 1.5; }
+    .stop { border: 0; padding: 5px 0 5px 8px; background: transparent; color: var(--signal); cursor: pointer; font-weight: 700; }
+    .stop:hover { text-decoration: underline; }
+    @media (max-width: 620px) {
+      main { width: 100%; margin-top: 14px; gap: 11px; }
+      .intro { align-items: start; }
+      .wave { width: 76px; height: 38px; margin-top: 4px; }
+      .column-head, .rarity-row { grid-template-columns: minmax(92px, .8fr) minmax(90px, 1fr) minmax(112px, 1.2fr); gap: 6px; }
+      .column-head { font-size: 10px; }
+      .rarity-name { gap: 6px; padding-left: 2px; font-size: 11px; }
+      .gem { width: 28px; height: 28px; }
+      .listen { min-height: 38px; padding: 6px 5px; gap: 5px; font-size: 11px; }
+      .bulk { grid-template-columns: 1fr; gap: 14px; }
+      .panel-head { align-items: start; }
+      .status { font-size: 0; }
+      .status .lamp { flex: 0 0 auto; }
+      .foot { align-items: start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <div class="intro-copy">
+        <p class="kicker">Laboratoire sonore · Ouverture</p>
+        <h1>La rareté se révèle à l’oreille.</h1>
+        <p>Compare les sons actuels aux nouvelles signatures. Choisis une rareté, puis écoute une ouverture de dix cartes.</p>
+      </div>
+      <svg class="wave" viewBox="0 0 134 52" fill="none" aria-hidden="true">
+        <path d="M2 27h13l5-12 8 25 8-34 9 39 8-28 8 18 7-12h9l6-9 7 20 7-31 8 34 8-22 6 12h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 44h130" stroke="currentColor" stroke-opacity=".22"/>
+      </svg>
+    </header>
+
+    <section class="panel" aria-labelledby="rarity-title">
+      <div class="panel-head">
+        <div>
+          <h2 id="rarity-title">Signature par rareté</h2>
+          <p class="hint">Référence actuelle reconstituée; mixage approximatif. SSR et UR jouent leur révélation complète.</p>
+        </div>
+        <div class="status" aria-live="polite"><span class="lamp" id="lamp"></span><span id="status">Clique sur Écouter pour activer le son</span></div>
+      </div>
+      <div class="column-head" aria-hidden="true"><span>Carte</span><span>Actuel</span><span>Proposition</span></div>
+      <div class="rarity-row">
+        <div class="rarity-name"><span class="gem" style="--tier:var(--N)">N</span>Normale</div>
+        <button class="listen" data-rarity="N" data-side="current" aria-label="Écouter le son actuel pour une carte normale"><span class="play-icon">▶</span>Écouter</button>
+        <button class="listen proposed" data-rarity="N" data-side="proposed" aria-label="Écouter la proposition pour une carte normale"><span class="play-icon">▶</span>Écouter</button>
+      </div>
+      <div class="rarity-row">
+        <div class="rarity-name"><span class="gem" style="--tier:var(--R)">R</span>Rare</div>
+        <button class="listen" data-rarity="R" data-side="current" aria-label="Écouter le son actuel pour une carte rare"><span class="play-icon">▶</span>Écouter</button>
+        <button class="listen proposed" data-rarity="R" data-side="proposed" aria-label="Écouter la proposition pour une carte rare"><span class="play-icon">▶</span>Écouter</button>
+      </div>
+      <div class="rarity-row">
+        <div class="rarity-name"><span class="gem" style="--tier:var(--SR)">SR</span>Super rare</div>
+        <button class="listen" data-rarity="SR" data-side="current" aria-label="Écouter le son actuel pour une carte super rare"><span class="play-icon">▶</span>Écouter</button>
+        <button class="listen proposed" data-rarity="SR" data-side="proposed" aria-label="Écouter la proposition pour une carte super rare"><span class="play-icon">▶</span>Écouter</button>
+      </div>
+      <div class="rarity-row">
+        <div class="rarity-name"><span class="gem" style="--tier:var(--SSR)">SSR</span>SSR</div>
+        <button class="listen" data-rarity="SSR" data-side="current" aria-label="Écouter le son actuel pour une carte SSR"><span class="play-icon">▶</span>Écouter</button>
+        <button class="listen proposed" data-rarity="SSR" data-side="proposed" aria-label="Écouter la proposition pour une carte SSR"><span class="play-icon">▶</span>Écouter</button>
+      </div>
+      <div class="rarity-row">
+        <div class="rarity-name"><span class="gem" style="--tier:var(--UR)">UR</span>Ultra rare</div>
+        <button class="listen" data-rarity="UR" data-side="current" aria-label="Écouter le son actuel pour une carte UR"><span class="play-icon">▶</span>Écouter</button>
+        <button class="listen proposed" data-rarity="UR" data-side="proposed" aria-label="Écouter la proposition pour une carte UR"><span class="play-icon">▶</span>Écouter</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="bulk-title">
+      <div class="bulk">
+        <div>
+          <h2 id="bulk-title">Ouverture ×10</h2>
+          <p class="hint">Choisis la meilleure carte du paquet.</p>
+          <div class="best-picker" role="group" aria-label="Meilleure rareté du paquet">
+            <button style="--tier:var(--N)" data-best="N" aria-pressed="false">N</button>
+            <button style="--tier:var(--R)" data-best="R" aria-pressed="false">R</button>
+            <button style="--tier:var(--SR)" data-best="SR" aria-pressed="false">SR</button>
+            <button style="--tier:var(--SSR)" data-best="SSR" aria-pressed="true">SSR</button>
+            <button style="--tier:var(--UR)" data-best="UR" aria-pressed="false">UR</button>
+          </div>
+        </div>
+        <div class="sequence-actions">
+          <button class="sequence" data-sequence="current">
+            <strong>Écouter l’actuel ×10</strong>
+            <small>Annonce deux fois la meilleure rareté, puis chaque carte.</small>
+          </button>
+          <button class="sequence proposed" data-sequence="proposed">
+            <strong>Écouter la proposition ×10</strong>
+            <small>Montée discrète; signature réservée à la carte rare.</small>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span>Maquette autonome. Sons synthétisés dans le navigateur; aucun réglage du jeu n’est modifié.</span>
+      <button class="stop" id="stop" type="button">Arrêter</button>
+    </footer>
+  </main>
+  <script>
+    const LYDIAN = [523.25, 587.33, 659.25, 739.99, 783.99, 880, 987.77, 1046.5];
+    const MIDI = (n) => 440 * Math.pow(2, (n - 69) / 12);
+    const RANK = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 };
+    const PACKS = {
+      N: ["N", "N", "N", "N", "N", "N", "N", "N", "N", "N"],
+      R: ["N", "N", "N", "N", "N", "N", "R", "R", "R", "R"],
+      SR: ["N", "N", "N", "N", "N", "R", "R", "R", "SR", "SR"],
+      SSR: ["N", "N", "N", "N", "R", "R", "R", "SR", "SR", "SSR"],
+      UR: ["N", "N", "N", "N", "R", "R", "R", "SR", "SSR", "UR"],
+    };
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    let ctx = null;
+    let compressor = null;
+    let reverb = null;
+    let busy = false;
+    let runId = 0;
+    let finishTimer = 0;
+    let best = "SSR";
+
+    const status = document.getElementById("status");
+    const lamp = document.getElementById("lamp");
+    const actionButtons = [...document.querySelectorAll(".listen, .sequence")];
+    const selectors = [...document.querySelectorAll("[data-best]")];
+
+    function setStatus(text, active = false) {
+      status.textContent = text;
+      lamp.classList.toggle("busy", active);
+    }
+
+    function setBusy(on) {
+      busy = on;
+      actionButtons.forEach((button) => { button.disabled = on; });
+      selectors.forEach((button) => { button.disabled = on; });
+      document.getElementById("stop").disabled = !on;
+    }
+
+    function makeContext() {
+      if (!AudioCtor) {
+        setStatus("Audio Web indisponible dans ce navigateur");
+        return null;
+      }
+      if (ctx) return ctx;
+      ctx = new AudioCtor();
+      compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -9;
+      compressor.knee.value = 5;
+      compressor.ratio.value = 10;
+      compressor.attack.value = 0.004;
+      compressor.release.value = 0.24;
+      const master = ctx.createGain();
+      master.gain.value = 0.56;
+      master.connect(compressor).connect(ctx.destination);
+      reverb = ctx.createConvolver();
+      const length = Math.floor(ctx.sampleRate * 1.4);
+      const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+      for (let channel = 0; channel < 2; channel++) {
+        const data = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.8);
+      }
+      reverb.buffer = impulse;
+      const wet = ctx.createGain();
+      wet.gain.value = 0.16;
+      reverb.connect(wet).connect(compressor);
+      ctx.masterBus = master;
+      return ctx;
+    }
+
+    function route(node, send = 0.18) {
+      node.connect(ctx.masterBus);
+      if (send) {
+        const gain = ctx.createGain();
+        gain.gain.value = send;
+        node.connect(gain).connect(reverb);
+      }
+    }
+
+    function envelope(gain, at, peak, attack, duration) {
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), at + Math.max(0.002, attack));
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+    }
+
+    function tone(freq, duration, options = {}) {
+      const at = ctx.currentTime + (options.at || 0);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = options.type || "sine";
+      osc.frequency.setValueAtTime(Math.max(20, freq), at);
+      if (options.endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(20, options.endFreq), at + duration);
+      if (options.detune) osc.detune.value = options.detune;
+      envelope(gain, at, options.gain ?? 0.06, options.attack ?? 0.008, duration);
+      osc.connect(gain);
+      route(gain, options.send ?? 0.18);
+      osc.start(at);
+      osc.stop(at + duration + 0.03);
+    }
+
+    function noise(duration, options = {}) {
+      const at = ctx.currentTime + (options.at || 0);
+      const length = Math.max(32, Math.ceil(ctx.sampleRate * duration));
+      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+      const source = ctx.createBufferSource();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      source.buffer = buffer;
+      filter.type = options.filter || "bandpass";
+      filter.Q.value = options.q ?? 1;
+      filter.frequency.setValueAtTime(options.from || 900, at);
+      if (options.to) filter.frequency.exponentialRampToValueAtTime(options.to, at + duration);
+      envelope(gain, at, options.gain ?? 0.04, options.attack ?? 0.002, duration);
+      source.connect(filter).connect(gain);
+      route(gain, options.send ?? 0.08);
+      source.start(at);
+      source.stop(at + duration + 0.02);
+    }
+
+    function ping(freq, at, gain = 0.045, duration = 0.7) {
+      tone(freq, duration, { at, gain, send: 0.2 });
+      tone(freq * 2, duration * 0.5, { at, gain: gain * 0.3, send: 0.15 });
+    }
+
+    function bell(freq, at, gain = 0.07, duration = 1.5, partials = [1, 2.01, 3]) {
+      partials.forEach((partial, index) => tone(freq * partial, duration / (1 + index * 0.65), {
+        at,
+        gain: gain / (1 + index * 1.2),
+        attack: 0.004,
+        send: 0.34,
+      }));
+    }
+
+    function taiko(at, power = 1) {
+      tone(104, 0.56, { at, endFreq: 48, gain: 0.13 * power, attack: 0.004, send: 0.1 });
+      noise(0.16, { at, from: 700, to: 180, filter: "lowpass", gain: 0.045 * power, send: 0.06 });
+    }
+
+    function currentFlip(rarity, at = 0, scale = 1) {
+      const count = { N: 2, R: 3, SR: 4, SSR: 5, UR: 6 }[rarity];
+      for (let i = 0; i < count; i++) ping(LYDIAN[i] * 2, at + 0.03 + i * 0.06, 0.045 * scale, 0.7);
+    }
+
+    function currentSsr(at = 0, scale = 1) {
+      const d4 = MIDI(62);
+      bell(d4, at, 0.07 * scale, 3.5, [1, 2.01, 3]);
+      [0, 3, 7, 8, 12, 14].forEach((step, index) => {
+        tone(MIDI(62 + step), 1.9, { at: at + 0.2 + index * 0.1, gain: 0.07 * scale, send: 0.22 });
+      });
+      tone(MIDI(69), 1.55, { at: at + 0.4, gain: 0.04 * scale, send: 0.25 });
+      taiko(at, 0.45 * scale);
+    }
+
+    function currentUr(at = 0, scale = 1) {
+      const d = 62;
+      tone(MIDI(d - 5), 2.8, { at, endFreq: MIDI(d - 2), gain: 0.045 * scale, attack: 0.55, send: 0.24 });
+      noise(2.8, { at, from: 420, to: 1800, gain: 0.028 * scale, attack: 1.4, send: 0.14 });
+      [0, 0.7, 1.28, 1.76, 2.17].forEach((offset, i) => taiko(at + offset, (0.24 + i * 0.1) * scale));
+      [0, 3, 7].forEach((step, i) => tone(MIDI(d + step), 1.6, { at: at + 1.55 + i * 0.38, gain: 0.045 * scale, send: 0.25 }));
+      const impact = at + 2.85;
+      [0, 0.18, 0.36].forEach((offset, i) => taiko(impact + offset, [0.9, 0.65, 0.8][i] * scale));
+      bell(MIDI(d - 12), impact, 0.085 * scale, 4.4, [1, 2.01, 3]);
+      [0, 3, 7, 12, 15].forEach((step, i) => tone(MIDI(d + step), 2.1, { at: impact + 0.05 + i * 0.04, gain: 0.065 * scale, send: 0.32 }));
+      tone(MIDI(d + 12), 1.9, { at: impact + 0.3, gain: 0.045 * scale, send: 0.28 });
+    }
+
+    function currentRarity(rarity, at = 0, scale = 1) {
+      if (rarity === "SSR") currentSsr(at, scale);
+      else if (rarity === "UR") currentUr(at, scale);
+      else currentFlip(rarity, at, scale);
+    }
+
+    function proposedRarity(rarity, at = 0, scale = 1) {
+      if (rarity === "N") {
+        noise(0.055, { at, from: 3200, to: 950, filter: "highpass", gain: 0.06 * scale, send: 0.04 });
+        tone(520, 0.09, { at: at + 0.012, endFreq: 390, type: "triangle", gain: 0.055 * scale, send: 0.05 });
+        return;
+      }
+      if (rarity === "R") {
+        noise(0.19, { at, from: 6200, to: 2100, filter: "bandpass", q: 1.3, gain: 0.05 * scale, send: 0.08 });
+        tone(740, 0.18, { at: at + 0.05, endFreq: 988, type: "triangle", gain: 0.055 * scale, send: 0.2 });
+        tone(1480, 0.14, { at: at + 0.1, gain: 0.025 * scale, send: 0.22 });
+        return;
+      }
+      if (rarity === "SR") {
+        noise(0.25, { at, from: 8200, to: 3900, filter: "highpass", gain: 0.035 * scale, send: 0.1 });
+        [587.33, 783.99, 1174.66].forEach((freq, i) => bell(freq, at + i * 0.09, 0.055 * scale, 1.15, [1, 2.01, 3]));
+        return;
+      }
+      if (rarity === "SSR") {
+        proposedMotif(at, scale, false);
+        taiko(at, 0.55 * scale);
+        return;
+      }
+      proposedMotif(at, scale * 1.2, true);
+    }
+
+    function proposedMotif(at, scale, mythic) {
+      if (mythic) {
+        tone(MIDI(38), 0.7, { at, endFreq: 34, gain: 0.18 * scale, attack: 0.004, send: 0.12 });
+        noise(1.25, { at, from: 650, to: 7600, filter: "bandpass", gain: 0.055 * scale, attack: 0.5, send: 0.18 });
+      }
+      const notes = mythic ? [72, 76, 79, 84] : [60, 64, 67, 71];
+      notes.forEach((note, i) => {
+        const freq = MIDI(note);
+        const offset = mythic ? i * 0.085 : i * 0.14;
+        bell(freq, at + offset, (mythic ? 0.075 : 0.067) * scale, mythic ? 2.7 : 1.8, [1, 2.01, 3]);
+        if (mythic) tone(freq * 0.5, 2.8, { at: at + offset, gain: 0.035 * scale, send: 0.28 });
+      });
+      if (mythic) {
+        [0, 0.14].forEach((offset, i) => taiko(at + offset, (i ? 0.72 : 1) * scale));
+        bell(MIDI(96), at + 0.25, 0.04 * scale, 3.3, [1, 2, 3]);
+      } else {
+        tone(MIDI(48), 1.3, { at: at + 0.12, gain: 0.055 * scale, send: 0.25 });
+      }
+    }
+
+    function currentTear(at = 0) {
+      noise(0.48, { at, from: 6000, to: 1200, filter: "highpass", gain: 0.06, send: 0.08 });
+      tone(1400, 0.05, { at, type: "square", gain: 0.026, send: 0.02 });
+      tone(880, 0.5, { at: at + 0.1, endFreq: 1320, gain: 0.045, send: 0.22 });
+    }
+
+    function proposedTear(at = 0) {
+      noise(0.72, { at, from: 5200, to: 680, filter: "bandpass", q: 0.8, gain: 0.045, attack: 0.01, send: 0.08 });
+      tone(110, 0.42, { at: at + 0.17, endFreq: 74, gain: 0.085, attack: 0.006, send: 0.08 });
+      [440, 554.37, 659.25].forEach((freq, i) => tone(freq, 0.55, { at: at + 0.3 + i * 0.075, gain: 0.027, send: 0.24 }));
+    }
+
+    function playSequence(side) {
+      const cards = PACKS[best];
+      const start = 2.05;
+      if (side === "current") {
+        currentTear(0);
+        currentFlip(best, 1.2, 0.8);
+        if (RANK[best] >= 3) currentSsr(1.22, 0.72);
+        currentFlip(best, 1.42, 0.75);
+        cards.forEach((rarity, index) => {
+          const at = start + index * 0.58;
+          if (RANK[rarity] < 3) currentFlip(rarity, at, 0.52);
+          else if (rarity === "SSR") currentSsr(at, 0.62);
+          else currentUr(at, 0.54);
+        });
+        return start + cards.length * 0.58 + (best === "UR" ? 5.2 : best === "SSR" ? 3.4 : 0.8);
+      }
+
+      proposedTear(0);
+      noise(0.9, { at: 0.95, from: 500, to: 2600, filter: "bandpass", gain: 0.026, attack: 0.72, send: 0.12 });
+      cards.forEach((rarity, index) => {
+        const at = start + index * 0.45;
+        if (RANK[rarity] < 3) proposedRarity(rarity, at, 0.68);
+        else if (rarity === "SSR") proposedRarity(rarity, at, 0.85);
+        else proposedRarity(rarity, at, 0.92);
+      });
+      return start + cards.length * 0.45 + (best === "UR" ? 3.8 : best === "SSR" ? 2.4 : 0.8);
+    }
+
+    async function play(label, duration, schedule) {
+      if (busy) return;
+      const audio = makeContext();
+      if (!audio) return;
+      const id = ++runId;
+      clearTimeout(finishTimer);
+      setBusy(true);
+      setStatus(label, true);
+      try {
+        await audio.resume();
+        if (id !== runId || audio !== ctx) return;
+        const playbackDuration = schedule() ?? duration;
+        finishTimer = setTimeout(() => {
+          if (id !== runId) return;
+          setBusy(false);
+          setStatus("Prêt · choisis une comparaison");
+        }, Math.max(500, playbackDuration * 1000));
+      } catch {
+        setBusy(false);
+        setStatus("Le navigateur a bloqué la lecture");
+      }
+    }
+
+    document.querySelectorAll("[data-rarity]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const rarity = button.dataset.rarity;
+        const side = button.dataset.side;
+        play((side === "current" ? "Actuel" : "Proposition") + " · " + rarity, rarity === "UR" ? 7.8 : rarity === "SSR" ? 4.2 : 2.2, () => {
+          if (side === "current") currentRarity(rarity);
+          else proposedRarity(rarity);
+        });
+      });
+    });
+
+    selectors.forEach((button) => {
+      button.addEventListener("click", () => {
+        best = button.dataset.best;
+        selectors.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+      });
+    });
+
+    document.querySelectorAll("[data-sequence]").forEach((button) => {
+      button.addEventListener("click", () => {
+        play((button.dataset.sequence === "current" ? "Ouverture actuelle" : "Ouverture proposée") + " ×10 · meilleure carte " + best, 15, () => playSequence(button.dataset.sequence));
+      });
+    });
+
+    document.getElementById("stop").addEventListener("click", () => {
+      runId++;
+      clearTimeout(finishTimer);
+      if (ctx) ctx.close().catch(() => {});
+      ctx = null;
+      compressor = null;
+      reverb = null;
+      setBusy(false);
+      setStatus("Lecture arrêtée");
+    });
+    document.getElementById("stop").disabled = true;
+  </script>
+</body>
+</html>
