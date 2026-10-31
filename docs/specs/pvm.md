@@ -92,8 +92,22 @@ Détaillé dans la section « Raid » ci-dessous.
 - Seuls les personnages du labo parlent (Dr Hakase, Akari, Pew), quelques lignes au début et à la fin de chaque acte. Les personnages d'anime ne parlent jamais.
 - Un boss final vaincu : sa signature est rétablie, et Pew réagit à son départ (direction de caractérisation dans `lore.md`).
 
+### Univers de collision *(proposés le 2026-10-31, à valider ; après le lancement)*
+Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont personnages / dont SSR ou UR). Les noms sont des propositions du lore des brèches. Chacun a sa ressource d'éveil et sa ressource d'arme légendaire (boss finaux) ; le boss final est le SSR ou UR le plus populaire du lot.
+
+| Univers | Thème | Anime (exemples) | Ressource d'éveil | Ressource d'arme |
+|---|---|---|---|---|
+| **Les Royaumes Échoués** | Mondes parallèles, héros convoqués | Re:ZERO 32/3 · Slime 22/1 · Mushoku Tensei 19/3 · Overlord 17/0 · Eminence in Shadow 15/1 · Solo Leveling 13/1 · SAO 19/2 · Danmachi 16/0 | Pierre de convocation | Fragment de grimoire |
+| **La Nuit des Maudits** | Horreur, démons, morts | Tokyo Ghoul 22/3 · Chainsaw Man 18/5 · Berserk 13/2 · Soul Eater 17/1 · Black Butler 14/0 · Hanako-kun 14/1 · Akame ga Kill 14/2 · Hell's Paradise 13/0 · Danganronpa 17/0 · When They Cry 17/0 | Larme d'ombre | Lame maudite |
+| **La Ligue des Terrains** | Sport et compétition | Blue Lock 21/1 · Kuroko 13/0 · Free! 13/0 · Haikyu 35/8 (si pas d'univers à part) | Trophée | Équipement de légende |
+| **Le Grand Concert** | Idols, musique, vie de tous les jours | Love Live 34/0 · BanG Dream 29/0 · Umamusume 29/0 · Holo no Graffiti 27/0 · Colorful Stage 18/0 · Fruits Basket 20/2 · Horimiya 13/2 | Bâton lumineux | Instrument d'or |
+| **La Grande Alchimie** | Magie, guildes, aventure | Fairy Tail 29/1 · Black Clover 32/2 · Seven Deadly Sins 18/1 · Fire Force 21/1 · Fullmetal Alchemist 21/3 · Frieren 15/2 · Dr. Stone 19/1 | Pierre philosophale | Cristal de magie |
+
+- Ces cinq univers couvrent environ 30 anime moyens qui n'auraient jamais d'univers à eux. Les gros anime avec beaucoup de SSR ou UR (My Hero Academia, Bleach, Attack on Titan, Demon Slayer, Hunter x Hunter, JoJo, Dragon Ball) sont de bons candidats pour de futurs **univers d'anime** et sont laissés de côté ici.
+- Les anime sans SSR ni UR (Love Live, BanG Dream...) ne peuvent pas donner de boss final : l'univers choisit un boss parmi les autres anime du lot, ou un SR le plus populaire.
+
 ### À écrire / à décider
-- Liste des univers de collision (thèmes, noms, quels anime) et de leurs ressources.
+- Univers de collision : voir la proposition ci-dessous (thèmes et noms à valider).
 - Tables de niveau, de coûts d'éveil et de drops : à la charge de Claude, qui les propose et les valide au simulateur avant de les présenter.
 - Modèle de données : `StoryProgress` (joueur, univers, combat atteint), définitions des univers dans le code, `Battle.mode = STORY` déjà prévu.
 - Moteur : bonus de stats et de PV du boss, équipe adverse construite par niveau (aujourd'hui `PVM_OPPONENTS`).
