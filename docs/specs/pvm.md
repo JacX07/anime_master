@@ -372,11 +372,8 @@ Uniquement au **premier passage** d'un étage :
 - Avec 3 tentatives par jour, finir les 500 étages prend au moins environ 170 jours. Le total de Ryō reste sous environ 20 000, étalé sur des mois.
 - La carte offerte au premier passage d'un jalon vient du lore de la capture ; au plus 50 cartes par joueur, à vie.
 
-### 5. Artefacts (phase 2)
-Après la v1, si les joueurs reviennent :
-- **Effets latéraux seulement** : changer le type de dégât, +1 tentative, modifier un cooldown, cosmétique. Jamais de stats brutes.
-- Liés au compte, non échangeables, pour ne pas créer de second marché.
-- Raretés, sources et emplacements : à spécifier dans une étape à part.
+### 5. Artefacts
+**Remplacé le 2026-10-31** : les artefacts donnent désormais de vraies stats et viennent des donjons. Voir [donjons.md](donjons.md).
 
 ### 6. Pew
 Compagnon-guide, **hors combat**. Il peut signaler des pistes (par exemple l'étage ou le jalon à regarder), sans résoudre l'enquête à la place du joueur. Son histoire est dans `lore.md`.

@@ -376,6 +376,7 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
   - **Esquive** : chance d'esquiver chaque coup d'un sort affilié adverse.
   - **Renfort de type** : +X % d'ATK aux alliés d'un type, porteur compris.
 - Liste des armes, recettes et passifs définitifs : à écrire.
+- **Révisé le 2026-10-31** : l'arme devient plus forte, avec artefacts et boss mondial ; les armes génériques d'abord (une par type), des armes dédiées ensuite. Voir [donjons.md](donjons.md). La limite de puissance de ce tableau est assouplie (power creep voulu).
 
 ### Mesures (2026-10-31, 3 000 combats par case)
 Équipes de 4 cartes de même rareté, tirées au hasard.
