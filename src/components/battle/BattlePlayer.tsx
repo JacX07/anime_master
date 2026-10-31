@@ -138,6 +138,9 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   useEffect(() => {
     // Réglages mémorisés d'une visite à l'autre
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    const savedSpeed = Number(localStorage.getItem("bt-speed"));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (savedSpeed === 1 || savedSpeed === 2 || savedSpeed === 4) setSpeed(savedSpeed);
     setSfxOn(localStorage.getItem("bt-sfx") !== "off");
     setMusicOn(localStorage.getItem("bt-music") !== "off");
   }, []);
@@ -295,7 +298,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         </button>
         <div className="bt-speed" role="group" aria-label="Vitesse">
           {SPEEDS.map((s) => (
-            <button key={s} type="button" className="bt-btn" aria-pressed={speed === s} onClick={() => setSpeed(s)}>
+            <button key={s} type="button" className="bt-btn" aria-pressed={speed === s}
+              onClick={() => {
+                setSpeed(s);
+                localStorage.setItem("bt-speed", String(s));
+              }}>
               ×{s}
             </button>
           ))}

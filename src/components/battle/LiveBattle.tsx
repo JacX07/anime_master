@@ -101,7 +101,11 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
         onPlay: play,
         onAbandon: running ? () => abandon(onExit ?? onNext) : undefined,
         auto,
-        onToggleAuto: () => setAuto((a) => !a),
+        onToggleAuto: () => {
+          // Le réglage est gardé pour le combat suivant
+          localStorage.setItem("bt-auto", auto ? "off" : "on");
+          setAuto(!auto);
+        },
         onAutoStep: autoStep,
         onNext,
       }}

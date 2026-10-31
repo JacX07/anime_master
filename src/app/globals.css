@@ -417,6 +417,76 @@ body.scene-active > .site-header {
 a.site-link:hover {
   opacity: 1;
 }
+
+/* Onglet agrégateur : un bouton qui déroule les pages d'une même famille */
+.nav-menu {
+  position: relative;
+}
+.nav-menu-btn {
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+.nav-menu-btn:hover,
+.nav-menu-btn[aria-expanded="true"] {
+  opacity: 1;
+}
+.nav-caret {
+  font-size: 0.7rem;
+  transition: rotate 0.15s ease;
+}
+.nav-menu-btn[aria-expanded="true"] .nav-caret {
+  rotate: 180deg;
+}
+.nav-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 30;
+  min-width: 12rem;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border: 1px solid #35507c;
+  border-radius: 0.6rem;
+  background: #0b1424;
+  box-shadow: 0 12px 30px #000a;
+}
+.nav-panel-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.4rem;
+  color: #e8f0ff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.nav-panel-link .i {
+  width: 18px;
+  height: 18px;
+}
+/* Téléphone : la barre n'affiche que les icônes (les noms restent lus par les lecteurs d'écran) et le déroulant prend la largeur de l'écran */
+@media (max-width: 640px) {
+  .site-nav { gap: 0; }
+  .site-nav .site-link { gap: 0; padding: 0.4rem 0.6rem; font-size: 0; }
+  .site-nav .site-link .i { width: 22px; height: 22px; }
+  .site-nav .nav-caret { display: none; }
+  .site-nav .album-badge { font-size: 0.65rem; }
+  .nav-menu { position: static; }
+  .nav-panel { position: fixed; top: 60px; left: 0.5rem; right: 0.5rem; }
+}
+.nav-panel-link:hover,
+.nav-panel-link:focus-visible {
+  background: #4b8bff33;
+}
+.nav-panel-link[aria-current="page"] {
+  background: #f2a51622;
+  color: #ffd166;
+}
 .site-link[aria-current="page"] {
   opacity: 1;
 }

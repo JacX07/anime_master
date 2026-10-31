@@ -1,0 +1,7 @@
+.inv { display: grid; gap: 1.5rem; }
+.inv-h { margin: 0 0 0.6rem; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: #8ea3c4; }
+.inv-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.7rem; }
+.inv-item { display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.8rem; padding: 0.8rem 1rem; border: 1px solid #35507c; border-radius: 0.6rem; background: #0f1d33; }
+.inv-item[data-empty] { opacity: 0.55; }
+.inv-n { font-family: var(--font-michroma), sans-serif; font-size: 1.1rem; color: #ffd166; }
+.inv-item small { grid-column: 1 / -1; color: #9fb2cf; }

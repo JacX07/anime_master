@@ -17,5 +17,7 @@
 .hs-boss { border-color: #e0a526; }
 .hs-done b::after { content: " ✓"; color: #6fd68a; }
 .hs-result { margin-top: 1rem; padding: 1rem; border: 1px solid #35507c; border-radius: 0.5rem; background: #0f1d33; display: flex; flex-direction: column; gap: 0.6rem; }
+.hs-chain { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c3d0e6; cursor: pointer; }
+.hs-countdown { margin: 0; color: #ffd166; font-size: 0.9rem; }
 .hs-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 .hs-error { color: #ff8a8a; }

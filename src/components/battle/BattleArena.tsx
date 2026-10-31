@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { abandonBattleAction, getBattleAction, setAttackTeamAction, startBattleAction } from "@/app/battle-actions";
 import type { BattleView } from "@/lib/battles";
 import { LiveBattle } from "./LiveBattle";
@@ -31,6 +31,14 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
+  // Dernier réglage Auto / Manuel (modifié en plein combat) et dernier adversaire
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setManual(localStorage.getItem("bt-auto") === "off");
+    const last = localStorage.getItem("bt-opponent");
+    if (last && opponents.some((o) => o.key === last)) setOpponent(last);
+  }, [opponents]);
+
   const opponentName = (key: string) => opponents.find((o) => o.key === key)?.name ?? key;
   const backToMenu = () => {
     setView(null);
@@ -51,6 +59,8 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
       const r = await startBattleAction(opponent, true);
       if (!r.ok) return setError(r.error);
       setAuto(!manual);
+      localStorage.setItem("bt-auto", manual ? "off" : "on");
+      localStorage.setItem("bt-opponent", opponent);
       setView(r.battle);
       setError(null);
     });

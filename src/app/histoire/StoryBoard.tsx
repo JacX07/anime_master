@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { autoAttackTeamAction, startBattleAction } from "@/app/battle-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
@@ -27,22 +27,53 @@ interface Props {
 const resName = (k: string) => RESOURCE_NAMES[k] ?? k;
 const levelTitle = (n: number) => (isFinalBoss(n) ? "Boss final" : isBoss(n) ? `Boss d’acte ${n / 5}` : `Combat ${n}`);
 
+/** Compte à rebours avant le combat suivant ; « Annuler » coupe l'enchaînement. */
+function Countdown({ seconds, label, onDone, onCancel }: { seconds: number; label: string; onDone: () => void; onCancel: () => void }) {
+  const [left, setLeft] = useState(seconds);
+  const done = useRef(onDone);
+  useEffect(() => {
+    done.current = onDone;
+  });
+  useEffect(() => {
+    if (left <= 0) {
+      done.current();
+      return;
+    }
+    const t = setTimeout(() => setLeft((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [left]);
+  return (
+    <p className="hs-countdown" role="timer">
+      {label} {Math.max(left, 0)} s…{" "}
+      <button type="button" className="bt-btn" onClick={onCancel}>
+        Annuler
+      </button>
+    </p>
+  );
+}
+
 export function StoryBoard({ universes, team, stock }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [universe, setUniverse] = useState(universes[0].key);
   const [error, setError] = useState<string | null>(null);
-  const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number } | null>(null);
+  const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number; auto: boolean } | null>(null);
+  // « Enchaîner » : après une victoire, le combat suivant démarre tout seul (réglage gardé d'une visite à l'autre)
+  const [chain, setChain] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setChain(localStorage.getItem("bt-chain") === "on");
+  }, []);
   const u = universes.find((x) => x.key === universe)!;
   const ready = team.every(Boolean);
 
   function run(level: number) {
     setError(null);
     start(async () => {
-      // Combat suivi par le serveur : Auto au départ, on peut passer en Manuel en route
+      // Combat suivi par le serveur : Auto ou Manuel comme au dernier combat, modifiable en route
       const res = await startBattleAction(`story:${u.key}:${level}`, true);
       if (!res.ok) return setError(res.error);
-      setFight({ battle: res.battle, universe: u, level });
+      setFight({ battle: res.battle, universe: u, level, auto: localStorage.getItem("bt-auto") !== "off" });
     });
   }
   function autoTeam() {
@@ -61,7 +92,7 @@ export function StoryBoard({ universes, team, stock }: Props) {
         <LiveBattle
           key={battle.id}
           initial={battle}
-          initialAuto
+          initialAuto={fight.auto}
           names={{ A: "Ton équipe", B: fu.name }}
           title={`${fu.name} — ${levelTitle(level)}`}
           // La croix abandonne un combat en cours (sans pénalité en histoire) et revient à la liste
@@ -74,7 +105,7 @@ export function StoryBoard({ universes, team, stock }: Props) {
             {battle.loot && (
               <ul>
                 {battle.loot.ryo > 0 && <li>{battle.loot.ryo} Ryō</li>}
-                {battle.loot.crystals > 0 && <li>{battle.loot.crystals} cristal{battle.loot.crystals > 1 ? "ux" : ""}</li>}
+                {battle.loot.crystals > 0 && <li>{battle.loot.crystals} {battle.loot.crystals > 1 ? "cristaux" : "cristal"}</li>}
                 {Object.entries(battle.loot.resources).map(([k, n]) => (
                   <li key={k}>{n} × {resName(k)}</li>
                 ))}
@@ -87,6 +118,29 @@ export function StoryBoard({ universes, team, stock }: Props) {
                 <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level + 1)}>Combat suivant</button>
               )}
             </div>
+            <label className="hs-chain">
+              <input
+                type="checkbox"
+                checked={chain}
+                onChange={(e) => {
+                  setChain(e.target.checked);
+                  localStorage.setItem("bt-chain", e.target.checked ? "on" : "off");
+                }}
+              />
+              Enchaîner automatiquement les combats gagnés
+            </label>
+            {chain && battle.winner === "A" && fight.level < LEVELS && fight.level <= fu.maxLevel + 1 && (
+              <Countdown
+                key={battle.id}
+                seconds={4}
+                label="Combat suivant dans"
+                onDone={() => run(fight.level + 1)}
+                onCancel={() => {
+                  setChain(false);
+                  localStorage.setItem("bt-chain", "off");
+                }}
+              />
+            )}
             {error && <p className="hs-error" role="alert">{error}</p>}
           </div>
           )}

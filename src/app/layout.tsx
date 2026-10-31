@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { AlbumLink } from "@/components/AlbumLink";
 import { Icon, IconSprite } from "@/components/icons";
 import { NavLink } from "@/components/NavLink";
+import { NavMenu, type NavItem } from "@/components/NavMenu";
 import { UserMenu } from "@/components/UserMenu";
 import "./globals.css";
 
@@ -19,6 +20,20 @@ export const metadata: Metadata = {
   description: "Collectionne les personnages d'anime en ouvrant des paquets de cartes.",
 };
 
+// Barre du haut : ce que je possède reste visible (Paquets, Album, Inventaire) ; le reste est rangé par intention dans des onglets
+// qui se déroulent (Jouer, Marché) ; le classement reste seul. Une nouvelle page rejoint la famille qui correspond à ce qu'on y fait.
+const PLAY: NavItem[] = [
+  { href: "/histoire", icon: "t-aventure", label: "Histoire" },
+  { href: "/combat", icon: "nav-duels", label: "Donjon" },
+  { href: "/duels", icon: "nav-duels", label: "Duels" },
+  { href: "/expeditions", icon: "unlock", label: "Expéditions" },
+];
+const MARKET: NavItem[] = [
+  { href: "/trades", icon: "echange", label: "Échanges" },
+  { href: "/market", icon: "nav-marche", label: "Bourse" },
+  { href: "/wishlist", icon: "souhait", label: "Souhaits" },
+];
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${michroma.variable} ${sora.variable} ${shoulders.variable} h-full antialiased`}>
@@ -31,7 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <span>Anime Masters</span>
             </Link>
             <nav className="site-nav" aria-label="Navigation principale">
-              {/* usePathname() lit l'URL à l'exécution : derrière un Suspense, avec les mêmes liens (sans soulignement) en attendant */}
+              {/* usePathname() lit l'URL à l'exécution : derrière un Suspense, avec les mêmes entrées (sans soulignement ni déroulant) en attendant */}
               <Suspense
                 fallback={
                   <>
@@ -43,34 +58,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       <Icon name="nav-album" />
                       Album
                     </Link>
-                    <Link href="/trades" className="site-link">
-                      <Icon name="echange" />
-                      Échanges
+                    <Link href="/inventaire" className="site-link">
+                      <Icon name="bonus" />
+                      Inventaire
                     </Link>
-                    <Link href="/market" className="site-link">
+                    <span className="site-link">
+                      <Icon name="nav-duels" />
+                      Jouer
+                    </span>
+                    <span className="site-link">
                       <Icon name="nav-marche" />
-                      Bourse
-                    </Link>
-                    <Link href="/wishlist" className="site-link">
-                      <Icon name="souhait" />
-                      Souhaits
-                    </Link>
-                    <Link href="/duels" className="site-link">
-                      <Icon name="nav-duels" />
-                      Duels
-                    </Link>
-                    <Link href="/histoire" className="site-link">
-                      <Icon name="t-aventure" />
-                      Histoire
-                    </Link>
-                    <Link href="/combat" className="site-link">
-                      <Icon name="nav-duels" />
-                      Donjon
-                    </Link>
-                    <Link href="/expeditions" className="site-link">
-                      <Icon name="unlock" />
-                      Expéditions
-                    </Link>
+                      Marché
+                    </span>
                     <Link href="/leaderboard" className="site-link">
                       <Icon name="nav-classement" />
                       Classement
@@ -82,27 +81,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   Paquets
                 </NavLink>
                 <AlbumLink />
-                <NavLink href="/trades" icon="echange">
-                  Échanges
+                <NavLink href="/inventaire" icon="bonus">
+                  Inventaire
                 </NavLink>
-                <NavLink href="/market" icon="nav-marche">
-                  Bourse
-                </NavLink>
-                <NavLink href="/wishlist" icon="souhait">
-                  Souhaits
-                </NavLink>
-                <NavLink href="/duels" icon="nav-duels">
-                  Duels
-                </NavLink>
-                <NavLink href="/histoire" icon="t-aventure">
-                  Histoire
-                </NavLink>
-                <NavLink href="/combat" icon="nav-duels">
-                  Donjon
-                </NavLink>
-                <NavLink href="/expeditions" icon="unlock">
-                  Expéditions
-                </NavLink>
+                <NavMenu icon="nav-duels" label="Jouer" items={PLAY} />
+                <NavMenu icon="nav-marche" label="Marché" items={MARKET} />
                 <NavLink href="/leaderboard" icon="nav-classement">
                   Classement
                 </NavLink>
