@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { CardType } from "@/generated/prisma/enums";
 import { affinity as typeAffinity, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
+import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { TypeIcon } from "../icons";
@@ -38,8 +39,9 @@ export function SpellsPanel({
   const types = Object.keys(TYPE_LABELS) as CardType[];
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
   const weakVs = types.find((t) => typeAffinity(unit.type, t) < 1)!;
+  const basic = basicAttackOf(unit.characterId, unit.rarity, unit.type);
   const spells: { key: "base" | "affinity" | "special"; title: React.ReactNode; target: string; text: string; note: string | null }[] = [
-    { key: "base" as const, title: <>{BASE_SPELL.name}</>, target: BASE_SPELL.target, text: BASE_SPELL.text, note: null },
+    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, note: null },
     { key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN },
   ];
   const own = spellOf(unit.characterId, unit.rarity, unit.type);

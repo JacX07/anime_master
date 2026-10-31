@@ -6,6 +6,7 @@
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
+import { basicAttackOf, type BasicRider } from "./basic-attacks";
 import { spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
 
 export type Random = () => number;
@@ -115,8 +116,8 @@ export interface BattleOptions {
 }
 
 export type Spell = "base" | "affinity" | "special";
-/** Effets durables des sorts de personnage : bonus et malus de stat (Up / Down), silence, immunité, poison, soin sur la durée */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen";
+/** Effets durables des sorts de personnage et des attaques de base personnalisées. */
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -145,8 +146,8 @@ export interface UnitView {
 export type BattleEvent =
   | { kind: "start"; first: Side; units: UnitView[] }
   | { kind: "round"; round: number }
-  /** Une carte agit ; target = null pour la zone d'Aventure. Les effets suivent jusqu'à la prochaine action. */
-  | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; /** Nom du sort de personnage */ name?: string }
+  /** Une carte agit ; target = null pour la zone d'Aventure. name personnalise le sort spécial ou l'attaque de base. */
+  | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string }
   | {
       kind: "damage";
       source: UnitId;
@@ -451,7 +452,17 @@ export function applyAction(st: BattleState, action: Action) {
   if (u.spellIn > 0) u.spellIn--;
   if (u.pIn > 0) u.pIn--;
 
+  // Un bonus ignore-DEF reste applicable à tous les coups d'une même action (par exemple une zone).
+  const pendingIgnoreFx = u.fx.find((f) => f.key === "ignoreDef");
+  const pendingIgnoreDef = pendingIgnoreFx?.amount ?? 0;
+  let consumedIgnoreFx = false;
   const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false) => {
+    // L'ignore-DEF accordé par une attaque de base est consommé sur la prochaine action offensive.
+    if (pendingIgnoreFx && !consumedIgnoreFx) {
+      consumedIgnoreFx = true;
+      dropFx(u, pendingIgnoreFx);
+    }
+    ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef);
     // Esquive : arme (sorts affiliés seulement) ou effet d'un sort ; un coup qui traverse ne s'esquive pas
     const dodge = pierce ? 0 : (action.spell === "affinity" ? t.dodge : 0) + clamp(fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
     if (dodge > 0 && rng() < dodge) {
@@ -513,11 +524,45 @@ export function applyAction(st: BattleState, action: Action) {
     if (was !== turns > 0) log.push({ kind: "status", target: t.id, status, on: turns > 0 });
   };
 
-  log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(action.spell === "special" ? { name: u.spell!.name } : {}) });
+  const basic = action.spell === "base" ? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
+  const actionName = action.spell === "special" ? u.spell?.name : basic?.name;
+  log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}) });
   const target = action.target ? unit(st, action.target) : null;
   if (action.spell === "base") {
     if (u.spellIn === 0) u.held++;
-    hit(target!, 1);
+    const amount = hit(target!, 1);
+    if (amount > 0 && basic) {
+      const applyRider = (rider: BasicRider) => {
+        switch (rider.kind) {
+          case "mod": {
+            const recipient = rider.to === "self" ? u : target!;
+            addFx(recipient, `${rider.stat}${rider.amount > 0 ? "Up" : "Down"}`, rider.amount, 1, rider.stat);
+            break;
+          }
+          case "heal":
+            heal(u, u.maxHp * rider.pct);
+            break;
+          case "shield": {
+            const add = Math.min(u.maxHp * rider.pct, Math.max(0, u.maxHp * 0.3 - u.shield));
+            if (add > 0) {
+              u.shield += add;
+              log.push({ kind: "shield", source: u.id, target: u.id, amount: add, shield: u.shield });
+            }
+            break;
+          }
+          case "poison":
+            addFx(target!, "poison", rider.pct, 1);
+            break;
+          case "drain":
+            heal(u, amount * rider.pct);
+            break;
+          case "ignoreDef":
+            addFx(u, "ignoreDef", rider.pct, 1);
+            break;
+        }
+      };
+      applyRider(basic.rider);
+    }
   } else if (action.spell === "special") {
     u.pIn = SPELL_COOLDOWN;
     const who = (scope: Scope): Unit[] =>
@@ -613,6 +658,7 @@ export function applyAction(st: BattleState, action: Action) {
   if (u.weaken > 0) setStatus(u, "weaken", u.weaken - 1);
   // Fin de l'action du porteur : poison et soin sur la durée, puis les effets durables comptent un tour (sauf ceux posés pendant cette action)
   for (const f of [...u.fx]) {
+    if (f.key === "ignoreDef") continue; // reste jusqu'à la prochaine action qui inflige des dégâts
     if (f.fresh) {
       f.fresh = false;
       continue;

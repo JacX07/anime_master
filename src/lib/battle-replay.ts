@@ -72,10 +72,11 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },
   poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacune de ses actions.", bad: true },
   regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacune de ses actions.", bad: false },
+  ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
 };
 
 /** Nom du sort joué : base, rôle du type, ou nom du sort de personnage. */
-export const spellLabel = (spell: Spell, type: CardType, name?: string) => (spell === "base" ? "Attaque" : spell === "special" ? name ?? "Sort spécial" : SPELL_NAMES[type]);
+export const spellLabel = (spell: Spell, type: CardType, name?: string) => (spell === "base" ? name ?? "Attaque" : spell === "special" ? name ?? "Sort spécial" : SPELL_NAMES[type]);
 
 /** Texte des sorts affichés sous le plateau (docs/specs/combat.md §4). */
 export const SPELL_INFO: Record<CardType, { target: string; text: string }> = {

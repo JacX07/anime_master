@@ -138,11 +138,11 @@ Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec s
 
 Les noms et effets sont des propositions, modifiables.
 
-### 4 ter. Attaques de base SSR/UR et ultimes *(proposition rééquilibrée, à implémenter)*
+### 4 ter. Attaques de base SSR/UR et ultimes *(attaques de base intégrées ; ultimes à implémenter)*
 
 Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR/UR conserve son ultime d'anime ; une UR choisit avant le combat entre son ultime d'anime et son ultime personnel. Une activation active consomme l'action du personnage. Une carte ne peut avoir qu'un seul ultime équipé.
 
-**Attaque de base personnalisée** : chaque SSR/UR conserve une attaque à **1× ATK**, renommée et thématisée selon le personnage, avec un seul petit effet. Pour éviter que l'effet gratuit de base dépasse les autres sorts, il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds proposés : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points pour la prochaine attaque reçue/lancée, bouclier ou soin de 2 % des PV max, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas. Ces attaques visent au plus **+1 point de victoire** face à une attaque générique ; la valeur exacte doit être calibrée après leur intégration.
+**Attaque de base personnalisée** : chaque SSR/UR conserve une attaque à **1× ATK**, avec un nom thématisé et un seul petit effet appliqué si le coup touche. Les personnages listés ci-dessous ont une attaque dédiée. Pour les autres SSR/UR, le moteur nomme l'attaque « Frappe inspirée de [nom du sort personnel] » et dérive un effet dans cet ordre : premier modificateur du sort, poison, ignore-DEF/perce-armure, critique garanti, drain, soin/régénération, bouclier/protection ; à défaut, ATK −3 % sur la cible. Cela couvre le roster entier sans écrire 236 fiches séparées. Pour éviter que l'effet gratuit de base dépasse les autres sorts, il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points jusqu'à la prochaine action, ignore-DEF 3 % sur la prochaine attaque, bouclier ou soin de 2 % des PV max, drain de 2 % des dégâts, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas. Ces attaques visent au plus **+1 point de victoire** face à une attaque générique ; la valeur exacte reste à calibrer.
 
 | Personnage | Attaque de base (1× ATK) | Petit effet |
 |---|---|---|
@@ -182,7 +182,7 @@ Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR
 | Madara | Kunai embrasé | DEF de la cible −3 % pour sa prochaine action |
 | Okabe Rintaro | Gadget lancé | DEF d'Okabe +3 % jusqu'à sa prochaine action |
 | Gon | Coup direct | ATK de Gon +3 % sur sa prochaine attaque |
-| Killua | Décharge du bout des doigts | Esquive +3 points contre la prochaine attaque reçue |
+| Killua | Décharge du bout des doigts | Esquive +3 points jusqu'à sa prochaine action |
 | Denji | Entaille de tronçonneuse | Rend 2 % des dégâts de l'attaque en PV |
 | Makima | Tir contrôlé | ATK de la cible −3 % pour sa prochaine action |
 | Frieren | Zoltraak | Ignore 3 % de la DEF sur sa prochaine attaque |
