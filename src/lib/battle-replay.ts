@@ -75,8 +75,12 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
 };
 
-/** Nom du sort joué : base, rôle du type, ou nom du sort de personnage. */
-export const spellLabel = (spell: Spell, type: CardType, name?: string) => (spell === "base" ? name ?? "Attaque" : spell === "special" ? name ?? "Sort spécial" : SPELL_NAMES[type]);
+/** Nom du sort joué : attaque, affinité, secondaire, tertiaire ou ultime. */
+export const spellLabel = (spell: Spell, type: CardType, name?: string) => {
+  if (spell === "base") return name ?? "Attaque";
+  if (spell === "affinity") return SPELL_NAMES[type];
+  return name ?? (spell === "special" ? "Sort secondaire" : spell === "tertiary" ? "Sort tertiaire" : "Ultime");
+};
 
 /** Texte des sorts affichés sous le plateau (docs/specs/combat.md §4). */
 export const SPELL_INFO: Record<CardType, { target: string; text: string }> = {
@@ -99,7 +103,7 @@ export interface HistoryEntry {
   /** Nom du sort de personnage */
   name?: string;
   target: UnitId | null;
-  effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "end" }>[];
+  effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "ultimateGauge" | "end" }>[];
 }
 
 /** Historique des actions déjà jouées (événements `log[0..upto[`). */
@@ -109,7 +113,7 @@ export function historyOf(log: BattleEvent[], upto: number): HistoryEntry[] {
   for (const ev of log.slice(0, upto)) {
     if (ev.kind === "round") round = ev.round;
     else if (ev.kind === "action") out.push({ n: out.length + 1, round, actor: ev.actor, spell: ev.spell, name: ev.name, target: ev.target, effects: [] });
-    else if (ev.kind !== "start" && ev.kind !== "end" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
+    else if (ev.kind !== "start" && ev.kind !== "end" && ev.kind !== "ultimateGauge" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
   }
   return out;
 }
@@ -133,6 +137,7 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
   const ev = log[state.idx];
   if (!ev) return state;
   const units = { ...state.units };
+  let info = state.info;
   const patch = (id: UnitId, p: Partial<UnitState>) => (units[id] = { ...units[id], ...p });
   let { cur, round, end, popSeq } = state;
   const add: Pop[] = [];
@@ -144,6 +149,9 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "action":
       cur = { n: (state.cur?.n ?? 0) + 1, actor: ev.actor, spell: ev.spell, target: ev.target, type: state.info[ev.actor].type, name: ev.name };
+      break;
+    case "ultimateGauge":
+      info = { ...state.info, [ev.target]: { ...state.info[ev.target], ultimateGauge: ev.current } };
       break;
     case "damage":
       patch(ev.target, { hp: ev.hp, shield: ev.shield });
@@ -186,7 +194,7 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
   }
   const pops = add.length ? [...state.pops, ...add].slice(-MAX_POPS) : state.pops;
-  return { ...state, idx: state.idx + 1, units, cur, round, end, pops, popSeq };
+  return { ...state, idx: state.idx + 1, info, units, cur, round, end, pops, popSeq };
 }
 
 /** Rejoue tout le journal d'un coup (bouton « fin », vérifications). */
@@ -208,6 +216,8 @@ export function holdFor(log: BattleEvent[], i: number): number {
     case "action":
       // Le temps de l'élan vers la cible, avant l'impact
       return 480;
+    case "ultimateGauge":
+      return 30;
     case "damage":
       if (next?.kind === "ko") return 150;
       // Zone : les coups s'enchaînent

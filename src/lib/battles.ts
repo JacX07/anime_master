@@ -6,7 +6,7 @@
 import type { BattleMode, CardType, Rarity, TeamKind } from "../generated/prisma/enums";
 import type { Prisma } from "../generated/prisma/client";
 import {
-  applyAction, autoAction, battle, createBattle, currentActor, legalActions, seededRandom,
+  BATTLE, applyAction, autoAction, battle, createBattle, currentActor, legalActions, seededRandom,
   type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId,
 } from "./battle";
 import { prisma } from "./db";
@@ -361,7 +361,12 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     choices: running ? legalActions(st) : [],
     // Prêt quand spellIn ≤ 1 au début de l'action (voir Unit.spellIn dans battle.ts)
     wait: running
-      ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => [[u.id, Math.max(0, u.spellIn - 1)], [`${u.id}:special`, Math.max(0, u.pIn - 1)]])))
+      ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => [
+          [u.id, Math.max(0, u.spellIn - 1)],
+          [`${u.id}:special`, Math.max(0, u.pIn - 1)],
+          [`${u.id}:tertiary`, Math.max(0, u.tIn - 1)],
+          [`${u.id}:ultimate`, Math.max(0, BATTLE.ultimateGaugeMax - u.ultimateGauge)],
+        ])))
       : {},
     characters: await charactersOf(teams),
   };
@@ -419,7 +424,7 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
   return toView(row, replay(row.teams as unknown as BattleTeams, row.seed, row.actions as unknown as Action[]));
 }
 
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special";
+const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
 export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date()): Promise<BattleView> {

@@ -2,17 +2,20 @@
 
 import { useEffect, useRef } from "react";
 import type { CardType } from "@/generated/prisma/enums";
-import { affinity as typeAffinity, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
+import { affinity as typeAffinity, BATTLE, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
+import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
+import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
 import { TypeIcon } from "../icons";
 import type { PlayerCharacter } from "./BattlePlayer";
 
 const num = new Intl.NumberFormat("fr-FR");
 
-/** Sorts de la carte choisie : sort de base et sort affilié de son type. */
+/** Sorts de la carte choisie : base, affilié, secondaire, tertiaire et ultime. */
 export function SpellsPanel({
   unit,
   character,
@@ -30,6 +33,8 @@ export function SpellsPanel({
     wait: number;
     /** Actions à attendre avant le sort de personnage */
     waitSpecial: number;
+    /** Actions à attendre avant le tertiaire */
+    waitTertiary: number;
     busy: boolean;
     error?: string | null;
     onSpell: (spell: Spell) => void;
@@ -40,11 +45,12 @@ export function SpellsPanel({
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
   const weakVs = types.find((t) => typeAffinity(unit.type, t) < 1)!;
   const basic = basicAttackOf(unit.characterId, unit.rarity, unit.type);
-  const spells: { key: "base" | "affinity" | "special"; title: React.ReactNode; target: string; text: string; note: string | null }[] = [
+  const spells: { key: Spell; title: React.ReactNode; target: string; text: string; note: string | null }[] = [
     { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, note: null },
     { key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN },
   ];
-  const own = spellOf(unit.characterId, unit.rarity, unit.type);
+  const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
+  const own = rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null;
   if (own) {
     spells.push({
       key: "special" as const,
@@ -52,6 +58,30 @@ export function SpellsPanel({
       target: SPELL_TARGET_LABEL[own.target ?? "none"],
       text: describeSpell(own),
       note: `Rechargement : ${SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.`,
+    });
+  }
+  const hasCharacterSlots = unit.rarity === "SSR" || unit.rarity === "UR";
+  const ultimateGauge = unit.ultimateGauge ?? 0;
+  const ultimateGaugeMax = unit.ultimateGaugeMax ?? BATTLE.ultimateGaugeMax;
+  const rawTertiary = hasCharacterSlots ? TERTIARY_SPELLS[unit.characterId] : undefined;
+  const tertiary = rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
+  if (tertiary) {
+    spells.push({
+      key: "tertiary",
+      title: <>◇ {tertiary.name}</>,
+      target: SPELL_TARGET_LABEL[tertiary.target ?? "none"],
+      text: describeSpell(tertiary),
+      note: `Rechargement : ${BATTLE.tertiaryCooldown} actions, disponible dès la 1re action.`,
+    });
+  }
+  const ultimate = hasCharacterSlots ? ULTIMATE_CATALOG[unit.characterId] : undefined;
+  if (ultimate) {
+    spells.push({
+      key: "ultimate",
+      title: <>✦ {ultimate.name}</>,
+      target: SPELL_TARGET_LABEL[ultimate.target ?? "none"],
+      text: describeSpell(ultimate),
+      note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugePerHit} par action offensive réussie.`,
     });
   }
   return (
@@ -88,15 +118,16 @@ export function SpellsPanel({
       )}
       <div className="bt-spell-list">
         {spells.map((s) => {
-          const wait = s.key === "special" ? choose?.waitSpecial ?? 0 : choose?.wait ?? 0;
+          const wait = s.key === "special" ? choose?.waitSpecial ?? 0 : s.key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0;
           const ready = !choose || choose.choices.some((c) => c.spell === s.key);
+          const turnsWait = s.key === "affinity" || s.key === "special" || s.key === "tertiary";
           const body = (
             <>
               <b>{s.title}</b>
               <em>{s.target}</em>
               <p>{s.text}</p>
-              {s.note && <small>{choose && !ready ? `Prêt dans ${wait} action${wait > 1 ? "s" : ""}.` : s.note}</small>}
-              {choose && !ready && s.key !== "base" && wait > 0 && (
+              {s.note && <small>{choose && !ready && turnsWait ? `Prêt dans ${wait} action${wait > 1 ? "s" : ""}.` : s.note}</small>}
+              {choose && !ready && turnsWait && s.key !== "base" && wait > 0 && (
                 <span className="bt-wait" aria-hidden>
                   {wait}
                 </span>
@@ -108,7 +139,7 @@ export function SpellsPanel({
               key={s.key}
               type="button"
               className="bt-spell"
-              data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || undefined}
+              data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}
               aria-pressed={choose.spell === s.key}
               disabled={!ready || choose.busy}
               onClick={() => choose.onSpell(s.key)}
@@ -116,7 +147,7 @@ export function SpellsPanel({
               {body}
             </button>
           ) : (
-            <div key={s.key} className="bt-spell" data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || undefined}>
+            <div key={s.key} className="bt-spell" data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}>
               {body}
             </div>
           );

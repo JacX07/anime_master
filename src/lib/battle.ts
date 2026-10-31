@@ -8,6 +8,9 @@ import type { CardType, Rarity } from "../generated/prisma/enums";
 
 import { basicAttackOf, type BasicRider } from "./basic-attacks";
 import { spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
+import { balanceSecondary, powerTertiaryDamage } from "./character-skills";
+import { TERTIARY_SPELLS } from "./tertiary-catalog";
+import { ULTIMATE_CATALOG } from "./ultimate-catalog";
 
 export type Random = () => number;
 
@@ -44,8 +47,13 @@ export interface BattleCard {
   noSpell?: boolean;
   /** Désactive seulement l'effet de l'attaque de base (simulations d'équilibre) */
   noBasicAttack?: boolean;
+  /** Désactive l'ultime ou le sort tertiaire (simulations d'équilibre) */
+  noUltimate?: boolean;
+  noTertiary?: boolean;
   /** Sort de personnage imposé (Spell Builder) : prioritaire sur celui de spells.ts */
   spell?: CharacterSpell;
+  ultimate?: CharacterSpell;
+  tertiary?: CharacterSpell;
 }
 
 /** Passif d'arme : esquive des sorts affiliés adverses, ou renfort de l'ATK des alliés d'un type (porteur compris). */
@@ -77,6 +85,15 @@ export const BATTLE = {
   weak: 0.95,
   /** Actions du lanceur entre deux sorts affiliés ; le premier sort part à sa 2e action */
   spellCooldown: 3,
+  /** Rechargement du sort tertiaire, en actions du lanceur. */
+  tertiaryCooldown: 7,
+  /** Coefficient de balance des effets secondaires (les effets légers gardent leur identité). */
+  secondaryEffectScale: 0.6,
+  /** Le tertiaire doit au moins rivaliser avec une frappe de base. */
+  tertiaryDamageScale: 1.7,
+  /** Jauge personnelle d'ultime : trois actions offensives réussies la chargent presque entièrement. */
+  ultimateGaugeMax: 100,
+  ultimateGaugePerHit: 34,
   /** Passif UR : bonus ATK/DEF donné à chaque allié de la même franchise, cumulable entre UR, plafonné */
   passivePerUr: 0.1,
   passiveCap: 0.3,
@@ -96,6 +113,8 @@ export const BATTLE = {
   healBelow: 0.7,
   /** En automatique, Combat garde son sort au plus N actions en attendant une cible exposée (si un allié Mystère est en vie) */
   comboHold: 2,
+  /** Un bouclier léger ne déclenche pas le bonus offensif du duo Cœur. */
+  comboShieldThreshold: 0.1,
 };
 
 /** Cycle d'affinités : chaque type est fort contre le suivant et faible contre le précédent. */
@@ -115,9 +134,11 @@ export interface BattleOptions {
   combos?: boolean;
   /** Sorts de personnage des SSR et UR (par défaut : oui) */
   spells?: boolean;
+  /** Force le premier camp (simulation uniquement ; le jeu réel choisit selon Puissance). */
+  startingSide?: Side | null;
 }
 
-export type Spell = "base" | "affinity" | "special";
+export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
 export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
@@ -139,6 +160,8 @@ export interface UnitView {
   maxHp: number;
   hp: number;
   shield: number;
+  ultimateGauge: number;
+  ultimateGaugeMax: number;
 }
 
 /**
@@ -150,6 +173,7 @@ export type BattleEvent =
   | { kind: "round"; round: number }
   /** Une carte agit ; target = null pour la zone d'Aventure. name personnalise le sort spécial ou l'attaque de base. */
   | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string }
+  | { kind: "ultimateGauge"; target: UnitId; amount: number; current: number; max: number }
   | {
       kind: "damage";
       source: UnitId;
@@ -215,6 +239,10 @@ interface Unit {
   /** Sort de personnage, actions avant qu'il soit prêt (prêt quand pIn ≤ 1), et résurrection déjà utilisée */
   spell: CharacterSpell | null;
   pIn: number;
+  tertiary: CharacterSpell | null;
+  tIn: number;
+  ultimate: CharacterSpell | null;
+  ultimateGauge: number;
   revived: boolean;
   fx: Fx[];
 }
@@ -278,6 +306,8 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
   return team.map((card, i) => {
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
     const p = weaponOf(card)?.passive;
+    const rawSecondary = opts.spells && !card.noSpell ? card.spell ?? spellOf(card.characterId, card.rarity, card.type) : null;
+    const rawTertiary = opts.spells && !card.noTertiary ? card.tertiary ?? TERTIARY_SPELLS[card.characterId] ?? null : null;
     return {
       id: `${side}${i + 1}` as UnitId,
       card, side, maxHp, hp: maxHp, shield: 0,
@@ -286,8 +316,13 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.cooldownStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
       spellIn: 2, held: 0, exposed: false, weaken: 0, elan: 0,
-      spell: opts.spells && !card.noSpell ? card.spell ?? spellOf(card.characterId, card.rarity, card.type) : null,
-      pIn: SPELL_FIRST, revived: false, fx: [],
+      spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
+      pIn: SPELL_FIRST,
+      tertiary: rawTertiary ? (card.tertiary ? card.tertiary : powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale)) : null,
+      tIn: SPELL_FIRST,
+      ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
+      ultimateGauge: 0,
+      revived: false, fx: [],
     };
   });
 }
@@ -295,6 +330,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
 const view = (u: Unit): UnitView => ({
   id: u.id, characterId: u.card.characterId, rarity: u.card.rarity, type: u.card.type,
   atk: u.atk, def: u.def, maxHp: u.maxHp, hp: u.hp, shield: u.shield,
+  ultimateGauge: u.ultimateGauge, ultimateGaugeMax: BATTLE.ultimateGaugeMax,
 });
 const enemy = (s: Side): Side => (s === "A" ? "B" : "A");
 const alive = (st: BattleState, s: Side) => st.teams[s].filter((u) => u.hp > 0);
@@ -303,10 +339,10 @@ const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m))
 const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.hp / m.maxHp ? x : m));
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
-  const opts = { passive: true, franchise: true, combos: true, spells: true, ...options };
+  const opts = { passive: true, franchise: true, combos: true, spells: true, ...options, startingSide: options.startingSide ?? null };
   const teams: Record<Side, Unit[]> = { A: makeUnits(a, "A", opts), B: makeUnits(b, "B", opts) };
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
-  const first: Side = maxPower(b) > maxPower(a) ? "B" : "A";
+  const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
     rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, log: [], result: null,
   };
@@ -363,7 +399,22 @@ export function currentActor(st: BattleState): UnitView | null {
   return null;
 }
 
-/** Ce que la carte courante peut faire : le sort de base sur un ennemi, et le sort affilié s'il est prêt. */
+/** Sort personnel associé à une action spéciale. */
+function spellFor(u: Unit, slot: "special" | "tertiary" | "ultimate"): CharacterSpell | null {
+  return slot === "special" ? u.spell : slot === "tertiary" ? u.tertiary : u.ultimate;
+}
+
+/** Cibles possibles d'un sort personnel donné. */
+function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (UnitId | null)[] {
+  switch (spell.target) {
+    case "foe": return alive(st, enemy(u.side)).map((x) => x.id);
+    case "ally": return alive(st, u.side).map((x) => x.id);
+    case "deadAlly": return u.revived ? [] : st.teams[u.side].filter((x) => x.hp <= 0).map((x) => x.id);
+    default: return [null];
+  }
+}
+
+/** Ce que la carte courante peut faire : attaque de base, sorts prêts et ultime chargé. */
 export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId | null)[] }[] {
   const id = currentActor(st)?.id;
   if (!id) return [];
@@ -376,45 +427,40 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
     const targets = t === "AVENTURE" ? [null] : t === "COEUR" ? alive(st, u.side).map((x) => x.id) : foes;
     list.push({ spell: "affinity", targets });
   }
-  if (u.spell && u.pIn <= 1) {
-    const targets = specialTargets(st, u);
-    if (targets.length) list.push({ spell: "special", targets });
+  for (const slot of ["special", "tertiary", "ultimate"] as const) {
+    const spell = spellFor(u, slot);
+    const ready = slot === "special" ? u.pIn <= 1 : slot === "tertiary" ? u.tIn <= 1 : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
+    if (!spell || !ready) continue;
+    const targets = targetsForSpell(st, u, spell);
+    if (targets.length) list.push({ spell: slot, targets });
   }
   return list;
 }
 
-/** Cibles possibles du sort de personnage (vide : pas lançable maintenant, par exemple sans allié mort à réanimer). */
-function specialTargets(st: BattleState, u: Unit): (UnitId | null)[] {
-  switch (u.spell!.target) {
-    case "foe": return alive(st, enemy(u.side)).map((x) => x.id);
-    case "ally": return alive(st, u.side).map((x) => x.id);
-    case "deadAlly": return u.revived ? [] : st.teams[u.side].filter((x) => x.hp <= 0).map((x) => x.id);
-    default: return [null];
-  }
-}
-
-/** Mode auto : le sort de personnage part dès qu'il est prêt, sauf soin, bouclier, purge ou réanimation sans besoin. */
-function autoSpecial(st: BattleState, u: Unit): Action | null {
-  if (!u.spell || u.pIn > 1) return null;
-  const targets = specialTargets(st, u);
+/** Mode auto : lance un sort personnel prêt si sa cible et son effet sont utiles. */
+function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): Action | null {
+  const spell = spellFor(u, slot);
+  const ready = slot === "special" ? u.pIn <= 1 : slot === "tertiary" ? u.tIn <= 1 : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
+  if (!spell || !ready) return null;
+  const targets = targetsForSpell(st, u, spell);
   if (!targets.length) return null;
   const allies = alive(st, u.side), foes = alive(st, enemy(u.side));
-  const fx = u.spell.effects;
+  const fx = spell.effects;
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
-  if (u.spell.target === "deadAlly") return { spell: "special", target: targets[0] };
+  if (spell.target === "deadAlly") return { spell: slot, target: targets[0] };
   if (fx.some((e) => e.k === "heal" || e.k === "purge") && fx.every((e) => e.k === "heal" || e.k === "purge")) {
     const hurt = allies.some((x) => x.hp < x.maxHp * BATTLE.healBelow);
     const dirty = fx.some((e) => e.k === "purge") && allies.some((x) => x.fx.some((f) => MALUS.has(f.key)) || x.exposed || x.weaken > 0);
     if (!hurt && !dirty) return null;
   }
   if (only("shield") && allies.every((x) => x.shield > x.maxHp * 0.05)) return null;
-  if (u.spell.target === "ally") return { spell: "special", target: mostHurt(allies).id };
-  if (u.spell.target === "foe") {
+  if (spell.target === "ally") return { spell: slot, target: mostHurt(allies).id };
+  if (spell.target === "foe") {
     const control = fx.some((e) => e.k === "silence");
     const pick = control ? foes.reduce((m, x) => (x.atk > m.atk ? x : m)) : weakest(foes);
-    return { spell: "special", target: pick.id };
+    return { spell: slot, target: pick.id };
   }
-  return { spell: "special", target: null };
+  return { spell: slot, target: null };
 }
 
 /** Stratégie automatique (mode auto et PvM en arrière-plan) : vise l'ennemi qui a le moins de PV. */
@@ -426,8 +472,12 @@ export function autoAction(st: BattleState): Action {
   const allies = alive(st, u.side);
   const base: Action = { spell: "base", target: weakest(foes).id };
   if (hasFx(u, "silence")) return base;
-  const special = autoSpecial(st, u);
+  const ultimate = autoSpecial(st, u, "ultimate");
+  if (ultimate) return ultimate;
+  const special = autoSpecial(st, u, "special");
   if (special) return special;
+  const tertiary = autoSpecial(st, u, "tertiary");
+  if (tertiary) return tertiary;
   if (u.spellIn > 1) return base;
   const t = u.card.type;
   if (t === "COMBAT") {
@@ -453,11 +503,13 @@ export function applyAction(st: BattleState, action: Action) {
   const { rng, opts, log } = st;
   if (u.spellIn > 0) u.spellIn--;
   if (u.pIn > 0) u.pIn--;
+  if (u.tIn > 0) u.tIn--;
 
   // Un bonus ignore-DEF reste applicable à tous les coups d'une même action (par exemple une zone).
   const pendingIgnoreFx = u.fx.find((f) => f.key === "ignoreDef");
   const pendingIgnoreDef = pendingIgnoreFx?.amount ?? 0;
   let consumedIgnoreFx = false;
+  let landedHit = false;
   const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false) => {
     // L'ignore-DEF accordé par une attaque de base est consommé sur la prochaine action offensive.
     if (pendingIgnoreFx && !consumedIgnoreFx) {
@@ -473,8 +525,8 @@ export function applyAction(st: BattleState, action: Action) {
     }
     const def = t.def * (1 + clamp(fxSum(t, "def"), -BATTLE.statCap, BATTLE.statCap)) * (1 - ignoreDef);
     let atk = u.atk * (1 + (u.elan > 0 ? 0.1 : 0) - (u.weaken > 0 ? 0.2 : 0) + clamp(fxSum(u, "atk"), -BATTLE.statCap, BATTLE.statCap));
-    // Combo Cœur : une carte protégée par un bouclier tape plus fort
-    if (opts.combos && u.shield > 0) atk *= 1.15;
+    // Combo Cœur : un bouclier couvrant au moins 10 % des PV max renforce les attaques.
+    if (opts.combos && u.shield >= u.maxHp * BATTLE.comboShieldThreshold) atk *= 1.15;
     const aff = affinity(u.card.type, t.card.type);
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
     const crit = critSure || rng() < clamp(BATTLE.critRate + fxSum(u, "crit"), 0, BATTLE.critCap);
@@ -487,6 +539,7 @@ export function applyAction(st: BattleState, action: Action) {
       kind: "damage", source: u.id, target: t.id, amount: dmg, absorbed, crit,
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
+    if (dmg > 0) landedHit = true;
     if (t.hp === 0) log.push({ kind: "ko", target: t.id });
     return dmg;
   };
@@ -527,9 +580,15 @@ export function applyAction(st: BattleState, action: Action) {
   };
 
   const basic = action.spell === "base" && !u.card.noBasicAttack ? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
-  const actionName = action.spell === "special" ? u.spell?.name : basic?.name;
+  const activeSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
+  const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : activeSpell?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}) });
   const target = action.target ? unit(st, action.target) : null;
+  if (action.spell === "ultimate") {
+    const spent = u.ultimateGauge;
+    u.ultimateGauge = 0;
+    log.push({ kind: "ultimateGauge", target: u.id, amount: -spent, current: 0, max: BATTLE.ultimateGaugeMax });
+  }
   if (action.spell === "base") {
     if (u.spellIn === 0) u.held++;
     const amount = hit(target!, 1);
@@ -565,11 +624,12 @@ export function applyAction(st: BattleState, action: Action) {
       };
       applyRider(basic.rider);
     }
-  } else if (action.spell === "special") {
-    u.pIn = SPELL_COOLDOWN;
+  } else if (action.spell === "special" || action.spell === "tertiary" || action.spell === "ultimate") {
+    if (action.spell === "special") u.pIn = SPELL_COOLDOWN;
+    if (action.spell === "tertiary") u.tIn = BATTLE.tertiaryCooldown;
     const who = (scope: Scope): Unit[] =>
       scope === "self" ? [u] : scope === "team" ? alive(st, u.side) : scope === "foes" ? alive(st, enemy(u.side)) : target && target.hp > 0 ? [target] : [];
-    for (const e of u.spell!.effects) {
+    for (const e of activeSpell!.effects) {
       switch (e.k) {
         case "damage": {
           const targets = e.zone ? alive(st, enemy(u.side)) : target ? [target] : [];
@@ -616,7 +676,7 @@ export function applyAction(st: BattleState, action: Action) {
             target.hp = target.maxHp * e.pct;
             target.shield = 0;
             target.fx = [];
-            Object.assign(target, { exposed: false, weaken: 0, elan: 0, spellIn: 2, pIn: SPELL_FIRST, held: 0 });
+            Object.assign(target, { exposed: false, weaken: 0, elan: 0, spellIn: 2, pIn: SPELL_FIRST, tIn: SPELL_FIRST, held: 0 });
             log.push({ kind: "revive", source: u.id, target: target.id, hp: target.hp });
           }
           break;
@@ -655,6 +715,11 @@ export function applyAction(st: BattleState, action: Action) {
       for (const f of foes) hit(f, 0.6);
       for (const x of allies) setStatus(x, "elan", BATTLE.statusTurns);
     }
+  }
+  if (landedHit && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {
+    const old = u.ultimateGauge;
+    u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + BATTLE.ultimateGaugePerHit);
+    log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
   if (u.elan > 0) setStatus(u, "elan", u.elan - 1);
   if (u.weaken > 0) setStatus(u, "weaken", u.weaken - 1);

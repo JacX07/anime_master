@@ -377,6 +377,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                 spell,
                 wait: live.wait[spellUnit] ?? 0,
                 waitSpecial: live.wait[`${spellUnit}:special`] ?? 0,
+                waitTertiary: live.wait[`${spellUnit}:tertiary`] ?? 0,
                 busy: live.busy,
                 error: live.error,
                 onSpell: (s) => {

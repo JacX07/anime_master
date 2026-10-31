@@ -11,8 +11,8 @@ Un vrai combat de cartes, où le type, la rareté et les synergies d'équipe com
 
 ### Décisions validées
 - **4 cartes contre 4.** Le quiz est abandonné (il pourra revenir plus tard comme bonus).
-- Chaque carte a un **sort de base**, un **sort affilié** à son type (avec cooldown) et, pour les SSR et UR, un **ultime** *(désactivé pour le moment, voir §4)*.
-- **Ultime** : un par anime pour les SSR. Les UR ont deux ultimes, celui de leur anime et un ultime personnel ; le joueur choisit lequel utiliser.
+- Chaque carte a un **sort de base**, un **sort affilié** à son type (avec cooldown) et, pour les SSR et UR, un secondaire, un tertiaire et un ultime/passif fort personnalisés.
+- Les **236 SSR/UR actifs** ont une fiche unique pour chacun de leurs quatre emplacements personnalisés ; l'implémentation et la simulation sont décrites au §4 bis et §4 ter.
 - **Passif UR** : bonus pour les alliés du même anime (franchise), plafonné.
 - La rareté ne doit pas tout décider : une bonne combinaison SSR + SR doit pouvoir battre UR + SR au hasard.
 - **Pas de formation** (avant / arrière) : testée, elle n'apportait rien.
@@ -50,23 +50,23 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 | 🔥 Combat | Frappe | 1,5× ATK, ignore 40 % de la DEF ; ×1,7 sur une cible **exposée** (et l'exposition est consommée) |
 | 🔮 Mystère | Ouverture | 0,8× ATK (1,2× si aucun allié Combat n'est en vie) ; la cible devient **exposée** (jusqu'au prochain sort de Combat sur elle) et **affaiblie** (ATK −20 %) pendant ses 2 prochaines actions |
 | ✨ Magie | Vampire | 1,2× ATK ; soigne de 50 % des dégâts infligés le lanceur et chaque allié Cœur |
-| 💗 Cœur | Soutien | Soigne de 30 % de ses PV max l'allié ciblé (en automatique : le plus blessé), puis donne à toute l'équipe un bouclier de 10 % de ses PV max ; un allié protégé par un bouclier inflige +15 % |
+| 💗 Cœur | Soutien | Soigne de 30 % de ses PV max l'allié ciblé (en automatique : le plus blessé), puis donne à toute l'équipe un bouclier de 10 % de ses PV max ; un allié dont le bouclier restant couvre au moins 10 % de ses PV max inflige +15 % |
 | 🧭 Aventure | Zone | 0,6× ATK sur tous les ennemis ; toute l'équipe gagne l'**élan** (ATK +10 %) pendant 2 actions |
 
-**Combos en duo** : Mystère expose, Combat frappe la cible exposée ; Cœur protège, les alliés protégés tapent plus fort ; Magie partage son drain avec Cœur. Le +15 % vaut pour tout bouclier, y compris celui du second joueur au 1er tour.
+**Combos en duo** : Mystère expose, Combat frappe la cible exposée ; Cœur protège, les alliés protégés tapent plus fort ; Magie partage son drain avec Cœur. Le +15 % ne se déclenche qu'avec au moins 10 % des PV max en bouclier restant, y compris pour celui du second joueur au 1er tour.
 
-**Mode manuel** : à chaque action, le joueur choisit le sort (base, affilié, personnel ou ultime si disponible) et la cible. Base, Combat, Mystère et Magie visent un ennemi vivant ; Cœur un allié vivant ; Aventure n'a pas de cible (zone).
+**Mode manuel** : à chaque action, le joueur choisit le sort (base, affilié, secondaire, tertiaire ou ultime si chargé) et la cible. Base, Combat, Mystère et Magie visent un ennemi vivant ; Cœur un allié vivant ; Aventure n'a pas de cible (zone).
 
 **Mode automatique** (et PvM en arrière-plan) : Cœur ne lance son sort que si un allié est sous 70 % de PV. Combat garde son sort au plus 2 actions en attendant une cible exposée, si un allié Mystère est en vie.
 
-**Ultime** : désactivé dans le moteur pour l'instant. Les règles et effets proposés sont au §4 ter. Chaque activation prend l'action de la carte, sauf l'effet explicitement déclenché par une mort ou une résurrection passive.
+**Ultime** : se charge en combat (§4 ter). Son activation utilise l'action de la carte ; l'IA automatique le privilégie dès qu'il peut être lancé utilement.
 
-### 4 bis. Sorts de personnage *(proposé le 2026-10-31, révisé : plus de variété ; à valider)*
-Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec son cooldown. Il s'ajoute au sort de base personnalisé, au sort affilié et à l'ultime, en manuel comme en automatique.
+### 4 bis. Sorts secondaires et tertiaires personnalisés *(intégrés)*
+Les SSR et UR ont deux sorts actifs personnalisés en plus de leur attaque de base, de leur sort affilié et de leur ultime. Les deux sont disponibles en manuel et en automatique ; une carte ne lance qu'un sort par action.
 
-- **Cooldown 5 actions**, disponible dès la 1re action de la carte *(changé le 2026-10-31, avant : 3ᵉ action)*. Le sort affilié et le sort perso ont chacun leur compteur ; une carte ne lance qu'un sort par action.
-- **Format** : une liste d'effets du vocabulaire ci-dessous, écrite en données (`src/lib/spells.ts`). Un SSR ou UR sans sort écrit reçoit un sort générique déduit de son type et de son rôle.
-- **Variété** : au plus **un tiers** des sorts sont des attaques ; les autres soignent, protègent, affaiblissent ou contrôlent. Un sort sans dégâts est compensé par un effet fort (un sort de soutien peut avoir un effet que l'attaque pure n'a pas).
+- Le **secondaire** est défini dans `src/lib/spells.ts`, avec un cooldown de 5 actions. Les 236 SSR/UR ont une entrée, nommée et personnalisée ; les entrées restantes utilisent des archétypes thématiques. Les effets quantitatifs sont modérés au coefficient **0,6** (`balanceSecondary`) : dégâts de zone entre 0,4× et 0,5× ATK, coups directs avec silence plafonnés à 1,1× et coups qui traversent les boucliers à 1,25×, ignore-DEF plafonné à 10–15 %, poison à 3 % par action, effets d'équipe/ennemis à 8 % (esquive d'équipe et réduction d'ATK ennemie à 5 %), boucliers d'équipe à 3 % et réanimations à 15–20 %.
+- Le **tertiaire** est défini dans `src/lib/tertiary-catalog.ts` pour les 236 cartes. Il a un cooldown de **7 actions**, disponible dès la première, et combine en général une frappe autour de 1,05× ATK après coefficient et un petit effet d'une action.
+- `src/lib/character-skills.ts` contient les coefficients de balance. Les fiches et leur impact individuel sont dans le rapport de simulation §7.
 
 **Vocabulaire d'effets** *(les durées sont en actions de la carte qui porte l'effet, comme Affaibli et Élan aujourd'hui)* :
 
@@ -138,13 +138,13 @@ Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec s
 
 Les noms et effets sont des propositions, modifiables.
 
-### 4 ter. Attaques de base SSR/UR et ultimes *(attaques de base intégrées ; ultimes à implémenter)*
+### 4 ter. Attaques de base SSR/UR et ultimes *(intégrés)*
 
-Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR/UR conserve son ultime d'anime ; une UR choisit avant le combat entre son ultime d'anime et son ultime personnel. Une activation active consomme l'action du personnage. Une carte ne peut avoir qu'un seul ultime équipé.
+L'ultime reste distinct des sorts secondaire et tertiaire (§4 bis). Une activation consomme l'action du personnage. La fiche de chaque SSR/UR vient du catalogue statique ; à terme, si une carte propose plusieurs ultimes, l'équipe pourra en équiper un seul.
 
-**Attaque de base personnalisée** : les **236 SSR/UR actifs** ont chacun une fiche statique avec un nom et un effet dans `src/lib/basic-attack-roster.ts`. Les 47 fiches personnalisées sont listées ci-dessous ; les 189 autres portent chacune le nom unique de leur sort signature, précédé de « Frappe inspirée de », avec un effet léger tiré de son archétype. `npx tsx scripts/generate-basic-attacks.ts` régénère le snapshot depuis la base et les sorts actuels. Pour un futur personnage sans fiche, le moteur garde un fallback depuis son sort ou le sort générique de son type. Chaque coup reste à **1× ATK** et applique un seul petit effet s'il touche. Il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points jusqu'à la prochaine action, ignore-DEF 3 % sur la prochaine attaque, bouclier ou soin de 2 % des PV max (0,08 % pour Gojo, 0,1 % pour Nishinoya et 0,5 % pour Rei, Megumi, Roxy, Izumi et Nezuko après calibrage), drain de 2 % des dégâts, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas. Ces attaques visent au plus **+1 point de victoire** face à une attaque générique ; la simulation complète est dans `docs/reports/basic-attacks-simulation.md`.
+**Attaque de base personnalisée** : les **236 SSR/UR actifs** ont chacun une fiche statique avec un nom et un effet dans `src/lib/basic-attack-roster.ts`. Les 47 fiches personnalisées sont listées ci-dessous ; les 189 autres portent chacune le nom unique de leur sort signature, précédé de « Frappe inspirée de », avec un effet léger tiré de son archétype. `npx tsx scripts/generate-basic-attacks.ts` régénère le snapshot depuis la base et les sorts actuels. Pour un futur personnage sans fiche, le moteur garde un fallback depuis son sort ou le sort générique de son type. Chaque coup reste à **1× ATK** et applique un seul petit effet s'il touche. Il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points jusqu'à la prochaine action, ignore-DEF 3 % sur la prochaine attaque, bouclier ou soin de 2 % des PV max (0,08 % pour Gojo, 0,1 % pour Nishinoya et 0,5 % pour Rei, Megumi, Roxy, Izumi et Nezuko après calibrage), drain de 2 % des dégâts, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas.
 
-**Calibration finale** *(2026-10-31, 5 000 paires de combats par personnage, graines appariées et camps inversés)* : effet moyen **+0,26 point** par attaque personnalisée ; l'équipe mixte 2 UR + 2 SSR avec tous les riders gagne **49,97 %** contre sa copie sans riders (**−0,03 point, IC 95 % ±0,26**). Aucun rider ne dépasse +1 point au-delà de son intervalle de confiance. Les valeurs de soin et de bouclier signalées ci-dessus ont été abaissées après les premiers résultats.
+**Calibration actuelle** *(2026-10-31, 500 paires par fiche, camps inversés)* : l'effet moyen d'une attaque de base personnalisée est de **+1,12 point de victoire** face à l'attaque générique. Les résultats complets, après l'ajustement du bonus de combo des boucliers, figurent dans le rapport des quatre slots.
 
 | Personnage | Attaque de base (1× ATK) | Petit effet |
 |---|---|---|
@@ -197,36 +197,11 @@ Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR
 | All Might | Poing du One For All | ATK d'All Might +3 % sur sa prochaine attaque |
 | Todoroki | Éclat de glace et de feu | ATK de la cible −3 % pour sa prochaine action |
 
-**Jauge d'ultime** : jauge individuelle de **100** pour les SSR/UR, remplie de **34 points par action offensive réussie** qui inflige des dégâts à un adversaire (attaque de base, affiliée ou personnelle). Elle est plafonnée à 100, sans report de surplus. Une attaque de zone ne donne les points qu'une fois, même si elle touche quatre cibles. Les dégâts absorbés par un bouclier comptent comme une touche ; une esquive, un soin, un poison, les dégâts d'un ultime et les dégâts reçus ne chargent pas la jauge. À 100, l'ultime est prêt ; son activation remet la jauge à 0. Les actifs peuvent être rechargés et réutilisés, sauf limite indiquée dans leur effet. Emilia et Subaru ont des passifs sans jauge ; le passif d'apprentissage de Midoriya n'est pas un ultime.
+**Jauge d'ultime** : jauge individuelle de **100** pour les SSR/UR, remplie de **34 points par action offensive réussie** qui inflige des dégâts à un adversaire (attaque de base, affiliée, secondaire ou tertiaire). Elle est plafonnée à 100, sans report de surplus. Une attaque de zone ne donne les points qu'une fois, même si elle touche plusieurs cibles ; les dégâts absorbés par un bouclier comptent. Une esquive, un soin, un poison, les dégâts d'un ultime et les dégâts reçus ne chargent pas la jauge. L'activation remet la jauge à 0. Les entrées de `src/lib/ultimate-catalog.ts` peuvent donc être relancées après une nouvelle charge.
 
-**Calibration de la jauge** *(simulation de référence, 1 000 combats par réglage ; équipes de 2 UR + 2 SSR contre mêmes raretés sans ultimes)* : +34 par touche donne environ **+4 points de victoire**, **1,28 ultime lancé par équipe**, un ultime lancé dans 78 % des combats et une première activation vers le tour 4,1. À +20, seulement 26 % des combats voient un ultime. Le seuil de 34, soit trois actions offensives réussies, est donc retenu. Les valeurs des ultimes ci-dessous sont des propositions rééquilibrées à re-simuler une fois intégrées ; les passifs et effets de contrôle n'ont pas tous été simulés.
+**Catalogue ultime/passif fort** : les 236 SSR/UR ont une entrée nommée et un effet dans `src/lib/ultimate-catalog.ts`. Le moteur réutilise le vocabulaire d'effets pris en charge par `CharacterSpell` ; les idées qui demandent un déclenchement à la mort, une possession, une exécution conditionnelle, une action supplémentaire, une copie ou un reset de cooldown sont représentées par une approximation active (attaque, soin, bouclier, modificateur ou silence). En particulier, Puck et Retour par la mort sont actuellement des ultimes activés avec jauge, et non des passifs automatiques à la mort. Le rapport de simulation donne le nom, l'effet réellement joué et l'impact mesuré de chacune des 236 fiches.
 
-| Personnage | Ultime / effet proposé |
-|---|---|
-| **Sukuna** | **Extension de territoire** : pendant les deux prochains tours ennemis, chaque ennemi subit des dégâts égaux à **10 % de ses PV max** après sa prochaine action ; les boucliers absorbent ces dégâts. Maximum deux déclenchements par ennemi. |
-| **Gojo — Domaine** | Étourdit les **deux ennemis de plus haute Puissance** jusqu'à leur prochaine action ; chacun perd cette action. |
-| **Emilia — Puck** *(passif)* | Une fois par combat, si une attaque ennemie tue Emilia, Puck élimine son auteur. Contre un boss, Puck inflige **20 % de ses PV max** à la place. |
-| **Subaru — Retour** *(passif)* | Une fois par combat, Subaru revient automatiquement **après les deux prochaines actions ennemies** suivant sa mort, avec **50 % de ses PV max**. |
-| **Rem — Berserk démon** | Ses dégâts augmentent de **50 % sur sa prochaine attaque**. |
-| **Guts — Berserk** | Sa prochaine attaque est un critique garanti et ignore **30 % de la DEF**. |
-| **Griffith — Éclipse** | Sacrifie ses alliés encore vivants et transfère leurs PV actuels et leurs PV max à Griffith ; il gagne **15 % d'ATK par allié sacrifié** (maximum **45 %**) et jouera **une attaque de base supplémentaire juste après la prochaine action ennemie**. En automatique, l'IA attend qu'au moins un allié soit mort ; en manuel, le joueur garde le choix. Une activation par combat. |
-| **Luffy — Gear Second** | Remplace les versions de ses sorts de base, affilié et personnel par leurs versions Gear Second pour ses **deux prochaines actions** ; l'action d'activation joue immédiatement le sort transformé choisi à **1,5× ses dégâts normaux**, et Luffy gagne **25 % d'ATK** pendant ces deux actions. Les cooldowns continuent normalement ; la transformation n'accorde pas d'action bonus. |
-| **Madara — Sort illimité** | Utilisable lorsque la jauge est pleine et qu'au moins **deux alliés ont déjà lancé un sort non-basique**. Pendant l'action d'ultime, Madara lance **deux sorts ordinaires** au lieu d'un ; les sorts et leurs effets s'appliquent normalement. Une fois par combat. |
-| **Okabe Rintaro — Time Leap** | Après que deux alliés ont lancé un sort non-basique, remet à zéro les cooldowns des sorts affiliés et personnels de l'équipe. Ne recharge ni ne réinitialise les jauges d'ultime. |
-| **Gojo — Pourpre** | Inflige **0,85× ATK** à tous les ennemis et traverse les boucliers. |
-| **Kakashi — Copie** | Copie puis lance immédiatement un sort ordinaire d'une carte vivante alliée ou ennemie ; exclut ultimes, transformations et copies. En manuel, le joueur choisit le sort ; en automatique, il est choisi au hasard. La copie n'altère pas le cooldown de sa source. |
-| **Gon — Jajanken** | Se charge pendant une action et subit **25 % de dégâts en moins** pendant la charge. Sa prochaine attaque inflige **3× ATK** et ignore **100 % de la DEF**. |
-| **Killua — Vitesse céleste** | Remplace son action par **deux attaques** dans le même tour ; la seconde inflige **0,75× ATK**. La deuxième attaque ne déclenche pas d'action supplémentaire. |
-| **Denji — Tronçonneuse** | Pendant ses deux prochaines actions, gagne **30 % d'ATK** et récupère **70 % des dégâts reçus sur ses PV** chaque fois qu'il est touché. Le soin est plafonné aux PV max et ne le sauve pas d'un coup létal. |
-| **Makima — Manipulation** | Contrôle un ennemi non-boss pendant ses **deux prochaines actions** : il joue pour l'équipe de Makima avec ses actions ordinaires. Si, à la fin du contrôle, c'est le dernier ennemi vivant, il est exécuté. Une seule cible contrôlée à la fois. |
-| **Shikamaru — Possession des ombres** | Contrôle un ennemi dont la Puissance est strictement inférieure à celle de Shikamaru pendant ses **deux prochaines actions** ; il joue alors pour l'équipe de Shikamaru avec ses actions ordinaires. La jauge reste pleine si aucun ennemi admissible n'est disponible. |
-| **Chopper — Miracle médical** | Réanime tous les alliés morts avec **30 % de leurs PV max**. Une fois par combat. |
-| **Frieren — Magie ancienne** | Inflige **1,2× ATK** à chaque ennemi vivant. |
-| **Midoriya — Apprentissage du One For All** *(passif)* | Au début de chacun de ses tours, débloque un nouveau sort d'une liste de **cinq techniques prédéfinies**, jusqu'à cinq. Il conserve les techniques débloquées, mais ne joue toujours qu'une action par tour. Les cinq effets devront être écrits et calibrés avant intégration ; aucun sort ni dégât supplémentaire n'est lancé gratuitement. |
-| **All Might — One For All** | Restaure tous les PV d'All Might et donne **+30 % ATK à l'équipe pendant le prochain tour complet**. |
-| **Todoroki — Glace et feu** | Gèle l'ennemi de plus haute Puissance jusqu'à sa prochaine action (il la perd) ; tous les ennemis sont ralentis, représenté par **−10 % ATK sur leur prochaine action**, et brûlés, ce qui réduit de **50 % les soins reçus pendant leurs deux prochaines actions**. |
-
-La vitesse n'étant pas une statistique de combat aujourd'hui, « ralentir » Todoroki réduit temporairement les dégâts de l'action ennemie au lieu de modifier l'ordre de jeu. Makima ne peut pas contrôler les boss ; les autres contrôles suivent leurs conditions propres et les règles générales contre les boss (§4 bis). Les ultimes doivent être testés en équipe complète, car une valeur isolée ne reflète pas les synergies ni les actions sacrifiées.
+**Équilibrage** : la jauge, les quatre slots isolés et des équipes complètes ont été comparés par graines appariées, en inversant le camp qui commence. Les résultats finaux et les fiches extrêmes sont dans [le rapport de simulation SSR/UR](../reports/character-skills-simulation.md). Les résultats restent dépendants de l'IA automatique, des équipes miroirs et des effets actuellement pris en charge ; ils ne mesurent pas les mécaniques absentes du moteur comme une exécution conditionnelle ou un vrai tour supplémentaire.
 
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
@@ -247,10 +222,29 @@ Pour que la rareté ne décide pas tout en arène : N 1, R 2, SR 3, SSR 5, UR 8 
 | Celui qui commence (équipes miroir) | de 41 à 44 % |
 | Durée | 5,7 tours en moyenne, 95 % en 9 tours ou moins |
 
+### 7 bis. Calibration des slots SSR/UR (2026-10-31, 500 paires par fiche)
+
+Chaque fiche est comparée à une copie des mêmes équipes sans capacité personnalisée ; les graines sont appariées et le camp qui commence est inversé. Les quatre slots sont testés isolément pour les 236 SSR/UR, puis activés ensemble dans des équipes SSR, mixtes et UR. L'intervalle de confiance à 95 % est calculé sur les paires.
+
+| Slot | Fiches | Impact moyen | SSR | UR |
+|---|---:|---:|---:|---:|
+| Attaque de base | 236 | +1,12 pp | +1,14 pp | +1,08 pp |
+| Secondaire | 236 | −0,05 pp | +0,18 pp | −1,00 pp |
+| Tertiaire | 236 | +4,01 pp | +3,84 pp | +4,68 pp |
+| Ultime | 236 | +5,35 pp | +5,28 pp | +5,63 pp |
+
+| Équipe complète | Victoires contre sa copie | Impact des quatre slots | IC 95 % | Ultimes lancés par équipe | Combats avec ultime | Premier ultime |
+|---|---:|---:|---:|---:|---:|---:|
+| 4 SSR | 51,45 % | +1,45 pp | ±3,03 pp | 1,90 | 98,8 % | tour 4,0 |
+| 2 UR + 2 SSR | 47,20 % | −2,80 pp | ±3,07 pp | 1,83 | 99,8 % | tour 4,0 |
+| 4 UR | 50,90 % | +0,90 pp | ±3,13 pp | 1,78 | 99,1 % | tour 4,0 |
+
+Les trois résultats d'équipe restent dans leur intervalle de confiance autour de 50 %. La jauge de **100**, chargée de **34 par touche offensive**, donne environ **1,8 à 1,9 ultime par équipe et par combat** ; au moins 98,8 % des combats voient un ultime, vers le 4ᵉ tour. Le détail des 944 fiches et des extrêmes est dans [le rapport de simulation](../reports/character-skills-simulation.md).
+
 ### 8. Reste à décider
 - Budget d'équipe et son plafond : à mettre en place plus tard.
-- Mode manuel *(décidé le 2026-10-31)* : à chaque action, le joueur choisit le sort (base, affilié, personnel ou ultime s'il est disponible) et la cible. En automatique, la cible reste l'ennemi le plus faible.
-- Implémentation des ultimes et de leur jauge (§4 ter), des attaques de base personnalisées SSR/UR, des passifs et des cinq techniques de Midoriya ; puis re-simulation de l'équilibrage.
+- Mode manuel : à chaque action, le joueur choisit le sort (base, affilié, secondaire, tertiaire ou ultime chargé) et la cible. En automatique, l'IA privilégie l'ultime prêt, puis le secondaire, le tertiaire et les choix affiliés/de base.
+- Transformer les approximations du catalogue d'ultimes en mécaniques dédiées (passifs déclenchés à la mort, contrôle d'un ennemi qui joue dans l'équipe, exécution conditionnelle, copie, double action et reset de cooldown) ; écrire les cinq techniques distinctes de Midoriya.
 - Combat contre Mystère reste un peu fort (86 % contre ~70 % pour les autres paires du cycle) : à réduire si besoin, par exemple en baissant la pénétration de DEF de Combat contre Mystère.
 - Modèle de données, pages, migration du duel quiz existant.
 - L'arène est décrite dans [pvp.md](pvp.md), les modes PvM dans [pvm.md](pvm.md).
@@ -261,7 +255,7 @@ Code : `src/lib/battle.ts`, pur (aucun accès à la base). Vérifié par `npm ru
 **Déroulement en code**
 - `createBattle(a, b, rng, options)` crée l'état. `rng` est un générateur aléatoire à graine : même graine + mêmes cartes + mêmes actions = même combat.
 - `currentActor(state)` donne la carte qui doit agir (`null` quand le combat est fini).
-- `legalActions(state)` liste ce qu'elle peut faire : `{ spell: "base" | "affinity" | "personal" | "ultimate", targets }`, en excluant les sorts en cooldown ou ultimes non chargés.
+- `legalActions(state)` liste ce qu'elle peut faire : `{ spell: "base" | "affinity" | "special" | "tertiary" | "ultimate", targets }`, en excluant les sorts en cooldown ou ultimes non chargés.
 - `applyAction(state, { spell, target })` joue l'action (refusée si elle n'est pas permise) et passe à la carte suivante.
 - `autoAction(state)` donne le choix de la stratégie automatique. `battle(a, b, rng)` joue tout le combat ainsi.
 - Le résultat (`state.result`) contient le gagnant, le nombre de tours et **le journal** (`log`).
@@ -274,7 +268,7 @@ Code : `src/lib/battle.ts`, pur (aucun accès à la base). Vérifié par `npm ru
 |---|---|---|
 | `start` | `first`, `units` (id, characterId, rareté, type, atk, def, maxHp, hp, shield) | Début : les 8 cartes et l'équipe qui commence |
 | `round` | `round` | Début d'un tour |
-| `action` | `actor`, `spell` (`base` / `affinity` / `personal` / `ultimate`), `target` (null pour Aventure) | Une carte lance un sort ; les effets suivent, jusqu'à la prochaine `action` |
+| `action` | `actor`, `spell` (`base` / `affinity` / `special` / `tertiary` / `ultimate`), `target` (null pour Aventure) | Une carte lance un sort ; les effets suivent, jusqu'à la prochaine `action` |
 | `damage` | `source`, `target`, `amount`, `absorbed`, `crit`, `affinity` (`strong` / `weak` / null), `exposedBonus`, `hp`, `shield` | Un coup ; `amount` avant bouclier, `absorbed` la part prise par le bouclier |
 | `dodge` | `source`, `target` | Le coup d'un sort affilié est esquivé (arme), aucun dégât |
 | `heal` | `source`, `target`, `amount`, `hp` | Soin (Cœur) ou drain (Magie) |
