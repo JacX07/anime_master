@@ -142,7 +142,9 @@ Les noms et effets sont des propositions, modifiables.
 
 Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR/UR conserve son ultime d'anime ; une UR choisit avant le combat entre son ultime d'anime et son ultime personnel. Une activation active consomme l'action du personnage. Une carte ne peut avoir qu'un seul ultime équipé.
 
-**Attaque de base personnalisée** : chaque SSR/UR conserve une attaque à **1× ATK**, avec un nom thématisé et un seul petit effet appliqué si le coup touche. Les 42 personnages du roster présents dans la liste ci-dessous ont une attaque dédiée. Pour les autres SSR/UR, le moteur affiche « Frappe inspirée de [nom du sort signature] » ; le nom du sort est référencé pour les 208 personnages à archétype et les effets sont réduits selon l'archétype. Les sorts personnels écrits à la main gardent eux aussi leur nom et donnent un effet léger d'après leurs effets. Pour un futur personnage sans signature, le moteur utilise le nom et l'effet léger du sort générique de son type. Pour éviter que l'effet gratuit de base dépasse les autres sorts, il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points jusqu'à la prochaine action, ignore-DEF 3 % sur la prochaine attaque, bouclier ou soin de 2 % des PV max, drain de 2 % des dégâts, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas. Ces attaques visent au plus **+1 point de victoire** face à une attaque générique ; la valeur exacte reste à calibrer.
+**Attaque de base personnalisée** : les **236 SSR/UR actifs** ont chacun une fiche statique avec un nom et un effet dans `src/lib/basic-attack-roster.ts`. Les 47 fiches personnalisées sont listées ci-dessous ; les 189 autres portent chacune le nom unique de leur sort signature, précédé de « Frappe inspirée de », avec un effet léger tiré de son archétype. `npx tsx scripts/generate-basic-attacks.ts` régénère le snapshot depuis la base et les sorts actuels. Pour un futur personnage sans fiche, le moteur garde un fallback depuis son sort ou le sort générique de son type. Chaque coup reste à **1× ATK** et applique un seul petit effet s'il touche. Il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points jusqu'à la prochaine action, ignore-DEF 3 % sur la prochaine attaque, bouclier ou soin de 2 % des PV max (0,08 % pour Gojo, 0,1 % pour Nishinoya et 0,5 % pour Rei, Megumi, Roxy, Izumi et Nezuko après calibrage), drain de 2 % des dégâts, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas. Ces attaques visent au plus **+1 point de victoire** face à une attaque générique ; la simulation complète est dans `docs/reports/basic-attacks-simulation.md`.
+
+**Calibration finale** *(2026-10-31, 5 000 paires de combats par personnage, graines appariées et camps inversés)* : effet moyen **+0,26 point** par attaque personnalisée ; l'équipe mixte 2 UR + 2 SSR avec tous les riders gagne **49,97 %** contre sa copie sans riders (**−0,03 point, IC 95 % ±0,26**). Aucun rider ne dépasse +1 point au-delà de son intervalle de confiance. Les valeurs de soin et de bouclier signalées ci-dessus ont été abaissées après les premiers résultats.
 
 | Personnage | Attaque de base (1× ATK) | Petit effet |
 |---|---|---|
@@ -162,9 +164,9 @@ Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR
 | Ace | Flamme légère | Poison : 0,5 % des PV max de la cible à sa prochaine action |
 | Jiraiya | Rasengan | DEF de la cible −3 % pour sa prochaine action |
 | Law | Coupe de Kikoku | Ignore 3 % de la DEF sur sa prochaine attaque |
-| Megumi | Coup de Nue | Bouclier de 2 % des PV max de Megumi |
+| Megumi | Coup de Nue | Bouclier de 0,5 % de ses PV max |
 | Yuuji Itadori | Coup divergeant | Critique +3 points sur sa prochaine attaque |
-| Satoru Gojou | Impulsion d'Infini | Bouclier de 2 % des PV max de Gojo |
+| Satoru Gojou | Impulsion d'Infini | Bouclier de 0,08 % des PV max de Gojo |
 | Yuuta Okkotsu | Coupe de katana avec Rika | Soigne Yuta de 2 % de ses PV max |
 | Suguru Getou | Frappe de fléau | Poison : 0,5 % des PV max de la cible à sa prochaine action |
 | Nobara | Clou résonnant | ATK de la cible −3 % pour sa prochaine action |
@@ -179,6 +181,11 @@ Les ultimes restent distincts du 3ᵉ sort personnel (§4 bis). Chaque carte SSR
 | Rem | Coup de fléau | Critique +3 points sur sa prochaine attaque |
 | Guts | Coup de Dragonslayer | Ignore 3 % de la DEF sur sa prochaine attaque |
 | Griffith | Pointe de rapière | Critique +3 points sur sa prochaine attaque |
+| Rei Ayanami | Frappe inspirée de Champ A.T. | Bouclier de 0,5 % de ses PV max |
+| Izumi Miyamura | Frappe inspirée de Vrai moi | Soigne 0,5 % de ses PV max |
+| Roxy Migurdia | Frappe inspirée de Barrière de Roxy | Bouclier de 0,5 % de ses PV max |
+| Nezuko Kamado | Frappe inspirée de Forme de démon | Soigne 0,5 % de ses PV max |
+| Yuu Nishinoya | Réception de Rolling Thunder | Bouclier de 0,1 % de ses PV max |
 | Madara | Kunai embrasé | DEF de la cible −3 % pour sa prochaine action |
 | Okabe Rintaro | Gadget lancé | DEF d'Okabe +3 % jusqu'à sa prochaine action |
 | Gon | Coup direct | ATK de Gon +3 % sur sa prochaine attaque |

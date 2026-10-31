@@ -42,6 +42,8 @@ export interface BattleCard {
   boss?: boolean;
   /** Retire le sort de personnage de cette carte (simulations d'équilibre) */
   noSpell?: boolean;
+  /** Désactive seulement l'effet de l'attaque de base (simulations d'équilibre) */
+  noBasicAttack?: boolean;
   /** Sort de personnage imposé (Spell Builder) : prioritaire sur celui de spells.ts */
   spell?: CharacterSpell;
 }
@@ -524,7 +526,7 @@ export function applyAction(st: BattleState, action: Action) {
     if (was !== turns > 0) log.push({ kind: "status", target: t.id, status, on: turns > 0 });
   };
 
-  const basic = action.spell === "base" ? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
+  const basic = action.spell === "base" && !u.card.noBasicAttack ? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
   const actionName = action.spell === "special" ? u.spell?.name : basic?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}) });
   const target = action.target ? unit(st, action.target) : null;

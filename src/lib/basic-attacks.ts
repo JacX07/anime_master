@@ -1,7 +1,8 @@
-// Attaques de base personnalisées des SSR et UR (docs/specs/combat.md §4 ter).
-// Les personnages sans entrée dédiée héritent d'un nom et d'un effet léger tirés de leur sort signature.
+// Attaques de base des SSR et UR (docs/specs/combat.md §4 ter).
+// Le roster actif est versionné ; le helper garde un fallback pour les futurs personnages.
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
+import { BASIC_ATTACK_ROSTER } from "./basic-attack-roster";
 import { BASIC_SIGNATURES, type BasicSignatureArchetype } from "./basic-attack-signatures";
 import { spellOf, type Effect, type ModStat } from "./spells";
 
@@ -39,9 +40,10 @@ const PERSONAL: Record<number, BasicAttack> = {
   2072: named("Flamme légère", { kind: "poison", pct: 0.005 }), // Ace
   2423: named("Rasengan crapaud", mod("def", -0.03, "target")), // Jiraiya
   13767: named("Coupe de Kikoku", { kind: "ignoreDef", pct: 0.03 }), // Law
-  126635: named("Coup de Nue", { kind: "shield", pct: 0.02 }), // Megumi
+  86: named("Frappe inspirée de Champ A.T.", { kind: "shield", pct: 0.005 }), // Rei Ayanami
+  126635: named("Coup de Nue", { kind: "shield", pct: 0.005 }), // Megumi
   127212: named("Coup divergeant", mod("crit", 0.03, "self")), // Yuuji
-  127691: named("Impulsion d'Infini", { kind: "shield", pct: 0.02 }), // Gojo
+  127691: named("Impulsion d'Infini", { kind: "shield", pct: 0.0008 }), // Gojo
   129571: named("Coupe de katana avec Rika", { kind: "heal", pct: 0.02 }), // Yuta
   133699: named("Frappe de fléau", { kind: "poison", pct: 0.005 }), // Getou
   133700: named("Clou résonnant", mod("atk", -0.03, "target")), // Nobara
@@ -57,10 +59,14 @@ const PERSONAL: Record<number, BasicAttack> = {
   422: named("Coup de Dragonslayer", { kind: "ignoreDef", pct: 0.03 }), // Guts
   424: named("Pointe de rapière", mod("crit", 0.03, "self")), // Griffith
   35252: named("Gadget lancé", mod("def", 0.03, "self")), // Okabe Rintaro
+  66173: named("Frappe inspirée de Vrai moi", { kind: "heal", pct: 0.005 }), // Izumi Miyamura
+  67327: named("Réception de Rolling Thunder", { kind: "shield", pct: 0.001 }), // Yuu Nishinoya
   30: named("Coup direct", mod("atk", 0.03, "self")), // Gon
   27: named("Décharge du bout des doigts", mod("dodge", 0.03, "self")), // Killua
   130102: named("Entaille de tronçonneuse", { kind: "drain", pct: 0.02 }), // Denji
   137080: named("Tir contrôlé", mod("atk", -0.03, "target")), // Makima
+  88350: named("Frappe inspirée de Barrière de Roxy", { kind: "shield", pct: 0.005 }), // Roxy Migurdia
+  127518: named("Frappe inspirée de Forme de démon", { kind: "heal", pct: 0.005 }), // Nezuko Kamado
   176754: named("Zoltraak", { kind: "ignoreDef", pct: 0.03 }), // Frieren
   89028: named("Delaware Smash léger", mod("atk", 0.03, "self")), // Midoriya
   89224: named("Poing du One For All", mod("atk", 0.03, "self")), // All Might
@@ -113,16 +119,22 @@ function riderFromSignature(effects: Effect[]): BasicRider {
   return mod("atk", -0.03, "target");
 }
 
-/** Attaque de base SSR/UR ; les autres raretés conservent l'attaque générique. */
-export function basicAttackOf(characterId: number, rarity: Rarity, type: CardType): BasicAttack | null {
+/** Génère une fiche pour les nouvelles cartes SSR/UR avant leur ajout au roster statique. */
+export function createBasicAttack(characterId: number, rarity: Rarity, type: CardType): BasicAttack | null {
   if (rarity !== "SSR" && rarity !== "UR") return null;
   const authored = PERSONAL[characterId];
   if (authored) return authored;
   const generated = BASIC_SIGNATURES[characterId];
   if (generated) return named(`Frappe inspirée de ${generated.name}`, ARCHETYPE_RIDERS[generated.archetype]);
   const signature = spellOf(characterId, rarity, type);
-  if (!signature) return null;
+  if (!signature) return BASIC_ATTACK_ROSTER[characterId]?.attack ?? null;
   return named(`Frappe inspirée de ${signature.name}`, riderFromSignature(signature.effects));
+}
+
+/** Les 236 SSR/UR actifs ont une fiche nom + effet versionnée ; fallback pour les futurs personnages. */
+export function basicAttackOf(characterId: number, rarity: Rarity, type: CardType): BasicAttack | null {
+  if (rarity !== "SSR" && rarity !== "UR") return null;
+  return BASIC_ATTACK_ROSTER[characterId]?.attack ?? createBasicAttack(characterId, rarity, type);
 }
 
 const statName: Record<ModStat, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive" };
