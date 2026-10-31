@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { autoAttackTeamAction, startBattleAction } from "@/app/battle-actions";
-import { BattlePlayer } from "@/components/battle/BattlePlayer";
+import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
 import { RARITY_NAMES } from "@/lib/labels";
 import { isBoss, isFinalBoss, LEVELS, MIX, RESOURCE_NAMES } from "@/lib/story";
@@ -33,16 +33,15 @@ export function StoryBoard({ universes, team, stock }: Props) {
   const [universe, setUniverse] = useState(universes[0].key);
   const [error, setError] = useState<string | null>(null);
   const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number } | null>(null);
-  const [ended, setEnded] = useState(false);
   const u = universes.find((x) => x.key === universe)!;
   const ready = team.every(Boolean);
 
   function run(level: number) {
     setError(null);
     start(async () => {
-      const res = await startBattleAction(`story:${u.key}:${level}`, false);
+      // Combat suivi par le serveur : Auto au départ, on peut passer en Manuel en route
+      const res = await startBattleAction(`story:${u.key}:${level}`, true);
       if (!res.ok) return setError(res.error);
-      setEnded(false);
       setFight({ battle: res.battle, universe: u, level });
     });
   }
@@ -59,19 +58,17 @@ export function StoryBoard({ universes, team, stock }: Props) {
     const { battle, universe: fu, level } = fight;
     return (
       <section className="hs-fight">
-        <BattlePlayer
+        <LiveBattle
           key={battle.id}
-          log={battle.log}
-          characters={battle.characters}
+          initial={battle}
+          initialAuto
           names={{ A: "Ton équipe", B: fu.name }}
           title={`${fu.name} — ${levelTitle(level)}`}
+          // La croix abandonne un combat en cours (sans pénalité en histoire) et revient à la liste
           onExit={() => setFight(null)}
-          onEnd={() => {
-            setEnded(true);
-            router.refresh();
-          }}
-          endExtra={
-            ended && (
+          abandonOnExit
+          onEnd={() => router.refresh()}
+          renderEnd={(battle) => (
           <div className="hs-result" role="status">
             <b>{battle.winner === "A" ? "Victoire !" : "Défaite — aucune pénalité."}</b>
             {battle.loot && (
@@ -92,8 +89,7 @@ export function StoryBoard({ universes, team, stock }: Props) {
             </div>
             {error && <p className="hs-error" role="alert">{error}</p>}
           </div>
-            )
-          }
+          )}
         />
       </section>
     );

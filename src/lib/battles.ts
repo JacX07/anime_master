@@ -320,11 +320,13 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   await sweepBattles(now);
   const slots = await getAttackTeam(userId);
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
-  if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING" } })))
-    throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const story = parseStory(opponent);
   if (story) await checkStoryAccess(userId, story.universe, story.level);
   const mode: BattleMode = story ? "STORY" : "TEST";
+  // Un combat suivi à la fois et par mode. En histoire, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
+  if (manual && story) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+  if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
+    throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const mine = slots.map((s) => toBattleCard(s!.character, s!.stars));
   const teams: BattleTeams = { A: mine, B: await opponentCards(opponent, mine) };
   const seed = Math.floor(Math.random() * 2 ** 31);

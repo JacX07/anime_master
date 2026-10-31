@@ -31,7 +31,7 @@ async function Arena() {
   const user = await requireUser();
   const [team, open, cards] = await Promise.all([
     getAttackTeam(user.id),
-    prisma.battle.findFirst({ where: { userId: user.id, manual: true, status: "RUNNING" }, select: { id: true } }),
+    prisma.battle.findFirst({ where: { userId: user.id, manual: true, status: "RUNNING", mode: "TEST" }, select: { id: true } }),
     prisma.card.findMany({
       where: { ownerId: user.id, inAuction: false, inExpedition: false },
       orderBy: [{ character: { power: "desc" } }, { id: "asc" }],
