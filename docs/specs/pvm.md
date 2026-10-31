@@ -100,7 +100,7 @@ Détaillé dans la section « Raid » ci-dessous.
 
 ---
 
-## Raid *(proposé le 2026-10-31, à valider, rien n'est codé)*
+## Raid *(validé le 2026-10-31, rien n'est codé)*
 
 > Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-story.ts` étendu au raid.
 
@@ -124,7 +124,7 @@ Détaillé dans la section « Raid » ci-dessous.
 - **Trois niveaux de difficulté** par boss : Normal (ouvert), Difficile et Cauchemar (ouverts en battant le niveau précédent). Plus dur = plus de cœurs.
 - Le premier boss est ouvert dès que le **tutoriel de l'histoire** est fini.
 
-### Les chiffres *(proposés le 2026-10-31, simulés avec `npm run simulate:raid`, à valider)*
+### Les chiffres *(validés le 2026-10-31, simulés avec `npm run simulate:raid`)*
 - **Équipe adverse** : un boss UR plus 3 sbires SSR. Stats = moyenne de la rareté × échelle de la difficulté : **Normal 0,85 · Difficile 1,15 · Cauchemar 1,5** ; le boss a en plus **×1,6**.
 - **Mesuré** (part de PV adverses retirée, victoires entre parenthèses, en auto) :
 
