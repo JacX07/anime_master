@@ -123,7 +123,7 @@ export const BASIC_SIGNATURES: Record<number, { archetype: BasicSignatureArchety
   89853: { archetype: "pierce", name: "Corruption" },
   88572: { archetype: "seal", name: "Hyoga" },
   88575: { archetype: "renew", name: "Morning Star" },
-  88573: { archetype: "revive", name: "Retour par la mort" },
+  88573: { archetype: "sap", name: "Ruse de Subaru" },
   21044: { archetype: "breach", name: "Partie de shogi" },
   89220: { archetype: "pierce", name: "Fire and Ice" },
   88892: { archetype: "barrage", name: "Howitzer Impact" },

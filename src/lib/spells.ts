@@ -273,7 +273,7 @@ export const ARCH_SPELLS: Record<number, [Arch, string]> = {
   89853: ["pierce", "Corruption"],
   88572: ["seal", "Hyoga"],
   88575: ["renew", "Morning Star"],
-  88573: ["revive", "Retour par la mort"],
+  88573: ["sap", "Ruse de Subaru"],
   21044: ["breach", "Partie de shogi"],
   89220: ["pierce", "Fire and Ice"],
   88892: ["barrage", "Howitzer Impact"],
