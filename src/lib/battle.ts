@@ -7,6 +7,17 @@
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
 export type Random = () => number;
+
+/** Générateur aléatoire à graine (mulberry32) : même graine, même suite de tirages, côté serveur comme dans le navigateur. */
+export function seededRandom(seed: number): Random {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), a | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 export type Side = "A" | "B";
 /** Côté + position 1 à 4, par exemple "A1" ou "B4". */
 export type UnitId = `${Side}${number}`;

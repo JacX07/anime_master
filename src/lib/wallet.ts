@@ -44,6 +44,7 @@ const COPY_SELECT = {
   locked: true,
   inAuction: true,
   inExpedition: true,
+  stars: true,
   character: { select: { name: true, rarity: true } },
 } as const;
 
@@ -57,8 +58,8 @@ export interface SalePreview {
 /** Cartes du joueur à vendre en groupe (doublons uniquement), éventuellement limitées à certaines raretés. */
 async function duplicatesFor(userId: string, rarities: Rarity[]) {
   const rows = await prisma.card.findMany({ where: { ownerId: userId }, select: COPY_SELECT });
-  // Une carte aux enchères est intouchable, comme une carte verrouillée
-  const copies = rows.map((c) => ({ ...c, locked: c.locked || c.inAuction || c.inExpedition }));
+  // Une carte aux enchères, en expédition ou éveillée est intouchable, comme une carte verrouillée
+  const copies = rows.map((c) => ({ ...c, locked: c.locked || c.inAuction || c.inExpedition || c.stars > 0 }));
   return pickDuplicates(copies).filter((c) => rarities.includes(c.character.rarity));
 }
 

@@ -118,6 +118,35 @@ Code : `src/lib/battle.ts`, pur (aucun accès à la base). Vérifié par `npm ru
 
 Un combat compte environ 80 événements.
 
+### 10. Base et serveur *(validé et codé le 2026-10-31)*
+Code : `src/lib/battles.ts` (serveur), actions dans `src/app/battle-actions.ts`. Vérifié par `npm run check:battles` sur la vraie base.
+
+**Données**
+- `Card.stars` : éveil 0 à 5. Les étoiles **suivent l'exemplaire** quand il est échangé ou vendu aux enchères. La vente groupée des doublons ne prend jamais une carte éveillée (comme une carte verrouillée) ; la vente d'un exemplaire précis reste possible.
+- `BattleTeam` + `BattleTeamSlot` : **une équipe d'attaque** par joueur (et une de défense, prévue pour l'arène). 4 cartes différentes, positions 1 à 4. Les cartes ne sont pas bloquées. Une carte vendue disparaît de l'équipe ; une carte échangée en est retirée à la lecture.
+- `Battle` : mode (`TEST`, `STORY`, `RAID`, `TOWER`, `ARENA`), adversaire, manuel ou non, graine, copie des 8 cartes, choix du joueur, statut (`RUNNING`, `DONE`, `ABANDONED`), gagnant, journal complet enregistré à la fin.
+
+**Déroulement**
+- **Automatique** : le serveur calcule tout le combat d'un coup et enregistre le journal.
+- **Manuel** : le joueur choisit pour son camp (A) ; le camp adverse (B) joue avec la stratégie automatique. À chaque choix, le serveur rejoue le combat depuis la copie des cartes, la graine et les choix précédents, applique le nouveau choix, puis fait jouer l'adversaire jusqu'au prochain choix du joueur. Il renvoie seulement les nouveaux événements. Rien n'est gardé en mémoire, et le navigateur ne peut pas tricher.
+- Un seul combat manuel en cours à la fois. Un double clic n'est joué qu'une fois (compteur d'actions `steps`).
+- **Abandon** : compté comme perdu. Un combat manuel ouvert depuis plus de **24 h** est abandonné automatiquement (balayage à chaque lecture).
+- **Adversaire de test** (`test`) : 4 SR (Combat, Mystère, Magie, Cœur), les plus aimés de leur type. Les vrais adversaires viendront avec le mode histoire.
+
+**Actions serveur** (renvoient `{ ok, battle }` ou `{ ok: false, error }`)
+
+| Action | Rôle |
+|---|---|
+| `setAttackTeamAction(cardIds)` | Enregistre l'équipe d'attaque (4 identifiants de cartes, dans l'ordre) |
+| `startBattleAction(opponent, manual)` | Lance un combat avec l'équipe d'attaque |
+| `getBattleAction(battleId)` | Combat complet (replay, ou reprise d'un combat manuel) |
+| `playActionAction(battleId, { spell, target })` | Mode manuel : joue un choix, renvoie les nouveaux événements |
+| `abandonBattleAction(battleId)` | Abandonne un combat manuel |
+
+`battle` contient : `id`, `status`, `winner`, `log` (journal, ou sa suite en mode manuel), `actor` (carte du joueur qui doit agir), `choices` (sorts et cibles possibles), `characters` (nom et image des 8 personnages).
+
+**Pas encore fait** : armes et ressources d'éveil (avec le mode histoire et le raid), récompenses, page de combat (piste du moteur graphique).
+
 ---
 
 ## Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
