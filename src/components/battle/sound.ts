@@ -4,18 +4,11 @@
 
 import type { BattleEvent } from "@/lib/battle";
 import type { CardType } from "@/generated/prisma/enums";
+import { BattleMusic } from "./music";
 
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
-const MUSIC_LEVEL = 0.45;
-/** Boucle de musique : 128 battements par minute, 16 pas par mesure */
-const STEP = 60 / 128 / 4;
-/** Accords de la boucle (la mineur, fa, do, sol) : note de base, tierce, basse */
-const CHORDS = [
-  { root: 69, third: 3, bass: 45 },
-  { root: 65, third: 4, bass: 41 },
-  { root: 72, third: 4, bass: 48 },
-  { root: 67, third: 4, bass: 43 },
-];
+// Même niveau que la maquette validée à 65 % (gain logarithmique).
+const MUSIC_LEVEL = 10 ** (-12.6 / 20);
 
 export class BattleAudio {
   sfxOn = true;
@@ -23,14 +16,10 @@ export class BattleAudio {
   private ctx: AudioContext | null = null;
   private sfx!: GainNode;
   private music!: GainNode;
-  private arpBus!: BiquadFilterNode;
-  private bassBus!: BiquadFilterNode;
+  private musicEngine: BattleMusic | null = null;
   private noise!: AudioBuffer;
   private blade: AudioBuffer | null = null;
   private bladeRequest: AbortController | null = null;
-  private timer: ReturnType<typeof setInterval> | null = null;
-  private step = 0;
-  private nextTime = 0;
 
   private init(): AudioContext {
     if (this.ctx) return this.ctx;
@@ -39,6 +28,11 @@ export class BattleAudio {
     const master = ctx.createGain();
     master.gain.value = 0.8;
     const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -12;
+    limiter.knee.value = 12;
+    limiter.ratio.value = 4;
+    limiter.attack.value = 0.008;
+    limiter.release.value = 0.18;
     master.connect(limiter);
     limiter.connect(ctx.destination);
     this.sfx = ctx.createGain();
@@ -47,20 +41,11 @@ export class BattleAudio {
     this.music = ctx.createGain();
     this.music.gain.value = 0;
     this.music.connect(master);
-    // Les notes de musique brillantes (carré, dent de scie) passent par un filtre pour ne pas piquer
-    const lowpass = (hz: number) => {
-      const f = ctx.createBiquadFilter();
-      f.type = "lowpass";
-      f.frequency.value = hz;
-      f.connect(this.music);
-      return f;
-    };
-    this.arpBus = lowpass(2200);
-    this.bassBus = lowpass(450);
-    this.noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    this.noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
     const data = this.noise.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     this.ctx = ctx;
+    this.musicEngine = new BattleMusic(ctx, this.music, this.noise);
     void this.loadBlade(ctx);
     return ctx;
   }
@@ -76,6 +61,7 @@ export class BattleAudio {
   /** Ferme le contexte audio (fin de la page) */
   dispose() {
     this.stopMusic();
+    this.musicEngine = null;
     this.bladeRequest?.abort();
     this.bladeRequest = null;
     this.blade = null;
@@ -161,7 +147,7 @@ export class BattleAudio {
 
   /** La musique baisse un instant sous un gros impact, puis revient. */
   private duck(t: number) {
-    if (!this.musicOn || !this.timer) return;
+    if (!this.musicOn || !this.musicEngine?.playing) return;
     this.music.gain.cancelScheduledValues(t);
     this.music.gain.setTargetAtTime(MUSIC_LEVEL * 0.45, t, 0.01);
     this.music.gain.setTargetAtTime(MUSIC_LEVEL, t + 0.22, 0.18);
@@ -279,49 +265,21 @@ export class BattleAudio {
 
   /** Lance (ou relance) la boucle de musique avec un fondu d'entrée. */
   startMusic() {
-    if (!this.musicOn || this.timer) return;
+    if (!this.musicOn || this.musicEngine?.playing) return;
     const ctx = this.init();
     this.unlock();
-    this.nextTime = ctx.currentTime + 0.08;
     this.music.gain.cancelScheduledValues(ctx.currentTime);
     this.music.gain.setTargetAtTime(MUSIC_LEVEL, ctx.currentTime, 0.4);
-    this.timer = setInterval(() => this.schedule(), 40);
+    this.musicEngine?.start();
   }
 
   /** Arrête la boucle avec un fondu de sortie. */
   stopMusic() {
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
+    this.musicEngine?.stop();
     if (this.ctx) {
       this.music.gain.cancelScheduledValues(this.ctx.currentTime);
       this.music.gain.setTargetAtTime(0, this.ctx.currentTime, 0.15);
     }
   }
 
-  /** Programme les pas de musique qui tombent dans les 200 prochaines millisecondes. */
-  private schedule() {
-    const ctx = this.ctx;
-    if (!ctx) return;
-    while (this.nextTime < ctx.currentTime + 0.2) {
-      this.musicStep(this.step++, this.nextTime);
-      this.nextTime += STEP;
-    }
-  }
-
-  private musicStep(step: number, t: number) {
-    const bar = Math.floor(step / 16) % CHORDS.length;
-    const s = step % 16;
-    const c = CHORDS[bar];
-    const bus = this.music;
-    if (s === 0) {
-      // Nappe : l'accord tenu toute la mesure
-      for (const n of [c.root - 12, c.root - 12 + c.third, c.root - 12 + 7]) this.tone(t, "triangle", midi(n), midi(n), 16 * STEP, 0.05, bus);
-    }
-    if (s % 4 === 0) this.tone(t, "sine", 130, 45, 0.16, 0.4, bus);
-    if (s % 4 === 2) this.hiss(t, "highpass", 7000, 7000, 0.04, 0.07, 1, bus);
-    if ([0, 3, 6, 8, 11, 14].includes(s)) this.tone(t, "sawtooth", midi(c.bass), midi(c.bass), 0.15, 0.12, this.bassBus);
-    // Arpège : les trois notes de l'accord en boucle, une octave plus haut dans la seconde moitié de la mesure
-    const arp = [0, c.third, 7, c.third][s % 4] + (s >= 8 ? 12 : 0);
-    this.tone(t, "square", midi(c.root + arp), midi(c.root + arp), 0.1, 0.04, this.arpBus);
-  }
 }
