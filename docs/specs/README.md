@@ -10,7 +10,7 @@ Les titres « Étape N » d'origine sont gardés dans chaque fichier, pour que l
 | [personnages.md](personnages.md) | Import AniList, rareté, finitions, types, stats | 1 | Codé |
 | [collection.md](collection.md) | Paquets, cristaux, bannières, pity, album, calendrier | 2, 4 bis | Codé |
 | [economie.md](economie.md) | Ryō, échanges, enchères, Bourse des brèches, liste de souhaits | 3 | Codé |
-| [combat.md](combat.md) | Combat 4 contre 4, sorts, synergies, éveil, arme légendaire | 4 quater | Moteur codé et simulé, pas branché ; progression en discussion |
+| [combat.md](combat.md) | Combat 4 contre 4, sorts, synergies, journal du combat, éveil, arme légendaire | 4 quater | Moteur pas à pas codé et vérifié, pas branché ; progression en discussion |
 | [pvp.md](pvp.md) | Arène, matchmaking, Elo, classements ; ancien duel quiz | 4 | Duel quiz codé, arène à faire |
 | [pvm.md](pvm.md) | Histoire, raid, Tour multiverselle, expéditions | 4 ter, 7 | Expéditions codées ; le reste en discussion |
 | [social.md](social.md) | Profils, amis, guildes, messagerie, succès | 5 | Succès codés ; social à faire |

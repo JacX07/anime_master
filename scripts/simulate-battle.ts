@@ -1,9 +1,9 @@
 // Simulation du combat 4 contre 4 (src/lib/battle.ts) sur le vrai pool de personnages. Lecture seule.
 // Critères fixés avant lancement : aucun type au-delà de 40–60 % de victoires, combats de moins de 15 tours.
-// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--spells current|roles|ring|simple] [--defK 2000] [--hpMult 1]
+// Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--defK 2000] [--hpMult 1]
 
 import type { CardType, Rarity } from "../src/generated/prisma/enums";
-import { BATTLE, battle, type BattleCard, type BattleOptions, type Random, type SpellSet } from "../src/lib/battle";
+import { BATTLE, battle, type BattleCard, type BattleOptions, type Random } from "../src/lib/battle";
 import { prisma } from "../src/lib/db";
 
 const arg = (name: string, d: number) => {
@@ -15,7 +15,6 @@ const SEED = arg("--seed", 42);
 
 /** Surcharges des valeurs du moteur pour comparer des variantes : --defK 2000 --hpMult 1 */
 BATTLE.defK = arg("--defK", BATTLE.defK);
-if (process.argv.includes("--spells")) BATTLE.spells = process.argv[process.argv.indexOf("--spells") + 1] as SpellSet;
 const HP_MULT = arg("--hpMult", 1);
 const baseHp = BATTLE.hp;
 BATTLE.hp = (a, d) => baseHp(a, d) * HP_MULT;
@@ -49,7 +48,7 @@ const pool: BattleCard[] = rows.map((r) => ({
 const byRarity = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
 const team = (rarities: Rarity[]) => rarities.map((r) => any(byRarity[r]));
 const four = (r: Rarity) => team([r, r, r, r]);
-console.log(`Sorts ${BATTLE.spells} · defK ${BATTLE.defK} · PV × ${HP_MULT} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
+console.log(`defK ${BATTLE.defK} · PV × ${HP_MULT} · Pool : ${pool.length} personnages, ${GAMES} combats par scénario, graine ${SEED}\n`);
 
 const durations: number[] = [];
 let timeouts = 0;
@@ -124,18 +123,6 @@ const gapTable = [
   ["1 UR + 3 SR contre 4 SSR", ["UR", "SR", "SR", "SR"], ["SSR", "SSR", "SSR", "SSR"]],
 ] as [string, Rarity[], Rarity[]][];
 console.table(gapTable.map(([label, a, b]) => ({ match: label, victoire: pct(rate(() => [team(a), team(b)])) })));
-
-// 4. Ultimes : même équipe SSR avec ou sans ultimes (l'adversaire n'en a pas).
-console.log("\n4. Poids des ultimes");
-let withUlt = 0;
-for (let i = 0; i < GAMES; i++) {
-  const a = four("SSR"), b = four("SSR");
-  // B est la même rareté, privée d'ultimes : on lui donne une rareté SR fictive.
-  const bNoUlt = b.map((c) => ({ ...c, rarity: "SR" as Rarity }));
-  const r = play(a, bNoUlt, { passive: false });
-  withUlt += r.winner === "A" ? 1 : r.winner === null ? 0.5 : 0;
-}
-console.log(`4 SSR avec ultimes contre 4 SSR sans ultimes : ${pct(withUlt / GAMES)}`);
 
 // 5. Passif UR : UR + 3 alliés de sa franchise, contre le même UR + 3 cartes de mêmes raretés hors franchise.
 console.log("\n5. Passif UR (franchise)");
