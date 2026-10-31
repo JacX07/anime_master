@@ -1,6 +1,6 @@
 /* Lecteur de combat 4 contre 4 (BattlePlayer). --spd : vitesse de lecture (1, 2 ou 4), appliquée aux transitions. */
 
-/* Plein écran, sans défilement : par-dessus le menu du site pour l'immersion.
+/* Plein écran : par-dessus le menu du site pour l'immersion.
    Grand écran : historique | plateau | sorts. Téléphone : plateau, puis sorts ; l'historique s'ouvre en tiroir. */
 .bt-layout {
   position: fixed;
