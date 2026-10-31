@@ -219,10 +219,11 @@ export function battle(a: BattleCard[], b: BattleCard[], rng: Random, options: B
     if (set === "roles") {
       if (t === "COMBAT") {
         const x = exposed.length ? weakest(exposed) : target;
-        hit(u, x, 1.7 * p * (opts.combos && x.exposed ? 1.5 : 1), 0.4);
+        hit(u, x, 1.5 * p * (opts.combos && x.exposed ? 1.7 : 1), 0.4);
         x.exposed = false;
       } else if (t === "MYSTERE") {
-        hit(u, target, 0.8 * p);
+        // Sans allié Combat pour exploiter l'exposition, Mystère tape plus fort lui-même
+        hit(u, target, (allies.some((x) => x.card.type === "COMBAT") ? 0.8 : 1.2) * p);
         for (const f of many(target)) if (f.hp > 0) Object.assign(f, { exposed: opts.combos, weaken: 2 });
       } else if (t === "MAGIE") {
         const d = hit(u, target, 1.2 * p) * 0.5;
