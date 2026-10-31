@@ -114,10 +114,10 @@ Détaillé dans la section « Raid » ci-dessous.
 - Conséquence voulue : **une défaite rapporte toujours quelque chose**, jamais de combat « pour rien ». Une équipe faible progresse, simplement plus lentement.
 - Le combat dure au plus 30 tours (plafond du moteur) : les PV restants du boss décident alors du palier.
 
-### Tickets
-- Une récompense rare doit être rythmée, contrairement à l'histoire. **3 tickets par jour**, qui s'accumulent jusqu'à **6** (on peut manquer un jour sans rien perdre).
-- Un combat de raid coûte 1 ticket, quel que soit le résultat. **Aucun achat de ticket**, aucune autre source de ressource rare : la patience suffit, c'est la règle du jeu.
-- Lancer plusieurs combats en auto d'affilée est permis jusqu'à épuisement des tickets ; chaque combat reste enregistré et rejouable.
+### Illimité, avec un plafond doux *(décidé le 2026-10-31 : pas de tickets pour l'instant)*
+- **Aucun ticket, aucune limite de combats** : comme l'histoire, on peut relancer le boss autant qu'on veut, en manuel ou en auto (lots de combats auto d'affilée, chacun enregistré et rejouable).
+- Le rythme vient du **plafond quotidien doux** de l'histoire : les cœurs de brèche sont versés **au taux plein jusqu'à un seuil par jour** *(simulateur)*, puis à **taux réduit**. Il ne ferme jamais la porte.
+- Si ce plafond ne suffit pas à tenir la rareté des cœurs, les tickets restent un levier de repli (3 par jour, cumulables jusqu'à 6), non retenu pour l'instant.
 
 ### Boss et difficultés
 - **Un boss par semaine**, qui tourne parmi quelques boss de types différents (un type d'affinité dominant chacun), pour que l'équipe idéale change.
@@ -126,7 +126,7 @@ Détaillé dans la section « Raid » ci-dessous.
 
 ### Coût des étoiles 4 et 5 *(à fixer, simulateur)*
 - 4★ et 5★ : **cœurs de brèche** (UR environ 2× SSR) + **un doublon** du personnage.
-- Cible : un joueur qui fait ses tickets chaque jour obtient une carte 5★ en **quelques semaines**, pas en quelques mois.
+- Cible : un joueur qui joue le raid chaque jour obtient une carte 5★ en **quelques semaines**, pas en quelques mois.
 
 ### À écrire / à décider
 - Noms et types des boss de raid, difficulté et récompenses en cœurs.
