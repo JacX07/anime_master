@@ -124,9 +124,25 @@ Détaillé dans la section « Raid » ci-dessous.
 - **Trois niveaux de difficulté** par boss : Normal (ouvert), Difficile et Cauchemar (ouverts en battant le niveau précédent). Plus dur = plus de cœurs.
 - Le premier boss est ouvert dès que le **tutoriel de l'histoire** est fini.
 
-### Coût des étoiles 4 et 5 *(à fixer, simulateur)*
-- 4★ et 5★ : **cœurs de brèche** (UR environ 2× SSR) + **un doublon** du personnage.
-- Cible : un joueur qui joue le raid chaque jour obtient une carte 5★ en **quelques semaines**, pas en quelques mois.
+### Les chiffres *(proposés le 2026-10-31, simulés avec `npm run simulate:raid`, à valider)*
+- **Équipe adverse** : un boss UR plus 3 sbires SSR. Stats = moyenne de la rareté × échelle de la difficulté : **Normal 0,85 · Difficile 1,15 · Cauchemar 1,5** ; le boss a en plus **×1,6**.
+- **Mesuré** (part de PV adverses retirée, victoires entre parenthèses, en auto) :
+
+| Équipe | Normal | Difficile | Cauchemar |
+|---|---|---|---|
+| 4 SR | 32 % (0) | 13 % (0) | 7 % (0) |
+| 4 SSR | 81 % (24) | 34 % (0) | 14 % (0) |
+| 4 SSR 3★ | 88 % (44) | 42 % (0) | 17 % (0) |
+| 1 UR + 3 SSR 3★ | 98 % (84) | 47 % (0) | 19 % (0) |
+| 4 SSR 5★ avec arme | 97 % (81) | 53 % (0) | 21 % (0) |
+| 4 UR | 100 % (99) | 71 % (7) | 29 % (0) |
+| 4 UR 5★ avec arme | 100 % (100) | 93 % (58) | 47 % (1) |
+
+  Lecture : le Normal est jouable dès une équipe de SSR et se gagne avec quelques étoiles ; le Difficile demande des UR ou des 5★ ; le Cauchemar est un objectif de fin de jeu, mais il rapporte déjà en le tentant.
+- **Cœurs de brèche par combat, au Normal** : 1 à 25 % des PV adverses retirés, 2 à 50 %, 3 à 75 %, **5 à la victoire** (paliers non cumulés). **Difficile ×2, Cauchemar ×4.**
+- **Coût en cœurs** : SSR **4★ 60, 5★ 120** (+ un doublon chacune) ; UR ×2 (**120 et 240**). N, R et SR n'ont pas de 4★ ni de 5★ à ce stade.
+- **Plafond quotidien doux** : **15 cœurs par jour au taux plein**, puis 25 % (une équipe de SSR 3★ qui joue le Normal en fait environ 3,6 par combat).
+- **Ce que ça donne** : un joueur qui fait ses 4 ou 5 combats par jour en 5★ un SSR en **environ 12 jours** et un UR en **environ 24 jours**. Un gros farmeur (30 combats par jour) gagne environ 40 cœurs par jour grâce au taux réduit : un UR en 10 jours environ. La porte n'est jamais fermée.
 
 ### À écrire / à décider
 - Noms et types des boss de raid, difficulté et récompenses en cœurs.
