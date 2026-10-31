@@ -92,7 +92,7 @@ Détaillé dans la section « Raid » ci-dessous.
 - Seuls les personnages du labo parlent (Dr Hakase, Akari, Pew), quelques lignes au début et à la fin de chaque acte. Les personnages d'anime ne parlent jamais.
 - Un boss final vaincu : sa signature est rétablie, et Pew réagit à son départ (direction de caractérisation dans `lore.md`).
 
-### Univers de collision *(proposés le 2026-10-31, à valider ; après le lancement)*
+### Univers de collision *(validés le 2026-10-31 ; après le lancement)*
 Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont personnages / dont SSR ou UR). Les noms sont des propositions du lore des brèches. Chacun a sa ressource d'éveil et sa ressource d'arme légendaire (boss finaux) ; le boss final est le SSR ou UR le plus populaire du lot.
 
 | Univers | Thème | Anime (exemples) | Ressource d'éveil | Ressource d'arme |
@@ -106,10 +106,20 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 - Ces cinq univers couvrent environ 30 anime moyens qui n'auraient jamais d'univers à eux. Les gros anime avec beaucoup de SSR ou UR (My Hero Academia, Bleach, Attack on Titan, Demon Slayer, Hunter x Hunter, JoJo, Dragon Ball) sont de bons candidats pour de futurs **univers d'anime** et sont laissés de côté ici.
 - Les anime sans SSR ni UR (Love Live, BanG Dream...) ne peuvent pas donner de boss final : l'univers choisit un boss parmi les autres anime du lot, ou un SR le plus populaire.
 
+### Modèle de données (histoire et raid) *(proposé le 2026-10-31, rien n'est codé)*
+- **Définitions dans le code, pas en base** (comme `PVM_OPPONENTS`) : univers (clé, nom, sorte, anime, ressource d'éveil et d'arme), mélange de raretés et niveau de chaque combat, boss de raid et leur rotation. Elles changent avec le jeu, pas avec les joueurs.
+- `StoryProgress` : joueur, univers, plus haut combat gagné (1 à 15), une ligne par (joueur, univers).
+- `ResourceStock` : joueur, clé de ressource (`fruit-du-demon`, `fragment-de-signature`, `coeur-de-breche`…), quantité. Un seul tableau pour toutes les ressources.
+- `DailyGain` : joueur, jour, source (`STORY` ou `RAID`), unités déjà versées au taux plein ; sert au plafond doux.
+- `RaidBest` : joueur, boss, difficulté, plus grand palier atteint (évite de payer deux fois un palier ? non : on paie à chaque combat ; sert à débloquer la difficulté suivante).
+- `Battle` existe déjà (`mode` STORY ou RAID, graine, copies des cartes, journal). On y ajoute la clé du combat joué (univers + niveau, ou boss + difficulté) et le butin versé.
+- Le butin d'un combat est versé **dans la même transaction** que l'enregistrement de sa fin, pour qu'un combat ne paie jamais deux fois.
+- **Moteur** : pas de nouveau code de combat. Il suffit de construire l'équipe adverse (stats par niveau, bonus boss, option « PV du boss ») à partir des définitions, et de lire la part de PV retirée dans l'événement `end` (`hpLeft`).
+
 ### À écrire / à décider
 - Univers de collision : voir la proposition ci-dessous (thèmes et noms à valider).
 - Tables de niveau, de coûts d'éveil et de drops : à la charge de Claude, qui les propose et les valide au simulateur avant de les présenter.
-- Modèle de données : `StoryProgress` (joueur, univers, combat atteint), définitions des univers dans le code, `Battle.mode = STORY` déjà prévu.
+- Modèle de données : voir « Modèle de données (histoire et raid) » ci-dessous.
 - Moteur : bonus de stats et de PV du boss, équipe adverse construite par niveau (aujourd'hui `PVM_OPPONENTS`).
 
 ---
