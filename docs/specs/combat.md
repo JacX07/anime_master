@@ -64,7 +64,7 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 ### 4 bis. Sorts de personnage *(proposé le 2026-10-31, révisé : plus de variété ; à valider)*
 Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec son cooldown. Il s'ajoute au sort de base et au sort affilié (qui restent), en manuel comme en automatique. Il remplace l'idée d'ultime à jauge (§4, désactivé).
 
-- **Cooldown 5 actions**, premier lancer à la 3ᵉ action de la carte. Le sort affilié et le sort perso ont chacun leur compteur ; une carte ne lance qu'un sort par action.
+- **Cooldown 5 actions**, disponible dès la 1re action de la carte *(changé le 2026-10-31, avant : 3ᵉ action)*. Le sort affilié et le sort perso ont chacun leur compteur ; une carte ne lance qu'un sort par action.
 - **Format** : une liste d'effets du vocabulaire ci-dessous, écrite en données (`src/lib/spells.ts`). Un SSR ou UR sans sort écrit reçoit un sort générique déduit de son type et de son rôle.
 - **Variété** : au plus **un tiers** des sorts sont des attaques ; les autres soignent, protègent, affaiblissent ou contrôlent. Un sort sans dégâts est compensé par un effet fort (un sort de soutien peut avoir un effet que l'attaque pure n'a pas).
 

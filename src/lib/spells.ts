@@ -31,8 +31,8 @@ export interface CharacterSpell {
   effects: Effect[];
 }
 
-/** Actions de la carte avant le 1er lancer (il part à la 3ᵉ), puis entre deux lancers */
-export const SPELL_FIRST = 3;
+/** Actions de la carte avant le 1er lancer (1 = dès sa 1re action), puis entre deux lancers */
+export const SPELL_FIRST = 1;
 export const SPELL_COOLDOWN = 5;
 
 const S = (name: string, target: CharacterSpell["target"], ...effects: Effect[]): CharacterSpell => ({ name, target, effects });

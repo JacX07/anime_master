@@ -6,7 +6,7 @@ import { autoAttackTeamAction, autoDefenseTeamAction, setAttackTeamAction, setDe
 import { affinity, BATTLE } from "@/lib/battle";
 import { BASE_SPELL, AFFINITY_COOLDOWN, SPELL_INFO, SPELL_NAMES } from "@/lib/battle-replay";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
-import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_FIRST, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { TypeIcon } from "@/components/icons";
 import "@/components/battle/battle.css";
 import "./equipe.css";
@@ -50,7 +50,7 @@ function SpellList({ card }: { card: TeamCard }) {
         <li>
           <b>★ {own.name}</b> <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
           <p>{describeSpell(own)}</p>
-          <small>Rechargement : {SPELL_COOLDOWN} actions, premier lancer à la {SPELL_FIRST}ᵉ action de la carte.</small>
+          <small>Rechargement : {SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.</small>
         </li>
       ) : (
         <li className="vt-muted"><small>Pas de sort de personnage (réservé aux SSR et UR).</small></li>

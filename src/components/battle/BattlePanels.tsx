@@ -5,7 +5,7 @@ import type { CardType } from "@/generated/prisma/enums";
 import { affinity as typeAffinity, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
-import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_FIRST, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { TypeIcon } from "../icons";
 import type { PlayerCharacter } from "./BattlePlayer";
 
@@ -49,7 +49,7 @@ export function SpellsPanel({
       title: <>★ {own.name}</>,
       target: SPELL_TARGET_LABEL[own.target ?? "none"],
       text: describeSpell(own),
-      note: `Rechargement : ${SPELL_COOLDOWN} actions, premier lancer à la ${SPELL_FIRST}ᵉ action de la carte.`,
+      note: `Rechargement : ${SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.`,
     });
   }
   return (

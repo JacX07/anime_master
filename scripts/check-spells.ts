@@ -30,7 +30,7 @@ function until(st: BattleState, id: string) {
   }
 }
 
-// Cooldown : premier lancer à la 3ᵉ action, puis toutes les 5 actions
+// Cooldown : prêt dès la 1re action, puis toutes les 5 actions
 {
   const st = start([card(SASUKE), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   const ready: boolean[] = [];
@@ -40,7 +40,7 @@ function until(st: BattleState, id: string) {
     ready.push(can);
     play(st, can ? "special" : "base", "B1");
   }
-  check("Cooldown : prêt à la 3ᵉ action puis toutes les 5", ready.join() === "false,false,true,false,false,false,false,true", ready.map(Number).join(""));
+  check("Cooldown : prêt dès la 1re action puis toutes les 5", ready.join() === "true,false,false,false,false,true,false,false", ready.map(Number).join(""));
   check("N, R et SR n'ont pas de sort de personnage", !legalActions(start([dummy(1), dummy(2), dummy(3), dummy(4)], [dummy(5), dummy(6), dummy(7), dummy(8)])).some((x) => x.spell === "special"));
 }
 
