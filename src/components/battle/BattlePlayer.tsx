@@ -85,7 +85,9 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   // En direct (mode manuel), le journal grandit : rattraper le journal ne veut pas dire que le combat est fini
   const caughtUp = rp.idx >= log.length;
   const finished = caughtUp && (!live || rp.end !== null);
-  const [spell, setSpell] = useState<Spell | null>(null);
+  const [selection, setSelection] = useState<{ key: string; spell: Spell } | null>(null);
+  const selectionKey = `${live?.actor ?? ""}:${log.length}`;
+  const spell: Spell = selection?.key === selectionKey ? selection.spell : "base";
   // `ready` : le journal est rattrapé et une de tes cartes doit agir ; `awaiting` : c'est à toi de choisir (pas en auto)
   const ready = !!live && caughtUp && !rp.end && live.actor !== null;
   const awaiting = ready && !live?.auto;
@@ -99,7 +101,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   }, [ready, autoOn, autoBusy, autoFailed, playing, autoStep, rp.idx]);
   const choice = awaiting ? live?.choices.find((c) => c.spell === spell) : undefined;
   const play = (s: Spell, target: UnitId | null) => {
-    setSpell(null);
+    setSelection(null);
     live?.onPlay(s, target);
   };
   // Carte dont les sorts sont affichés sous le plateau : celle qu'on a touchée, sinon celle qui joue
@@ -130,7 +132,6 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const [musicOn, setMusicOn] = useState(true);
   useEffect(() => {
     // Réglages mémorisés d'une visite à l'autre
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     const savedSpeed = Number(localStorage.getItem("bt-speed"));
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedSpeed === 1 || savedSpeed === 2 || savedSpeed === 4) setSpeed(savedSpeed);
@@ -384,7 +385,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                   const c = live.choices.find((x) => x.spell === s);
                   // Sort de zone : pas de cible à choisir
                   if (c && c.targets.length === 1 && c.targets[0] === null) play(s, null);
-                  else setSpell(s === spell ? null : s);
+                  else setSelection({ key: selectionKey, spell: s === spell ? "base" : s });
                 },
               }
             : undefined
