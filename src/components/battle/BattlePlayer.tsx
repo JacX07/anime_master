@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import type { BattleEvent, Side, UnitId } from "@/lib/battle";
-import { holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, type Replay } from "@/lib/battle-replay";
+import { historyOf, holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { TypeIcon } from "../icons";
+import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
 import { BattleAudio } from "./sound";
 
@@ -40,6 +41,8 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
   const finished = rp.idx >= log.length;
+  // Carte dont les sorts sont affichés sous le plateau : celle qu'on a touchée, sinon celle qui joue
+  const [picked, setPicked] = useState<UnitId | null>(null);
 
   // Chaque événement reste à l'écran le temps de sa durée (divisée par la vitesse), puis le suivant s'applique
   useEffect(() => {
@@ -148,7 +151,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actor = rp.cur && !finished ? rp.info[rp.cur.actor] : null;
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
+  const history = historyOf(log, rp.idx);
+  const spellUnit = picked ?? rp.cur?.actor ?? ("A1" as UnitId);
+
   return (
+    <div className="bt-layout">
     <div className="bt" ref={stage} onPointerDown={() => getAudio().unlock()} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
@@ -170,7 +177,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           <div className="bt-row">
             {POSITIONS.map((p) => {
               const id = `${side}${p}` as UnitId;
-              return <Unit key={id} id={id} rp={rp} characters={characters} acting={rp.cur?.actor === id && !finished} />;
+              return <Unit key={id} id={id} rp={rp} characters={characters} acting={rp.cur?.actor === id && !finished} picked={spellUnit === id} onPick={() => setPicked(picked === id ? null : id)} />;
             })}
           </div>
         </section>
@@ -211,6 +218,8 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         </div>
       </div>
 
+      <SpellsPanel unit={rp.info[spellUnit]} character={characters[rp.info[spellUnit].characterId]} followsAction={picked === null} />
+
       {end && (
         <div className="bt-end" role="status" data-winner={end.winner ?? "draw"}>
           <b>{end.winner ? `Victoire — ${names[end.winner]}` : "Match nul"}</b>
@@ -232,17 +241,32 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         </div>
       )}
     </div>
+    <History entries={history} rp={rp} characters={characters} names={names} />
+    </div>
   );
 }
 
-function Unit({ id, rp, characters, acting }: { id: UnitId; rp: Replay; characters: Record<number, PlayerCharacter>; acting: boolean }) {
+function Unit({ id, rp, characters, acting, picked, onPick }: { id: UnitId; rp: Replay; characters: Record<number, PlayerCharacter>; acting: boolean; picked: boolean; onPick: () => void }) {
   const info = rp.info[id];
   const st = rp.units[id];
   const ch = characters[info.characterId];
   const aimed = rp.cur?.target === id && !rp.end;
   const cast = acting && rp.cur ? (rp.cur.spell === "base" ? "Attaque" : SPELL_NAMES[rp.cur.type]) : null;
   return (
-    <div className="bt-unit" data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
+    <div
+      className="bt-unit"
+      role="button"
+      tabIndex={0}
+      aria-pressed={picked}
+      onClick={onPick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onPick();
+        }
+      }}
+      data-picked={picked || undefined}
+      data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
       <div className="bt-card">
         {/* Image servie par le CDN AniList, comme sur les cartes de l'album */}
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -50,6 +50,40 @@ export const SPELL_NAMES: Record<CardType, string> = {
   AVENTURE: "Zone",
 };
 
+/** Texte des sorts affichés sous le plateau (docs/specs/combat.md §4). */
+export const SPELL_INFO: Record<CardType, { target: string; text: string }> = {
+  COMBAT: { target: "1 ennemi", text: "1,5× ATK, ignore 40 % de la DEF ; ×1,7 sur une cible exposée (l'exposition est consommée)." },
+  MYSTERE: { target: "1 ennemi", text: "0,8× ATK (1,2× sans allié Combat en vie). La cible devient exposée et affaiblie (ATK −20 % pendant 2 actions)." },
+  MAGIE: { target: "1 ennemi", text: "1,2× ATK. Soigne de 50 % des dégâts le lanceur et chaque allié Cœur." },
+  COEUR: { target: "1 allié", text: "Soigne l'allié de 30 % de ses PV max, puis donne à l'équipe un bouclier de 10 % des PV max du lanceur." },
+  AVENTURE: { target: "Tous les ennemis", text: "0,6× ATK sur chaque ennemi. Toute l'équipe gagne l'élan (ATK +10 % pendant 2 actions)." },
+};
+export const BASE_SPELL = { name: "Attaque", target: "1 ennemi", text: "1× ATK. Disponible à chaque action." };
+export const AFFINITY_COOLDOWN = "Rechargement : 3 actions, premier lancer à la 2ᵉ action de la carte.";
+
+/** Une action du journal et ses effets, pour l'historique. */
+export interface HistoryEntry {
+  /** Numéro de l'action, à partir de 1 */
+  n: number;
+  round: number;
+  actor: UnitId;
+  spell: Spell;
+  target: UnitId | null;
+  effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "end" }>[];
+}
+
+/** Historique des actions déjà jouées (événements `log[0..upto[`). */
+export function historyOf(log: BattleEvent[], upto: number): HistoryEntry[] {
+  const out: HistoryEntry[] = [];
+  let round = 0;
+  for (const ev of log.slice(0, upto)) {
+    if (ev.kind === "round") round = ev.round;
+    else if (ev.kind === "action") out.push({ n: out.length + 1, round, actor: ev.actor, spell: ev.spell, target: ev.target, effects: [] });
+    else if (ev.kind !== "start" && ev.kind !== "end" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
+  }
+  return out;
+}
+
 const MAX_POPS = 40;
 
 export function replayStart(log: BattleEvent[]): Replay {
