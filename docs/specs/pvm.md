@@ -111,7 +111,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 - `StoryProgress` : joueur, univers, plus haut combat gagné (1 à 15), une ligne par (joueur, univers).
 - `ResourceStock` : joueur, clé de ressource (`fruit-du-demon`, `fragment-de-signature`, `coeur-de-breche`…), quantité. Un seul tableau pour toutes les ressources.
 - `DailyGain` : joueur, jour, source (`STORY` ou `RAID`), unités déjà versées au taux plein ; sert au plafond doux.
-- `RaidBest` : joueur, boss, difficulté, plus grand palier atteint (évite de payer deux fois un palier ? non : on paie à chaque combat ; sert à débloquer la difficulté suivante).
+- `RaidBest` : joueur, boss, difficulté, meilleur palier de dégâts et victoire ou non ; sert à débloquer la difficulté suivante (on paie à chaque combat, pas seulement au meilleur).
 - `Battle` existe déjà (`mode` STORY ou RAID, graine, copies des cartes, journal). On y ajoute la clé du combat joué (univers + niveau, ou boss + difficulté) et le butin versé.
 - Le butin d'un combat est versé **dans la même transaction** que l'enregistrement de sa fin, pour qu'un combat ne paie jamais deux fois.
 - **Moteur** : pas de nouveau code de combat. Il suffit de construire l'équipe adverse (stats par niveau, bonus boss, option « PV du boss ») à partir des définitions, et de lire la part de PV retirée dans l'événement `end` (`hpLeft`).
