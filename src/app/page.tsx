@@ -85,7 +85,7 @@ async function Menu() {
           <Item href="/market" title="Bourse des brèches" hint="Enchères entre joueurs" />
           <Item href="/duels" title="Duels" hint="Quiz et combats de cartes" />
           <Item href="/histoire" title="Histoire" hint="Traverse les univers déréglés par l’anomalie" />
-          <Item href="/combat" title="Donjon" hint="Auto ou manuel, contre des monstres au hasard (test)" />
+          <Item href="/tour" title="Tour" hint="Étage après étage, des personnages au hasard : monte le plus haut possible" />
           <Item href="/expeditions" title="Expéditions" hint="Envoie tes cartes explorer les brèches" />
           <Item href="/leaderboard" title="Classement" hint="Duel et collection" />
         </MenuNav>

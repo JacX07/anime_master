@@ -16,6 +16,7 @@ import {
   baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, MIX, storyLoot,
   universeOf, UNIVERSES, type Loot, type Universe,
 } from "./story";
+import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./tower";
 
 export class BattleError extends Error {}
 
@@ -24,7 +25,6 @@ export const ABANDON_AFTER_MS = 24 * 60 * 60 * 1000;
 
 /** Ennemis PvM définis dans le code. Chaque carte est le personnage le plus aimé de cette rareté et de ce type. */
 export const PVM_OPPONENTS: Record<string, { name: string; cards: { rarity: Rarity; type: CardType }[] }> = {
-  donjon: { name: "Monstres du donjon", cards: [] },
   test: {
     name: "Équipe d'essai",
     cards: [
@@ -134,6 +134,70 @@ async function settleStory(tx: Prisma.TransactionClient, userId: string, opponen
   return loot;
 }
 
+// ── Tour : ennemis et récompense ────────────────────────────────────────────
+
+function parseTower(key: string): number | null {
+  if (!key.startsWith(TOWER_PREFIX)) return null;
+  const floor = Number(key.slice(TOWER_PREFIX.length));
+  if (!Number.isInteger(floor) || floor < 1 || floor > MAX_FLOOR) throw new BattleError("Étage inconnu.");
+  return floor;
+}
+
+let towerPool: Record<string, number[]> | null = null;
+async function poolByRarity() {
+  if (!towerPool) {
+    const rows = await prisma.character.findMany({ where: { disabled: false }, orderBy: { id: "asc" }, select: { id: true, rarity: true } });
+    towerPool = {};
+    for (const r of rows) (towerPool[r.rarity] ??= []).push(r.id);
+  }
+  return towerPool;
+}
+
+/** Les 4 ennemis d'un étage : identiques pour tous les joueurs (graine = étage), stats = moyenne de leur rareté × échelle de l'étage. */
+async function towerEnemies(floor: number): Promise<BattleCard[]> {
+  const pool = await poolByRarity(), means = await meanStats();
+  const rng = seededRandom(floor * 7919 + 13);
+  const used = new Set<number>(), ids: number[] = [];
+  for (const rarity of floorRarities(floor)) {
+    const left = (pool[rarity] ?? []).filter((id) => !used.has(id));
+    if (!left.length) throw new BattleError("Étage indisponible.");
+    const id = left[Math.floor(rng() * left.length)];
+    used.add(id);
+    ids.push(id);
+  }
+  const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: CHARACTER_SELECT });
+  const k = floorScale(floor);
+  return ids.map((id) => {
+    const c = rows.find((r) => r.id === id)!, m = means[c.rarity];
+    return { ...toBattleCard(c), attack: Math.round(m.attack * k), defense: Math.round(m.defense * k) };
+  });
+}
+
+/** Récompense d'une victoire, versée avec la fin du combat : Ryō au premier passage de l'étage seulement. */
+async function settleTower(tx: Prisma.TransactionClient, userId: string, opponent: string, now: Date): Promise<Loot> {
+  const floor = parseTower(opponent)!;
+  await tx.towerProgress.upsert({ where: { userId }, create: { userId }, update: {} });
+  const first = (await tx.towerProgress.updateMany({ where: { userId, maxFloor: { lt: floor } }, data: { maxFloor: floor, reachedAt: now } })).count === 1;
+  const ryo = first ? towerRyo(floor) : 0;
+  if (ryo) {
+    await tx.user.update({ where: { id: userId }, data: { balance: { increment: ryo } } });
+    await tx.currencyLedger.create({ data: { userId, amount: ryo, reason: "TOWER", refId: opponent } });
+  }
+  return { ryo, crystals: 0, resources: {} };
+}
+
+export async function getTowerFloor(userId: string) {
+  return (await prisma.towerProgress.findUnique({ where: { userId }, select: { maxFloor: true } }))?.maxFloor ?? 0;
+}
+
+/** Classement : étage atteint, puis premier arrivé. */
+export async function towerLeaderboard(top = 20) {
+  return prisma.towerProgress.findMany({
+    where: { maxFloor: { gt: 0 } }, orderBy: [{ maxFloor: "desc" }, { reachedAt: "asc" }], take: top,
+    select: { userId: true, maxFloor: true, user: { select: { username: true } } },
+  });
+}
+
 /** Ce que le joueur peut jouer : plus haut combat gagné par univers, univers ouverts. */
 export async function getStoryProgress(userId: string) {
   const rows = await prisma.storyProgress.findMany({ where: { userId } });
@@ -150,25 +214,14 @@ async function checkStoryAccess(userId: string, universe: Universe, level: numbe
 
 const toJson = (x: unknown) => x as Prisma.InputJsonValue;
 
-async function opponentCards(key: string, mine: BattleCard[]): Promise<BattleCard[]> {
+async function opponentCards(key: string): Promise<BattleCard[]> {
   const story = parseStory(key);
   if (story) return storyEnemies(story.universe, story.level);
+  const floor = parseTower(key);
+  if (floor) return towerEnemies(floor);
   const def = PVM_OPPONENTS[key];
   if (!def) throw new BattleError("Adversaire inconnu.");
   const cards: BattleCard[] = [];
-  if (key === "donjon") {
-    // Monstres au hasard, de mêmes raretés que l'équipe du joueur. L'équipe est enregistrée avec le combat : un rechargement ne la change pas.
-    const used = new Set(mine.map((c) => c.characterId));
-    for (const rarity of mine.map((c) => c.rarity)) {
-      const where = { disabled: false, rarity, id: { notIn: [...used] } };
-      const count = await prisma.character.count({ where });
-      const c = await prisma.character.findFirst({ where, skip: Math.floor(Math.random() * count), orderBy: { id: "asc" }, select: CHARACTER_SELECT });
-      if (!c) throw new BattleError("Adversaire introuvable.");
-      used.add(c.id);
-      cards.push(toBattleCard(c));
-    }
-    return cards;
-  }
   for (const spec of def.cards) {
     const c = await prisma.character.findFirst({
       where: { ...spec, disabled: false, id: { notIn: cards.map((x) => x.characterId) } },
@@ -327,18 +380,21 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   const story = parseStory(opponent);
   if (story) await checkStoryAccess(userId, story.universe, story.level);
-  const mode: BattleMode = story ? "STORY" : "TEST";
-  // Un combat suivi à la fois et par mode. En histoire, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
-  if (manual && story) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+  const floor = parseTower(opponent);
+  if (floor && floor > (await getTowerFloor(userId)) + 1) throw new BattleError("Étage verrouillé : gagne le précédent.");
+  const mode: BattleMode = story ? "STORY" : floor ? "TOWER" : "TEST";
+  // Un combat suivi à la fois et par mode. En histoire et dans la Tour, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
+  if (manual && (story || floor)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const mine = slots.map((s) => toBattleCard(s!.character, s!.stars));
-  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent, mine) };
+  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed));
     const row = await prisma.$transaction(async (tx) => {
-      const loot = story && result.winner === "A" ? await settleStory(tx, userId, opponent, seed, now) : null;
+      const won = result.winner === "A";
+      const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : floor && won ? await settleTower(tx, userId, opponent, now) : null;
       return tx.battle.create({
         data: {
           userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
@@ -396,8 +452,8 @@ export async function playAction(userId: string, battleId: string, action: Actio
       },
     });
     if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
-    if (done?.winner === "A" && row.mode === "STORY") {
-      loot = await settleStory(tx, userId, row.opponent, row.seed, now);
+    if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER")) {
+      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, now) : await settleTower(tx, userId, row.opponent, now);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     }
     });

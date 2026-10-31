@@ -25,7 +25,10 @@ Détaillé dans la section « Raid » ci-dessous.
 - **Remplace le mode « Donjon »** temporaire (retiré de la barre et de `/combat`). Menu « Jouer » : Histoire, **Tour**, Duels, Expéditions.
 - Version simple : à chaque étage, **4 personnages tirés au hasard**, sans boss écrit à la main ni trait (les jalons écrits viendront plus tard, si besoin). Équipe d'attaque enregistrée (voir [combat.md](combat.md) §11), combat 4 contre 4 du moteur, manuel ou auto.
 - Étage **identique pour tous** (graine = numéro d'étage). Victoire : étage suivant ; défaite sans pénalité, on retente quand on veut.
-- Difficulté : raretés et stats qui montent avec l'étage *(simulateur)*.
+- **500 étages**, déverrouillés un par un (on ne saute pas d'étage). Table `TowerProgress` (étage le plus haut gagné).
+- **Difficulté** *(codée le 2026-10-31, mesurée par `npm run check:tower`)* : les 4 ennemis montent d'une rareté tous les 50 étages (N/N/N/R à l'étage 1, tous UR dès l'étage 201) ; leurs stats = moyenne de leur rareté × (0,35 + 0,003 × (étage − 1)). Une équipe de 4 SR passe ~175 étages, 4 SSR ~225, 4 UR ~300 ; au-delà, il faudra l'éveil.
+- **Récompense** : Ryō au **premier passage** d'un étage seulement (20 + 3 × étage, +100 tous les 10 étages), rien en rejouant. Choix à confirmer : pas de farm de Ryō en boucle.
+- Page `/tour` : étage à jouer, enchaînement automatique des victoires (comme l'histoire), top 10 des étages atteints. Le mode « Donjon » est supprimé.
 - Avec un **classement** (étage atteint), sans gain de puissance.
 - Le reste de l'étape 7 (3 cartes, 3 tentatives par jour, sorts génériques, rangs D à S) est **périmé** ; à réécrire quand on codera.
 

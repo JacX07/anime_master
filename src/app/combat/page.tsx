@@ -9,7 +9,6 @@ export const metadata: Metadata = { title: "Combat — Anime Masters", robots: {
 
 const HINTS: Record<string, string> = {
   test: "4 personnages SR fixes, toujours les mêmes.",
-  donjon: "4 personnages tirés au hasard, de mêmes raretés que ton équipe.",
 };
 const OPPONENTS: OpponentChoice[] = Object.entries(PVM_OPPONENTS).map(([key, o]) => ({ key, name: o.name, hint: HINTS[key] ?? "" }));
 

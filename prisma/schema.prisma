@@ -178,6 +178,7 @@ model User {
   battleTeams         BattleTeam[]
   battles             Battle[]
   storyProgress       StoryProgress[]
+  towerProgress       TowerProgress?
   resources           ResourceStock[]
   dailyGains          DailyGain[]
   sessions            Session[]
@@ -357,6 +358,7 @@ enum LedgerReason {
   ACHIEVEMENT
   EXPEDITION
   STORY
+  TOWER
 }
 
 /// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).
@@ -729,6 +731,17 @@ model StoryProgress {
   maxLevel Int    @default(0)
 
   @@id([userId, universe])
+}
+
+/// Plus haut étage de la Tour gagné (0 = aucun) ; classement par étage atteint.
+model TowerProgress {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  maxFloor  Int      @default(0)
+  /// Date du dernier nouvel étage : départage les égalités du classement
+  reachedAt DateTime @default(now())
+
+  @@index([maxFloor])
 }
 
 /// Ressources PvM du joueur (éveil, armes, cœurs de brèche…), une ligne par clé.

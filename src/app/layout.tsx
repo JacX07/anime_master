@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 const PLAY: NavItem[] = [
   { href: "/equipe", icon: "t-coeur", label: "Équipe" },
   { href: "/histoire", icon: "t-aventure", label: "Histoire" },
-  { href: "/combat", icon: "nav-duels", label: "Donjon" },
+  { href: "/tour", icon: "nav-duels", label: "Tour" },
   { href: "/duels", icon: "nav-duels", label: "Duels" },
   { href: "/expeditions", icon: "unlock", label: "Expéditions" },
 ];
