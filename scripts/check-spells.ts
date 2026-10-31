@@ -6,6 +6,8 @@ import { applyAction, autoAction, createBattle, currentActor, legalActions, seed
 import { replayAll } from "../src/lib/battle-replay";
 import { CHARACTER_SPELLS } from "../src/lib/spells";
 
+const fx = <K extends string>(id: number, k: K) => CHARACTER_SPELLS[id].effects.find((e) => e.k === k) as Extract<(typeof CHARACTER_SPELLS)[number]["effects"][number], { k: K }>;
+
 let failures = 0;
 function check(label: string, ok: boolean, detail = "") {
   if (!ok) failures++;
@@ -54,7 +56,7 @@ function until(st: BattleState, id: string) {
     play(st, "base", "B2");
   }
   const ticks = evs(st, "poison").filter((e) => e.target === "B1");
-  check("Poison : 5 % des PV max par action, 3 actions", ticks.length === 3 && ticks.every((t) => Math.abs(t.amount - maxHp! * 0.05) < 1e-6 || t.hp === 0), `${ticks.length} tic(s)`);
+  check("Poison : % des PV max du sort par action, 3 actions", ticks.length === 3 && ticks.every((t) => Math.abs(t.amount - maxHp! * fx(SASUKE, "poison").pct) < 1e-6 || t.hp === 0), `${ticks.length} tic(s)`);
 }
 {
   const st = start([card(SASUKE), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
@@ -116,7 +118,7 @@ function until(st: BattleState, id: string) {
   check("Réanimation : seuls les alliés morts sont ciblables", t.length === 2 && t.includes("A2") && t.includes("A3"));
   play(st, "special", "A2");
   const a2 = st.teams.A[1];
-  check("Réanimation : revient avec 35 % de ses PV max", Math.abs(a2.hp - a2.maxHp * 0.35) < 1e-6 && evs(st, "revive").length === 1);
+  check("Réanimation : revient avec la part de PV max du sort", Math.abs(a2.hp - a2.maxHp * fx(YUTA, "revive").pct) < 1e-6 && evs(st, "revive").length === 1);
   for (let i = 0; i < 6; i++) { until(st, "A1"); play(st, "base", "B1"); }
   until(st, "A1");
   check("Réanimation : pas une deuxième fois", !legalActions(st).some((x) => x.spell === "special"));

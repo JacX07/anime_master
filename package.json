@@ -35,6 +35,7 @@
     "check:story": "tsx scripts/check-story.ts",
     "check:spells": "tsx scripts/check-spells.ts",
     "simulate:spells": "tsx scripts/simulate-spells.ts",
+    "calibrate:spells": "tsx scripts/calibrate-spells.ts",
     "check:tower": "tsx scripts/check-tower.ts"
   },
   "dependencies": {

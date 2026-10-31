@@ -87,45 +87,56 @@ Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec s
 
 *(« Exposé » et « Affaibli » du jeu actuel deviennent des cas particuliers : exposition et ATK −20 %.)*
 
-**Équilibre** *(à fixer au simulateur)* : un sort d'attaque pure vaut environ 2,0× l'ATK (SSR) ou 2,4× (UR) ; un sort de zone 0,9× (SSR) ou 1,1× (UR) ; un sort qui ajoute un effet fort (silence, DEF −, poison) perd du multiplicateur. **Automatique** : lancé dès qu'il est prêt ; un soin, un bouclier ou une réanimation seulement si un allié en a besoin ; un silence sur la cible la plus dangereuse.
+**Équilibre** *(calibré, voir le tableau)* : chaque sort pèse environ +4 points de victoire, quelle que soit sa nature ; plus son effet est fort, plus sa petite attaque est faible. **Automatique** : lancé dès qu'il est prêt ; un soin, un bouclier ou une réanimation seulement si un allié en a besoin ; un silence sur la cible la plus dangereuse.
 
 **Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
 
 **Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier ; les autres univers au fil du temps.
 
-| Perso | Sort | Effet | Rôle |
-|---|---|---|---|
-| Luffy (UR) | Gomu Gomu no Gatling | 2,2× ATK ; ATK +20 % pour lui, 2 actions | Attaque |
-| Zoro (UR) | Santoryu Ogi | 1,8× ATK ; critique +30 pour lui, 3 actions | Attaque |
-| Sanji (SSR) | Diable Jambe | 2,0× ATK, ignore 30 % de la DEF | Attaque |
-| Robin (SSR) | Mil Fleur | 1,0× ATK ; silence 2 actions sur la cible | Contrôle |
-| Law (SSR) | Shambles | 1,6× ATK qui traverse les boucliers ; DEF −20 %, 2 actions | Contrôle |
-| Nami (SSR) | Thunderbolt Tempo | 0,6× ATK en zone ; ATK −20 % sur tous les ennemis, 2 actions | Zone / malus |
-| Ace (SSR) | Hiken | 1,8× ATK ; vol de vie 40 % | Attaque / vol de vie |
-| Chopper (SSR) | Rumble Ball | soin de zone 15 % des PV max ; purge des malus de l'équipe | Soin / purge |
-| Usopp (SSR) | Kemuri Boshi | esquive 30 % pour l'équipe, 2 actions | Soutien |
-| Naruto (UR) | Mode Kyubi | ATK +20 % pour l'équipe, 2 actions ; soin sur la durée 5 % × 3 actions pour lui | Soutien |
-| Itachi (UR) | Tsukuyomi | 1,2× ATK ; silence 2 actions et ATK −20 % sur la cible | Contrôle |
-| Kakashi (UR) | Raikiri | 2,2× ATK qui traverse les boucliers, ignore 30 % de la DEF | Attaque |
-| Sasuke (SSR) | Amaterasu | poison 5 % des PV max × 3 actions sur la cible | Poison |
-| Shikamaru (SSR) | Possession des ombres | critique −30 sur tous les ennemis, 2 actions ; DEF −15 % | Contrôle |
-| Gaara (SSR) | Armure de sable | bouclier 15 % des PV max pour l'équipe | Bouclier |
-| Jiraiya (SSR) | Rasengan crapaud | 0,9× ATK en zone | Zone |
-| Gojo (UR) | Pourpre | 1,1× ATK en zone qui traverse les boucliers | Zone |
-| Yuji (UR) | Black Flash | 2,0× ATK, coup critique assuré | Attaque |
-| Megumi (UR) | Mahoraga | DEF +20 % pour l'équipe, 3 actions ; immunité aux altérations, 2 actions | Protection |
-| Nanami (SSR) | Ratio 7:3 | 1,6× ATK ; DEF −25 % sur la cible, 2 actions | Contrôle |
-| Nobara (SSR) | Résonance | poison 5 % des PV max × 3 actions ; ATK −15 % | Poison |
-| Maki (SSR) | Lance du rêve | 1,4× ATK ; esquive 50 % pour elle, 2 actions | Attaque / esquive |
-| Sukuna (SSR) | Démantèlement | 0,8× ATK en zone ; vol de vie 30 % | Zone / vol de vie |
-| Yuta (SSR) | Rika | réanimation d'un allié mort à 35 % de ses PV max | Résurrection |
-| Inumaki (SSR) | Mot-clé : « Arrêtez-vous » | silence 1 action sur tous les ennemis | Contrôle |
-| Getou (SSR) | Manipulation de malédiction | 0,8× ATK en zone ; poison 3 % × 3 actions | Zone / poison |
-| Toji (SSR) | Lance inversée | 2,0× ATK qui traverse les boucliers ; critique +25 pour lui | Attaque |
-| Todo (SSR) | Boogie Woogie | 1,2× ATK ; critique +25 pour l'équipe, 2 actions | Soutien |
+| Perso | Sort | Effet |
+|---|---|---|
+| Sasuke Uchiha (SSR) | Amaterasu | 1,36× ATK ; poison : 8 % des PV max par action pour la cible, 3 actions. |
+| Itachi Uchiha (UR) | Tsukuyomi | 1,71× ATK ; silence sur la cible (sort de base seulement), 2 actions; sans effet sur les boss ; ATK −20 % pour la cible, 2 actions. |
+| Naruto Uzumaki (UR) | Mode Kyubi | 0,78× ATK sur tous les ennemis ; ATK +20 % pour l'équipe, 2 actions ; soin sur la durée de 5 % des PV max pour le lanceur, 3 actions. |
+| Luffy Monkey (UR) | Gomu Gomu no Gatling | 0,82× ATK ; ATK +20 % pour le lanceur, 2 actions. |
+| Robin Nico (SSR) | Mil Fleur | 1,33× ATK ; silence sur la cible (sort de base seulement), 2 actions; sans effet sur les boss. |
+| Zoro Roronoa (UR) | Santoryu Ogi | 0,94× ATK ; critique +30 points pour le lanceur, 3 actions. |
+| Kakashi Hatake (UR) | Raikiri | 1,92× ATK, ignore 30 % de la DEF, traverse les boucliers. |
+| Sanji (SSR) | Diable Jambe | 0,96× ATK, ignore 30 % de la DEF. |
+| Chopper Tony Tony (SSR) | Rumble Ball | 0,22× ATK sur tous les ennemis ; soigne l'équipe de 15 % des PV max ; retire les malus de l'équipe. |
+| Nami (SSR) | Thunderbolt Tempo | 0,29× ATK sur tous les ennemis ; ATK −20 % pour tous les ennemis, 2 actions. |
+| Usopp (SSR) | Kemuri Boshi | 1× ATK sur tous les ennemis ; esquive +30 % pour l'équipe, 2 actions. |
+| Gaara (SSR) | Armure de sable | 0,44× ATK sur tous les ennemis ; bouclier de 15 % des PV max pour l'équipe. |
+| Shikamaru Nara (SSR) | Possession des ombres | 0,72× ATK sur tous les ennemis ; critique −30 points pour tous les ennemis, 2 actions ; DEF −15 % pour tous les ennemis, 2 actions. |
+| Ace Portgas (SSR) | Hiken | 0,96× ATK, rend 40 % des dégâts en PV. |
+| Jiraiya (SSR) | Rasengan crapaud | 1,2× ATK sur tous les ennemis ; DEF −15 % pour tous les ennemis, 2 actions. |
+| Law Trafalgar (SSR) | Shambles | 1,1× ATK, traverse les boucliers ; DEF −20 % pour la cible, 2 actions. |
+| Megumi Fushiguro (UR) | Mahoraga | 0,44× ATK sur tous les ennemis ; DEF +20 % pour l'équipe, 3 actions ; immunité aux malus pour l'équipe, 2 actions. |
+| Yuuji Itadori (UR) | Black Flash | 0,89× ATK, coup critique assuré. |
+| Satoru Gojou (UR) | Pourpre | 0,76× ATK sur tous les ennemis, traverse les boucliers. |
+| Yuuta Okkotsu (SSR) | Rika | réanime un allié mort avec 17 % de ses PV max (une fois par combat). |
+| Suguru Getou (SSR) | Manipulation de malédiction | 0,44× ATK sur tous les ennemis ; poison : 5 % des PV max par action pour tous les ennemis, 3 actions. |
+| Nobara Kugisaki (SSR) | Résonance | 0,96× ATK ; poison : 8 % des PV max par action pour la cible, 3 actions ; ATK −15 % pour la cible, 2 actions. |
+| Sukuna (SSR) | Démantèlement | 0,59× ATK sur tous les ennemis, rend 30 % des dégâts en PV. |
+| Kento Nanami (SSR) | Ratio 7:3 | 0,96× ATK ; DEF −25 % pour la cible, 2 actions. |
+| Maki Zenin (SSR) | Lance du rêve | 0,8× ATK ; esquive +30 % pour le lanceur, 2 actions. |
+| Aoi Toudou (SSR) | Boogie Woogie | 1,02× ATK ; critique +25 points pour l'équipe, 2 actions. |
+| Toge Inumaki (SSR) | Mot-clé : « Arrêtez-vous » | 0,59× ATK sur tous les ennemis ; silence sur tous les ennemis (sort de base seulement), 1 action; sans effet sur les boss. |
+| Touji Fushiguro (SSR) | Lance inversée | 1,39× ATK, traverse les boucliers ; critique +25 points pour le lanceur, 2 actions. |
 
-Répartition : 7 attaques, 4 zones (dont 2 avec vol de vie ou poison), 6 contrôles, 3 poisons ou malus, 6 soutiens (soin, bouclier, esquive, protection, résurrection, bonus d'équipe). Les noms et effets sont des propositions, modifiables.
+**Sorts génériques** (SSR et UR sans sort écrit, selon le type) :
 
+| Type | Sort | Effet |
+|---|---|---|
+| COMBAT | Coup décisif | 1,55× ATK, ignore 30 % de la DEF. |
+| MYSTERE | Entrave | 1,31× ATK ; silence sur la cible (sort de base seulement), 2 actions; sans effet sur les boss. |
+| MAGIE | Drain | 1,13× ATK, rend 30 % des dégâts en PV. |
+| COEUR | Bénédiction | 0,54× ATK sur tous les ennemis ; soigne l'équipe de 12 % des PV max. |
+| AVENTURE | Charge | 0,46× ATK sur tous les ennemis ; ATK +15 % pour l'équipe, 2 actions. |
+
+**Calibrage** *(2026-10-31, `npm run calibrate:spells`, `npm run simulate:spells`)* : le sort remplace l'attaque de base de la carte pendant son tour, donc **un sort sans dégâts fait perdre des points**, et un sort de zone vaut 4 cibles. Chaque sort a donc une petite attaque (zone : 0,2 à 0,8×, cible unique : 0,8 à 1,9×) réglée pour qu'il pèse environ **+4 points de victoire** (mesuré après calibrage : de +1,2 à +6,7 pour 32 sorts sur 33 ; Jiraiya, au plus faible, a reçu un malus de DEF en plus). Valeurs d'avant le calibrage : attaques à 2,0 à 2,4×, zones à 0,6 à 1,1× (de −22 à +25 points). Mesure globale : 4 SSR avec sorts contre 4 SSR sans : +3,9 points ; 4 UR : +5,3 ; 4 SSR avec sorts contre 4 UR sans sorts : 0,6 % (l'UR domine toujours).
+
+Les noms et effets sont des propositions, modifiables.
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.

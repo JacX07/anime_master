@@ -39,48 +39,45 @@ const S = (name: string, target: CharacterSpell["target"], ...effects: Effect[])
 const dmg = (mult: number, o: Omit<Extract<Effect, { k: "damage" }>, "k" | "mult"> = {}): Effect => ({ k: "damage", mult, ...o });
 const mod = (stat: ModStat, amount: number, turns: number, to: Scope): Effect => ({ k: "mod", stat, amount, turns, to });
 
-/** Sorts écrits à la main, par identifiant AniList du personnage. */
+/** Sorts écrits à la main, par identifiant AniList du personnage. Multiplicateurs calibrés par `npm run calibrate:spells` (≈ +4 points de victoire chacun). */
 export const CHARACTER_SPELLS: Record<number, CharacterSpell> = {
-  // One Piece
-  40: S("Gomu Gomu no Gatling", "foe", dmg(2.2), mod("atk", 0.2, 2, "self")),
-  62: S("Santoryu Ogi", "foe", dmg(1.8), mod("crit", 0.3, 3, "self")),
-  305: S("Diable Jambe", "foe", dmg(2, { ignoreDef: 0.3 })),
-  61: S("Mil Fleur", "foe", dmg(1), { k: "silence", turns: 2, to: "target" }),
-  13767: S("Shambles", "foe", dmg(1.6, { pierce: true }), mod("def", -0.2, 2, "target")),
-  723: S("Thunderbolt Tempo", null, dmg(0.6, { zone: true }), mod("atk", -0.2, 2, "foes")),
-  2072: S("Hiken", "foe", dmg(1.8, { drain: 0.4 })),
-  309: S("Rumble Ball", null, { k: "heal", pct: 0.15, to: "team" }, { k: "purge", to: "team" }),
-  724: S("Kemuri Boshi", null, mod("dodge", 0.3, 2, "team")),
-  // Naruto
-  17: S("Mode Kyubi", null, mod("atk", 0.2, 2, "team"), { k: "regen", pct: 0.05, turns: 3, to: "self" }),
-  14: S("Tsukuyomi", "foe", dmg(1.2), { k: "silence", turns: 2, to: "target" }, mod("atk", -0.2, 2, "target")),
-  85: S("Raikiri", "foe", dmg(2.2, { pierce: true, ignoreDef: 0.3 })),
-  13: S("Amaterasu", "foe", { k: "poison", pct: 0.05, turns: 3, to: "target" }),
-  2007: S("Possession des ombres", null, mod("crit", -0.3, 2, "foes"), mod("def", -0.15, 2, "foes")),
-  1662: S("Armure de sable", null, { k: "shield", pct: 0.15, to: "team" }),
-  2423: S("Rasengan crapaud", null, dmg(0.9, { zone: true })),
-  // Jujutsu Kaisen
-  127691: S("Pourpre", null, dmg(1.1, { zone: true, pierce: true })),
-  127212: S("Black Flash", "foe", dmg(2, { critSure: true })),
-  126635: S("Mahoraga", null, mod("def", 0.2, 3, "team"), { k: "immune", turns: 2, to: "team" }),
-  133704: S("Ratio 7:3", "foe", dmg(1.6), mod("def", -0.25, 2, "target")),
-  133700: S("Résonance", "foe", { k: "poison", pct: 0.05, turns: 3, to: "target" }, mod("atk", -0.15, 2, "target")),
-  134167: S("Lance du rêve", "foe", dmg(1.4), mod("dodge", 0.5, 2, "self")),
-  133701: S("Démantèlement", null, dmg(0.8, { zone: true, drain: 0.3 })),
-  129571: S("Rika", "deadAlly", { k: "revive", pct: 0.35 }),
-  157115: S("Mot-clé : « Arrêtez-vous »", null, { k: "silence", turns: 1, to: "foes" }),
-  133699: S("Manipulation de malédiction", null, dmg(0.8, { zone: true }), { k: "poison", pct: 0.03, turns: 3, to: "foes" }),
-  162722: S("Lance inversée", "foe", dmg(2, { pierce: true }), mod("crit", 0.25, 2, "self")),
-  137975: S("Boogie Woogie", "foe", dmg(1.2), mod("crit", 0.25, 2, "team")),
+  13: S("Amaterasu", "foe", dmg(1.36), { k: "poison", pct: 0.08, turns: 3, to: "target" }), // Sasuke Uchiha
+  14: S("Tsukuyomi", "foe", dmg(1.71), { k: "silence", turns: 2, to: "target" }, mod("atk", -0.2, 2, "target")), // Itachi Uchiha
+  17: S("Mode Kyubi", null, dmg(0.78, { zone: true }), mod("atk", 0.2, 2, "team"), { k: "regen", pct: 0.05, turns: 3, to: "self" }), // Naruto Uzumaki
+  40: S("Gomu Gomu no Gatling", "foe", dmg(0.82), mod("atk", 0.2, 2, "self")), // Luffy Monkey
+  61: S("Mil Fleur", "foe", dmg(1.33), { k: "silence", turns: 2, to: "target" }), // Robin Nico
+  62: S("Santoryu Ogi", "foe", dmg(0.94), mod("crit", 0.3, 3, "self")), // Zoro Roronoa
+  85: S("Raikiri", "foe", dmg(1.92, { ignoreDef: 0.3, pierce: true })), // Kakashi Hatake
+  305: S("Diable Jambe", "foe", dmg(0.96, { ignoreDef: 0.3 })), // Sanji
+  309: S("Rumble Ball", null, dmg(0.22, { zone: true }), { k: "heal", pct: 0.15, to: "team" }, { k: "purge", to: "team" }), // Chopper Tony Tony
+  723: S("Thunderbolt Tempo", null, dmg(0.29, { zone: true }), mod("atk", -0.2, 2, "foes")), // Nami
+  724: S("Kemuri Boshi", null, dmg(1, { zone: true }), mod("dodge", 0.3, 2, "team")), // Usopp
+  1662: S("Armure de sable", null, dmg(0.44, { zone: true }), { k: "shield", pct: 0.15, to: "team" }), // Gaara
+  2007: S("Possession des ombres", null, dmg(0.72, { zone: true }), mod("crit", -0.3, 2, "foes"), mod("def", -0.15, 2, "foes")), // Shikamaru Nara
+  2072: S("Hiken", "foe", dmg(0.96, { drain: 0.4 })), // Ace Portgas
+  2423: S("Rasengan crapaud", null, dmg(1.2, { zone: true }), mod("def", -0.15, 2, "foes")), // Jiraiya
+  13767: S("Shambles", "foe", dmg(1.1, { pierce: true }), mod("def", -0.2, 2, "target")), // Law Trafalgar
+  126635: S("Mahoraga", null, dmg(0.44, { zone: true }), mod("def", 0.2, 3, "team"), { k: "immune", turns: 2, to: "team" }), // Megumi Fushiguro
+  127212: S("Black Flash", "foe", dmg(0.89, { critSure: true })), // Yuuji Itadori
+  127691: S("Pourpre", null, dmg(0.76, { zone: true, pierce: true })), // Satoru Gojou
+  129571: S("Rika", "deadAlly", { k: "revive", pct: 0.17 }), // Yuuta Okkotsu
+  133699: S("Manipulation de malédiction", null, dmg(0.44, { zone: true }), { k: "poison", pct: 0.05, turns: 3, to: "foes" }), // Suguru Getou
+  133700: S("Résonance", "foe", dmg(0.96), { k: "poison", pct: 0.08, turns: 3, to: "target" }, mod("atk", -0.15, 2, "target")), // Nobara Kugisaki
+  133701: S("Démantèlement", null, dmg(0.59, { zone: true, drain: 0.3 })), // Sukuna
+  133704: S("Ratio 7:3", "foe", dmg(0.96), mod("def", -0.25, 2, "target")), // Kento Nanami
+  134167: S("Lance du rêve", "foe", dmg(0.8), mod("dodge", 0.3, 2, "self")), // Maki Zenin
+  137975: S("Boogie Woogie", "foe", dmg(1.02), mod("crit", 0.25, 2, "team")), // Aoi Toudou
+  157115: S("Mot-clé : « Arrêtez-vous »", null, dmg(0.59, { zone: true }), { k: "silence", turns: 1, to: "foes" }), // Toge Inumaki
+  162722: S("Lance inversée", "foe", dmg(1.39, { pierce: true }), mod("crit", 0.25, 2, "self")), // Touji Fushiguro
 };
 
 /** Sort générique des SSR et UR sans sort écrit, d'après leur type. */
-const GENERIC: Record<CardType, CharacterSpell> = {
-  COMBAT: S("Coup décisif", "foe", dmg(1.8, { ignoreDef: 0.3 })),
-  MYSTERE: S("Entrave", "foe", dmg(1), { k: "silence", turns: 2, to: "target" }),
-  MAGIE: S("Drain", "foe", dmg(1.4, { drain: 0.3 })),
-  COEUR: S("Bénédiction", null, { k: "heal", pct: 0.12, to: "team" }),
-  AVENTURE: S("Charge", null, dmg(0.8, { zone: true }), mod("atk", 0.15, 2, "team")),
+export const GENERIC: Record<CardType, CharacterSpell> = {
+  COMBAT: S("Coup décisif", "foe", dmg(1.55, { ignoreDef: 0.3 })),
+  MYSTERE: S("Entrave", "foe", dmg(1.31), { k: "silence", turns: 2, to: "target" }),
+  MAGIE: S("Drain", "foe", dmg(1.13, { drain: 0.3 })),
+  COEUR: S("Bénédiction", null, dmg(0.54, { zone: true }), { k: "heal", pct: 0.12, to: "team" }),
+  AVENTURE: S("Charge", null, dmg(0.46, { zone: true }), mod("atk", 0.15, 2, "team")),
 };
 
 /** Sort de personnage d'une carte, ou null (N, R et SR n'en ont pas). */
