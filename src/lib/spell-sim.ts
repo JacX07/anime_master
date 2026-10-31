@@ -19,6 +19,9 @@ export interface SimResult {
   delta: number;
   /** Demi-largeur de l'intervalle de confiance à 95 % de cette différence appariée. */
   margin: number;
+  /** Même comparaison sur l'avantage en PV restants (équipe testée − adversaire, en part des PV max) : ne sature pas quand le taux de victoire approche 100 % ou 0 %. */
+  hpDelta: number;
+  hpMargin: number;
   /** SSR seulement : victoires de 4 SSR (dont la carte testée) contre 4 UR sans capacités personnalisées. */
   ssrVsUr: number | null;
   verdict: "inchangé" | "plus fort" | "plus faible" | "comparable";
@@ -75,34 +78,40 @@ export async function simulateSpell(
   const total = 2 * games + ssrGames;
   let done = 0;
 
+  /** Victoire (1, 0,5 ou 0) et avantage en PV restants de l'équipe a */
   const score = (a: BattleCard[], b: BattleCard[], battleSeed: number, swap: boolean) => {
     const random = seededRandom(battleSeed);
     const result = swap ? battle(b, a, random) : battle(a, b, random);
-    return result.winner === null ? 0.5 : result.winner === (swap ? "B" : "A") ? 1 : 0;
+    const mine = swap ? "B" : "A", theirs = swap ? "A" : "B";
+    return { win: result.winner === null ? 0.5 : result.winner === mine ? 1 : 0, hp: result.hpLeft[mine] - result.hpLeft[theirs] };
   };
-  let wins = 0, referenceWins = 0, sumDiff = 0, sumDiffSquared = 0;
+  let wins = 0, referenceWins = 0, sumDiff = 0, sumDiffSquared = 0, hpDiff = 0, hpDiffSquared = 0;
   for (let g = 0; g < games; g++) {
     const mates = [0, 1, 2].map(() => plain(any(same)));
     const foes = [baseline, ...mates];
     const battleSeed = Math.floor(rng() * 0x100000000);
-    const win = score([card, ...mates], foes, battleSeed, g % 2 === 1);
-    const referenceWin = score([referenceCard, ...mates], foes, battleSeed, g % 2 === 1);
-    wins += win; referenceWins += referenceWin;
-    const difference = win - referenceWin;
+    const mine = score([card, ...mates], foes, battleSeed, g % 2 === 1);
+    const ref = score([referenceCard, ...mates], foes, battleSeed, g % 2 === 1);
+    wins += mine.win; referenceWins += ref.win;
+    const difference = mine.win - ref.win, hpDifference = mine.hp - ref.hp;
     sumDiff += difference; sumDiffSquared += difference * difference;
+    hpDiff += hpDifference; hpDiffSquared += hpDifference * hpDifference;
     done += 2;
     if (done % 100 === 0) { onProgress(done, total); await tick(); }
   }
   const delta = sumDiff / games;
   const variance = games > 1 ? Math.max(0, (sumDiffSquared - games * delta * delta) / (games - 1)) : 0;
   const margin = 1.96 * Math.sqrt(variance / games);
+  const hpDelta = hpDiff / games;
+  const hpVariance = games > 1 ? Math.max(0, (hpDiffSquared - games * hpDelta * hpDelta) / (games - 1)) : 0;
+  const hpMargin = 1.96 * Math.sqrt(hpVariance / games);
   let ssrVsUr: number | null = null;
   if (ssrGames) {
     let wins = 0;
     for (let g = 0; g < ssrGames; g++) {
       const a = [card, any(ssrs), any(ssrs), any(ssrs)];
       const b = [0, 1, 2, 3].map(() => plain(any(urs)));
-      wins += score(a, b, Math.floor(rng() * 0x100000000), g % 2 === 1);
+      wins += score(a, b, Math.floor(rng() * 0x100000000), g % 2 === 1).win;
       if (++done % 100 === 0) { onProgress(done, total); await tick(); }
     }
     ssrVsUr = wins / ssrGames;
@@ -110,7 +119,8 @@ export async function simulateSpell(
   onProgress(total, total);
   return {
     games, weight: wins / games - 0.5, referenceWeight: referenceWins / games - 0.5,
-    delta, margin, ssrVsUr,
-    verdict: unchanged ? "inchangé" : delta > margin ? "plus fort" : delta < -margin ? "plus faible" : "comparable",
+    delta, margin, hpDelta, hpMargin, ssrVsUr,
+    // Le taux de victoire sature facilement : un écart net de PV restants suffit aussi.
+    verdict: unchanged ? "inchangé" : delta > margin || hpDelta > hpMargin && delta >= 0 ? "plus fort" : delta < -margin || hpDelta < -hpMargin && delta <= 0 ? "plus faible" : "comparable",
   };
 }

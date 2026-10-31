@@ -192,6 +192,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
           {sim && (
             <div className="sb-result" data-verdict={sim.verdict}>
               <p><strong>{sim.verdict.toUpperCase()}</strong> — <strong>{pts(sim.delta)}</strong> par rapport au sort d&apos;origine ({sim.games} paires de combats).</p>
+              <p>Avantage en PV restants : <strong>{pts(sim.hpDelta)}</strong> (±{(sim.hpMargin * 100).toFixed(1)} pt) — plus parlant que les victoires quand le sort gagne déjà presque tout.</p>
               <p>Impact isolé : brouillon {pts(sim.weight)} · origine {pts(sim.referenceWeight)}. Incertitude sur l&apos;écart : ±{(sim.margin * 100).toFixed(1)} pt à 95 %.</p>
               <p className="sb-desc">Mêmes équipes et mêmes graines pour le brouillon et l&apos;origine. Cette comparaison mesure la modification ; elle ne certifie pas l&apos;équilibre global du sort existant.</p>
               {sim.ssrVsUr !== null && <p>4 SSR (emplacement testé isolé sur ce personnage) contre 4 UR sans capacités personnalisées : {(sim.ssrVsUr * 100).toFixed(1)} % de victoires{sim.ssrVsUr >= 0.5 ? " ⚠ un UR doit dominer" : ""}.</p>}
