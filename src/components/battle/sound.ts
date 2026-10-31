@@ -65,13 +65,14 @@ export class BattleAudio {
   /** À appeler depuis un geste de l'utilisateur : les navigateurs refusent de jouer du son avant. */
   unlock() {
     const ctx = this.init();
-    if (ctx.state === "suspended") void ctx.resume();
+    // Le contexte peut être fermé avant la fin du resume (page quittée, double montage en dev) : sans importance
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
   }
 
   /** Ferme le contexte audio (fin de la page) */
   dispose() {
     this.stopMusic();
-    void this.ctx?.close();
+    this.ctx?.close().catch(() => {});
     this.ctx = null;
   }
 
