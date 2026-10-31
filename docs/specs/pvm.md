@@ -21,9 +21,13 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 ### Raid
 Détaillé dans la section « Raid » ci-dessous.
 
-### Tour multiverselle
-- Décrite à l'étape 7 ci-dessous (écrite pour l'ancien combat 3 cartes, à aligner sur le 4 contre 4).
-- Avec un **classement**.
+### Tour multiverselle *(révisé le 2026-10-31)*
+- **Remplace le mode « Donjon »** temporaire (retiré de la barre et de `/combat`). Menu « Jouer » : Histoire, **Tour**, Duels, Expéditions.
+- Version simple : à chaque étage, **4 personnages tirés au hasard**, sans boss écrit à la main ni trait (les jalons écrits viendront plus tard, si besoin). Équipe d'attaque enregistrée (voir [combat.md](combat.md) §11), combat 4 contre 4 du moteur, manuel ou auto.
+- Étage **identique pour tous** (graine = numéro d'étage). Victoire : étage suivant ; défaite sans pénalité, on retente quand on veut.
+- Difficulté : raretés et stats qui montent avec l'étage *(simulateur)*.
+- Avec un **classement** (étage atteint), sans gain de puissance.
+- Le reste de l'étape 7 (3 cartes, 3 tentatives par jour, sorts génériques, rangs D à S) est **périmé** ; à réécrire quand on codera.
 
 ---
 

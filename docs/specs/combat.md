@@ -212,6 +212,16 @@ Code : `src/lib/battles.ts` (serveur), actions dans `src/app/battle-actions.ts`.
 
 **Pas encore fait** : armes et ressources d'éveil (avec le mode histoire et le raid), récompenses, page de combat (piste du moteur graphique).
 
+### 11. Page Équipe *(décidé le 2026-10-31, à coder)*
+Page `/equipe`, dans le menu « Jouer ». Elle est la **seule** façon de choisir son équipe : tous les modes (histoire, Tour, test, raid) utilisent l'équipe enregistrée, plus de choix à chaque combat.
+
+- **Deux onglets** : **Attaque** (histoire, Tour, raid) et **Défense** (réservé à l'arène PvP : enregistrable dès maintenant, utilisé quand l'arène existera, voir [pvp.md](pvp.md)). Même carte dans les deux équipes autorisée (les cartes ne sont pas bloquées).
+- **4 emplacements** ordonnés (l'ordre = ordre de jeu). Choix depuis la collection : filtres rareté / type / anime, recherche. Bouton « Auto » (`autoAttackTeam`) et bouton pour vider un emplacement.
+- **Aperçu de l'équipe** : Puissance de combat (ATK / DEF / PV), bonus de **franchise** actif, affinités (forces et faiblesses face aux 5 types), qui joue en premier.
+- **Sorts visibles** : chaque emplacement affiche les sorts de la carte (sort de type, sort de personnage pour SSR / UR : nom, effet, durée), avec les mêmes infobulles que le lecteur de combat. Cliquer une carte ouvre le détail de ses sorts, y compris depuis la collection.
+- Les combats lancés sans équipe complète renvoient vers `/equipe`.
+- Nouvelle action serveur : `setDefenseTeamAction(cardIds)` ; `setAttackTeamAction` existe déjà.
+
 ---
 
 ## Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
