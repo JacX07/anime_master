@@ -2,6 +2,7 @@
 // Pur : aucune lecture en base. Un SSR ou UR sans sort écrit reçoit un sort générique déduit de son type.
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
+import { SECONDARY_DATA } from "./skill-data";
 
 /** Qui reçoit un effet : la cible choisie, le lanceur, son équipe, ou tous les ennemis. */
 export type Scope = "target" | "self" | "team" | "foes";
@@ -22,13 +23,19 @@ export type Effect =
   | { k: "immune"; turns: number; to: Scope }
   | { k: "purge"; to: Scope }
   /** Réanime l'allié mort ciblé, une fois par combat */
-  | { k: "revive"; pct: number };
+  | { k: "revive"; pct: number }
+  /** Provocation du lanceur : les attaques à cible unique des ennemis ne peuvent viser que lui pendant `turns` tours */
+  | { k: "taunt"; turns: number }
+  /** Dégâts subis réduits de `pct` pendant `turns` tours */
+  | { k: "reduce"; pct: number; turns: number; to: Scope };
 
 export interface CharacterSpell {
   name: string;
   /** Ce que le joueur choisit : un ennemi, un allié, un allié mort, ou rien (zone, équipe, soi) */
   target: "foe" | "ally" | "deadAlly" | null;
   effects: Effect[];
+  /** Valeurs déjà définitives : aucun coefficient de modération (secondaire, tertiaire) ne s'applique */
+  final?: boolean;
 }
 
 /** Actions de la carte avant le 1er lancer (1 = dès sa 1re action), puis entre deux lancers */
@@ -370,36 +377,44 @@ export const ARCH_SPELLS: Record<number, [Arch, string]> = {
 export function spellOf(characterId: number, rarity: Rarity, type: CardType): CharacterSpell | null {
   if (rarity !== "SSR" && rarity !== "UR") return null;
   const arch = ARCH_SPELLS[characterId];
-  return CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]);
+  return SECONDARY_DATA[characterId] ?? CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]);
 }
 
 const pct = (x: number) => `${Math.round(Math.abs(x) * 100)} %`;
-const nx = (n: number) => `${n} action${n > 1 ? "s" : ""}`;
+const nx = (n: number) => `${n} tour${n > 1 ? "s" : ""}`;
 const WHO: Record<Scope, string> = { target: "la cible", self: "le lanceur", team: "l'équipe", foes: "tous les ennemis" };
 const STAT_NAMES: Record<ModStat, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive" };
+/** crit et esquive se comptent en points de pourcentage (plafond 100 %), ATK et DEF en part de la stat */
+const amountText = (stat: ModStat, amount: number) => `${amount > 0 ? "+" : "−"}${Math.round(Math.abs(amount) * 100)}${stat === "crit" || stat === "dodge" ? " points" : " %"}`;
 
-/** Texte d'un effet, pour l'écran des sorts. */
-export function describeEffect(e: Effect): string {
+/**
+ * Texte d'un effet. Par défaut les multiplicateurs de dégâts sont masqués (lisibilité) ; `detailed` les montre (au survol dans l'interface).
+ */
+export function describeEffect(e: Effect, detailed = false): string {
   switch (e.k) {
     case "damage":
       return [
-        `${String(e.mult).replace(".", ",")}× ATK${e.zone ? " sur tous les ennemis" : ""}`,
+        detailed ? `${String(e.mult).replace(".", ",")}× ATK${e.zone ? " sur tous les ennemis" : ""}` : e.zone ? "Frappe tous les ennemis en même temps" : "Frappe la cible",
         e.ignoreDef && `ignore ${pct(e.ignoreDef)} de la DEF`,
         e.pierce && "traverse les boucliers",
         e.critSure && "coup critique assuré",
         e.drain && `rend ${pct(e.drain)} des dégâts en PV`,
       ].filter(Boolean).join(", ");
     case "mod":
-      return `${STAT_NAMES[e.stat]} ${e.amount > 0 ? "+" : "−"}${e.stat === "crit" ? `${Math.round(Math.abs(e.amount) * 100)} points` : pct(e.amount)} pour ${WHO[e.to]}, ${nx(e.turns)}`;
+      return `${STAT_NAMES[e.stat]} ${amountText(e.stat, e.amount)} pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "heal": return `soigne ${WHO[e.to]} de ${pct(e.pct)} des PV max`;
-    case "regen": return `soin sur la durée de ${pct(e.pct)} des PV max pour ${WHO[e.to]}, ${nx(e.turns)}`;
+    case "regen": return `soin sur la durée de ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "shield": return `bouclier de ${pct(e.pct)} des PV max pour ${WHO[e.to]}`;
-    case "poison": return `poison : ${pct(e.pct)} des PV max par action pour ${WHO[e.to]}, ${nx(e.turns)}`;
-    case "silence": return `silence sur ${WHO[e.to]} (sort de base seulement), ${nx(e.turns)}; sans effet sur les boss`;
+    case "poison": return `poison : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
+    case "silence": return `silence sur ${WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
     case "immune": return `immunité aux malus pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "purge": return `retire les malus de ${WHO[e.to]}`;
     case "revive": return `réanime un allié mort avec ${pct(e.pct)} de ses PV max (une fois par combat)`;
+    case "taunt": return `provocation : les attaques à cible unique visent le lanceur, ${nx(e.turns)}`;
+    case "reduce": return `dégâts subis −${pct(e.pct)} pour ${WHO[e.to]}, ${nx(e.turns)}`;
   }
 }
-export const describeSpell = (sp: CharacterSpell) => sp.effects.map(describeEffect).join(" ; ") + ".";
+const capital = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+/** Description d'un sort : multiplicateurs masqués par défaut, visibles avec `detailed` */
+export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + ".";
 export const SPELL_TARGET_LABEL = { foe: "1 ennemi", ally: "1 allié", deadAlly: "1 allié mort", none: "Aucune cible" } as const;

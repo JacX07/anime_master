@@ -1,0 +1,422 @@
+[
+ {
+  "id": 70069,
+  "name": "Kurumi Tokisaki",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Date A Live IV",
+  "current": {
+   "basicAttack": "Frappe inspirée de Zafkiel",
+   "secondary": "Zafkiel",
+   "tertiary": "Kurumi Tokisaki : Zafkiel — Percée mesurée",
+   "ultimate": "Kurumi Tokisaki — Déchaînement : Zafkiel"
+  }
+ },
+ {
+  "id": 45627,
+  "name": "Levi",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan Season 3",
+  "current": {
+   "basicAttack": "Frappe inspirée de Tourbillon de lames",
+   "secondary": "Tourbillon de lames",
+   "tertiary": "Levi : Tourbillon de lames — Percée mesurée",
+   "ultimate": "Levi — Déchaînement : Tourbillon de lames"
+  }
+ },
+ {
+  "id": 40882,
+  "name": "Eren Yeager",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan",
+  "current": {
+   "basicAttack": "Frappe inspirée de Titan Assaillant",
+   "secondary": "Titan Assaillant",
+   "tertiary": "Eren Yeager : Titan Assaillant — Élan bref",
+   "ultimate": "Eren Yeager — Déchaînement : Titan Assaillant"
+  }
+ },
+ {
+  "id": 40881,
+  "name": "Mikasa Ackerman",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan",
+  "current": {
+   "basicAttack": "Frappe inspirée de Écharpe rouge",
+   "secondary": "Écharpe rouge",
+   "tertiary": "Mikasa Ackerman : Écharpe rouge — Pas de côté",
+   "ultimate": "Mikasa Ackerman — Déchaînement : Écharpe rouge"
+  }
+ },
+ {
+  "id": 46494,
+  "name": "Armin Arlert",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan",
+  "current": {
+   "basicAttack": "Frappe inspirée de Titan Colossal",
+   "secondary": "Titan Colossal",
+   "tertiary": "Armin Arlert : Titan Colossal — Percée mesurée",
+   "ultimate": "Armin Arlert — Déchaînement : Titan Colossal"
+  }
+ },
+ {
+  "id": 71121,
+  "name": "Hange Zoe",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Attack on Titan",
+  "current": {
+   "basicAttack": "Frappe inspirée de Lance-éclair",
+   "secondary": "Lance-éclair",
+   "tertiary": "Hange Zoe : Lance-éclair — Pression ciblée",
+   "ultimate": "Hange Zoe — Déchaînement : Lance-éclair"
+  }
+ },
+ {
+  "id": 46496,
+  "name": "Erwin Smith",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan Season 3",
+  "current": {
+   "basicAttack": "Frappe inspirée de Charge suicide",
+   "secondary": "Charge suicide",
+   "tertiary": "Erwin Smith : Charge suicide — Élan bref",
+   "ultimate": "Erwin Smith — Déchaînement : Charge suicide"
+  }
+ },
+ {
+  "id": 125659,
+  "name": "Gabi Braun",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan Final Season",
+  "current": {
+   "basicAttack": "Frappe inspirée de Titan Mâchoire",
+   "secondary": "Titan Mâchoire",
+   "tertiary": "Gabi Braun : Titan Mâchoire — Pression ciblée",
+   "ultimate": "Gabi Braun — Déchaînement : Titan Mâchoire"
+  }
+ },
+ {
+  "id": 45887,
+  "name": "Sasha Blouse",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Attack on Titan",
+  "current": {
+   "basicAttack": "Frappe inspirée de Tir d'arc",
+   "secondary": "Tir d'arc",
+   "tertiary": "Sasha Blouse : Tir d'arc — Visée précise",
+   "ultimate": "Sasha Blouse — Déchaînement : Tir d'arc"
+  }
+ },
+ {
+  "id": 46484,
+  "name": "Reiner Braun",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Attack on Titan Season 2",
+  "current": {
+   "basicAttack": "Frappe inspirée de Titan Cuirassé",
+   "secondary": "Titan Cuirassé",
+   "tertiary": "Reiner Braun : Titan Cuirassé — Garde resserrée",
+   "ultimate": "Reiner Braun — Déchaînement : Titan Cuirassé"
+  }
+ },
+ {
+  "id": 83797,
+  "name": "Ryuuko Matoi",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Kill la Kill",
+  "current": {
+   "basicAttack": "Frappe inspirée de Senketsu",
+   "secondary": "Senketsu",
+   "tertiary": "Ryuuko Matoi : Senketsu — Percée mesurée",
+   "ultimate": "Ryuuko Matoi — Déchaînement : Senketsu"
+  }
+ },
+ {
+  "id": 84677,
+  "name": "Yato",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Noragami",
+  "current": {
+   "basicAttack": "Frappe inspirée de Régalia",
+   "secondary": "Régalia",
+   "tertiary": "Yato : Régalia — Élan bref",
+   "ultimate": "Yato — Déchaînement : Régalia"
+  }
+ },
+ {
+  "id": 64769,
+  "name": "Shouyou Hinata",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Attaque éclair",
+   "secondary": "Attaque éclair",
+   "tertiary": "Shouyou Hinata : Attaque éclair — Pas de côté",
+   "ultimate": "Shouyou Hinata — Déchaînement : Attaque éclair"
+  }
+ },
+ {
+  "id": 64771,
+  "name": "Tobio Kageyama",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Passe parfaite",
+   "secondary": "Passe parfaite",
+   "tertiary": "Tobio Kageyama : Passe parfaite — Visée précise",
+   "ultimate": "Tobio Kageyama — Déchaînement : Passe parfaite"
+  }
+ },
+ {
+  "id": 67327,
+  "name": "Yuu Nishinoya",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Réception de Rolling Thunder",
+   "secondary": "Rolling Thunder",
+   "tertiary": "Yuu Nishinoya : Réception de Rolling Thunder — Garde protectrice",
+   "ultimate": "Yuu Nishinoya — Déchaînement : Réception de Rolling Thunder"
+  }
+ },
+ {
+  "id": 71267,
+  "name": "Kenma Kozume",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Lecture du jeu",
+   "secondary": "Lecture du jeu",
+   "tertiary": "Kenma Kozume : Lecture du jeu — Pression ciblée",
+   "ultimate": "Kenma Kozume — Déchaînement : Lecture du jeu"
+  }
+ },
+ {
+  "id": 71611,
+  "name": "Tooru Oikawa",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Service dévastateur",
+   "secondary": "Service dévastateur",
+   "tertiary": "Tooru Oikawa : Service dévastateur — Visée précise",
+   "ultimate": "Tooru Oikawa — Déchaînement : Service dévastateur"
+  }
+ },
+ {
+  "id": 67329,
+  "name": "Kei Tsukishima",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Bloc impitoyable",
+   "secondary": "Bloc impitoyable",
+   "tertiary": "Kei Tsukishima : Bloc impitoyable — Brèche tactique",
+   "ultimate": "Kei Tsukishima — Déchaînement : Bloc impitoyable"
+  }
+ },
+ {
+  "id": 88937,
+  "name": "Koutarou Bokuto",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "HAIKYU!! LAND VS. AIR",
+  "current": {
+   "basicAttack": "Frappe inspirée de Frappe de hibou",
+   "secondary": "Frappe de hibou",
+   "tertiary": "Koutarou Bokuto : Frappe de hibou — Élan bref",
+   "ultimate": "Koutarou Bokuto — Déchaînement : Frappe de hibou"
+  }
+ },
+ {
+  "id": 71269,
+  "name": "Tetsurou Kuroo",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "HAIKYU!!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Mur de Nekoma",
+   "secondary": "Mur de Nekoma",
+   "tertiary": "Tetsurou Kuroo : Mur de Nekoma — Pression ciblée",
+   "ultimate": "Tetsurou Kuroo — Déchaînement : Mur de Nekoma"
+  }
+ },
+ {
+  "id": 87275,
+  "name": "Ken Kaneki",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Tokyo Ghoul",
+  "current": {
+   "basicAttack": "Frappe inspirée de Kagune de Kakuja",
+   "secondary": "Kagune de Kakuja",
+   "tertiary": "Ken Kaneki : Kagune de Kakuja — Marque persistante",
+   "ultimate": "Ken Kaneki — Déchaînement : Kagune de Kakuja"
+  }
+ },
+ {
+  "id": 87277,
+  "name": "Touka Kirishima",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Tokyo Ghoul",
+  "current": {
+   "basicAttack": "Frappe inspirée de Kagune d'Ukaku",
+   "secondary": "Kagune d'Ukaku",
+   "tertiary": "Touka Kirishima : Kagune d'Ukaku — Pas de côté",
+   "ultimate": "Touka Kirishima — Déchaînement : Kagune d'Ukaku"
+  }
+ },
+ {
+  "id": 88412,
+  "name": "Juuzou Suzuya",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Tokyo Ghoul",
+  "current": {
+   "basicAttack": "Frappe inspirée de Lame de Jason",
+   "secondary": "Lame de Jason",
+   "tertiary": "Juuzou Suzuya : Lame de Jason — Marque persistante",
+   "ultimate": "Juuzou Suzuya — Déchaînement : Lame de Jason"
+  }
+ },
+ {
+  "id": 63351,
+  "name": "Akame",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Akame ga Kill!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Murasame",
+   "secondary": "Murasame",
+   "tertiary": "Akame : Murasame — Percée mesurée",
+   "ultimate": "Akame — Déchaînement : Murasame"
+  }
+ },
+ {
+  "id": 65239,
+  "name": "Esdeath",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Akame ga Kill!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Mahyo",
+   "secondary": "Mahyo",
+   "tertiary": "Esdeath : Mahyo — Pression ciblée",
+   "ultimate": "Esdeath — Déchaînement : Mahyo"
+  }
+ },
+ {
+  "id": 69411,
+  "name": "Kaori Miyazono",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Your lie in April",
+  "current": {
+   "basicAttack": "Frappe inspirée de Violon d'avril",
+   "secondary": "Violon d'avril",
+   "tertiary": "Kaori Miyazono : Violon d'avril — Second souffle",
+   "ultimate": "Kaori Miyazono — Déchaînement : Violon d'avril"
+  }
+ },
+ {
+  "id": 71933,
+  "name": "Karma Akabane",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Assassination Classroom the Movie: 365 Days‘ Time",
+  "current": {
+   "basicAttack": "Frappe inspirée de Lame d'assassin",
+   "secondary": "Lame d'assassin",
+   "tertiary": "Karma Akabane : Lame d'assassin — Visée précise",
+   "ultimate": "Karma Akabane — Déchaînement : Lame d'assassin"
+  }
+ },
+ {
+  "id": 65643,
+  "name": "Koro-sensei",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Assassination Classroom",
+  "current": {
+   "basicAttack": "Frappe inspirée de Pieuvre jaune",
+   "secondary": "Pieuvre jaune",
+   "tertiary": "Koro-sensei : Pieuvre jaune — Garde protectrice",
+   "ultimate": "Koro-sensei — Déchaînement : Pieuvre jaune"
+  }
+ },
+ {
+  "id": 65645,
+  "name": "Nagisa Shiota",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Assassination Classroom",
+  "current": {
+   "basicAttack": "Frappe inspirée de Coup de claquement",
+   "secondary": "Coup de claquement",
+   "tertiary": "Nagisa Shiota : Coup de claquement — Percée mesurée",
+   "ultimate": "Nagisa Shiota — Déchaînement : Coup de claquement"
+  }
+ },
+ {
+  "id": 77605,
+  "name": "Ban",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "The Seven Deadly Sins",
+  "current": {
+   "basicAttack": "Frappe inspirée de Vol de vie",
+   "secondary": "Vol de vie",
+   "tertiary": "Ban : Vol de vie — Siphon léger",
+   "ultimate": "Ban — Déchaînement : Vol de vie"
+  }
+ }
+]

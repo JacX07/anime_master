@@ -1,0 +1,366 @@
+[
+ {
+  "id": 66173,
+  "name": "Izumi Miyamura",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Horimiya",
+  "current": {
+   "basicAttack": "Frappe inspirée de Vrai moi",
+   "secondary": "Vrai moi",
+   "tertiary": "Izumi Miyamura : Vrai moi — Second souffle",
+   "ultimate": "Izumi Miyamura — Déchaînement : Vrai moi"
+  }
+ },
+ {
+  "id": 66171,
+  "name": "Kyouko Hori",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Horimiya",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cœur ouvert",
+   "secondary": "Cœur ouvert",
+   "tertiary": "Kyouko Hori : Cœur ouvert — Second souffle",
+   "ultimate": "Kyouko Hori — Déchaînement : Cœur ouvert"
+  }
+ },
+ {
+  "id": 137080,
+  "name": "Makima",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Chainsaw Man",
+  "current": {
+   "basicAttack": "Tir contrôlé",
+   "secondary": "Contrôle total",
+   "tertiary": "Makima : Tir contrôlé — Pression ciblée",
+   "ultimate": "Contrôle absolu"
+  }
+ },
+ {
+  "id": 130102,
+  "name": "Denji",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Chainsaw Man",
+  "current": {
+   "basicAttack": "Entaille de tronçonneuse",
+   "secondary": "Démon tronçonneuse",
+   "tertiary": "Denji : Entaille de tronçonneuse — Siphon léger",
+   "ultimate": "Forme tronçonneuse"
+  }
+ },
+ {
+  "id": 137079,
+  "name": "Power",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Chainsaw Man",
+  "current": {
+   "basicAttack": "Frappe inspirée de Sang de Power",
+   "secondary": "Sang de Power",
+   "tertiary": "Power : Sang de Power — Siphon léger",
+   "ultimate": "Power — Déchaînement : Sang de Power"
+  }
+ },
+ {
+  "id": 137081,
+  "name": "Aki Hayakawa",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Chainsaw Man",
+  "current": {
+   "basicAttack": "Frappe inspirée de Démon du renard",
+   "secondary": "Démon du renard",
+   "tertiary": "Aki Hayakawa : Démon du renard — Pression ciblée",
+   "ultimate": "Aki Hayakawa — Déchaînement : Démon du renard"
+  }
+ },
+ {
+  "id": 148740,
+  "name": "Reze",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Chainsaw Man – The Movie: Reze Arc",
+  "current": {
+   "basicAttack": "Frappe inspirée de Bombe d'amour",
+   "secondary": "Bombe d'amour",
+   "tertiary": "Reze : Bombe d'amour — Pression ciblée",
+   "ultimate": "Reze — Déchaînement : Bombe d'amour"
+  }
+ },
+ {
+  "id": 257562,
+  "name": "Hitori Gotou",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "BOCCHI THE ROCK!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Solo de guitare",
+   "secondary": "Solo de guitare",
+   "tertiary": "Hitori Gotou : Solo de guitare — Élan bref",
+   "ultimate": "Hitori Gotou — Déchaînement : Solo de guitare"
+  }
+ },
+ {
+  "id": 261674,
+  "name": "Nijika Ijichi",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "BOCCHI THE ROCK!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Rythme de batterie",
+   "secondary": "Rythme de batterie",
+   "tertiary": "Nijika Ijichi : Rythme de batterie — Visée précise",
+   "ultimate": "Nijika Ijichi — Déchaînement : Rythme de batterie"
+  }
+ },
+ {
+  "id": 136837,
+  "name": "Cid Kagenou",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "The Eminence in Shadow",
+  "current": {
+   "basicAttack": "Frappe inspirée de Éclat d'ombre",
+   "secondary": "Éclat d'ombre",
+   "tertiary": "Cid Kagenou : Éclat d'ombre — Percée mesurée",
+   "ultimate": "Cid Kagenou — Déchaînement : Éclat d'ombre"
+  }
+ },
+ {
+  "id": 133676,
+  "name": "Marin Kitagawa",
+  "rarity": "UR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "My Dress-Up Darling",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cosplay parfait",
+   "secondary": "Cosplay parfait",
+   "tertiary": "Marin Kitagawa : Cosplay parfait — Pas de côté",
+   "ultimate": "Marin Kitagawa — Déchaînement : Cosplay parfait"
+  }
+ },
+ {
+  "id": 121956,
+  "name": "Shouko Komi",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Komi Can’t Communicate",
+  "current": {
+   "basicAttack": "Frappe inspirée de Communication par carnet",
+   "secondary": "Communication par carnet",
+   "tertiary": "Shouko Komi : Communication par carnet — Pas de côté",
+   "ultimate": "Shouko Komi — Déchaînement : Communication par carnet"
+  }
+ },
+ {
+  "id": 162213,
+  "name": "Meguru Bachira",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "BLUE LOCK",
+  "current": {
+   "basicAttack": "Frappe inspirée de Dribble démoniaque",
+   "secondary": "Dribble démoniaque",
+   "tertiary": "Meguru Bachira : Dribble démoniaque — Élan bref",
+   "ultimate": "Meguru Bachira — Déchaînement : Dribble démoniaque"
+  }
+ },
+ {
+  "id": 138102,
+  "name": "Yor Forger",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "SPY x FAMILY",
+  "current": {
+   "basicAttack": "Frappe inspirée de Rose épineuse",
+   "secondary": "Rose épineuse",
+   "tertiary": "Yor Forger : Rose épineuse — Visée précise",
+   "ultimate": "Yor Forger — Déchaînement : Rose épineuse"
+  }
+ },
+ {
+  "id": 138100,
+  "name": "Anya Forger",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "SPY x FAMILY",
+  "current": {
+   "basicAttack": "Frappe inspirée de Télépathie d'Anya",
+   "secondary": "Télépathie d'Anya",
+   "tertiary": "Anya Forger : Télépathie d'Anya — Pas de côté",
+   "ultimate": "Anya Forger — Déchaînement : Télépathie d'Anya"
+  }
+ },
+ {
+  "id": 138101,
+  "name": "Loid Forger",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "SPY x FAMILY",
+  "current": {
+   "basicAttack": "Frappe inspirée de Crépuscule",
+   "secondary": "Crépuscule",
+   "tertiary": "Loid Forger : Crépuscule — Brèche tactique",
+   "ultimate": "Loid Forger — Déchaînement : Crépuscule"
+  }
+ },
+ {
+  "id": 168774,
+  "name": "Nazuna Nanakusa",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Call of the Night",
+  "current": {
+   "basicAttack": "Frappe inspirée de Morsure de nuit",
+   "secondary": "Morsure de nuit",
+   "tertiary": "Nazuna Nanakusa : Morsure de nuit — Siphon léger",
+   "ultimate": "Nazuna Nanakusa — Déchaînement : Morsure de nuit"
+  }
+ },
+ {
+  "id": 260329,
+  "name": "Chisato Nishikigi",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Lycoris Recoil",
+  "current": {
+   "basicAttack": "Frappe inspirée de Reflexes de Lycoris",
+   "secondary": "Reflexes de Lycoris",
+   "tertiary": "Chisato Nishikigi : Reflexes de Lycoris — Pas de côté",
+   "ultimate": "Chisato Nishikigi — Déchaînement : Reflexes de Lycoris"
+  }
+ },
+ {
+  "id": 188783,
+  "name": "Kana Arima",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "OSHI NO KO",
+  "current": {
+   "basicAttack": "Frappe inspirée de Regard glacial",
+   "secondary": "Regard glacial",
+   "tertiary": "Kana Arima : Regard glacial — Pression ciblée",
+   "ultimate": "Kana Arima — Déchaînement : Regard glacial"
+  }
+ },
+ {
+  "id": 129928,
+  "name": "Jin-U Seong",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Solo Leveling",
+  "current": {
+   "basicAttack": "Frappe inspirée de Armée d'ombres",
+   "secondary": "Armée d'ombres",
+   "tertiary": "Jin-U Seong : Armée d'ombres — Pression ciblée",
+   "ultimate": "Jin-U Seong — Déchaînement : Armée d'ombres"
+  }
+ },
+ {
+  "id": 176754,
+  "name": "Frieren",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Frieren: Beyond Journey’s End",
+  "current": {
+   "basicAttack": "Zoltraak",
+   "secondary": "Sort de résurrection",
+   "tertiary": "Frieren : Zoltraak — Percée mesurée",
+   "ultimate": "Zoltraak — Magie de destruction"
+  }
+ },
+ {
+  "id": 183965,
+  "name": "Fern",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Frieren: Beyond Journey’s End",
+  "current": {
+   "basicAttack": "Frappe inspirée de Zoltraak",
+   "secondary": "Zoltraak",
+   "tertiary": "Fern : Zoltraak — Percée mesurée",
+   "ultimate": "Fern — Déchaînement : Zoltraak"
+  }
+ },
+ {
+  "id": 126824,
+  "name": "Maomao",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "The Apothecary Diaries",
+  "current": {
+   "basicAttack": "Frappe inspirée de Analyse de poisons",
+   "secondary": "Analyse de poisons",
+   "tertiary": "Maomao : Analyse de poisons — Brèche tactique",
+   "ultimate": "Maomao — Déchaînement : Analyse de poisons"
+  }
+ },
+ {
+  "id": 172759,
+  "name": "Ai Hoshino",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Idol",
+  "current": {
+   "basicAttack": "Frappe inspirée de Concert d'idole",
+   "secondary": "Concert d'idole",
+   "tertiary": "Ai Hoshino : Concert d'idole — Élan bref",
+   "ultimate": "Ai Hoshino — Déchaînement : Concert d'idole"
+  }
+ },
+ {
+  "id": 218648,
+  "name": "Hina Chouno",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Blue Box",
+  "current": {
+   "basicAttack": "Frappe inspirée de Élan de badminton",
+   "secondary": "Élan de badminton",
+   "tertiary": "Hina Chouno : Élan de badminton — Élan bref",
+   "ultimate": "Hina Chouno — Déchaînement : Élan de badminton"
+  }
+ },
+ {
+  "id": 222594,
+  "name": "Momo Ayase",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "DAN DA DAN",
+  "current": {
+   "basicAttack": "Frappe inspirée de Pouvoir de Momo",
+   "secondary": "Pouvoir de Momo",
+   "tertiary": "Momo Ayase : Pouvoir de Momo — Pression ciblée",
+   "ultimate": "Momo Ayase — Déchaînement : Pouvoir de Momo"
+  }
+ }
+]

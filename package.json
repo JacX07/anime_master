@@ -21,6 +21,7 @@
     "simulate:story": "tsx scripts/simulate-story.ts",
     "calibrate:story": "tsx scripts/calibrate-story.ts",
     "simulate:raid": "tsx scripts/simulate-raid.ts",
+    "simulate:compositions": "tsx scripts/simulate-compositions.ts",
     "check:recharge": "tsx scripts/check-recharge.ts",
     "check:economy": "tsx scripts/check-economy.ts",
     "check:trades": "tsx scripts/check-trades.ts",

@@ -1,0 +1,1630 @@
+[
+ {
+  "id": 123385,
+  "orientation": "hybride",
+  "secondary": {
+   "name": "Éclats de Phosphophyllite",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.2
+    },
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.15,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Alliage d'Antarcticite",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "shield",
+     "pct": 0.12,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Lumière des Lustrous",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.6,
+     "zone": true
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 88889,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Lame de Raphtalia",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.12,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Esquive de la Demi-Humaine",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Brume de l'Épée Maudite",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4,
+     "critSure": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 124382,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Chant d'Ichigo",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.12,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Triade du Delphinium",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Cœur du Delphinium",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.27,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 124381,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Sang de Klaxosaure",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3,
+     "drain": 0.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Piloter le Strelizia",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Stamen du Strelizia Apus",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.5,
+     "pierce": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 13580,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Tir du Colt Python",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.4
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Chef des Lynx",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Balle de Banana Fish",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.2,
+     "pierce": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 123962,
+  "orientation": "hybride",
+  "secondary": {
+   "name": "Dévoreur",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.1,
+     "drain": 0.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Grand Sage : Analyse",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Beelzebuth, Seigneur de la gloutonnerie",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.8,
+     "zone": true,
+     "drain": 0.3
+    },
+    {
+     "k": "shield",
+     "pct": 0.2,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 127222,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Aura de star",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.25,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Syndrome d'invisibilité",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 1,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Lapine du lycée de Minegahara",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 3
+    },
+    {
+     "k": "reduce",
+     "pct": 0.5,
+     "turns": 3,
+     "to": "self"
+    },
+    {
+     "k": "shield",
+     "pct": 0.2,
+     "to": "self"
+    }
+   ]
+  }
+ },
+ {
+  "id": 127221,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Syndrome de l'adolescence",
+   "target": null,
+   "effects": [
+    {
+     "k": "purge",
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.1,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Sauver Mai",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.15,
+     "to": "team"
+    },
+    {
+     "k": "immune",
+     "turns": 1,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Saut dans le temps",
+   "target": null,
+   "effects": [
+    {
+     "k": "immune",
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "purge",
+     "to": "team"
+    },
+    {
+     "k": "shield",
+     "pct": 0.25,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 10138,
+  "orientation": "hybride",
+  "secondary": {
+   "name": "Dagues de Thorfinn",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Je n'ai pas d'ennemis",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Guerrier de Vinland",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.3,
+     "ignoreDef": 0.4
+    }
+   ]
+  }
+ },
+ {
+  "id": 13020,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Ruse du chef des Wolfs",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.8
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Roi de la guerre",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Stratagème d'Askeladd",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 121724,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Indic de la ferme",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "target"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Plan d'évasion",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.35,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Trahison de Ray",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.45,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 121700,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Manœuvre de Norman",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "poison",
+     "pct": 0.05,
+     "turns": 3,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Cerveau de la ferme",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Dîner empoisonné",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3,
+     "zone": true
+    },
+    {
+     "k": "poison",
+     "pct": 0.07,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 120649,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Guerre de l'amour",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.8
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Stratagème de Kaguya",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Confession forcée",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1,
+     "zone": true
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.3,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 121103,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Chika Dance",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.1,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Ending de Chika",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.18,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Fête des cinq sens",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.25,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 125886,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Règlement intérieur",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.25,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Discipline du conseil",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Karaté de Miko",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.4,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "reduce",
+     "pct": 0.35,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "purge",
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 121102,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Cri du cœur",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "target"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.12,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Dépression d'Ishigami",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.25,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Festival du cœur brisé",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3,
+     "zone": true
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.3,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 121104,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Ninja du conseil",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Déguisement de servante",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Lame de la maison Shinomiya",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4,
+     "pierce": true,
+     "critSure": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 121101,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Président du conseil",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.18,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Plan du président",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.22,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Génie de l'effort",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.4,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.35,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 126071,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Respiration de l'eau : Surface paisible",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Nez de Tanjirou",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Hinokami Kagura : Danse du Soleil",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.8
+    }
+   ]
+  }
+ },
+ {
+  "id": 127518,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Régénération du démon",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.15,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.15,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Forme de démon",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "regen",
+     "pct": 0.05,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Art du sang : Explosion",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.4,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.25,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 129130,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Respiration de la bête : Crocs perforants",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.4
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Sens du toucher",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Respiration de la bête : Crocs déchiqueteurs",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.7,
+     "zone": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 129131,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Foudre : Premier mouvement",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Sommeil de Zenitsu",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.45,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Foudre : Honoikazuchi no Kami",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.8,
+     "critSure": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 130050,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Respiration de l'eau : Calme plat",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.25,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Mur d'eau",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Onzième forme : Sérénité",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.5,
+     "turns": 3,
+     "to": "self"
+    },
+    {
+     "k": "taunt",
+     "turns": 3
+    },
+    {
+     "k": "shield",
+     "pct": 0.2,
+     "to": "self"
+    }
+   ]
+  }
+ },
+ {
+  "id": 129133,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Flamme éternelle",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Cœur ardent",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Neuvième forme : Rengoku",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 3
+    },
+    {
+     "k": "reduce",
+     "pct": 0.5,
+     "turns": 3,
+     "to": "self"
+    },
+    {
+     "k": "shield",
+     "pct": 0.22,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 136070,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Papillon vénéneux",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "poison",
+     "pct": 0.05,
+     "turns": 3,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Poison de glycine",
+   "target": null,
+   "effects": [
+    {
+     "k": "poison",
+     "pct": 0.06,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.25,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Danse de la libellule : Œil composé",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 3.5
+    },
+    {
+     "k": "poison",
+     "pct": 0.09,
+     "turns": 4,
+     "to": "target"
+    }
+   ]
+  }
+ },
+ {
+  "id": 136071,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Éclat sonore",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.7,
+     "zone": true
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Mesure du rythme",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 1,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Respiration du son : Partition explosive",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.9,
+     "zone": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 136072,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Fouet de Mitsuri",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1
+    },
+    {
+     "k": "heal",
+     "pct": 0.1,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Appétit de Mitsuri",
+   "target": null,
+   "effects": [
+    {
+     "k": "regen",
+     "pct": 0.06,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Respiration de l'amour : Tourbillon",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    },
+    {
+     "k": "shield",
+     "pct": 0.25,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 126375,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Appétit insatiable",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.11,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Cinq frères et sœurs",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "regen",
+     "pct": 0.06,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Les cinq quintuplées",
+   "target": "deadAlly",
+   "effects": [
+    {
+     "k": "revive",
+     "pct": 0.6
+    },
+    {
+     "k": "heal",
+     "pct": 0.25,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 126373,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Fleur de tendresse",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.12,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Dévotion de Miku",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "shield",
+     "pct": 0.12,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Sengoku Passion",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.45,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.3,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 126372,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Cuisine piquante",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "poison",
+     "pct": 0.05,
+     "turns": 3,
+     "to": "target"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.15,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Épices de Nino",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.28,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Gratin brûlant",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5,
+     "zone": true
+    },
+    {
+     "k": "poison",
+     "pct": 0.06,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ }
+]

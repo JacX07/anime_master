@@ -4,13 +4,13 @@
 
 import { applyAction, autoAction, createBattle, currentActor, legalActions, seededRandom, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
 import { replayAll } from "../src/lib/battle-replay";
-import { CHARACTER_SPELLS } from "../src/lib/spells";
+import { SECONDARY_DATA, TERTIARY_DATA, ULTIMATE_DATA } from "../src/lib/skill-data";
 import { BATTLE } from "../src/lib/battle";
-import { balanceSecondary } from "../src/lib/character-skills";
+import { describeSpell, type CharacterSpell } from "../src/lib/spells";
 
-/** Effet du sort tel que le moteur le joue : le secondaire est modéré par `balanceSecondary` (BATTLE.secondaryEffectScale) */
-const fx = <K extends string>(id: number, k: K) =>
-  balanceSecondary(CHARACTER_SPELLS[id], BATTLE.secondaryEffectScale).effects.find((e) => e.k === k) as Extract<(typeof CHARACTER_SPELLS)[number]["effects"][number], { k: K }>;
+const CATALOGS = { special: SECONDARY_DATA, tertiary: TERTIARY_DATA, ultimate: ULTIMATE_DATA } as const;
+const fx = <K extends string>(id: number, slot: keyof typeof CATALOGS, k: K) =>
+  CATALOGS[slot][id]?.effects.find((e) => e.k === k) as { k: K; pct: number; turns: number } | undefined;
 
 let failures = 0;
 function check(label: string, ok: boolean, detail = "") {
@@ -18,20 +18,27 @@ function check(label: string, ok: boolean, detail = "") {
   console.log(`${ok ? "✓" : "✗"} ${label}${detail ? ` — ${detail}` : ""}`);
 }
 
-const SASUKE = 13, ITACHI = 14, KAKASHI = 85, CHOPPER = 309, YUTA = 129571, MEGUMI = 126635, GAARA = 1662;
+const SASUKE = 13, ITACHI = 14, KAKASHI = 85, CHOPPER = 309, MEGUMI = 126635, GAARA = 1662;
 const card = (characterId: number, o: Partial<BattleCard> = {}): BattleCard => ({
   characterId, rarity: "SSR", type: "MAGIE", attack: 1000, defense: 100000, power: 10, franchiseId: null, ...o,
 });
 const dummy = (i: number, o: Partial<BattleCard> = {}) => card(900000 + i, { rarity: "N", power: 1, attack: 10, ...o });
 const start = (a: BattleCard[], b: BattleCard[]) => createBattle(a, b, seededRandom(7), { passive: false, franchise: false });
 const evs = <K extends BattleEvent["kind"]>(st: BattleState, kind: K) => st.log.filter((e): e is Extract<BattleEvent, { kind: K }> => e.kind === kind);
-const play = (st: BattleState, spell: "base" | "affinity" | "special", target: Parameters<typeof applyAction>[1]["target"]) => applyAction(st, { spell, target });
+const play = (st: BattleState, spell: "base" | "affinity" | "special" | "tertiary" | "ultimate", target: Parameters<typeof applyAction>[1]["target"]) => applyAction(st, { spell, target });
 /** Fait jouer les cartes jusqu'à ce que ce soit au tour de `id`, en stratégie auto (sauf sorts de personnage, qu'on veut contrôler) */
 function until(st: BattleState, id: string) {
   while (currentActor(st)?.id !== id) {
     const a = autoAction(st);
     play(st, "base", a.spell === "base" ? a.target : legalActions(st)[0].targets[0]);
   }
+}
+
+// Les catalogues réécrits alimentent bien les trois emplacements SSR/UR.
+check("Catalogues runtime : 236 personnages dans les trois emplacements", Object.keys(SECONDARY_DATA).length === 236 && Object.keys(TERTIARY_DATA).length === 236 && Object.keys(ULTIMATE_DATA).length === 236);
+{
+  const spell: CharacterSpell = { name: "Lisibilité", target: "foe", effects: [{ k: "damage", mult: 4 }, { k: "mod", stat: "crit", amount: 0.25, turns: 2, to: "self" }] };
+  check("Descriptions : multiplicateur réservé au détail, critique en points et durées en tours", !describeSpell(spell).includes("4×") && describeSpell(spell, true).includes("4× ATK") && describeSpell(spell).includes("+25 points") && describeSpell(spell).includes("2 tours"));
 }
 
 // Cooldown : prêt dès la 1re action, puis toutes les 5 actions
@@ -44,30 +51,30 @@ function until(st: BattleState, id: string) {
     ready.push(can);
     play(st, can ? "special" : "base", "B1");
   }
-  check("Cooldown : prêt dès la 1re action puis toutes les 5", ready.join() === "true,false,false,false,false,true,false,false", ready.map(Number).join(""));
+  check("Cooldown secondaire : prêt dès la 1re action puis après 5 actions", ready.join() === "true,false,false,false,false,true,false,false", ready.map(Number).join(""));
   check("N, R et SR n'ont pas de sort de personnage", !legalActions(start([dummy(1), dummy(2), dummy(3), dummy(4)], [dummy(5), dummy(6), dummy(7), dummy(8)])).some((x) => x.spell === "special"));
 }
 
-// Poison : % des PV max à chaque action du porteur, mortel
+// Poison : valeurs du tertiaire runtime de Sasuke
 {
   const st = start([card(SASUKE), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "base", "B1");
-  until(st, "A1"); play(st, "special", "B1");
+  until(st, "A1"); play(st, "tertiary", "B1");
   const maxHp = st.log.find((e) => e.kind === "start") && (st.log[0] as Extract<BattleEvent, { kind: "start" }>).units.find((u) => u.id === "B1")!.maxHp;
-  for (let i = 0; i < 12 && evs(st, "poison").length < (fx(SASUKE, "poison") as { turns: number }).turns; i++) {
+  const poison = fx(SASUKE, "tertiary", "poison")!;
+  for (let i = 0; i < 12 && evs(st, "poison").length < poison.turns; i++) {
     until(st, "A1");
     play(st, "base", "B2");
   }
   const ticks = evs(st, "poison").filter((e) => e.target === "B1");
-  const turns = (fx(SASUKE, "poison") as { turns: number }).turns;
-  check("Poison : % des PV max du sort par action, pendant la durée du sort", ticks.length === turns && ticks.every((t) => Math.abs(t.amount - maxHp! * fx(SASUKE, "poison").pct) < 1e-6 || t.hp === 0), `${ticks.length} tic(s)`);
+  check("Poison : % des PV max par tour pendant la durée runtime", ticks.length === poison.turns && ticks.every((t) => Math.abs(t.amount - maxHp! * poison.pct) < 1e-6 || t.hp === 0), `${ticks.length} tic(s)`);
 }
 {
   const st = start([card(SASUKE), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "base", "B1");
-  until(st, "A1"); play(st, "special", "B1");
+  until(st, "A1"); play(st, "tertiary", "B1");
   const b1 = st.teams.B[0];
   b1.hp = b1.maxHp * 0.02;
   until(st, "B1");
@@ -107,35 +114,36 @@ function until(st: BattleState, id: string) {
   st.teams.A[1].fx.push({ key: "silence", amount: 0, turns: 5, fresh: false }, { key: "poison", amount: 0.05, turns: 5, fresh: false });
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "base", "B1");
-  until(st, "A1"); play(st, "special", null);
+  until(st, "A1"); play(st, "tertiary", null);
   check("Purge : malus de l'équipe retirés", st.teams.A[1].fx.length === 0);
 }
 
 // Réanimation : une seule fois par combat
 {
-  const st = start([card(YUTA), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+  const st = start([card(CHOPPER), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   st.teams.A[1].hp = 0;
   st.teams.A[2].hp = 0;
-  until(st, "A1"); play(st, "base", "B1");
-  until(st, "A1"); play(st, "base", "B1");
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
   until(st, "A1");
-  const t = legalActions(st).find((x) => x.spell === "special")!.targets;
+  const t = legalActions(st).find((x) => x.spell === "ultimate")!.targets;
   check("Réanimation : seuls les alliés morts sont ciblables", t.length === 2 && t.includes("A2") && t.includes("A3"));
-  play(st, "special", "A2");
+  play(st, "ultimate", "A2");
   const a2 = st.teams.A[1];
-  check("Réanimation : revient avec la part de PV max du sort", Math.abs(a2.hp - a2.maxHp * fx(YUTA, "revive").pct) < 1e-6 && evs(st, "revive").length === 1);
+  const revive = evs(st, "revive")[0];
+  check("Réanimation : revient avec la part de PV max du sort puis reçoit le soin d'équipe", Math.abs(revive.hp - a2.maxHp * fx(CHOPPER, "ultimate", "revive")!.pct) < 1e-6 && a2.hp > revive.hp && evs(st, "revive").length === 1);
   for (let i = 0; i < 6; i++) { until(st, "A1"); play(st, "base", "B1"); }
   until(st, "A1");
-  check("Réanimation : pas une deuxième fois", !legalActions(st).some((x) => x.spell === "special"));
+  check("Réanimation : pas une deuxième fois", !legalActions(st).some((x) => x.spell === "ultimate"));
 }
 
 // Coup qui traverse les boucliers
 {
   const st = start([card(KAKASHI, { rarity: "UR" }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   st.teams.B[0].shield = 99999;
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "base", "B1");
-  until(st, "A1"); play(st, "special", "B1");
+  until(st, "A1"); play(st, "ultimate", "B1");
   const hits = evs(st, "damage").filter((e) => e.target === "B1");
   const last = hits[hits.length - 1];
   check("Traverse : le bouclier n'absorbe rien", last.source === "A1" && last.absorbed === 0 && last.shield > 0);
@@ -147,13 +155,55 @@ function until(st: BattleState, id: string) {
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "special", null);
-  const shieldPct = (fx(GAARA, "shield") as { pct: number }).pct;
-  check("Bouclier d'équipe : part des PV max du sort pour chaque allié", st.teams.A.every((u) => u.shield >= u.maxHp * shieldPct - 1e-6));
+  const shieldPct = fx(GAARA, "special", "shield")!.pct;
+  check("Bouclier personnel : part des PV max du sort", st.teams.A[0].shield >= st.teams.A[0].maxHp * shieldPct - 1e-6);
+}
+
+{
+  const st = start([card(MEGUMI), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+  play(st, "tertiary", null);
+  until(st, "B1");
+  check("Provocation : toutes les attaques ciblées visent le protecteur", legalActions(st).every((action) => action.targets.every((target) => target === "A1" || target === null || target.startsWith("B"))));
+  check("Provocation : une autre cible est refusée", (() => {
+    try { play(st, "base", "A2"); return false; } catch { return true; }
+  })());
+  st.teams.A[0].hp = 0;
+  check("Provocateur mort : les autres ennemis redeviennent ciblables", legalActions(st)[0].targets.length === 3 && !legalActions(st)[0].targets.includes("A1"));
+}
+{
+  const st = start([card(MEGUMI), dummy(1), dummy(2), dummy(3)], [card(SASUKE, { spell: { name: "Zone", target: null, effects: [{ k: "damage", mult: 0.5, zone: true }] } }), dummy(4), dummy(5), dummy(6)]);
+  play(st, "tertiary", null);
+  until(st, "B1");
+  play(st, "special", null);
+  check("Provocation : les dégâts de zone atteignent toujours les quatre alliés", new Set(evs(st, "damage").filter((event) => event.source === "B1").map((event) => event.target)).size === 4);
+}
+{
+  const hit = (reduction: number) => {
+    const st = start([dummy(1, { attack: 1000, power: 20, noBasicAttack: true }), dummy(2), dummy(3), dummy(4)], [dummy(5), dummy(6), dummy(7), dummy(8)]);
+    st.teams.B[0].fx.push({ key: "reduce", amount: reduction, turns: 2, fresh: false });
+    play(st, "base", "B1");
+    return evs(st, "damage")[0].amount;
+  };
+  check("Réduction : −40 % de dégâts, cumul plafonné à −70 %", Math.abs(hit(0.4) / hit(0) - 0.6) < 1e-6 && Math.abs(hit(1.5) / hit(0) - 0.3) < 1e-6);
+}
+{
+  const attempt = (crit: number, dodge: number, random: number) => {
+    const st = start([dummy(1, { attack: 1000, power: 20, noBasicAttack: true }), dummy(2), dummy(3), dummy(4)], [dummy(5), dummy(6), dummy(7), dummy(8)]);
+    st.rng = () => random;
+    st.teams.A[0].fx.push({ key: crit > 0 ? "critUp" : "critDown", stat: "crit", amount: crit, turns: 2, fresh: false });
+    st.teams.B[0].fx.push({ key: dodge > 0 ? "dodgeUp" : "dodgeDown", stat: "dodge", amount: dodge, turns: 2, fresh: false });
+    play(st, "base", "B1");
+    return st;
+  };
+  check("Critique : +85 points sur la base de 15 % atteint 100 %", evs(attempt(0.85, 0, 0.999), "damage")[0]?.crit === true);
+  check("Critique : un malus ne descend pas sous 0 %", evs(attempt(-2, 0, 0), "damage")[0]?.crit === false);
+  check("Esquive : 100 % permet d'esquiver un coup ordinaire", evs(attempt(0, 1, 0.999), "dodge").length === 1);
+  check("Esquive : un malus ne descend pas sous 0 %", evs(attempt(0, -2, 0), "damage").length === 1);
 }
 
 // Combats complets : équipes de SSR/UR écrits, journal rejouable, pas d'erreur
 {
-  const ids = Object.keys(CHARACTER_SPELLS).map(Number);
+  const ids = Object.keys(SECONDARY_DATA).map(Number);
   const rng = seededRandom(99);
   const pick = () => card(ids[Math.floor(rng() * ids.length)], { rarity: rng() < 0.3 ? "UR" : "SSR", power: Math.floor(rng() * 100) });
   let bad = 0, specials = 0, revives = 0;
@@ -162,7 +212,7 @@ function until(st: BattleState, id: string) {
     const st = createBattle([pick(), pick(), pick(), pick()], [pick(), pick(), pick(), pick()], seededRandom(g));
     try {
       while (currentActor(st)) applyAction(st, autoAction(st));
-    } catch (e) {
+    } catch {
       bad++;
       continue;
     }

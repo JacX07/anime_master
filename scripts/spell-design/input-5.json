@@ -1,0 +1,422 @@
+[
+ {
+  "id": 75216,
+  "name": "Souma Yukihira",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Food Wars!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Plat divin",
+   "secondary": "Plat divin",
+   "tertiary": "Souma Yukihira : Plat divin — Second souffle",
+   "ultimate": "Souma Yukihira — Déchaînement : Plat divin"
+  }
+ },
+ {
+  "id": 80243,
+  "name": "Shouko Nishimiya",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "A Silent Voice",
+  "current": {
+   "basicAttack": "Frappe inspirée de Langue des signes",
+   "secondary": "Langue des signes",
+   "tertiary": "Shouko Nishimiya : Langue des signes — Second souffle",
+   "ultimate": "Shouko Nishimiya — Déchaînement : Langue des signes"
+  }
+ },
+ {
+  "id": 80491,
+  "name": "Shouya Ishida",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "A Silent Voice",
+  "current": {
+   "basicAttack": "Frappe inspirée de Rédemption",
+   "secondary": "Rédemption",
+   "tertiary": "Shouya Ishida : Rédemption — Garde resserrée",
+   "ultimate": "Shouya Ishida — Déchaînement : Rédemption"
+  }
+ },
+ {
+  "id": 73935,
+  "name": "Saitama",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "One-Punch Man",
+  "current": {
+   "basicAttack": "Frappe inspirée de Coup sérieux",
+   "secondary": "Coup sérieux",
+   "tertiary": "Saitama : Coup sérieux — Visée précise",
+   "ultimate": "Saitama — Déchaînement : Coup sérieux"
+  }
+ },
+ {
+  "id": 81929,
+  "name": "Tatsumaki",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "One-Punch Man",
+  "current": {
+   "basicAttack": "Frappe inspirée de Tempête psychique",
+   "secondary": "Tempête psychique",
+   "tertiary": "Tatsumaki : Tempête psychique — Pression ciblée",
+   "ultimate": "Tatsumaki — Déchaînement : Tempête psychique"
+  }
+ },
+ {
+  "id": 89361,
+  "name": "Megumin",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "KONOSUBA -God's blessing on this wonderful world!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Explosion",
+   "secondary": "Explosion",
+   "tertiary": "Megumin : Explosion — Pression ciblée",
+   "ultimate": "Megumin — Déchaînement : Explosion"
+  }
+ },
+ {
+  "id": 89364,
+  "name": "Kazuma Satou",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "KONOSUBA -God's blessing on this wonderful world!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Vol de talent",
+   "secondary": "Vol de talent",
+   "tertiary": "Kazuma Satou : Vol de talent — Pression ciblée",
+   "ultimate": "Kazuma Satou — Déchaînement : Vol de talent"
+  }
+ },
+ {
+  "id": 89362,
+  "name": "Aqua",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "KONOSUBA -God's blessing on this wonderful world!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Purification",
+   "secondary": "Purification",
+   "tertiary": "Aqua : Purification — Second souffle",
+   "ultimate": "Aqua — Déchaînement : Purification"
+  }
+ },
+ {
+  "id": 89198,
+  "name": "Osamu Dazai",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Bungo Stray Dogs",
+  "current": {
+   "basicAttack": "Frappe inspirée de Pas de la déchéance",
+   "secondary": "Pas de la déchéance",
+   "tertiary": "Osamu Dazai : Pas de la déchéance — Pression ciblée",
+   "ultimate": "Osamu Dazai — Déchaînement : Pas de la déchéance"
+  }
+ },
+ {
+  "id": 89201,
+  "name": "Ranpo Edogawa",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Bungo Stray Dogs 4",
+  "current": {
+   "basicAttack": "Frappe inspirée de Ultra-déduction",
+   "secondary": "Ultra-déduction",
+   "tertiary": "Ranpo Edogawa : Ultra-déduction — Brèche tactique",
+   "ultimate": "Ranpo Edogawa — Déchaînement : Ultra-déduction"
+  }
+ },
+ {
+  "id": 89853,
+  "name": "Chuuya Nakahara",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Bungo Stray Dogs 3",
+  "current": {
+   "basicAttack": "Frappe inspirée de Corruption",
+   "secondary": "Corruption",
+   "tertiary": "Chuuya Nakahara : Corruption — Percée mesurée",
+   "ultimate": "Chuuya Nakahara — Déchaînement : Corruption"
+  }
+ },
+ {
+  "id": 88572,
+  "name": "Emilia",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Re:ZERO -Starting Life in Another World-",
+  "current": {
+   "basicAttack": "Éclat de glace",
+   "secondary": "Hyoga",
+   "tertiary": "Emilia : Éclat de glace — Brèche tactique",
+   "ultimate": "Puck — Exécution glaciale"
+  }
+ },
+ {
+  "id": 88575,
+  "name": "Rem",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Re:ZERO -Starting Life in Another World-",
+  "current": {
+   "basicAttack": "Coup de fléau",
+   "secondary": "Morning Star",
+   "tertiary": "Rem : Coup de fléau — Visée précise",
+   "ultimate": "Rem — Déchaînement : Coup de fléau"
+  }
+ },
+ {
+  "id": 88573,
+  "name": "Subaru Natsuki",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Re:ZERO -Starting Life in Another World-",
+  "current": {
+   "basicAttack": "Coup de barre",
+   "secondary": "Ruse de Subaru",
+   "tertiary": "Subaru Natsuki : Coup de barre — Garde resserrée",
+   "ultimate": "Retour par la mort"
+  }
+ },
+ {
+  "id": 21044,
+  "name": "Rei Kiriyama",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "March comes in like a lion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Partie de shogi",
+   "secondary": "Partie de shogi",
+   "tertiary": "Rei Kiriyama : Partie de shogi — Brèche tactique",
+   "ultimate": "Rei Kiriyama — Déchaînement : Partie de shogi"
+  }
+ },
+ {
+  "id": 89220,
+  "name": "Shouto Todoroki",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "My Hero Academia Season 2",
+  "current": {
+   "basicAttack": "Éclat de glace et de feu",
+   "secondary": "Fire and Ice",
+   "tertiary": "Shouto Todoroki : Éclat de glace et de feu — Pression ciblée",
+   "ultimate": "Glace et feu — Phosphor"
+  }
+ },
+ {
+  "id": 88892,
+  "name": "Katsuki Bakugou",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "My Hero Academia",
+  "current": {
+   "basicAttack": "Frappe inspirée de Howitzer Impact",
+   "secondary": "Howitzer Impact",
+   "tertiary": "Katsuki Bakugou : Howitzer Impact — Pression ciblée",
+   "ultimate": "Katsuki Bakugou — Déchaînement : Howitzer Impact"
+  }
+ },
+ {
+  "id": 89028,
+  "name": "Izuku Midoriya",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "My Hero Academia",
+  "current": {
+   "basicAttack": "Delaware Smash léger",
+   "secondary": "One For All",
+   "tertiary": "Izuku Midoriya : Delaware Smash léger — Élan bref",
+   "ultimate": "Detroit Smash — Successeur"
+  }
+ },
+ {
+  "id": 89225,
+  "name": "Shouta Aizawa",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "My Hero Academia",
+  "current": {
+   "basicAttack": "Frappe inspirée de Effacement",
+   "secondary": "Effacement",
+   "tertiary": "Shouta Aizawa : Effacement — Pression ciblée",
+   "ultimate": "Shouta Aizawa — Déchaînement : Effacement"
+  }
+ },
+ {
+  "id": 89224,
+  "name": "Toshinori Yagi",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "My Hero Academia",
+  "current": {
+   "basicAttack": "Poing du One For All",
+   "secondary": "Symbole de la paix",
+   "tertiary": "Toshinori Yagi : Poing du One For All — Élan bref",
+   "ultimate": "One For All — United States of Smash"
+  }
+ },
+ {
+  "id": 89243,
+  "name": "Eijirou Kirishima",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "My Hero Academia",
+  "current": {
+   "basicAttack": "Frappe inspirée de Durcissement",
+   "secondary": "Durcissement",
+   "tertiary": "Eijirou Kirishima : Durcissement — Garde resserrée",
+   "ultimate": "Eijirou Kirishima — Déchaînement : Durcissement"
+  }
+ },
+ {
+  "id": 89334,
+  "name": "Arataka Reigen",
+  "rarity": "UR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Mob Psycho 100",
+  "current": {
+   "basicAttack": "Frappe inspirée de Hypnose",
+   "secondary": "Hypnose",
+   "tertiary": "Arataka Reigen : Hypnose — Pression ciblée",
+   "ultimate": "Arataka Reigen — Déchaînement : Hypnose"
+  }
+ },
+ {
+  "id": 89616,
+  "name": "Shigeo Kageyama",
+  "rarity": "UR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Mob Psycho 100",
+  "current": {
+   "basicAttack": "Frappe inspirée de 100 %",
+   "secondary": "100 %",
+   "tertiary": "Shigeo Kageyama : 100 % — Élan bref",
+   "ultimate": "Shigeo Kageyama — Déchaînement : 100 %"
+  }
+ },
+ {
+  "id": 121052,
+  "name": "Tanya Degurechaff",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Saga of Tanya the Evil",
+  "current": {
+   "basicAttack": "Frappe inspirée de Magie des mots",
+   "secondary": "Magie des mots",
+   "tertiary": "Tanya Degurechaff : Magie des mots — Percée mesurée",
+   "ultimate": "Tanya Degurechaff — Déchaînement : Magie des mots"
+  }
+ },
+ {
+  "id": 90107,
+  "name": "Kusuo Saiki",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "The Disastrous Life of Saiki K.",
+  "current": {
+   "basicAttack": "Frappe inspirée de Télépathie",
+   "secondary": "Télépathie",
+   "tertiary": "Kusuo Saiki : Télépathie — Trouble-fête",
+   "ultimate": "Kusuo Saiki — Déchaînement : Télépathie"
+  }
+ },
+ {
+  "id": 90169,
+  "name": "Violet Evergarden",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Violet Evergarden",
+  "current": {
+   "basicAttack": "Frappe inspirée de Poupée de souvenirs",
+   "secondary": "Poupée de souvenirs",
+   "tertiary": "Violet Evergarden : Poupée de souvenirs — Second souffle",
+   "ultimate": "Violet Evergarden — Déchaînement : Poupée de souvenirs"
+  }
+ },
+ {
+  "id": 124440,
+  "name": "Yami Sukehiro",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Black Clover",
+  "current": {
+   "basicAttack": "Frappe inspirée de Zankantou",
+   "secondary": "Zankantou",
+   "tertiary": "Yami Sukehiro : Zankantou — Percée mesurée",
+   "ultimate": "Yami Sukehiro — Déchaînement : Zankantou"
+  }
+ },
+ {
+  "id": 123285,
+  "name": "Asta",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Black Clover",
+  "current": {
+   "basicAttack": "Frappe inspirée de Anti-magie",
+   "secondary": "Anti-magie",
+   "tertiary": "Asta : Anti-magie — Pression ciblée",
+   "ultimate": "Asta — Déchaînement : Anti-magie"
+  }
+ },
+ {
+  "id": 121889,
+  "name": "Yumeko Jabami",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Kakegurui",
+  "current": {
+   "basicAttack": "Frappe inspirée de Pari fou",
+   "secondary": "Pari fou",
+   "tertiary": "Yumeko Jabami : Pari fou — Trouble-fête",
+   "ultimate": "Yumeko Jabami — Déchaînement : Pari fou"
+  }
+ },
+ {
+  "id": 123212,
+  "name": "Kiyotaka Ayanokouji",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Classroom of the Elite",
+  "current": {
+   "basicAttack": "Frappe inspirée de Manipulation",
+   "secondary": "Manipulation",
+   "tertiary": "Kiyotaka Ayanokouji : Manipulation — Pression ciblée",
+   "ultimate": "Kiyotaka Ayanokouji — Déchaînement : Manipulation"
+  }
+ }
+]

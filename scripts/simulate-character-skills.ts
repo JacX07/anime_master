@@ -103,7 +103,7 @@ async function main() {
             ? powerTertiaryDamage(TERTIARY_SPELLS[entry.card.characterId], BATTLE.tertiaryDamageScale)
             : ULTIMATE_CATALOG[entry.card.characterId];
         skillName = skill.name;
-        effect = describeSpell(skill);
+        effect = describeSpell(skill, true);
       }
       const diffs: number[] = [];
       const pool = byRarity(entry.card.rarity);

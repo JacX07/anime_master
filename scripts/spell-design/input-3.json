@@ -1,0 +1,422 @@
+[
+ {
+  "id": 35252,
+  "name": "Rintarou Okabe",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Steins;Gate",
+  "current": {
+   "basicAttack": "Gadget lancé",
+   "secondary": "Time Leap",
+   "tertiary": "Rintarou Okabe : Gadget lancé — Garde resserrée",
+   "ultimate": "Time Leap"
+  }
+ },
+ {
+  "id": 38005,
+  "name": "Homura Akemi",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Puella Magi Madoka Magica",
+  "current": {
+   "basicAttack": "Frappe inspirée de Arrêt du temps",
+   "secondary": "Arrêt du temps",
+   "tertiary": "Homura Akemi : Arrêt du temps — Pas de côté",
+   "ultimate": "Homura Akemi — Déchaînement : Arrêt du temps"
+  }
+ },
+ {
+  "id": 500,
+  "name": "Sakura Matou",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Fate/Zero",
+  "current": {
+   "basicAttack": "Frappe inspirée de Vers de Zouken",
+   "secondary": "Vers de Zouken",
+   "tertiary": "Sakura Matou : Vers de Zouken — Marque persistante",
+   "ultimate": "Sakura Matou — Déchaînement : Vers de Zouken"
+  }
+ },
+ {
+  "id": 498,
+  "name": "Rin Toosaka",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Fate/stay night: Unlimited Blade Works",
+  "current": {
+   "basicAttack": "Frappe inspirée de Gemmes de Tohsaka",
+   "secondary": "Gemmes de Tohsaka",
+   "tertiary": "Rin Toosaka : Gemmes de Tohsaka — Pression ciblée",
+   "ultimate": "Rin Toosaka — Déchaînement : Gemmes de Tohsaka"
+  }
+ },
+ {
+  "id": 497,
+  "name": "Artoria Pendragon",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Fate/Zero",
+  "current": {
+   "basicAttack": "Frappe inspirée de Excalibur",
+   "secondary": "Excalibur",
+   "tertiary": "Artoria Pendragon : Excalibur — Percée mesurée",
+   "ultimate": "Artoria Pendragon — Déchaînement : Excalibur"
+  }
+ },
+ {
+  "id": 2514,
+  "name": "Gilgamesh",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Fate/Zero",
+  "current": {
+   "basicAttack": "Frappe inspirée de Gate of Babylon",
+   "secondary": "Gate of Babylon",
+   "tertiary": "Gilgamesh : Gate of Babylon — Pression ciblée",
+   "ultimate": "Gilgamesh — Déchaînement : Gate of Babylon"
+  }
+ },
+ {
+  "id": 10010,
+  "name": "Kiritsugu Emiya",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Fate/Zero",
+  "current": {
+   "basicAttack": "Frappe inspirée de Origine : Time Alter",
+   "secondary": "Origine : Time Alter",
+   "tertiary": "Kiritsugu Emiya : Origine : Time Alter — Visée précise",
+   "ultimate": "Kiritsugu Emiya — Déchaînement : Origine : Time Alter"
+  }
+ },
+ {
+  "id": 27,
+  "name": "Killua Zoldyck",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Hunter x Hunter (2011)",
+  "current": {
+   "basicAttack": "Décharge du bout des doigts",
+   "secondary": "Godspeed",
+   "tertiary": "Killua Zoldyck : Décharge du bout des doigts — Pas de côté",
+   "ultimate": "Vitesse céleste"
+  }
+ },
+ {
+  "id": 28,
+  "name": "Kurapika",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Hunter x Hunter (2011)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Chaîne du jugement",
+   "secondary": "Chaîne du jugement",
+   "tertiary": "Kurapika : Chaîne du jugement — Pression ciblée",
+   "ultimate": "Kurapika — Déchaînement : Chaîne du jugement"
+  }
+ },
+ {
+  "id": 30,
+  "name": "Gon Freecss",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Hunter x Hunter (2011)",
+  "current": {
+   "basicAttack": "Coup direct",
+   "secondary": "Jajanken",
+   "tertiary": "Gon Freecss : Coup direct — Élan bref",
+   "ultimate": "Jajanken — Pierre, feuille, ciseaux"
+  }
+ },
+ {
+  "id": 31,
+  "name": "Hisoka Morow",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Hunter x Hunter (2011)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Bungee Gum",
+   "secondary": "Bungee Gum",
+   "tertiary": "Hisoka Morow : Bungee Gum — Pression ciblée",
+   "ultimate": "Hisoka Morow — Déchaînement : Bungee Gum"
+  }
+ },
+ {
+  "id": 58,
+  "name": "Chrollo Lucilfer",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Hunter x Hunter (2011)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Skill Hunter",
+   "secondary": "Skill Hunter",
+   "tertiary": "Chrollo Lucilfer : Skill Hunter — Pression ciblée",
+   "ultimate": "Chrollo Lucilfer — Déchaînement : Skill Hunter"
+  }
+ },
+ {
+  "id": 23277,
+  "name": "Meruem",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Hunter x Hunter (2011)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Garde royale",
+   "secondary": "Garde royale",
+   "tertiary": "Meruem : Garde royale — Siphon léger",
+   "ultimate": "Meruem — Déchaînement : Garde royale"
+  }
+ },
+ {
+  "id": 36828,
+  "name": "Asuna Yuuki",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Sword Art Online",
+  "current": {
+   "basicAttack": "Frappe inspirée de Starburst Stream",
+   "secondary": "Starburst Stream",
+   "tertiary": "Asuna Yuuki : Starburst Stream — Pression ciblée",
+   "ultimate": "Asuna Yuuki — Déchaînement : Starburst Stream"
+  }
+ },
+ {
+  "id": 36765,
+  "name": "Kazuto Kirigaya",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Sword Art Online",
+  "current": {
+   "basicAttack": "Frappe inspirée de Dual Blades",
+   "secondary": "Dual Blades",
+   "tertiary": "Kazuto Kirigaya : Dual Blades — Élan bref",
+   "ultimate": "Kazuto Kirigaya — Déchaînement : Dual Blades"
+  }
+ },
+ {
+  "id": 55131,
+  "name": "Houtarou Oreki",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Hyouka",
+  "current": {
+   "basicAttack": "Frappe inspirée de Déduction économe",
+   "secondary": "Déduction économe",
+   "tertiary": "Houtarou Oreki : Déduction économe — Brèche tactique",
+   "ultimate": "Houtarou Oreki — Déchaînement : Déduction économe"
+  }
+ },
+ {
+  "id": 6356,
+  "name": "Joseph Joestar",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure (TV)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Hermit Purple",
+   "secondary": "Hermit Purple",
+   "tertiary": "Joseph Joestar : Hermit Purple — Trouble-fête",
+   "ultimate": "Joseph Joestar — Déchaînement : Hermit Purple"
+  }
+ },
+ {
+  "id": 4003,
+  "name": "Joutarou Kuujou",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: Stardust Crusaders",
+  "current": {
+   "basicAttack": "Frappe inspirée de Star Platinum",
+   "secondary": "Star Platinum",
+   "tertiary": "Joutarou Kuujou : Star Platinum — Percée mesurée",
+   "ultimate": "Joutarou Kuujou — Déchaînement : Star Platinum"
+  }
+ },
+ {
+  "id": 11772,
+  "name": "Gyro Zeppeli",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "STEEL BALL RUN JoJo's Bizarre Adventure 1st STAGE",
+  "current": {
+   "basicAttack": "Frappe inspirée de Steel Ball",
+   "secondary": "Steel Ball",
+   "tertiary": "Gyro Zeppeli : Steel Ball — Visée précise",
+   "ultimate": "Gyro Zeppeli — Déchaînement : Steel Ball"
+  }
+ },
+ {
+  "id": 4004,
+  "name": "Dio Brando",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure (TV)",
+  "current": {
+   "basicAttack": "Frappe inspirée de The World",
+   "secondary": "The World",
+   "tertiary": "Dio Brando : The World — Siphon léger",
+   "ultimate": "Dio Brando — Déchaînement : The World"
+  }
+ },
+ {
+  "id": 13085,
+  "name": "Jousuke Higashikata",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: Diamond is Unbreakable",
+  "current": {
+   "basicAttack": "Frappe inspirée de Crazy Diamond",
+   "secondary": "Crazy Diamond",
+   "tertiary": "Jousuke Higashikata : Crazy Diamond — Second souffle",
+   "ultimate": "Jousuke Higashikata — Déchaînement : Crazy Diamond"
+  }
+ },
+ {
+  "id": 12055,
+  "name": "Yoshikage Kira",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: Diamond is Unbreakable",
+  "current": {
+   "basicAttack": "Frappe inspirée de Killer Queen",
+   "secondary": "Killer Queen",
+   "tertiary": "Yoshikage Kira : Killer Queen — Marque persistante",
+   "ultimate": "Yoshikage Kira — Déchaînement : Killer Queen"
+  }
+ },
+ {
+  "id": 11222,
+  "name": "Jolyne Kuujou",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: STONE OCEAN",
+  "current": {
+   "basicAttack": "Frappe inspirée de Stone Free",
+   "secondary": "Stone Free",
+   "tertiary": "Jolyne Kuujou : Stone Free — Marque persistante",
+   "ultimate": "Jolyne Kuujou — Déchaînement : Stone Free"
+  }
+ },
+ {
+  "id": 19492,
+  "name": "Johnny Joestar",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "STEEL BALL RUN JoJo's Bizarre Adventure 1st STAGE",
+  "current": {
+   "basicAttack": "Frappe inspirée de Tusk",
+   "secondary": "Tusk",
+   "tertiary": "Johnny Joestar : Tusk — Pression ciblée",
+   "ultimate": "Johnny Joestar — Déchaînement : Tusk"
+  }
+ },
+ {
+  "id": 12659,
+  "name": "Rohan Kishibe",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: Diamond is Unbreakable",
+  "current": {
+   "basicAttack": "Frappe inspirée de Heaven's Door",
+   "secondary": "Heaven's Door",
+   "tertiary": "Rohan Kishibe : Heaven's Door — Pression ciblée",
+   "ultimate": "Rohan Kishibe — Déchaînement : Heaven's Door"
+  }
+ },
+ {
+  "id": 10529,
+  "name": "Giorno Giovanna",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: Golden Wind",
+  "current": {
+   "basicAttack": "Frappe inspirée de Gold Experience",
+   "secondary": "Gold Experience",
+   "tertiary": "Giorno Giovanna : Gold Experience — Second souffle",
+   "ultimate": "Giorno Giovanna — Déchaînement : Gold Experience"
+  }
+ },
+ {
+  "id": 13045,
+  "name": "Bruno Bucciarati",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "JoJo's Bizarre Adventure: Golden Wind",
+  "current": {
+   "basicAttack": "Frappe inspirée de Sticky Fingers",
+   "secondary": "Sticky Fingers",
+   "tertiary": "Bruno Bucciarati : Sticky Fingers — Pression ciblée",
+   "ultimate": "Bruno Bucciarati — Déchaînement : Sticky Fingers"
+  }
+ },
+ {
+  "id": 65865,
+  "name": "Rikka Takanashi",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Love, Chunibyo & Other Delusions",
+  "current": {
+   "basicAttack": "Frappe inspirée de Œil du tyran",
+   "secondary": "Œil du tyran",
+   "tertiary": "Rikka Takanashi : Œil du tyran — Pas de côté",
+   "ultimate": "Rikka Takanashi — Déchaînement : Œil du tyran"
+  }
+ },
+ {
+  "id": 67065,
+  "name": "Hachiman Hikigaya",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "My Teen Romantic Comedy SNAFU",
+  "current": {
+   "basicAttack": "Frappe inspirée de Jugement du solitaire",
+   "secondary": "Jugement du solitaire",
+   "tertiary": "Hachiman Hikigaya : Jugement du solitaire — Brèche tactique",
+   "ultimate": "Hachiman Hikigaya — Déchaînement : Jugement du solitaire"
+  }
+ },
+ {
+  "id": 67067,
+  "name": "Yukino Yukinoshita",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "My Teen Romantic Comedy SNAFU",
+  "current": {
+   "basicAttack": "Frappe inspirée de Glace silencieuse",
+   "secondary": "Glace silencieuse",
+   "tertiary": "Yukino Yukinoshita : Glace silencieuse — Pression ciblée",
+   "ultimate": "Yukino Yukinoshita — Déchaînement : Glace silencieuse"
+  }
+ }
+]

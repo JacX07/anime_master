@@ -2,6 +2,7 @@ import type { CharacterSpell, Effect } from "./spells";
 
 /** Modère les valeurs d'un secondaire ; contrôle, perforation et effets de zone reçoivent des plafonds distincts. */
 export function balanceSecondary(spell: CharacterSpell, scale: number): CharacterSpell {
+  if (spell.final) return spell;
   const turns = (n: number) => Math.max(1, Math.round(n * scale));
   const hasSilence = spell.effects.some((effect) => effect.k === "silence");
   const balancedDamage = (effect: Extract<Effect, { k: "damage" }>) => {
@@ -46,7 +47,9 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "silence": return { ...effect, turns: turns(effect.turns) };
       case "immune": return { ...effect, turns: turns(effect.turns) };
       case "revive": return { ...effect, pct: Math.min(0.2, Math.max(0.15, effect.pct * scale)) };
-      case "purge": return effect;
+      case "purge":
+      case "taunt":
+      case "reduce": return effect;
     }
   });
   return { ...spell, effects };
@@ -54,6 +57,7 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
 
 /** Le tertiaire est léger mais ne doit pas perdre de dégâts face à une attaque de base standard. */
 export function powerTertiaryDamage(spell: CharacterSpell, scale: number): CharacterSpell {
+  if (spell.final) return spell;
   return {
     ...spell,
     effects: spell.effects.map((effect) => effect.k === "damage" ? { ...effect, mult: effect.mult * scale } : effect),

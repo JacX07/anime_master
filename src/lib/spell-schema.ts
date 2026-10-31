@@ -12,7 +12,7 @@ export type Field =
 const SCOPES = { target: "la cible", self: "le lanceur", team: "l'équipe", foes: "tous les ennemis" };
 const STATS = { atk: "ATK", def: "DEF", crit: "Critique", dodge: "Esquive" };
 const scope = (def: string): Field => ({ key: "to", label: "Qui", type: "choice", options: SCOPES, def });
-const turns = (def: number): Field => ({ key: "turns", label: "Actions", type: "number", min: 1, max: 6, step: 1, def });
+const turns = (def: number): Field => ({ key: "turns", label: "Tours", type: "number", min: 1, max: 6, step: 1, def });
 const pctField = (label: string, def: number, max = 1): Field => ({ key: "pct", label, type: "number", min: 0.01, max, step: 0.01, def });
 const flag = (key: string, label: string): Field => ({ key, label, type: "bool", def: false });
 
@@ -32,7 +32,7 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
     label: "Bonus / malus de stat",
     fields: [
       { key: "stat", label: "Stat", type: "choice", options: STATS, def: "atk" },
-      { key: "amount", label: "Montant (− = malus)", type: "number", min: -0.6, max: 0.6, step: 0.05, def: 0.2 },
+      { key: "amount", label: "Montant (− = malus ; % ou points de critique/esquive)", type: "number", min: -0.6, max: 0.6, step: 0.01, def: 0.2 },
       turns(2),
       scope("self"),
     ],
@@ -45,6 +45,8 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
   immune: { label: "Immunité aux malus", fields: [turns(2), scope("team")] },
   purge: { label: "Purge des malus", fields: [scope("team")] },
   revive: { label: "Réanimation", fields: [pctField("% PV max", 0.2)] },
+  taunt: { label: "Provocation (soi)", fields: [turns(2)] },
+  reduce: { label: "Réduction des dégâts subis", fields: [pctField("Réduction", 0.3, 0.8), turns(2), scope("self")] },
 };
 
 /** Effet neuf avec les valeurs par défaut. */

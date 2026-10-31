@@ -70,7 +70,7 @@ export interface Weapon {
 export const BATTLE = {
   teamSize: 4,
   /** PV à partir des stats de base ; la DEF ne sert qu'à réduire les dégâts */
-  hp: (attack: number, defense: number) => attack + defense,
+  hp: (attack: number, defense: number) => 2.8 * (attack + defense),
   /** Dégâts = ATK × % du sort × defK / (defK + DEF) : la DEF réduit de moitié quand elle vaut defK */
   defK: 2000,
   /** Dégâts minimum, en part de l'ATK */
@@ -107,10 +107,12 @@ export const BATTLE = {
   starBonus: 0.02,
   /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort affilié baisse d'une action */
   cooldownStar: 5,
-  /** Plafond du total des bonus ou malus d'ATK et de DEF (±), du critique (0 à critCap) et de l'esquive des effets */
-  statCap: 0.4,
-  critCap: 0.75,
-  dodgeCap: 0.5,
+  /** Plafond du total des bonus ou malus d'ATK et de DEF (±), du critique et de l'esquive (0 à 100 %) */
+  statCap: 0.6,
+  /** Plafond de la réduction de dégâts subis */
+  reduceCap: 0.7,
+  critCap: 1,
+  dodgeCap: 1,
   /** Durée d'Affaibli et d'Élan, en actions de la carte qui les porte */
   statusTurns: 2,
   /** En automatique, Cœur ne lance son sort que si un allié est sous cette part de ses PV */
@@ -144,7 +146,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -261,7 +263,14 @@ interface Fx {
 }
 const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "silence", "poison"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
+const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
+/** Ennemis qu'une attaque à cible unique peut viser : seuls les provocateurs vivants s'il y en a */
+const foesFor = (st: BattleState, u: Unit): Unit[] => {
+  const foes = alive(st, enemy(u.side));
+  const taunters = foes.filter((f) => hasFx(f, "taunt"));
+  return taunters.length ? taunters : foes;
+};
 const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x));
 
 export interface BattleState {
@@ -411,7 +420,7 @@ function spellFor(u: Unit, slot: "special" | "tertiary" | "ultimate"): Character
 /** Cibles possibles d'un sort personnel donné. */
 function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (UnitId | null)[] {
   switch (spell.target) {
-    case "foe": return alive(st, enemy(u.side)).map((x) => x.id);
+    case "foe": return foesFor(st, u).map((x) => x.id);
     case "ally": return alive(st, u.side).map((x) => x.id);
     case "deadAlly": return u.revived ? [] : st.teams[u.side].filter((x) => x.hp <= 0).map((x) => x.id);
     default: return [null];
@@ -426,7 +435,7 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
   const id = currentActor(st)?.id;
   if (!id) return [];
   const u = unit(st, id);
-  const foes = alive(st, enemy(u.side)).map((f) => f.id);
+  const foes = foesFor(st, u).map((f) => f.id);
   const list: { spell: Spell; targets: (UnitId | null)[] }[] = [{ spell: "base", targets: foes }];
   if (hasFx(u, "silence")) return list;
   if (u.spellIn <= 1 && !hasCharacterSlots(u.card.rarity)) {
@@ -451,7 +460,7 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   if (!spell || !ready) return null;
   const targets = targetsForSpell(st, u, spell);
   if (!targets.length) return null;
-  const allies = alive(st, u.side), foes = alive(st, enemy(u.side));
+  const allies = alive(st, u.side), foes = foesFor(st, u);
   const fx = spell.effects;
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
   if (spell.target === "deadAlly") return { spell: slot, target: targets[0] };
@@ -475,7 +484,7 @@ export function autoAction(st: BattleState): Action {
   const id = currentActor(st)?.id;
   if (!id) throw new Error("Combat terminé");
   const u = unit(st, id);
-  const foes = alive(st, enemy(u.side));
+  const foes = foesFor(st, u);
   const allies = alive(st, u.side);
   const base: Action = { spell: "base", target: weakest(foes).id };
   if (hasFx(u, "silence")) return base;
@@ -525,7 +534,7 @@ export function applyAction(st: BattleState, action: Action) {
     }
     ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef);
     // Esquive : arme (sorts affiliés seulement) ou effet d'un sort ; un coup qui traverse ne s'esquive pas
-    const dodge = pierce ? 0 : (action.spell === "affinity" ? t.dodge : 0) + clamp(fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
+    const dodge = pierce ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
     if (dodge > 0 && rng() < dodge) {
       log.push({ kind: "dodge", source: u.id, target: t.id });
       return 0;
@@ -539,6 +548,8 @@ export function applyAction(st: BattleState, action: Action) {
     const crit = critSure || rng() < clamp(BATTLE.critRate + fxSum(u, "crit"), 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage;
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
+    // Réduction des dégâts subis (sorts de tank), plafonnée
+    dmg *= 1 - clamp(fxKeySum(t, "reduce"), 0, BATTLE.reduceCap);
     const absorbed = pierce ? 0 : Math.min(t.shield, dmg);
     t.shield -= absorbed;
     t.hp = Math.max(0, t.hp - (dmg - absorbed));
@@ -669,6 +680,12 @@ export function applyAction(st: BattleState, action: Action) {
           break;
         case "immune":
           for (const t of who(e.to)) addFx(t, "immune", 0, e.turns);
+          break;
+        case "taunt":
+          addFx(u, "taunt", 0, e.turns);
+          break;
+        case "reduce":
+          for (const t of who(e.to)) addFx(t, "reduce", e.pct, e.turns);
           break;
         case "purge":
           for (const t of who(e.to)) {

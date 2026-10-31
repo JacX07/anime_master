@@ -58,8 +58,8 @@ export const SPELL_NAMES: Record<CardType, string> = {
 /** Nom, pastille et aide de chaque état affiché sur une carte. */
 export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: string; bad: boolean }> = {
   exposed: { label: "Exposé", glyph: "◎", help: "Le prochain sort de Combat sur cette carte fait ×1,7. L'exposition disparaît ensuite.", bad: true },
-  weaken: { label: "Affaibli", glyph: "▼", help: "ATK −20 % pendant 2 actions de cette carte.", bad: true },
-  elan: { label: "Élan", glyph: "▲", help: "ATK +10 % pendant 2 actions de cette carte.", bad: false },
+  weaken: { label: "Affaibli", glyph: "▼", help: "ATK −20 % pendant 2 tours de cette carte.", bad: true },
+  elan: { label: "Élan", glyph: "▲", help: "ATK +10 % pendant 2 tours de cette carte.", bad: false },
   atkUp: { label: "ATK +", glyph: "⚔", help: "Son ATK est augmentée.", bad: false },
   atkDown: { label: "ATK −", glyph: "⚔", help: "Son ATK est réduite.", bad: true },
   defUp: { label: "DEF +", glyph: "⛨", help: "Sa DEF est augmentée.", bad: false },
@@ -70,8 +70,10 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   dodgeDown: { label: "Esquive −", glyph: "≈", help: "Sa chance d'esquiver est réduite.", bad: true },
   silence: { label: "Silence", glyph: "✕", help: "Ne peut lancer que son sort de base.", bad: true },
   immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },
-  poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacune de ses actions.", bad: true },
-  regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacune de ses actions.", bad: false },
+  poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacun de ses tours.", bad: true },
+  taunt: { label: "Provocation", glyph: "⚑", help: "Les ennemis ne peuvent viser que cette carte avec leurs attaques à cible unique.", bad: false },
+  reduce: { label: "Dégâts réduits", glyph: "⛉", help: "Subit moins de dégâts.", bad: false },
+  regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacun de ses tours.", bad: false },
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
 };
 
@@ -83,15 +85,15 @@ export const spellLabel = (spell: Spell, type: CardType, name?: string) => {
 };
 
 /** Texte des sorts affichés sous le plateau (docs/specs/combat.md §4). */
-export const SPELL_INFO: Record<CardType, { target: string; text: string }> = {
-  COMBAT: { target: "1 ennemi", text: "1,5× ATK, ignore 40 % de la DEF ; ×1,7 sur une cible exposée (l'exposition est consommée)." },
-  MYSTERE: { target: "1 ennemi", text: "0,8× ATK (1,2× sans allié Combat en vie). La cible devient exposée et affaiblie (ATK −20 % pendant 2 actions)." },
-  MAGIE: { target: "1 ennemi", text: "1,2× ATK. Soigne de 50 % des dégâts le lanceur et chaque allié Cœur." },
-  COEUR: { target: "1 allié", text: "Soigne l'allié de 30 % de ses PV max, puis donne à l'équipe un bouclier de 10 % des PV max du lanceur." },
-  AVENTURE: { target: "Tous les ennemis", text: "0,6× ATK sur chaque ennemi. Toute l'équipe gagne l'élan (ATK +10 % pendant 2 actions)." },
+export const SPELL_INFO: Record<CardType, { target: string; text: string; details: string }> = {
+  COMBAT: { target: "1 ennemi", text: "Ignore 40 % de la DEF ; frappe plus fort une cible exposée (l'exposition est consommée).", details: "1,5× ATK, ignore 40 % de la DEF ; ×1,7 sur une cible exposée (l'exposition est consommée)." },
+  MYSTERE: { target: "1 ennemi", text: "Expose et affaiblit la cible (ATK −20 % pendant 2 tours).", details: "0,8× ATK (1,2× sans allié Combat en vie). La cible devient exposée et affaiblie (ATK −20 % pendant 2 tours)." },
+  MAGIE: { target: "1 ennemi", text: "Soigne de 50 % des dégâts le lanceur et chaque allié Cœur.", details: "1,2× ATK. Soigne de 50 % des dégâts le lanceur et chaque allié Cœur." },
+  COEUR: { target: "1 allié", text: "Soigne l'allié de 30 % de ses PV max, puis donne à l'équipe un bouclier de 10 % des PV max du lanceur.", details: "Soigne l'allié de 30 % de ses PV max, puis donne à l'équipe un bouclier de 10 % des PV max du lanceur." },
+  AVENTURE: { target: "Tous les ennemis", text: "Frappe tous les ennemis. Toute l'équipe gagne l'élan (ATK +10 % pendant 2 tours).", details: "0,6× ATK sur chaque ennemi. Toute l'équipe gagne l'élan (ATK +10 % pendant 2 tours)." },
 };
-export const BASE_SPELL = { name: "Attaque", target: "1 ennemi", text: "1× ATK. Disponible à chaque action." };
-export const AFFINITY_COOLDOWN = "Rechargement : 3 actions, premier lancer à la 2ᵉ action de la carte.";
+export const BASE_SPELL = { name: "Attaque", target: "1 ennemi", text: "Frappe la cible.", details: "1× ATK." };
+export const AFFINITY_COOLDOWN = "Rechargement : 3 tours ; premier lancer au 2ᵉ tour de la carte.";
 
 /** Une action du journal et ses effets, pour l'historique. */
 export interface HistoryEntry {

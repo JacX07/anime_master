@@ -1,4 +1,5 @@
 import type { CharacterSpell, Effect } from "./spells";
+import { ULTIMATE_DATA } from "./skill-data";
 
 const S = (name: string, target: CharacterSpell["target"], ...effects: Effect[]): CharacterSpell => ({ name, target, effects });
 const dmg = (mult: number, options: Omit<Extract<Effect, { k: "damage" }>, "k" | "mult"> = {}): Effect => ({ k: "damage", mult, ...options });
@@ -13,7 +14,7 @@ const mod = (stat: "atk" | "def" | "crit" | "dodge", amount: number, turns: numb
  * reset de cooldown, déclenchement à la mort, etc.) reçoivent une approximation
  * explicite au plus proche des effets disponibles ; voir l'audit dans la spec.
  */
-export const ULTIMATE_CATALOG: Record<number, CharacterSpell> = {
+const LEGACY_ULTIMATE: Record<number, CharacterSpell>  = {
   1: S("Spike Spiegel — Déchaînement : Jeet Kune Do", "foe", dmg(1.65, { ignoreDef: 0.4 })),
   2: S("Faye Valentine — Déchaînement : Bluff", "foe", dmg(1.25), mod("dodge", 0.3, 2, "self")),
   5: S("Ichigo Kurosaki — Déchaînement : Getsuga Tenshou", "foe", dmg(1.35), mod("atk", 0.2, 2, "self")),
@@ -251,3 +252,6 @@ export const ULTIMATE_CATALOG: Record<number, CharacterSpell> = {
   261674: S("Nijika Ijichi — Déchaînement : Rythme de batterie", "foe", dmg(1.55), mod("crit", 0.35, 2, "self")),
   284157: S("Lucy — Déchaînement : Netrunner", "foe", dmg(1.25), mod("dodge", 0.3, 2, "self")),
 };
+
+/** Sorts réécrits (skill-data.json) en priorité, ancien catalogue en repli. */
+export const ULTIMATE_CATALOG: Record<number, CharacterSpell> = { ...LEGACY_ULTIMATE, ...ULTIMATE_DATA };

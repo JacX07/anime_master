@@ -1,0 +1,422 @@
+[
+ {
+  "id": 123385,
+  "name": "Phosphophyllite",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Land of the Lustrous",
+  "current": {
+   "basicAttack": "Frappe inspirée de Éclats de lustre",
+   "secondary": "Éclats de lustre",
+   "tertiary": "Phosphophyllite : Éclats de lustre — Garde protectrice",
+   "ultimate": "Phosphophyllite — Déchaînement : Éclats de lustre"
+  }
+ },
+ {
+  "id": 88889,
+  "name": "Raphtalia",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "The Rising of the Shield Hero",
+  "current": {
+   "basicAttack": "Frappe inspirée de Transformation de raphtalia",
+   "secondary": "Transformation de raphtalia",
+   "tertiary": "Raphtalia : Transformation de raphtalia — Pas de côté",
+   "ultimate": "Raphtalia — Déchaînement : Transformation de raphtalia"
+  }
+ },
+ {
+  "id": 124382,
+  "name": "Ichigo",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "DARLING in the FRANXX",
+  "current": {
+   "basicAttack": "Frappe inspirée de Triade",
+   "secondary": "Triade",
+   "tertiary": "Ichigo : Triade — Second souffle",
+   "ultimate": "Ichigo — Déchaînement : Triade"
+  }
+ },
+ {
+  "id": 124381,
+  "name": "Zero Two",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "DARLING in the FRANXX",
+  "current": {
+   "basicAttack": "Frappe inspirée de Piloter le Strelizia",
+   "secondary": "Piloter le Strelizia",
+   "tertiary": "Zero Two : Piloter le Strelizia — Siphon léger",
+   "ultimate": "Zero Two — Déchaînement : Piloter le Strelizia"
+  }
+ },
+ {
+  "id": 13580,
+  "name": "Ash Lynx",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "BANANA FISH",
+  "current": {
+   "basicAttack": "Frappe inspirée de Coup au but",
+   "secondary": "Coup au but",
+   "tertiary": "Ash Lynx : Coup au but — Visée précise",
+   "ultimate": "Ash Lynx — Déchaînement : Coup au but"
+  }
+ },
+ {
+  "id": 123962,
+  "name": "Rimuru Tempest",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "That Time I Got Reincarnated as a Slime",
+  "current": {
+   "basicAttack": "Frappe inspirée de Dévoreur",
+   "secondary": "Dévoreur",
+   "tertiary": "Rimuru Tempest : Dévoreur — Marque persistante",
+   "ultimate": "Rimuru Tempest — Déchaînement : Dévoreur"
+  }
+ },
+ {
+  "id": 127222,
+  "name": "Mai Sakurajima",
+  "rarity": "UR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Rascal Does Not Dream of Bunny Girl Senpai",
+  "current": {
+   "basicAttack": "Frappe inspirée de Charme de lapine",
+   "secondary": "Charme de lapine",
+   "tertiary": "Mai Sakurajima : Charme de lapine — Pas de côté",
+   "ultimate": "Mai Sakurajima — Déchaînement : Charme de lapine"
+  }
+ },
+ {
+  "id": 127221,
+  "name": "Sakuta Azusagawa",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Rascal Does Not Dream of Bunny Girl Senpai",
+  "current": {
+   "basicAttack": "Frappe inspirée de Syndrome de l'adolescence",
+   "secondary": "Syndrome de l'adolescence",
+   "tertiary": "Sakuta Azusagawa : Syndrome de l'adolescence — Second souffle",
+   "ultimate": "Sakuta Azusagawa — Déchaînement : Syndrome de l'adolescence"
+  }
+ },
+ {
+  "id": 10138,
+  "name": "Thorfinn Karlsefni",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Vinland Saga",
+  "current": {
+   "basicAttack": "Frappe inspirée de Lame de Thorfinn",
+   "secondary": "Lame de Thorfinn",
+   "tertiary": "Thorfinn Karlsefni : Lame de Thorfinn — Percée mesurée",
+   "ultimate": "Thorfinn Karlsefni — Déchaînement : Lame de Thorfinn"
+  }
+ },
+ {
+  "id": 13020,
+  "name": "Askeladd",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Vinland Saga",
+  "current": {
+   "basicAttack": "Frappe inspirée de Roi de la guerre",
+   "secondary": "Roi de la guerre",
+   "tertiary": "Askeladd : Roi de la guerre — Pression ciblée",
+   "ultimate": "Askeladd — Déchaînement : Roi de la guerre"
+  }
+ },
+ {
+  "id": 121724,
+  "name": "Ray",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "The Promised Neverland",
+  "current": {
+   "basicAttack": "Frappe inspirée de Plan d'évasion",
+   "secondary": "Plan d'évasion",
+   "tertiary": "Ray : Plan d'évasion — Pression ciblée",
+   "ultimate": "Ray — Déchaînement : Plan d'évasion"
+  }
+ },
+ {
+  "id": 121700,
+  "name": "Norman",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "The Promised Neverland",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cerveau de la ferme",
+   "secondary": "Cerveau de la ferme",
+   "tertiary": "Norman : Cerveau de la ferme — Garde protectrice",
+   "ultimate": "Norman — Déchaînement : Cerveau de la ferme"
+  }
+ },
+ {
+  "id": 120649,
+  "name": "Kaguya Shinomiya",
+  "rarity": "UR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Kaguya-sama: Love is War",
+  "current": {
+   "basicAttack": "Frappe inspirée de Guerre de l'amour",
+   "secondary": "Guerre de l'amour",
+   "tertiary": "Kaguya Shinomiya : Guerre de l'amour — Pression ciblée",
+   "ultimate": "Kaguya Shinomiya — Déchaînement : Guerre de l'amour"
+  }
+ },
+ {
+  "id": 121103,
+  "name": "Chika Fujiwara",
+  "rarity": "UR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Kaguya-sama: Love is War",
+  "current": {
+   "basicAttack": "Frappe inspirée de Chika Dance",
+   "secondary": "Chika Dance",
+   "tertiary": "Chika Fujiwara : Chika Dance — Élan bref",
+   "ultimate": "Chika Fujiwara — Déchaînement : Chika Dance"
+  }
+ },
+ {
+  "id": 125886,
+  "name": "Miko Iino",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Kaguya-sama: Love is War?",
+  "current": {
+   "basicAttack": "Frappe inspirée de Règlement intérieur",
+   "secondary": "Règlement intérieur",
+   "tertiary": "Miko Iino : Règlement intérieur — Pression ciblée",
+   "ultimate": "Miko Iino — Déchaînement : Règlement intérieur"
+  }
+ },
+ {
+  "id": 121102,
+  "name": "Yuu Ishigami",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Kaguya-sama: Love is War",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cri du cœur",
+   "secondary": "Cri du cœur",
+   "tertiary": "Yuu Ishigami : Cri du cœur — Brèche tactique",
+   "ultimate": "Yuu Ishigami — Déchaînement : Cri du cœur"
+  }
+ },
+ {
+  "id": 121104,
+  "name": "Ai Hayasaka",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Kaguya-sama: Love is War",
+  "current": {
+   "basicAttack": "Frappe inspirée de Ninja du conseil",
+   "secondary": "Ninja du conseil",
+   "tertiary": "Ai Hayasaka : Ninja du conseil — Pas de côté",
+   "ultimate": "Ai Hayasaka — Déchaînement : Ninja du conseil"
+  }
+ },
+ {
+  "id": 121101,
+  "name": "Miyuki Shirogane",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Kaguya-sama: Love is War",
+  "current": {
+   "basicAttack": "Frappe inspirée de Président du conseil",
+   "secondary": "Président du conseil",
+   "tertiary": "Miyuki Shirogane : Président du conseil — Visée précise",
+   "ultimate": "Miyuki Shirogane — Déchaînement : Président du conseil"
+  }
+ },
+ {
+  "id": 126071,
+  "name": "Tanjirou Kamado",
+  "rarity": "UR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer: Kimetsu no Yaiba",
+  "current": {
+   "basicAttack": "Frappe inspirée de Respiration de l'eau",
+   "secondary": "Respiration de l'eau",
+   "tertiary": "Tanjirou Kamado : Respiration de l'eau — Élan bref",
+   "ultimate": "Tanjirou Kamado — Déchaînement : Respiration de l'eau"
+  }
+ },
+ {
+  "id": 127518,
+  "name": "Nezuko Kamado",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer: Kimetsu no Yaiba",
+  "current": {
+   "basicAttack": "Frappe inspirée de Forme de démon",
+   "secondary": "Forme de démon",
+   "tertiary": "Nezuko Kamado : Forme de démon — Second souffle",
+   "ultimate": "Nezuko Kamado — Déchaînement : Forme de démon"
+  }
+ },
+ {
+  "id": 129130,
+  "name": "Inosuke Hashibira",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer: Kimetsu no Yaiba",
+  "current": {
+   "basicAttack": "Frappe inspirée de Respiration de la bête",
+   "secondary": "Respiration de la bête",
+   "tertiary": "Inosuke Hashibira : Respiration de la bête — Élan bref",
+   "ultimate": "Inosuke Hashibira — Déchaînement : Respiration de la bête"
+  }
+ },
+ {
+  "id": 129131,
+  "name": "Zenitsu Agatsuma",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer: Kimetsu no Yaiba",
+  "current": {
+   "basicAttack": "Frappe inspirée de Respiration de la foudre",
+   "secondary": "Respiration de la foudre",
+   "tertiary": "Zenitsu Agatsuma : Respiration de la foudre — Percée mesurée",
+   "ultimate": "Zenitsu Agatsuma — Déchaînement : Respiration de la foudre"
+  }
+ },
+ {
+  "id": 130050,
+  "name": "Giyuu Tomioka",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Demon Slayer: Kimetsu no Yaiba",
+  "current": {
+   "basicAttack": "Frappe inspirée de Onzième forme",
+   "secondary": "Onzième forme",
+   "tertiary": "Giyuu Tomioka : Onzième forme — Pression ciblée",
+   "ultimate": "Giyuu Tomioka — Déchaînement : Onzième forme"
+  }
+ },
+ {
+  "id": 129133,
+  "name": "Kyoujurou Rengoku",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer -Kimetsu no Yaiba- The Movie: Mugen Train",
+  "current": {
+   "basicAttack": "Frappe inspirée de Flamme éternelle",
+   "secondary": "Flamme éternelle",
+   "tertiary": "Kyoujurou Rengoku : Flamme éternelle — Élan bref",
+   "ultimate": "Kyoujurou Rengoku — Déchaînement : Flamme éternelle"
+  }
+ },
+ {
+  "id": 136070,
+  "name": "Shinobu Kochou",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Demon Slayer: Kimetsu no Yaiba",
+  "current": {
+   "basicAttack": "Frappe inspirée de Papillon vénéneux",
+   "secondary": "Papillon vénéneux",
+   "tertiary": "Shinobu Kochou : Papillon vénéneux — Marque persistante",
+   "ultimate": "Shinobu Kochou — Déchaînement : Papillon vénéneux"
+  }
+ },
+ {
+  "id": 136071,
+  "name": "Tengen Uzui",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer: Kimetsu no Yaiba Entertainment District Arc",
+  "current": {
+   "basicAttack": "Frappe inspirée de Éclat sonore",
+   "secondary": "Éclat sonore",
+   "tertiary": "Tengen Uzui : Éclat sonore — Pression ciblée",
+   "ultimate": "Tengen Uzui — Déchaînement : Éclat sonore"
+  }
+ },
+ {
+  "id": 136072,
+  "name": "Mitsuri Kanroji",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc",
+  "current": {
+   "basicAttack": "Frappe inspirée de Respiration de l'amour",
+   "secondary": "Respiration de l'amour",
+   "tertiary": "Mitsuri Kanroji : Respiration de l'amour — Second souffle",
+   "ultimate": "Mitsuri Kanroji — Déchaînement : Respiration de l'amour"
+  }
+ },
+ {
+  "id": 126375,
+  "name": "Itsuki Nakano",
+  "rarity": "UR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "The Quintessential Quintuplets",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cinq frères et sœurs",
+   "secondary": "Cinq frères et sœurs",
+   "tertiary": "Itsuki Nakano : Cinq frères et sœurs — Visée précise",
+   "ultimate": "Itsuki Nakano — Déchaînement : Cinq frères et sœurs"
+  }
+ },
+ {
+  "id": 126373,
+  "name": "Miku Nakano",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "The Quintessential Quintuplets",
+  "current": {
+   "basicAttack": "Frappe inspirée de Fleur de tendresse",
+   "secondary": "Fleur de tendresse",
+   "tertiary": "Miku Nakano : Fleur de tendresse — Second souffle",
+   "ultimate": "Miku Nakano — Déchaînement : Fleur de tendresse"
+  }
+ },
+ {
+  "id": 126372,
+  "name": "Nino Nakano",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "The Quintessential Quintuplets",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cuisine piquante",
+   "secondary": "Cuisine piquante",
+   "tertiary": "Nino Nakano : Cuisine piquante — Brèche tactique",
+   "ultimate": "Nino Nakano — Déchaînement : Cuisine piquante"
+  }
+ }
+]

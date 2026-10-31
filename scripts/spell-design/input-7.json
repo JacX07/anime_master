@@ -1,0 +1,422 @@
+[
+ {
+  "id": 130848,
+  "name": "Benimaru Shinmon",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Enen no Shouboutai Mini Anime",
+  "current": {
+   "basicAttack": "Frappe inspirée de Feu orange",
+   "secondary": "Feu orange",
+   "tertiary": "Benimaru Shinmon : Feu orange — Pression ciblée",
+   "ultimate": "Benimaru Shinmon — Déchaînement : Feu orange"
+  }
+ },
+ {
+  "id": 124142,
+  "name": "Senkuu Ishigami",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Dr. STONE",
+  "current": {
+   "basicAttack": "Frappe inspirée de Science du monde",
+   "secondary": "Science du monde",
+   "tertiary": "Senkuu Ishigami : Science du monde — Second souffle",
+   "ultimate": "Senkuu Ishigami — Déchaînement : Science du monde"
+  }
+ },
+ {
+  "id": 209,
+  "name": "Kyou Souma",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Fruits Basket (2019)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Rage du chat",
+   "secondary": "Rage du chat",
+   "tertiary": "Kyou Souma : Rage du chat — Pas de côté",
+   "ultimate": "Kyou Souma — Déchaînement : Rage du chat"
+  }
+ },
+ {
+  "id": 207,
+  "name": "Tooru Honda",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Fruits Basket (2019)",
+  "current": {
+   "basicAttack": "Frappe inspirée de Sourire de Tooru",
+   "secondary": "Sourire de Tooru",
+   "tertiary": "Tooru Honda : Sourire de Tooru — Garde protectrice",
+   "ultimate": "Tooru Honda — Déchaînement : Sourire de Tooru"
+  }
+ },
+ {
+  "id": 125168,
+  "name": "Legoshi",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "BEASTARS",
+  "current": {
+   "basicAttack": "Frappe inspirée de Instinct de loup",
+   "secondary": "Instinct de loup",
+   "tertiary": "Legoshi : Instinct de loup — Siphon léger",
+   "ultimate": "Legoshi — Déchaînement : Instinct de loup"
+  }
+ },
+ {
+  "id": 128651,
+  "name": "Hanako",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Toilet-bound Hanako-kun",
+  "current": {
+   "basicAttack": "Frappe inspirée de Sceau des légendes",
+   "secondary": "Sceau des légendes",
+   "tertiary": "Hanako : Sceau des légendes — Pression ciblée",
+   "ultimate": "Hanako — Déchaînement : Sceau des légendes"
+  }
+ },
+ {
+  "id": 88350,
+  "name": "Roxy Migurdia",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Mushoku Tensei: Jobless Reincarnation",
+  "current": {
+   "basicAttack": "Frappe inspirée de Barrière de Roxy",
+   "secondary": "Barrière de Roxy",
+   "tertiary": "Roxy Migurdia : Barrière de Roxy — Garde protectrice",
+   "ultimate": "Roxy Migurdia — Déchaînement : Barrière de Roxy"
+  }
+ },
+ {
+  "id": 88348,
+  "name": "Rudeus Greyrat",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Mushoku Tensei: Jobless Reincarnation",
+  "current": {
+   "basicAttack": "Frappe inspirée de Magie sans incantation",
+   "secondary": "Magie sans incantation",
+   "tertiary": "Rudeus Greyrat : Magie sans incantation — Pression ciblée",
+   "ultimate": "Rudeus Greyrat — Déchaînement : Magie sans incantation"
+  }
+ },
+ {
+  "id": 88349,
+  "name": "Eris Boreas Greyrat",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Mushoku Tensei: Jobless Reincarnation",
+  "current": {
+   "basicAttack": "Frappe inspirée de Colère d'Eris",
+   "secondary": "Colère d'Eris",
+   "tertiary": "Eris Boreas Greyrat : Colère d'Eris — Élan bref",
+   "ultimate": "Eris Boreas Greyrat — Déchaînement : Colère d'Eris"
+  }
+ },
+ {
+  "id": 127691,
+  "name": "Satoru Gojou",
+  "rarity": "UR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Impulsion d'Infini",
+   "secondary": "Pourpre",
+   "tertiary": "Satoru Gojou : Impulsion d'Infini — Garde protectrice",
+   "ultimate": "Pourpre"
+  }
+ },
+ {
+  "id": 127212,
+  "name": "Yuuji Itadori",
+  "rarity": "UR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Coup divergeant",
+   "secondary": "Black Flash",
+   "tertiary": "Yuuji Itadori : Coup divergeant — Visée précise",
+   "ultimate": "Yuuji Itadori — Déchaînement : Coup divergeant"
+  }
+ },
+ {
+  "id": 126635,
+  "name": "Megumi Fushiguro",
+  "rarity": "UR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Coup de Nue",
+   "secondary": "Mahoraga",
+   "tertiary": "Megumi Fushiguro : Coup de Nue — Garde protectrice",
+   "ultimate": "Megumi Fushiguro — Déchaînement : Coup de Nue"
+  }
+ },
+ {
+  "id": 133704,
+  "name": "Kento Nanami",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Frappe du ratio",
+   "secondary": "Ratio 7:3",
+   "tertiary": "Kento Nanami : Frappe du ratio — Visée précise",
+   "ultimate": "Kento Nanami — Déchaînement : Frappe du ratio"
+  }
+ },
+ {
+  "id": 133700,
+  "name": "Nobara Kugisaki",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Clou résonnant",
+   "secondary": "Résonance",
+   "tertiary": "Nobara Kugisaki : Clou résonnant — Pression ciblée",
+   "ultimate": "Nobara Kugisaki — Déchaînement : Clou résonnant"
+  }
+ },
+ {
+  "id": 134167,
+  "name": "Maki Zenin",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Balayage à la lance",
+   "secondary": "Lance du rêve",
+   "tertiary": "Maki Zenin : Balayage à la lance — Percée mesurée",
+   "ultimate": "Maki Zenin — Déchaînement : Balayage à la lance"
+  }
+ },
+ {
+  "id": 133701,
+  "name": "Sukuna",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN: Execution -Shibuya Incident x The Culling Game Begins-",
+  "current": {
+   "basicAttack": "Démantèlement léger",
+   "secondary": "Démantèlement",
+   "tertiary": "Sukuna : Démantèlement léger — Percée mesurée",
+   "ultimate": "Extension du Sanctuaire"
+  }
+ },
+ {
+  "id": 129571,
+  "name": "Yuuta Okkotsu",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN 0",
+  "current": {
+   "basicAttack": "Coupe de katana avec Rika",
+   "secondary": "Rika",
+   "tertiary": "Yuuta Okkotsu : Coupe de katana avec Rika — Second souffle",
+   "ultimate": "Yuuta Okkotsu — Déchaînement : Coupe de katana avec Rika"
+  }
+ },
+ {
+  "id": 157115,
+  "name": "Toge Inumaki",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "« Reculez »",
+   "secondary": "Mot-clé : « Arrêtez-vous »",
+   "tertiary": "Toge Inumaki : « Reculez » — Pression ciblée",
+   "ultimate": "Toge Inumaki — Déchaînement : « Reculez »"
+  }
+ },
+ {
+  "id": 133699,
+  "name": "Suguru Getou",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "JUJUTSU KAISEN Season 2",
+  "current": {
+   "basicAttack": "Frappe de fléau",
+   "secondary": "Manipulation de malédiction",
+   "tertiary": "Suguru Getou : Frappe de fléau — Marque persistante",
+   "ultimate": "Suguru Getou — Déchaînement : Frappe de fléau"
+  }
+ },
+ {
+  "id": 162722,
+  "name": "Touji Fushiguro",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "JUJUTSU KAISEN Season 2",
+  "current": {
+   "basicAttack": "Pointe de lance inversée",
+   "secondary": "Lance inversée",
+   "tertiary": "Touji Fushiguro : Pointe de lance inversée — Percée mesurée",
+   "ultimate": "Touji Fushiguro — Déchaînement : Pointe de lance inversée"
+  }
+ },
+ {
+  "id": 137975,
+  "name": "Aoi Toudou",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "JUJUTSU KAISEN",
+  "current": {
+   "basicAttack": "Coup suivi d'une feinte",
+   "secondary": "Boogie Woogie",
+   "tertiary": "Aoi Toudou : Coup suivi d'une feinte — Élan bref",
+   "ultimate": "Aoi Toudou — Déchaînement : Coup suivi d'une feinte"
+  }
+ },
+ {
+  "id": 154224,
+  "name": "Mami Nanami",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Rent-a-Girlfriend",
+  "current": {
+   "basicAttack": "Frappe inspirée de Petite amie en location",
+   "secondary": "Petite amie en location",
+   "tertiary": "Mami Nanami : Petite amie en location — Pas de côté",
+   "ultimate": "Mami Nanami — Déchaînement : Petite amie en location"
+  }
+ },
+ {
+  "id": 128106,
+  "name": "Chizuru Ichinose",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Rent-a-Girlfriend",
+  "current": {
+   "basicAttack": "Frappe inspirée de Sourire parfait",
+   "secondary": "Sourire parfait",
+   "tertiary": "Chizuru Ichinose : Sourire parfait — Second souffle",
+   "ultimate": "Chizuru Ichinose — Déchaînement : Sourire parfait"
+  }
+ },
+ {
+  "id": 141061,
+  "name": "Vladilena Milizé",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "86 EIGHTY-SIX",
+  "current": {
+   "basicAttack": "Frappe inspirée de Reine écarlate",
+   "secondary": "Reine écarlate",
+   "tertiary": "Vladilena Milizé : Reine écarlate — Visée précise",
+   "ultimate": "Vladilena Milizé — Déchaînement : Reine écarlate"
+  }
+ },
+ {
+  "id": 174873,
+  "name": "Kurena Kukumila",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "86 EIGHTY-SIX Part 2",
+  "current": {
+   "basicAttack": "Frappe inspirée de Pilote d'élite",
+   "secondary": "Pilote d'élite",
+   "tertiary": "Kurena Kukumila : Pilote d'élite — Pas de côté",
+   "ultimate": "Kurena Kukumila — Déchaînement : Pilote d'élite"
+  }
+ },
+ {
+  "id": 141060,
+  "name": "Shinei Nouzen",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "86 EIGHTY-SIX",
+  "current": {
+   "basicAttack": "Frappe inspirée de Faucheur",
+   "secondary": "Faucheur",
+   "tertiary": "Shinei Nouzen : Faucheur — Percée mesurée",
+   "ultimate": "Shinei Nouzen — Déchaînement : Faucheur"
+  }
+ },
+ {
+  "id": 145341,
+  "name": "Manjirou Sano",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Tokyo Revengers",
+  "current": {
+   "basicAttack": "Frappe inspirée de Mikey invincible",
+   "secondary": "Mikey invincible",
+   "tertiary": "Manjirou Sano : Mikey invincible — Élan bref",
+   "ultimate": "Manjirou Sano — Déchaînement : Mikey invincible"
+  }
+ },
+ {
+  "id": 145344,
+  "name": "Chifuyu Matsuno",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Tokyo Revengers Season 2",
+  "current": {
+   "basicAttack": "Frappe inspirée de Cœur loyal",
+   "secondary": "Cœur loyal",
+   "tertiary": "Chifuyu Matsuno : Cœur loyal — Garde resserrée",
+   "ultimate": "Chifuyu Matsuno — Déchaînement : Cœur loyal"
+  }
+ },
+ {
+  "id": 145345,
+  "name": "Ken Ryuuguji",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Tokyo Revengers",
+  "current": {
+   "basicAttack": "Frappe inspirée de Dragon de Toman",
+   "secondary": "Dragon de Toman",
+   "tertiary": "Ken Ryuuguji : Dragon de Toman — Percée mesurée",
+   "ultimate": "Ken Ryuuguji — Déchaînement : Dragon de Toman"
+  }
+ },
+ {
+  "id": 284157,
+  "name": "Lucy",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Cyberpunk: Edgerunners",
+  "current": {
+   "basicAttack": "Frappe inspirée de Netrunner",
+   "secondary": "Netrunner",
+   "tertiary": "Lucy : Netrunner — Pas de côté",
+   "ultimate": "Lucy — Déchaînement : Netrunner"
+  }
+ }
+]

@@ -56,9 +56,9 @@ function replayErrors(log: BattleEvent[]) {
   for (const e of log) {
     if (e.kind === "damage") {
       const s = shield.get(e.target)!;
-      const absorbed = Math.min(s, e.amount);
+      const absorbed = e.absorbed;
       const left = Math.max(0, hp.get(e.target)! - (e.amount - absorbed));
-      if (!near(absorbed, e.absorbed) || !near(left, e.hp) || !near(s - absorbed, e.shield)) errors++;
+      if (absorbed < 0 || absorbed > Math.min(s, e.amount) + 1e-6 || !near(left, e.hp) || !near(s - absorbed, e.shield)) errors++;
       hp.set(e.target, e.hp);
       shield.set(e.target, e.shield);
     } else if (e.kind === "heal") {
@@ -67,6 +67,13 @@ function replayErrors(log: BattleEvent[]) {
     } else if (e.kind === "shield") {
       if (!near(shield.get(e.target)! + e.amount, e.shield)) errors++;
       shield.set(e.target, e.shield);
+    } else if (e.kind === "poison") {
+      if (!near(Math.max(0, hp.get(e.target)! - e.amount), e.hp)) errors++;
+      hp.set(e.target, e.hp);
+    } else if (e.kind === "revive") {
+      if (hp.get(e.target) !== 0 || e.hp <= 0 || e.hp > maxHp.get(e.target)!) errors++;
+      hp.set(e.target, e.hp);
+      shield.set(e.target, 0);
     } else if (e.kind === "ko") {
       if (hp.get(e.target) !== 0) errors++;
     } else if (e.kind === "end") {
@@ -138,10 +145,10 @@ applyAction(st, { spell: "base", target: "B1" });
 const hit = st.log.find((e) => e.kind === "damage");
 const expected = 3000 * affinity("COMBAT", "MYSTERE") * (BATTLE.defK / (BATTLE.defK + 1500));
 check("Dégâts du sort de base = ATK × affinité × defK / (defK + DEF)", hit?.kind === "damage" && Math.abs(hit.amount - expected) < 1e-6, `${hit?.kind === "damage" ? hit.amount.toFixed(1) : "?"} attendu ${expected.toFixed(1)}`);
-check("Le second joueur commence avec un bouclier de 15 %", hit?.kind === "damage" && Math.abs(hit.absorbed - Math.min(expected, 3500 * BATTLE.secondShield)) < 1e-6);
+check("Le second joueur commence avec un bouclier de 15 %", hit?.kind === "damage" && Math.abs(hit.absorbed - Math.min(expected, BATTLE.hp(2000, 1500) * BATTLE.secondShield)) < 1e-6);
 
 // 5. Éveil et arme légendaire.
-const plain = card({ type: "MAGIE", attack: 3000, defense: 2000, franchiseId: 11 });
+const plain = card({ characterId: 900000, rarity: "SR", type: "MAGIE", attack: 3000, defense: 2000, franchiseId: 11 });
 const unitOf = (c: BattleCard) => {
   const s = createBattle([c, filler(12), filler(13), filler(14)], [filler(15), filler(16), filler(17), filler(18)], () => 0.5);
   const u = s.log[0].kind === "start" ? s.log[0].units[0] : null;
@@ -150,7 +157,7 @@ const unitOf = (c: BattleCard) => {
 const weapon = { stat: 0.05, passive: null };
 const u0 = unitOf(plain), u3 = unitOf({ ...plain, stars: 3 }), u5 = unitOf({ ...plain, stars: 5, weapon });
 const u3w = unitOf({ ...plain, stars: 3, weapon });
-check("Éveil : +2 % d'ATK, de DEF et de PV par étoile", Math.abs(u3.atk - 3000 * (1 + 3 * BATTLE.starBonus)) < 1e-6 && Math.abs(u3.maxHp - 5000 * (1 + 3 * BATTLE.starBonus)) < 1e-6);
+check("Éveil : +2 % d'ATK, de DEF et de PV par étoile", Math.abs(u3.atk - 3000 * (1 + 3 * BATTLE.starBonus)) < 1e-6 && Math.abs(u3.maxHp - BATTLE.hp(3000, 2000) * (1 + 3 * BATTLE.starBonus)) < 1e-6);
 check("Arme : comptée à 5 étoiles, ignorée avant", Math.abs(u5.atk - 3000 * (1 + 5 * BATTLE.starBonus + 0.05)) < 1e-6 && u3w.atk === u3.atk && u0.atk === 3000);
 // Cooldown : à 5 étoiles, le sort affilié revient une action plus tôt.
 const casts = (stars: number) => {

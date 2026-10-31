@@ -1,0 +1,422 @@
+[
+ {
+  "id": 1,
+  "name": "Spike Spiegel",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Cowboy Bebop",
+  "current": {
+   "basicAttack": "Frappe inspirée de Jeet Kune Do",
+   "secondary": "Jeet Kune Do",
+   "tertiary": "Spike Spiegel : Jeet Kune Do — Percée mesurée",
+   "ultimate": "Spike Spiegel — Déchaînement : Jeet Kune Do"
+  }
+ },
+ {
+  "id": 2,
+  "name": "Faye Valentine",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Cowboy Bebop",
+  "current": {
+   "basicAttack": "Frappe inspirée de Bluff",
+   "secondary": "Bluff",
+   "tertiary": "Faye Valentine : Bluff — Pas de côté",
+   "ultimate": "Faye Valentine — Déchaînement : Bluff"
+  }
+ },
+ {
+  "id": 719,
+  "name": "Johan Liebert",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Monster",
+  "current": {
+   "basicAttack": "Frappe inspirée de Le monstre sans nom",
+   "secondary": "Le monstre sans nom",
+   "tertiary": "Johan Liebert : Le monstre sans nom — Pression ciblée",
+   "ultimate": "Johan Liebert — Déchaînement : Le monstre sans nom"
+  }
+ },
+ {
+  "id": 718,
+  "name": "Kenzou Tenma",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Monster",
+  "current": {
+   "basicAttack": "Frappe inspirée de Le serment du médecin",
+   "secondary": "Le serment du médecin",
+   "tertiary": "Kenzou Tenma : Le serment du médecin — Second souffle",
+   "ultimate": "Kenzou Tenma — Déchaînement : Le serment du médecin"
+  }
+ },
+ {
+  "id": 3096,
+  "name": "Wolfgang Grimmer",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Monster",
+  "current": {
+   "basicAttack": "Frappe inspirée de Interrogatoire",
+   "secondary": "Interrogatoire",
+   "tertiary": "Wolfgang Grimmer : Interrogatoire — Pression ciblée",
+   "ultimate": "Wolfgang Grimmer — Déchaînement : Interrogatoire"
+  }
+ },
+ {
+  "id": 14,
+  "name": "Itachi Uchiha",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "NARUTO: Shippuuden - Sunny Side Battle!!!",
+  "current": {
+   "basicAttack": "Shuriken Sharingan",
+   "secondary": "Tsukuyomi",
+   "tertiary": "Itachi Uchiha : Shuriken Sharingan — Pression ciblée",
+   "ultimate": "Itachi Uchiha — Déchaînement : Shuriken Sharingan"
+  }
+ },
+ {
+  "id": 85,
+  "name": "Kakashi Hatake",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Naruto",
+  "current": {
+   "basicAttack": "Kunai copié",
+   "secondary": "Raikiri",
+   "tertiary": "Kakashi Hatake : Kunai copié — Visée précise",
+   "ultimate": "Kamui — Éclair copié"
+  }
+ },
+ {
+  "id": 17,
+  "name": "Naruto Uzumaki",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Naruto",
+  "current": {
+   "basicAttack": "Rasengan direct",
+   "secondary": "Mode Kyubi",
+   "tertiary": "Naruto Uzumaki : Rasengan direct — Élan bref",
+   "ultimate": "Naruto Uzumaki — Déchaînement : Rasengan direct"
+  }
+ },
+ {
+  "id": 13,
+  "name": "Sasuke Uchiha",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Naruto",
+  "current": {
+   "basicAttack": "Kunai de foudre",
+   "secondary": "Amaterasu",
+   "tertiary": "Sasuke Uchiha : Kunai de foudre — Brèche tactique",
+   "ultimate": "Sasuke Uchiha — Déchaînement : Kunai de foudre"
+  }
+ },
+ {
+  "id": 2007,
+  "name": "Shikamaru Nara",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "The Last: Naruto the Movie",
+  "current": {
+   "basicAttack": "Ombre croisée",
+   "secondary": "Possession des ombres",
+   "tertiary": "Shikamaru Nara : Ombre croisée — Pression ciblée",
+   "ultimate": "Possession des ombres"
+  }
+ },
+ {
+  "id": 1662,
+  "name": "Gaara",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Naruto",
+  "current": {
+   "basicAttack": "Poing de sable",
+   "secondary": "Armure de sable",
+   "tertiary": "Gaara : Poing de sable — Garde resserrée",
+   "ultimate": "Gaara — Déchaînement : Poing de sable"
+  }
+ },
+ {
+  "id": 2423,
+  "name": "Jiraiya",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Naruto",
+  "current": {
+   "basicAttack": "Rasengan crapaud",
+   "secondary": "Rasengan crapaud",
+   "tertiary": "Jiraiya : Rasengan crapaud — Brèche tactique",
+   "ultimate": "Jiraiya — Déchaînement : Rasengan crapaud"
+  }
+ },
+ {
+  "id": 40,
+  "name": "Luffy Monkey",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Pistolet Gum-Gum",
+   "secondary": "Gomu Gomu no Gatling",
+   "tertiary": "Luffy Monkey : Pistolet Gum-Gum — Percée mesurée",
+   "ultimate": "Gear Second"
+  }
+ },
+ {
+  "id": 62,
+  "name": "Zoro Roronoa",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Coupe à trois sabres",
+   "secondary": "Santoryu Ogi",
+   "tertiary": "Zoro Roronoa : Coupe à trois sabres — Visée précise",
+   "ultimate": "Zoro Roronoa — Déchaînement : Coupe à trois sabres"
+  }
+ },
+ {
+  "id": 305,
+  "name": "Sanji",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Coup de pied enflammé",
+   "secondary": "Diable Jambe",
+   "tertiary": "Sanji : Coup de pied enflammé — Élan bref",
+   "ultimate": "Sanji — Déchaînement : Coup de pied enflammé"
+  }
+ },
+ {
+  "id": 61,
+  "name": "Robin Nico",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Bras fleuri",
+   "secondary": "Mil Fleur",
+   "tertiary": "Robin Nico : Bras fleuri — Brèche tactique",
+   "ultimate": "Robin Nico — Déchaînement : Bras fleuri"
+  }
+ },
+ {
+  "id": 13767,
+  "name": "Law Trafalgar",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Coupe de Kikoku",
+   "secondary": "Shambles",
+   "tertiary": "Law Trafalgar : Coupe de Kikoku — Percée mesurée",
+   "ultimate": "Law Trafalgar — Déchaînement : Coupe de Kikoku"
+  }
+ },
+ {
+  "id": 723,
+  "name": "Nami",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Frappe du Clima-Tact",
+   "secondary": "Thunderbolt Tempo",
+   "tertiary": "Nami : Frappe du Clima-Tact — Pression ciblée",
+   "ultimate": "Nami — Déchaînement : Frappe du Clima-Tact"
+  }
+ },
+ {
+  "id": 2072,
+  "name": "Ace Portgas",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "One Piece - Episode of Sabo: Bond of Three Brothers - A Miraculous Reunion and an Inherited Will",
+  "current": {
+   "basicAttack": "Flamme légère",
+   "secondary": "Hiken",
+   "tertiary": "Ace Portgas : Flamme légère — Marque persistante",
+   "ultimate": "Ace Portgas — Déchaînement : Flamme légère"
+  }
+ },
+ {
+  "id": 309,
+  "name": "Chopper Tony Tony",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Coup de sabot",
+   "secondary": "Rumble Ball",
+   "tertiary": "Chopper Tony Tony : Coup de sabot — Second souffle",
+   "ultimate": "Horn Point — Réanimation"
+  }
+ },
+ {
+  "id": 724,
+  "name": "Usopp",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "ONE PIECE",
+  "current": {
+   "basicAttack": "Étoile explosive",
+   "secondary": "Kemuri Boshi",
+   "tertiary": "Usopp : Étoile explosive — Marque persistante",
+   "ultimate": "Usopp — Déchaînement : Étoile explosive"
+  }
+ },
+ {
+  "id": 94,
+  "name": "Asuka Langley Souryuu",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Neon Genesis Evangelion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Unit-02 déchaîné",
+   "secondary": "Unit-02 déchaîné",
+   "tertiary": "Asuka Langley Souryuu : Unit-02 déchaîné — Élan bref",
+   "ultimate": "Asuka Langley Souryuu — Déchaînement : Unit-02 déchaîné"
+  }
+ },
+ {
+  "id": 86,
+  "name": "Rei Ayanami",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Neon Genesis Evangelion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Champ A.T.",
+   "secondary": "Champ A.T.",
+   "tertiary": "Rei Ayanami : Champ A.T. — Garde protectrice",
+   "ultimate": "Rei Ayanami — Déchaînement : Champ A.T."
+  }
+ },
+ {
+  "id": 89,
+  "name": "Shinji Ikari",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Neon Genesis Evangelion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Synchronisation",
+   "secondary": "Synchronisation",
+   "tertiary": "Shinji Ikari : Synchronisation — Élan bref",
+   "ultimate": "Shinji Ikari — Déchaînement : Synchronisation"
+  }
+ },
+ {
+  "id": 1259,
+  "name": "Misato Katsuragi",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Neon Genesis Evangelion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Ordre de tir",
+   "secondary": "Ordre de tir",
+   "tertiary": "Misato Katsuragi : Ordre de tir — Visée précise",
+   "ultimate": "Misato Katsuragi — Déchaînement : Ordre de tir"
+  }
+ },
+ {
+  "id": 422,
+  "name": "Guts",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Berserk",
+  "current": {
+   "basicAttack": "Coup de Dragonslayer",
+   "secondary": "Dragonslayer",
+   "tertiary": "Guts : Coup de Dragonslayer — Percée mesurée",
+   "ultimate": "Berserk — Dragonslayer"
+  }
+ },
+ {
+  "id": 424,
+  "name": "Griffith",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Berserk",
+  "current": {
+   "basicAttack": "Pointe de rapière",
+   "secondary": "Éclipse",
+   "tertiary": "Griffith : Pointe de rapière — Visée précise",
+   "ultimate": "Éclipse"
+  }
+ },
+ {
+  "id": 434,
+  "name": "Eikichi Onizuka",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "GTO: Great Teacher Onizuka",
+  "current": {
+   "basicAttack": "Frappe inspirée de Leçon de vie",
+   "secondary": "Leçon de vie",
+   "tertiary": "Eikichi Onizuka : Leçon de vie — Garde resserrée",
+   "ultimate": "Eikichi Onizuka — Déchaînement : Leçon de vie"
+  }
+ },
+ {
+  "id": 5,
+  "name": "Ichigo Kurosaki",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Bleach",
+  "current": {
+   "basicAttack": "Frappe inspirée de Getsuga Tenshou",
+   "secondary": "Getsuga Tenshou",
+   "tertiary": "Ichigo Kurosaki : Getsuga Tenshou — Élan bref",
+   "ultimate": "Ichigo Kurosaki — Déchaînement : Getsuga Tenshou"
+  }
+ },
+ {
+  "id": 210,
+  "name": "Kisuke Urahara",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Bleach",
+  "current": {
+   "basicAttack": "Frappe inspirée de Benihime",
+   "secondary": "Benihime",
+   "tertiary": "Kisuke Urahara : Benihime — Brèche tactique",
+   "ultimate": "Kisuke Urahara — Déchaînement : Benihime"
+  }
+ }
+]

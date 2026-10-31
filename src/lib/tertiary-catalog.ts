@@ -2,11 +2,12 @@
 // Catalogue autonome, préparé pour un actif à recharge courte. Les riders restent modestes :
 // un seul effet léger, sans contrôle dur, zone, résurrection ni dégâts extrêmes.
 import type { CharacterSpell, Effect } from "./spells";
+import { TERTIARY_DATA } from "./skill-data";
 
 const S = (name: string, effects: Effect[]): CharacterSpell => ({ name, target: "foe", effects });
 
 /** Les 236 IDs du roster SSR/UR actif, avec une technique et un rider propre à chacun. */
-export const TERTIARY_SPELLS: Record<number, CharacterSpell> = {
+const LEGACY_TERTIARY: Record<number, CharacterSpell> = {
   1: S("Spike Spiegel : Jeet Kune Do — Percée mesurée", [{"k": "damage", "mult": 0.72, "ignoreDef": 0.12}]),
   2: S("Faye Valentine : Bluff — Pas de côté", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "dodge", "amount": 0.06, "turns": 1, "to": "self"}]),
   5: S("Ichigo Kurosaki : Getsuga Tenshou — Élan bref", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "atk", "amount": 0.08, "turns": 1, "to": "self"}]),
@@ -244,3 +245,6 @@ export const TERTIARY_SPELLS: Record<number, CharacterSpell> = {
   261674: S("Nijika Ijichi : Rythme de batterie — Visée précise", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "crit", "amount": 0.06, "turns": 1, "to": "self"}]),
   284157: S("Lucy : Netrunner — Pas de côté", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "dodge", "amount": 0.06, "turns": 1, "to": "self"}]),
 };
+
+/** Sorts réécrits (skill-data.json) en priorité, ancien catalogue en repli. */
+export const TERTIARY_SPELLS: Record<number, CharacterSpell> = { ...LEGACY_TERTIARY, ...TERTIARY_DATA };

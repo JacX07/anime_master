@@ -1,0 +1,1558 @@
+[
+ {
+  "id": 35252,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Message D-Mail",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.12,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.15,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Manifeste du Savant Fou",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.28,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Reading Steiner",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.28,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 38005,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Arrêt du temps",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.8
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Boucle du temps",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 1,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.28,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Bombardement de l'arsenal",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.8,
+     "zone": true
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 500,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Vers de Zouken",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "poison",
+     "pct": 0.05,
+     "turns": 3,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Ombre rampante",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.28,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.25,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Ombre dévorante",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5,
+     "zone": true
+    },
+    {
+     "k": "poison",
+     "pct": 0.08,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 498,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Gemme de rubis",
+   "target": "ally",
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.14,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Gemme de topaze",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.15,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.26,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Gemme de dix ans",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.28,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 497,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Invisible Air",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.4
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Charisme du Roi des Chevaliers",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.15,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Excalibur",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 2.1,
+     "zone": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 2514,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Gate of Babylon",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.75,
+     "zone": true
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Enkidu, chaîne des cieux",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.5
+    },
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Ea, l'épée de la rupture",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.8,
+     "pierce": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 10010,
+  "orientation": "hybride",
+  "secondary": {
+   "name": "Thompson Contender",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3,
+     "critSure": true
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Time Alter : Double Accel",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.18,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Balle d'Origine",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.2,
+     "pierce": true
+    },
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  }
+ },
+ {
+  "id": 27,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Godspeed",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.1
+    },
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.22,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Narukami",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.5
+    },
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Foudre divine Kanmuru",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.5,
+     "critSure": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 28,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Chaîne Sagittaire",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.9
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Chaîne de l'Emprise",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "target"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Chaîne du jugement",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 30,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Jajanken : Gu",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Vœu de détermination",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.15,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Jajanken : Pierre ultime",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.8
+    }
+   ]
+  }
+ },
+ {
+  "id": 31,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Bungee Gum",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.1
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Texture Surprise",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.28,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Cœur de Joker",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.6,
+     "zone": true
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 58,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Skill Hunter",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "target"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Pages du Livre du Bandit",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.28,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Secret du Bandit",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 23277,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Garde royale",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.25,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Dignité du roi",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Colère de la Chimère",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5,
+     "zone": true
+    },
+    {
+     "k": "reduce",
+     "pct": 0.4,
+     "turns": 3,
+     "to": "self"
+    }
+   ]
+  }
+ },
+ {
+  "id": 36828,
+  "orientation": "hybride",
+  "secondary": {
+   "name": "Lambent Light",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Bénédiction du chevalier",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.26,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Mother's Rosario",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.4
+    }
+   ]
+  }
+ },
+ {
+  "id": 36765,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Horizontal Square",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Double lame",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.25,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Eclipse",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.6
+    }
+   ]
+  }
+ },
+ {
+  "id": 55131,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Analyse économe",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.12,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Reconstitution des faits",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.25,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Déduction finale",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.45,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.3,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 6356,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Hermit Purple",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Ruse de Joseph",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.18,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Hamon Overdrive",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.4,
+     "zone": true
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.35,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 4003,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Ora Ora",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Star Platinum : Arrêt du temps",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.4,
+     "turns": 1,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 1,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Star Platinum : The World",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.8,
+     "critSure": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 11772,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Steel Ball",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.1
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Rotation dorée",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.26,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Golden Spin",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.28,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 4004,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Couteaux lancés",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.3
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Suçage de sang",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.6,
+     "drain": 0.5
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.25,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "The World, Za Warudo",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.7,
+     "critSure": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 13085,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Crazy Diamond : Restauration",
+   "target": "ally",
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.15,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Crazy Diamond : Réparation",
+   "target": null,
+   "effects": [
+    {
+     "k": "heal",
+     "pct": 0.22,
+     "to": "team"
+    },
+    {
+     "k": "purge",
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Crazy Diamond : Retour en arrière",
+   "target": "deadAlly",
+   "effects": [
+    {
+     "k": "revive",
+     "pct": 0.6
+    },
+    {
+     "k": "heal",
+     "pct": 0.25,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 12055,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Killer Queen",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Sheer Heart Attack",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.4
+    },
+    {
+     "k": "poison",
+     "pct": 0.07,
+     "turns": 3,
+     "to": "target"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Bites the Dust",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 2,
+     "zone": true
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 11222,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Cocon de fils",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.1,
+     "to": "team"
+    },
+    {
+     "k": "reduce",
+     "pct": 0.22,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Filet de Stone Free",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.32,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Stone Free : fils de l'océan",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 3
+    },
+    {
+     "k": "reduce",
+     "pct": 0.5,
+     "turns": 3,
+     "to": "self"
+    },
+    {
+     "k": "shield",
+     "pct": 0.2,
+     "to": "self"
+    }
+   ]
+  }
+ },
+ {
+  "id": 19492,
+  "orientation": "attaque",
+  "secondary": {
+   "name": "Tusk : Acte 1",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.2
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Rotation infinie",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Tusk : Acte 4",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 4.8,
+     "pierce": true
+    }
+   ]
+  }
+ },
+ {
+  "id": 12659,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Heaven's Door",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "silence",
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Réécriture imposée",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "target"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "target"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Pages du manga",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 10529,
+  "orientation": "hybride",
+  "secondary": {
+   "name": "Gold Experience",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.2
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Création de vie",
+   "target": null,
+   "effects": [
+    {
+     "k": "regen",
+     "pct": 0.06,
+     "turns": 3,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Gold Experience Requiem",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 3.8
+    },
+    {
+     "k": "heal",
+     "pct": 0.25,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 13045,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Fermeture éclair",
+   "target": null,
+   "effects": [
+    {
+     "k": "reduce",
+     "pct": 0.25,
+     "turns": 2,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "def",
+     "amount": 0.2,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Arrangement de Passione",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.3,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Arrivederci",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 3
+    },
+    {
+     "k": "reduce",
+     "pct": 0.35,
+     "turns": 3,
+     "to": "team"
+    },
+    {
+     "k": "shield",
+     "pct": 0.22,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 65865,
+  "orientation": "soutien",
+  "secondary": {
+   "name": "Œil du Tyran",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "dodge",
+     "amount": 0.18,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Maître de la Flamme Noire",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": 0.3,
+     "turns": 2,
+     "to": "team"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": 0.18,
+     "turns": 2,
+     "to": "team"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Éveil de l'Œil du Tyran",
+   "target": null,
+   "effects": [
+    {
+     "k": "shield",
+     "pct": 0.26,
+     "to": "team"
+    },
+    {
+     "k": "heal",
+     "pct": 0.3,
+     "to": "team"
+    }
+   ]
+  }
+ },
+ {
+  "id": 67065,
+  "orientation": "tank",
+  "secondary": {
+   "name": "Jugement du solitaire",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 1
+    },
+    {
+     "k": "reduce",
+     "pct": 0.25,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Sacrifice de Hikigaya",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 2
+    },
+    {
+     "k": "reduce",
+     "pct": 0.32,
+     "turns": 2,
+     "to": "self"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Méthode de la réalité",
+   "target": null,
+   "effects": [
+    {
+     "k": "taunt",
+     "turns": 3
+    },
+    {
+     "k": "reduce",
+     "pct": 0.45,
+     "turns": 3,
+     "to": "self"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.35,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ },
+ {
+  "id": 67067,
+  "orientation": "controle",
+  "secondary": {
+   "name": "Glace silencieuse",
+   "target": "foe",
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 0.9
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "target"
+    }
+   ]
+  },
+  "tertiary": {
+   "name": "Gel hivernal",
+   "target": null,
+   "effects": [
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.3,
+     "turns": 2,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "crit",
+     "amount": -0.2,
+     "turns": 2,
+     "to": "foes"
+    }
+   ]
+  },
+  "ultimate": {
+   "name": "Monde de glace",
+   "target": null,
+   "effects": [
+    {
+     "k": "damage",
+     "mult": 1.5,
+     "zone": true
+    },
+    {
+     "k": "silence",
+     "turns": 1,
+     "to": "foes"
+    },
+    {
+     "k": "mod",
+     "stat": "atk",
+     "amount": -0.4,
+     "turns": 3,
+     "to": "foes"
+    }
+   ]
+  }
+ }
+]

@@ -1,0 +1,422 @@
+[
+ {
+  "id": 6,
+  "name": "Rukia Kuchiki",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Bleach",
+  "current": {
+   "basicAttack": "Frappe inspirée de Tsukishiro",
+   "secondary": "Tsukishiro",
+   "tertiary": "Rukia Kuchiki : Tsukishiro — Pression ciblée",
+   "ultimate": "Rukia Kuchiki — Déchaînement : Tsukishiro"
+  }
+ },
+ {
+  "id": 908,
+  "name": "Yoruichi Shihouin",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Bleach",
+  "current": {
+   "basicAttack": "Frappe inspirée de Shunko",
+   "secondary": "Shunko",
+   "tertiary": "Yoruichi Shihouin : Shunko — Pas de côté",
+   "ultimate": "Yoruichi Shihouin — Déchaînement : Shunko"
+  }
+ },
+ {
+  "id": 1086,
+  "name": "Sousuke Aizen",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Bleach",
+  "current": {
+   "basicAttack": "Frappe inspirée de Kyoka Suigetsu",
+   "secondary": "Kyoka Suigetsu",
+   "tertiary": "Sousuke Aizen : Kyoka Suigetsu — Trouble-fête",
+   "ultimate": "Sousuke Aizen — Déchaînement : Kyoka Suigetsu"
+  }
+ },
+ {
+  "id": 2219,
+  "name": "Lain Iwakura",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Serial Experiments Lain",
+  "current": {
+   "basicAttack": "Frappe inspirée de Le Wired",
+   "secondary": "Le Wired",
+   "tertiary": "Lain Iwakura : Le Wired — Pression ciblée",
+   "ultimate": "Lain Iwakura — Déchaînement : Le Wired"
+  }
+ },
+ {
+  "id": 507,
+  "name": "Howl",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Howl‘s Moving Castle",
+  "current": {
+   "basicAttack": "Frappe inspirée de Château ambulant",
+   "secondary": "Château ambulant",
+   "tertiary": "Howl : Château ambulant — Garde protectrice",
+   "ultimate": "Howl — Déchaînement : Château ambulant"
+  }
+ },
+ {
+  "id": 246,
+  "name": "Gokuu Son",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Dragon Ball Z",
+  "current": {
+   "basicAttack": "Frappe inspirée de Kaio-ken",
+   "secondary": "Kaio-ken",
+   "tertiary": "Gokuu Son : Kaio-ken — Élan bref",
+   "ultimate": "Gokuu Son — Déchaînement : Kaio-ken"
+  }
+ },
+ {
+  "id": 913,
+  "name": "Vegeta",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Dragon Ball Z",
+  "current": {
+   "basicAttack": "Frappe inspirée de Final Flash",
+   "secondary": "Final Flash",
+   "tertiary": "Vegeta : Final Flash — Percée mesurée",
+   "ultimate": "Vegeta — Déchaînement : Final Flash"
+  }
+ },
+ {
+  "id": 702,
+  "name": "Nana Oosaki",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "NANA",
+  "current": {
+   "basicAttack": "Frappe inspirée de Black Stones",
+   "secondary": "Black Stones",
+   "tertiary": "Nana Oosaki : Black Stones — Élan bref",
+   "ultimate": "Nana Oosaki — Déchaînement : Black Stones"
+  }
+ },
+ {
+  "id": 458,
+  "name": "Revy",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Black Lagoon",
+  "current": {
+   "basicAttack": "Frappe inspirée de Two Hands",
+   "secondary": "Two Hands",
+   "tertiary": "Revy : Two Hands — Pression ciblée",
+   "ultimate": "Revy — Déchaînement : Two Hands"
+  }
+ },
+ {
+  "id": 672,
+  "name": "Gintoki Sakata",
+  "rarity": "UR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Gintama",
+  "current": {
+   "basicAttack": "Frappe inspirée de Lame de bois",
+   "secondary": "Lame de bois",
+   "tertiary": "Gintoki Sakata : Lame de bois — Visée précise",
+   "ultimate": "Gintoki Sakata — Déchaînement : Lame de bois"
+  }
+ },
+ {
+  "id": 71,
+  "name": "L Lawliet",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Death Note",
+  "current": {
+   "basicAttack": "Frappe inspirée de Déduction",
+   "secondary": "Déduction",
+   "tertiary": "L Lawliet : Déduction — Brèche tactique",
+   "ultimate": "L Lawliet — Déchaînement : Déduction"
+  }
+ },
+ {
+  "id": 80,
+  "name": "Light Yagami",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Death Note",
+  "current": {
+   "basicAttack": "Frappe inspirée de Crise cardiaque",
+   "secondary": "Crise cardiaque",
+   "tertiary": "Light Yagami : Crise cardiaque — Marque persistante",
+   "ultimate": "Light Yagami — Déchaînement : Crise cardiaque"
+  }
+ },
+ {
+  "id": 75,
+  "name": "Ryuk",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Death Note",
+  "current": {
+   "basicAttack": "Frappe inspirée de Pomme du shinigami",
+   "secondary": "Pomme du shinigami",
+   "tertiary": "Ryuk : Pomme du shinigami — Pression ciblée",
+   "ultimate": "Ryuk — Déchaînement : Pomme du shinigami"
+  }
+ },
+ {
+  "id": 835,
+  "name": "Misa Amane",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Death Note",
+  "current": {
+   "basicAttack": "Frappe inspirée de Yeux de shinigami",
+   "secondary": "Yeux de shinigami",
+   "tertiary": "Misa Amane : Yeux de shinigami — Visée précise",
+   "ultimate": "Misa Amane — Déchaînement : Yeux de shinigami"
+  }
+ },
+ {
+  "id": 417,
+  "name": "Lelouch Lamperouge",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Code Geass: Lelouch of the Rebellion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Geass",
+   "secondary": "Geass",
+   "tertiary": "Lelouch Lamperouge : Geass — Pression ciblée",
+   "ultimate": "Lelouch Lamperouge — Déchaînement : Geass"
+  }
+ },
+ {
+  "id": 1111,
+  "name": "C.C.",
+  "rarity": "SSR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Code Geass: Lelouch of the Rebellion",
+  "current": {
+   "basicAttack": "Frappe inspirée de Code",
+   "secondary": "Code",
+   "tertiary": "C.C. : Code — Second souffle",
+   "ultimate": "C.C. — Déchaînement : Code"
+  }
+ },
+ {
+  "id": 2075,
+  "name": "Kamina",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Gurren Lagann",
+  "current": {
+   "basicAttack": "Frappe inspirée de Qui crois-tu que je sois ?!",
+   "secondary": "Qui crois-tu que je sois ?!",
+   "tertiary": "Kamina : Qui crois-tu que je sois ?! — Élan bref",
+   "ultimate": "Kamina — Déchaînement : Qui crois-tu que je sois ?!"
+  }
+ },
+ {
+  "id": 2257,
+  "name": "Simon",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Gurren Lagann",
+  "current": {
+   "basicAttack": "Frappe inspirée de Giga Drill Break",
+   "secondary": "Giga Drill Break",
+   "tertiary": "Simon : Giga Drill Break — Percée mesurée",
+   "ultimate": "Simon — Déchaînement : Giga Drill Break"
+  }
+ },
+ {
+  "id": 7373,
+  "name": "Holo",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Spice and Wolf",
+  "current": {
+   "basicAttack": "Frappe inspirée de Marchandage",
+   "secondary": "Marchandage",
+   "tertiary": "Holo : Marchandage — Brèche tactique",
+   "ultimate": "Holo — Déchaînement : Marchandage"
+  }
+ },
+ {
+  "id": 8455,
+  "name": "Death the Kid",
+  "rarity": "SSR",
+  "type": "COMBAT",
+  "roleInAnime": "MAIN",
+  "anime": "Soul Eater",
+  "current": {
+   "basicAttack": "Frappe inspirée de Death Cannon",
+   "secondary": "Death Cannon",
+   "tertiary": "Death the Kid : Death Cannon — Pression ciblée",
+   "ultimate": "Death the Kid — Déchaînement : Death Cannon"
+  }
+ },
+ {
+  "id": 12064,
+  "name": "Taiga Aisaka",
+  "rarity": "SSR",
+  "type": "COEUR",
+  "roleInAnime": "MAIN",
+  "anime": "Toradora!",
+  "current": {
+   "basicAttack": "Frappe inspirée de Tigre de poche",
+   "secondary": "Tigre de poche",
+   "tertiary": "Taiga Aisaka : Tigre de poche — Élan bref",
+   "ultimate": "Taiga Aisaka — Déchaînement : Tigre de poche"
+  }
+ },
+ {
+  "id": 22037,
+  "name": "Hitagi Senjougahara",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Bakemonogatari",
+  "current": {
+   "basicAttack": "Frappe inspirée de Agrafes",
+   "secondary": "Agrafes",
+   "tertiary": "Hitagi Senjougahara : Agrafes — Brèche tactique",
+   "ultimate": "Hitagi Senjougahara — Déchaînement : Agrafes"
+  }
+ },
+ {
+  "id": 23602,
+  "name": "Shinobu Oshino",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Nisemonogatari",
+  "current": {
+   "basicAttack": "Frappe inspirée de Vampire",
+   "secondary": "Vampire",
+   "tertiary": "Shinobu Oshino : Vampire — Siphon léger",
+   "ultimate": "Shinobu Oshino — Déchaînement : Vampire"
+  }
+ },
+ {
+  "id": 22036,
+  "name": "Koyomi Araragi",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Bakemonogatari",
+  "current": {
+   "basicAttack": "Frappe inspirée de Régénération",
+   "secondary": "Régénération",
+   "tertiary": "Koyomi Araragi : Régénération — Second souffle",
+   "ultimate": "Koyomi Araragi — Déchaînement : Régénération"
+  }
+ },
+ {
+  "id": 22055,
+  "name": "Tsubasa Hanekawa",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Bakemonogatari",
+  "current": {
+   "basicAttack": "Frappe inspirée de Sawarineko",
+   "secondary": "Sawarineko",
+   "tertiary": "Tsubasa Hanekawa : Sawarineko — Garde protectrice",
+   "ultimate": "Tsubasa Hanekawa — Déchaînement : Sawarineko"
+  }
+ },
+ {
+  "id": 11,
+  "name": "Edward Elric",
+  "rarity": "UR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Fullmetal Alchemist: Brotherhood",
+  "current": {
+   "basicAttack": "Frappe inspirée de Alchimie sans cercle",
+   "secondary": "Alchimie sans cercle",
+   "tertiary": "Edward Elric : Alchimie sans cercle — Percée mesurée",
+   "ultimate": "Edward Elric — Déchaînement : Alchimie sans cercle"
+  }
+ },
+ {
+  "id": 68,
+  "name": "Roy Mustang",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "SUPPORTING",
+  "anime": "Fullmetal Alchemist: Brotherhood",
+  "current": {
+   "basicAttack": "Frappe inspirée de Flame Alchemy",
+   "secondary": "Flame Alchemy",
+   "tertiary": "Roy Mustang : Flame Alchemy — Pression ciblée",
+   "ultimate": "Roy Mustang — Déchaînement : Flame Alchemy"
+  }
+ },
+ {
+  "id": 12,
+  "name": "Alphonse Elric",
+  "rarity": "SSR",
+  "type": "AVENTURE",
+  "roleInAnime": "MAIN",
+  "anime": "Fullmetal Alchemist: Brotherhood",
+  "current": {
+   "basicAttack": "Frappe inspirée de Armure d'Al",
+   "secondary": "Armure d'Al",
+   "tertiary": "Alphonse Elric : Armure d'Al — Garde protectrice",
+   "ultimate": "Alphonse Elric — Déchaînement : Armure d'Al"
+  }
+ },
+ {
+  "id": 5189,
+  "name": "Erza Scarlet",
+  "rarity": "SSR",
+  "type": "MAGIE",
+  "roleInAnime": "MAIN",
+  "anime": "Fairy Tail",
+  "current": {
+   "basicAttack": "Frappe inspirée de Armure Purgatoire",
+   "secondary": "Armure Purgatoire",
+   "tertiary": "Erza Scarlet : Armure Purgatoire — Percée mesurée",
+   "ultimate": "Erza Scarlet — Déchaînement : Armure Purgatoire"
+  }
+ },
+ {
+  "id": 34470,
+  "name": "Kurisu Makise",
+  "rarity": "UR",
+  "type": "MYSTERE",
+  "roleInAnime": "MAIN",
+  "anime": "Steins;Gate",
+  "current": {
+   "basicAttack": "Frappe inspirée de Contre-argument",
+   "secondary": "Contre-argument",
+   "tertiary": "Kurisu Makise : Contre-argument — Pression ciblée",
+   "ultimate": "Kurisu Makise — Déchaînement : Contre-argument"
+  }
+ }
+]

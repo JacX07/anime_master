@@ -22,7 +22,7 @@ Un vrai combat de cartes, où le type, la rareté et les synergies d'équipe com
 - **Ordre de jeu** : l'équipe qui possède la carte avec la plus haute **Puissance** commence. Cela donne une utilité à la Puissance.
 
 ### 1. Stats de combat
-- **PV** = ATK + DEF de la carte (stats de base de l'étape 1, §6).
+- **PV** = 2,8 × (ATK + DEF) de la carte (stats de base de l'étape 1, §6). Ce facteur laisse plusieurs tours aux protections et aux soins avant les ultimes.
 - **Dégâts** = ATK × % du sort × affinité × 2000 / (2000 + DEF de la cible). La DEF divise les dégâts par deux quand elle vaut 2000. Plancher : 10 % de l'ATK.
 - **Critique** : 15 % de chance, dégâts ×1,5. **Variation** : ±10 % sur chaque coup.
 - **Cible** : choisie par le joueur en mode manuel ; en automatique, l'ennemi vivant avec le moins de PV.
@@ -62,24 +62,28 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 **Ultime** : se charge en combat (§4 ter). Son activation utilise l'action de la carte ; l'IA automatique le privilégie dès qu'il peut être lancé utilement.
 
 ### 4 bis. Sorts secondaires et tertiaires personnalisés *(intégrés)*
-Les SSR et UR ont deux sorts actifs personnalisés en plus de leur attaque de base, de leur sort affilié et de leur ultime. Les deux sont disponibles en manuel et en automatique ; une carte ne lance qu'un sort par action.
+Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire et ultime. Ils sont disponibles en manuel et en automatique ; une carte ne lance qu'un sort par tour de cette carte.
 
-- Le **secondaire** est défini dans `src/lib/spells.ts`, avec un cooldown de 5 actions. Les 236 SSR/UR ont une entrée, nommée et personnalisée ; les entrées restantes utilisent des archétypes thématiques. Les effets quantitatifs sont modérés au coefficient **0,6** (`balanceSecondary`) : dégâts de zone entre 0,4× et 0,5× ATK, coups directs avec silence plafonnés à 1,1× et coups qui traversent les boucliers à 1,25×, ignore-DEF plafonné à 10–15 %, poison à 3 % par action, effets d'équipe/ennemis à 8 % (esquive d'équipe et réduction d'ATK ennemie à 5 %), boucliers d'équipe à 3 % et réanimations à 15–20 %.
-- **Archétypes** : les 28 secondaires de One Piece, Naruto et Jujutsu Kaisen sont écrits à la main (`CHARACTER_SPELLS`) ; les 208 autres SSR/UR reçoivent un **archétype** (`ARCH_SPELLS` : forme du sort, par exemple frappe qui traverse les boucliers, poison, silence, soin d'équipe, réanimation) et un nom propre. Les 24 archétypes et leur multiplicateur par rareté (`ARCH_MULT`, réglé par `npm run calibrate:archetypes`) sont dans `src/lib/spells.ts` ; le coefficient 0,6 ci-dessus s'applique ensuite à tous. Un sort écrit à la main l'emporte sur l'archétype. Les valeurs de `ARCH_MULT` sont **brutes** (avant coefficient) : elles visaient +4 points seuls, le coefficient les ramène vers 0 comme décidé pour le secondaire.
-- Le **tertiaire** est défini dans `src/lib/tertiary-catalog.ts` pour les 236 cartes. Il a un cooldown de **7 actions**, disponible dès la première, et combine en général une frappe autour de 1,05× ATK après coefficient et un petit effet d'une action.
-- `src/lib/character-skills.ts` contient les coefficients de balance. Les fiches et leur impact individuel sont dans le rapport de simulation §7.
+- `src/lib/skill-data.json` contient les **236 fiches réécrites**, chacune avec un secondaire, un tertiaire et un ultime nommés. `skill-data.ts` alimente les trois catalogues du moteur et de l'interface. Ces valeurs finales ne reçoivent plus les anciens coefficients de réduction.
+- Le **secondaire** se recharge en **5 tours** de la carte ; le **tertiaire** en **7 tours**. Les valeurs, noms et combinaisons sont propres à chaque personnage ; le tertiaire apporte surtout des bonus, malus et protections.
+- Les **ultimes** combinent jusqu'à quatre effets : gros dégâts, renfort d'équipe, protection, contrôle ou réanimation. La jauge reste décrite au §4 ter.
+- Les orientations servent seulement à la simulation : attaque 73, soutien 56, protection 29, contrôle 49, hybride 29. Aucun rôle explicite n'est affiché. Un personnage peut combiner plusieurs fonctions.
+- Les quatre sorts s'affichent en **grille 2 × 2**, avec l'ultime mis en avant. Les multiplicateurs de dégâts apparaissent au survol. Les chances de critique et d'esquive s'expriment en **points de pourcentage** : +25 points ajoute 25 points à la chance actuelle.
+- `npm run simulate:compositions -- --games 1000 --seed 42` compare des équipes de 2 SSR + 2 UR sur le moteur réel. Les orientations sont réparties aléatoirement entre les raretés et les positions ; les puissances sont appariées et les camps alternés.
 
 **Vocabulaire d'effets** *(les durées sont en actions de la carte qui porte l'effet, comme Affaibli et Élan aujourd'hui)* :
 
 | Famille | Effets | Règle |
 |---|---|---|
 | Dégâts | **Attaque** sur une cible ; **zone** sur tous les ennemis ; **vol de vie** (soin = part des dégâts) ; **traverse les boucliers** (les dégâts touchent les PV directement) | Zone : multiplicateur plus faible |
-| Attaque | **ATK +x %** / **ATK −x %** (soi, équipe ou ennemis) | ±20 % par effet, ±40 % au total |
-| Défense | **DEF +x %** / **DEF −x %** | ±20 % par effet, ±40 % au total |
-| Critique | **Critique +x** / **Critique −x** (points de chance ; base 15 %) | Total entre 0 et 75 % |
-| Esquive | **Chance d'esquiver** les coups (soi ou équipe) | Plafond 50 % ; ne marche pas contre « traverse » ni contre les effets sans dégâts |
+| Attaque | **ATK +x %** / **ATK −x %** (soi, équipe ou ennemis) | ±60 % au total |
+| Défense | **DEF +x %** / **DEF −x %** | ±60 % au total |
+| Critique | **Critique +x** / **Critique −x** (points de chance ; base 15 %) | Total entre 0 et 100 % |
+| Esquive | **Chance d'esquiver** les coups (soi ou équipe) | Total entre 0 et 100 % ; ne marche pas contre « traverse » ni contre les effets sans dégâts |
 | Soin | **Soin ciblé** ; **soin de zone** (toute l'équipe) ; **soin sur la durée** (% de PV max à chaque action du porteur) | Pas au-delà des PV max |
 | Bouclier | **Bouclier** (% des PV max, soi ou équipe) | Cumulable jusqu'à 30 % des PV max |
+| Provocation | Les attaques à cible unique doivent viser un provocateur vivant | Les zones et les effets d'équipe restent libres ; plusieurs provocateurs sont tous ciblables |
+| Réduction | **Dégâts subis −x %**, soi ou équipe, avant les boucliers | Cumul plafonné à 70 % ; ne réduit pas le poison |
 | Poison | **Poison** : perd x % de ses **PV max** à chaque action, pendant N actions | Ne se cumule pas (le plus fort remplace) ; peut tuer |
 | Contrôle | **Silence** : la cible ne peut lancer que le **sort de base** pendant N actions | Durée 2 au maximum |
 | Protection | **Immunité aux altérations** pendant N actions : aucun nouveau malus (ATK/DEF −, critique −, poison, silence, exposition) | Ne retire pas les malus déjà posés |
@@ -88,11 +92,13 @@ Les SSR et UR ont deux sorts actifs personnalisés en plus de leur attaque de ba
 
 *(« Exposé » et « Affaibli » du jeu actuel deviennent des cas particuliers : exposition et ATK −20 %.)*
 
-**Équilibre** *(calibré, voir le tableau)* : chaque sort pèse environ +4 points de victoire, quelle que soit sa nature ; plus son effet est fort, plus sa petite attaque est faible. **Automatique** : lancé dès qu'il est prêt ; un soin, un bouclier ou une réanimation seulement si un allié en a besoin ; un silence sur la cible la plus dangereuse.
+**Automatique** : priorité à l'ultime, puis au secondaire et au tertiaire prêts. Les soins purs attendent un allié sous 70 % de PV, les purges un malus et les réanimations un allié mort ; le silence vise l'ennemi à l'ATK la plus élevée parmi les cibles autorisées.
 
 **Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
 
 **Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier ; les autres univers au fil du temps.
+
+**Archive de la première calibration** : le tableau suivant décrit les anciens secondaires. Les valeurs actuelles sont celles de `skill-data.json`.
 
 | Perso | Sort | Effet |
 |---|---|---|
@@ -212,6 +218,8 @@ L'ultime reste distinct des sorts secondaire et tertiaire (§4 bis). Une activat
 Pour que la rareté ne décide pas tout en arène : N 1, R 2, SR 3, SSR 5, UR 8 points, **14 points maximum** par équipe. Les compositions de même budget s'affrontent entre 33 et 67 % de victoires.
 
 ### 7. Résultats de la simulation (2026-10-31, sans ultimes, 4 000 combats par scénario)
+
+**Archive** : les tableaux de cette section précèdent la réécriture des 236 fiches et le facteur de PV à 2,8. La mesure actuelle des compositions est dans [le rapport de composition](../reports/composition-simulation.md).
 
 | Mesure | Résultat |
 |---|---|
