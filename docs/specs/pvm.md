@@ -16,8 +16,7 @@ Une ressource, une source : chaque mode a un rôle propre.
 | Expéditions | Cristaux spéciaux |
 
 ### Mode histoire
-- Plusieurs **univers** (des anime), chacun divisé en **actes**, avec un **boss final**.
-- Drop des ressources d'éveil (étoiles 1 à 3) et de fabrication des armes légendaires.
+Détaillé dans la section « Mode histoire » ci-dessous.
 
 ### Raid
 - Des **boss** qui droppent la ressource **rare** de l'éveil.
@@ -26,6 +25,69 @@ Une ressource, une source : chaque mode a un rôle propre.
 ### Tour multiverselle
 - Décrite à l'étape 7 ci-dessous (écrite pour l'ancien combat 3 cartes, à aligner sur le 4 contre 4).
 - Avec un **classement**.
+
+---
+
+## Mode histoire *(discuté le 2026-10-31, rien n'est codé)*
+
+> Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-battle.ts`. Tout le reste est décidé.
+
+### Principe
+- Un **univers** = un lieu à visiter, avec **3 actes de 5 combats**. Le 5ᵉ combat de chaque acte est un **boss d'acte** ; celui de l'acte 3 est le **boss final**. 15 combats par univers, débloqués l'un après l'autre.
+- Le joueur combat avec son **équipe d'attaque** ([combat.md](combat.md) §10), en manuel ou en automatique. **Une défaite n'a aucune pénalité.**
+- Pas d'énergie, pas de limite de tentatives (voir « Rejouer et farmer »).
+
+### Deux sortes d'univers
+| Sorte | Contenu | Pour qui |
+|---|---|---|
+| **Univers d'anime** | Les personnages de cet anime, déréglés par l'anomalie : leur signature est brouillée et ils attaquent. Boss final = le SSR ou UR le plus populaire de l'anime. | Les gros anime (assez de personnages, dont des SSR ou UR) |
+| **Univers de collision** | Plusieurs univers qui se sont percutés : on y croise des personnages de plein d'anime. Nom et thème propres (lore des brèches). | Les anime plus petits, qui sans cela n'auraient jamais d'univers ni de ressource |
+
+- Repères (base de personnages) : 155 anime ont au moins 8 personnages, 76 d'entre eux ont un SSR ou un UR, 25 ont au moins 20 personnages.
+- **Lancement : 3 univers d'anime choisis à la main** (One Piece, Jujutsu Kaisen, Naruto, validés), puis des univers de collision et d'autres anime au fil du temps.
+- **Le premier univers sert de tutoriel** et débloque tous les autres, qui sont alors ouverts avec leur difficulté affichée.
+
+### Ennemis
+- Les ennemis **gardent leurs sorts** (rôle par type, [combat.md](combat.md)) mais **pas leurs stats d'origine** : leurs stats viennent du **niveau du combat**, sinon un anime sans SR serait trop facile et un anime plein d'UR impossible.
+- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi (table niveau × rareté *(simulateur)*). **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
+- **Difficulté progressive, pas par paliers** : le joueur garde la même équipe principale, il ne doit pas écraser l'acte 1 puis l'acte 2 d'un coup. Chaque combat mélange des raretés qui montent peu à peu (un combat de début : surtout N et R ; milieu : SR, un SSR ; fin : SSR, un UR en boss final). La rareté de l'ennemi sert à son apparence et à son niveau.
+- **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de stats *(simulateur)*. Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
+- Chaque combat affiche une **puissance conseillée**.
+
+### Ressources d'éveil
+- **Chaque univers a sa ressource**, tirée de l'anime pour le côté « waouh » (le fruit du démon pour One Piece, etc.). Univers de départ *(noms proposés le 2026-10-31, modifiables)* :
+
+| Univers | Ressource d'éveil | Ressource d'arme légendaire (boss finaux) |
+|---|---|---|
+| One Piece | Fruit du démon | Kairoseki |
+| Naruto | Parchemin de jutsu | Métal à chakra |
+| Jujutsu Kaisen | Doigt maudit | Outil maudit |
+
+- Les univers de collision auront les leurs, à nommer quand on les écrira.
+- **Une ressource commune** existe aussi : le **fragment de signature** (nom du lore : une signature complète est nécessaire au retour d'un personnage). Elle est la seule dont disposent les personnages des anime **sans univers**.
+- Dans un univers d'anime, les drops sont à **50 % ressource de l'univers, 50 % ressource commune** *(à équilibrer)*.
+- Éveiller un personnage coûte de la ressource commune et, s'il vient d'un univers, un peu de la ressource de cet univers. **Plus la rareté est haute, plus le coût est élevé** : un UR demande plus qu'un SSR.
+- Les étoiles 4 et 5 demandent en plus la ressource rare du raid (voir « Raid »).
+- Les ressources de **fabrication des armes légendaires** tombent aussi ici (boss finaux surtout) ; recettes à écrire plus tard.
+
+### Récompenses
+- **Premier passage** d'un combat : Ryō, cristaux et ressources. Le **boss final** donne un gros bonus.
+- **Rejouer** un combat gagné rapporte encore des ressources, en plus petite quantité.
+
+### Rejouer et farmer
+- **Aucune limite de combats**, aucun coût : on peut rejouer un combat autant de fois qu'on veut, en manuel ou en auto, pour obtenir la ressource voulue.
+- **Lancer N combats automatiques d'affilée** (par exemple 10) sur un combat déjà gagné : le serveur calcule chaque combat avec l'équipe d'attaque et verse le butin. Chaque combat reste enregistré et rejouable.
+- **Garde-fou** : sans limite, tout le monde finirait à 5 étoiles très vite. Les gains des combats **rejoués** sont donc limités par un **plafond quotidien qui ne ferme jamais la porte** : au-delà, les drops continuent mais à taux réduit *(simulateur)*. Le premier passage n'est jamais plafonné.
+
+### Histoire racontée
+- Seuls les personnages du labo parlent (Dr Hakase, Akari, Pew), quelques lignes au début et à la fin de chaque acte. Les personnages d'anime ne parlent jamais.
+- Un boss final vaincu : sa signature est rétablie, et Pew réagit à son départ (direction de caractérisation dans `lore.md`).
+
+### À écrire / à décider
+- Liste des univers de collision (thèmes, noms, quels anime) et de leurs ressources.
+- Tables de niveau, de coûts d'éveil et de drops : à la charge de Claude, qui les propose et les valide au simulateur avant de les présenter.
+- Modèle de données : `StoryProgress` (joueur, univers, combat atteint), définitions des univers dans le code, `Battle.mode = STORY` déjà prévu.
+- Moteur : bonus de stats et de PV du boss, équipe adverse construite par niveau (aujourd'hui `PVM_OPPONENTS`).
 
 ---
 

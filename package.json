@@ -28,7 +28,8 @@
     "check:banners": "tsx scripts/check-banners.ts",
     "check:expeditions": "tsx scripts/check-expeditions.ts",
     "check:battle": "tsx scripts/check-battle.ts",
-    "check:replay": "tsx scripts/check-replay.ts"
+    "check:replay": "tsx scripts/check-replay.ts",
+    "check:battles": "tsx scripts/check-battles.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

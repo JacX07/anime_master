@@ -175,6 +175,8 @@ model User {
   duelsReceived       Duel[]                 @relation("DuelOpponent")
   duelSlots           DuelSlot[]
   duelDefenses        DuelDefense[]
+  battleTeams         BattleTeam[]
+  battles             Battle[]
   sessions            Session[]
   accounts            Account[]
   cards               Card[]
@@ -250,7 +252,10 @@ model Card {
   inAuction       Boolean          @default(false)
   /// Bloquée pendant une expédition (étape 4 ter)
   inExpedition    Boolean          @default(false)
+  /// Éveil, 0 à 5 étoiles (docs/specs/combat.md) : suit l'exemplaire quand il change de main
+  stars           Int              @default(0)
   expeditionCards ExpeditionCard[]
+  teamSlots       BattleTeamSlot[]
   tradeItems      TradeItem[]
   auctions        Auction[]
 
@@ -633,4 +638,77 @@ model ExpeditionCard {
   type         CardType
   /// Puissance au lancement (instantané)
   power        Int
+}
+
+// Combat 4 contre 4 (docs/specs/combat.md §10)
+
+enum TeamKind {
+  ATTACK
+  DEFENSE
+}
+
+/// Équipe enregistrée : une d'attaque, une de défense (arène) par joueur. Les cartes ne sont pas bloquées.
+model BattleTeam {
+  id     String           @id @default(cuid())
+  userId String
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind   TeamKind
+  slots  BattleTeamSlot[]
+
+  @@unique([userId, kind])
+}
+
+/// Une carte vendue disparaît de l'équipe ; une carte échangée est ignorée (et retirée) à la lecture.
+model BattleTeamSlot {
+  teamId   String
+  team     BattleTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  /// 1 à 4
+  position Int
+  cardId   String
+  card     Card       @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, position])
+  @@unique([teamId, cardId])
+}
+
+enum BattleMode {
+  TEST
+  STORY
+  RAID
+  TOWER
+  ARENA
+}
+
+enum BattleStatus {
+  RUNNING
+  DONE
+  ABANDONED
+}
+
+/// Un combat. Manuel : l'état se recalcule à chaque action depuis teams + seed + actions (rien n'est gardé en mémoire).
+model Battle {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode      BattleMode
+  /// Ennemi PvM (clé définie dans le code) ou identifiant du joueur adverse
+  opponent  String
+  manual    Boolean
+  seed      Int
+  /// Copie des cartes au début du combat : { A: BattleCard[], B: BattleCard[] }
+  teams     Json
+  /// Choix du joueur dans l'ordre (mode manuel) : Action[]
+  actions   Json         @default("[]")
+  /// Nombre d'actions enregistrées : sert de verrou (deux clics simultanés ne jouent pas deux fois)
+  steps     Int          @default(0)
+  status    BattleStatus @default(RUNNING)
+  /// "A", "B", ou null pour un nul (rempli à la fin)
+  winner    String?
+  /// Journal complet, enregistré à la fin pour le replay
+  log       Json?
+  createdAt DateTime     @default(now())
+  endedAt   DateTime?
+
+  @@index([userId, status])
+  @@index([status, createdAt])
 }

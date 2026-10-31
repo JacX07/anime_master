@@ -99,7 +99,7 @@ Code : `src/lib/battle.ts`, pur (aucun accès à la base). Vérifié par `npm ru
 - `autoAction(state)` donne le choix de la stratégie automatique. `battle(a, b, rng)` joue tout le combat ainsi.
 - Le résultat (`state.result`) contient le gagnant, le nombre de tours et **le journal** (`log`).
 
-**Cartes** : identifiées par leur côté et leur position, `A1` à `A4` et `B1` à `B4`.
+**Cartes** : identifiées par leur côté et leur position, `A1` à `A4` et `B1` à `B4`. Une carte d'entrée (`BattleCard`) porte ses stats de base, sa rareté, son type, sa Puissance, sa franchise, et en option ses étoiles (`stars`) et son arme (`weapon`).
 
 **Journal** (`BattleEvent[]`) : la liste ordonnée de tout ce que l'affichage doit montrer. Chaque événement qui change des PV ou un bouclier donne la nouvelle valeur : l'affichage n'a rien à recalculer.
 
@@ -109,6 +109,7 @@ Code : `src/lib/battle.ts`, pur (aucun accès à la base). Vérifié par `npm ru
 | `round` | `round` | Début d'un tour |
 | `action` | `actor`, `spell`, `target` (null pour Aventure) | Une carte lance un sort ; les effets suivent, jusqu'à la prochaine `action` |
 | `damage` | `source`, `target`, `amount`, `absorbed`, `crit`, `affinity` (`strong` / `weak` / null), `exposedBonus`, `hp`, `shield` | Un coup ; `amount` avant bouclier, `absorbed` la part prise par le bouclier |
+| `dodge` | `source`, `target` | Le coup d'un sort affilié est esquivé (arme), aucun dégât |
 | `heal` | `source`, `target`, `amount`, `hp` | Soin (Cœur) ou drain (Magie) |
 | `shield` | `source` (null pour le bouclier du second joueur), `target`, `amount` (négatif quand il disparaît), `shield` | Bouclier gagné ou perdu |
 | `status` | `target`, `status` (`exposed` / `weaken` / `elan`), `on` | Un état apparaît ou disparaît |
@@ -116,6 +117,35 @@ Code : `src/lib/battle.ts`, pur (aucun accès à la base). Vérifié par `npm ru
 | `end` | `winner` (null = nul), `reason` (`ko` / `timeout`), `rounds`, `hpLeft` | Fin du combat |
 
 Un combat compte environ 80 événements.
+
+### 10. Base et serveur *(validé et codé le 2026-10-31)*
+Code : `src/lib/battles.ts` (serveur), actions dans `src/app/battle-actions.ts`. Vérifié par `npm run check:battles` sur la vraie base.
+
+**Données**
+- `Card.stars` : éveil 0 à 5. Les étoiles **suivent l'exemplaire** quand il est échangé ou vendu aux enchères. La vente groupée des doublons ne prend jamais une carte éveillée (comme une carte verrouillée) ; la vente d'un exemplaire précis reste possible.
+- `BattleTeam` + `BattleTeamSlot` : **une équipe d'attaque** par joueur (et une de défense, prévue pour l'arène). 4 cartes différentes, positions 1 à 4. Les cartes ne sont pas bloquées. Une carte vendue disparaît de l'équipe ; une carte échangée en est retirée à la lecture.
+- `Battle` : mode (`TEST`, `STORY`, `RAID`, `TOWER`, `ARENA`), adversaire, manuel ou non, graine, copie des 8 cartes, choix du joueur, statut (`RUNNING`, `DONE`, `ABANDONED`), gagnant, journal complet enregistré à la fin.
+
+**Déroulement**
+- **Automatique** : le serveur calcule tout le combat d'un coup et enregistre le journal.
+- **Manuel** : le joueur choisit pour son camp (A) ; le camp adverse (B) joue avec la stratégie automatique. À chaque choix, le serveur rejoue le combat depuis la copie des cartes, la graine et les choix précédents, applique le nouveau choix, puis fait jouer l'adversaire jusqu'au prochain choix du joueur. Il renvoie seulement les nouveaux événements. Rien n'est gardé en mémoire, et le navigateur ne peut pas tricher.
+- Un seul combat manuel en cours à la fois. Un double clic n'est joué qu'une fois (compteur d'actions `steps`).
+- **Abandon** : compté comme perdu. Un combat manuel ouvert depuis plus de **24 h** est abandonné automatiquement (balayage à chaque lecture).
+- **Adversaire de test** (`test`) : 4 SR (Combat, Mystère, Magie, Cœur), les plus aimés de leur type. Les vrais adversaires viendront avec le mode histoire.
+
+**Actions serveur** (renvoient `{ ok, battle }` ou `{ ok: false, error }`)
+
+| Action | Rôle |
+|---|---|
+| `setAttackTeamAction(cardIds)` | Enregistre l'équipe d'attaque (4 identifiants de cartes, dans l'ordre) |
+| `startBattleAction(opponent, manual)` | Lance un combat avec l'équipe d'attaque |
+| `getBattleAction(battleId)` | Combat complet (replay, ou reprise d'un combat manuel) |
+| `playActionAction(battleId, { spell, target })` | Mode manuel : joue un choix, renvoie les nouveaux événements |
+| `abandonBattleAction(battleId)` | Abandonne un combat manuel |
+
+`battle` contient : `id`, `status`, `winner`, `log` (journal, ou sa suite en mode manuel), `actor` (carte du joueur qui doit agir), `choices` (sorts et cibles possibles), `characters` (nom et image des 8 personnages).
+
+**Pas encore fait** : armes et ressources d'éveil (avec le mode histoire et le raid), récompenses, page de combat (piste du moteur graphique).
 
 ---
 
@@ -131,19 +161,37 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 | Éveil (0 à 5 étoiles) | Stats et réduction de cooldown | Jamais assez pour battre la rareté du dessus |
 | Arme légendaire | Stats et un passif spécial | Comptée avec l'éveil dans la limite |
 
-**Test automatique** (dans `npm run simulate:battle`) : un SSR éveillé 5 étoiles avec une arme légendaire doit perdre contre un UR à 0 étoile sans arme. Un éveil 5 étoiles doit valoir moins d'un demi-cran de rareté.
+**Test automatique** (dans `npm run simulate:battle`, §8) : un SSR éveillé 5 étoiles avec une arme légendaire doit perdre contre un UR à 0 étoile sans arme. Avec les valeurs retenues, il gagne 14 % du temps.
 
 ### 2. Éveil
 - De 0 à 5 étoiles, sur la carte du joueur (l'exemplaire, pas le personnage).
-- Chaque étoile ajoute des stats et réduit le cooldown du sort affilié. Montants à tester au simulateur.
+- **+2 % d'ATK, de DEF et de PV par étoile** (+10 % à 5 étoiles).
+- **À 5 étoiles, le cooldown du sort affilié passe de 3 à 2 actions.**
 - **Coût** : étoiles 1 à 3 = ressource du mode histoire ; étoiles 4 et 5 = ressource rare du raid **et un seul doublon** du personnage. Un doublon consommé ne circule plus : en demander davantage ferait de la Bourse un marché de puissance.
 - À 5 étoiles, la carte peut équiper une **arme légendaire**.
 
 ### 3. Arme légendaire
-- Équipable uniquement sur une carte éveillée 5 étoiles.
+- Équipable uniquement sur une carte éveillée 5 étoiles (le moteur l'ignore sinon).
 - **Fabriquée** à partir des ressources obtenues en jeu, et **difficile** à obtenir.
-- Apporte des stats et un **passif un peu spécial**. Exemples : 3 % de chance d'esquiver un sort, renforcement d'un type.
-- Liste des armes, recettes et passifs : à écrire.
+- **+5 % d'ATK, de DEF et de PV**, et un **passif**. Deux passifs codés pour l'essai :
+  - **Esquive** : chance d'esquiver chaque coup d'un sort affilié adverse.
+  - **Renfort de type** : +X % d'ATK aux alliés d'un type, porteur compris.
+- Liste des armes, recettes et passifs définitifs : à écrire.
+
+### Mesures (2026-10-31, 3 000 combats par case)
+Équipes de 4 cartes de même rareté, tirées au hasard.
+
+| Par étoile | Arme | SSR 5★ armé contre UR 0★ | SR 5★ armé contre SSR 0★ | SSR 5★ sans arme contre SSR 0★ | UR 5★ armé contre UR 0★ |
+|---|---|---|---|---|---|
+| +1 % | +5 % | 5 % | 2 % | 75 % | 92 % |
+| **+2 %** | **+5 %** | **14 %** | **5 %** | **89 %** | **98 %** |
+| +3 % | +5 % | 28 % | 11 % | 96 % | 99 % |
+| +4 % | +5 % | 46 % | 22 % | 99 % | 100 % |
+
+- **Retenu : +2 % par étoile et +5 % pour l'arme.** Un UR à 0 étoile gagne encore 86 % du temps contre un SSR éveillé et armé : la rareté domine. À rareté égale, l'éveil compte beaucoup (89 %), parce que le combat amplifie les écarts.
+- Le cooldown réduit seul (sans les stats) vaut 55 % contre 45 %.
+- Passifs, portés par une seule carte (équipe contre la même sans le passif) : esquive 3 % = +0,6 point (presque rien) ; esquive 10 % = +3 ; renfort de type +5 % = +7 ; renfort +10 % = +14.
+- **À décider** : la force des passifs. 3 % d'esquive ne se sent pas, 10 % commence à compter.
 
 ### 4. Rythme
 Fangame gratuit, sans frustration : en jouant assez, on finit toujours par obtenir ce qu'on veut. Le rythme et le tableau des ressources (ce que chaque mode donne, et combien par jour) restent à retravailler.
