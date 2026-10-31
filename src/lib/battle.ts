@@ -103,10 +103,12 @@ export const BATTLE = {
   passiveCap: 0.3,
   /** Synergie de franchise : bonus ATK/DEF/PV selon le nombre de cartes de la même franchise (indice = nombre) */
   franchiseBonus: [0, 0, 0.03, 0.06, 0.1],
-  /** Éveil : bonus d'ATK, de DEF et de PV par étoile (à fixer au simulateur) */
-  starBonus: 0.02,
-  /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort affilié baisse d'une action */
-  cooldownStar: 5,
+  /** Éveil : bonus d'ATK, de DEF et de PV par étoile (doublé le 2026-11-01) */
+  starBonus: 0.04,
+  /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort secondaire (affilié pour N/R/SR) baisse d'une action */
+  secondaryCdStar: 3,
+  /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort tertiaire baisse d'une action */
+  tertiaryCdStar: 5,
   /** Plafond du total des bonus ou malus d'ATK et de DEF (±), du critique et de l'esquive (0 à 100 %) */
   statCap: 0.6,
   /** Plafond de la réduction de dégâts subis */
@@ -230,8 +232,10 @@ interface Unit {
   maxHp: number;
   hp: number;
   shield: number;
-  /** Cooldown du sort affilié (réduit par l'éveil) */
+  /** Cooldowns du sort affilié (N/R/SR), du secondaire et du tertiaire (SSR/UR), réduits par l'éveil */
   cooldown: number;
+  specialCd: number;
+  tertiaryCd: number;
   /** Esquive des sorts affiliés adverses (arme) */
   dodge: number;
   /** Actions avant que le sort affilié soit prêt : il l'est quand spellIn ≤ 1 au début de l'action */
@@ -328,7 +332,9 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
       card, side, maxHp, hp: maxHp, shield: 0,
       atk: card.attack * (1 + bonus[i] + aura[i]),
       def: card.defense * (1 + bonus[i]),
-      cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.cooldownStar ? 1 : 0),
+      cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
+      specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
+      tertiaryCd: BATTLE.tertiaryCooldown - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
       spellIn: 2, held: 0, exposed: false, weaken: 0, elan: 0,
       spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
@@ -691,8 +697,8 @@ export function applyAction(st: BattleState, action: Action) {
       applyRider(basic.rider);
     }
   } else if (action.spell === "special" || action.spell === "tertiary" || action.spell === "ultimate") {
-    if (action.spell === "special") u.pIn = SPELL_COOLDOWN;
-    if (action.spell === "tertiary") u.tIn = BATTLE.tertiaryCooldown;
+    if (action.spell === "special") u.pIn = u.specialCd;
+    if (action.spell === "tertiary") u.tIn = u.tertiaryCd;
     const who = (scope: Scope): Unit[] =>
       scope === "self" ? [u] : scope === "team" ? alive(st, u.side) : scope === "foes" ? alive(st, enemy(u.side)) : target && target.hp > 0 ? [target] : [];
     for (const e of activeSpell!.effects) {

@@ -157,21 +157,31 @@ const unitOf = (c: BattleCard) => {
 const weapon = { stat: 0.05, passive: null };
 const u0 = unitOf(plain), u3 = unitOf({ ...plain, stars: 3 }), u5 = unitOf({ ...plain, stars: 5, weapon });
 const u3w = unitOf({ ...plain, stars: 3, weapon });
-check("Éveil : +2 % d'ATK, de DEF et de PV par étoile", Math.abs(u3.atk - 3000 * (1 + 3 * BATTLE.starBonus)) < 1e-6 && Math.abs(u3.maxHp - BATTLE.hp(3000, 2000) * (1 + 3 * BATTLE.starBonus)) < 1e-6);
+check("Éveil : +4 % d'ATK, de DEF et de PV par étoile", Math.abs(u3.atk - 3000 * (1 + 3 * BATTLE.starBonus)) < 1e-6 && Math.abs(u3.maxHp - BATTLE.hp(3000, 2000) * (1 + 3 * BATTLE.starBonus)) < 1e-6);
 check("Arme : comptée à 5 étoiles, ignorée avant", Math.abs(u5.atk - 3000 * (1 + 5 * BATTLE.starBonus + 0.05)) < 1e-6 && u3w.atk === u3.atk && u0.atk === 3000);
-// Cooldown : à 5 étoiles, le sort affilié revient une action plus tôt.
+// Cooldown : à 3 étoiles, le sort affilié (secondaire) revient une action plus tôt ; à 5, le tertiaire aussi.
 const casts = (stars: number) => {
   const s = createBattle([{ ...plain, stars, power: 9 }, filler(12), filler(13), filler(14)], [card({ attack: 100, defense: 90000, franchiseId: 20 }), card({ attack: 100, defense: 90000, franchiseId: 21 }), card({ attack: 100, defense: 90000, franchiseId: 22 }), card({ attack: 100, defense: 90000, franchiseId: 23 })], () => 0.5);
   while (currentActor(s) && s.round <= 10) applyAction(s, autoAction(s));
   return s.log.filter((e) => e.kind === "action" && e.actor === "A1" && e.spell === "affinity").length;
 };
-check("Éveil 5 étoiles : sort affilié plus souvent (cooldown 2 au lieu de 3)", casts(5) > casts(0), `${casts(5)} sorts contre ${casts(0)} en 10 tours`);
+check("Éveil 3 étoiles : sort affilié plus souvent (cooldown 2 au lieu de 3)", casts(3) > casts(0), `${casts(3)} sorts contre ${casts(0)} en 10 tours`);
+check("Éveil : cooldown secondaire −1 dès 3★, tertiaire −1 dès 5★ (SSR/UR)", (() => {
+  const ssr = card({ characterId: 900001, rarity: "SSR", type: "MAGIE", franchiseId: 11 });
+  const at = (stars: number) => createBattle([{ ...ssr, stars }, filler(12), filler(13), filler(14)], [filler(15), filler(16), filler(17), filler(18)], () => 0.5).teams.A.find((u) => u.card.characterId === 900001)!;
+  const [a, b, c] = [0, 3, 5].map(at);
+  return a.specialCd === 5 && b.specialCd === 4 && c.specialCd === 4 && a.tertiaryCd === 7 && b.tertiaryCd === 7 && c.tertiaryCd === 6;
+})());
 // Esquive : avec 100 % d'esquive, aucun sort affilié ne touche la carte.
 const dodger = { ...card({ type: "COEUR", attack: 1000, defense: 3000, power: 0, franchiseId: 30 }), stars: 5, weapon: { stat: 0, passive: { kind: "dodge" as const, chance: 1 } } };
-const sd = createBattle([card({ type: "COMBAT", power: 9, franchiseId: 31 }), card({ franchiseId: 32 }), card({ franchiseId: 33 }), card({ franchiseId: 34 })], [dodger, dodger, dodger, dodger], seeded(3));
-while (currentActor(sd)) applyAction(sd, autoAction(sd));
-const affinityHits = sd.log.filter((e, i) => e.kind === "damage" && e.target.startsWith("B") && (() => { for (let j = i; j >= 0; j--) { const x = sd.log[j]; if (x.kind === "action") return x.spell === "affinity"; } return false; })());
-check("Arme « esquive » : les sorts affiliés adverses sont esquivés", affinityHits.length === 0 && sd.log.some((e) => e.kind === "dodge"));
+let dodges = 0, hitsByAffinity = 0;
+for (const seed of [3, 4, 5, 6, 7, 8]) {
+  const sd = createBattle([card({ type: "COMBAT", power: 9, franchiseId: 31 }), card({ franchiseId: 32 }), card({ franchiseId: 33 }), card({ franchiseId: 34 })], [dodger, dodger, dodger, dodger], seeded(seed));
+  while (currentActor(sd)) applyAction(sd, autoAction(sd));
+  dodges += sd.log.filter((e) => e.kind === "dodge").length;
+  hitsByAffinity += sd.log.filter((e, i) => e.kind === "damage" && e.target.startsWith("B") && (() => { for (let j = i; j >= 0; j--) { const x = sd.log[j]; if (x.kind === "action") return x.spell === "affinity"; } return false; })()).length;
+}
+check("Arme « esquive » : les sorts affiliés adverses sont esquivés", hitsByAffinity === 0 && dodges > 0, `${dodges} esquive(s) sur 6 combats`);
 
 console.log(failures ? `\n${failures} échec(s)` : "\nTout est bon.");
 process.exit(failures ? 1 : 0);
