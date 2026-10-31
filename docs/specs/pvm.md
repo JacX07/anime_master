@@ -210,11 +210,14 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 - Clé de combat `raid:<boss>:<difficulté>` ; seul le boss de la semaine est jouable. **Ouverture** : le Normal après le tutoriel de l'histoire ; Difficile en battant le Normal, Cauchemar en battant le Difficile, **sur n'importe quel boss** (sinon la rotation hebdomadaire referait tout recommencer).
 - Les cœurs sont versés **à la fin de chaque combat, gagné ou perdu**, dans la même transaction (auto et manuel). Un combat abandonné ne paie rien. `RaidBest` garde, par boss et difficulté, la meilleure part de PV retirée et la victoire.
 - Plafond : 15 cœurs au taux plein par jour (`DailyGain` source `RAID`), puis 25 %, la fraction étant tirée au sort pour que l'espérance reste exacte. Page `/raid`, vérifié par `npm run check:raid`.
-- Pas encore fait : lots de combats auto, multijoueur (boss d'événement), **éveil des étoiles 4 et 5** (coûts en cœurs et doublon), boosters de matériaux d'arme.
+- Pas encore fait : lots de combats auto, multijoueur (boss d'événement), boosters de matériaux d'arme. L'**éveil des étoiles 4 et 5** est codé (voir ci-dessous).
 - Point ouvert : sous 25 % des PV retirés, une défaite ne rapporte aucun cœur (les paliers de la spec commencent à 25 %).
 
+### Étoiles 4 et 5 *(codé le 2026-11-01 : `src/lib/awakening.ts`, `src/lib/awaken.ts`, page `/eveil`, `npm run check:awakening`)*
+- **SSR et UR seulement** (N, R et SR s'arrêtent à 3★). Coût : SSR 60 puis 120 cœurs de brèche, UR 120 puis 240, plus **un doublon du personnage consommé à chaque étoile**.
+- Le doublon consommé est le moins avancé, puis le moins précieux (finition normale d'abord). Il ne peut être **ni verrouillé, ni en équipe, ni aux enchères, ni en expédition, ni dans un échange en attente** : une carte protégée n'est jamais détruite.
+
 ### À écrire / à décider
-- Étoiles 4 et 5 : coûts en cœurs et doublon consommé (voir « Les chiffres » et [combat.md](combat.md) §2).
 
 ---
 

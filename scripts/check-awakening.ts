@@ -1,9 +1,10 @@
 // Vérification de l'éveil 1 à 3★ (docs/specs/pvm.md) : coûts purs, puis débit réel sur la base avec un joueur jetable.
 // Usage : npm run check:awakening
-import { AWAKEN_TOTAL, awakenCost, universeOfFranchise } from "../src/lib/awakening";
+import { AWAKEN_TOTAL, awakenCost, canAwaken, universeOfFranchise } from "../src/lib/awakening";
 import { awakenCard } from "../src/lib/awaken";
 import { BattleError } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
+import { RAID_RESOURCE } from "../src/lib/raid";
 import { COMMON_RESOURCE, UNIVERSES } from "../src/lib/story";
 import type { Rarity } from "../src/generated/prisma/enums";
 
@@ -24,7 +25,8 @@ async function main() {
     check(`${r} sans univers : 60 % du total, ressource commune seule`, solo.flat().every((c) => c.key === COMMON_RESOURCE) && solo.reduce((s, c) => s + sum(c), 0) === Math.round(AWAKEN_TOTAL[r] * 0.6));
   }
   check("UR 1★ d'un univers : moitié commune, moitié univers", JSON.stringify(awakenCost("UR", 1, u)) === JSON.stringify([{ key: COMMON_RESOURCE, quantity: 40 }, { key: u.resource, quantity: 40 }]));
-  check("Étoile 4 refusée par le calcul", (() => { try { awakenCost("UR", 4, u); return false; } catch { return true; } })());
+  check("Étoiles 4 et 5 : SSR 60 / 120 cœurs, UR 120 / 240", [4, 5].map((k) => awakenCost("SSR", k, u)[0].quantity).join() === "60,120" && [4, 5].map((k) => awakenCost("UR", k, u)[0].quantity).join() === "120,240" && awakenCost("UR", 4, u)[0].key === RAID_RESOURCE);
+  check("N, R et SR s'arrêtent à 3★", !canAwaken("SR", 4) && canAwaken("SR", 3) && canAwaken("SSR", 5) && !canAwaken("UR", 6));
 
   const uid = `awk-${Date.now()}`;
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
@@ -45,7 +47,23 @@ async function main() {
     while ((await prisma.card.findUniqueOrThrow({ where: { id: card } })).stars < 3) await awakenCard(uid, card);
     const total = (await prisma.resourceStock.findMany({ where: { userId: uid } })).reduce((s, r) => s + (1000 - r.quantity), 0);
     check("0→3★ : total dépensé = 200 (SSR)", total === 200, String(total));
-    check("4★ refusée (raid requis)", await rejects(awakenCard(uid, card)));
+    // Étoiles 4 et 5 : cœurs + un doublon consommé
+    check("4★ sans cœurs : refusée", await rejects(awakenCard(uid, card)) && (await prisma.card.findUniqueOrThrow({ where: { id: card } })).stars === 3);
+    await prisma.resourceStock.create({ data: { userId: uid, key: RAID_RESOURCE, quantity: 500 } });
+    check("4★ avec cœurs mais sans doublon : refusée, rien débité", (await rejects(awakenCard(uid, card))) && (await prisma.resourceStock.findUniqueOrThrow({ where: { userId_key: { userId: uid, key: RAID_RESOURCE } } })).quantity === 500);
+    const locked = await mk(3);
+    await prisma.card.update({ where: { id: locked }, data: { locked: true } });
+    const inTeamCard = await mk(4);
+    await prisma.battleTeam.create({ data: { userId: uid, kind: "ATTACK", slots: { create: [{ position: 1, cardId: inTeamCard }] } } });
+    check("Doublon verrouillé ou en équipe : non consommable", await rejects(awakenCard(uid, card)));
+    const dup = await mk(5);
+    const r4 = await awakenCard(uid, card);
+    check("4★ : étoile gagnée, 60 cœurs, un doublon consommé", r4.stars === 4 && r4.consumed && (await prisma.resourceStock.findUniqueOrThrow({ where: { userId_key: { userId: uid, key: RAID_RESOURCE } } })).quantity === 440 && (await prisma.card.findUnique({ where: { id: dup } })) === null);
+    check("Les cartes verrouillée et d'équipe sont intactes", (await prisma.card.count({ where: { id: { in: [locked, inTeamCard] } } })) === 2);
+    await prisma.card.update({ where: { id: locked }, data: { locked: false } });
+    const r5 = await awakenCard(uid, card);
+    check("5★ : 120 cœurs, la carte verrouillée (déverrouillée) est consommée", r5.stars === 5 && (await prisma.resourceStock.findUniqueOrThrow({ where: { userId_key: { userId: uid, key: RAID_RESOURCE } } })).quantity === 320 && (await prisma.card.findUnique({ where: { id: locked } })) === null);
+    check("Au-delà de 5★ : refusé", await rejects(awakenCard(uid, card)));
     const other = `${uid}-b`;
     await prisma.user.create({ data: { id: other, name: other, username: other, email: `${other}@test.local` } });
     check("Carte d'un autre joueur refusée", await rejects(awakenCard(other, await mk(2))));

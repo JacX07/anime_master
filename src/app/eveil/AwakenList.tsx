@@ -10,6 +10,8 @@ export type AwakenRow = Omit<CharacterCardProps, "stars" | "serial" | "count" | 
   id: string;
   stars: number;
   cost: { name: string; quantity: number; have: number }[];
+  /** Étoiles 4 et 5 : un doublon libre est consommé ; `available` = combien tu en as */
+  duplicate: { available: number } | null;
 };
 
 const pct = (n: number) => `+${Math.round(n * 100)} %`;
@@ -29,18 +31,22 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
     <div>
       {message && <p role="alert" className="vt-muted">{message}</p>}
       <ul style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1.5rem", listStyle: "none", padding: 0 }}>
-        {rows.map(({ id, cost, stars, ...card }) => {
-          const affordable = cost.every((c) => c.have >= c.quantity);
+        {rows.map(({ id, cost, stars, duplicate, ...card }) => {
+          const affordable = cost.every((c) => c.have >= c.quantity) && (!duplicate || duplicate.available > 0);
           return (
             <li key={id} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <CharacterCard {...card} stars={stars} />
               <small>
                 {stars}★ → {stars + 1}★ : {pct(stars * BATTLE.starBonus)} → {pct((stars + 1) * BATTLE.starBonus)} ATK, DEF, PV
                 {stars + 1 === BATTLE.secondaryCdStar ? " · sort secondaire plus rapide" : ""}
+                {stars + 1 === BATTLE.tertiaryCdStar ? " · sort tertiaire plus rapide" : ""}
               </small>
-              <small className="vt-muted">{cost.map((c) => `${c.quantity} ${c.name} (${c.have})`).join(" + ")}</small>
+              <small className="vt-muted">
+                {cost.map((c) => `${c.quantity} ${c.name} (${c.have})`).join(" + ")}
+                {duplicate && ` + 1 doublon consommé (${duplicate.available} libre${duplicate.available > 1 ? "s" : ""})`}
+              </small>
               <button type="button" disabled={!affordable || pending} onClick={() => awaken(id)}>
-                {affordable ? "Éveiller" : "Ressources insuffisantes"}
+                {affordable ? "Éveiller" : duplicate && duplicate.available === 0 ? "Il faut un doublon libre" : "Ressources insuffisantes"}
               </button>
             </li>
           );
