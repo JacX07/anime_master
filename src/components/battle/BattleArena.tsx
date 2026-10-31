@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { abandonBattleAction, playActionAction, setAttackTeamAction, startBattleAction } from "@/app/battle-actions";
+import { abandonBattleAction, finishAutoAction, playActionAction, setAttackTeamAction, startBattleAction } from "@/app/battle-actions";
 import type { Spell, UnitId } from "@/lib/battle";
 import type { BattleView } from "@/lib/battles";
 import { BattlePlayer, type PlayerCharacter } from "./BattlePlayer";
@@ -58,6 +58,16 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
       // Seuls les nouveaux événements sont renvoyés ; le journal s'allonge
       setLog((l) => [...l, ...r.battle.log]);
       setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: r.battle.actor, choices: r.battle.choices, wait: r.battle.wait } : v));
+    });
+
+  const goAuto = () =>
+    start(async () => {
+      if (!view) return;
+      const r = await finishAutoAction(view.id);
+      if (!r.ok) return setError(r.error);
+      setError(null);
+      setLog((l) => [...l, ...r.battle.log]);
+      setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: null, choices: [], wait: {} } : v));
     });
 
   const backToMenu = () => {
@@ -154,6 +164,7 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
               error,
               onPlay: play,
               onAbandon: view.status === "RUNNING" ? abandon : undefined,
+              onAuto: view.status === "RUNNING" ? goAuto : undefined,
               onNext: backToMenu,
             }
           : undefined

@@ -44,6 +44,8 @@ export interface LiveControl {
   busy: boolean;
   error?: string | null;
   onPlay: (spell: Spell, target: UnitId | null) => void;
+  /** Passe en automatique : les deux équipes jouent seules jusqu'à la fin */
+  onAuto?: () => void;
   /** Abandon du combat en cours (compté comme perdu) */
   onAbandon?: () => void;
   /** Bouton de l'écran de fin à la place du lien « Nouveau combat » */
@@ -273,6 +275,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             Musique
           </button>
         </div>
+        {live?.onAuto && !end && (
+          <button type="button" className="bt-btn" onClick={live.onAuto} disabled={live.busy} title="Les deux équipes jouent seules jusqu'à la fin">
+            Passer en auto
+          </button>
+        )}
         {live?.onAbandon && !end && (
           <button type="button" className="bt-btn" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
             Abandonner

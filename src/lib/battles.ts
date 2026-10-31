@@ -249,6 +249,23 @@ export async function playAction(userId: string, battleId: string, action: Actio
   return toView({ ...row, status: done ? "DONE" : "RUNNING" }, st, from);
 }
 
+/** Passe en automatique : les deux camps jouent la stratégie automatique jusqu'à la fin. Renvoie les nouveaux événements. */
+export async function finishAuto(userId: string, battleId: string, now = new Date()): Promise<BattleView> {
+  await sweepBattles(now);
+  const row = await prisma.battle.findFirst({ where: { id: battleId, userId, manual: true } });
+  if (!row) throw new BattleError("Combat introuvable.");
+  if (row.status !== "RUNNING") throw new BattleError("Ce combat est terminé.");
+  const st = replay(row.teams as unknown as BattleTeams, row.seed, row.actions as unknown as Action[]);
+  const from = st.log.length;
+  for (let actor = currentActor(st); actor; actor = currentActor(st)) applyAction(st, autoAction(st));
+  const saved = await prisma.battle.updateMany({
+    where: { id: row.id, status: "RUNNING", steps: row.steps },
+    data: { status: "DONE", winner: st.result!.winner, log: st.log as unknown as Prisma.InputJsonValue, endedAt: now },
+  });
+  if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
+  return toView({ ...row, status: "DONE" }, st, from);
+}
+
 /** Abandon d'un combat manuel en cours : compté comme perdu. */
 export async function abandonBattle(userId: string, battleId: string, now = new Date()) {
   const res = await prisma.battle.updateMany({
