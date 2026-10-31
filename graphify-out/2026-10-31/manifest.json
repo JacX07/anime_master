@@ -1704,9 +1704,9 @@
     "semantic_hash": ""
   },
   "src/components/battle/sound.ts": {
-    "mtime": 1793460068.9464273,
-    "seen": 1793460560.220502,
-    "ast_hash": "56dba29ddac53c0862151619945ac3d5",
+    "mtime": 1793468603.2945335,
+    "seen": 1793468627.5171802,
+    "ast_hash": "ce8771fc964701540d10e069ae62e25b",
     "semantic_hash": ""
   },
   "src/lib/anime.ts": {
@@ -1728,15 +1728,15 @@
     "semantic_hash": ""
   },
   "src/lib/battle-replay.ts": {
-    "mtime": 1793465072.6705692,
-    "seen": 1793465826.8939219,
-    "ast_hash": "23a36af7f85e7e254af81f0c758e0f22",
+    "mtime": 1793468415.0945365,
+    "seen": 1793468627.517614,
+    "ast_hash": "63cfc1b76fffa4017b800909267b8d52",
     "semantic_hash": ""
   },
   "src/lib/battle.ts": {
-    "mtime": 1793466337.882561,
-    "seen": 1793466372.4597034,
-    "ast_hash": "63f1f0d9f8876c81b35a8ffc5945c8da",
+    "mtime": 1793468415.0945365,
+    "seen": 1793468627.5176153,
+    "ast_hash": "12a2f7989f02c265b8557ecc26eb1e95",
     "semantic_hash": ""
   },
   "src/lib/battles.ts": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": ""
   },
   "docs/specs/combat.md": {
-    "mtime": 1793466913.5625453,
-    "seen": 1793467025.7102077,
-    "ast_hash": "7aaa85d412dcea0d0f7272517bab4af4",
+    "mtime": 1793468555.0905347,
+    "seen": 1793468627.5222843,
+    "ast_hash": "757af3ddce34cc2ab711f03a85abd510",
     "semantic_hash": ""
   },
   "docs/specs/economie.md": {
@@ -1956,9 +1956,9 @@
     "semantic_hash": ""
   },
   "src/components/battle/BattlePanels.tsx": {
-    "mtime": 1793466688.8865542,
-    "seen": 1793467025.6989822,
-    "ast_hash": "682278c3b0c5f8e9211b6ab9eb2e4bc2",
+    "mtime": 1793468499.1025357,
+    "seen": 1793468627.5171292,
+    "ast_hash": "11f7fe3540cc314d311179eff05caf8d",
     "semantic_hash": ""
   },
   "src/lib/story.ts": {
@@ -1986,9 +1986,9 @@
     "semantic_hash": ""
   },
   "scripts/check-spells.ts": {
-    "mtime": 1793467008.742554,
-    "seen": 1793467025.6944835,
-    "ast_hash": "330edf88fb3c882101356b52894f9769",
+    "mtime": 1793468555.0905347,
+    "seen": 1793468627.5133653,
+    "ast_hash": "c3bcb7048ea08f196acbeeaacb5502a7",
     "semantic_hash": ""
   },
   "scripts/check-tower.ts": {
@@ -2022,9 +2022,9 @@
     "semantic_hash": ""
   },
   "src/lib/spells.ts": {
-    "mtime": 1793466337.882561,
-    "seen": 1793466372.4601924,
-    "ast_hash": "37d2975dcfdc7be5c87c24cad97e969e",
+    "mtime": 1793468555.0905347,
+    "seen": 1793468627.5181851,
+    "ast_hash": "a4184df59b2e91b9fa3bb51559eb5c1c",
     "semantic_hash": ""
   },
   "src/lib/tower.ts": {
@@ -2058,9 +2058,9 @@
     "semantic_hash": ""
   },
   "scripts/mechanic-runner.ts": {
-    "mtime": 1793459950.6688,
-    "seen": 1793460047.310921,
-    "ast_hash": "fcbccb4a701e791f060a95f47cb35963",
+    "mtime": 1793468000.2364633,
+    "seen": 1793468014.154974,
+    "ast_hash": "fece47fd162f3a7e0dcf3f526dbd386f",
     "semantic_hash": ""
   },
   "scripts/simulate-tower.ts": {
@@ -2094,9 +2094,9 @@
     "semantic_hash": ""
   },
   "src/app/builder/SpellBuilder.tsx": {
-    "mtime": 1793466473.204775,
-    "seen": 1793466498.384748,
-    "ast_hash": "fc60458649282794ba22f50ff1bbf1aa",
+    "mtime": 1793468000.2366915,
+    "seen": 1793468014.156136,
+    "ast_hash": "9ffc73d2a4895174093061846e86b270",
     "semantic_hash": ""
   },
   "src/app/builder/actions.ts": {
@@ -2136,15 +2136,15 @@
     "semantic_hash": ""
   },
   "src/lib/spell-schema.ts": {
-    "mtime": 1793466304.9982202,
-    "seen": 1793466372.4601903,
-    "ast_hash": "578004811f756252f651f91ae66b933f",
+    "mtime": 1793468415.0985365,
+    "seen": 1793468627.5181627,
+    "ast_hash": "69b5093b076c313ab8f31aa17189e1e1",
     "semantic_hash": ""
   },
   "src/lib/spell-sim.ts": {
-    "mtime": 1793466255.7745626,
-    "seen": 1793466372.4601912,
-    "ast_hash": "c355d1fa1d29f2509c5c54b83b37ed7b",
+    "mtime": 1793467949.066542,
+    "seen": 1793468014.1590047,
+    "ast_hash": "d74f9282484dd703021f5e4e854ad094",
     "semantic_hash": ""
   },
   "src/lib/basic-attack-signatures.ts": {
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "src/lib/character-skills.ts": {
-    "mtime": 1793464527.0038548,
-    "seen": 1793464982.2411418,
-    "ast_hash": "7d679129eb79882c4ca3292f66409373",
+    "mtime": 1793468243.1825418,
+    "seen": 1793468627.5177255,
+    "ast_hash": "96b2db5744adfcc5d6cbd7fd32cb44bd",
     "semantic_hash": ""
   },
   "src/lib/tertiary-catalog.ts": {
@@ -2310,9 +2310,9 @@
     "semantic_hash": ""
   },
   "scripts/spell-design/output-7.json": {
-    "mtime": 1793464555.7585812,
-    "seen": 1793464982.2382789,
-    "ast_hash": "7aa93abaa70b10db65f33ca569bca7b6",
+    "mtime": 1793468296.8385396,
+    "seen": 1793468627.5140982,
+    "ast_hash": "959b27f3349926ff9f8b8555f3fb487a",
     "semantic_hash": ""
   },
   "scripts/spell-design/output-8.json": {
@@ -2322,15 +2322,15 @@
     "semantic_hash": ""
   },
   "scripts/spell-design/validate.ts": {
-    "mtime": 1793466590.3585575,
-    "seen": 1793467025.6954045,
-    "ast_hash": "d1879350444e671285ff0f114693b39e",
+    "mtime": 1793468296.8385396,
+    "seen": 1793468627.5141213,
+    "ast_hash": "0607d01f4918f87a7338043b3951a913",
     "semantic_hash": ""
   },
   "src/lib/skill-data.json": {
-    "mtime": 1793466592.228296,
-    "seen": 1793467025.700063,
-    "ast_hash": "b0f2d6e802988d0b09e6b9caeb2dff02",
+    "mtime": 1793468296.8385396,
+    "seen": 1793468627.5181184,
+    "ast_hash": "85962fa92677b57b3533b6ba4ac5ee8c",
     "semantic_hash": ""
   },
   "src/lib/skill-data.ts": {
@@ -2340,9 +2340,9 @@
     "semantic_hash": ""
   },
   "scripts/spell-design/GUIDE.md": {
-    "mtime": 1793464446.49621,
-    "seen": 1793464982.2474947,
-    "ast_hash": "c03df6f291dced0e58a8d2d7304d1a47",
+    "mtime": 1793468499.1065357,
+    "seen": 1793468627.5231612,
+    "ast_hash": "51504890111a4a1ecbb53b34a8a4ef7f",
     "semantic_hash": ""
   },
   "public/mockups/audio-audition.html": {
@@ -2376,9 +2376,9 @@
     "semantic_hash": ""
   },
   "src/lib/builder-catalog.ts": {
-    "mtime": 1793466389.386257,
-    "seen": 1793466409.962739,
-    "ast_hash": "5116386ec504a140fd648f7d69e56f82",
+    "mtime": 1793467130.2825541,
+    "seen": 1793467213.8880544,
+    "ast_hash": "91d47975e92acfd22617130dceef6b27",
     "semantic_hash": ""
   },
   "src/lib/builder-drafts.ts": {
@@ -2388,9 +2388,9 @@
     "semantic_hash": ""
   },
   "src/lib/builder-slots.ts": {
-    "mtime": 1793466213.1505632,
-    "seen": 1793466372.4597287,
-    "ast_hash": "252b4bdc8989a45752be86a74f060ba2",
+    "mtime": 1793467130.286554,
+    "seen": 1793467213.888078,
+    "ast_hash": "0886e8d0455963b0599a278710083d51",
     "semantic_hash": ""
   },
   "public/mockups/battle-music.html": {
@@ -2400,9 +2400,117 @@
     "semantic_hash": ""
   },
   "docs/reports/composition-simulation.md": {
-    "mtime": 1793467008.742554,
-    "seen": 1793467025.7101305,
-    "ast_hash": "0d8b4d7eb6c51739f70baeeebe0b33ff",
+    "mtime": 1793467816.7745411,
+    "seen": 1793467821.5337248,
+    "ast_hash": "53dad461e591a5810db03bd82dec4290",
+    "semantic_hash": ""
+  },
+  "public/mockups/battle-sfx.html": {
+    "mtime": 1793467272.5872173,
+    "seen": 1793467277.7522817,
+    "ast_hash": "f29e7ebc5f421a146572d52a01b2fb5a",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/SOURCES.json": {
+    "mtime": 1793468003.6342373,
+    "seen": 1793468014.1540563,
+    "ast_hash": "379d0ecb06a595e8fa6cf3c560fd07ab",
+    "semantic_hash": ""
+  },
+  "scripts/check-builder-sim.ts": {
+    "mtime": 1793468009.223882,
+    "seen": 1793468014.1546614,
+    "ast_hash": "d06b4875f419679055e9ee4163ed3bdc",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/LICENSE-impact-sounds.txt": {
+    "mtime": 1793468003.6350415,
+    "seen": 1793468014.1638277,
+    "ast_hash": "d8cca8b70fdb362ce019e2fca3501bb0",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/LICENSE-rpg-audio.txt": {
+    "mtime": 1793468003.6362512,
+    "seen": 1793468014.1638308,
+    "ast_hash": "f7fcfe34b5ccff41c6cc830ece998db7",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/coup-anime.ogg": {
+    "mtime": 1793468002.7025435,
+    "seen": 1793468014.1642785,
+    "ast_hash": "b766e9901155ef1f5f878b8626e89b21",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/coup-cinema.ogg": {
+    "mtime": 1793468002.7905433,
+    "seen": 1793468014.1642804,
+    "ast_hash": "bc00254a5048ec26b6880592f654377e",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/coup-sec.ogg": {
+    "mtime": 1793468002.6505435,
+    "seen": 1793468014.1642818,
+    "ast_hash": "2fc5343bf8ebfa72218c0107809fee63",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/sort-aventure.ogg": {
+    "mtime": 1793468003.6265435,
+    "seen": 1793468014.1642828,
+    "ast_hash": "69b848c698613970cdd510cb4be36af0",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/sort-coeur.ogg": {
+    "mtime": 1793468003.5425434,
+    "seen": 1793468014.164284,
+    "ast_hash": "b0acd1b25f85bf4d614ca9aef716a930",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/sort-combat.ogg": {
+    "mtime": 1793468002.8425434,
+    "seen": 1793468014.164285,
+    "ast_hash": "4606578027012d07da8bbc2215e3db2d",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/sort-magie.ogg": {
+    "mtime": 1793468003.4505434,
+    "seen": 1793468014.1642866,
+    "ast_hash": "5314c09c9b4b468a0e0753283debe20c",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/sort-mystere.ogg": {
+    "mtime": 1793468003.3705435,
+    "seen": 1793468014.1642878,
+    "ast_hash": "ca359e33f66be27b3c91b865a0de03d0",
+    "semantic_hash": ""
+  },
+  "public/mockups/studio-sfx/source-punch.ogg": {
+    "mtime": 1793468002.6265435,
+    "seen": 1793468014.1642885,
+    "ast_hash": "7fe9f3400e9bbff6f2c07b245733b2c7",
+    "semantic_hash": ""
+  },
+  "public/mockups/battle-sfx-foley.html": {
+    "mtime": 1793468107.9088438,
+    "seen": 1793468179.3906152,
+    "ast_hash": "434e64c9cede047c800024d5999bb3e3",
+    "semantic_hash": ""
+  },
+  "public/audio/battle/SOURCES.json": {
+    "mtime": 1793468604.6114385,
+    "seen": 1793468627.512502,
+    "ast_hash": "42aa53cda456dc6846bc80aa9c6897a3",
+    "semantic_hash": ""
+  },
+  "public/audio/battle/LICENSE.txt": {
+    "mtime": 1793468604.611212,
+    "seen": 1793468627.5225654,
+    "ast_hash": "f7fcfe34b5ccff41c6cc830ece998db7",
+    "semantic_hash": ""
+  },
+  "public/audio/battle/blade.ogg": {
+    "mtime": 1793468604.6065335,
+    "seen": 1793468627.5232701,
+    "ast_hash": "143825b9b4175bdaa9d428c1910bf027",
     "semantic_hash": ""
   }
 }
