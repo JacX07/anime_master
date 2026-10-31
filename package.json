@@ -18,6 +18,7 @@
     "postinstall": "prisma generate",
     "simulate": "tsx scripts/simulate-crystals.ts",
     "simulate:battle": "tsx scripts/simulate-battle.ts",
+    "simulate:story": "tsx scripts/simulate-story.ts",
     "check:recharge": "tsx scripts/check-recharge.ts",
     "check:economy": "tsx scripts/check-economy.ts",
     "check:trades": "tsx scripts/check-trades.ts",
