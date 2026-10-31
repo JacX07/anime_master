@@ -1,17 +1,20 @@
-// Simulation du mode histoire (docs/specs/pvm.md) : taux de victoire d'équipes types contre les 15 combats d'un univers.
-// Ennemis : sorts du personnage, stats = moyenne de sa rareté × échelle du niveau ; boss = bonus de stats.
-// Usage : npx tsx scripts/simulate-story.ts [--games 2000] [--seed 42] [--lo 0.3] [--hi 1.0] [--boss 1.25]
+// Simulation du mode histoire (docs/specs/pvm.md) : taux de victoire d'équipes types contre les 15 univers (ennemis réels de
+// `storyEnemies`, y compris la difficulté de l'univers). Une ligne par équipe, une colonne par univers : combats 1, 8 et 15 (boss final).
+// Usage : npx tsx scripts/simulate-story.ts [--games 300] [--seed 42] [--max 1.5]   (--max : difficulté du dernier univers)
 
 import type { Rarity } from "../src/generated/prisma/enums";
 import { battle, type BattleCard, type Random, type Weapon } from "../src/lib/battle";
+import { storyEnemies } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
+import { UNIVERSES } from "../src/lib/story";
 
 const arg = (name: string, d: number) => {
   const i = process.argv.indexOf(name);
   return i < 0 ? d : Number(process.argv[i + 1]);
 };
-const GAMES = arg("--games", 2000);
-const LO = arg("--lo", 0.3), HI = arg("--hi", 1.0), BOSS = arg("--boss", 1.25);
+const GAMES = arg("--games", 300);
+const MAX = arg("--max", UNIVERSES[14].difficulty);
+UNIVERSES.forEach((u, i) => (u.difficulty = 1 + ((MAX - 1) * i) / (UNIVERSES.length - 1)));
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
@@ -26,14 +29,6 @@ const rng = seeded(arg("--seed", 42));
 const any = <T>(l: T[]) => l[Math.floor(rng() * l.length)];
 const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 
-/** Rareté des 4 ennemis par niveau (le dernier est le boss aux niveaux 5, 10, 15) : montée progressive, pas par paliers. */
-const MIX: Rarity[][] = [
-  ["N", "N", "N", "R"], ["N", "N", "R", "R"], ["N", "R", "R", "R"], ["R", "R", "R", "SR"], ["R", "R", "SR", "SR"],
-  ["R", "SR", "SR", "SR"], ["R", "SR", "SR", "SR"], ["SR", "SR", "SR", "SSR"], ["SR", "SR", "SSR", "SSR"], ["SR", "SSR", "SSR", "SSR"],
-  ["SR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "UR"], ["SSR", "SSR", "SSR", "UR"],
-];
-const scale = (level: number) => LO + ((HI - LO) * (level - 1)) / 14;
-
 async function main() {
   const rows = await prisma.character.findMany({
     where: { disabled: false },
@@ -44,15 +39,6 @@ async function main() {
     franchiseId: r.mainMedia?.franchiseId ?? r.mainMediaId,
   }));
   const by = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
-  const mean = Object.fromEntries(RARITIES.map((r) => [r, { a: by[r].reduce((s, c) => s + c.attack, 0) / by[r].length, d: by[r].reduce((s, c) => s + c.defense, 0) / by[r].length }]));
-
-  const enemy = (level: number): BattleCard[] =>
-    MIX[level - 1].map((r, i) => {
-      const boss = level % 5 === 0 && i === 3;
-      const k = scale(level) * (boss ? BOSS : 1);
-      const base = any(by[r]);
-      return { ...base, attack: Math.round(mean[r].a * k), defense: Math.round(mean[r].d * k), stars: 0, weapon: null };
-    });
 
   const weapon: Weapon = { stat: 0.05, passive: null };
   const mk = (rarities: Rarity[], stars: number, w = false) => () =>
@@ -60,29 +46,37 @@ async function main() {
   const teams: Record<string, () => BattleCard[]> = {
     "4 R": mk(["R", "R", "R", "R"], 0),
     "4 SR": mk(["SR", "SR", "SR", "SR"], 0),
-    "SSR+3 SR": mk(["SSR", "SR", "SR", "SR"], 0),
     "4 SSR": mk(["SSR", "SSR", "SSR", "SSR"], 0),
     "4 SSR 3★": mk(["SSR", "SSR", "SSR", "SSR"], 3),
-    "UR+3 SSR": mk(["UR", "SSR", "SSR", "SSR"], 0),
-    "4 UR": mk(["UR", "UR", "UR", "UR"], 0),
     "4 SSR 5★ arme": mk(["SSR", "SSR", "SSR", "SSR"], 5, true),
-    "2 UR+2 SSR": mk(["UR", "UR", "SSR", "SSR"], 0),
+    "UR+3 SSR 3★": mk(["UR", "SSR", "SSR", "SSR"], 3),
     "UR+3 SSR 5★": mk(["UR", "SSR", "SSR", "SSR"], 5, true),
+    "4 UR": mk(["UR", "UR", "UR", "UR"], 0),
+    "4 UR 3★": mk(["UR", "UR", "UR", "UR"], 3),
+    "4 UR 5★ arme": mk(["UR", "UR", "UR", "UR"], 5, true),
   };
+  const LEVELS_SHOWN = [1, 8, 15];
+  const enemies = new Map<string, BattleCard[]>();
+  for (const u of UNIVERSES) for (const lv of LEVELS_SHOWN) enemies.set(`${u.key}:${lv}`, await storyEnemies(u, lv));
 
-  console.log(`échelle ${LO} → ${HI}, bonus boss × ${BOSS}, ${GAMES} combats par case, taux de victoire (%) par niveau\n`);
-  console.log("équipe".padEnd(14) + MIX.map((_, i) => String(i + 1).padStart(4)).join(""));
+  console.log(`Difficulté du dernier univers ×${MAX.toFixed(2)}, ${GAMES} combats par case, victoire (%) aux combats 1 / 8 / 15 (boss final)\n`);
+  console.log("équipe".padEnd(15) + UNIVERSES.map((u) => String(u.rank).padStart(3 * 3 + 1)).join(""));
+  console.log(" ".repeat(15) + UNIVERSES.map(() => "   1  8 15").join(""));
   for (const [name, make] of Object.entries(teams)) {
-    let line = name.padEnd(14);
-    for (let lv = 1; lv <= 15; lv++) {
-      let w = 0;
-      for (let g = 0; g < GAMES; g++) {
-        const r = battle(make(), enemy(lv), rng);
-        w += r.winner === "A" ? 1 : r.winner === null ? 0.5 : 0;
+    let line = name.padEnd(15);
+    for (const u of UNIVERSES) {
+      line += " ";
+      for (const lv of LEVELS_SHOWN) {
+        let w = 0;
+        for (let g = 0; g < GAMES; g++) {
+          const r = battle(make(), enemies.get(`${u.key}:${lv}`)!.map((c) => ({ ...c })), rng);
+          w += r.winner === "A" ? 1 : r.winner === null ? 0.5 : 0;
+        }
+        line += String(Math.round((w / GAMES) * 100)).padStart(3);
       }
-      line += String(Math.round((w / GAMES) * 100)).padStart(4);
     }
     console.log(line);
   }
+  console.log("\nUnivers : " + UNIVERSES.map((u) => `${u.rank}=${u.name}${u.kind === "collision" ? " (collision)" : ""}`).join(" · "));
 }
 main().finally(() => prisma.$disconnect());

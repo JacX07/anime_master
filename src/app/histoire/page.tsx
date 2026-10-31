@@ -4,6 +4,7 @@ import { SceneBody } from "@/components/SceneBody";
 import { prisma } from "@/lib/db";
 import { getAttackTeam, getStoryProgress } from "@/lib/battles";
 import { requireUser } from "@/lib/session";
+import { LEVELS, mixFor } from "@/lib/story";
 import { StoryBoard } from "./StoryBoard";
 
 export const metadata: Metadata = { title: "Histoire — Anime Masters" };
@@ -35,7 +36,7 @@ async function Story() {
         </p>
       </header>
       <StoryBoard
-        universes={progress.map((p) => ({ key: p.universe.key, name: p.universe.name, resource: p.universe.resource, weaponResource: p.universe.weaponResource, maxLevel: p.maxLevel, unlocked: p.unlocked, rank: p.universe.rank, kind: p.universe.kind, difficulty: p.universe.difficulty }))}
+        universes={progress.map((p) => ({ key: p.universe.key, name: p.universe.name, resource: p.universe.resource, weaponResource: p.universe.weaponResource, maxLevel: p.maxLevel, unlocked: p.unlocked, rank: p.universe.rank, kind: p.universe.kind, startScale: p.universe.startScale, difficulty: p.universe.difficulty, mixes: Array.from({ length: LEVELS }, (_, l) => mixFor(p.universe, l + 1)) }))}
         team={team.map((c) => (c ? { name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null))}
         stock={Object.fromEntries(stock.map((r) => [r.key, r.quantity]))}
       />

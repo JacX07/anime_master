@@ -6,7 +6,7 @@ import { autoAttackTeamAction, startBattleAction } from "@/app/battle-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
 import { RARITY_NAMES } from "@/lib/labels";
-import { isBoss, isFinalBoss, LEVELS, MIX, RESOURCE_NAMES } from "@/lib/story";
+import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES } from "@/lib/story";
 import type { Rarity } from "@/generated/prisma/enums";
 import "./histoire.css";
 
@@ -19,8 +19,11 @@ interface UniverseView {
   unlocked: boolean;
   rank: number;
   kind: "anime" | "collision";
-  /** Difficulté de l'univers par rapport au premier (×1,0 à ×1,5) */
+  /** Puissance des ennemis au premier et au dernier combat (part des stats de référence de leur rareté) */
+  startScale: number;
   difficulty: number;
+  /** Raretés des 4 ennemis de chacun des 15 combats */
+  mixes: string[][];
 }
 interface Props {
   universes: UniverseView[];
@@ -186,7 +189,7 @@ export function StoryBoard({ universes, team, stock }: Props) {
       </nav>
       {!u.unlocked && <p className="vt-muted">Termine {universes[u.rank - 2]?.name} (15 combats) pour ouvrir cet univers.</p>}
       <p className="vt-count">
-        {u.kind === "collision" ? "Univers de collision : des personnages de plusieurs anime." : "Univers d'anime."} Difficulté ×{u.difficulty.toFixed(2).replace(".", ",")}{u.rank === 1 ? " (tutoriel)" : ""}.
+        {u.kind === "collision" ? "Univers de collision : des personnages de plusieurs anime." : "Univers d'anime."} Ennemis de ×{u.startScale.toFixed(2).replace(".", ",")} à ×{u.difficulty.toFixed(2).replace(".", ",")} des stats de leur rareté{u.rank === 1 ? " (tutoriel)" : ""}.
       </p>
 
       <p className="vt-count">
@@ -195,7 +198,7 @@ export function StoryBoard({ universes, team, stock }: Props) {
       {error && <p className="hs-error" role="alert">{error}</p>}
 
       <ol className="hs-levels">
-        {MIX.map((mix, i) => {
+        {u.mixes.map((mix, i) => {
           const n = i + 1;
           const done = n <= u.maxLevel, open = u.unlocked && n <= u.maxLevel + 1;
           return (

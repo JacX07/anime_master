@@ -18,18 +18,29 @@ export interface Universe {
   weaponResource: string;
   /** Rang dans la progression, de 1 (tutoriel) à 15 */
   rank: number;
-  /** Multiplicateur des stats ennemies : monte d'un univers à l'autre */
+  /** Échelle des stats ennemies au dernier combat de l'univers (le boss final) : monte d'un univers à l'autre */
   difficulty: number;
+  /** Échelle au 1er combat : monte aussi, les univers avancés n'ont plus de combats faciles */
+  startScale: number;
+  /** Décalage du mélange de raretés : les univers avancés commencent plus haut dans l'échelle des raretés */
+  mixShift: number;
   /** Multiplicateur des unités de ressource : les univers difficiles paient plus */
   rewardFactor: number;
 }
 
-/** Stats ennemies du dernier univers par rapport au premier (à régler au simulateur, voir scripts/simulate-story.ts). */
-export const DIFFICULTY_MAX = 1.5;
+/**
+ * Échelle des stats au dernier combat de chaque univers, réglée par `npm run calibrate:story` : une équipe de référence
+ * (1 UR + 3 SSR en 5 étoiles avec arme) bat le boss final dans 95 % des cas dans le 1er univers, 20 % dans le 15ᵉ.
+ */
+const DIFFICULTY = [1.01, 0.93, 1.01, 1.06, 1.05, 0.97, 0.99, 1.08, 1.12, 1.03, 1.16, 1.17, 1.08, 1.09, 1.22];
+/** Échelle du 1er combat : 0,3 pour le tutoriel, 0,75 pour le dernier univers. */
+const START_SCALE = Array.from({ length: 15 }, (_, i) => +(0.3 + (0.45 * i) / 14).toFixed(3));
+/** Cases de décalage du mélange de raretés : 0 pour le tutoriel, 7 pour le dernier univers. */
+const MIX_SHIFT = Array.from({ length: 15 }, (_, i) => Math.round((7 * i) / 14));
 /** Butin du dernier univers par rapport au premier. */
 export const REWARD_MAX = 2.4;
 
-type Def = Omit<Universe, "rank" | "difficulty" | "rewardFactor">;
+type Def = Omit<Universe, "rank" | "difficulty" | "startScale" | "mixShift" | "rewardFactor">;
 /**
  * Dans l'ordre de la progression : un univers de collision tous les 3 univers. Chaque univers s'ouvre en finissant le précédent
  * et est plus difficile que lui. Le premier sert de tutoriel.
@@ -56,7 +67,9 @@ const DEFS: Def[] = [
 export const UNIVERSES: Universe[] = DEFS.map((d, i) => ({
   ...d,
   rank: i + 1,
-  difficulty: 1 + ((DIFFICULTY_MAX - 1) * i) / (DEFS.length - 1),
+  difficulty: DIFFICULTY[i],
+  startScale: START_SCALE[i],
+  mixShift: MIX_SHIFT[i],
   rewardFactor: 1 + ((REWARD_MAX - 1) * i) / (DEFS.length - 1),
 }));
 
@@ -90,8 +103,10 @@ export const MIX: Rarity[][] = [
   ["SR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "UR"], ["SSR", "SSR", "SSR", "UR"],
 ];
 
-/** Échelle des stats : 0,3 au niveau 1, 1,0 au niveau 15, en ligne droite. */
-export const levelScale = (level: number) => 0.3 + (0.7 * (level - 1)) / (LEVELS - 1);
+/** Échelle des stats d'un combat : de l'échelle de départ de l'univers (niveau 1) à sa difficulté (niveau 15), en ligne droite. */
+export const levelScale = (universe: Universe, level: number) => universe.startScale + ((universe.difficulty - universe.startScale) * (level - 1)) / (LEVELS - 1);
+/** Rareté des 4 ennemis d'un combat : le mélange du niveau, décalé vers le haut dans les univers avancés (sans dépasser le dernier mélange). */
+export const mixFor = (universe: Universe, level: number) => MIX[Math.min(LEVELS - 1, level - 1 + universe.mixShift)];
 /** Bonus du boss sur l'ATK et la DEF. */
 export const BOSS_BONUS = 1.25;
 export const isBoss = (level: number) => level % 5 === 0;

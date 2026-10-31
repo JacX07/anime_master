@@ -13,7 +13,7 @@ import { prisma } from "./db";
 import { afterGain } from "./crystal-stock";
 import { startOfDay } from "./economy";
 import {
-  baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, MIX, storyLoot,
+  baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, mixFor, storyLoot,
   universeOf, UNIVERSES, type Loot, type Universe,
 } from "./story";
 import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./tower";
@@ -90,7 +90,7 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
     }
     return rows.find((c) => !used.has(c.id))!;
   };
-  return MIX[level - 1].map((want, i) => {
+  return mixFor(universe, level).map((want, i) => {
     const boss = isBoss(level) && i === 3;
     let c: CharacterRow;
     if (boss && isFinalBoss(level)) {
@@ -99,8 +99,9 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
     } else c = pick(want, boss);
     used.add(c.id);
     // La rareté de la case (pas celle du personnage tiré) fixe les stats : un univers sans SSR reste aussi dur qu'un autre
-    const m = means[want], k = levelScale(level) * universe.difficulty * (boss ? BOSS_BONUS : 1);
-    return { ...toBattleCard(c), rarity: want, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss };
+    const m = means[want], k = levelScale(universe, level) * (boss ? BOSS_BONUS : 1);
+    // Pas de synergie de franchise pour les ennemis : la difficulté vient du niveau et de l'univers (valeurs calibrées sans synergie)
+    return { ...toBattleCard(c), franchiseId: null, rarity: want, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss };
   });
 }
 

@@ -43,19 +43,40 @@ Détaillé dans la section « Raid » ci-dessous.
 - Le joueur combat avec son **équipe d'attaque** ([combat.md](combat.md) §10), en manuel ou en automatique. **Une défaite n'a aucune pénalité.**
 - Pas d'énergie, pas de limite de tentatives (voir « Rejouer et farmer »).
 
-### Deux sortes d'univers
-| Sorte | Contenu | Pour qui |
-|---|---|---|
-| **Univers d'anime** | Les personnages de cet anime, déréglés par l'anomalie : leur signature est brouillée et ils attaquent. Boss final = le SSR ou UR le plus populaire de l'anime. | Les gros anime (assez de personnages, dont des SSR ou UR) |
-| **Univers de collision** | Plusieurs univers qui se sont percutés : on y croise des personnages de plein d'anime. Nom et thème propres (lore des brèches). | Les anime plus petits, qui sans cela n'auraient jamais d'univers ni de ressource |
+### Quinze univers, du plus simple au plus difficile *(décidé le 2026-10-31)*
+- **Un univers = un lieu à visiter**, avec **3 actes de 5 combats** (15 combats, le 5ᵉ de chaque acte est un boss d'acte, le dernier est le boss final). Défaite sans pénalité, pas d'énergie, pas de limite de tentatives.
+- **Progression en chaîne** : le premier univers sert de tutoriel ; chaque univers **s'ouvre en finissant le précédent** (ses 15 combats) et est **plus difficile** que lui.
+- **Un univers de collision tous les 3 univers** (le 3ᵉ, le 6ᵉ… le 15ᵉ) pour la variété. Un univers de collision mêle des personnages de plusieurs anime (voir plus bas) ; un univers d'anime ne contient que les personnages de son anime. Le boss final est le SSR ou UR le plus populaire du lot (à défaut un SR).
 
-- Repères (base de personnages) : 155 anime ont au moins 8 personnages, 76 d'entre eux ont un SSR ou un UR, 25 ont au moins 20 personnages.
-- **Lancement : 3 univers d'anime choisis à la main** (One Piece, Jujutsu Kaisen, Naruto, validés), puis des univers de collision et d'autres anime au fil du temps.
-- **Le premier univers sert de tutoriel** et débloque tous les autres, qui sont alors ouverts avec leur difficulté affichée.
+| # | Univers | Sorte | Ressource d'éveil | Ressource d'arme |
+|---|---|---|---|---|
+| 1 | One Piece *(tutoriel)* | anime | Fruit du démon | Kairoseki |
+| 2 | Naruto | anime | Parchemin de jutsu | Métal à chakra |
+| 3 | Le Grand Concert | collision | Bâton lumineux | Instrument d'or |
+| 4 | Jujutsu Kaisen | anime | Doigt maudit | Outil maudit |
+| 5 | Demon Slayer | anime | Fleur de glycine | Acier écarlate |
+| 6 | La Ligue des Terrains | collision | Trophée | Équipement de légende |
+| 7 | My Hero Academia | anime | Fragment d'Alter | Costume de héros |
+| 8 | Bleach | anime | Cristal de reiatsu | Fragment de zanpakutō |
+| 9 | Les Royaumes Échoués | collision | Pierre de convocation | Fragment de grimoire |
+| 10 | Attack on Titan | anime | Éclat de titan | Lame ultra-dure |
+| 11 | Hunter x Hunter | anime | Licence de Hunter | Carte de Greed Island |
+| 12 | La Grande Alchimie | collision | Pierre philosophale | Cristal de magie |
+| 13 | JoJo's Bizarre Adventure | anime | Flèche du Stand | Masque de pierre |
+| 14 | Dragon Ball | anime | Graine de Senzu | Armure saiyan |
+| 15 | La Nuit des Maudits | collision | Larme d'ombre | Lame maudite |
+
+- **Univers de collision et leurs anime** (code : `src/lib/story.ts`) : *Le Grand Concert* = Love Live, BanG Dream, Uma Musume, Holo no Graffiti, Project Sekai, Fruits Basket, Horimiya, Kaguya-sama, Les Quintuplées. *La Ligue des Terrains* = Haikyu, Blue Lock, Kuroko, Free!, Ace of Diamond. *Les Royaumes Échoués* = Re:Zero, Slime, Mushoku Tensei, Overlord, The Eminence in Shadow, Solo Leveling, SAO, KonoSuba. *La Grande Alchimie* = Fairy Tail, Black Clover, Seven Deadly Sins, Fire Force, Fullmetal Alchemist, Frieren, Dr. Stone. *La Nuit des Maudits* = Tokyo Ghoul, Chainsaw Man, Berserk, Soul Eater, Black Butler, Hanako-kun, Akame ga Kill, Danganronpa, Higurashi.
+- **Une ressource commune** existe aussi : le **fragment de signature**, seule ressource des personnages des anime **sans univers**.
+- **Difficulté qui monte** :
+  - Les stats ennemies vont d'une **échelle de départ** (0,30 au tutoriel, jusqu'à 0,75 au 15ᵉ univers) à une **échelle du boss final** réglée par univers (de ×0,93 à ×1,22 des stats de leur rareté).
+  - Le **mélange de raretés est décalé** vers le haut : le 15ᵉ univers commence avec des SR et un SSR, et n'a plus de combats faciles.
+  - Réglage : `npm run calibrate:story` ajuste l'échelle du boss final pour qu'une équipe de référence (1 UR + 3 SSR en 5 étoiles avec arme) le batte **95 %** du temps au 1ᵉʳ univers, **20 %** au 15ᵉ. `npm run simulate:story` montre les taux par équipe type.
+  - **Butin** : les unités de ressource sont multipliées par un facteur qui monte de ×1,0 (univers 1) à ×2,4 (univers 15).
 
 ### Ennemis
 - Les ennemis **gardent leurs sorts** (rôle par type, [combat.md](combat.md)) mais **pas leurs stats d'origine** : leurs stats viennent du **niveau du combat**, sinon un anime sans SR serait trop facile et un anime plein d'UR impossible.
-- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi : **moyenne de sa rareté × échelle du niveau**, l'échelle montant de 0,3 (niveau 1) à 1,0 (niveau 15) en ligne droite. Valeurs validées le 2026-10-31 avec `npm run simulate:story`. **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
+- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi : **moyenne de sa rareté × échelle du niveau**, l'échelle montant de 0,3 (niveau 1) à 1,0 (niveau 15) en ligne droite **dans le tutoriel** ; les univers suivants partent plus haut et finissent un peu plus haut (voir « Quinze univers »). Valeurs validées le 2026-10-31 avec `npm run simulate:story`. **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
 - **Difficulté progressive, pas par paliers** : le joueur garde la même équipe principale, il ne doit pas écraser l'acte 1 puis l'acte 2 d'un coup. Chaque combat mélange des raretés qui montent peu à peu (un combat de début : surtout N et R ; milieu : SR, un SSR ; fin : SSR, un UR en boss final). La rareté de l'ennemi sert à son apparence et à son niveau.
 - **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de **×1,25** sur l'ATK, la DEF et donc les PV (validé). Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
 - **Mélange de raretés par combat** (le boss est la 4ᵉ carte aux combats 5, 10 et 15) : 1–3 : N, N, N, R puis N, N, R, R puis N, R, R, R · 4–5 : R, R, R, SR puis R, R, SR, SR · 6–7 : R, SR, SR, SR · 8 : SR, SR, SR, SSR · 9 : SR, SR, SSR, SSR · 10–11 : SR, SSR, SSR, SSR · 12–13 : SSR ×4 · 14–15 : SSR, SSR, SSR, UR.
@@ -100,7 +121,7 @@ Détaillé dans la section « Raid » ci-dessous.
 - Seuls les personnages du labo parlent (Dr Hakase, Akari, Pew), quelques lignes au début et à la fin de chaque acte. Les personnages d'anime ne parlent jamais.
 - Un boss final vaincu : sa signature est rétablie, et Pew réagit à son départ (direction de caractérisation dans `lore.md`).
 
-### Univers de collision *(validés le 2026-10-31 ; après le lancement)*
+### Univers de collision *(validés le 2026-10-31 ; codés le 2026-10-31 dans la chaîne des 15 univers, voir plus haut)*
 Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont personnages / dont SSR ou UR). Les noms sont des propositions du lore des brèches. Chacun a sa ressource d'éveil et sa ressource d'arme légendaire (boss finaux) ; le boss final est le SSR ou UR le plus populaire du lot.
 
 | Univers | Thème | Anime (exemples) | Ressource d'éveil | Ressource d'arme |
