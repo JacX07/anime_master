@@ -15,9 +15,9 @@ export function builderEntries(id: number, rarity: Rarity, type: CardType, saved
   const tertiary = TERTIARY_SPELLS[id];
   const ultimate = ULTIMATE_CATALOG[id];
   return [
-    ...(base ? [{ slot: "base" as const, original: base, custom: drafts.base ?? null, timing: "Chaque action · 1× ATK et un petit effet" }] : []),
-    ...(secondary ? [{ slot: "secondary" as const, original: balanceSecondary(secondary, BATTLE.secondaryEffectScale), custom: drafts.secondary ?? null, timing: `Dès la première action · recharge ${SPELL_COOLDOWN} actions` }] : []),
-    ...(tertiary ? [{ slot: "tertiary" as const, original: powerTertiaryDamage(tertiary, BATTLE.tertiaryDamageScale), custom: drafts.tertiary ?? null, timing: `Dès la première action · recharge ${BATTLE.tertiaryCooldown} actions` }] : []),
+    ...(base ? [{ slot: "base" as const, original: base, custom: drafts.base ?? null, timing: "Chaque tour · attaque et petit effet" }] : []),
+    ...(secondary ? [{ slot: "secondary" as const, original: balanceSecondary(secondary, BATTLE.secondaryEffectScale), custom: drafts.secondary ?? null, timing: `Recharge : ${SPELL_COOLDOWN} tours` }] : []),
+    ...(tertiary ? [{ slot: "tertiary" as const, original: powerTertiaryDamage(tertiary, BATTLE.tertiaryDamageScale), custom: drafts.tertiary ?? null, timing: `Recharge : ${BATTLE.tertiaryCooldown} tours` }] : []),
     ...(ultimate ? [{ slot: "ultimate" as const, original: ultimate, custom: drafts.ultimate ?? null, timing: `Jauge ${BATTLE.ultimateGaugeMax} · base réussie +${BATTLE.ultimateGaugeBase}, sort offensif réussi +${BATTLE.ultimateGaugePerHit}` }] : []),
   ];
 }

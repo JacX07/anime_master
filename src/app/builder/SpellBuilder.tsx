@@ -109,7 +109,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
                 <span>{c.name}<small>{c.rarity} · {c.type}</small></span>
               </div>
               {c.spells.map((s) => (
-                <button key={s.slot} type="button" disabled={busy} aria-pressed={c.id === id && s.slot === slot} onClick={() => pick(c, s)}>
+                <button key={s.slot} type="button" title={describeBuilderSpell(s.custom ?? s.original, true)} disabled={busy} aria-pressed={c.id === id && s.slot === slot} onClick={() => pick(c, s)}>
                   <span><small>{SLOT_LABELS[s.slot]}{s.custom ? " · modifié" : ""}</small>
                     <strong className="sb-spell-name">{(s.custom ?? s.original).name}</strong>
                     <small>{describeBuilderSpell(s.custom ?? s.original)}</small>
@@ -129,7 +129,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
             {ch.spells.map((s) => <button key={s.slot} type="button" className="bt-btn" aria-pressed={slot === s.slot} disabled={busy} onClick={() => pick(ch, s)}>{SLOT_LABELS[s.slot]}</button>)}
           </div>
           <p className="sb-desc">{entry.timing}</p>
-          <div className="sb-preview">
+          <div className="sb-preview" tabIndex={0} title={describeBuilderSpell(entry.original, true)}>
             <strong>{SLOT_LABELS[slot]} d&apos;origine : {entry.original.name}</strong>
             <p>{describeBuilderSpell(entry.original)}</p>
             <button type="button" className="bt-btn" disabled={busy} onClick={() => load(entry.original)}>Modifier le sort d&apos;origine</button>
@@ -153,6 +153,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
               <div className="sb-fields">
                 {EFFECTS[e.k].fields.map((f) => (
                   <FieldInput key={f.key} f={f} value={(e as unknown as Record<string, unknown>)[f.key]}
+                    unit={f.key === "amount" && e.k === "mod" ? e.stat === "crit" || e.stat === "dodge" ? "pts" : "%" : ["pct", "ignoreDef", "drain"].includes(f.key) ? "%" : undefined}
                     onChange={(v) => edit((s) => { (s.effects[i] as unknown as Record<string, unknown>)[f.key] = v; })} />
                 ))}
               </div>
@@ -164,11 +165,11 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
             {Object.entries(EFFECTS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
 
-          <p className="sb-preview"><strong>{spell.name}</strong> — {spell.effects.length ? describeSpell(spell) : "aucun effet"}</p>
+          <p className="sb-preview" tabIndex={0} title={spell.effects.length ? describeSpell(spell, true) : undefined}><strong>{spell.name}</strong> — {spell.effects.length ? describeSpell(spell) : "aucun effet"}</p>
 
           </>}
           </fieldset>
-          {basic && <p className="sb-preview"><strong>{basic.name}</strong> — {describeBasicAttack(basic)}</p>}
+          {basic && <p className="sb-preview" tabIndex={0} title={describeBasicAttack(basic)}><strong>{basic.name}</strong> — {describeBasicAttack(basic, false)}</p>}
           <div className="sb-actions">
             <button type="button" className="bt-btn" onClick={save} disabled={busy || !value.name.trim() || (spell !== null && !spell.effects.length)}>Enregistrer</button>
             <button type="button" className="bt-btn" disabled={busy} onClick={reset}>Revenir au sort du jeu</button>
@@ -198,7 +199,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
   );
 }
 
-function FieldInput({ f, value, onChange }: { f: Field; value: unknown; onChange: (v: unknown) => void }) {
+function FieldInput({ f, value, unit, onChange }: { f: Field; value: unknown; unit?: "%" | "pts"; onChange: (v: unknown) => void }) {
   if (f.type === "bool") return <label className="sb-f"><input type="checkbox" checked={value === true} onChange={(e) => onChange(e.target.checked || undefined)} /> {f.label}</label>;
   if (f.type === "choice")
     return (
@@ -209,11 +210,13 @@ function FieldInput({ f, value, onChange }: { f: Field; value: unknown; onChange
       </label>
     );
   const n = typeof value === "number" ? value : f.def;
+  const scale = unit ? 100 : 1;
+  const shown = n * scale;
   return (
     <label className="sb-f">{f.label}
       <span className="sb-num">
-        <input type="range" min={f.min} max={f.max} step={f.step} value={n} onChange={(e) => onChange(Number(e.target.value))} />
-        <output>{+n.toFixed(2)}</output>
+        <input type="range" min={f.min * scale} max={f.max * scale} step={f.step * scale} value={shown} onChange={(e) => onChange(Number(e.target.value) / scale)} />
+        <output>{unit ? `${f.key === "amount" && shown > 0 ? "+" : ""}${shown.toFixed(0)} ${unit}` : +n.toFixed(2)}</output>
       </span>
     </label>
   );
@@ -224,7 +227,7 @@ function BasicEditor({ attack, onChange }: { attack: BasicAttack; onChange: (a: 
   const r = attack.rider;
   const change = (rider: BasicRider) => onChange({ ...attack, rider });
   return <div className="sb-fields">
-    <p className="sb-desc">1× ATK fixe, une cible ennemie et un seul petit effet (§4 ter).</p>
+    <p className="sb-desc" title="1× ATK fixe">Une cible ennemie et un seul petit effet (§4 ter).</p>
     <label className="sb-f">Effet
       <select value={r.kind} onChange={(e) => change(e.target.value === "mod" ? { kind: "mod", stat: "atk", amount: 0.03, to: "self" } : { kind: e.target.value as Exclude<BasicRider["kind"], "mod">, pct: 0.005 })}>
         {Object.entries(RIDER_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}

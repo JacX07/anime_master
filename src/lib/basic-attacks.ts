@@ -146,17 +146,17 @@ export function describeBasicRider(rider: BasicRider): string {
       const sign = rider.amount > 0 ? "+" : "−";
       const value = rider.stat === "crit" || rider.stat === "dodge" ? `${Math.round(Math.abs(rider.amount) * 100)} points` : percent(Math.abs(rider.amount));
       const who = rider.to === "self" ? "le lanceur" : "la cible";
-      const timing = rider.stat === "dodge" ? "jusqu'à sa prochaine action" : `pour sa prochaine action`;
+      const timing = rider.stat === "dodge" ? "jusqu'à son prochain tour" : "pour son prochain tour";
       return `${statName[rider.stat]} ${sign}${value} pour ${who}, ${timing}`;
     }
     case "heal": return `rend ${percent(rider.pct)} des PV max au lanceur`;
     case "shield": return `bouclier de ${percent(rider.pct)} des PV max pour le lanceur`;
-    case "poison": return `poison : ${percent(rider.pct)} des PV max de la cible à sa prochaine action`;
+    case "poison": return `poison : ${percent(rider.pct)} des PV max de la cible à son prochain tour`;
     case "drain": return `rend ${percent(rider.pct)} des dégâts infligés en PV`;
     case "ignoreDef": return `ignore ${percent(rider.pct)} de la DEF sur la prochaine attaque du lanceur`;
   }
 }
 
-export function describeBasicAttack(attack: BasicAttack): string {
-  return `1× ATK. ${describeBasicRider(attack.rider)}.`;
+export function describeBasicAttack(attack: BasicAttack, detailed = true): string {
+  return `${detailed ? "1× ATK. " : ""}${describeBasicRider(attack.rider)}.`;
 }

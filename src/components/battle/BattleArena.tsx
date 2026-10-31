@@ -135,7 +135,7 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
         <label className="bt-choice" data-on={manual || undefined}>
           <input type="radio" name="mode" checked={manual} onChange={() => setManual(true)} />
           <b>Manuel</b>
-          <small>À chaque action, tu choisis le sort et la cible.</small>
+          <small>À chaque tour de ta carte, tu choisis le sort et la cible.</small>
         </label>
       </fieldset>
       {teamReady ? null : bestCardIds.length === 4 ? (

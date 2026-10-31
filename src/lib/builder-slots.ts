@@ -9,7 +9,7 @@ export type BuilderValue = BasicAttack | CharacterSpell;
 export type SlotDrafts = Partial<Record<BuilderSlot, BuilderValue>>;
 export interface BuilderEntry { slot: BuilderSlot; original: BuilderValue; custom: BuilderValue | null; timing: string }
 export const isBuilderSlot = (s: unknown): s is BuilderSlot => typeof s === "string" && Object.hasOwn(SLOT_LABELS, s);
-export const describeBuilderSpell = (s: BuilderValue) => "rider" in s ? describeBasicAttack(s) : describeSpell(s, true);
+export const describeBuilderSpell = (s: BuilderValue, detailed = false) => "rider" in s ? describeBasicAttack(s, detailed) : describeSpell(s, detailed);
 
 /** Les anciennes sauvegardes sont des secondaires seuls. */
 export function readSlotDrafts(raw: unknown): SlotDrafts {

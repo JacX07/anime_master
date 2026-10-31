@@ -45,12 +45,12 @@ export function SpellsPanel({
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
   const weakVs = types.find((t) => typeAffinity(unit.type, t) < 1)!;
   const basic = basicAttackOf(unit.characterId, unit.rarity, unit.type);
-  const spells: { key: Spell; title: React.ReactNode; target: string; text: string; note: string | null }[] = [
-    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, note: null },
+  const spells: { key: Spell; title: React.ReactNode; target: string; text: string; tooltip: string; note: string | null }[] = [
+    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic, false) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
   ];
   // Les SSR et UR n'ont pas de sort de type : leurs 4 emplacements sont personnalisés
   if (!hasCharacterSlots(unit.rarity)) {
-    spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN });
+    spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, tooltip: affinity.details, note: AFFINITY_COOLDOWN });
   }
   const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
   const own = rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null;
@@ -60,7 +60,8 @@ export function SpellsPanel({
       title: <>★ {own.name}</>,
       target: SPELL_TARGET_LABEL[own.target ?? "none"],
       text: describeSpell(own),
-      note: `Rechargement : ${SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.`,
+      tooltip: describeSpell(own, true),
+      note: `Rechargement : ${SPELL_COOLDOWN} tours.`,
     });
   }
   const ultimateGauge = unit.ultimateGauge ?? 0;
@@ -73,7 +74,8 @@ export function SpellsPanel({
       title: <>◇ {tertiary.name}</>,
       target: SPELL_TARGET_LABEL[tertiary.target ?? "none"],
       text: describeSpell(tertiary),
-      note: `Rechargement : ${BATTLE.tertiaryCooldown} actions, disponible dès la 1re action.`,
+      tooltip: describeSpell(tertiary, true),
+      note: `Rechargement : ${BATTLE.tertiaryCooldown} tours.`,
     });
   }
   const ultimate = hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined;
@@ -83,6 +85,7 @@ export function SpellsPanel({
       title: <>✦ {ultimate.name}</>,
       target: SPELL_TARGET_LABEL[ultimate.target ?? "none"],
       text: describeSpell(ultimate),
+      tooltip: describeSpell(ultimate, true),
       note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });
   }
@@ -102,7 +105,7 @@ export function SpellsPanel({
                 : "À toi de jouer : choisis un sort"
             : followsAction
               ? "Touche une carte pour voir ses sorts"
-              : "Touche à nouveau la carte pour suivre l'action"}
+              : "Touche à nouveau la carte pour suivre le tour"}
         </small>
       </h3>
       <p className="bt-legend">
@@ -128,12 +131,13 @@ export function SpellsPanel({
               <b>{s.title}</b>
               <em>{s.target}</em>
               <p>{s.text}</p>
-              {s.note && <small>{choose && !ready && turnsWait ? `Prêt dans ${wait} action${wait > 1 ? "s" : ""}.` : s.note}</small>}
+              {s.note && <small>{choose && !ready && turnsWait ? `Prêt dans ${wait} tour${wait > 1 ? "s" : ""}.` : s.note}</small>}
               {choose && !ready && turnsWait && s.key !== "base" && wait > 0 && (
                 <span className="bt-wait" aria-hidden>
                   {wait}
                 </span>
               )}
+              <span id={`bt-spell-detail-${unit.id}-${s.key}`} hidden>{s.tooltip}</span>
             </>
           );
           return choose ? (
@@ -141,6 +145,8 @@ export function SpellsPanel({
               key={s.key}
               type="button"
               className="bt-spell"
+              title={s.tooltip}
+              aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`}
               data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}
               aria-pressed={choose.spell === s.key}
               disabled={!ready || choose.busy}
@@ -149,7 +155,7 @@ export function SpellsPanel({
               {body}
             </button>
           ) : (
-            <div key={s.key} className="bt-spell" data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}>
+            <div key={s.key} className="bt-spell" tabIndex={0} title={s.tooltip} aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`} data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}>
               {body}
             </div>
           );
@@ -208,7 +214,7 @@ export function History({
     }
   };
   return (
-    <aside className="bt-history" aria-label="Historique des actions" data-open={open || undefined}>
+    <aside className="bt-history" aria-label="Historique des tours" data-open={open || undefined}>
       <h3 className="bt-history-title">
         Historique
         <button type="button" className="bt-btn bt-history-close" onClick={onClose}>
@@ -216,7 +222,7 @@ export function History({
         </button>
       </h3>
       {entries.length === 0 ? (
-        <p className="bt-history-empty">Aucune action pour l&apos;instant.</p>
+        <p className="bt-history-empty">Aucun tour pour l&apos;instant.</p>
       ) : (
         <ol ref={list}>
           {entries.map((h) => (

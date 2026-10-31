@@ -47,33 +47,33 @@ function SpellList({ card }: { card: TeamCard }) {
   const ultimate = slots ? ULTIMATE_CATALOG[card.characterId] : undefined;
   return (
     <ul className="eq-spells">
-      <li>
+      <li tabIndex={0} title={basic ? describeBasicAttack(basic) : BASE_SPELL.details}>
         <b>{basic?.name ?? BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
-        <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
+        <p>{basic ? describeBasicAttack(basic, false) : BASE_SPELL.text}</p>
       </li>
       {!slots && (
-        <li>
+        <li tabIndex={0} title={info.details}>
           <b><TypeIcon type={card.type} /> {SPELL_NAMES[card.type]}</b> <small>{info.target}</small>
           <p>{info.text}</p>
           <small>{AFFINITY_COOLDOWN}</small>
         </li>
       )}
       {own && (
-        <li>
+        <li tabIndex={0} title={describeSpell(own, true)}>
           <b>★ {own.name}</b> <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
           <p>{describeSpell(own)}</p>
-          <small>Rechargement : {SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.</small>
+          <small>Rechargement : {SPELL_COOLDOWN} tours de cette carte.</small>
         </li>
       )}
       {tertiary && (
-        <li>
+        <li tabIndex={0} title={describeSpell(tertiary, true)}>
           <b>◇ {tertiary.name}</b> <small>{SPELL_TARGET_LABEL[tertiary.target ?? "none"]}</small>
           <p>{describeSpell(tertiary)}</p>
-          <small>Rechargement : {BATTLE.tertiaryCooldown} actions, disponible dès la 1re action.</small>
+          <small>Rechargement : {BATTLE.tertiaryCooldown} tours de cette carte.</small>
         </li>
       )}
       {ultimate && (
-        <li>
+        <li tabIndex={0} title={describeSpell(ultimate, true)}>
           <b>✦ {ultimate.name}</b> <small>{SPELL_TARGET_LABEL[ultimate.target ?? "none"]}</small>
           <p>{describeSpell(ultimate)}</p>
           <small>Jauge de {BATTLE.ultimateGaugeMax} : +{BATTLE.ultimateGaugeBase} par attaque de base réussie, +{BATTLE.ultimateGaugePerHit} par sort offensif réussi, remise à zéro après l&apos;ultime.</small>
