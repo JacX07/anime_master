@@ -23,6 +23,9 @@ export type Pop =
   /** Effet visuel d'un sort sur sa cible : `fx` est le type du lanceur, ou "base" pour le sort de base */
   | { id: number; unit: UnitId; kind: "fx"; fx: CardType | "base"; big: boolean };
 
+/** Un pop avant numérotation */
+type NewPop = Pop extends infer P ? (P extends { id: number } ? Omit<P, "id"> : never) : never;
+
 export interface Replay {
   /** Nombre d'événements déjà appliqués */
   idx: number;
@@ -30,8 +33,8 @@ export interface Replay {
   units: Record<UnitId, UnitState>;
   first: Side;
   round: number;
-  /** Sort en cours : sert aux effets des événements qui suivent l'action */
-  cur: { actor: UnitId; spell: Spell; target: UnitId | null; type: CardType } | null;
+  /** Sort en cours (n = numéro de l'action) : sert aux effets des événements qui suivent l'action */
+  cur: { n: number; actor: UnitId; spell: Spell; target: UnitId | null; type: CardType } | null;
   pops: Pop[];
   popSeq: number;
   end: Extract<BattleEvent, { kind: "end" }> | null;
@@ -68,31 +71,31 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
   const patch = (id: UnitId, p: Partial<UnitState>) => (units[id] = { ...units[id], ...p });
   let { cur, round, end, popSeq } = state;
   const add: Pop[] = [];
-  const pop = <T extends Pop["kind"]>(p: Omit<Extract<Pop, { kind: T }>, "id">) => add.push({ ...p, id: ++popSeq } as Pop);
+  const pop = (p: NewPop) => add.push({ ...p, id: ++popSeq } as Pop);
 
   switch (ev.kind) {
     case "round":
       round = ev.round;
       break;
     case "action":
-      cur = { actor: ev.actor, spell: ev.spell, target: ev.target, type: state.info[ev.actor].type };
+      cur = { n: (state.cur?.n ?? 0) + 1, actor: ev.actor, spell: ev.spell, target: ev.target, type: state.info[ev.actor].type };
       break;
     case "damage":
       patch(ev.target, { hp: ev.hp, shield: ev.shield });
-      pop<"fx">({ unit: ev.target, kind: "fx", fx: cur?.spell === "affinity" ? cur.type : "base", big: cur?.spell === "affinity" });
-      pop<"damage">({ unit: ev.target, kind: "damage", amount: ev.amount, absorbed: ev.absorbed, crit: ev.crit, affinity: ev.affinity, exposedBonus: ev.exposedBonus });
+      pop({ unit: ev.target, kind: "fx", fx: cur?.spell === "affinity" ? cur.type : "base", big: cur?.spell === "affinity" });
+      pop({ unit: ev.target, kind: "damage", amount: ev.amount, absorbed: ev.absorbed, crit: ev.crit, affinity: ev.affinity, exposedBonus: ev.exposedBonus });
       break;
     case "heal":
       patch(ev.target, { hp: ev.hp });
-      pop<"heal">({ unit: ev.target, kind: "heal", amount: ev.amount });
+      pop({ unit: ev.target, kind: "heal", amount: ev.amount });
       break;
     case "shield":
       patch(ev.target, { shield: ev.shield });
-      pop<"shield">({ unit: ev.target, kind: "shield", amount: ev.amount });
+      pop({ unit: ev.target, kind: "shield", amount: ev.amount });
       break;
     case "status":
       patch(ev.target, { [ev.status]: ev.on });
-      pop<"status">({ unit: ev.target, kind: "status", status: ev.status, on: ev.on });
+      pop({ unit: ev.target, kind: "status", status: ev.status, on: ev.on });
       break;
     case "ko":
       // Une carte tombée perd ses états : le moteur ne les retire pas du journal
