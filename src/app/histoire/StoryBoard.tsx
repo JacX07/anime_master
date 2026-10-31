@@ -17,6 +17,10 @@ interface UniverseView {
   weaponResource: string;
   maxLevel: number;
   unlocked: boolean;
+  rank: number;
+  kind: "anime" | "collision";
+  /** Difficulté de l'univers par rapport au premier (×1,0 à ×1,5) */
+  difficulty: number;
 }
 interface Props {
   universes: UniverseView[];
@@ -175,12 +179,15 @@ export function StoryBoard({ universes, team, stock }: Props) {
       <nav className="hs-tabs" aria-label="Univers">
         {universes.map((x) => (
           <button key={x.key} type="button" className="hs-tab" aria-pressed={x.key === universe} disabled={!x.unlocked} onClick={() => setUniverse(x.key)}>
-            {x.name}
-            <small>{x.unlocked ? `${x.maxLevel} / ${LEVELS}` : "Verrouillé"}</small>
+            <span>{x.rank}. {x.name}</span>
+            <small>{x.kind === "collision" ? "Collision · " : ""}{x.unlocked ? `${x.maxLevel} / ${LEVELS}` : "Verrouillé"}</small>
           </button>
         ))}
       </nav>
-      {!u.unlocked && <p className="vt-muted">Termine le tutoriel ({universes[0].name}) pour ouvrir cet univers.</p>}
+      {!u.unlocked && <p className="vt-muted">Termine {universes[u.rank - 2]?.name} (15 combats) pour ouvrir cet univers.</p>}
+      <p className="vt-count">
+        {u.kind === "collision" ? "Univers de collision : des personnages de plusieurs anime." : "Univers d'anime."} Difficulté ×{u.difficulty.toFixed(2).replace(".", ",")}{u.rank === 1 ? " (tutoriel)" : ""}.
+      </p>
 
       <p className="vt-count">
         Ressources : {resName(u.resource)} {stock[u.resource] ?? 0} · {resName("fragment-de-signature")} {stock["fragment-de-signature"] ?? 0} · {resName(u.weaponResource)} {stock[u.weaponResource] ?? 0}

@@ -69,16 +69,16 @@ async function meanStats() {
   return rarityMeans;
 }
 
-/** Les 4 ennemis d'un combat d'histoire : personnages de l'anime (même combat, mêmes ennemis), stats = moyenne de leur rareté × échelle du niveau. */
-async function storyEnemies(universe: Universe, level: number): Promise<BattleCard[]> {
+/** Les 4 ennemis d'un combat d'histoire : personnages de l'univers (même combat, mêmes ennemis), stats = moyenne de la rareté de la case × échelle du niveau × difficulté de l'univers. */
+export async function storyEnemies(universe: Universe, level: number): Promise<BattleCard[]> {
   const rows = await prisma.character.findMany({
-    where: { disabled: false, mainMedia: { franchiseId: universe.franchiseId } },
+    where: { disabled: false, mainMedia: { franchiseId: { in: universe.franchiseIds } } },
     orderBy: [{ favourites: "desc" }, { id: "asc" }],
     select: CHARACTER_SELECT,
   });
   if (rows.length < 4) throw new BattleError("Univers incomplet.");
   const means = await meanStats();
-  const rng = seededRandom(universe.franchiseId * 100 + level);
+  const rng = seededRandom(universe.rank * 1000 + level);
   const used = new Set<number>();
   // Rareté demandée, à défaut la plus proche (d'abord plus basse)
   const pick = (want: Rarity, popular: boolean) => {
@@ -98,8 +98,9 @@ async function storyEnemies(universe: Universe, level: number): Promise<BattleCa
       c = rows.filter((x) => !used.has(x.id) && (x.rarity === "SSR" || x.rarity === "UR"))[0] ?? pick("SR", true);
     } else c = pick(want, boss);
     used.add(c.id);
-    const m = means[c.rarity], k = levelScale(level) * (boss ? BOSS_BONUS : 1);
-    return { ...toBattleCard(c), attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss };
+    // La rareté de la case (pas celle du personnage tiré) fixe les stats : un univers sans SSR reste aussi dur qu'un autre
+    const m = means[want], k = levelScale(level) * universe.difficulty * (boss ? BOSS_BONUS : 1);
+    return { ...toBattleCard(c), rarity: want, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss };
   });
 }
 
@@ -116,8 +117,8 @@ async function settleStory(tx: Prisma.TransactionClient, userId: string, opponen
   if (!first) {
     await tx.dailyGain.upsert({
       where: { userId_day_source: { userId, day, source: "STORY" } },
-      create: { userId, day, source: "STORY", units: Math.min(baseUnits(level), fullUnits) },
-      update: { units: { increment: Math.min(baseUnits(level), fullUnits) } },
+      create: { userId, day, source: "STORY", units: Math.min(baseUnits(level, universe), fullUnits) },
+      update: { units: { increment: Math.min(baseUnits(level, universe), fullUnits) } },
     });
   }
   for (const [key, quantity] of Object.entries(loot.resources)) {
@@ -202,7 +203,7 @@ export async function towerLeaderboard(top = 20) {
 export async function getStoryProgress(userId: string) {
   const rows = await prisma.storyProgress.findMany({ where: { userId } });
   const max = (key: string) => rows.find((r) => r.universe === key)?.maxLevel ?? 0;
-  return UNIVERSES.map((u) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, max(UNIVERSES[0].key)) }));
+  return UNIVERSES.map((u, i) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, i === 0 ? 0 : max(UNIVERSES[i - 1].key)) }));
 }
 
 async function checkStoryAccess(userId: string, universe: Universe, level: number) {

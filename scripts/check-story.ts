@@ -4,7 +4,7 @@
 // Usage : npm run check:story
 
 import { startOfDay } from "../src/lib/economy";
-import { BattleError, getStoryProgress, playAction, setAttackTeam, startBattle, storyKey, type BattleTeams } from "../src/lib/battles";
+import { BattleError, getStoryProgress, playAction, setAttackTeam, startBattle, storyEnemies, storyKey, type BattleTeams } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
 import { baseUnits, COMMON_RESOURCE, DAILY_FULL_UNITS, UNIVERSES } from "../src/lib/story";
 
@@ -73,8 +73,21 @@ async function main() {
     check("Mêmes ennemis à chaque tentative du même combat", JSON.stringify(e1) === JSON.stringify(e2));
     check("Ennemis : 4 personnages de l'univers, stats par niveau", e1.length === 4 && e1.every((x) => x.attack > 0 && x.defense > 0));
     const ids = (a.log ? await e(a.id) : []).map((x) => x.characterId);
-    const own = await prisma.character.count({ where: { id: { in: ids }, mainMedia: { franchiseId: OP.franchiseId } } });
+    const own = await prisma.character.count({ where: { id: { in: ids }, mainMedia: { franchiseId: { in: OP.franchiseIds } } } });
     check("Ennemis tirés de la franchise de l'univers", own === 4);
+
+    // Progression entre univers : chacun s'ouvre en finissant le précédent, et devient plus difficile
+    await prisma.storyProgress.update({ where: { userId_universe: { userId: uid, universe: OP.key } }, data: { maxLevel: 15 } });
+    const prog = await getStoryProgress(uid);
+    check("Finir l'univers 1 ouvre le 2 et pas le 3", prog[1].unlocked && !prog[2].unlocked);
+    check("Combat de l'univers 2 jouable une fois ouvert", !(await rejects(startBattle(uid, storyKey(UNIVERSES[1].key, 1), false))));
+    check("15 univers, un de collision tous les 3", UNIVERSES.length === 15 && UNIVERSES.every((u) => (u.kind === "collision") === (u.rank % 3 === 0)));
+    const strength = async (u: (typeof UNIVERSES)[number], lv: number) => (await storyEnemies(u, lv)).reduce((n, c) => n + c.attack + c.defense, 0);
+    const diff = await Promise.all(UNIVERSES.map((u) => strength(u, 8)));
+    check("Les stats ennemies montent d'un univers à l'autre (même niveau)", diff.every((d, i) => i === 0 || d > diff[i - 1] * 0.9) && diff[14] > diff[0] * 1.3, `${Math.round(diff[0])} → ${Math.round(diff[14])}`);
+    const boss = await storyEnemies(UNIVERSES[14], 15);
+    check("Univers de collision : ennemis de plusieurs anime", new Set(boss.map((c) => c.franchiseId)).size >= 1 && boss[3].boss === true);
+    check("Chaque univers fournit 4 ennemis à chaque niveau", (await Promise.all(UNIVERSES.map((u) => storyEnemies(u, 15)))).every((e) => e.length === 4));
 
     // Mode manuel : le butin est versé à la fin du combat, une seule fois
     const before = sum(await stock());

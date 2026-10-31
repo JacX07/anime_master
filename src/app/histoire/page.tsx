@@ -35,7 +35,7 @@ async function Story() {
         </p>
       </header>
       <StoryBoard
-        universes={progress.map((p) => ({ key: p.universe.key, name: p.universe.name, resource: p.universe.resource, weaponResource: p.universe.weaponResource, maxLevel: p.maxLevel, unlocked: p.unlocked }))}
+        universes={progress.map((p) => ({ key: p.universe.key, name: p.universe.name, resource: p.universe.resource, weaponResource: p.universe.weaponResource, maxLevel: p.maxLevel, unlocked: p.unlocked, rank: p.universe.rank, kind: p.universe.kind, difficulty: p.universe.difficulty }))}
         team={team.map((c) => (c ? { name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null))}
         stock={Object.fromEntries(stock.map((r) => [r.key, r.quantity]))}
       />
