@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
-import type { BattleEvent, Side, Spell, UnitId } from "@/lib/battle";
+import { affinity, type BattleEvent, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { historyOf, holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { TypeIcon } from "../icons";
@@ -46,7 +46,12 @@ export interface LiveControl {
 
 const SPEEDS = [1, 2, 4] as const;
 const STATE_LABELS = { exposed: "Exposé", weaken: "Affaibli", elan: "Élan" } as const;
-const STATE_GLYPHS = { exposed: "◎", weaken: "▼", elan: "▲" } as const;
+const STATE_HELP = {
+  exposed: "Le prochain sort de Combat sur cette carte fait ×1,7. L'exposition disparaît ensuite.",
+  weaken: "ATK −20 % pendant 2 actions de cette carte.",
+  elan: "ATK +10 % pendant 2 actions de cette carte.",
+} as const;
+const STATE_GLYPHS ={ exposed: "◎", weaken: "▼", elan: "▲" } as const;
 const POSITIONS = [1, 2, 3, 4];
 const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
@@ -206,6 +211,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                   turn={awaiting && live?.actor === id}
                   picked={spellUnit === id}
                   targetable={!!choice?.targets.includes(id)}
+                  rel={relation(rp.info[spellUnit], rp.info[id], rp.units[id].ko)}
                   onPick={() => (choice?.targets.includes(id) ? play(choice.spell, id) : setPicked(picked === id ? null : id))}
                 />;
             })}
@@ -303,9 +309,18 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   );
 }
 
+/** Affinité de la carte suivie contre une carte adverse vivante (docs/specs/combat.md §2). */
+function relation(focus: UnitView, other: UnitView, ko: boolean): "strong" | "weak" | null {
+  if (ko || focus.id[0] === other.id[0]) return null;
+  const a = affinity(focus.type, other.type);
+  return a > 1 ? "strong" : a < 1 ? "weak" : null;
+}
+
 function Unit({
-  id, rp, characters, acting, turn, picked, targetable, onPick,
+  id, rp, characters, acting, turn, picked, targetable, rel, onPick,
 }: {
+  /** Affinité de la carte suivie contre celle-ci : fort (×1,1) ou faible (×0,95) */
+  rel: "strong" | "weak" | null;
   /** C'est à toi de choisir pour cette carte (mode manuel) */
   turn: boolean;
   id: UnitId;
@@ -337,6 +352,7 @@ function Unit({
       data-picked={picked || undefined}
       data-targetable={targetable || undefined}
       data-turn={turn || undefined}
+      data-pos={id[1]}
       data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
       <div className="bt-card">
         {/* Image servie par le CDN AniList, comme sur les cartes de l'album */}
@@ -346,21 +362,31 @@ function Unit({
           <TypeIcon type={info.type} />
         </span>
         <span className="bt-rarity">{info.rarity}</span>
-        <ul className="bt-states" aria-label="États">
-          {(["exposed", "weaken", "elan"] as const).map(
-            (k) =>
-              st[k] && (
-                <li key={k} data-state={k} title={STATE_LABELS[k]}>
-                  {STATE_GLYPHS[k]}
-                </li>
-              ),
-          )}
-        </ul>
+        {rel && (
+          <span className="bt-aff" data-aff={rel} title={rel === "strong" ? "Le lanceur inflige ×1,1 à ce type" : "Le lanceur inflige ×0,95 à ce type, et en reçoit ×1,1"}>
+            {rel === "strong" ? "▲ ×1,1" : "▼ ×0,95"}
+          </span>
+        )}
         <div className="bt-name" title={ch?.name}>
           {ch?.name}
         </div>
         {st.ko && <span className="bt-ko">K.O.</span>}
       </div>
+      {/* Hors de la carte (qui rogne ce qui dépasse) pour que l'infobulle puisse sortir */}
+      <ul className="bt-states" aria-label="États">
+        {(["exposed", "weaken", "elan"] as const).map(
+          (k) =>
+            st[k] && (
+              <li key={k} data-state={k} tabIndex={0} aria-label={`${STATE_LABELS[k]} : ${STATE_HELP[k]}`} onClick={(e) => e.stopPropagation()}>
+                {STATE_GLYPHS[k]}
+                <span className="bt-tip" role="tooltip">
+                  <b>{STATE_LABELS[k]}</b>
+                  {STATE_HELP[k]}
+                </span>
+              </li>
+            ),
+        )}
+      </ul>
       {cast && (
         <span key={rp.cur!.n} className="bt-cast">
           {cast}

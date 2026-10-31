@@ -1,6 +1,8 @@
 "use client";
 
-import type { Side, Spell, UnitId, UnitView } from "@/lib/battle";
+import type { CardType } from "@/generated/prisma/enums";
+import { affinity as typeAffinity, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
+import { TYPE_LABELS } from "@/lib/labels";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, type HistoryEntry, type Replay } from "@/lib/battle-replay";
 import { TypeIcon } from "../icons";
 import type { PlayerCharacter } from "./BattlePlayer";
@@ -30,6 +32,9 @@ export function SpellsPanel({
   };
 }) {
   const affinity = SPELL_INFO[unit.type];
+  const types = Object.keys(TYPE_LABELS) as CardType[];
+  const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
+  const weakVs = types.find((t) => typeAffinity(unit.type, t) < 1)!;
   const spells = [
     { key: "base" as const, title: <>{BASE_SPELL.name}</>, target: BASE_SPELL.target, text: BASE_SPELL.text, note: null },
     { key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN },
@@ -53,6 +58,14 @@ export function SpellsPanel({
               : "Touche à nouveau la carte pour suivre l'action"}
         </small>
       </h3>
+      <p className="bt-legend">
+        <span data-aff="strong">
+          ▲ ×1,1 sur <TypeIcon type={strongVs} /> {TYPE_LABELS[strongVs].name}
+        </span>
+        <span data-aff="weak">
+          ▼ ×0,95 sur <TypeIcon type={weakVs} /> {TYPE_LABELS[weakVs].name} <small>(qui le frappe ×1,1)</small>
+        </span>
+      </p>
       {choose?.error && (
         <p className="bt-error" role="alert">
           {choose.error}

@@ -298,6 +298,60 @@ button.bt-spell { position: relative; }
 }
 .bt-states li[data-state="weaken"] { background: #b48cff; }
 .bt-states li[data-state="elan"] { background: #4fd6a0; }
+.bt-states li { position: relative; cursor: help; }
+/* Les pastilles suivent la carte quand elle avance (9 % de la hauteur de la carte = 12,6 cqw) */
+.bt-states { transition: translate calc(0.25s / var(--spd)) ease-out; }
+.bt-team[data-side="A"] .bt-unit[data-acting] .bt-states { translate: 0 -12.6cqw; }
+.bt-team[data-side="B"] .bt-unit[data-acting] .bt-states { translate: 0 12.6cqw; }
+.bt-states li:focus-visible { outline: 2px solid #fff; }
+
+/* Infobulle d'un état : au survol, au focus (clavier) ou au toucher */
+.bt-tip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 1.5cqw);
+  width: 135cqw;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.45rem;
+  background: #050b16f2;
+  border: 1px solid #ffffff33;
+  color: #e6eefc;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  text-align: left;
+  font-weight: 400;
+  z-index: 20;
+  pointer-events: none;
+}
+.bt-tip b { display: block; margin-bottom: 0.1rem; color: #ffd166; }
+.bt-states li:hover .bt-tip,
+.bt-states li:focus .bt-tip { display: block; }
+/* Dernière colonne : l'infobulle s'aligne sur le bord droit de la carte pour ne pas sortir du plateau */
+.bt-unit[data-pos="4"] .bt-tip { left: auto; right: -82cqw; }
+.bt-unit:has(.bt-states li:hover, .bt-states li:focus) { z-index: 9; }
+
+/* Affinité de la carte suivie contre cette carte */
+.bt-aff {
+  position: absolute;
+  top: 25cqw;
+  right: 3cqw;
+  z-index: 2;
+  padding: 0.05rem 0.4rem;
+  border-radius: 99px;
+  font-size: max(0.6rem, 10cqw);
+  font-weight: 800;
+  color: #06140c;
+  background: #7dffb0;
+}
+.bt-aff[data-aff="weak"] { background: #ff9a9a; color: #1c0505; }
+.bt-unit:has(.bt-aff[data-aff="strong"]) .bt-card { outline: 2px solid #7dffb0aa; outline-offset: 1px; }
+.bt-unit:has(.bt-aff[data-aff="weak"]) .bt-card { outline: 2px solid #ff9a9a88; outline-offset: 1px; }
+.bt-legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; margin: 0 0 0.45rem; font-size: 0.75rem; }
+.bt-legend span { display: inline-flex; align-items: center; gap: 0.25rem; }
+.bt-legend [data-aff="strong"] { color: #7dffb0; }
+.bt-legend [data-aff="weak"] { color: #ffb4b4; }
+.bt-legend small { color: #9fb2cf; }
 
 /* ---------- Barres ---------- */
 
