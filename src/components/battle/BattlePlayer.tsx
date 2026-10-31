@@ -26,6 +26,8 @@ interface Props {
   names?: Record<Side, string>;
   /** Lien « nouveau combat » de l'écran de fin */
   nextHref?: string;
+  /** « Nouveau combat » sous forme de bouton (à la place du lien) */
+  onNext?: () => void;
   /** Où mène la croix « Quitter » (le combat prend tout l'écran) */
   exitHref?: string;
   /** Mode manuel : le journal grandit à chaque choix du joueur */
@@ -61,7 +63,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, exitHref = "/", live }: Props) {
+export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -293,8 +295,8 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             <button type="button" className="bt-btn" onClick={restart}>
               Rejouer
             </button>
-            {live?.onNext && (
-              <button type="button" className="bt-btn" onClick={live.onNext}>
+            {(live?.onNext ?? onNext) && (
+              <button type="button" className="bt-btn" onClick={live?.onNext ?? onNext}>
                 Nouveau combat
               </button>
             )}

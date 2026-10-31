@@ -18,6 +18,7 @@ export const ABANDON_AFTER_MS = 24 * 60 * 60 * 1000;
 
 /** Ennemis PvM définis dans le code. Chaque carte est le personnage le plus aimé de cette rareté et de ce type. */
 export const PVM_OPPONENTS: Record<string, { name: string; cards: { rarity: Rarity; type: CardType }[] }> = {
+  donjon: { name: "Monstres du donjon", cards: [] },
   test: {
     name: "Équipe d'essai",
     cards: [
@@ -40,10 +41,23 @@ const toBattleCard = (c: CharacterRow, stars = 0): BattleCard => ({
   franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId, stars, weapon: null,
 });
 
-async function opponentCards(key: string): Promise<BattleCard[]> {
+async function opponentCards(key: string, mine: BattleCard[]): Promise<BattleCard[]> {
   const def = PVM_OPPONENTS[key];
   if (!def) throw new BattleError("Adversaire inconnu.");
   const cards: BattleCard[] = [];
+  if (key === "donjon") {
+    // Monstres au hasard, de mêmes raretés que l'équipe du joueur. L'équipe est enregistrée avec le combat : un rechargement ne la change pas.
+    const used = new Set(mine.map((c) => c.characterId));
+    for (const rarity of mine.map((c) => c.rarity)) {
+      const where = { disabled: false, rarity, id: { notIn: [...used] } };
+      const count = await prisma.character.count({ where });
+      const c = await prisma.character.findFirst({ where, skip: Math.floor(Math.random() * count), orderBy: { id: "asc" }, select: CHARACTER_SELECT });
+      if (!c) throw new BattleError("Adversaire introuvable.");
+      used.add(c.id);
+      cards.push(toBattleCard(c));
+    }
+    return cards;
+  }
   for (const spec of def.cards) {
     const c = await prisma.character.findFirst({
       where: { ...spec, disabled: false, id: { notIn: cards.map((x) => x.characterId) } },
@@ -176,7 +190,8 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING" } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
-  const teams: BattleTeams = { A: slots.map((s) => toBattleCard(s!.character, s!.stars)), B: await opponentCards(opponent) };
+  const mine = slots.map((s) => toBattleCard(s!.character, s!.stars));
+  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent, mine) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed));
