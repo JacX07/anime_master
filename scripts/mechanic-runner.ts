@@ -6,6 +6,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { prisma } from "../src/lib/db";
+import { mechanicPrompt } from "../src/lib/mechanic-prompt";
 import type { SimResult } from "../src/lib/spell-sim";
 
 const ROOT = process.cwd();
@@ -65,7 +66,7 @@ async function main() {
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       await prisma.mechanicJob.update({ where: { id: job.id }, data: { attempts: attempt } });
       await say(`Agent, tentative ${attempt}/${MAX_ATTEMPTS}…`);
-      const run = await agent(wt, prompt(job.wish, job.characterId, ch.name, ch.rarity, feedback));
+      const run = await agent(wt, mechanicPrompt({ wish: job.wish, characterId: job.characterId, name: ch.name, rarity: ch.rarity, slot: "secondary", mode: "worktree", feedback }));
       summary = run.out;
       await say(`Agent terminé (code ${run.code}, ${summary.length} caractères)`);
       // L'agent lui-même a échoué (limite d'usage, CLI absente…) : inutile de réessayer, et surtout pas de faux « prête ».
@@ -128,20 +129,5 @@ async function main() {
     await prisma.mechanicJob.update({ where: { id: job.id }, data: { status: "failed", log, report: `Erreur du lanceur : ${e instanceof Error ? e.message : String(e)}` } });
   }
 }
-
-const prompt = (wish: string, id: number, name: string, rarity: string, feedback: string) => `Tu travailles sur le jeu Anime Masters (Next.js, TypeScript), dans un worktree git dédié. Ne fais AUCUNE commande git d'écriture (pas de commit, checkout, merge) : le lanceur s'en charge.
-
-Demande de sort pour ${name} (${rarity}, id AniList ${id}) :
-« ${wish} »
-
-Étapes :
-1. Lis docs/specs/combat.md (§4 bis et §12), src/lib/spells.ts, src/lib/spell-schema.ts, src/lib/battle.ts, src/lib/battle-replay.ts et scripts/check-spells.ts. Lis aussi le fichier AGENTS.md (cette version de Next.js a des changements).
-2. Si la demande se compose avec les effets existants, n'ajoute aucun code : écris seulement le brouillon (étape 5).
-3. Sinon, implémente la mécanique manquante comme un NOUVEL effet : type dans l'union Effect et texte dans describeEffect (spells.ts), entrée dans EFFECTS (spell-schema.ts, ce qui l'ajoute au formulaire du builder), résolution dans battle.ts avec les événements de journal nécessaires, prise en charge dans battle-replay.ts et dans l'affichage du combat (src/components/battle) si de nouveaux événements ou statuts apparaissent, et un cas dans scripts/check-spells.ts qui l'exerce.
-4. Contrainte absolue : aucun comportement existant ne change. Ne modifie pas les sorts existants, les valeurs d'équilibre, la base (prisma/, data/). Les combats existants doivent rester identiques à la graine près (vérifié par scripts/spell-fingerprint.ts). Reste minimal et suis le style du code voisin.
-5. Écris le brouillon du sort (JSON d'un CharacterSpell : { "name", "target": "foe" | "ally" | "deadAlly" | null, "effects": [...] }) dans mechanic-draft.json à la racine, avec des multiplicateurs raisonnables.
-6. Vérifie toi-même : npx tsc --noEmit, npx eslint sur tes fichiers, npm run check:spells, npm run check:battle, npm run check:replay, npx tsx scripts/spell-fingerprint.ts. Corrige jusqu'à ce que tout passe.
-7. Réponds en français, 10 lignes maximum : l'effet ajouté (ou « composé avec l'existant »), les fichiers modifiés, les limites ou choix à relire.
-${feedback ? `\nLa tentative précédente a échoué aux garde-fous. Corrige :\n${feedback}\n` : ""}`;
 
 main().finally(() => prisma.$disconnect());

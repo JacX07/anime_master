@@ -3,6 +3,7 @@
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { SECONDARY_DATA } from "./skill-data";
+import { SECONDARY_OVERRIDES } from "./skill-overrides";
 
 /** Qui reçoit un effet : la cible choisie, le lanceur, son équipe, ou tous les ennemis. */
 export type Scope = "target" | "self" | "team" | "foes";
@@ -378,7 +379,7 @@ export const ARCH_SPELLS: Record<number, [Arch, string]> = {
 export function spellOf(characterId: number, rarity: Rarity, type: CardType): CharacterSpell | null {
   if (rarity !== "SSR" && rarity !== "UR") return null;
   const arch = ARCH_SPELLS[characterId];
-  return SECONDARY_DATA[characterId] ?? CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]);
+  return SECONDARY_OVERRIDES[characterId] ?? SECONDARY_DATA[characterId] ?? CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]);
 }
 
 const pct = (x: number) => `${Math.round(Math.abs(x) * 100)} %`;

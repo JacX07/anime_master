@@ -6,7 +6,7 @@ import { SLOT_LABELS, describeBuilderSpell, builderSpellSource, type BuilderEntr
 import { describeBasicAttack, type BasicAttack, type BasicRider } from "@/lib/basic-attacks";
 import { describeEffect, describeSpell, type CharacterSpell, type Effect } from "@/lib/spells";
 import { MechanicPanel } from "./MechanicPanel";
-import { resetSpellAction, saveSpellAction } from "./actions";
+import { applyToGameAction, resetSpellAction, saveSpellAction } from "./actions";
 import type { SimResult } from "@/lib/spell-sim";
 
 export interface BuilderChar {
@@ -53,6 +53,10 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
   const save = () => ch && value && start(async () => {
     const r = await saveSpellAction(ch.id, value, slot);
     setMsg(r.ok ? "Enregistré." : r.error);
+  });
+  const apply = () => ch && value && start(async () => {
+    const r = await applyToGameAction(ch.id, value, slot);
+    setMsg(r.ok ? "Appliqué au jeu (src/lib/skill-overrides.json, à commiter)." : r.error);
   });
   const reset = () => ch && entry && start(async () => {
     const r = await resetSpellAction(ch.id, slot);
@@ -172,6 +176,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
           {basic && <p className="sb-preview" tabIndex={0} title={describeBasicAttack(basic)}><strong>{basic.name}</strong> — {describeBasicAttack(basic, false)}</p>}
           <div className="sb-actions">
             <button type="button" className="bt-btn" onClick={save} disabled={busy || !value.name.trim() || (spell !== null && !spell.effects.length)}>Enregistrer</button>
+            <button type="button" className="bt-btn sb-go" onClick={apply} disabled={busy || !value.name.trim() || (spell !== null && !spell.effects.length)}>Appliquer au jeu</button>
             <button type="button" className="bt-btn" disabled={busy} onClick={reset}>Revenir au sort du jeu</button>
             <button type="button" className="bt-btn" onClick={() => navigator.clipboard.writeText(builderSpellSource(ch.id, slot, value)).then(() => setMsg("Code copié avec son emplacement de destination."))}>Exporter</button>
             {msg && <span className="sb-msg">{msg}</span>}
@@ -192,7 +197,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
               {sim.ssrVsUr !== null && <p>4 SSR (emplacement testé isolé sur ce personnage) contre 4 UR sans capacités personnalisées : {(sim.ssrVsUr * 100).toFixed(1)} % de victoires{sim.ssrVsUr >= 0.5 ? " ⚠ un UR doit dominer" : ""}.</p>}
             </div>
           )}
-          {slot === "secondary" && <MechanicPanel characterId={ch.id} />}
+          <MechanicPanel characterId={ch.id} name={ch.name} rarity={ch.rarity} slot={slot} draft={value} />
         </section>
       ) : (
         <p className="vt-muted">Consulte les sorts existants à gauche, puis sélectionne un personnage pour modifier son nom, sa cible et ses effets.</p>

@@ -3,6 +3,7 @@
 // un seul effet léger, sans contrôle dur, zone, résurrection ni dégâts extrêmes.
 import type { CharacterSpell, Effect } from "./spells";
 import { TERTIARY_DATA } from "./skill-data";
+import { TERTIARY_OVERRIDES } from "./skill-overrides";
 
 const S = (name: string, effects: Effect[]): CharacterSpell => ({ name, target: "foe", effects });
 
@@ -247,4 +248,4 @@ const LEGACY_TERTIARY: Record<number, CharacterSpell> = {
 };
 
 /** Sorts réécrits (skill-data.json) en priorité, ancien catalogue en repli. */
-export const TERTIARY_SPELLS: Record<number, CharacterSpell> = { ...LEGACY_TERTIARY, ...TERTIARY_DATA };
+export const TERTIARY_SPELLS: Record<number, CharacterSpell> = { ...LEGACY_TERTIARY, ...TERTIARY_DATA, ...TERTIARY_OVERRIDES };

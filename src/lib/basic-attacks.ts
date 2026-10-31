@@ -5,6 +5,7 @@ import type { CardType, Rarity } from "../generated/prisma/enums";
 import { BASIC_ATTACK_ROSTER } from "./basic-attack-roster";
 import { BASIC_SIGNATURES, type BasicSignatureArchetype } from "./basic-attack-signatures";
 import { spellOf, type Effect, type ModStat } from "./spells";
+import { SKILL_OVERRIDES } from "./skill-overrides";
 
 export type BasicRider =
   | { kind: "mod"; stat: ModStat; amount: number; to: "self" | "target" }
@@ -134,7 +135,7 @@ export function createBasicAttack(characterId: number, rarity: Rarity, type: Car
 /** Les 236 SSR/UR actifs ont une fiche nom + effet versionnée ; fallback pour les futurs personnages. */
 export function basicAttackOf(characterId: number, rarity: Rarity, type: CardType): BasicAttack | null {
   if (rarity !== "SSR" && rarity !== "UR") return null;
-  return BASIC_ATTACK_ROSTER[characterId]?.attack ?? createBasicAttack(characterId, rarity, type);
+  return SKILL_OVERRIDES[characterId]?.base ?? BASIC_ATTACK_ROSTER[characterId]?.attack ?? createBasicAttack(characterId, rarity, type);
 }
 
 const statName: Record<ModStat, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive" };

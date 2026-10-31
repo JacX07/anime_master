@@ -48,3 +48,4 @@
 .sb-job p { margin: 0.3rem 0; }
 .sb-job pre { white-space: pre-wrap; font-size: 0.8rem; background: #0b1526; padding: 0.5rem; border-radius: 0.4rem; max-height: 18rem; overflow: auto; }
 .sb-err { color: #ff8a8a; }
+.sb-prompt textarea { width: 100%; padding: 0.5rem 0.6rem; border: 1px solid #35507c; border-radius: 0.4rem; background: #0b1526; color: inherit; font: 0.8rem/1.4 monospace; }
