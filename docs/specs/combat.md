@@ -59,6 +59,8 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 
 **Ultime** (SSR et UR) : jauge de 100, +20 par action et +10 par coup reçu ; lancé automatiquement quand la jauge est pleine. Dans le moteur actuel, c'est le sort affilié en version ×2, avec son effet appliqué à toute l'équipe adverse. Les ultimes propres à chaque anime et les ultimes personnels des UR restent à écrire.
 
+> **Ultimes désactivés pour le moment** (décidé le 2026-10-31) : ils reviendront avec les ultimes écrits par anime.
+
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.
@@ -81,7 +83,7 @@ Pour que la rareté ne décide pas tout en arène : N 1, R 2, SR 3, SSR 5, UR 8 
 
 ### 8. Reste à décider
 - Budget d'équipe et son plafond : à mettre en place plus tard.
-- Mode manuel : ce que le joueur choisit à chaque action (sort de base, sort affilié, ultime, cible).
+- Mode manuel *(décidé le 2026-10-31)* : à chaque action, le joueur choisit **le sort** (base ou affilié s'il est prêt) **et la cible**. En automatique, la cible reste l'ennemi le plus faible.
 - Écriture des ultimes par anime et des ultimes personnels des UR ; sorts spéciaux en plus pour les UR.
 - Combat contre Mystère reste un peu fort (86 % contre ~70 % pour les autres paires du cycle) : à réduire si besoin, par exemple en baissant la pénétration de DEF de Combat contre Mystère.
 - Modèle de données, pages, migration du duel quiz existant.
