@@ -33,8 +33,8 @@ export const BATTLE = {
   variance: 0.1,
   /** Au-delà, l'équipe avec le plus de PV restants (en %) gagne */
   maxRounds: 30,
-  strong: 1.15,
-  weak: 0.9,
+  strong: 1.1,
+  weak: 0.95,
   /** Actions du lanceur entre deux sorts affiliés ; le premier sort part à sa 2e action */
   spellCooldown: 3,
   gaugeMax: 100,
@@ -47,7 +47,7 @@ export const BATTLE = {
   /** Synergie de franchise : bonus ATK/DEF/PV selon le nombre de cartes de la même franchise (indice = nombre) */
   franchiseBonus: [0, 0, 0.03, 0.06, 0.1],
   /** Jeu de sorts affiliés en test (voir SPELL_SETS) */
-  spells: "current" as SpellSet,
+  spells: "roles" as SpellSet,
   /** Combat garde son sort au plus N actions en attendant une cible exposée (si un allié Mystère est en vie) */
   comboHold: 2,
 };
