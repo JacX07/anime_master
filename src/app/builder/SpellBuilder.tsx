@@ -2,17 +2,15 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { EFFECTS, newEffect, TARGET_CHOICES, type Field } from "@/lib/spell-schema";
-import { spellSource } from "@/lib/spell-export";
+import { SLOT_LABELS, describeBuilderSpell, builderSpellSource, type BuilderEntry, type BuilderSlot } from "@/lib/builder-slots";
+import { describeBasicAttack, type BasicAttack, type BasicRider } from "@/lib/basic-attacks";
 import { describeEffect, describeSpell, type CharacterSpell, type Effect } from "@/lib/spells";
 import { MechanicPanel } from "./MechanicPanel";
 import { resetSpellAction, saveSpellAction } from "./actions";
 
 export interface BuilderChar {
   id: number; name: string; imageUrl: string; rarity: "SSR" | "UR"; type: string; attack: number; defense: number;
-  /** Sort actuel du jeu (spells.ts) */
-  base: CharacterSpell;
-  /** Sort édité enregistré, ou null */
-  custom: CharacterSpell | null;
+  spells: BuilderEntry[];
 }
 interface Sim { games: number; weight: number; ssrVsUr: number | null; verdict: "trop fort" | "ok" | "inutile" }
 
@@ -23,39 +21,50 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
   const [q, setQ] = useState("");
   const [rar, setRar] = useState("");
   const [id, setId] = useState<number | null>(null);
+  const [slot, setSlot] = useState<BuilderSlot>("secondary");
+  const [basic, setBasic] = useState<BasicAttack | null>(null);
   const [spell, setSpell] = useState<CharacterSpell | null>(null);
   const [msg, setMsg] = useState("");
   const [games, setGames] = useState(4000);
   const [prog, setProg] = useState<number | null>(null);
   const [sim, setSim] = useState<Sim | null>(null);
-  const [, start] = useTransition();
+  const [pending, start] = useTransition();
   const ch = chars.find((c) => c.id === id) ?? null;
+  const entry = ch?.spells.find((s) => s.slot === slot);
+  const value = basic ?? spell;
+  const busy = pending || prog !== null;
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
     return chars.filter((c) => (!rar || c.rarity === rar) && (!s ||
-      [c.name, c.base.name, c.custom?.name ?? ""].some((name) => name.toLowerCase().includes(s))));
+      [c.name, ...c.spells.flatMap((s) => [s.original.name, s.custom?.name ?? ""]) ].some((name) => name.toLowerCase().includes(s))));
   }, [chars, q, rar]);
 
-  const pick = (c: BuilderChar) => {
-    setId(c.id); setSpell(clone(c.custom ?? c.base)); setSim(null); setMsg(""); setProg(null);
+  const load = (v: BasicAttack | CharacterSpell) => {
+    setBasic("rider" in v ? clone(v) : null);
+    setSpell("effects" in v ? clone(v) : null);
+    setSim(null); setMsg("");
+  };
+  const pick = (c: BuilderChar, next: BuilderEntry = c.spells[0]) => {
+    setId(c.id); setSlot(next.slot); load(next.custom ?? next.original);
   };
   const edit = (f: (s: CharacterSpell) => void) => setSpell((s) => { if (!s) return s; const n = clone(s); f(n); return n; });
 
-  const save = () => ch && spell && start(async () => {
-    const r = await saveSpellAction(ch.id, spell);
+  const save = () => ch && value && start(async () => {
+    const r = await saveSpellAction(ch.id, value, slot);
     setMsg(r.ok ? "Enregistré." : r.error);
   });
-  const reset = () => ch && start(async () => {
-    const r = await resetSpellAction(ch.id);
+  const reset = () => ch && entry && start(async () => {
+    const r = await resetSpellAction(ch.id, slot);
     if (!r.ok) { setMsg(r.error); return; }
-    setSpell(clone(ch.base)); setSim(null); setMsg("Retour au sort du jeu.");
+    load(entry.original); setMsg("Retour au sort du jeu pour cet emplacement.");
   });
 
   async function simulate() {
-    if (!ch || !spell) return;
+    if (!ch || !value) return;
     setSim(null); setMsg(""); setProg(0);
-    const res = await fetch("/api/builder/simulate", { method: "POST", body: JSON.stringify({ characterId: ch.id, spell, games }) });
+    try {
+    const res = await fetch("/api/builder/simulate", { method: "POST", body: JSON.stringify({ characterId: ch.id, spell: value, slot, games }) });
     if (!res.ok || !res.body) { setMsg("Simulation refusée."); setProg(null); return; }
     const reader = res.body.getReader(), dec = new TextDecoder();
     let buf = "";
@@ -72,7 +81,11 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
         else if (m.error) setMsg(m.error);
       }
     }
-    setProg(null);
+    } catch {
+      setMsg("La simulation a échoué. Réessaie.");
+    } finally {
+      setProg(null);
+    }
   }
 
   return (
@@ -85,37 +98,48 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
             <option value="">SSR + UR</option><option>SSR</option><option>UR</option>
           </select>
         </div>
-        <p className="sb-desc" role="status">{list.length} personnage{list.length > 1 ? "s" : ""} · Clique pour modifier son sort.</p>
+        <p className="sb-desc" role="status">{list.length} personnage{list.length > 1 ? "s" : ""} · 4 sorts par personnage.</p>
         {list.length === 0 && <p className="vt-muted">Aucun personnage ou sort trouvé.</p>}
         <ul>
           {list.map((c) => (
             <li key={c.id}>
-              <button type="button" aria-pressed={c.id === id} onClick={() => pick(c)}>
+              <div className="sb-character">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={c.imageUrl} alt="" loading="lazy" />
-                <span>{c.name}<small>{c.rarity} · {c.type}{c.custom ? " · modifié" : ""}</small>
-                  <strong className="sb-spell-name">{(c.custom ?? c.base).name}</strong>
-                  <small>{describeSpell(c.custom ?? c.base)}</small>
-                </span>
-              </button>
+                <span>{c.name}<small>{c.rarity} · {c.type}</small></span>
+              </div>
+              {c.spells.map((s) => (
+                <button key={s.slot} type="button" disabled={busy} aria-pressed={c.id === id && s.slot === slot} onClick={() => pick(c, s)}>
+                  <span><small>{SLOT_LABELS[s.slot]}{s.custom ? " · modifié" : ""}</small>
+                    <strong className="sb-spell-name">{(s.custom ?? s.original).name}</strong>
+                    <small>{describeBuilderSpell(s.custom ?? s.original)}</small>
+                    <small>{s.timing}</small>
+                  </span>
+                </button>
+              ))}
             </li>
           ))}
         </ul>
       </aside>
 
-      {ch && spell ? (
+      {ch && entry && value ? (
         <section className="sb-edit">
           <h2>{ch.name} <small>{ch.rarity} · {ch.type} · ATK {ch.attack} / DEF {ch.defense}</small></h2>
+          <div className="sb-actions" aria-label="Emplacement du sort">
+            {ch.spells.map((s) => <button key={s.slot} type="button" className="bt-btn" aria-pressed={slot === s.slot} disabled={busy} onClick={() => pick(ch, s)}>{SLOT_LABELS[s.slot]}</button>)}
+          </div>
+          <p className="sb-desc">{entry.timing}</p>
           <div className="sb-preview">
-            <strong>Sort d&apos;origine : {ch.base.name}</strong>
-            <p>{describeSpell(ch.base, true)}</p>
-            <button type="button" className="bt-btn" onClick={() => {
-              setSpell(clone(ch.base)); setSim(null); setMsg("Sort d’origine chargé dans l’éditeur. Enregistre pour conserver tes modifications.");
-            }}>Modifier le sort d&apos;origine</button>
+            <strong>{SLOT_LABELS[slot]} d&apos;origine : {entry.original.name}</strong>
+            <p>{describeBuilderSpell(entry.original)}</p>
+            <button type="button" className="bt-btn" disabled={busy} onClick={() => load(entry.original)}>Modifier le sort d&apos;origine</button>
           </div>
           <label className="sb-row">Nom du sort
-            <input value={spell.name} maxLength={60} onChange={(e) => edit((s) => { s.name = e.target.value; })} />
+            <input value={value.name} disabled={busy} maxLength={60} onChange={(e) => basic ? setBasic({ ...basic, name: e.target.value }) : edit((s) => { s.name = e.target.value; })} />
           </label>
+          <fieldset className="sb-editor-fields" disabled={busy}>
+          {basic && <BasicEditor attack={basic} onChange={setBasic} />}
+          {spell && <>
           <label className="sb-row">Cible
             <select value={String(spell.target)} onChange={(e) => edit((s) => { s.target = e.target.value === "null" ? null : (e.target.value as CharacterSpell["target"]); })}>
               {TARGET_CHOICES.map((t) => <option key={String(t.value)} value={String(t.value)}>{t.label}</option>)}
@@ -142,27 +166,30 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
 
           <p className="sb-preview"><strong>{spell.name}</strong> — {spell.effects.length ? describeSpell(spell) : "aucun effet"}</p>
 
+          </>}
+          </fieldset>
+          {basic && <p className="sb-preview"><strong>{basic.name}</strong> — {describeBasicAttack(basic)}</p>}
           <div className="sb-actions">
-            <button type="button" className="bt-btn" onClick={save} disabled={!spell.effects.length}>Enregistrer</button>
-            <button type="button" className="bt-btn" onClick={reset}>Revenir au sort du jeu</button>
-            <button type="button" className="bt-btn" onClick={() => navigator.clipboard.writeText(spellSource(ch.id, ch.name, spell)).then(() => setMsg("Code copié, à coller dans CHARACTER_SPELLS."))}>Exporter</button>
+            <button type="button" className="bt-btn" onClick={save} disabled={busy || !value.name.trim() || (spell !== null && !spell.effects.length)}>Enregistrer</button>
+            <button type="button" className="bt-btn" disabled={busy} onClick={reset}>Revenir au sort du jeu</button>
+            <button type="button" className="bt-btn" onClick={() => navigator.clipboard.writeText(builderSpellSource(ch.id, slot, value)).then(() => setMsg("Code copié avec son emplacement de destination."))}>Exporter</button>
             {msg && <span className="sb-msg">{msg}</span>}
           </div>
 
           <div className="sb-sim">
-            <select value={games} onChange={(e) => setGames(Number(e.target.value))}>
+            <select disabled={busy} value={games} onChange={(e) => setGames(Number(e.target.value))}>
               <option value={500}>Rapide (500 combats, ±2 pts)</option><option value={4000}>Précis (4 000 combats)</option>
             </select>
-            <button type="button" className="bt-btn sb-go" onClick={simulate} disabled={prog !== null || !spell.effects.length}>Simulate</button>
+            <button type="button" className="bt-btn sb-go" onClick={simulate} disabled={busy || (spell !== null && !spell.effects.length)}>Simulate</button>
             {prog !== null && <progress value={prog} max={1} />}
           </div>
           {sim && (
             <div className="sb-result" data-verdict={sim.verdict}>
-              <p><strong>{sim.verdict.toUpperCase()}</strong> — le sort pèse <strong>{pts(sim.weight)}</strong> (cible +4, plage +1 à +6), {sim.games} combats.</p>
-              {sim.ssrVsUr !== null && <p>4 SSR avec sorts contre 4 UR sans sorts : {(sim.ssrVsUr * 100).toFixed(1)} % de victoires{sim.ssrVsUr >= 0.5 ? " ⚠ un UR doit dominer" : ""}.</p>}
+              <p><strong>{sim.verdict.toUpperCase()}</strong> — le sort pèse <strong>{pts(sim.weight)}</strong> ({slot === "secondary" ? "cible +4, plage +1 à +6" : "repères historiques +1 à +6 ; à interpréter selon cet emplacement"}), {sim.games} combats.</p>
+              {sim.ssrVsUr !== null && <p>4 SSR (emplacement testé isolé sur ce personnage) contre 4 UR sans capacités personnalisées : {(sim.ssrVsUr * 100).toFixed(1)} % de victoires{sim.ssrVsUr >= 0.5 ? " ⚠ un UR doit dominer" : ""}.</p>}
             </div>
           )}
-          <MechanicPanel characterId={ch.id} />
+          {slot === "secondary" && <MechanicPanel characterId={ch.id} />}
         </section>
       ) : (
         <p className="vt-muted">Consulte les sorts existants à gauche, puis sélectionne un personnage pour modifier son nom, sa cible et ses effets.</p>
@@ -190,4 +217,23 @@ function FieldInput({ f, value, onChange }: { f: Field; value: unknown; onChange
       </span>
     </label>
   );
+}
+
+const RIDER_LABELS = { mod: "Bonus / malus de stat", heal: "Soin", shield: "Bouclier", poison: "Poison", drain: "Vol de vie", ignoreDef: "Ignore DEF à la prochaine attaque" };
+function BasicEditor({ attack, onChange }: { attack: BasicAttack; onChange: (a: BasicAttack) => void }) {
+  const r = attack.rider;
+  const change = (rider: BasicRider) => onChange({ ...attack, rider });
+  return <div className="sb-fields">
+    <p className="sb-desc">1× ATK fixe, une cible ennemie et un seul petit effet (§4 ter).</p>
+    <label className="sb-f">Effet
+      <select value={r.kind} onChange={(e) => change(e.target.value === "mod" ? { kind: "mod", stat: "atk", amount: 0.03, to: "self" } : { kind: e.target.value as Exclude<BasicRider["kind"], "mod">, pct: 0.005 })}>
+        {Object.entries(RIDER_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+      </select>
+    </label>
+    {r.kind === "mod" ? <>
+      <label className="sb-f">Stat<select value={r.stat} onChange={(e) => change({ ...r, stat: e.target.value as typeof r.stat })}>{["atk", "def", "crit", "dodge"].map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+      <label className="sb-f">Qui<select value={r.to} onChange={(e) => change({ ...r, to: e.target.value as typeof r.to })}><option value="self">Lanceur</option><option value="target">Cible</option></select></label>
+      <label className="sb-f">Montant (% ou points)<input type="number" min={-3} max={3} step={0.1} value={+(r.amount * 100).toFixed(3)} onChange={(e) => change({ ...r, amount: Number(e.target.value) / 100 })} /></label>
+    </> : <label className="sb-f">Valeur (%)<input type="number" min={0} max={r.kind === "poison" ? 0.5 : r.kind === "ignoreDef" ? 3 : 2} step={0.01} value={+(r.pct * 100).toFixed(3)} onChange={(e) => change({ ...r, pct: Number(e.target.value) / 100 })} /></label>}
+  </div>;
 }

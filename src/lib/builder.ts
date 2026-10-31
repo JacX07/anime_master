@@ -17,3 +17,5 @@ export async function builderAllowed() {
 }
 
 export const listOverrides = () => prisma.spellOverride.findMany();
+
+export { writeSlotDraft } from "./builder-drafts";

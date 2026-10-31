@@ -6,7 +6,7 @@
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
-import { basicAttackOf, type BasicRider } from "./basic-attacks";
+import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
 import { spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
 import { balanceSecondary, powerTertiaryDamage } from "./character-skills";
 import { TERTIARY_SPELLS } from "./tertiary-catalog";
@@ -54,6 +54,8 @@ export interface BattleCard {
   spell?: CharacterSpell;
   ultimate?: CharacterSpell;
   tertiary?: CharacterSpell;
+  /** Attaque de base imposée pour le Spell Builder. */
+  basicAttack?: BasicAttack;
 }
 
 /** Passif d'arme : esquive des sorts affiliés adverses, ou renfort de l'ATK des alliés d'un type (porteur compris). */
@@ -584,7 +586,7 @@ export function applyAction(st: BattleState, action: Action) {
     if (was !== turns > 0) log.push({ kind: "status", target: t.id, status, on: turns > 0 });
   };
 
-  const basic = action.spell === "base" && !u.card.noBasicAttack ? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
+  const basic = action.spell === "base" && !u.card.noBasicAttack ? u.card.basicAttack ?? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
   const activeSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
   const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : activeSpell?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}) });

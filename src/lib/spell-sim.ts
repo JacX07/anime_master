@@ -5,6 +5,8 @@ import type { Rarity } from "../generated/prisma/enums";
 import { battle, seededRandom, type BattleCard, type Random } from "./battle";
 import { prisma } from "./db";
 import type { CharacterSpell } from "./spells";
+import type { BasicAttack } from "./basic-attacks";
+import type { BuilderSlot, BuilderValue } from "./builder-slots";
 
 export const TARGET = 0.04, TOO_STRONG = 0.06, USELESS = 0.01;
 
@@ -34,10 +36,11 @@ const tick = () => new Promise<void>((r) => setImmediate(r));
 
 export async function simulateSpell(
   characterId: number,
-  spell: CharacterSpell,
+  spell: BuilderValue,
   games: number,
   onProgress: (done: number, total: number) => void,
   seed = 42,
+  slot: BuilderSlot = "secondary",
 ): Promise<SimResult> {
   const rows = await cardRows();
   const row = rows.find((r) => r.id === characterId);
@@ -46,7 +49,13 @@ export async function simulateSpell(
   const any = <T>(l: T[]) => l[Math.floor(rng() * l.length)];
   const by = (r: Rarity) => rows.filter((x) => x.rarity === r).map(toCard);
   const same = by(row.rarity), urs = by("UR"), ssrs = by("SSR");
-  const card: BattleCard = { ...toCard(row), spell };
+  const baseline: BattleCard = { ...toCard(row), noBasicAttack: true, noSpell: true, noTertiary: true, noUltimate: true };
+  const card: BattleCard = { ...baseline };
+  if (slot === "base") { card.noBasicAttack = false; card.basicAttack = spell as BasicAttack; }
+  else if (slot === "secondary") { card.noSpell = false; card.spell = spell as CharacterSpell; }
+  else if (slot === "tertiary") { card.noTertiary = false; card.tertiary = spell as CharacterSpell; }
+  else { card.noUltimate = false; card.ultimate = spell as CharacterSpell; }
+  const plain = (c: BattleCard): BattleCard => ({ ...c, noBasicAttack: true, noSpell: true, noTertiary: true, noUltimate: true });
   const ssrGames = row.rarity === "SSR" ? Math.round(games / 2) : 0;
   const total = games + ssrGames;
   let done = 0;
@@ -70,11 +79,11 @@ export async function simulateSpell(
 
   const weight =
     (await run(games, () => {
-      const mates = [0, 1, 2].map(() => ({ ...any(same), noSpell: true }));
-      return [[card, ...mates], [{ ...card, noSpell: true, spell: undefined }, ...mates.map((m) => ({ ...m }))]];
+      const mates = [0, 1, 2].map(() => plain(any(same)));
+      return [[card, ...mates], [baseline, ...mates.map((m) => ({ ...m }))]];
     })) - 0.5;
   const ssrVsUr = ssrGames
-    ? await run(ssrGames, () => [[card, any(ssrs), any(ssrs), any(ssrs)], [0, 1, 2, 3].map(() => ({ ...any(urs), noSpell: true }))])
+    ? await run(ssrGames, () => [[card, any(ssrs), any(ssrs), any(ssrs)], [0, 1, 2, 3].map(() => plain(any(urs)))])
     : null;
   onProgress(total, total);
   return { games, weight, ssrVsUr, verdict: weight > TOO_STRONG ? "trop fort" : weight < USELESS ? "inutile" : "ok" };

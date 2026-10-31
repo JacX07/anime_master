@@ -4,6 +4,8 @@ import "server-only";
 import { spawn, spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { prisma } from "./db";
+import { writeSlotDraft } from "./builder";
+import type { CharacterSpell } from "./spells";
 
 const git = (...args: string[]) => {
   const r = spawnSync("git", args, { cwd: process.cwd(), encoding: "utf8" });
@@ -36,11 +38,7 @@ export async function mergeMechanic(jobId: string) {
   }
   cleanup(job.branch, false);
   if (job.draft) {
-    await prisma.spellOverride.upsert({
-      where: { characterId: job.characterId },
-      create: { characterId: job.characterId, spell: job.draft, status: "ready", wish: job.wish },
-      update: { spell: job.draft, status: "ready", wish: job.wish },
-    });
+    await writeSlotDraft(job.characterId, "secondary", job.draft as unknown as CharacterSpell);
   }
   await prisma.mechanicJob.update({ where: { id: jobId }, data: { status: "merged" } });
   return { ok: true as const };

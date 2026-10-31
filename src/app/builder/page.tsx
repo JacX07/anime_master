@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { requireBuilder, listOverrides } from "@/lib/builder";
 import { cardRows } from "@/lib/spell-sim";
-import { spellOf, type CharacterSpell } from "@/lib/spells";
+import { builderEntries } from "@/lib/builder-catalog";
 import { SpellBuilder, type BuilderChar } from "./SpellBuilder";
 import "./builder.css";
 
@@ -16,8 +16,7 @@ async function Loaded() {
     const o = over.get(r.id);
     return {
       id: r.id, name: r.name, imageUrl: r.imageUrl, rarity: r.rarity as "SSR" | "UR", type: r.type, attack: r.attack, defense: r.defense,
-      base: spellOf(r.id, r.rarity, r.type) as CharacterSpell,
-      custom: o ? (o.spell as unknown as CharacterSpell) : null,
+      spells: builderEntries(r.id, r.rarity, r.type, o?.spell),
     };
   });
   return <SpellBuilder chars={chars} />;
@@ -29,7 +28,7 @@ export default function BuilderPage() {
       <div className="vt-inner">
         <header className="pg-head">
           <h1 className="vt-title">Spell Builder</h1>
-          <p className="vt-sub">Consulte les sorts existants des SSR et UR, modifie leurs effets, puis simule-les pour vérifier l&apos;équilibre. Dev seulement : les modifications restent dans le builder tant que tu ne les exportes pas.</p>
+          <p className="vt-sub">Les quatre sorts de chaque SSR et UR : attaque de base, secondaire, tertiaire et ultime. Consulte leurs effets, modifie un emplacement, puis simule-le. Ces personnages n&apos;ont pas de sort affilié. Les brouillons restent dans le builder jusqu&apos;à leur intégration dans le jeu.</p>
         </header>
         <Suspense fallback={<p className="vt-muted">Chargement…</p>}>
           <Loaded />
