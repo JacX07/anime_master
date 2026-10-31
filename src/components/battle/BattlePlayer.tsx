@@ -8,6 +8,7 @@ import { holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, typ
 import { TYPE_LABELS } from "@/lib/labels";
 import { TypeIcon } from "../icons";
 import "./battle.css";
+import { BattleAudio } from "./sound";
 
 export interface PlayerCharacter {
   name: string;
@@ -47,12 +48,55 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     return () => clearTimeout(t);
   }, [playing, finished, speed, rp.idx, log]);
 
-  // Mouvements des cartes (Web Animations, durées divisées par la vitesse) : élan vers la cible, secousse à l'impact
-  const stage = useRef<HTMLDivElement>(null);
+  // Vitesse courante pour les animations et les sons programmés depuis des effets
   const speedRef = useRef(speed);
   useEffect(() => {
     speedRef.current = speed;
   }, [speed]);
+
+  // Son : effets sur chaque événement, musique pendant la lecture. Le navigateur ne laisse jouer qu'après un geste (voir onPointerDown).
+  const audio = useRef<BattleAudio | null>(null);
+  const getAudio = () => (audio.current ??= new BattleAudio());
+  const [sfxOn, setSfxOn] = useState(true);
+  const [musicOn, setMusicOn] = useState(true);
+  useEffect(() => {
+    // Réglages mémorisés d'une visite à l'autre
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSfxOn(localStorage.getItem("bt-sfx") !== "off");
+    setMusicOn(localStorage.getItem("bt-music") !== "off");
+  }, []);
+  useEffect(() => {
+    getAudio().setSfx(sfxOn);
+  }, [sfxOn]);
+  useEffect(() => {
+    const a = getAudio();
+    a.musicOn = musicOn;
+    if (musicOn && playing && !finished) a.startMusic();
+    else a.stopMusic();
+    return () => a.stopMusic();
+  }, [musicOn, playing, finished]);
+  useEffect(
+    () => () => {
+      audio.current?.dispose();
+      audio.current = null;
+    },
+    [],
+  );
+  const lastIdx = useRef(rp.idx);
+  useEffect(() => {
+    const before = lastIdx.current;
+    lastIdx.current = rp.idx;
+    const ev = log[rp.idx - 1];
+    // Un seul événement à la fois : pas de bruit quand on saute à la fin ou qu'on recommence
+    if (ev && rp.idx === before + 1) getAudio().play(ev, log[rp.idx - 2], rp.cur, speedRef.current);
+  }, [rp.idx, rp.cur, log]);
+  const toggle = (key: "bt-sfx" | "bt-music", on: boolean, set: (v: boolean) => void) => {
+    set(on);
+    localStorage.setItem(key, on ? "on" : "off");
+  };
+
+  // Mouvements des cartes (Web Animations, durées divisées par la vitesse) : élan vers la cible, secousse à l'impact
+  const stage = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ev = log[rp.idx - 1];
     const root = stage.current;
@@ -105,7 +149,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
   return (
-    <div className="bt" ref={stage} style={{ "--spd": speed } as React.CSSProperties}>
+    <div className="bt" ref={stage} onPointerDown={() => getAudio().unlock()} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
         <span className="bt-line">
@@ -153,6 +197,14 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
               ×{s}
             </button>
           ))}
+        </div>
+        <div className="bt-speed" role="group" aria-label="Son">
+          <button type="button" className="bt-btn" aria-pressed={sfxOn} onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>
+            Effets
+          </button>
+          <button type="button" className="bt-btn" aria-pressed={musicOn} onClick={() => toggle("bt-music", !musicOn, setMusicOn)}>
+            Musique
+          </button>
         </div>
         <div className="bt-progress" role="progressbar" aria-valuemin={0} aria-valuemax={log.length} aria-valuenow={rp.idx} aria-label="Avancement du combat">
           <i style={{ width: `${(rp.idx / log.length) * 100}%` }} />
