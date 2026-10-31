@@ -233,6 +233,16 @@ Page `/equipe`, dans le menu « Jouer ». Elle est la **seule** façon de choisi
 - Les combats lancés sans équipe complète renvoient vers `/equipe`.
 - Nouvelle action serveur : `setDefenseTeamAction(cardIds)` ; `setAttackTeamAction` existe déjà.
 
+### 12. Spell Builder *(décidé le 2026-10-31, à coder)*
+Page `/builder`, **réservée au développeur** : uniquement en dev (`NODE_ENV` ≠ production) et connecté. Elle sert à écrire et équilibrer les sorts de personnage des SSR et UR (SR, R et N restent sans sort).
+
+- **Éditeur** : recherche d'un personnage SSR / UR, puis nom du sort, cible (ennemi, allié, allié mort, aucune) et liste d'effets (ajout, retrait, réglage de chaque champ). Le texte français (`describeSpell`) se met à jour en direct.
+- **Stockage** : table `SpellOverride` (personnage → sort en JSON, statut `ready` ou `pending`). Le jeu continue de lire `spells.ts` : le builder ne change pas le jeu tant que le sort n'est pas exporté. Bouton **Exporter** : code prêt à coller dans `CHARACTER_SPELLS`, même format que `calibrate:spells`.
+- **Simulate** (serveur, progression en direct) : mode précis 4 000 combats par défaut, rapide 500. Mesure le poids du sort (même équipe avec et sans le sort, camps alternés, comme `simulate:spells`) et, pour un SSR, « 4 SSR avec sorts contre 4 UR sans sorts ». Verdict : **trop fort** au-delà de +6 pts, **inutile** sous +1 pt, sinon **ok** (cible ≈ +4 pts). Le moteur reçoit le sort à tester via `BattleCard.spell` (prioritaire sur `spellOf`).
+- **Mécaniques sur mesure par IA** : si le sort demande une mécanique absente du moteur, le sort passe en `pending` (exclu de la simulation) et un bouton **Implémenter** lance un agent Claude Code en arrière-plan (CLI `claude` en mode headless, dev local seulement) dans un worktree git séparé, sur la branche `mecanique/<nom>`. L'agent ajoute l'effet dans `spells.ts` (type et texte), `battle.ts` (résolution), le formulaire du builder et `check-spells`.
+- **Garde-fous obligatoires** : typecheck, lint, `check:spells`, `check:battle`, et `check:replay` **identique** pour les sorts existants (même graine, même résultat). Deux tentatives au plus ; au second échec, le sort reste `pending`, le journal d'erreur s'affiche, rien n'est fusionné.
+- **Retour** dans le builder : résumé de ce qui a été ajouté, fichiers touchés, résultat des tests, puis simulation du sort. **Valider** fusionne la branche dans `main` ; l'agent ne touche jamais à `main` lui-même.
+
 ---
 
 ## Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
