@@ -348,6 +348,26 @@ Page `/builder`, **réservée au développeur** : uniquement en dev (`NODE_ENV` 
 
 ---
 
+## Vitesse et ordre de jeu *(proposition du 2026-11-01, à choisir ; voir [donjons.md](donjons.md))*
+
+Les bottes d'artefact donnent de la **vitesse**. Le moteur n'en a pas (alternance par position, §3). Deux pistes.
+
+### Piste A — Ordre par vitesse
+- Chaque tour, toutes les cartes vivantes jouent **une fois**, de la plus rapide à la plus lente (égalité : alternance par position actuelle).
+- **Pour** : changement minimal, rejeux simples, aucune règle de durée à réécrire (le tour reste le tour).
+- **Contre** : la vitesse ne change que *qui joue en premier*, jamais *combien de fois*. Le gain est faible (tuer le soigneur avant qu'il joue, buffer avant l'attaque), donc des bottes peu excitantes.
+
+### Piste B — Jauge d'action *(recommandée)*
+- Chaque carte a une jauge qui se remplit chaque instant de sa **vitesse** ; à 1000, elle joue puis repart de 0 (le surplus est conservé). Vitesse de base **100** pour tout le monde (une action tous les 10 instants), les bottes l'augmentent : 120 de vitesse = 1 action de plus tous les 5 actions.
+- **Pour** : la vitesse donne de vraies actions supplémentaires, donc un vrai power creep. Les durées sont déjà comptées en « actions de la carte qui porte l'effet » (§4 bis), les cooldowns, poisons et ultimes se calent naturellement. La barre d'ordre de jeu est lisible et classique.
+- **Contre** : réécriture de la boucle du moteur ; les rejeux existants changent (moteur à versionner pour garder les anciens combats) ; tout l'équilibrage est à refaire. Risque que la vitesse soit obligatoire : à limiter par un **plafond** (par exemple +50 % au total) et en gardant la vitesse de base **identique pour tous** au départ, pour ne pas bouleverser l'équilibre des personnages.
+- **À redéfinir avec la piste B** : le premier joueur (jauge initiale 0, égalité tranchée par la Puissance, comme aujourd'hui) ; la compensation du second (bouclier de 15 %) ; le plafond de 30 tours (devient un plafond de durée, soit 300 instants à vitesse 100) ; « prochain tour » des étourdissements (la jauge est vidée) ; sorts qui donnent ou retirent de la vitesse (à ajouter plus tard, sur le modèle des bonus d'ATK).
+
+### Décision à prendre
+Piste A (prudente) ou B (ambitieuse). Quel que soit le choix, il faut ensuite : la vitesse de base des ennemis (histoire, raid, donjons), le rejeu versionné, et de nouvelles mesures `simulate:battle`, `simulate:story`, `simulate:raid`, `simulate:tower`.
+
+---
+
 ## Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
 
 ### 1. Règle de puissance
