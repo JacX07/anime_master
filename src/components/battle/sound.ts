@@ -23,8 +23,6 @@ export class BattleAudio {
   private ctx: AudioContext | null = null;
   private sfx!: GainNode;
   private music!: GainNode;
-  private grit!: WaveShaperNode;
-  private wet!: GainNode;
   private arpBus!: BiquadFilterNode;
   private bassBus!: BiquadFilterNode;
   private noise!: AudioBuffer;
@@ -47,27 +45,6 @@ export class BattleAudio {
     this.music = ctx.createGain();
     this.music.gain.value = 0;
     this.music.connect(master);
-    // Les coups passent par une saturation douce : ça mord, ça sonne moins « propre » qu'un oscillateur seul
-    this.grit = ctx.createWaveShaper();
-    const curve = new Float32Array(1024);
-    for (let i = 0; i < curve.length; i++) curve[i] = Math.tanh(((i / (curve.length - 1)) * 2 - 1) * 3);
-    this.grit.curve = curve;
-    this.grit.oversample = "2x";
-    this.grit.connect(this.sfx);
-    // Petite salle : un bruit qui s'éteint en une seconde, pour donner de la taille aux coups finaux
-    const verb = ctx.createConvolver();
-    const impulse = ctx.createBuffer(2, Math.floor(ctx.sampleRate * 0.9), ctx.sampleRate);
-    for (let c = 0; c < 2; c++) {
-      const d = impulse.getChannelData(c);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 3;
-    }
-    verb.buffer = impulse;
-    const verbOut = ctx.createGain();
-    verbOut.gain.value = 0.5;
-    verb.connect(verbOut);
-    verbOut.connect(this.sfx);
-    this.wet = ctx.createGain();
-    this.wet.connect(verb);
     // Les notes de musique brillantes (carré, dent de scie) passent par un filtre pour ne pas piquer
     const lowpass = (hz: number) => {
       const f = ctx.createBiquadFilter();
@@ -114,7 +91,7 @@ export class BattleAudio {
     if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(gain, t + Math.min(0.006, dur / 4));
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.006);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g);
     g.connect(dest);
@@ -135,7 +112,7 @@ export class BattleAudio {
     f.frequency.exponentialRampToValueAtTime(f1, t + dur);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(gain, t + Math.min(0.008, dur / 4));
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.008);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     s.connect(f);
     f.connect(g);
@@ -170,8 +147,7 @@ export class BattleAudio {
         this.tone(t, "sine", 150 * v, 90, 0.2 * k, 0.1);
         break;
       case "action":
-        // Sort de base : le poing fend l'air juste avant l'impact (l'élan dure 480 ms, voir holdFor)
-        if (ev.spell === "base") this.hiss(t + 0.3 / speed, "bandpass", 450, 2800, 0.14 * k, 0.32, 1.5);
+        if (ev.spell === "base") this.hiss(t, "bandpass", 500, 1500, 0.1 * k, 0.16, 2);
         else this.cast(t, cur?.type ?? "COMBAT", k, v);
         break;
       case "damage": {
@@ -184,17 +160,15 @@ export class BattleAudio {
           this.hiss(t, "highpass", 5000, 3000, 0.05, 0.1 * chain);
           break;
         }
-        if (!ev.crit) {
-          this.punch(t, power, ev.affinity === "weak");
-          break;
-        }
-        // Critique : inchangé (validé à l'écoute)
         this.tone(t, "sine", 160 * v, 48, 0.18 * k, 0.55 * power);
-        this.hiss(t, "lowpass", 2800, 350, 0.12 * k, 0.45 * power);
-        this.tone(t, "square", 1200 * v, 2600, 0.12 * k, 0.1);
-        this.tone(t, "sine", 110, 38, 0.3 * k, 0.5);
-        this.hiss(t, "highpass", 6000, 2500, 0.1 * k, 0.2);
-        this.duck(t);
+        this.hiss(t, "lowpass", ev.affinity === "weak" ? 1200 : 2800, 350, 0.12 * k, 0.45 * power);
+        if (ev.affinity === "strong") this.tone(t, "triangle", 660 * v, 990, 0.12 * k, 0.1);
+        if (ev.crit) {
+          this.tone(t, "square", 1200 * v, 2600, 0.12 * k, 0.1);
+          this.tone(t, "sine", 110, 38, 0.3 * k, 0.5);
+          this.hiss(t, "highpass", 6000, 2500, 0.1 * k, 0.2);
+          this.duck(t);
+        }
         break;
       }
       case "heal":
@@ -214,40 +188,14 @@ export class BattleAudio {
         else this.tone(t, "sine", 400, 820, 0.14 * k, 0.08);
         break;
       case "ko":
-        this.knockout(t);
+        this.tone(t, "sawtooth", 280, 45, 0.55 * k, 0.16);
+        this.hiss(t, "lowpass", 700, 80, 0.5 * k, 0.3);
         this.duck(t);
         break;
       case "end":
         this.jingle(t, ev.winner);
         break;
     }
-  }
-
-  /**
-   * Coup de poing : une claque sèche (clic de bruit aigu), le « thwack » de la chair (bruit médium qui s'éteint vite)
-   * et le choc du corps (sinus grave qui chute). Hauteur tirée au hasard à chaque coup. `dull` : coup amorti (cible résistante).
-   */
-  private punch(t: number, power: number, dull: boolean) {
-    const p = Math.min(power, 1.3);
-    const v = 0.9 + Math.random() * 0.25;
-    if (!dull) this.hiss(t, "highpass", 4200 * v, 2400, 0.03, 0.4 * p, 0.7, this.grit);
-    this.hiss(t, "bandpass", (dull ? 800 : 1500) * v, 450, 0.075, 0.75 * p, 1.4, this.grit);
-    this.tone(t, "sine", 220 * v, 52, 0.12, 0.75 * p, this.grit);
-    this.hiss(t + 0.004, "lowpass", 650, 110, 0.14, 0.4 * p);
-  }
-
-  /** Coup de grâce : claque, gros choc qui s'effondre, puis le corps qui tombe, avec de l'écho autour. Pas de glissando de dessin animé. */
-  private knockout(t: number) {
-    const hit = (dest: AudioNode, g: number) => {
-      this.hiss(t, "highpass", 3800, 2000, 0.035, 0.5 * g, 0.7, dest);
-      this.hiss(t, "bandpass", 1000, 180, 0.2, 0.8 * g, 1.2, dest);
-      this.tone(t, "sine", 130, 30, 0.55, 0.95 * g, dest);
-    };
-    hit(this.grit, 1);
-    hit(this.wet, 0.55);
-    // Le corps touche le sol, un instant plus tard
-    this.tone(t + 0.19, "sine", 90, 36, 0.3, 0.6, this.grit);
-    this.hiss(t + 0.19, "lowpass", 550, 90, 0.22, 0.45);
   }
 
   /** Bruit de lancement du sort affilié, propre à chaque type. */
