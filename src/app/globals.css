@@ -180,6 +180,19 @@ h3 {
   background: rgb(11 20 36 / 0.75);
   font-variant-numeric: tabular-nums;
 }
+.card-stars {
+  position: absolute;
+  top: 26cqw;
+  right: 3cqw;
+  z-index: 2;
+  padding: 0.5cqw 2.5cqw;
+  border-radius: 999px;
+  font-size: 4.5cqw;
+  letter-spacing: 0.1em;
+  color: #facc15;
+  background: rgb(11 20 36 / 0.75);
+  text-shadow: 0 0 2cqw rgb(250 204 21 / 0.6);
+}
 .card-serial { margin-left: auto; padding-left: 2cqw; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-new {
   position: absolute;

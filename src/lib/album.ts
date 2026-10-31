@@ -55,6 +55,8 @@ export interface Ownership {
   count: number;
   best: Finish;
   finishes: Finish[];
+  /** Plus haut éveil parmi les exemplaires possédés (0 à 5) */
+  stars: number;
 }
 
 /** Exemplaires possédés, regroupés par personnage. */
@@ -63,11 +65,13 @@ async function ownershipMap(userId: string): Promise<Map<number, Ownership>> {
     by: ["characterId", "finish"],
     where: { ownerId: userId },
     _count: { _all: true },
+    _max: { stars: true },
   });
   const map = new Map<number, Ownership>();
   for (const g of groups) {
-    const o = map.get(g.characterId) ?? { count: 0, best: "NORMAL", finishes: [] };
+    const o = map.get(g.characterId) ?? { count: 0, best: "NORMAL", finishes: [], stars: 0 };
     o.count += g._count._all;
+    o.stars = Math.max(o.stars, g._max.stars ?? 0);
     o.finishes.push(g.finish);
     o.finishes.sort((a, b) => FINISH_ORDER.indexOf(a) - FINISH_ORDER.indexOf(b));
     o.best = o.finishes[0];

@@ -28,7 +28,7 @@ export function World({ world, filters }: { world: WorldBand; filters: Filters }
       <h2>{world.title}</h2>
       {star && (
         <div className="wd-star" style={{ "--rar": `var(--rarity-${star.rarity})` } as React.CSSProperties}>
-          <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} missing={!star.owned} />
+          <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} stars={star.owned?.stars} missing={!star.owned} />
         </div>
       )}
       {/* Au survol : quelques personnages du monde se déploient en éventail au-dessus de la tuile, la plus rare à droite et au premier plan */}
@@ -60,7 +60,7 @@ export function CardItem({ entry: e }: { entry: AlbumEntry }) {
   return (
     <li>
       <Link href={`/character/${e.id}`} className="vt-card" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
-        <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} missing={!e.owned} />
+        <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} stars={e.owned?.stars} missing={!e.owned} />
       </Link>
     </li>
   );

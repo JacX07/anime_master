@@ -19,6 +19,8 @@ export interface CharacterCardProps {
   isNew?: boolean;
   /** Nombre d'exemplaires possédés (album) : badge ×N à partir de 2 */
   count?: number;
+  /** Éveil de la carte (1 à 5) : étoiles en bas de l'image ; rien à 0 */
+  stars?: number;
   /** Personnage pas encore possédé : image grisée et floutée, nom visible */
   missing?: boolean;
 }
@@ -39,6 +41,7 @@ export function CharacterCard({
   serial,
   isNew,
   count,
+  stars = 0,
   missing,
 }: CharacterCardProps) {
   const t = TYPE_LABELS[type];
@@ -55,6 +58,7 @@ export function CharacterCard({
       </span>
       {missing && <span className="card-unknown" aria-hidden>?</span>}
       {count !== undefined && count > 1 && <span className="card-count">×{count}</span>}
+      {!missing && stars > 0 && <span className="card-stars" title={`Éveil ${stars} étoile${stars > 1 ? "s" : ""}`} aria-label={`${stars} étoiles`}>{"★".repeat(stars)}</span>}
       {isNew && <span className="card-new">NOUVEAU</span>}
       <div className="card-info">
         <div className="card-name" title={name}>
