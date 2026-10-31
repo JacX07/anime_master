@@ -5,8 +5,12 @@
 import { applyAction, autoAction, createBattle, currentActor, legalActions, seededRandom, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
 import { replayAll } from "../src/lib/battle-replay";
 import { CHARACTER_SPELLS } from "../src/lib/spells";
+import { BATTLE } from "../src/lib/battle";
+import { balanceSecondary } from "../src/lib/character-skills";
 
-const fx = <K extends string>(id: number, k: K) => CHARACTER_SPELLS[id].effects.find((e) => e.k === k) as Extract<(typeof CHARACTER_SPELLS)[number]["effects"][number], { k: K }>;
+/** Effet du sort tel que le moteur le joue : le secondaire est modéré par `balanceSecondary` (BATTLE.secondaryEffectScale) */
+const fx = <K extends string>(id: number, k: K) =>
+  balanceSecondary(CHARACTER_SPELLS[id], BATTLE.secondaryEffectScale).effects.find((e) => e.k === k) as Extract<(typeof CHARACTER_SPELLS)[number]["effects"][number], { k: K }>;
 
 let failures = 0;
 function check(label: string, ok: boolean, detail = "") {
@@ -51,12 +55,13 @@ function until(st: BattleState, id: string) {
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "special", "B1");
   const maxHp = st.log.find((e) => e.kind === "start") && (st.log[0] as Extract<BattleEvent, { kind: "start" }>).units.find((u) => u.id === "B1")!.maxHp;
-  for (let i = 0; i < 12 && evs(st, "poison").length < 3; i++) {
+  for (let i = 0; i < 12 && evs(st, "poison").length < (fx(SASUKE, "poison") as { turns: number }).turns; i++) {
     until(st, "A1");
     play(st, "base", "B2");
   }
   const ticks = evs(st, "poison").filter((e) => e.target === "B1");
-  check("Poison : % des PV max du sort par action, 3 actions", ticks.length === 3 && ticks.every((t) => Math.abs(t.amount - maxHp! * fx(SASUKE, "poison").pct) < 1e-6 || t.hp === 0), `${ticks.length} tic(s)`);
+  const turns = (fx(SASUKE, "poison") as { turns: number }).turns;
+  check("Poison : % des PV max du sort par action, pendant la durée du sort", ticks.length === turns && ticks.every((t) => Math.abs(t.amount - maxHp! * fx(SASUKE, "poison").pct) < 1e-6 || t.hp === 0), `${ticks.length} tic(s)`);
 }
 {
   const st = start([card(SASUKE), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
@@ -142,7 +147,8 @@ function until(st: BattleState, id: string) {
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "base", "B1");
   until(st, "A1"); play(st, "special", null);
-  check("Bouclier d'équipe : 15 % des PV max pour chaque allié", st.teams.A.every((u) => Math.abs(u.shield - u.maxHp * 0.15) < 1e-6 || u.shield >= u.maxHp * 0.15));
+  const shieldPct = (fx(GAARA, "shield") as { pct: number }).pct;
+  check("Bouclier d'équipe : part des PV max du sort pour chaque allié", st.teams.A.every((u) => u.shield >= u.maxHp * shieldPct - 1e-6));
 }
 
 // Combats complets : équipes de SSR/UR écrits, journal rejouable, pas d'erreur
