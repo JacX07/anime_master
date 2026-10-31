@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { CardType } from "@/generated/prisma/enums";
-import { affinity as typeAffinity, BATTLE, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
+import { affinity as typeAffinity, BATTLE, hasCharacterSlots, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
@@ -47,8 +47,11 @@ export function SpellsPanel({
   const basic = basicAttackOf(unit.characterId, unit.rarity, unit.type);
   const spells: { key: Spell; title: React.ReactNode; target: string; text: string; note: string | null }[] = [
     { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, note: null },
-    { key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN },
   ];
+  // Les SSR et UR n'ont pas de sort de type : leurs 4 emplacements sont personnalisés
+  if (!hasCharacterSlots(unit.rarity)) {
+    spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN });
+  }
   const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
   const own = rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null;
   if (own) {
@@ -60,10 +63,9 @@ export function SpellsPanel({
       note: `Rechargement : ${SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.`,
     });
   }
-  const hasCharacterSlots = unit.rarity === "SSR" || unit.rarity === "UR";
   const ultimateGauge = unit.ultimateGauge ?? 0;
   const ultimateGaugeMax = unit.ultimateGaugeMax ?? BATTLE.ultimateGaugeMax;
-  const rawTertiary = hasCharacterSlots ? TERTIARY_SPELLS[unit.characterId] : undefined;
+  const rawTertiary = hasCharacterSlots(unit.rarity) ? TERTIARY_SPELLS[unit.characterId] : undefined;
   const tertiary = rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
   if (tertiary) {
     spells.push({
@@ -74,14 +76,14 @@ export function SpellsPanel({
       note: `Rechargement : ${BATTLE.tertiaryCooldown} actions, disponible dès la 1re action.`,
     });
   }
-  const ultimate = hasCharacterSlots ? ULTIMATE_CATALOG[unit.characterId] : undefined;
+  const ultimate = hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined;
   if (ultimate) {
     spells.push({
       key: "ultimate",
       title: <>✦ {ultimate.name}</>,
       target: SPELL_TARGET_LABEL[ultimate.target ?? "none"],
       text: describeSpell(ultimate),
-      note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugePerHit} par action offensive réussie.`,
+      note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });
   }
   return (

@@ -51,11 +51,13 @@ function SpellList({ card }: { card: TeamCard }) {
         <b>{basic?.name ?? BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
         <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
       </li>
-      <li>
-        <b><TypeIcon type={card.type} /> {SPELL_NAMES[card.type]}</b> <small>{info.target}</small>
-        <p>{info.text}</p>
-        <small>{AFFINITY_COOLDOWN}</small>
-      </li>
+      {!slots && (
+        <li>
+          <b><TypeIcon type={card.type} /> {SPELL_NAMES[card.type]}</b> <small>{info.target}</small>
+          <p>{info.text}</p>
+          <small>{AFFINITY_COOLDOWN}</small>
+        </li>
+      )}
       {own && (
         <li>
           <b>★ {own.name}</b> <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
@@ -74,7 +76,7 @@ function SpellList({ card }: { card: TeamCard }) {
         <li>
           <b>✦ {ultimate.name}</b> <small>{SPELL_TARGET_LABEL[ultimate.target ?? "none"]}</small>
           <p>{describeSpell(ultimate)}</p>
-          <small>Jauge de {BATTLE.ultimateGaugeMax} : +{BATTLE.ultimateGaugePerHit} par action offensive réussie, remise à zéro après l&apos;ultime.</small>
+          <small>Jauge de {BATTLE.ultimateGaugeMax} : +{BATTLE.ultimateGaugeBase} par attaque de base réussie, +{BATTLE.ultimateGaugePerHit} par sort offensif réussi, remise à zéro après l&apos;ultime.</small>
         </li>
       )}
       {!slots && (

@@ -43,7 +43,7 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 ### 4. Sorts
 **Sort de base** : disponible à chaque action. Pour les cartes hors SSR/UR : 1× ATK sur la cible. Les SSR et UR ont une attaque de base personnalisée, définie au §4 ter.
 
-**Sort affilié** (jeu « rôles ») : cooldown de 3 actions, premier lancer à la 2ᵉ action de la carte.
+**Sort affilié** (jeu « rôles ») : cooldown de 3 actions, premier lancer à la 2ᵉ action de la carte. **Les SSR et UR n'en ont pas** *(décidé le 2026-10-31)* : leurs quatre emplacements personnalisés (attaque de base, secondaire, tertiaire, ultime) le remplacent. Le cycle d'affinités entre types (×1,1 / ×0,95) reste valable pour tous ; seuls le sort de type et ses combos (exposition, vol de vie, soin de Cœur, élan d'Aventure) disparaissent pour eux.
 
 | Type | Rôle | Effet |
 |---|---|---|
@@ -198,7 +198,7 @@ L'ultime reste distinct des sorts secondaire et tertiaire (§4 bis). Une activat
 | All Might | Poing du One For All | ATK d'All Might +3 % sur sa prochaine attaque |
 | Todoroki | Éclat de glace et de feu | ATK de la cible −3 % pour sa prochaine action |
 
-**Jauge d'ultime** : jauge individuelle de **100** pour les SSR/UR, remplie de **34 points par action offensive réussie** qui inflige des dégâts à un adversaire (attaque de base, affiliée, secondaire ou tertiaire). Elle est plafonnée à 100, sans report de surplus. Une attaque de zone ne donne les points qu'une fois, même si elle touche plusieurs cibles ; les dégâts absorbés par un bouclier comptent. Une esquive, un soin, un poison, les dégâts d'un ultime et les dégâts reçus ne chargent pas la jauge. L'activation remet la jauge à 0. Les entrées de `src/lib/ultimate-catalog.ts` peuvent donc être relancées après une nouvelle charge.
+**Jauge d'ultime** : jauge individuelle de **100** pour les SSR/UR, remplie de **50 points par attaque de base réussie** *(décidé le 2026-10-31, pour donner de l'intérêt à l'attaque de base)* et de **34 points par sort offensif réussi** (secondaire ou tertiaire) qui inflige des dégâts à un adversaire (attaque de base, affiliée, secondaire ou tertiaire). Elle est plafonnée à 100, sans report de surplus. Une attaque de zone ne donne les points qu'une fois, même si elle touche plusieurs cibles ; les dégâts absorbés par un bouclier comptent. Une esquive, un soin, un poison, les dégâts d'un ultime et les dégâts reçus ne chargent pas la jauge. L'activation remet la jauge à 0. Les entrées de `src/lib/ultimate-catalog.ts` peuvent donc être relancées après une nouvelle charge.
 
 **Catalogue ultime/passif fort** : les 236 SSR/UR ont une entrée nommée et un effet dans `src/lib/ultimate-catalog.ts`. Le moteur réutilise le vocabulaire d'effets pris en charge par `CharacterSpell` ; les idées qui demandent un déclenchement à la mort, une possession, une exécution conditionnelle, une action supplémentaire, une copie ou un reset de cooldown sont représentées par une approximation active (attaque, soin, bouclier, modificateur ou silence). En particulier, Puck et Retour par la mort sont actuellement des ultimes activés avec jauge, et non des passifs automatiques à la mort. Le rapport de simulation donne le nom, l'effet réellement joué et l'impact mesuré de chacune des 236 fiches.
 
@@ -240,7 +240,7 @@ Chaque fiche est comparée à une copie des mêmes équipes sans capacité perso
 | 2 UR + 2 SSR | 47,20 % | −2,80 pp | ±3,07 pp | 1,83 | 99,8 % | tour 4,0 |
 | 4 UR | 50,90 % | +0,90 pp | ±3,13 pp | 1,78 | 99,1 % | tour 4,0 |
 
-Les trois résultats d'équipe restent dans leur intervalle de confiance autour de 50 %. La jauge de **100**, chargée de **34 par touche offensive**, donne environ **1,8 à 1,9 ultime par équipe et par combat** ; au moins 98,8 % des combats voient un ultime, vers le 4ᵉ tour. Le détail des 944 fiches et des extrêmes est dans [le rapport de simulation](../reports/character-skills-simulation.md).
+Les trois résultats d'équipe restent dans leur intervalle de confiance autour de 50 %. La jauge de **100** (50 par attaque de base, 34 par sort offensif), donne environ **1,8 à 1,9 ultime par équipe et par combat** ; au moins 98,8 % des combats voient un ultime, vers le 4ᵉ tour. Le détail des 944 fiches et des extrêmes est dans [le rapport de simulation](../reports/character-skills-simulation.md).
 
 ### 8. Reste à décider
 - Budget d'équipe et son plafond : à mettre en place plus tard.
@@ -380,3 +380,6 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 
 ### 4. Rythme
 Fangame gratuit, sans frustration : en jouant assez, on finit toujours par obtenir ce qu'on veut. Le rythme et le tableau des ressources (ce que chaque mode donne, et combien par jour) restent à retravailler.
+
+
+> *Mesure du 2026-10-31 après suppression du sort de type et jauge de base à 50 : 1,94 ultime par équipe et par combat (6,5 tours en moyenne) ; 4 SSR contre 4 SR 99,9 %, 4 UR contre 4 SSR 99,7 %, 4 SSR contre 4 SSR 50,7 %. Les difficultés de l'histoire ont été recalibrées (×0,98 à ×1,22).*

@@ -94,6 +94,8 @@ export const BATTLE = {
   /** Jauge personnelle d'ultime : trois actions offensives réussies la chargent presque entièrement. */
   ultimateGaugeMax: 100,
   ultimateGaugePerHit: 34,
+  /** Jauge gagnée par une attaque de base qui touche (les SSR/UR n'ont plus de sort de type : la base est leur coup régulier) */
+  ultimateGaugeBase: 50,
   /** Passif UR : bonus ATK/DEF donné à chaque allié de la même franchise, cumulable entre UR, plafonné */
   passivePerUr: 0.1,
   passiveCap: 0.3,
@@ -414,6 +416,9 @@ function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (Unit
   }
 }
 
+/** Les SSR et UR ont 4 emplacements personnalisés (base, secondaire, tertiaire, ultime) : ils n'ont pas de sort de type. */
+export const hasCharacterSlots = (rarity: string) => rarity === "SSR" || rarity === "UR";
+
 /** Ce que la carte courante peut faire : attaque de base, sorts prêts et ultime chargé. */
 export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId | null)[] }[] {
   const id = currentActor(st)?.id;
@@ -422,7 +427,7 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
   const foes = alive(st, enemy(u.side)).map((f) => f.id);
   const list: { spell: Spell; targets: (UnitId | null)[] }[] = [{ spell: "base", targets: foes }];
   if (hasFx(u, "silence")) return list;
-  if (u.spellIn <= 1) {
+  if (u.spellIn <= 1 && !hasCharacterSlots(u.card.rarity)) {
     const t = u.card.type;
     const targets = t === "AVENTURE" ? [null] : t === "COEUR" ? alive(st, u.side).map((x) => x.id) : foes;
     list.push({ spell: "affinity", targets });
@@ -478,7 +483,7 @@ export function autoAction(st: BattleState): Action {
   if (special) return special;
   const tertiary = autoSpecial(st, u, "tertiary");
   if (tertiary) return tertiary;
-  if (u.spellIn > 1) return base;
+  if (u.spellIn > 1 || hasCharacterSlots(u.card.rarity)) return base;
   const t = u.card.type;
   if (t === "COMBAT") {
     const exposed = st.opts.combos ? foes.filter((f) => f.exposed) : [];
@@ -718,7 +723,7 @@ export function applyAction(st: BattleState, action: Action) {
   }
   if (landedHit && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {
     const old = u.ultimateGauge;
-    u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + BATTLE.ultimateGaugePerHit);
+    u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : BATTLE.ultimateGaugePerHit));
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
   if (u.elan > 0) setStatus(u, "elan", u.elan - 1);
