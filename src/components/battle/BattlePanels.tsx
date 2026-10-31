@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { CardType } from "@/generated/prisma/enums";
 import { affinity as typeAffinity, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
@@ -110,7 +111,7 @@ export function SpellsPanel({
   );
 }
 
-/** Historique des actions : la plus récente en haut. */
+/** Historique des actions : de haut en bas, la plus récente en bas. */
 export function History({
   entries,
   rp,
@@ -127,6 +128,12 @@ export function History({
   characters: Record<number, PlayerCharacter>;
   names: Record<Side, string>;
 }) {
+  // Ordre chronologique, la plus récente en bas : la liste suit le combat
+  const list = useRef<HTMLOListElement>(null);
+  const size = entries.reduce((n, h) => n + 1 + h.effects.length, 0);
+  useEffect(() => {
+    list.current?.scrollTo({ top: list.current.scrollHeight });
+  }, [size, open]);
   const name = (id: UnitId) => characters[rp.info[id].characterId]?.name ?? id;
   const line = (e: HistoryEntry["effects"][number]) => {
     switch (e.kind) {
@@ -157,8 +164,8 @@ export function History({
       {entries.length === 0 ? (
         <p className="bt-history-empty">Aucune action pour l&apos;instant.</p>
       ) : (
-        <ol>
-          {[...entries].reverse().map((h) => (
+        <ol ref={list}>
+          {entries.map((h) => (
             <li key={h.n} data-side={h.actor[0]}>
               <b>
                 {name(h.actor)} <small>{names[h.actor[0] as Side]} · tour {h.round}</small>
