@@ -17,14 +17,14 @@ function sh(cwd: string, cmd: string, args: string[]) {
 }
 const tail = (s: string, n = 1500) => (s.length > n ? "…" + s.slice(-n) : s);
 
-function agent(cwd: string, prompt: string): Promise<string> {
+function agent(cwd: string, prompt: string): Promise<{ out: string; code: number | null }> {
   return new Promise((resolve) => {
     const p = spawn("claude", ["-p", prompt, "--permission-mode", "acceptEdits", "--allowedTools", TOOLS, "--no-session-persistence"], { cwd, stdio: ["ignore", "pipe", "pipe"] });
     let out = "";
     p.stdout.on("data", (d) => (out += d));
     p.stderr.on("data", (d) => (out += d));
-    p.on("close", () => resolve(out.trim()));
-    p.on("error", (e) => resolve(`Impossible de lancer claude : ${e.message}`));
+    p.on("close", (code) => resolve({ out: out.trim(), code }));
+    p.on("error", (e) => resolve({ out: `Impossible de lancer claude : ${e.message}`, code: -1 }));
   });
 }
 
@@ -64,10 +64,18 @@ async function main() {
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       await prisma.mechanicJob.update({ where: { id: job.id }, data: { attempts: attempt } });
       await say(`Agent, tentative ${attempt}/${MAX_ATTEMPTS}…`);
-      summary = await agent(wt, prompt(job.wish, job.characterId, ch.name, ch.rarity, feedback));
-      await say(`Agent terminé (${summary.length} caractères)`);
+      const run = await agent(wt, prompt(job.wish, job.characterId, ch.name, ch.rarity, feedback));
+      summary = run.out;
+      await say(`Agent terminé (code ${run.code}, ${summary.length} caractères)`);
+      // L'agent lui-même a échoué (limite d'usage, CLI absente…) : inutile de réessayer, et surtout pas de faux « prête ».
+      if (run.code !== 0) {
+        failures = [`L'agent n'a pas pu travailler : ${tail(summary, 400)}`];
+        break;
+      }
 
       failures = [];
+      if (!existsSync(join(wt, "mechanic-draft.json")) && !sh(wt, "git", ["status", "--porcelain"]).out.trim())
+        failures.push("L'agent n'a produit ni code ni brouillon de sort.");
       const tsc = [...tscLines(sh(wt, "npx", ["tsc", "--noEmit"]).out)].filter((l) => !baseTsc.has(l));
       if (tsc.length) failures.push(`tsc : ${tsc.length} nouvelle(s) erreur(s)\n${tsc.slice(0, 8).join("\n")}`);
       const changed = sh(wt, "git", ["diff", "--name-only", "HEAD"]).out.split("\n").filter((f) => /\.(ts|tsx)$/.test(f));
