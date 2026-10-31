@@ -5,6 +5,10 @@ import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { autoAttackTeamAction, autoDefenseTeamAction, setAttackTeamAction, setDefenseTeamAction } from "@/app/battle-actions";
 import { affinity, BATTLE } from "@/lib/battle";
 import { BASE_SPELL, AFFINITY_COOLDOWN, SPELL_INFO, SPELL_NAMES } from "@/lib/battle-replay";
+import { describeBasicAttack, basicAttackOf } from "@/lib/basic-attacks";
+import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
+import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
+import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { TypeIcon } from "@/components/icons";
@@ -33,27 +37,48 @@ const TYPES = Object.keys(TYPE_LABELS) as CardType[];
 const MAX_SHOWN = 60;
 
 function SpellList({ card }: { card: TeamCard }) {
-  const own = spellOf(card.characterId, card.rarity, card.type);
   const info = SPELL_INFO[card.type];
+  const slots = card.rarity === "SSR" || card.rarity === "UR";
+  const basic = basicAttackOf(card.characterId, card.rarity, card.type);
+  const rawOwn = spellOf(card.characterId, card.rarity, card.type);
+  const own = rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null;
+  const rawTertiary = slots ? TERTIARY_SPELLS[card.characterId] : undefined;
+  const tertiary = rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
+  const ultimate = slots ? ULTIMATE_CATALOG[card.characterId] : undefined;
   return (
     <ul className="eq-spells">
       <li>
-        <b>{BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
-        <p>{BASE_SPELL.text}</p>
+        <b>{basic?.name ?? BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
+        <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
       </li>
       <li>
         <b><TypeIcon type={card.type} /> {SPELL_NAMES[card.type]}</b> <small>{info.target}</small>
         <p>{info.text}</p>
         <small>{AFFINITY_COOLDOWN}</small>
       </li>
-      {own ? (
+      {own && (
         <li>
           <b>★ {own.name}</b> <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
           <p>{describeSpell(own)}</p>
           <small>Rechargement : {SPELL_COOLDOWN} actions, disponible dès la 1re action de la carte.</small>
         </li>
-      ) : (
-        <li className="vt-muted"><small>Pas de sort de personnage (réservé aux SSR et UR).</small></li>
+      )}
+      {tertiary && (
+        <li>
+          <b>◇ {tertiary.name}</b> <small>{SPELL_TARGET_LABEL[tertiary.target ?? "none"]}</small>
+          <p>{describeSpell(tertiary)}</p>
+          <small>Rechargement : {BATTLE.tertiaryCooldown} actions, disponible dès la 1re action.</small>
+        </li>
+      )}
+      {ultimate && (
+        <li>
+          <b>✦ {ultimate.name}</b> <small>{SPELL_TARGET_LABEL[ultimate.target ?? "none"]}</small>
+          <p>{describeSpell(ultimate)}</p>
+          <small>Jauge de {BATTLE.ultimateGaugeMax} : +{BATTLE.ultimateGaugePerHit} par action offensive réussie, remise à zéro après l&apos;ultime.</small>
+        </li>
+      )}
+      {!slots && (
+        <li className="vt-muted"><small>Pas de sorts de personnage (secondaire, tertiaire et ultime sont réservés aux SSR et UR).</small></li>
       )}
     </ul>
   );
@@ -268,7 +293,7 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
                   <img src={c.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
                   <span className="eq-name">{c.name}</span>
                   <small><TypeIcon type={c.type} /> {RARITY_NAMES[c.rarity]}{c.stars > 0 ? ` · ${c.stars}★` : ""}</small>
-                  <small className="eq-sp">★ {spellOf(c.characterId, c.rarity, c.type)?.name ?? "Pas de sort perso"}</small>
+                  <small className="eq-sp">★ {spellOf(c.characterId, c.rarity, c.type)?.name ?? "Pas de sort perso"}{ULTIMATE_CATALOG[c.characterId] && (c.rarity === "SSR" || c.rarity === "UR") ? ` · ✦ ${ULTIMATE_CATALOG[c.characterId].name}` : ""}</small>
                   {at >= 0 && <span className="eq-badge">Emplacement {at + 1}</span>}
                 </button>
               </li>
