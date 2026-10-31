@@ -16,6 +16,7 @@ import {
   baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, mixFor, storyLoot,
   universeOf, UNIVERSES, type Loot, type Universe,
 } from "./story";
+import { bossOfWeek, DAILY_FULL_HEARTS, DIFFICULTIES, parseRaidKey, RAID_BOSS_BONUS, RAID_PREFIX, RAID_RESOURCE, raidHearts, type RaidBoss, type RaidDifficulty } from "./raid";
 import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./tower";
 
 export class BattleError extends Error {}
@@ -136,6 +137,100 @@ async function settleStory(tx: Prisma.TransactionClient, userId: string, opponen
   return loot;
 }
 
+// ── Raid : ennemis, accès et butin ──────────────────────────────────────────
+
+function parseRaid(key: string): { boss: RaidBoss; difficulty: RaidDifficulty } | null {
+  if (!key.startsWith(RAID_PREFIX)) return null;
+  const raid = parseRaidKey(key);
+  if (!raid) throw new BattleError("Raid inconnu.");
+  return raid;
+}
+
+/** Part des PV adverses retirée, lue dans l'événement de fin du combat. */
+const shareOf = (log: BattleEvent[]) => {
+  const end = log[log.length - 1];
+  return end?.kind === "end" ? Math.min(1, Math.max(0, 1 - end.hpLeft.B)) : 0;
+};
+
+/** Le boss (UR le plus aimé de son type) et 3 sbires SSR du même type, stats = moyenne de la rareté × échelle de la difficulté, boss × bonus. */
+async function raidEnemies(boss: RaidBoss, difficulty: RaidDifficulty): Promise<BattleCard[]> {
+  const rows = await prisma.character.findMany({
+    where: { disabled: false, type: boss.type, rarity: { in: ["SSR", "UR"] } },
+    orderBy: [{ favourites: "desc" }, { id: "asc" }],
+    select: CHARACTER_SELECT,
+  });
+  const leader = rows.find((c) => c.rarity === "UR");
+  const minionPool = rows.filter((c) => c.rarity === "SSR");
+  if (!leader || minionPool.length < 3) throw new BattleError("Boss indisponible.");
+  const rng = seededRandom(boss.key.length * 7919 + boss.key.charCodeAt(0));
+  const minions: CharacterRow[] = [];
+  while (minions.length < 3) minions.push(minionPool.splice(Math.floor(rng() * minionPool.length), 1)[0]);
+  const means = await meanStats();
+  const mk = (c: CharacterRow, k: number, isBoss: boolean): BattleCard => {
+    const m = means[c.rarity];
+    // Pas de synergie de franchise pour les ennemis (comme l'histoire)
+    return { ...toBattleCard(c), franchiseId: null, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), ...(isBoss ? { boss: true } : {}) };
+  };
+  return [...minions.map((c) => mk(c, difficulty.scale, false)), mk(leader, difficulty.scale * RAID_BOSS_BONUS, true)];
+}
+
+/** Difficultés ouvertes pour ce joueur : le Normal après le tutoriel, puis chaque niveau en battant le précédent (sur n'importe quel boss). */
+export async function raidUnlocked(userId: string): Promise<{ tutorial: boolean; open: string[] }> {
+  const [tuto, wins] = await Promise.all([
+    prisma.storyProgress.findUnique({ where: { userId_universe: { userId, universe: UNIVERSES[0].key } }, select: { maxLevel: true } }),
+    prisma.raidBest.findMany({ where: { userId, won: true }, select: { difficulty: true } }),
+  ]);
+  const tutorial = (tuto?.maxLevel ?? 0) >= LEVELS;
+  const won = new Set(wins.map((w) => w.difficulty));
+  const open = tutorial ? DIFFICULTIES.filter((d, i) => i === 0 || won.has(DIFFICULTIES[i - 1].key)).map((d) => d.key) : [];
+  return { tutorial, open };
+}
+
+async function checkRaidAccess(userId: string, boss: RaidBoss, difficulty: RaidDifficulty, now: Date) {
+  if (boss.key !== bossOfWeek(now).key) throw new BattleError("Ce boss n'est plus là cette semaine.");
+  const { tutorial, open } = await raidUnlocked(userId);
+  if (!tutorial) throw new BattleError("Raid verrouillé : termine d'abord le tutoriel de l'histoire.");
+  if (!open.includes(difficulty.key)) throw new BattleError("Difficulté verrouillée : bats la précédente.");
+}
+
+/** Cœurs de brèche versés à la fin d'un combat de raid, qu'il soit gagné ou perdu (la part de PV retirée compte). Une seule fois par combat. */
+async function settleRaid(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, share: number, won: boolean, now: Date): Promise<Loot> {
+  const { boss, difficulty } = parseRaid(opponent)!;
+  const day = startOfDay(now);
+  const daily = await tx.dailyGain.findUnique({ where: { userId_day_source: { userId, day, source: "RAID" } } });
+  const { hearts, full } = raidHearts(share, won, difficulty, DAILY_FULL_HEARTS - (daily?.units ?? 0), seededRandom(seed ^ 0xbea7));
+  if (full) {
+    await tx.dailyGain.upsert({
+      where: { userId_day_source: { userId, day, source: "RAID" } },
+      create: { userId, day, source: "RAID", units: full },
+      update: { units: { increment: full } },
+    });
+  }
+  const id = { userId_boss_difficulty: { userId, boss: boss.key, difficulty: difficulty.key } };
+  await tx.raidBest.upsert({ where: id, create: { userId, boss: boss.key, difficulty: difficulty.key }, update: {} });
+  await tx.raidBest.updateMany({ where: { userId, boss: boss.key, difficulty: difficulty.key, bestShare: { lt: share } }, data: { bestShare: share, updatedAt: now } });
+  if (won) await tx.raidBest.updateMany({ where: { userId, boss: boss.key, difficulty: difficulty.key, won: false }, data: { won: true, updatedAt: now } });
+  if (hearts) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: RAID_RESOURCE } }, create: { userId, key: RAID_RESOURCE, quantity: hearts }, update: { quantity: { increment: hearts } } });
+  return { ryo: 0, crystals: 0, resources: hearts ? { [RAID_RESOURCE]: hearts } : {}, share };
+}
+
+/** État du raid pour la page : boss de la semaine, difficultés ouvertes, meilleurs résultats, cœurs au taux plein restants. */
+export async function getRaidState(userId: string, now = new Date()) {
+  const boss = bossOfWeek(now);
+  const [{ tutorial, open }, bests, daily, stock] = await Promise.all([
+    raidUnlocked(userId),
+    prisma.raidBest.findMany({ where: { userId, boss: boss.key } }),
+    prisma.dailyGain.findUnique({ where: { userId_day_source: { userId, day: startOfDay(now), source: "RAID" } } }),
+    prisma.resourceStock.findUnique({ where: { userId_key: { userId, key: RAID_RESOURCE } } }),
+  ]);
+  return {
+    boss, tutorial,
+    difficulties: DIFFICULTIES.map((d) => ({ ...d, unlocked: open.includes(d.key), bestShare: bests.find((b) => b.difficulty === d.key)?.bestShare ?? 0, won: bests.find((b) => b.difficulty === d.key)?.won ?? false })),
+    fullHeartsLeft: Math.max(0, DAILY_FULL_HEARTS - (daily?.units ?? 0)),
+    hearts: stock?.quantity ?? 0,
+  };
+}
+
 // ── Tour : ennemis et récompense ────────────────────────────────────────────
 
 function parseTower(key: string): number | null {
@@ -219,6 +314,8 @@ const toJson = (x: unknown) => x as Prisma.InputJsonValue;
 async function opponentCards(key: string): Promise<BattleCard[]> {
   const story = parseStory(key);
   if (story) return storyEnemies(story.universe, story.level);
+  const raid = parseRaid(key);
+  if (raid) return raidEnemies(raid.boss, raid.difficulty);
   const floor = parseTower(key);
   if (floor) return towerEnemies(floor);
   const def = PVM_OPPONENTS[key];
@@ -387,11 +484,13 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   const story = parseStory(opponent);
   if (story) await checkStoryAccess(userId, story.universe, story.level);
+  const raid = parseRaid(opponent);
+  if (raid) await checkRaidAccess(userId, raid.boss, raid.difficulty, now);
   const floor = parseTower(opponent);
   if (floor && floor > (await getTowerFloor(userId)) + 1) throw new BattleError("Étage verrouillé : gagne le précédent.");
-  const mode: BattleMode = story ? "STORY" : floor ? "TOWER" : "TEST";
+  const mode: BattleMode = story ? "STORY" : raid ? "RAID" : floor ? "TOWER" : "TEST";
   // Un combat suivi à la fois et par mode. En histoire et dans la Tour, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
-  if (manual && (story || floor)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+  if (manual && (story || floor || raid)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const mine = slots.map((s) => toBattleCard(s!.character, s!.stars));
@@ -401,7 +500,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     const result = battle(teams.A, teams.B, seededRandom(seed));
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
-      const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : floor && won ? await settleTower(tx, userId, opponent, now) : null;
+      const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : null;
       return tx.battle.create({
         data: {
           userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
@@ -459,7 +558,10 @@ export async function playAction(userId: string, battleId: string, action: Actio
       },
     });
     if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
-    if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER")) {
+    if (done && row.mode === "RAID") {
+      loot = await settleRaid(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now);
+      await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
+    } else if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER")) {
       loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, now) : await settleTower(tx, userId, row.opponent, now);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     }

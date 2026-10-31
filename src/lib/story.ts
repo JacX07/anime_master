@@ -90,6 +90,7 @@ export const RESOURCE_NAMES: Record<string, string> = {
   "fleche-du-stand": "Flèche du Stand", "masque-de-pierre": "Masque de pierre",
   "graine-de-senzu": "Graine de Senzu", "armure-saiyan": "Armure saiyan",
   "larme-d-ombre": "Larme d'ombre", "lame-maudite": "Lame maudite",
+  "coeur-de-breche": "Cœur de brèche",
 };
 
 export const universeOf = (key: string) => UNIVERSES.find((u) => u.key === key);
@@ -123,6 +124,8 @@ export interface Loot {
   ryo: number;
   crystals: number;
   resources: Record<string, number>;
+  /** Raid : part des PV du boss retirée (0 à 1) */
+  share?: number;
 }
 
 /** Butin d'une victoire. `rand` tire les unités entre ressource d'univers et commune (50 / 50). `fullUnits` : unités encore au taux plein aujourd'hui (rejeu). */

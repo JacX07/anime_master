@@ -1,0 +1,9 @@
+.rd-boss { display: flex; gap: 1.2rem; align-items: center; margin-top: 1rem; padding: 1rem; border: 1px solid #7c3550; border-radius: 0.6rem; background: #1d0f1a; }
+.rd-boss img { width: 9rem; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 0.5rem; box-shadow: 0 0 1.5rem #ef2b3d66; }
+.rd-diffs { display: grid; gap: 0.8rem; margin-top: 1.2rem; }
+.rd-diff { display: grid; gap: 0.4rem; padding: 1rem; border: 1px solid #35507c; border-radius: 0.6rem; background: #0f1d33; justify-items: start; }
+.rd-diff[data-locked] { opacity: 0.55; }
+.rd-diff small { color: #8ea3c4; font-weight: 400; }
+.rd-bar { width: 100%; height: 0.5rem; border-radius: 999px; background: #0b1526; overflow: hidden; }
+.rd-bar i { display: block; height: 100%; background: #ef2b3d; }
+@media (max-width: 560px) { .rd-boss { flex-direction: column; align-items: flex-start; } }

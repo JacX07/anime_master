@@ -181,6 +181,7 @@ model User {
   towerProgress       TowerProgress?
   resources           ResourceStock[]
   dailyGains          DailyGain[]
+  raidBests           RaidBest[]
   sessions            Session[]
   accounts            Account[]
   cards               Card[]
@@ -752,6 +753,20 @@ model ResourceStock {
   quantity Int    @default(0)
 
   @@id([userId, key])
+}
+
+/// Meilleur résultat d'un joueur contre un boss de raid à une difficulté (docs/specs/pvm.md, « Raid »).
+model RaidBest {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  boss       String
+  difficulty String
+  /// Plus grande part des PV du boss retirée (0 à 1)
+  bestShare  Float    @default(0)
+  won        Boolean  @default(false)
+  updatedAt  DateTime @default(now())
+
+  @@id([userId, boss, difficulty])
 }
 
 /// Unités déjà versées au taux plein dans la journée, par source (`STORY` ou `RAID`) : sert au plafond doux.

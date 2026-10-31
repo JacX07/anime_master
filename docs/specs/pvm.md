@@ -158,7 +158,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 
 ---
 
-## Raid *(validé le 2026-10-31, rien n'est codé)*
+## Raid *(validé le 2026-10-31 ; solo codé le 2026-11-01)*
 
 > Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-story.ts` étendu au raid.
 
@@ -204,10 +204,17 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 - **Plafond quotidien doux** : **15 cœurs par jour au taux plein**, puis 25 % (une équipe de SSR 3★ qui joue le Normal en fait environ 3,6 par combat).
 - **Ce que ça donne** : un joueur qui fait ses 4 ou 5 combats par jour en 5★ un SSR en **environ 12 jours** et un UR en **environ 24 jours**. Un gros farmeur (30 combats par jour) gagne environ 40 cœurs par jour grâce au taux réduit : un UR en 10 jours environ. La porte n'est jamais fermée.
 
+### Réalisation (serveur et page, 2026-11-01)
+- `src/lib/raid.ts` (pur) : 5 boss qui tournent chaque semaine (lundi 26 octobre 2026 = semaine 0), un par type (Béhémoth des Failles / Combat, Oracle Dévoré / Mystère, Reine des Éclats / Magie, Cœur Fendu / Cœur, Titan des Horizons / Aventure), difficultés, paliers de cœurs, plafond. Les noms sont des propositions du lore des brèches.
+- Le boss de la semaine est l'**UR le plus aimé de son type** (carte `boss`, donc immunisée à l'étourdissement et au silence) ; les 3 sbires sont des **SSR du même type**, tirés de façon fixe par boss. Stats = moyenne de la rareté × échelle de la difficulté, boss × 1,6, sans synergie de franchise.
+- Clé de combat `raid:<boss>:<difficulté>` ; seul le boss de la semaine est jouable. **Ouverture** : le Normal après le tutoriel de l'histoire ; Difficile en battant le Normal, Cauchemar en battant le Difficile, **sur n'importe quel boss** (sinon la rotation hebdomadaire referait tout recommencer).
+- Les cœurs sont versés **à la fin de chaque combat, gagné ou perdu**, dans la même transaction (auto et manuel). Un combat abandonné ne paie rien. `RaidBest` garde, par boss et difficulté, la meilleure part de PV retirée et la victoire.
+- Plafond : 15 cœurs au taux plein par jour (`DailyGain` source `RAID`), puis 25 %, la fraction étant tirée au sort pour que l'espérance reste exacte. Page `/raid`, vérifié par `npm run check:raid`.
+- Pas encore fait : lots de combats auto, multijoueur (boss d'événement), **éveil des étoiles 4 et 5** (coûts en cœurs et doublon), boosters de matériaux d'arme.
+- Point ouvert : sous 25 % des PV retirés, une défaite ne rapporte aucun cœur (les paliers de la spec commencent à 25 %).
+
 ### À écrire / à décider
-- Noms et types des boss de raid, difficulté et récompenses en cœurs.
-- Modèle de données : `RaidBoss`, tickets du joueur, meilleur score par boss et difficulté ; `Battle.mode = RAID` est déjà prévu.
-- Moteur : boss géant avec plusieurs fois les PV d'une carte, mesure des dégâts infligés (le journal les contient déjà).
+- Étoiles 4 et 5 : coûts en cœurs et doublon consommé (voir « Les chiffres » et [combat.md](combat.md) §2).
 
 ---
 
