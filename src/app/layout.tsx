@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 // qui se déroulent (Jouer, Marché) ; le classement reste seul. Une nouvelle page rejoint la famille qui correspond à ce qu'on y fait.
 const PLAY: NavItem[] = [
   { href: "/equipe", icon: "t-coeur", label: "Équipe" },
+  { href: "/eveil", icon: "t-coeur", label: "Éveil" },
   { href: "/histoire", icon: "t-aventure", label: "Histoire" },
   { href: "/tour", icon: "nav-duels", label: "Tour" },
   { href: "/duels", icon: "nav-duels", label: "Duels" },

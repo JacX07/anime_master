@@ -35,6 +35,7 @@
     "check:replay": "tsx scripts/check-replay.ts",
     "check:battles": "tsx scripts/check-battles.ts",
     "check:story": "tsx scripts/check-story.ts",
+    "check:awakening": "tsx scripts/check-awakening.ts",
     "check:spells": "tsx scripts/check-spells.ts",
     "simulate:spells": "tsx scripts/simulate-spells.ts",
     "calibrate:spells": "tsx scripts/calibrate-spells.ts",

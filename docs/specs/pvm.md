@@ -98,7 +98,7 @@ Détaillé dans la section « Raid » ci-dessous.
 - Dans un univers d'anime, les drops sont à **50 % ressource de l'univers, 50 % ressource commune** *(à équilibrer)*.
 - Éveiller un personnage coûte de la ressource commune et, s'il vient d'un univers, un peu de la ressource de cet univers. **Plus la rareté est haute, plus le coût est élevé** : un UR demande plus qu'un SSR.
 - Les étoiles 4 et 5 demandent en plus la ressource rare du raid (voir « Raid »).
-- **Étoiles 1 à 3 : histoire seule** (proposé le 2026-10-31, à valider). Les étoiles 4 et 5 viendront avec le raid.
+- **Étoiles 1 à 3 : histoire seule** (codé le 2026-11-01 : `src/lib/awakening.ts`, `src/lib/awaken.ts`, page `/eveil`, `npm run check:awakening`). Les étoiles 4 et 5 viendront avec le raid.
   - **Coût total** (ressources confondues) pour passer de 0 à 3★ : **N 25 · R 50 · SR 100 · SSR 200 · UR 400**. Réparti : 1★ 20 %, 2★ 30 %, 3★ 50 %.
   - **Carte d'un univers** : moitié ressource commune, moitié ressource de son univers (même proportion que les drops : farmer son univers est le plus efficace).
   - **Carte d'un anime sans univers** : 60 % du coût total, en ressource commune seulement (un peu plus d'effort, aucune ressource d'univers à trouver).
@@ -148,7 +148,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 ### Réalisation (serveur, 2026-10-31)
 - `src/lib/story.ts` (pur) : univers de lancement, mélange de raretés, échelle, butin. `src/lib/battles.ts` : ennemis par niveau (personnages de la franchise, tirage fixé par univers + niveau), déverrouillage, butin versé dans la transaction de fin de combat (auto et manuel). Clé de combat : `story:<univers>:<niveau>` ; vérifié par `npm run check:story`.
 - Valeurs de départ **non spécifiées**, à équilibrer : Ryō du premier passage `10 + 5 × niveau` (+300 au boss final), cristaux 1 / 2 (boss d'acte) / 5 (boss final), 1 unité de ressource d'arme par victoire du boss final. Le plafond quotidien ne compte pas la ressource d'arme.
-- Pas encore fait : interface, cartes boss plus grandes, puissance conseillée, lots de combats auto, histoire racontée, éveil (coûts d'étoiles).
+- Pas encore fait : cartes boss plus grandes, puissance conseillée, lots de combats auto, histoire racontée, éveil des étoiles 4 et 5 (raid). L'éveil 1 à 3★ est fait (page `/eveil`).
 
 ### À écrire / à décider
 - Univers de collision : voir la proposition ci-dessous (thèmes et noms à valider).
