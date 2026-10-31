@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coups et sorts — Anime Masters</title>
+<style>
+  :root{color-scheme:light;--ink:var(--foreground,#14243b);--quiet:var(--muted-foreground,#64748b);--edge:var(--border,#d4dce7);--plate:var(--card,#fff);--blue:#477bfa;--gold:#e6a742;font-family:var(--font-sans,"Segoe UI",sans-serif)}
+  *{box-sizing:border-box}body{margin:0;color:var(--ink)}main{max-width:850px;margin:16px auto;display:grid;gap:16px}button,input{font:inherit}button{cursor:pointer;color:inherit}button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:3px}button:disabled{opacity:.4;cursor:default}h1{font-size:clamp(30px,6vw,44px);line-height:1.06;letter-spacing:-.045em;margin:0 0 10px}.intro p{color:var(--quiet);line-height:1.5;max-width:640px;margin:0}h2{font-size:18px;letter-spacing:-.02em;margin:0}.deck{background:var(--plate);border:1px solid var(--edge);border-radius:var(--radius,16px);padding:16px}.transport{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.control{min-height:44px;padding:11px 14px;border:1px solid var(--edge);border-radius:9px;background:transparent;font-size:12px;font-weight:650}.primary{background:var(--blue);border-color:var(--blue);color:#fff}#music[aria-pressed=true]{border-color:var(--blue);color:var(--blue)}.readout{display:flex;align-items:center;gap:9px;border-top:1px solid var(--edge);margin-top:15px;padding-top:12px;min-height:35px;color:var(--quiet);font-size:12px}.lamp{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0}.lamp.active{background:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 15%,transparent)}.section-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:14px}.section-head p{color:var(--quiet);font-size:12px;margin:0}.hits{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sound{background:transparent;border:1px solid var(--edge);border-radius:10px;text-align:left;padding:13px 12px;min-height:85px}.sound:hover{background:color-mix(in srgb,var(--blue) 6%,var(--plate));border-color:var(--blue)}.sound strong{font-size:13px;display:block;margin-bottom:6px}.sound small{font-size:11px;line-height:1.4;color:var(--quiet);display:block}.sound strong::before{content:'▶';font-size:9px;margin-right:7px;color:var(--accent-color,var(--blue))}.sound.active{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,var(--plate))}.spell-tier{display:flex;gap:5px;flex-wrap:wrap}.spell-tier button{font-size:11px;border:1px solid var(--edge);border-radius:7px;background:transparent;padding:7px 10px;min-height:35px}.spell-tier button[aria-pressed=true]{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 9%,var(--plate));color:var(--blue)}.spells{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.spells .sound{padding:14px 10px;border-top:2px solid var(--accent-color);min-height:100px}.mix{margin-top:14px;display:flex;align-items:center;gap:10px;color:var(--quiet);font-size:12px}.mix input{max-width:180px;flex:1;accent-color:var(--blue)}.note{color:var(--quiet);font-size:11px;line-height:1.5;margin:0}.detail{margin:12px 0 0;color:var(--quiet);font-size:11px;line-height:1.5}
+  @media(max-width:550px){.section-head{display:block}.section-head p,.spell-tier{margin-top:9px}.hits{grid-template-columns:repeat(2,1fr)}.spells{grid-template-columns:repeat(2,1fr)}.spells .sound:last-child{grid-column:1/-1;min-height:76px}.spells .sound{min-height:85px}.transport .primary{flex:0 0 100%}.control{flex:1}.sound{padding:12px 10px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header class="intro"><h1>Du poids dans chaque coup.</h1><p>Écoute les impacts seuls, puis les cinq familles de sorts. La démo les enchaîne avec la musique de combat validée.</p></header>
+  <section class="deck" aria-label="Lecture">
+    <div class="transport"><button class="control primary" id="demo" type="button">Démo avec musique · 9 s</button><button class="control" id="music" aria-pressed="false" type="button">Ajouter la musique</button><button class="control" id="stop" type="button" disabled>Tout arrêter</button></div>
+    <div class="readout"><span class="lamp" id="lamp"></span><span id="state" role="status">Clique sur un effet pour l’écouter seul.</span></div>
+    <label class="mix">Volume <input id="volume" type="range" min="0" max="100" value="70" aria-label="Volume général"><output id="volume-value">70 %</output></label>
+  </section>
+  <section class="deck" aria-labelledby="hits-title">
+    <div class="section-head"><h2 id="hits-title">Les coups</h2><p>Attaque, contact, résonance.</p></div>
+    <div class="hits">
+      <button class="sound" data-hit="normal" type="button"><strong>Coup normal</strong><small>Élan bref, contact sec et grave court.</small></button>
+      <button class="sound" data-hit="critical" type="button"><strong>Coup critique</strong><small>Plus de masse et un craquement net.</small></button>
+      <button class="sound" data-hit="combo" type="button"><strong>Enchaînement</strong><small>Trois coups, avec une fin plus lourde.</small></button>
+      <button class="sound" data-hit="blocked" type="button"><strong>Bloqué</strong><small>Le bouclier résonne; le choc reste contenu.</small></button>
+      <button class="sound" data-hit="break" type="button"><strong>Bouclier brisé</strong><small>Fissure, éclats et perte de résonance.</small></button>
+      <button class="sound" data-hit="ko" type="button"><strong>K.O.</strong><small>Chute grave et dissipation courte.</small></button>
+    </div>
+  </section>
+  <section class="deck" aria-labelledby="spells-title">
+    <div class="section-head"><h2 id="spells-title">Les sorts</h2><div class="spell-tier" role="group" aria-label="Puissance du sort"><button data-tier="affinity" aria-pressed="true" type="button">Affinité</button><button data-tier="special" aria-pressed="false" type="button">Spécial</button><button data-tier="ultimate" aria-pressed="false" type="button">Ultime</button></div></div>
+    <div class="spells">
+      <button class="sound" style="--accent-color:#e07353" data-spell="COMBAT" type="button"><strong>Combat</strong><small>Fouettement et choc physique.</small></button>
+      <button class="sound" style="--accent-color:#a77ad9" data-spell="MYSTERE" type="button"><strong>Mystère</strong><small>Aspiration sombre et distorsion.</small></button>
+      <button class="sound" style="--accent-color:#629aeb" data-spell="MAGIE" type="button"><strong>Magie</strong><small>Énergie cristalline qui éclate.</small></button>
+      <button class="sound" style="--accent-color:#d77d9a" data-spell="COEUR" type="button"><strong>Cœur</strong><small>Pulsation et chaleur de soin.</small></button>
+      <button class="sound" style="--accent-color:#69aa8d" data-spell="AVENTURE" type="button"><strong>Aventure</strong><small>Vague large et onde de choc.</small></button>
+    </div>
+    <p class="detail">Le type garde sa signature. Le spécial ajoute de la matière; l’ultime prend le temps de charger avant son impact.</p>
+  </section>
+  <p class="note">Maquette sonore indépendante du jeu. Les sons varient légèrement à chaque écoute. La musique se baisse brièvement sous les gros impacts.</p>
+</main>
+<script>
+// Composition validée, reprise de battle-music.html; routage séparé pour le mix des effets.
+
+  const BPM = 152;
+  const STEP = 60 / BPM / 4;
+  const BAR = STEP * 16;
+  const hz = (note) => 440 * 2 ** ((note - 69) / 12);
+  const NAMES = ["", "Élan", "Tension", "Climax"];
+  const CHORDS = [
+    { bass: 45, notes: [57, 60, 64] },
+    { bass: 41, notes: [53, 57, 60] },
+    { bass: 38, notes: [50, 53, 57] },
+    { bass: 40, notes: [52, 56, 59] },
+  ];
+  // Un motif de huit mesures, avec respirations et réponse dans l'aigu.
+  const MELODY = [
+    [[0,76,2],[3,76,1],[4,79,2],[7,81,3],[12,79,2],[14,76,2]],
+    [[0,77,3],[4,76,2],[6,72,2],[10,74,2],[12,76,4]],
+    [[0,74,2],[3,77,1],[4,81,3],[8,79,2],[10,77,2],[12,76,2],[14,74,2]],
+    [[0,71,3],[4,74,2],[7,76,2],[10,80,2],[12,83,3]],
+    [[0,81,2],[3,81,1],[4,84,2],[7,83,3],[12,81,2],[14,79,2]],
+    [[0,81,3],[4,79,2],[6,77,2],[10,76,2],[12,77,4]],
+    [[0,77,2],[3,79,1],[4,81,3],[8,84,2],[10,83,2],[12,81,3]],
+    [[0,80,3],[4,76,2],[7,74,2],[10,71,2],[12,76,2],[14,80,2]],
+  ];
+  let ctx = null, master, buses, reverb, delay, noiseBuffer;
+  let timer = null, animation = null, step = 0, next = 0, origin = 0;
+  let automatic = true, pendingLevel = 2, level = 1, lastLevel = 0, starting = false;
+  const db = (value) => value === 0 ? 0 : 10 ** ((-36 + value * .36) / 20);
+
+  function initAudio() {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtor) throw new Error("Ce navigateur ne permet pas de jouer la musique.");
+    ctx = new AudioCtor();
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -12; compressor.knee.value = 12; compressor.ratio.value = 4;
+    compressor.attack.value = .008; compressor.release.value = .18;
+    master = ctx.createGain(); master.gain.value = db(Number(volume.value)) * .8;
+    master.connect(compressor).connect(ctx.destination);
+    musicGroup = ctx.createGain(); musicGroup.gain.value = .72; musicGroup.connect(master);
+    buses = Object.fromEntries(["drums", "bass", "rhythm", "lead", "strings"].map((name) => {
+      const gain = ctx.createGain(); gain.connect(musicGroup); return [name, gain];
+    }));
+    const shape = ctx.createWaveShaper();
+    shape.curve = Float32Array.from({length:2048}, (_, i) => Math.tanh((i / 1023.5 - 1) * 2.1) / Math.tanh(2.1));
+    shape.oversample = "2x";
+    const guitarFilter = ctx.createBiquadFilter(); guitarFilter.type = "lowpass"; guitarFilter.frequency.value = 2900;
+    buses.rhythm.disconnect(); buses.rhythm.connect(shape).connect(guitarFilter).connect(musicGroup);
+    reverb = ctx.createConvolver();
+    const impulse = ctx.createBuffer(2, Math.floor(ctx.sampleRate * 1.25), ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) ** 3;
+    }
+    reverb.buffer = impulse;
+    const wet = ctx.createGain(); wet.gain.value = .13; reverb.connect(wet).connect(musicGroup);
+    delay = ctx.createDelay(1); delay.delayTime.value = STEP * 3;
+    const feedback = ctx.createGain(); feedback.gain.value = .24;
+    const delayFilter = ctx.createBiquadFilter(); delayFilter.type = "lowpass"; delayFilter.frequency.value = 2800;
+    delay.connect(delayFilter).connect(feedback).connect(delay);
+    const delayWet = ctx.createGain(); delayWet.gain.value = .2; delayFilter.connect(delayWet).connect(musicGroup);
+    noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    setupFX();
+  }
+
+  function envelope(gain, t, peak, attack, duration) {
+    gain.gain.setValueAtTime(.0001, t);
+    gain.gain.exponentialRampToValueAtTime(Math.max(.0002, peak), t + attack);
+    gain.gain.exponentialRampToValueAtTime(.0001, t + Math.max(attack + .005, duration));
+  }
+
+  function voice(t, note, duration, gain, bus, options = {}) {
+    const output = ctx.createGain(); envelope(output, t, gain, options.attack ?? .006, duration);
+    const filter = ctx.createBiquadFilter(); filter.type = "lowpass";
+    filter.frequency.setValueAtTime(options.cutoff ?? 3600, t);
+    filter.frequency.exponentialRampToValueAtTime(options.tail ?? 1300, t + duration);
+    filter.Q.value = options.q ?? .65;
+    filter.connect(output).connect(bus);
+    if (options.wet) { const send = ctx.createGain(); send.gain.value = options.wet; output.connect(send).connect(reverb); }
+    if (options.echo) { const send = ctx.createGain(); send.gain.value = options.echo; output.connect(send).connect(delay); }
+    (options.detune ? [-options.detune, options.detune] : [0]).forEach((cents) => {
+      const oscillator = ctx.createOscillator(); oscillator.type = options.type ?? "sawtooth";
+      oscillator.frequency.setValueAtTime(hz(note), t); oscillator.detune.value = cents;
+      if (options.bend) oscillator.frequency.exponentialRampToValueAtTime(hz(note + options.bend), t + .04);
+      oscillator.connect(filter); oscillator.start(t); oscillator.stop(t + duration + .025);
+    });
+  }
+
+  function noise(t, duration, gain, from, to, type = "bandpass", wet = 0) {
+    const source = ctx.createBufferSource(); source.buffer = noiseBuffer;
+    const filter = ctx.createBiquadFilter(); filter.type = type; filter.Q.value = .7;
+    filter.frequency.setValueAtTime(from, t); filter.frequency.exponentialRampToValueAtTime(to, t + duration);
+    const output = ctx.createGain(); envelope(output, t, gain, .002, duration);
+    source.connect(filter).connect(output).connect(buses.drums);
+    if (wet) { const send = ctx.createGain(); send.gain.value = wet; output.connect(send).connect(reverb); }
+    source.start(t, Math.random() * .3, duration); source.stop(t + duration + .01);
+  }
+
+  function drumTone(t, frequency, end, duration, gain) {
+    const oscillator = ctx.createOscillator(); const output = ctx.createGain();
+    oscillator.frequency.setValueAtTime(frequency, t); oscillator.frequency.exponentialRampToValueAtTime(end, t + duration * .7);
+    envelope(output, t, gain, .002, duration); oscillator.connect(output).connect(buses.drums);
+    oscillator.start(t); oscillator.stop(t + duration + .02);
+  }
+  function kick(t, power = 1) { drumTone(t, 155, 46, .22, .72 * power); noise(t, .025, .08 * power, 2200, 1200, "highpass"); }
+  function snare(t, power = 1) { drumTone(t, 195, 120, .14, .17 * power); noise(t, .18, .34 * power, 1900, 1000, "bandpass", .12); noise(t, .09, .10 * power, 5200, 3500, "highpass"); }
+  function hat(t, open = false, power = 1) { noise(t, open ? .19 : .045, (open ? .045 : .036) * power, 6900, open ? 5800 : 7200, "highpass"); }
+  function crash(t, power = 1) { noise(t, 1.05, .13 * power, 7600, 3200, "highpass", .2); }
+  function tom(t, high) { drumTone(t, high ? 210 : 140, high ? 95 : 64, .21, .26); noise(t, .04, .035, 2200, 600); }
+
+  function setMix(t) {
+    buses.drums.gain.setTargetAtTime(level === 3 ? .93 : .82, t, .15);
+    buses.bass.gain.setTargetAtTime(.78, t, .15);
+    buses.rhythm.gain.setTargetAtTime(level === 1 ? .65 : .85, t, .18);
+    buses.lead.gain.setTargetAtTime(level === 1 ? .25 : .78, t, .2);
+    buses.strings.gain.setTargetAtTime(level === 1 ? .08 : level === 2 ? .36 : .53, t, .25);
+  }
+
+  function musicStep(index, t) {
+    const bar = Math.floor(index / 16), s = index % 16, cycle = bar % 32;
+    const chord = CHORDS[bar % 4];
+    // La respiration centrale crée un contraste avant le dernier refrain.
+    const bridge = automatic && cycle >= 20 && cycle < 24;
+    if (s === 0) {
+      level = automatic ? (cycle < 4 || bridge ? 1 : cycle < 12 ? 2 : 3) : pendingLevel;
+      setMix(t);
+      if (bar % 8 === 0 || level > lastLevel) crash(t, level === 3 ? 1 : .65);
+      lastLevel = level;
+      chord.notes.forEach((note) => voice(t, note + 12, BAR * .92, .018, buses.strings, {type:"triangle",attack:.15,cutoff:1800,tail:1200,wet:.3}));
+    }
+    const kicks = bridge ? [0, 10] : level === 1 ? [0, 6, 8, 14] : [0, 3, 6, 8, 11, 14];
+    if (kicks.includes(s)) kick(t, s === 0 || s === 8 ? 1 : .78);
+    if (bridge ? s === 8 : s === 4 || s === 12) snare(t);
+    if (level === 3 && s === 11 && bar % 2) snare(t, .28);
+    if (s % 2 === 0) hat(t, !bridge && s === 14 && bar % 2 === 1, s % 4 === 0 ? .8 : 1);
+    if (level === 3 && [3,7,11,15].includes(s)) hat(t, false, .45);
+    if (s === 15 && bar % 4 === 3) snare(t, .48);
+    if (bar % 8 === 7 && s >= 12) { if (s === 12 || s === 14) tom(t, s === 12); if (s === 15) snare(t, .7); }
+
+    const bassSteps = bridge ? [0, 8] : [0, 3, 6, 8, 10, 14];
+    if (bassSteps.includes(s)) {
+      const note = chord.bass + (!bridge && s === 10 ? 12 : 0);
+      voice(t, note, bridge ? STEP * 6 : STEP * (s === 0 || s === 8 ? 2.6 : 1.6), .19, buses.bass, {cutoff:650,tail:260});
+      voice(t, note, STEP * 1.8, .12, buses.bass, {type:"sine",cutoff:400,tail:180});
+    }
+    const chugs = bridge ? [0, 8] : level === 1 ? [0, 6, 8, 14] : [0, 2, 3, 6, 8, 10, 11, 14];
+    if (chugs.includes(s)) {
+      const root = chord.bass + 12;
+      [root,root + 7,root + 12].forEach((note) => voice(t, note, STEP * (bridge ? 6 : s % 8 === 0 ? 2.3 : 1.15), .036, buses.rhythm, {cutoff:2400,tail:750,type:"sawtooth"}));
+    }
+    if (!bridge) MELODY[bar % 8].forEach(([at, note, length]) => {
+      if (at !== s || (level === 1 && s !== 0 && s !== 7 && s !== 12)) return;
+      voice(t, note, STEP * length * .90, .065, buses.lead, {detune:5,cutoff:4200,tail:1700,echo:.3,wet:.14});
+      if (level === 3) voice(t, note - 12, STEP * length * .82, .035, buses.lead, {type:"triangle",cutoff:2300,tail:1300,wet:.12});
+    });
+    if (bridge && s === 0) voice(t, [76,77,74,80][bar % 4], BAR * .7, .065, buses.lead, {type:"triangle",attack:.05,cutoff:2600,tail:1400,echo:.5,wet:.4});
+    if (level >= 2 && !bridge && [2,6,10,14].includes(s)) {
+      const n = chord.notes[[0,2,1,2][Math.floor(s / 4)]] + 12;
+      voice(t, n, STEP * 1.25, .04, buses.strings, {type:"sawtooth",attack:.015,cutoff:2100,tail:800,wet:.12});
+    }
+  }
+
+  function schedule() {
+    if (!ctx) return;
+    if (next < ctx.currentTime - .3) { const skipped = Math.ceil((ctx.currentTime - next + .06) / STEP); step += skipped; next += skipped * STEP; }
+    while (next < ctx.currentTime + .15) { musicStep(step++, next); next += STEP; }
+  }
+
+
+
+  let musicGroup, fxBus, fxVerb, musicWanted = false, opening = false, sceneRunning = false;
+  let tier = "affinity", sceneToken = 0, lastClick = 0;
+  const timers = new Set();
+  const volume = document.getElementById("volume");
+  const status = document.getElementById("state");
+  const lamp = document.getElementById("lamp");
+  const musicButton = document.getElementById("music");
+  const stopButton = document.getElementById("stop");
+  const demoButton = document.getElementById("demo");
+  const soundButtons = [...document.querySelectorAll(".sound")];
+  const tierButtons = [...document.querySelectorAll("[data-tier]")];
+  const VARIANT = {affinity:{charge:.16,power:.85,tail:1},special:{charge:.33,power:1,tail:1.2},ultimate:{charge:.76,power:1.2,tail:1.55}};
+
+  function later(delay, callback) {
+    const id = setTimeout(() => { timers.delete(id); callback(); }, delay * 1000);
+    timers.add(id); return id;
+  }
+  function setupFX() {
+    fxBus = ctx.createGain(); fxBus.gain.value = 1.35; fxBus.connect(master);
+    fxVerb = ctx.createConvolver(); fxVerb.buffer = reverb.buffer;
+    const wet = ctx.createGain(); wet.gain.value = .23; fxVerb.connect(wet).connect(fxBus);
+  }
+  function fxOut(node, pan, wet) {
+    const stereo = ctx.createStereoPanner(); stereo.pan.value = pan;
+    node.connect(stereo).connect(fxBus);
+    if (wet) { const send = ctx.createGain(); send.gain.value = wet; stereo.connect(send).connect(fxVerb); }
+  }
+  function fxTone(t, from, to, duration, gain, options = {}) {
+    const osc = ctx.createOscillator(), output = ctx.createGain();
+    osc.type = options.type || "sine";
+    osc.frequency.setValueAtTime(from, t); osc.frequency.exponentialRampToValueAtTime(to, t + duration);
+    envelope(output, t, gain, options.attack || .003, duration);
+    if (options.cutoff) {
+      const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = options.cutoff;
+      osc.connect(filter).connect(output);
+    } else osc.connect(output);
+    fxOut(output, options.pan || 0, options.wet || 0);
+    osc.start(t); osc.stop(t + duration + .03);
+  }
+  function fxNoise(t, duration, from, to, gain, options = {}) {
+    const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), output = ctx.createGain();
+    source.buffer = noiseBuffer; filter.type = options.type || "bandpass"; filter.Q.value = options.q || .8;
+    filter.frequency.setValueAtTime(from, t); filter.frequency.exponentialRampToValueAtTime(to, t + duration);
+    envelope(output, t, gain, options.attack || .002, duration);
+    source.connect(filter).connect(output); fxOut(output, options.pan || 0, options.wet || 0);
+    source.start(t, Math.random() * .12, duration); source.stop(t + duration + .02);
+  }
+  function duck(t, depth = .35, hold = .18) {
+    if (!timer) return;
+    const gain = musicGroup.gain;
+    gain.cancelScheduledValues(t); gain.setTargetAtTime(.72 * depth, t, .012);
+    gain.setTargetAtTime(.72, t + hold, .16);
+  }
+  function impact(t, power = 1, heavy = false) {
+    const v = 1 + (Math.random() - .5) * .1;
+    fxTone(t, (heavy ? 130 : 178) * v, heavy ? 39 : 58, heavy ? .31 : .16, .53 * power);
+    fxNoise(t, heavy ? .16 : .085, heavy ? 1500 : 2100, 280, .44 * power, {type:"lowpass"});
+    fxNoise(t, .027, 3100, 1700, .15 * power);
+    if (heavy) {
+      fxNoise(t + .017, .13, 2300, 700, .2 * power, {pan:-.15,wet:.1});
+      fxTone(t + .018, 255, 87, .18, .14 * power, {type:"triangle",cutoff:1100});
+      duck(t, .32, .22);
+    }
+  }
+  function hit(kind, t) {
+    if (kind === "normal" || kind === "critical") {
+      fxNoise(t, .065, 800, 2600, .12, {attack:.025});
+      impact(t + .065, kind === "critical" ? 1 : .8, kind === "critical");
+    } else if (kind === "combo") {
+      [0,.19,.43].forEach((offset,i) => {
+        fxNoise(t + offset, .06, 800, 2300, .08, {attack:.02,pan:(i-1)*.22});
+        impact(t + offset + .055, i === 2 ? 1 : .62, i === 2);
+      });
+    } else if (kind === "blocked") {
+      fxNoise(t, .05, 2700, 900, .18);
+      [420,698,1090].forEach((freq,i) => fxTone(t, freq, freq*.95, .22/(1+i*.3), .14/(i+1), {type:"triangle",wet:.13}));
+    } else if (kind === "break") {
+      fxTone(t, 390, 115, .32, .2, {type:"triangle",wet:.1});
+      fxNoise(t, .04, 3600, 1300, .33);
+      for(let i=0;i<9;i++) fxNoise(t+.02+i*.025,.04,2400+i*190,900+i*80,.11*(1-i/12),{pan:(i%2?1:-1)*i*.07,wet:.15});
+      fxTone(t + .045, 98, 45, .22, .18); duck(t,.5,.12);
+    } else if (kind === "ko") {
+      impact(t,.8,true);
+      fxNoise(t+.06,.72,650,90,.22,{type:"lowpass",wet:.22});
+      fxTone(t+.04,165,35,.61,.2,{type:"triangle",cutoff:800,wet:.13});
+      duck(t,.35,.45);
+    }
+  }
+  function spell(type, t, selectedTier = tier) {
+    const spec = VARIANT[selectedTier], p = spec.power, c = spec.charge, release = t+c;
+    if (selectedTier === "ultimate") {
+      fxNoise(t,c,320,1700,.11,{attack:c*.82,wet:.2});
+      fxTone(t,55,110,c,.12,{attack:c*.72,wet:.15});
+    }
+    if(type === "COMBAT") {
+      fxNoise(t,c,650,3000,.17*p,{attack:c*.58,pan:-.15});
+      fxNoise(release-.025,.065,3500,800,.21*p,{pan:.15});
+      impact(release,p,selectedTier !== "affinity");
+      if(selectedTier !== "affinity") impact(release+.085,.48*p,false);
+    } else if(type === "MYSTERE") {
+      fxTone(t,117,98,c+.37,.17*p,{attack:c*.6,wet:.45,pan:-.2});
+      fxTone(t,124,104,c+.42,.14*p,{attack:c*.62,wet:.45,pan:.2});
+      fxNoise(t,c+.1,220,1200,.18*p,{attack:c*.8,q:2,wet:.3});
+      fxTone(release,145,47,.35*spec.tail,.32*p,{wet:.26});
+      fxNoise(release,.26*spec.tail,1600,210,.25*p,{type:"lowpass",wet:.25});
+      [0,.075,.15].forEach((offset,i)=>fxNoise(release+offset,.12,1100-i*140,360,.065*p,{pan:i%2?.5:-.5,wet:.4}));
+    } else if(type === "MAGIE") {
+      fxNoise(t,c,900,3900,.12*p,{attack:c*.75,wet:.22});
+      [294,440,587].forEach((freq,i)=>{
+        const at=release+i*.026;
+        fxTone(at,freq,freq*.98,.47*spec.tail,.09*p,{type:"triangle",wet:.35,pan:(i-1)*.3});
+        fxTone(at,freq*2.03,freq*2,.29*spec.tail,.026*p,{wet:.3,pan:(1-i)*.3});
+      });
+      fxNoise(release,.14,3200,950,.22*p,{wet:.18});
+      fxTone(release,147,74,.22,.23*p);
+    } else if(type === "COEUR") {
+      fxNoise(t,c+.24,850,1500,.055*p,{attack:c*.7,wet:.5});
+      [220,261.63,329.63].forEach((freq,i)=>fxTone(release+i*.018,freq,freq,.66*spec.tail,.065*p,{attack:.055,type:"sine",wet:.48,pan:(i-1)*.25}));
+      fxTone(release,92,61,.14,.25*p); fxTone(release+.14,86,57,.18,.16*p);
+      fxTone(release+.08,440,440,.54*spec.tail,.033*p,{attack:.07,wet:.4});
+    } else if(type === "AVENTURE") {
+      fxNoise(t,c+.08,260,2100,.22*p,{attack:c*.8,type:"lowpass",pan:-.25,wet:.14});
+      [0,.075,.16].forEach((offset,i)=>{
+        fxTone(release+offset,115-i*15,43,.24*spec.tail,.24*p*(1-i*.2),{pan:(i-1)*.3,wet:.12});
+        fxNoise(release+offset,.22*spec.tail,1700-i*300,190,.18*p*(1-i*.2),{type:"lowpass",pan:(i-1)*.45,wet:.2});
+      });
+      fxNoise(release,.42*spec.tail,1500,480,.1*p,{pan:.45,wet:.3});
+    }
+    if (selectedTier === "ultimate") duck(release,.26,.34);
+    else if (selectedTier === "special") duck(release,.4,.2);
+    return c + (type === "COEUR" ? 1.5 : 1.2)*spec.tail;
+  }
+
+  async function ensureAudio() {
+    if (opening) return null;
+    opening = true;
+    try {
+      if(!ctx) initAudio();
+      const audio=ctx; await audio.resume();
+      if(audio!==ctx)return null;
+      stopButton.disabled=false;
+      if(musicWanted && !timer) {
+        automatic=false;level=pendingLevel=2;lastLevel=0;step=0;
+        origin=audio.currentTime+.06;next=origin;musicGroup.gain.value=.72;
+        schedule();timer=setInterval(schedule,25);
+      }
+      return audio;
+    } catch(error) { status.textContent=error.message||"Lecture audio indisponible.";return null; }
+    finally {opening=false;}
+  }
+  function updateMusicButton() {
+    musicButton.setAttribute("aria-pressed",String(musicWanted));
+    musicButton.textContent=musicWanted?"Musique activée":"Ajouter la musique";
+  }
+  function indicate(label, button, duration = .9) {
+    status.textContent=label;lamp.classList.add("active");
+    if(button)button.classList.add("active");
+    later(duration,()=>{if(button)button.classList.remove("active");if(!sceneRunning)lamp.classList.remove("active");});
+  }
+  async function audition(button) {
+    if(sceneRunning || performance.now()-lastClick<100)return;
+    lastClick=performance.now();
+    const audio=await ensureAudio();if(!audio)return;
+    const t=audio.currentTime+.025;
+    if(button.dataset.hit) { hit(button.dataset.hit,t);indicate(button.querySelector("strong").textContent,button); }
+    else {const duration=spell(button.dataset.spell,t);indicate(button.querySelector("strong").textContent+" · "+{affinity:"Affinité",special:"Spécial",ultimate:"Ultime"}[tier],button,duration);}
+  }
+  function lockScene(on) {
+    sceneRunning=on;demoButton.disabled=on;
+    [...soundButtons,...tierButtons].forEach(button=>button.disabled=on);
+  }
+  async function demo() {
+    if(sceneRunning)return;
+    lockScene(true);const token=++sceneToken;
+    musicWanted=true;updateMusicButton();
+    const audio=await ensureAudio();
+    if(!audio || token!==sceneToken){lockScene(false);return;}
+    const t=audio.currentTime+.05;
+    const events=[
+      [.15,"Coup normal",()=>hit("normal",t+.15)],
+      [1.0,"Coup critique",()=>hit("critical",t+1.0)],
+      [1.7,"Coup bloqué",()=>hit("blocked",t+1.7)],
+      [2.35,"Mystère · Spécial",()=>spell("MYSTERE",t+2.35,"special")],
+      [3.75,"Cœur · Soin",()=>spell("COEUR",t+3.75,"affinity")],
+      [4.8,"Bouclier brisé",()=>hit("break",t+4.8)],
+      [5.4,"Enchaînement",()=>hit("combo",t+5.4)],
+      [6.45,"Magie · Ultime",()=>spell("MAGIE",t+6.45,"ultimate")],
+      [8.25,"K.O.",()=>hit("ko",t+8.25)],
+    ];
+    events.forEach(([at,label,sound])=>{sound();later(at+.05,()=>{if(token===sceneToken)indicate(label,null,.5);});});
+    later(9.5,()=>{if(token!==sceneToken)return;lockScene(false);lamp.classList.remove("active");status.textContent="Démo terminée. La musique continue; tu peux essayer les effets.";});
+  }
+  async function stopAll() {
+    sceneToken++;timers.forEach(clearTimeout);timers.clear();
+    clearInterval(timer);timer=null;
+    const audio=ctx;ctx=null;
+    lockScene(false);musicWanted=false;updateMusicButton();stopButton.disabled=true;
+    soundButtons.forEach(button=>button.classList.remove("active"));
+    lamp.classList.remove("active");status.textContent="Lecture arrêtée.";
+    if(audio)await audio.close().catch(()=>{});
+  }
+  soundButtons.forEach(button=>button.addEventListener("click",()=>audition(button)));
+  tierButtons.forEach(button=>button.addEventListener("click",()=>{
+    tier=button.dataset.tier;tierButtons.forEach(item=>item.setAttribute("aria-pressed",String(item===button)));
+  }));
+  musicButton.addEventListener("click",async()=>{
+    musicWanted=!musicWanted;updateMusicButton();
+    if(musicWanted)await ensureAudio();
+    else if(ctx){clearInterval(timer);timer=null;musicGroup.gain.cancelScheduledValues(ctx.currentTime);musicGroup.gain.setTargetAtTime(0,ctx.currentTime,.08);}
+  });
+  demoButton.addEventListener("click",demo);stopButton.addEventListener("click",stopAll);
+  volume.addEventListener("input",()=>{document.getElementById("volume-value").value=volume.value+" %";if(ctx)master.gain.setTargetAtTime(db(Number(volume.value))*.8,ctx.currentTime,.04);});
+  window.addEventListener("pagehide",stopAll);
+</script>
+</body>
+</html>
