@@ -2,6 +2,7 @@
 // Les personnages sans entrée dédiée héritent d'un nom et d'un effet léger tirés de leur sort signature.
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
+import { BASIC_SIGNATURES, type BasicSignatureArchetype } from "./basic-attack-signatures";
 import { spellOf, type Effect, type ModStat } from "./spells";
 
 export type BasicRider =
@@ -66,6 +67,33 @@ const PERSONAL: Record<number, BasicAttack> = {
   89220: named("Éclat de glace et de feu", mod("atk", -0.03, "target")), // Todoroki
 };
 
+const ARCHETYPE_RIDERS: Record<BasicSignatureArchetype, BasicRider> = {
+  strike: mod("atk", -0.03, "target"),
+  rend: { kind: "ignoreDef", pct: 0.03 },
+  pierce: { kind: "ignoreDef", pct: 0.03 },
+  crit: mod("crit", 0.03, "self"),
+  drain: { kind: "drain", pct: 0.02 },
+  barrage: mod("atk", -0.03, "target"),
+  surge: mod("atk", 0.03, "self"),
+  evade: mod("dodge", 0.03, "self"),
+  toxin: { kind: "poison", pct: 0.005 },
+  plague: { kind: "poison", pct: 0.005 },
+  hex: mod("atk", -0.03, "target"),
+  seal: mod("atk", -0.03, "target"),
+  sap: mod("atk", -0.03, "target"),
+  breach: mod("def", -0.03, "target"),
+  blind: mod("crit", -0.03, "target"),
+  rally: mod("atk", 0.03, "self"),
+  focus: mod("crit", 0.03, "self"),
+  bulwark: mod("def", 0.03, "self"),
+  veil: mod("dodge", 0.03, "self"),
+  tide: { kind: "heal", pct: 0.02 },
+  renew: { kind: "heal", pct: 0.02 },
+  ward: { kind: "shield", pct: 0.02 },
+  aegis: { kind: "shield", pct: 0.02 },
+  revive: { kind: "shield", pct: 0.02 },
+};
+
 function riderFromSignature(effects: Effect[]): BasicRider {
   const mods = effects.filter((e): e is Extract<Effect, { k: "mod" }> => e.k === "mod");
   const modEffect = mods.find((e) => e.amount < 0) ?? mods[0];
@@ -90,6 +118,8 @@ export function basicAttackOf(characterId: number, rarity: Rarity, type: CardTyp
   if (rarity !== "SSR" && rarity !== "UR") return null;
   const authored = PERSONAL[characterId];
   if (authored) return authored;
+  const generated = BASIC_SIGNATURES[characterId];
+  if (generated) return named(`Frappe inspirée de ${generated.name}`, ARCHETYPE_RIDERS[generated.archetype]);
   const signature = spellOf(characterId, rarity, type);
   if (!signature) return null;
   return named(`Frappe inspirée de ${signature.name}`, riderFromSignature(signature.effects));
