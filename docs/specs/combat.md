@@ -61,6 +61,71 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 
 **Ultime** : **désactivé pour le moment** (décidé le 2026-10-31), retiré du moteur. Il reviendra avec les ultimes écrits par anime et les ultimes personnels des UR. *(L'essai précédent n'était qu'un bouche-trou pour mesurer le poids d'un ultime : jauge de 100, +20 par action et +10 par coup reçu, puis le sort affilié ×2 sur toute l'équipe adverse ; il donnait 60 % à 4 SSR avec ultimes contre 4 SSR sans.)*
 
+### 4 bis. Sorts de personnage *(proposé le 2026-10-31, révisé : plus de variété ; à valider)*
+Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec son cooldown. Il s'ajoute au sort de base et au sort affilié (qui restent), en manuel comme en automatique. Il remplace l'idée d'ultime à jauge (§4, désactivé).
+
+- **Cooldown 5 actions**, premier lancer à la 3ᵉ action de la carte. Le sort affilié et le sort perso ont chacun leur compteur ; une carte ne lance qu'un sort par action.
+- **Format** : une liste d'effets du vocabulaire ci-dessous, écrite en données (`src/lib/spells.ts`). Un SSR ou UR sans sort écrit reçoit un sort générique déduit de son type et de son rôle.
+- **Variété** : au plus **un tiers** des sorts sont des attaques ; les autres soignent, protègent, affaiblissent ou contrôlent. Un sort sans dégâts est compensé par un effet fort (un sort de soutien peut avoir un effet que l'attaque pure n'a pas).
+
+**Vocabulaire d'effets** *(les durées sont en actions de la carte qui porte l'effet, comme Affaibli et Élan aujourd'hui)* :
+
+| Famille | Effets | Règle |
+|---|---|---|
+| Dégâts | **Attaque** sur une cible ; **zone** sur tous les ennemis ; **vol de vie** (soin = part des dégâts) ; **traverse les boucliers** (les dégâts touchent les PV directement) | Zone : multiplicateur plus faible |
+| Attaque | **ATK +x %** / **ATK −x %** (soi, équipe ou ennemis) | ±20 % par effet, ±40 % au total |
+| Défense | **DEF +x %** / **DEF −x %** | ±20 % par effet, ±40 % au total |
+| Critique | **Critique +x** / **Critique −x** (points de chance ; base 15 %) | Total entre 0 et 75 % |
+| Esquive | **Chance d'esquiver** les coups (soi ou équipe) | Plafond 50 % ; ne marche pas contre « traverse » ni contre les effets sans dégâts |
+| Soin | **Soin ciblé** ; **soin de zone** (toute l'équipe) ; **soin sur la durée** (% de PV max à chaque action du porteur) | Pas au-delà des PV max |
+| Bouclier | **Bouclier** (% des PV max, soi ou équipe) | Cumulable jusqu'à 30 % des PV max |
+| Poison | **Poison** : perd x % de ses **PV max** à chaque action, pendant N actions | Ne se cumule pas (le plus fort remplace) ; peut tuer |
+| Contrôle | **Silence** : la cible ne peut lancer que le **sort de base** pendant N actions | Durée 2 au maximum |
+| Protection | **Immunité aux altérations** pendant N actions : aucun nouveau malus (ATK/DEF −, critique −, poison, silence, exposition) | Ne retire pas les malus déjà posés |
+| Purge | **Purge** : retire tous les malus d'un allié ou de l'équipe (ATK/DEF −, critique −, poison, silence, exposition) | Ne protège pas contre les suivants |
+| Résurrection | **Réanimation** d'un allié mort, avec x % de ses PV max | Une seule fois par combat et par carte lanceuse ; l'allié repart avec un compteur de cooldown neuf |
+
+*(« Exposé » et « Affaibli » du jeu actuel deviennent des cas particuliers : exposition et ATK −20 %.)*
+
+**Équilibre** *(à fixer au simulateur)* : un sort d'attaque pure vaut environ 2,0× l'ATK (SSR) ou 2,4× (UR) ; un sort de zone 0,9× (SSR) ou 1,1× (UR) ; un sort qui ajoute un effet fort (silence, DEF −, poison) perd du multiplicateur. **Automatique** : lancé dès qu'il est prêt ; un soin, un bouclier ou une réanimation seulement si un allié en a besoin ; un silence sur la cible la plus dangereuse.
+
+**Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
+
+**Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier ; les autres univers au fil du temps.
+
+| Perso | Sort | Effet | Rôle |
+|---|---|---|---|
+| Luffy (UR) | Gomu Gomu no Gatling | 2,2× ATK ; ATK +20 % pour lui, 2 actions | Attaque |
+| Zoro (UR) | Santoryu Ogi | 1,8× ATK ; critique +30 pour lui, 3 actions | Attaque |
+| Sanji (SSR) | Diable Jambe | 2,0× ATK, ignore 30 % de la DEF | Attaque |
+| Robin (SSR) | Mil Fleur | 1,0× ATK ; silence 2 actions sur la cible | Contrôle |
+| Law (SSR) | Shambles | 1,6× ATK qui traverse les boucliers ; DEF −20 %, 2 actions | Contrôle |
+| Nami (SSR) | Thunderbolt Tempo | 0,6× ATK en zone ; ATK −20 % sur tous les ennemis, 2 actions | Zone / malus |
+| Ace (SSR) | Hiken | 1,8× ATK ; vol de vie 40 % | Attaque / vol de vie |
+| Chopper (SSR) | Rumble Ball | soin de zone 15 % des PV max ; purge des malus de l'équipe | Soin / purge |
+| Usopp (SSR) | Kemuri Boshi | esquive 30 % pour l'équipe, 2 actions | Soutien |
+| Naruto (UR) | Mode Kyubi | ATK +20 % pour l'équipe, 2 actions ; soin sur la durée 5 % × 3 actions pour lui | Soutien |
+| Itachi (UR) | Tsukuyomi | 1,2× ATK ; silence 2 actions et ATK −20 % sur la cible | Contrôle |
+| Kakashi (UR) | Raikiri | 2,2× ATK qui traverse les boucliers, ignore 30 % de la DEF | Attaque |
+| Sasuke (SSR) | Amaterasu | poison 5 % des PV max × 3 actions sur la cible | Poison |
+| Shikamaru (SSR) | Possession des ombres | critique −30 sur tous les ennemis, 2 actions ; DEF −15 % | Contrôle |
+| Gaara (SSR) | Armure de sable | bouclier 15 % des PV max pour l'équipe | Bouclier |
+| Jiraiya (SSR) | Rasengan crapaud | 0,9× ATK en zone | Zone |
+| Gojo (UR) | Pourpre | 1,1× ATK en zone qui traverse les boucliers | Zone |
+| Yuji (UR) | Black Flash | 2,0× ATK, coup critique assuré | Attaque |
+| Megumi (UR) | Mahoraga | DEF +20 % pour l'équipe, 3 actions ; immunité aux altérations, 2 actions | Protection |
+| Nanami (SSR) | Ratio 7:3 | 1,6× ATK ; DEF −25 % sur la cible, 2 actions | Contrôle |
+| Nobara (SSR) | Résonance | poison 5 % des PV max × 3 actions ; ATK −15 % | Poison |
+| Maki (SSR) | Lance du rêve | 1,4× ATK ; esquive 50 % pour elle, 2 actions | Attaque / esquive |
+| Sukuna (SSR) | Démantèlement | 0,8× ATK en zone ; vol de vie 30 % | Zone / vol de vie |
+| Yuta (SSR) | Rika | réanimation d'un allié mort à 35 % de ses PV max | Résurrection |
+| Inumaki (SSR) | Mot-clé : « Arrêtez-vous » | silence 1 action sur tous les ennemis | Contrôle |
+| Getou (SSR) | Manipulation de malédiction | 0,8× ATK en zone ; poison 3 % × 3 actions | Zone / poison |
+| Toji (SSR) | Lance inversée | 2,0× ATK qui traverse les boucliers ; critique +25 pour lui | Attaque |
+| Todo (SSR) | Boogie Woogie | 1,2× ATK ; critique +25 pour l'équipe, 2 actions | Soutien |
+
+Répartition : 7 attaques, 4 zones (dont 2 avec vol de vie ou poison), 6 contrôles, 3 poisons ou malus, 6 soutiens (soin, bouclier, esquive, protection, résurrection, bonus d'équipe). Les noms et effets sont des propositions, modifiables.
+
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.
