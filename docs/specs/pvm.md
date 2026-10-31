@@ -44,7 +44,7 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 | **Univers de collision** | Plusieurs univers qui se sont percutés : on y croise des personnages de plein d'anime. Nom et thème propres (lore des brèches). | Les anime plus petits, qui sans cela n'auraient jamais d'univers ni de ressource |
 
 - Repères (base de personnages) : 155 anime ont au moins 8 personnages, 76 d'entre eux ont un SSR ou un UR, 25 ont au moins 20 personnages.
-- **Lancement : 3 univers d'anime choisis à la main** (One Piece, Naruto, Jujutsu Kaisen), puis des univers de collision et d'autres anime au fil du temps.
+- **Lancement : 3 univers d'anime choisis à la main** (One Piece, Jujutsu Kaisen, Naruto, validés), puis des univers de collision et d'autres anime au fil du temps.
 - **Le premier univers sert de tutoriel** et débloque tous les autres, qui sont alors ouverts avec leur difficulté affichée.
 
 ### Ennemis
@@ -55,8 +55,16 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 - Chaque combat affiche une **puissance conseillée**.
 
 ### Ressources d'éveil
-- **Chaque univers a sa ressource**, tirée de l'anime pour le côté « waouh » (le fruit du démon pour One Piece, etc.). Liste à écrire avec la direction du lore.
-- **Une ressource commune** existe aussi. Elle est la seule dont disposent les personnages des anime **sans univers**.
+- **Chaque univers a sa ressource**, tirée de l'anime pour le côté « waouh » (le fruit du démon pour One Piece, etc.). Univers de départ *(noms proposés le 2026-10-31, modifiables)* :
+
+| Univers | Ressource d'éveil | Ressource d'arme légendaire (boss finaux) |
+|---|---|---|
+| One Piece | Fruit du démon | Kairoseki |
+| Naruto | Parchemin de jutsu | Métal à chakra |
+| Jujutsu Kaisen | Doigt maudit | Outil maudit |
+
+- Les univers de collision auront les leurs, à nommer quand on les écrira.
+- **Une ressource commune** existe aussi : le **fragment de signature** (nom du lore : une signature complète est nécessaire au retour d'un personnage). Elle est la seule dont disposent les personnages des anime **sans univers**.
 - Dans un univers d'anime, les drops sont à **50 % ressource de l'univers, 50 % ressource commune** *(à équilibrer)*.
 - Éveiller un personnage coûte de la ressource commune et, s'il vient d'un univers, un peu de la ressource de cet univers. **Plus la rareté est haute, plus le coût est élevé** : un UR demande plus qu'un SSR.
 - Les étoiles 4 et 5 demandent en plus la ressource rare du raid (voir « Raid »).
@@ -76,8 +84,8 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 - Un boss final vaincu : sa signature est rétablie, et Pew réagit à son départ (direction de caractérisation dans `lore.md`).
 
 ### À écrire / à décider
-- Liste des univers de collision (thèmes, noms, quels anime) et des ressources par univers.
-- Tables de niveau, de coûts d'éveil et de drops (simulateur).
+- Liste des univers de collision (thèmes, noms, quels anime) et de leurs ressources.
+- Tables de niveau, de coûts d'éveil et de drops : à la charge de Claude, qui les propose et les valide au simulateur avant de les présenter.
 - Modèle de données : `StoryProgress` (joueur, univers, combat atteint), définitions des univers dans le code, `Battle.mode = STORY` déjà prévu.
 - Moteur : bonus de stats et de PV du boss, équipe adverse construite par niveau (aujourd'hui `PVM_OPPONENTS`).
 
