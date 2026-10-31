@@ -3,7 +3,7 @@
 // Usage : npx tsx scripts/simulate-battle.ts [--games 10000] [--seed 42] [--defK 2000] [--hpMult 1]
 
 import type { CardType, Rarity } from "../src/generated/prisma/enums";
-import { BATTLE, battle, type BattleCard, type BattleOptions, type Random } from "../src/lib/battle";
+import { BATTLE, battle, type BattleCard, type BattleOptions, type Random, type Weapon } from "../src/lib/battle";
 import { prisma } from "../src/lib/db";
 
 const arg = (name: string, d: number) => {
@@ -189,6 +189,55 @@ console.table(
     return { équipe: label, "sans synergie": pct(off), "avec synergie": pct(withIt), poids: `${((withIt - off) * 100).toFixed(1)} pts` };
   }),
 );
+
+// 8. Progression : éveil (stats par étoile, cooldown −1 à 5 étoiles) et arme légendaire, sur une grille de valeurs.
+// Règle de puissance : un SSR éveillé 5 étoiles et armé doit rester sous un UR à 0 étoile.
+console.log("\n8. Progression : éveil et arme légendaire");
+const starBonus0 = BATTLE.starBonus;
+const awaken = (cards: BattleCard[], stat: number | null, passive: Weapon["passive"] = null) =>
+  cards.map((c) => ({ ...c, stars: 5, weapon: stat == null ? null : { stat, passive } }));
+const progressTable: Record<string, string>[] = [];
+for (const star of [0.01, 0.02, 0.03, 0.04]) {
+  BATTLE.starBonus = star;
+  for (const weapon of [0.03, 0.05, 0.08]) {
+    progressTable.push({
+      "par étoile": `+${star * 100} %`,
+      arme: `+${weapon * 100} %`,
+      "SSR 5★ armé vs UR 0★": pct(rate(() => [awaken(four("SSR"), weapon), four("UR")])),
+      "SR 5★ armé vs SSR 0★": pct(rate(() => [awaken(four("SR"), weapon), four("SSR")])),
+      "SSR 5★ sans arme vs SSR 0★": pct(rate(() => [awaken(four("SSR"), null), four("SSR")])),
+      "UR 5★ armé vs UR 0★": pct(rate(() => [awaken(four("UR"), weapon), four("UR")])),
+    });
+  }
+}
+console.table(progressTable);
+BATTLE.starBonus = 0;
+console.log(`Cooldown −1 seul (4 SSR 5★ sans bonus de stats contre 4 SSR 0★) : ${pct(rate(() => [awaken(four("SSR"), null), four("SSR")]))}`);
+BATTLE.starBonus = starBonus0;
+const passives: [string, Weapon["passive"]][] = [
+  ["esquive 3 %", { kind: "dodge", chance: 0.03 }],
+  ["esquive 10 %", { kind: "dodge", chance: 0.1 }],
+  ["renfort de type +5 %", { kind: "typeAura", type: "COMBAT", bonus: 0.05 }],
+  ["renfort de type +10 %", { kind: "typeAura", type: "COMBAT", bonus: 0.1 }],
+];
+const combatTeam = () => [ofType("SSR", "COMBAT"), ofType("SSR", "COMBAT"), ofType("SSR", "MAGIE"), ofType("SSR", "COEUR")];
+// Équipes miroir : celui qui commence a déjà un avantage, donc on joue chaque paire dans les deux sens.
+const passiveRate = (passive: Weapon["passive"]) => {
+  const one = (mine: boolean) =>
+    rate(() => {
+      const t = awaken(combatTeam(), 0.05);
+      const withIt = t.map((c, i) => (i === 0 ? { ...c, weapon: { stat: 0.05, passive } } : c));
+      return mine ? [withIt, t] : [t, withIt];
+    });
+  return (one(true) + 1 - one(false)) / 2;
+};
+console.table(
+  passives.map(([label, passive]) => {
+    const w = passiveRate(passive);
+    return { passif: label, "équipe avec le passif contre la même sans": pct(w), poids: `${((w - 0.5) * 100).toFixed(1)} pts` };
+  }),
+);
+console.log("(le passif est porté par une seule carte ; le renfort vise Combat, porté par une carte Combat avec un autre allié Combat)");
 
 // 6. Avantage du premier joueur : équipes miroir, A commence.
 console.log("\n6. Avantage du premier joueur (équipes miroir)");

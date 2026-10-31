@@ -20,6 +20,19 @@ export interface BattleCard {
   /** Stat Puissance (popularité) : décide quelle équipe commence. */
   power: number;
   franchiseId: number | null;
+  /** Éveil, 0 à 5 étoiles (0 par défaut) */
+  stars?: number;
+  /** Arme légendaire, équipable à 5 étoiles seulement */
+  weapon?: Weapon | null;
+}
+
+/** Passif d'arme : esquive des sorts affiliés adverses, ou renfort de l'ATK des alliés d'un type (porteur compris). */
+export type WeaponPassive = { kind: "dodge"; chance: number } | { kind: "typeAura"; type: CardType; bonus: number };
+
+export interface Weapon {
+  /** Bonus d'ATK, de DEF et de PV (0,05 = +5 %) */
+  stat: number;
+  passive: WeaponPassive | null;
 }
 
 export const BATTLE = {
@@ -47,6 +60,10 @@ export const BATTLE = {
   passiveCap: 0.3,
   /** Synergie de franchise : bonus ATK/DEF/PV selon le nombre de cartes de la même franchise (indice = nombre) */
   franchiseBonus: [0, 0, 0.03, 0.06, 0.1],
+  /** Éveil : bonus d'ATK, de DEF et de PV par étoile (à fixer au simulateur) */
+  starBonus: 0.02,
+  /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort affilié baisse d'une action */
+  cooldownStar: 5,
   /** Durée d'Affaibli et d'Élan, en actions de la carte qui les porte */
   statusTurns: 2,
   /** En automatique, Cœur ne lance son sort que si un allié est sous cette part de ses PV */
@@ -118,6 +135,8 @@ export type BattleEvent =
       hp: number;
       shield: number;
     }
+  /** Le coup d'un sort affilié est esquivé (passif d'arme) : aucun dégât */
+  | { kind: "dodge"; source: UnitId; target: UnitId }
   | { kind: "heal"; source: UnitId; target: UnitId; amount: number; hp: number }
   /** source = null et amount < 0 : le bouclier du second joueur disparaît à la fin du 1er tour */
   | { kind: "shield"; source: UnitId | null; target: UnitId; amount: number; shield: number }
@@ -144,6 +163,10 @@ interface Unit {
   maxHp: number;
   hp: number;
   shield: number;
+  /** Cooldown du sort affilié (réduit par l'éveil) */
+  cooldown: number;
+  /** Esquive des sorts affiliés adverses (arme) */
+  dodge: number;
   /** Actions avant que le sort affilié soit prêt : il l'est quand spellIn ≤ 1 au début de l'action */
   spellIn: number;
   /** Actions pendant lesquelles Combat a gardé son sort prêt */
@@ -170,26 +193,44 @@ export interface BattleState {
   result: BattleResult | null;
 }
 
-/** Bonus de stats de chaque carte : passif UR et synergie de franchise. */
+const starsOf = (c: BattleCard) => Math.max(0, Math.min(5, c.stars ?? 0));
+/** L'arme ne compte que sur une carte éveillée 5 étoiles. */
+const weaponOf = (c: BattleCard) => (starsOf(c) === 5 ? c.weapon ?? null : null);
+
+/** Bonus de stats de chaque carte : passif UR, synergie de franchise, éveil, arme. */
 function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
   return team.map((c) => {
     const same = team.filter((o) => c.franchiseId != null && o.franchiseId === c.franchiseId);
     const urs = same.filter((o) => o !== c && o.rarity === "UR").length;
     const passive = opts.passive ? Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr) : 0;
     const franchise = opts.franchise ? BATTLE.franchiseBonus[same.length] ?? 0 : 0;
-    return passive + franchise;
+    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0);
   });
+}
+
+/** Renfort d'ATK donné par les armes « typeAura » de l'équipe aux cartes de leur type. */
+function auraBonus(team: BattleCard[]) {
+  return team.map((c) =>
+    team.reduce((n, o) => {
+      const p = weaponOf(o)?.passive;
+      return p?.kind === "typeAura" && p.type === c.type ? n + p.bonus : n;
+    }, 0),
+  );
 }
 
 function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>): Unit[] {
   const bonus = statBonus(team, opts);
+  const aura = auraBonus(team);
   return team.map((card, i) => {
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
+    const p = weaponOf(card)?.passive;
     return {
       id: `${side}${i + 1}` as UnitId,
       card, side, maxHp, hp: maxHp, shield: 0,
-      atk: card.attack * (1 + bonus[i]),
+      atk: card.attack * (1 + bonus[i] + aura[i]),
       def: card.defense * (1 + bonus[i]),
+      cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.cooldownStar ? 1 : 0),
+      dodge: p?.kind === "dodge" ? p.chance : 0,
       spellIn: 2, held: 0, exposed: false, weaken: 0, elan: 0,
     };
   });
@@ -315,6 +356,10 @@ export function applyAction(st: BattleState, action: Action) {
   if (u.spellIn > 0) u.spellIn--;
 
   const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false) => {
+    if (t.dodge > 0 && action.spell === "affinity" && rng() < t.dodge) {
+      log.push({ kind: "dodge", source: u.id, target: t.id });
+      return 0;
+    }
     const def = t.def * (1 - ignoreDef);
     let atk = u.atk * (1 + (u.elan > 0 ? 0.1 : 0) - (u.weaken > 0 ? 0.2 : 0));
     // Combo Cœur : une carte protégée par un bouclier tape plus fort
@@ -352,7 +397,7 @@ export function applyAction(st: BattleState, action: Action) {
     if (u.spellIn === 0) u.held++;
     hit(target!, 1);
   } else {
-    u.spellIn = BATTLE.spellCooldown;
+    u.spellIn = u.cooldown;
     u.held = 0;
     const foes = alive(st, enemy(u.side));
     const allies = alive(st, u.side);
