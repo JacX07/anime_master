@@ -177,6 +177,9 @@ model User {
   duelDefenses        DuelDefense[]
   battleTeams         BattleTeam[]
   battles             Battle[]
+  storyProgress       StoryProgress[]
+  resources           ResourceStock[]
+  dailyGains          DailyGain[]
   sessions            Session[]
   accounts            Account[]
   cards               Card[]
@@ -353,6 +356,7 @@ enum LedgerReason {
   DUEL_REWARD
   ACHIEVEMENT
   EXPEDITION
+  STORY
 }
 
 /// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).
@@ -706,9 +710,44 @@ model Battle {
   winner    String?
   /// Journal complet, enregistré à la fin pour le replay
   log       Json?
+  /// Butin versé à la fin (histoire, raid) : { ryo, crystals, resources: { clé: quantité } }
+  loot      Json?
   createdAt DateTime     @default(now())
   endedAt   DateTime?
 
   @@index([userId, status])
   @@index([status, createdAt])
+}
+
+// ---------- PvM : histoire (docs/specs/pvm.md) ----------
+
+/// Plus haut combat gagné (1 à 15) dans un univers ; les univers sont définis dans le code.
+model StoryProgress {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  universe String
+  maxLevel Int    @default(0)
+
+  @@id([userId, universe])
+}
+
+/// Ressources PvM du joueur (éveil, armes, cœurs de brèche…), une ligne par clé.
+model ResourceStock {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key      String
+  quantity Int    @default(0)
+
+  @@id([userId, key])
+}
+
+/// Unités déjà versées au taux plein dans la journée, par source (`STORY` ou `RAID`) : sert au plafond doux.
+model DailyGain {
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day    DateTime
+  source String
+  units  Int      @default(0)
+
+  @@id([userId, day, source])
 }
