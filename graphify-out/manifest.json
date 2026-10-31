@@ -1698,15 +1698,15 @@
     "semantic_hash": ""
   },
   "src/components/battle/BattlePlayer.tsx": {
-    "mtime": 1793460068.9459956,
-    "seen": 1793460560.2204425,
-    "ast_hash": "a0e3f653d87f343f5746e5445405cbb8",
+    "mtime": 1793479069.7283993,
+    "seen": 1793479292.801801,
+    "ast_hash": "9ad38f21d4a2cf6ba5b38a6f323f416f",
     "semantic_hash": ""
   },
   "src/components/battle/sound.ts": {
-    "mtime": 1793468603.2945335,
-    "seen": 1793468627.5171802,
-    "ast_hash": "ce8771fc964701540d10e069ae62e25b",
+    "mtime": 1793468735.7305305,
+    "seen": 1793468941.3872297,
+    "ast_hash": "f2b0f2a7d6479cbcc46d45c6471f9a3b",
     "semantic_hash": ""
   },
   "src/lib/anime.ts": {
@@ -1734,15 +1734,15 @@
     "semantic_hash": ""
   },
   "src/lib/battle.ts": {
-    "mtime": 1793468663.5105317,
-    "seen": 1793468721.8399436,
-    "ast_hash": "7a34e2894bdaedddd0bc6e17fa4f14b4",
+    "mtime": 1793479030.5769167,
+    "seen": 1793479292.8021896,
+    "ast_hash": "79eb11025cf630341633611da4a758bc",
     "semantic_hash": ""
   },
   "src/lib/battles.ts": {
-    "mtime": 1793460068.947151,
-    "seen": 1793460560.2211344,
-    "ast_hash": "64461db13d0d79ed41e5092296b3324d",
+    "mtime": 1793479069.7323992,
+    "seen": 1793479292.8021908,
+    "ast_hash": "4c13b603f0fb0888ccfa7214b4d71285",
     "semantic_hash": ""
   },
   "src/lib/expedition-rules.ts": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": ""
   },
   "docs/specs/combat.md": {
-    "mtime": 1793468555.0905347,
-    "seen": 1793468627.5222843,
-    "ast_hash": "757af3ddce34cc2ab711f03a85abd510",
+    "mtime": 1793479284.0422554,
+    "seen": 1793479292.8073866,
+    "ast_hash": "2fe4b547c82080dfe2312eb467560cf6",
     "semantic_hash": ""
   },
   "docs/specs/economie.md": {
@@ -1986,9 +1986,9 @@
     "semantic_hash": ""
   },
   "scripts/check-spells.ts": {
-    "mtime": 1793468663.5105317,
-    "seen": 1793468721.8348825,
-    "ast_hash": "e5c54cb7d5940549f8713ff638d1c259",
+    "mtime": 1793479030.5809166,
+    "seen": 1793479292.7977664,
+    "ast_hash": "7fe5e40c54432e7d23c369c417e81733",
     "semantic_hash": ""
   },
   "scripts/check-tower.ts": {
@@ -2022,9 +2022,9 @@
     "semantic_hash": ""
   },
   "src/lib/spells.ts": {
-    "mtime": 1793468555.0905347,
-    "seen": 1793468627.5181851,
-    "ast_hash": "a4184df59b2e91b9fa3bb51559eb5c1c",
+    "mtime": 1793479406.2074158,
+    "seen": 1793479407.2965784,
+    "ast_hash": "44324d21f1fa7b0185df29b3acf7701f",
     "semantic_hash": ""
   },
   "src/lib/tower.ts": {
@@ -2100,9 +2100,9 @@
     "semantic_hash": ""
   },
   "src/app/builder/actions.ts": {
-    "mtime": 1793466213.2225633,
-    "seen": 1793466372.4575536,
-    "ast_hash": "74a01ca1e082a7b31790f6898001ab29",
+    "mtime": 1793479406.252791,
+    "seen": 1793479407.2834537,
+    "ast_hash": "f18aeeed81c7b7f46a81d3f4e001106b",
     "semantic_hash": ""
   },
   "src/app/builder/page.tsx": {
@@ -2112,9 +2112,9 @@
     "semantic_hash": ""
   },
   "src/lib/basic-attacks.ts": {
-    "mtime": 1793465127.16657,
-    "seen": 1793465826.8938656,
-    "ast_hash": "51c455c5d01a5b8205f3ec84b6036ee0",
+    "mtime": 1793479406.220346,
+    "seen": 1793479407.2952712,
+    "ast_hash": "ddc0b089f2e9d54be3e21d672bbfc872",
     "semantic_hash": ""
   },
   "src/lib/builder.ts": {
@@ -2190,15 +2190,15 @@
     "semantic_hash": ""
   },
   "src/lib/tertiary-catalog.ts": {
-    "mtime": 1793464527.0013287,
-    "seen": 1793464982.2422748,
-    "ast_hash": "9d29b72f491ca9339ba8de07b09394c5",
+    "mtime": 1793479406.229046,
+    "seen": 1793479407.2967029,
+    "ast_hash": "a3b96df28ae56fe7cb011128cdc3a8a3",
     "semantic_hash": ""
   },
   "src/lib/ultimate-catalog.ts": {
-    "mtime": 1793464527.0034132,
-    "seen": 1793464982.2423975,
-    "ast_hash": "74cf10b50ae334562f937a53bed84964",
+    "mtime": 1793479406.241732,
+    "seen": 1793479407.296867,
+    "ast_hash": "04db039a670e25530490faac30fa0c87",
     "semantic_hash": ""
   },
   "docs/reports/character-skills-simulation.md": {
@@ -2400,9 +2400,9 @@
     "semantic_hash": ""
   },
   "docs/reports/composition-simulation.md": {
-    "mtime": 1793467816.7745411,
-    "seen": 1793467821.5337248,
-    "ast_hash": "53dad461e591a5810db03bd82dec4290",
+    "mtime": 1793479159.499476,
+    "seen": 1793479292.8073146,
+    "ast_hash": "e66cf988c9bfbad2b5e8a2059a72c2f9",
     "semantic_hash": ""
   },
   "public/mockups/battle-sfx.html": {
@@ -2517,6 +2517,12 @@
     "mtime": 1793468714.4745305,
     "seen": 1793468721.8395739,
     "ast_hash": "4db1cab1f758cbfdc9395adbacdaf524",
+    "semantic_hash": ""
+  },
+  "docs/reports/buff-tempo.md": {
+    "mtime": 1793479243.8226578,
+    "seen": 1793479292.807277,
+    "ast_hash": "d124aed20f671bbc9f72b971a6e56553",
     "semantic_hash": ""
   }
 }

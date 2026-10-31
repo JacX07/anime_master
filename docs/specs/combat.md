@@ -422,7 +422,7 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 
 ### 2. Éveil
 - De 0 à 5 étoiles, sur la carte du joueur (l'exemplaire, pas le personnage).
-- **+4 % d'ATK, de DEF et de PV par étoile** (+10 % à 5 étoiles).
+- **+4 % d'ATK, de DEF et de PV par étoile** (+12 % à 3★, +20 % à 5★) *(doublé le 2026-11-01 ; `npm run simulate:battle` : un SSR 5★ armé bat un UR 0★ dans 41 % des combats, un SR 5★ armé bat un SSR 0★ dans 5 %)*.
 - **À 3 étoiles, le cooldown du sort secondaire (le sort affilié pour N/R/SR) baisse d'une action** (5 → 4 pour un SSR/UR, 3 → 2 pour les autres). **À 5 étoiles, le cooldown du sort tertiaire baisse d'une action** (7 → 6). *(Modifié le 2026-11-01 ; avant : affilié 3 → 2 à 5★.)*
 - **Coût** : étoiles 1 à 3 = ressource du mode histoire ; étoiles 4 et 5 = ressource rare du raid **et un seul doublon** du personnage. Un doublon consommé ne circule plus : en demander davantage ferait de la Bourse un marché de puissance.
 - À 5 étoiles, la carte peut équiper une **arme légendaire**.

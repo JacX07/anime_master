@@ -1,17 +1,17 @@
 # Graph Report - anime_master  (2026-10-31)
 
 ## Corpus Check
-- 405 files · ~452,093 words
+- 406 files · ~453,234 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 18 file(s) not represented in the graph (top: .css 9, (none) 4, .example 1)
 
 ## Summary
-- 3775 nodes · 7497 edges · 220 communities (214 shown, 6 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 111 edges (avg confidence: 0.91)
+- 3780 nodes · 7512 edges · 230 communities (219 shown, 11 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 114 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `84838766`
+- Built from commit: `d8ecd060`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,12 +19,12 @@
 - lab.js
 - trades.ts
 - three.js materials, lights & IBL reference (r155+)
-- battle
+- calibrate-spells.ts
 - package.json
 - import.ts
-- QualityFailure
+- check_db_quality.py
 - start
-- asset_report.py
+- json
 - compilerOptions
 - scripts
 - Three.js Textures
@@ -38,13 +38,13 @@
 - Three.js Geometry
 - Three.js Fundamentals
 - Three.js Materials
-- duel-actions.ts
+- auctions.ts
 - Master Router — Game-Development Skill Dispatcher
-- wallet.ts
+- auth-actions.ts
 - simulate-crystals.ts
 - Performance optimization
 - Roguelike
-- src_generated_prisma_enums
+- BattlePlayer.tsx
 - Camera systems
 - Card Game
 - FPS Shooter
@@ -56,13 +56,13 @@
 - RPG
 - Steam Publish (Steamworks + SteamPipe)
 - Survival Crafting
-- icons.tsx
+- react
 - three.js Materials & Lighting
 - three.js Scene Setup
 - Tower Defense
 - Visual Novel
 - battle-actions.ts
-- test_check_db_quality.py
+- _database
 - Audio design
 - Dialogue systems
 - Game AI: decisions, steering, and pathfinding
@@ -81,8 +81,8 @@
 - Level design
 - Roguelike generation, FOV, and loot (depth)
 - devDependencies
-- basic-attacks.ts
-- simulate-tower.ts
+- character/[id]/page.tsx
+- TowerBoard.tsx
 - Behavior Tree core — Blackboard, nodes, leaves, composites, decorators
 - Arcade body anatomy & collision detail (Phaser 4.2)
 - Fixed timestep, interpolation, CCD, and stability
@@ -103,7 +103,7 @@
 - Tower defense balancing and pathing (depth)
 - Visual novel script model and flow (depth)
 - dependencies
-- spells.ts
+- simulate-compositions.ts
 - Best practices & pitfalls — performance, memory, hybrid AI
 - Raster, sprite, tile, background, and UI pipeline
 - app.js
@@ -115,7 +115,7 @@
 - SteamPipe: advanced build scripts, branches, CI/CD, troubleshooting
 - test_generation_scripts.py
 - album.ts
-- État du projet — passation
+- economy-actions.ts
 - BattleMusic
 - Frontend Design
 - Art direction and consistency
@@ -137,15 +137,15 @@
 - Practical examples — guard AI, villager needs, hybrid agent
 - Asset rights and provenance
 - album/page.tsx
-- auctions.ts
+- economy.ts
 - start
 - engine.js
 - test_shell_blocks.py
 - validate.ts
 - createPalettes
-- wishlist-actions.ts
+- src_generated_prisma_enums
 - stats.ts
-- Étape 2 — Site : comptes, paquets, album (100 % local)
+- battle
 - battles.ts
 - re
 - Step 2: Query Known Sources and Sinks
@@ -157,7 +157,7 @@
 - test_suite_templates.py
 - profile.ts
 - session.ts
-- economy.ts
+- test_check_db_quality.py
 - duels/page.tsx
 - specs/README.md
 - market/page.tsx
@@ -166,11 +166,11 @@
 - Steps
 - Étape 7 — Après le MVP : la Tour
 - Étape 4 bis — Cristaux et bannières (refonte du tirage)
-- check-story.ts
-- StoryBoard.tsx
+- test_find_databases.py
+- story.ts
 - check-duels.ts
 - CodeQL Analysis
-- SpellBuilder.tsx
+- spells.ts
 - Sink Enumeration Queries
 - test_build_mode_claims.py
 - _unpreserved_pipelines
@@ -188,20 +188,20 @@
 - SARIF Processing
 - build_log.sh
 - test_arrays_are_consumed_in_the_block_that_builds_them
-- trade-actions.ts
+- subprocess
 - Raid *(validé le 2026-10-31, rien n'est codé)*
 - test_both_quote_styles_are_extracted
-- character/[id]/page.tsx
+- duels/[id]/page.tsx
 - find_databases.sh
 - generate_suite.sh
 - codeql-skill-scripts
 - ImmersiveOpener.tsx
-- BattleAudio
-- battle-demo.ts
+- Étape 2 — Site : comptes, paquets, album (100 % local)
+- SceneBody
 - Étape 3 — Économie
 - Étape 1 — Base de personnages (100 % local)
 - buildCapsule
-- duels.ts
+- signup/page.tsx
 - Étape 6 — Mise en ligne
 - Mode histoire *(discuté le 2026-10-31 ; serveur codé le 2026-10-31, pas encore d'interface)*
 - Étape 4 — Duels, classements, succès
@@ -212,29 +212,39 @@
 - Étape 4 quater — Combat 4 contre 4 (refonte des duels)
 - Étape 5 — Social
 - allowScripts
-- franchises.ts
+- notifications/page.tsx
 - For Compiled Languages
-- builder/actions.ts
+- SpellBuilder.tsx
 - anime.ts
 - app/page.tsx
 - Lore — Anime Masters
-- check-achievements.ts
+- achievements.ts
 - macOS arm64e Workaround
-- three
-- Simulation des quatre slots personnalisés SSR/UR
-- Compositions SSR/UR — 31 octobre 2026
+- AlbumFilters.tsx
+- combat.md
+- Buffs et rythme des tours — 31 octobre 2026
 - Simulation : 236 attaques de base SSR/UR
-- simulate-compositions.ts
-- combat/page.tsx
-- duel-rules.ts
+- ur/page.tsx
+- check-battles.ts
+- duels.ts
+- trades/new/page.tsx
 - next
-- wishlist.ts
-- Anime Masters — PvM
-- story.ts
+- mechanic-runner.ts
+- requireUser
 - Anime Masters
 - Réécriture des sorts SSR/UR — consignes (2026-10-31)
+- Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
+- three
 - Behavior trees, FSMs, and the blackboard
 - three.js scene graph, cameras & cleanup (r150+)
+- test_real_archive_layout_from_codeql_2_25_6
+- test_sums_lines_of_code_across_languages
+- test_a_summary_from_one_extractor_does_not_mask_another
+- test_summary_and_severity_extractors_are_both_counted
+- test_an_unfinalised_database_is_reported_as_such
+- achievements/page.tsx
+- franchises.ts
+- proxy.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `next` - 70 edges
@@ -263,43 +273,43 @@
 ## Import Cycles
 - None detected.
 
-## Communities (220 total, 6 thin omitted)
+## Communities (230 total, 11 thin omitted)
 
 ### Community 0 - "lab.js"
 Cohesion: 0.14
 Nodes (19): BLUE, buildDecor(), flatten(), hdr(), MINT, A, CHARS, DESC (+11 more)
 
 ### Community 1 - "trades.ts"
-Cohesion: 0.16
-Nodes (25): check(), main(), invariant(), rejects(), AchievementDef, AchievementFacts, checkAchievements(), checkAchievementsSafe() (+17 more)
+Cohesion: 0.18
+Nodes (22): check(), main(), invariant(), rejects(), TradeInput, MAX_PENDING_TRADES, tradeEligibility(), acceptTrade() (+14 more)
 
 ### Community 2 - "three.js materials, lights & IBL reference (r155+)"
 Cohesion: 0.25
 Nodes (7): Common PBR intuition, IBL without an HDR file: PMREM + RoomEnvironment, Light types, Material cheat-sheet, Shadow camera by light type, three.js materials, lights & IBL reference (r155+), Transparency & sorting
 
-### Community 3 - "battle"
-Cohesion: 0.03
-Nodes (66): 9. Moteur et journal du combat (pour l'affichage), any(), GAMES, main(), rng, TARGET, any(), effectSrc() (+58 more)
+### Community 3 - "calibrate-spells.ts"
+Cohesion: 0.09
+Nodes (24): any(), effectSrc(), GAMES, knob(), main(), num(), rng, spellSrc() (+16 more)
 
 ### Community 4 - "package.json"
 Cohesion: 0.10
-Nodes (18): eslintConfig, name, private, version, dotenv, eslint, eslint-config-next, prisma (+10 more)
+Nodes (19): eslintConfig, name, private, version, dotenv, eslint, eslint-config-next, prisma (+11 more)
 
 ### Community 5 - "import.ts"
-Cohesion: 0.22
-Nodes (16): fetchAll(), inBatches(), main(), parsePages(), printSummary(), recompute(), saveRaw(), selectMedia() (+8 more)
+Cohesion: 0.23
+Nodes (15): fetchAll(), inBatches(), main(), parsePages(), printSummary(), recompute(), saveRaw(), selectMedia() (+7 more)
 
-### Community 6 - "QualityFailure"
-Cohesion: 0.12
-Nodes (11): archive_file_count(), _archive_files(), _archive_source_root(), baseline_lines_of_code(), _errors_from_one_extractor(), extractor_error_count(), _extractor_of(), is_finalised() (+3 more)
+### Community 6 - "check_db_quality.py"
+Cohesion: 0.14
+Nodes (10): archive_file_count(), _archive_files(), _archive_source_root(), baseline_lines_of_code(), _errors_from_one_extractor(), extractor_error_count(), _extractor_of(), is_finalised() (+2 more)
 
 ### Community 7 - "start"
 Cohesion: 0.27
 Nodes (17): slot(), start(), emerge(), emit(), ensureMachine(), fillPod(), ignite(), legTarget() (+9 more)
 
-### Community 8 - "asset_report.py"
-Cohesion: 0.18
-Nodes (7): alpha_stats(), inspect(), main(), parse_size(), checkerboard(), fit_nearest(), main()
+### Community 8 - "json"
+Cohesion: 0.15
+Nodes (8): test_parses_baseline_info_as_codeql_actually_writes_it(), alpha_stats(), inspect(), main(), parse_size(), checkerboard(), fit_nearest(), main()
 
 ### Community 9 - "compilerOptions"
 Cohesion: 0.11
@@ -353,17 +363,17 @@ Nodes (24): Cameras, Clock for Animation, Color, Common Patterns, Coordinate Sys
 Cohesion: 0.08
 Nodes (24): Built-in Uniforms (auto-provided), Car Paint Example, Common Material Properties, Environment Maps, Glass Material Example, LineBasicMaterial & LineDashedMaterial, Material Cloning and Modification, Material Types Overview (+16 more)
 
-### Community 22 - "duel-actions.ts"
-Cohesion: 0.28
-Nodes (17): quickDuel(), acceptDuelAction(), answerAction(), createDuelAction(), declineDuelAction(), ids(), nextQuestionAction(), run() (+9 more)
+### Community 22 - "auctions.ts"
+Cohesion: 0.15
+Nodes (29): Fait et committé, check(), main(), invariants(), rejects(), POST(), assertEligible(), AuctionDraft (+21 more)
 
 ### Community 23 - "Master Router — Game-Development Skill Dispatcher"
 Cohesion: 0.12
 Nodes (15): 1. Engine detection (project fingerprint), 2. Task classification (phrasing → category), 3. Routing table (task → category → skill), 3a. Engine skills — read the one matching the detected engine + sub-task, 3b. Disciplines — load **with** the engine skill (concept ↔ engine API), 3c. Genres — **compose** engine + disciplines (bind `*` to the detected engine), 3d. Workflows — engine-independent process & shipping, 4. Read protocol (progressive disclosure) (+7 more)
 
-### Community 24 - "wallet.ts"
-Cohesion: 0.20
-Nodes (23): check(), invariant(), main(), rejects(), afterGain(), canClaimDailyBonus(), CRYSTAL_PRICE, crystalsLeft() (+15 more)
+### Community 24 - "auth-actions.ts"
+Cohesion: 0.22
+Nodes (13): better-auth, GET, POST, describe(), ERRORS, field(), signIn(), signOut() (+5 more)
 
 ### Community 25 - "simulate-crystals.ts"
 Cohesion: 0.08
@@ -377,9 +387,9 @@ Nodes (13): 1. Frame budget math (turn "feels slow" into a number), 2. Measure w
 Cohesion: 0.14
 Nodes (13): 1. Deterministic, seedable run RNG, 2. Energy-based turn scheduler (speeds differ), 3. Field of view + explored memory, Composition (build it from these skills), Core loop, Design knobs, Must-have systems, Patterns (+5 more)
 
-### Community 28 - "src_generated_prisma_enums"
-Cohesion: 0.11
-Nodes (41): History(), num, BattlePlayer(), Fx(), LiveControl, num, pct(), PlayerCharacter (+33 more)
+### Community 28 - "BattlePlayer.tsx"
+Cohesion: 0.10
+Nodes (41): card(), gen, pick(), RARITIES, TYPES, History(), num, BattlePlayer() (+33 more)
 
 ### Community 29 - "Camera systems"
 Cohesion: 0.15
@@ -425,9 +435,9 @@ Nodes (12): 1. SteamPipe ContentBuilder layout (Steamworks SDK), 2. Minimal app 
 Cohesion: 0.15
 Nodes (12): 1. Needs decay with graded consequences, 2. Crafting: validate, then atomically consume inputs, 3. Gathering gated by tool tier, Composition (build it from these skills), Core loop, Design knobs, Must-have systems, Patterns (+4 more)
 
-### Community 40 - "icons.tsx"
-Cohesion: 0.12
-Nodes (25): claimDailyBonusAction(), MARKET, metadata, michroma, PLAY, RootLayout(), shoulders, sora (+17 more)
+### Community 40 - "react"
+Cohesion: 0.13
+Nodes (26): react, claimDailyBonusAction(), MARKET, metadata, michroma, PLAY, RootLayout(), shoulders (+18 more)
 
 ### Community 41 - "three.js Materials & Lighting"
 Cohesion: 0.15
@@ -446,12 +456,12 @@ Cohesion: 0.15
 Nodes (12): 1. Script as data the engine walks, 2. Typewriter reveal + advance (skippable), 3. Choice sets a flag that branches later content, Composition (build it from these skills), Core loop, Design knobs, Must-have systems, Patterns (+4 more)
 
 ### Community 45 - "battle-actions.ts"
-Cohesion: 0.19
+Cohesion: 0.20
 Nodes (22): 11. Page Équipe *(décidé le 2026-10-31, à coder)*, abandonBattleAction(), autoAttackTeamAction(), autoDefenseTeamAction(), getBattleAction(), getStoryProgressAction(), playActionAction(), playAutoAction() (+14 more)
 
-### Community 46 - "test_check_db_quality.py"
-Cohesion: 0.09
-Nodes (40): assess(), main(), _database(), _diag(), test_a_malformed_json_diagnostic_still_fails_with_its_own_code(), test_a_non_json_file_in_the_diagnostics_tree_is_ignored(), test_a_summary_from_one_extractor_does_not_mask_another(), test_absent_extractor_diagnostics_mean_zero_errors() (+32 more)
+### Community 46 - "_database"
+Cohesion: 0.11
+Nodes (21): main(), _database(), _diag(), test_a_malformed_json_diagnostic_still_fails_with_its_own_code(), test_a_non_json_file_in_the_diagnostics_tree_is_ignored(), test_absent_extractor_diagnostics_mean_zero_errors(), test_cli_accepts_max_error_ratio(), test_cli_exits_nonzero_on_bad_database() (+13 more)
 
 ### Community 47 - "Audio design"
 Cohesion: 0.17
@@ -502,16 +512,16 @@ Cohesion: 0.17
 Nodes (11): 1. Serialize state as plain data (not engine objects), 2. Atomic, crash-safe write (temp + rename), 3. Versioned load with migration, 4. Save slots + throttled autosave, Core workflow, Patterns, Pitfalls, References (+3 more)
 
 ### Community 59 - "Shader programming (cross-engine)"
-Cohesion: 0.18
-Nodes (10): 1. Fragment basics: sample, tint, and combine, 2. Scrolling UVs (animated texture) — frame-rate independent, 3. Dissolve (threshold a noise map, glow the edge), 4. Fresnel rim light (3D) — brighten glancing angles, Patterns, Pitfalls, References, Related skills (+2 more)
+Cohesion: 0.17
+Nodes (11): 1. Fragment basics: sample, tint, and combine, 2. Scrolling UVs (animated texture) — frame-rate independent, 3. Dissolve (threshold a noise map, glow the edge), 4. Fresnel rim light (3D) — brighten glancing angles, Core workflow, Patterns, Pitfalls, References (+3 more)
 
 ### Community 60 - "TeamBuilder.tsx"
-Cohesion: 0.09
-Nodes (33): fullCustom(), GAMES, main(), meanCI(), pct(), pick(), pp(), reportIndex (+25 more)
+Cohesion: 0.07
+Nodes (48): main(), fullCustom(), GAMES, main(), meanCI(), pct(), pick(), pp() (+40 more)
 
 ### Community 61 - "check-battle.ts"
-Cohesion: 0.09
-Nodes (20): 8. Modèle de données (ajouts), affinityHits, atk, card(), def, dodger, gen, hit (+12 more)
+Cohesion: 0.10
+Nodes (20): affinityHits, atk, card(), def, dodger, filler(), gen, hit (+12 more)
 
 ### Community 62 - "Level design"
 Cohesion: 0.18
@@ -525,13 +535,13 @@ Nodes (10): 1. Dungeon generation approaches, 2. Connectivity (never skip this),
 Cohesion: 0.18
 Nodes (11): devDependencies, eslint, eslint-config-next, prisma, tailwindcss, @tailwindcss/turbopack, tsx, @types/node (+3 more)
 
-### Community 65 - "basic-attacks.ts"
-Cohesion: 0.10
-Nodes (23): main(), GAMES, idsIndex, main(), pct(), pick(), pp(), reportIndex (+15 more)
-
-### Community 66 - "simulate-tower.ts"
+### Community 65 - "character/[id]/page.tsx"
 Cohesion: 0.13
-Nodes (20): check(), main(), rejects(), any(), GAMES, main(), MAX, RARITIES (+12 more)
+Nodes (22): Character(), dateFmt, generateMetadata(), MONTHS, numFmt, parseId(), ROLES, WishButton() (+14 more)
+
+### Community 66 - "TowerBoard.tsx"
+Cohesion: 0.13
+Nodes (23): check(), main(), rejects(), startBattleAction(), metadata, Tower(), TowerPage(), Countdown() (+15 more)
 
 ### Community 67 - "Behavior Tree core — Blackboard, nodes, leaves, composites, decorators"
 Cohesion: 0.20
@@ -558,12 +568,12 @@ Cohesion: 0.20
 Nodes (9): 1. Match-3 full resolution, 2. Deadlock detection and reshuffle (match-3), 3. Cascade scoring, 4. Sokoban / push puzzles, 5. Rule-based / logic puzzles, 6. Undo strategies, 7. Solvable generation, 8. Input locking and presentation (+1 more)
 
 ### Community 73 - "battle.ts"
-Cohesion: 0.09
-Nodes (50): Core workflow, casts(), filler(), unitOf(), card(), gen, pick(), RARITIES (+42 more)
+Cohesion: 0.11
+Nodes (44): casts(), card(), CATALOGS, dummy(), play(), until(), advanceCooldowns(), alive() (+36 more)
 
 ### Community 74 - "banners.ts"
 Cohesion: 0.11
-Nodes (28): check(), main(), rejects(), metadata, Packs(), PacksPage(), BANNER_EVENTS, BannerEvent (+20 more)
+Nodes (26): metadata, Packs(), PacksPage(), BANNER_EVENTS, BannerEvent, BANNER_WEIGHT, BannerInfo, BannerSpec (+18 more)
 
 ### Community 75 - "Behavior Trees & Utility AI"
 Cohesion: 0.22
@@ -613,9 +623,9 @@ Nodes (8): 1. The script data model, 2. Route structures, 3. Flags and variables
 Cohesion: 0.20
 Nodes (10): dependencies, better-auth, dotenv, next, @prisma/adapter-better-sqlite3, @prisma/client, react, react-dom (+2 more)
 
-### Community 87 - "spells.ts"
-Cohesion: 0.07
-Nodes (33): simulate(), Unit, DATA, final(), Orientation, SECONDARY_DATA, SkillEntry, slot() (+25 more)
+### Community 87 - "simulate-compositions.ts"
+Cohesion: 0.25
+Nodes (9): any(), GAMES, main(), pct(), Profile, profiles, rng, SEED (+1 more)
 
 ### Community 88 - "Best practices & pitfalls — performance, memory, hybrid AI"
 Cohesion: 0.25
@@ -654,20 +664,20 @@ Cohesion: 0.25
 Nodes (7): 1. App build script with separate depot scripts, 2. Running builds (per platform), 3. Branches (betas) — test before customers see it, 4. CI/CD upload (token-based login, no password in scripts), 5. Patch-size hygiene (keep updates small), 6. Troubleshooting table, SteamPipe: advanced build scripts, branches, CI/CD, troubleshooting
 
 ### Community 97 - "test_generation_scripts.py"
-Cohesion: 0.05
-Nodes (35): _bash(), test_an_unwritable_log_fails_at_source_time(), test_log_file_defaults_under_output_dir(), test_output_is_written_to_the_log(), test_run_logged_keeps_arguments_apart(), test_run_logged_reports_success(), test_run_logged_reports_the_commands_failure(), test_sourcing_sets_pipefail_for_the_caller() (+27 more)
+Cohesion: 0.12
+Nodes (16): _fake_codeql(), _fake_uv(), _invocation_block(), _run(), _significant(), _suite_text(), test_a_suite_that_fails_verification_is_deleted(), test_generates_a_suite_naming_the_language() (+8 more)
 
 ### Community 98 - "album.ts"
-Cohesion: 0.09
-Nodes (28): Illustrations(), metadata, URGalleryPage(), GalleryCharacter, URGallery(), CharacterCardProps, AlbumPage, CharacterDetail (+20 more)
+Cohesion: 0.11
+Nodes (24): AlbumPage, CharacterDetail, entriesFor(), FINISH_ORDER, getAlbum(), getCharacter(), loadEntries(), one() (+16 more)
 
-### Community 99 - "État du projet — passation"
-Cohesion: 0.29
-Nodes (6): Décisions et raisons, Fichiers clés, Ouverture 3D dans `/packs`, Pièges, Reste à faire, dans l'ordre, État du projet — passation
+### Community 99 - "economy-actions.ts"
+Cohesion: 0.24
+Nodes (16): DuplicateSale(), sell(), toggle(), RARITY_ORDER, createAuctionAction(), CopyActions(), Props, parseRarities() (+8 more)
 
 ### Community 100 - "BattleMusic"
-Cohesion: 0.19
-Nodes (6): BattleMusic, CHORDS, hz(), MELODY, MusicBus, VoiceOptions
+Cohesion: 0.11
+Nodes (8): BattleMusic, CHORDS, hz(), MELODY, MusicBus, VoiceOptions, BattleAudio, midi()
 
 ### Community 101 - "Frontend Design"
 Cohesion: 0.29
@@ -726,8 +736,8 @@ Cohesion: 0.33
 Nodes (5): Confidence boosters from task files, Detect the installed version, Disambiguation rules (must-handle ambiguities), Engine detection — full project fingerprint, Plain-text engine mentions
 
 ### Community 115 - "db.ts"
-Cohesion: 0.16
-Nodes (16): check(), main(), minutesUntil(), near(), setStock(), CardDb, getCollectionPower(), globalForPrisma (+8 more)
+Cohesion: 0.14
+Nodes (17): [id, file, games], check(), main(), minutesUntil(), near(), setStock(), CardDb, getCollectionPower() (+9 more)
 
 ### Community 116 - "AGENTS.md"
 Cohesion: 0.33
@@ -746,12 +756,12 @@ Cohesion: 0.40
 Nodes (4): Asset rights and provenance, Decision rules, Record per shipped asset, Useful primary references
 
 ### Community 120 - "album/page.tsx"
-Cohesion: 0.15
-Nodes (26): AlbumFilters(), albumHref(), Chip(), OWNED, RARITIES, SORTS, TYPES, AnimeOptions (+18 more)
+Cohesion: 0.20
+Nodes (20): albumHref(), InfiniteList(), load(), CardItem(), num, pct(), World(), worldHue() (+12 more)
 
-### Community 121 - "auctions.ts"
-Cohesion: 0.14
-Nodes (33): Fait et committé, check(), main(), invariants(), rejects(), POST(), assertEligible(), AuctionDraft (+25 more)
+### Community 121 - "economy.ts"
+Cohesion: 0.12
+Nodes (35): check(), invariant(), main(), rejects(), afterGain(), ANTI_SNIPING_MS, AUCTION_DURATIONS_H, AUCTION_FEE_RATE (+27 more)
 
 ### Community 122 - "start"
 Cohesion: 0.38
@@ -773,21 +783,21 @@ Nodes (17): ids, out, res, rows, BAND, checkEffect(), E, err() (+9 more)
 Cohesion: 0.17
 Nodes (13): ARP, BARS, futurAudio(), startMusic(), LEVEL, MELODY, createPalettes(), bell() (+5 more)
 
-### Community 127 - "wishlist-actions.ts"
-Cohesion: 0.22
-Nodes (6): WishButton(), addWishAction(), removeWishAction(), run(), DECO, removeWish()
+### Community 127 - "src_generated_prisma_enums"
+Cohesion: 0.12
+Nodes (13): CombatTestPage(), Demo(), metadata, randomSeed(), CardDeco(), DECO, powerFmt, demoBattle() (+5 more)
 
 ### Community 128 - "stats.ts"
 Cohesion: 0.12
 Nodes (16): assignType(), computeStats(), MediaTag, POWER_BASE, POWER_EXPONENT, POWER_RANGES, RARITIES, RARITY_CUTOFFS (+8 more)
 
-### Community 129 - "Étape 2 — Site : comptes, paquets, album (100 % local)"
-Cohesion: 0.13
-Nodes (14): 1. Stack, 2. Pages, 3. Paquets, 4. Tirage, 5. Modèle de données (ajouts), 6. Ouverture d'un paquet, 7. Album, 7 bis. Réalisation de l'album par anime (codé le 2026-10-17, regroupement revu le jour même) (+6 more)
+### Community 129 - "battle"
+Cohesion: 0.04
+Nodes (54): 9. Moteur et journal du combat (pour l'affichage), any(), FIRST, FROM, GAMES, LAST, main(), rng (+46 more)
 
 ### Community 130 - "battles.ts"
 Cohesion: 0.14
-Nodes (34): check(), main(), rejects(), same(), Action, seededRandom(), ABANDON_AFTER_MS, abandonBattle() (+26 more)
+Nodes (32): check(), key(), main(), rejects(), ABANDON_AFTER_MS, BattleError, BattleRow, CHARACTER_SELECT (+24 more)
 
 ### Community 131 - "re"
 Cohesion: 0.15
@@ -803,10 +813,10 @@ Nodes (19): ALL_KINDS, allMedia(), build(), dateLabel(), DAYS_IN_MONTH, Generate
 
 ### Community 134 - "packs.ts"
 Cohesion: 0.10
-Nodes (26): check(), main(), BuyCrystalsResult, OpenPackResult, isBannerOpen(), ConcurrentOpeningError, NoPackAvailableError, OpenedPack (+18 more)
+Nodes (31): check(), main(), rejects(), check(), main(), BuyCrystalsResult, OpenPackResult, BannerError (+23 more)
 
 ### Community 135 - "test_verify_query_suite.py"
-Cohesion: 0.21
+Cohesion: 0.19
 Nodes (9): _result(), test_codeql_failure_fails(), test_empty_suite_cli_exits_nonzero(), test_empty_suite_fails(), test_malformed_output_fails(), test_non_empty_suite_succeeds(), main(), resolve_queries() (+1 more)
 
 ### Community 136 - "Build Database Workflow"
@@ -814,7 +824,7 @@ Cohesion: 0.15
 Nodes (13): 1a. Detect Language, 1b. Create Exclusion Config (Interpreted Languages Only), Build Database Workflow, Build Log, Build required, no fallback (Go, Swift), Build required, `none` available as a fallback (C/C++, Java/Kotlin, C#, Rust), Exit Conditions, Final Report (+5 more)
 
 ### Community 137 - "test_script_flags.py"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (9): _accepted_flags(), _argparse_scripts(), _doc_files(), _invocations(), test_documented_flag_exists(), test_flagged_invocations_were_found(), test_scripts_were_discovered(), test_the_scanner_tells_an_invocation_from_a_mention() (+1 more)
 
 ### Community 138 - "test_suite_templates.py"
@@ -826,24 +836,24 @@ Cohesion: 0.18
 Nodes (18): run(), setShowcaseAction(), setTitleAction(), dateFmt, num, Profile(), ProfilePage(), Pin (+10 more)
 
 ### Community 140 - "session.ts"
-Cohesion: 0.12
-Nodes (30): DuplicateSale(), sell(), toggle(), RARITY_ORDER, GET(), buyNowAction(), cancelAuctionAction(), createAuctionAction() (+22 more)
+Cohesion: 0.19
+Nodes (16): GET(), buyNowAction(), cancelAuctionAction(), placeBidAction(), run(), ActionResult, BidPanel(), Role (+8 more)
 
-### Community 141 - "economy.ts"
-Cohesion: 0.14
-Nodes (13): ANTI_SNIPING_MS, AUCTION_DURATIONS_H, AUCTION_FEE_RATE, COLLECTION_POINTS, CRYSTAL_BUY_SIZES, FINISH_MULTIPLIER, FINISH_RANK, MAX_CRYSTAL_PURCHASES_PER_DAY (+5 more)
+### Community 141 - "test_check_db_quality.py"
+Cohesion: 0.18
+Nodes (14): assess(), QualityFailure, test_archive_that_ignores_the_source_root_fails_loudly(), test_empty_language_map_fails(), test_error_ratio_over_threshold_fails(), test_missing_baseline_info_fails(), test_missing_marker_fails(), test_missing_source_archive_fails() (+6 more)
 
 ### Community 142 - "duels/page.tsx"
 Cohesion: 0.15
 Nodes (18): NewDuelForm(), dateFmt, DuelList(), Duels(), DuelsPage(), metadata, OUTCOME, STATUS (+10 more)
 
 ### Community 143 - "specs/README.md"
-Cohesion: 0.14
-Nodes (11): 1. Règle de puissance, 2. Éveil, 3. Arme légendaire, 4. Rythme, Anime Masters — Combat, Mesures (2026-10-31, 3 000 combats par case), Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*, Anime Masters — Spécifications (+3 more)
+Cohesion: 0.15
+Nodes (9): Anime Masters — Spécifications, Priorité, Questions ouvertes, Décisions et raisons, Fichiers clés, Pièges, Reste à faire, dans l'ordre, État du projet — passation (+1 more)
 
 ### Community 144 - "market/page.tsx"
-Cohesion: 0.19
-Nodes (13): Countdown(), format(), FINISHES, Market(), MarketPage(), metadata, one(), parse() (+5 more)
+Cohesion: 0.18
+Nodes (14): Countdown(), format(), FINISHES, Market(), MarketPage(), metadata, one(), parse() (+6 more)
 
 ### Community 145 - "anilist.ts"
 Cohesion: 0.14
@@ -865,25 +875,25 @@ Nodes (13): 0. Préparation v1 (faite le 2026-10-13), 10. Questions ouvertes, 1.
 Cohesion: 0.11
 Nodes (18): 10. Modèle de données (changements), 11. Impact sur l'existant, 12. Critères pour dire que l'étape 4 bis est finie, 1. Cristaux (stock), 2. Boutique, 3. Lots ×5 et ×10, 4. Pity, 5. Bannières (refonte décidée le 2026-10-17) (+10 more)
 
-### Community 150 - "check-story.ts"
-Cohesion: 0.29
-Nodes (10): check(), key(), main(), rejects(), BattleTeams, getStoryProgress(), settleStory(), storyKey() (+2 more)
+### Community 150 - "test_find_databases.py"
+Cohesion: 0.18
+Nodes (11): _fake_codeql(), _invoke(), _marker(), _run(), test_a_database_under_a_dotted_ancestor_is_still_found(), test_a_dot_directory_below_the_root_is_still_skipped(), test_a_failed_builds_marker_is_not_reported_as_a_database(), test_a_missing_codeql_is_an_error_not_an_empty_list() (+3 more)
 
-### Community 151 - "StoryBoard.tsx"
-Cohesion: 0.23
-Nodes (11): Countdown(), levelTitle(), Props, resName(), StoryBoard(), autoTeam(), run(), UniverseView (+3 more)
+### Community 151 - "story.ts"
+Cohesion: 0.09
+Nodes (29): metadata, Story(), StoryPage(), Countdown(), levelTitle(), Props, resName(), StoryBoard() (+21 more)
 
 ### Community 152 - "check-duels.ts"
-Cohesion: 0.42
-Nodes (10): check(), f(), main(), pureChecks(), throws(), attackDamage(), eloChange(), modifyTeam() (+2 more)
+Cohesion: 0.25
+Nodes (20): check(), f(), main(), quickDuel(), pureChecks(), throws(), attackDamage(), modifyTeam() (+12 more)
 
 ### Community 153 - "CodeQL Analysis"
 Cohesion: 0.14
 Nodes (14): Auto-Detection Logic, Building unattended, CodeQL Analysis, Database Discovery, Database Selection Prompt, Each Bash call is a fresh shell, Essential Principles, General Decision Prompt (+6 more)
 
-### Community 154 - "SpellBuilder.tsx"
-Cohesion: 0.06
-Nodes (52): [id, file, games], basicAttack, card, entries, main(), st, Database, main() (+44 more)
+### Community 154 - "spells.ts"
+Cohesion: 0.04
+Nodes (48): any(), GAMES, main(), rng, TARGET, simulate(), Unit, DATA (+40 more)
 
 ### Community 155 - "Sink Enumeration Queries"
 Cohesion: 0.14
@@ -953,25 +963,29 @@ Nodes (3): log_cmd(), run_logged(), build_log.sh script
 Cohesion: 0.40
 Nodes (4): _assigns(), _subscripted_reads(), test_arrays_are_consumed_in_the_block_that_builds_them(), test_the_same_block_rule_has_something_to_check()
 
-### Community 172 - "trade-actions.ts"
+### Community 172 - "subprocess"
 Cohesion: 0.21
-Nodes (16): MarkRead(), acceptTradeAction(), cancelTradeAction(), createTradeAction(), markNotificationsReadAction(), refuseTradeAction(), run(), toggleForTradeAction() (+8 more)
+Nodes (8): _bash(), test_an_unwritable_log_fails_at_source_time(), test_log_file_defaults_under_output_dir(), test_output_is_written_to_the_log(), test_run_logged_keeps_arguments_apart(), test_run_logged_reports_success(), test_run_logged_reports_the_commands_failure(), test_sourcing_sets_pipefail_for_the_caller()
 
 ### Community 173 - "Raid *(validé le 2026-10-31, rien n'est codé)*"
-Cohesion: 0.29
-Nodes (7): Boss et difficultés, Illimité, avec un plafond doux *(décidé le 2026-10-31 : pas de tickets pour l'instant)*, La récompense dépend des dégâts, pas seulement de la victoire, Les chiffres *(validés le 2026-10-31, simulés avec `npm run simulate:raid`)*, Principe, Raid *(validé le 2026-10-31, rien n'est codé)*, À écrire / à décider
+Cohesion: 0.17
+Nodes (12): Anime Masters — PvM, Boss et difficultés, Illimité, avec un plafond doux *(décidé le 2026-10-31 : pas de tickets pour l'instant)*, La récompense dépend des dégâts, pas seulement de la victoire, Les chiffres *(validés le 2026-10-31, simulés avec `npm run simulate:raid`)*, Mode histoire, Principe, Raid (+4 more)
 
-### Community 175 - "character/[id]/page.tsx"
-Cohesion: 0.10
-Nodes (39): Character(), dateFmt, generateMetadata(), MONTHS, numFmt, parseId(), ROLES, DefenseSession() (+31 more)
+### Community 175 - "duels/[id]/page.tsx"
+Cohesion: 0.14
+Nodes (26): acceptDuelAction(), answerAction(), createDuelAction(), declineDuelAction(), ids(), nextQuestionAction(), run(), DefenseSession() (+18 more)
 
 ### Community 180 - "ImmersiveOpener.tsx"
-Cohesion: 0.12
-Nodes (27): buyCrystalsAction(), devGrantCrystalsAction(), openPackAction(), ImmersiveOpener(), onMessage(), ORDER, SceneMessage, toSceneCards() (+19 more)
+Cohesion: 0.13
+Nodes (26): Ouverture 3D dans `/packs`, buyCrystalsAction(), devGrantCrystalsAction(), openPackAction(), BulkSummary(), FINISH_RANK, ORDER, ImmersiveOpener() (+18 more)
 
-### Community 182 - "battle-demo.ts"
-Cohesion: 0.29
-Nodes (9): CombatTestPage(), Demo(), metadata, randomSeed(), demoBattle(), DemoCharacter, pickRarity(), RARITY_WEIGHTS (+1 more)
+### Community 181 - "Étape 2 — Site : comptes, paquets, album (100 % local)"
+Cohesion: 0.13
+Nodes (14): 1. Stack, 2. Pages, 3. Paquets, 4. Tirage, 5. Modèle de données (ajouts), 6. Ouverture d'un paquet, 7. Album, 7 bis. Réalisation de l'album par anime (codé le 2026-10-17, regroupement revu le jour même) (+6 more)
+
+### Community 182 - "SceneBody"
+Cohesion: 0.23
+Nodes (11): metadata, NewDuel(), NewDuelPage(), Leaderboard(), LeaderboardPage(), metadata, num, TABS (+3 more)
 
 ### Community 183 - "Étape 3 — Économie"
 Cohesion: 0.13
@@ -985,9 +999,9 @@ Nodes (15): 1. Stack, 2. Modèle de données, 3. Import, 4. Nettoyage des descri
 Cohesion: 0.33
 Nodes (3): buildCapsule(), halfGeometry(), HOME
 
-### Community 186 - "duels.ts"
-Cohesion: 0.18
-Nodes (15): QuestionPrompt, CombatResult, AnswerResult, canReward(), DuelCard, eligibility(), errorsBy(), finishDefense() (+7 more)
+### Community 186 - "signup/page.tsx"
+Cohesion: 0.24
+Nodes (9): AuthFormState, LoginPage(), metadata, metadata, SignupPage(), AuthForm(), Props, WELCOME_CRYSTALS (+1 more)
 
 ### Community 187 - "Étape 6 — Mise en ligne"
 Cohesion: 0.14
@@ -1015,7 +1029,7 @@ Nodes (13): 1. Brèches, 2. Équipe et emplacements, 3. Résolution, 4. Récompe
 
 ### Community 193 - "expeditions.ts"
 Cohesion: 0.08
-Nodes (40): check(), main(), rejects(), ActionResult, claimExpeditionAction(), run(), startExpeditionAction(), ExpeditionBoard() (+32 more)
+Nodes (40): check(), main(), rejects(), claimExpeditionAction(), run(), startExpeditionAction(), ExpeditionBoard(), left() (+32 more)
 
 ### Community 194 - "Étape 4 quater — Combat 4 contre 4 (refonte des duels)"
 Cohesion: 0.12
@@ -1029,21 +1043,21 @@ Nodes (12): 1. Profils publics et vitrine, 2. Amis, 3. Guildes, 4. Messagerie, 5
 Cohesion: 0.33
 Nodes (6): allowScripts, better-sqlite3@12.11.1, esbuild@0.28.2, prisma@7.10.0, @prisma/engines@7.10.0, unrs-resolver@1.12.2
 
-### Community 197 - "franchises.ts"
-Cohesion: 0.33
-Nodes (4): Entry, ignored, IGNORED_LINKS, SAME_FRANCHISE
+### Community 197 - "notifications/page.tsx"
+Cohesion: 0.20
+Nodes (11): MarkRead(), dateFmt, metadata, Notifications(), NotificationsPage(), Payload, TEXT, markNotificationsReadAction() (+3 more)
 
 ### Community 198 - "For Compiled Languages"
 Cohesion: 0.22
 Nodes (9): For Compiled Languages, For Interpreted Languages, Method 1: Autobuild, Method 2: Custom Command, Method 2m: macOS arm64 Toolchain (Apple Silicon workaround), Method 3: Multi-step Build, Method 4: No-Build Fallback (Last Resort), Step 2: Build Database (+1 more)
 
-### Community 199 - "builder/actions.ts"
+### Community 199 - "SpellBuilder.tsx"
 Cohesion: 0.06
-Nodes (51): better-auth, server-only, agent(), main(), prompt(), ROOT, sh(), tail() (+43 more)
+Nodes (63): basicAttack, card, entries, main(), st, Database, main(), GET() (+55 more)
 
 ### Community 200 - "anime.ts"
-Cohesion: 0.24
-Nodes (10): Anime, AnimeBlock, AnimeIndex, BLOCK_SIZE, franchiseTitle(), loadAnimeIndex(), MIN_ANIME_SIZE, OTHERS (+2 more)
+Cohesion: 0.22
+Nodes (9): Anime, AnimeBlock, AnimeIndex, BLOCK_SIZE, franchiseTitle(), MIN_ANIME_SIZE, OTHERS, scramble() (+1 more)
 
 ### Community 201 - "app/page.tsx"
 Cohesion: 0.42
@@ -1053,57 +1067,57 @@ Nodes (7): Guest(), Home(), Item(), Menu(), num, Wordmark(), MenuNav()
 Cohesion: 0.29
 Nodes (6): Direction de caractérisation, Hakase, Akari et le téléporteur inversé, La Tour et l'univers 0, Le phénomène des signatures, Lore — Anime Masters, Pew
 
-### Community 203 - "check-achievements.ts"
-Cohesion: 0.24
-Nodes (10): check(), main(), ACHIEVEMENTS, earned(), titleOf(), collectionValue(), collectionLeaderboard(), CollectionRow (+2 more)
+### Community 203 - "achievements.ts"
+Cohesion: 0.20
+Nodes (15): check(), main(), AchievementDef, AchievementFacts, ACHIEVEMENTS, checkAchievements(), earned(), gather() (+7 more)
 
 ### Community 204 - "macOS arm64e Workaround"
 Cohesion: 0.40
 Nodes (5): macOS arm64e Workaround, Sub-method 2m-a: Homebrew clang/gcc with multi-step tracing, Sub-method 2m-b: Rosetta x86_64 emulation, Sub-method 2m-c: System compiler (direct attempt), Sub-method 2m-d: Ask user
 
-### Community 205 - "three"
-Cohesion: 0.48
-Nodes (5): buildBreche(), createReveals(), play(), run(), three
+### Community 205 - "AlbumFilters.tsx"
+Cohesion: 0.27
+Nodes (9): AlbumFilters(), Chip(), OWNED, RARITIES, SORTS, TYPES, AnimeOptions, AnimeSelect() (+1 more)
 
-### Community 206 - "Simulation des quatre slots personnalisés SSR/UR"
-Cohesion: 0.33
-Nodes (5): Détail complet des 944 fiches, Extrêmes par slot, Impact moyen par slot, Simulation des quatre slots personnalisés SSR/UR, Équipe complète
+### Community 206 - "combat.md"
+Cohesion: 0.22
+Nodes (6): Détail complet des 944 fiches, Extrêmes par slot, Impact moyen par slot, Simulation des quatre slots personnalisés SSR/UR, Équipe complète, Anime Masters — Combat
 
-### Community 207 - "Compositions SSR/UR — 31 octobre 2026"
-Cohesion: 0.33
-Nodes (5): Compositions SSR/UR — 31 octobre 2026, Configuration, Portée, Profils, Résultats
+### Community 207 - "Buffs et rythme des tours — 31 octobre 2026"
+Cohesion: 0.14
+Nodes (12): Buffs et rythme des tours — 31 octobre 2026, Couverture du catalogue, Règle intégrée, Simulation après changement de rythme, Vérifications, Compositions SSR/UR — 31 octobre 2026, Configuration, Portée (+4 more)
 
 ### Community 208 - "Simulation : 236 attaques de base SSR/UR"
 Cohesion: 0.40
 Nodes (4): Plus faibles, Plus forts, Résultats complets, Simulation : 236 attaques de base SSR/UR
 
-### Community 209 - "simulate-compositions.ts"
-Cohesion: 0.25
-Nodes (9): any(), GAMES, main(), pct(), Profile, profiles, rng, SEED (+1 more)
-
-### Community 210 - "combat/page.tsx"
+### Community 209 - "ur/page.tsx"
 Cohesion: 0.29
-Nodes (7): Arena(), CombatPage(), HINTS, metadata, OPPONENTS, OpponentChoice, PVM_OPPONENTS
+Nodes (7): Illustrations(), metadata, URGalleryPage(), GalleryCharacter, URGallery(), CharacterCardProps, seriesTitle()
 
-### Community 211 - "duel-rules.ts"
+### Community 210 - "check-battles.ts"
+Cohesion: 0.18
+Nodes (16): check(), main(), rejects(), same(), Arena(), CombatPage(), HINTS, metadata (+8 more)
+
+### Community 211 - "duels.ts"
+Cohesion: 0.11
+Nodes (30): checkAchievementsSafe(), QuestionPrompt, ANSWER_GRACE_MS, ATK_MOD, CombatResult, DEF_MOD, DUEL_ACCEPT_MS, DUEL_PLAY_MS (+22 more)
+
+### Community 212 - "trades/new/page.tsx"
+Cohesion: 0.29
+Nodes (9): createTradeAction(), Composer(), metadata, NewTradePage(), Picker(), Row, TradeComposer(), FINISH_NAMES (+1 more)
+
+### Community 213 - "next"
 Cohesion: 0.13
-Nodes (15): ANSWER_GRACE_MS, ATK_MOD, DEF_MOD, DUEL_ACCEPT_MS, DUEL_PLAY_MS, DUEL_REWARDS, ELO_K, ELO_START (+7 more)
+Nodes (20): nextConfig, next, acceptTradeAction(), cancelTradeAction(), refuseTradeAction(), run(), NewTradeForm(), metadata (+12 more)
 
-### Community 212 - "next"
-Cohesion: 0.06
-Nodes (58): nextConfig, next, react, Achievements(), AchievementsPage(), dateFmt, metadata, TABS (+50 more)
+### Community 214 - "mechanic-runner.ts"
+Cohesion: 0.39
+Nodes (6): agent(), main(), prompt(), ROOT, sh(), tail()
 
-### Community 213 - "wishlist.ts"
-Cohesion: 0.40
-Nodes (4): addWish(), FINISHES, MAX_WISHES, WishlistError
-
-### Community 214 - "Anime Masters — PvM"
-Cohesion: 0.40
-Nodes (5): Anime Masters — PvM, Mode histoire, Raid, Tour multiverselle *(révisé le 2026-10-31)*, Vue d'ensemble *(décidé le 2026-10-31)*
-
-### Community 215 - "story.ts"
-Cohesion: 0.09
-Nodes (22): InventoryPage(), Item(), Items(), metadata, num, BOSS_BONUS, COMMON_RESOURCE, DAILY_FULL_UNITS (+14 more)
+### Community 215 - "requireUser"
+Cohesion: 0.17
+Nodes (13): Builder(), metadata, TeamPage(), InventoryPage(), Item(), Items(), metadata, num (+5 more)
 
 ### Community 216 - "Anime Masters"
 Cohesion: 0.40
@@ -1113,6 +1127,14 @@ Nodes (4): Anime Masters, Commandes, Installation, Prérequis
 Cohesion: 0.29
 Nodes (6): Cible des sorts, Effets (JSON) — scopes : `"self"` (lanceur), `"target"` (la cible choisie), `"team"` (équipe du lanceur), `"foes"` (tous les ennemis), Esprit, Intensité (bandes à respecter : le validateur refuse le hors-bande), Réécriture des sorts SSR/UR — consignes (2026-10-31), turns()
 
+### Community 218 - "Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*"
+Cohesion: 0.33
+Nodes (6): 1. Règle de puissance, 2. Éveil, 3. Arme légendaire, 4. Rythme, Mesures (2026-10-31, 3 000 combats par case), Progression des cartes *(décidé le 2026-10-31, chiffres à fixer au simulateur)*
+
+### Community 219 - "three"
+Cohesion: 0.48
+Nodes (5): buildBreche(), createReveals(), play(), run(), three
+
 ### Community 220 - "Behavior trees, FSMs, and the blackboard"
 Cohesion: 0.25
 Nodes (7): Behavior trees, FSMs, and the blackboard, FSM vs behavior tree — choosing, Leaf examples, Node taxonomy, Stateful composites and RUNNING, The blackboard, Utility AI (brief)
@@ -1121,15 +1143,23 @@ Nodes (7): Behavior trees, FSMs, and the blackboard, FSM vs behavior tree — ch
 Cohesion: 0.25
 Nodes (7): Coordinates & conventions, Disposing of resources (avoiding leaks), PerspectiveCamera vs OrthographicCamera, Render-on-demand, Stopping and restarting the loop, The Object3D hierarchy, three.js scene graph, cameras & cleanup (r150+)
 
+### Community 227 - "achievements/page.tsx"
+Cohesion: 0.38
+Nodes (6): Achievements(), AchievementsPage(), dateFmt, metadata, TABS, listAchievements()
+
+### Community 228 - "franchises.ts"
+Cohesion: 0.33
+Nodes (4): Entry, ignored, IGNORED_LINKS, SAME_FRANCHISE
+
 ## Knowledge Gaps
 - **10 isolated node(s):** `codeql-skill-scripts`, `@prisma/client`, `react-dom`, `@tailwindcss/turbopack`, `@types/node` (+5 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1991 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1993 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `next` to `battle`, `package.json`, `profile.ts`, `session.ts`, `duels/page.tsx`, `market/page.tsx`, `StoryBoard.tsx`, `SpellBuilder.tsx`, `src_generated_prisma_enums`, `icons.tsx`, `trade-actions.ts`, `battle-actions.ts`, `character/[id]/page.tsx`, `ImmersiveOpener.tsx`, `battle-demo.ts`, `TeamBuilder.tsx`, `expeditions.ts`, `builder/actions.ts`, `app/page.tsx`, `banners.ts`, `combat/page.tsx`, `story.ts`, `album.ts`, `album/page.tsx`, `wishlist-actions.ts`?**
+- **Why does `react` connect `react` to `package.json`, `profile.ts`, `session.ts`, `duels/page.tsx`, `market/page.tsx`, `story.ts`, `BattlePlayer.tsx`, `battle-actions.ts`, `duels/[id]/page.tsx`, `ImmersiveOpener.tsx`, `SceneBody`, `signup/page.tsx`, `TeamBuilder.tsx`, `character/[id]/page.tsx`, `expeditions.ts`, `TowerBoard.tsx`, `notifications/page.tsx`, `SpellBuilder.tsx`, `app/page.tsx`, `banners.ts`, `ur/page.tsx`, `check-battles.ts`, `trades/new/page.tsx`, `next`, `requireUser`, `economy-actions.ts`, `achievements/page.tsx`, `album/page.tsx`, `src_generated_prisma_enums`?**
   _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `start()` (e.g. with `burst()` and `charge()`) actually correct?**
   _`start()` has 9 INFERRED edges - model-reasoned connections that need verification._
@@ -1139,7 +1169,7 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.13768115942028986 - nodes in this community are weakly interconnected._
 - **Why does `scripts` connect `scripts` to `package.json`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._
-- **Should `battle` be split into smaller, more focused modules?**
-  _Cohesion score 0.03467643467643468 - nodes in this community are weakly interconnected._
-- **Why does `next` connect `next` to `battle`, `package.json`, `packs.ts`, `profile.ts`, `session.ts`, `duels/page.tsx`, `market/page.tsx`, `duel-actions.ts`, `StoryBoard.tsx`, `SpellBuilder.tsx`, `src_generated_prisma_enums`, `icons.tsx`, `trade-actions.ts`, `character/[id]/page.tsx`, `ImmersiveOpener.tsx`, `battle-demo.ts`, `expeditions.ts`, `builder/actions.ts`, `app/page.tsx`, `banners.ts`, `combat/page.tsx`, `story.ts`, `album.ts`, `album/page.tsx`, `wishlist-actions.ts`?**
+- **Should `calibrate-spells.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.08669354838709678 - nodes in this community are weakly interconnected._
+- **Why does `next` connect `next` to `trades.ts`, `package.json`, `packs.ts`, `profile.ts`, `session.ts`, `duels/page.tsx`, `market/page.tsx`, `story.ts`, `auth-actions.ts`, `BattlePlayer.tsx`, `react`, `duels/[id]/page.tsx`, `ImmersiveOpener.tsx`, `SceneBody`, `signup/page.tsx`, `character/[id]/page.tsx`, `expeditions.ts`, `TowerBoard.tsx`, `notifications/page.tsx`, `SpellBuilder.tsx`, `app/page.tsx`, `banners.ts`, `AlbumFilters.tsx`, `ur/page.tsx`, `check-battles.ts`, `trades/new/page.tsx`, `requireUser`, `achievements/page.tsx`, `economy-actions.ts`, `proxy.ts`, `album/page.tsx`, `src_generated_prisma_enums`?**
   _High betweenness centrality (0.029) - this node is a cross-community bridge._
