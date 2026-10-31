@@ -188,11 +188,11 @@ h3 {
   padding: 0.5cqw 2.5cqw;
   border-radius: 999px;
   font-size: 4.5cqw;
-  letter-spacing: 0.1em;
-  color: #facc15;
+  display: flex;
   background: rgb(11 20 36 / 0.75);
-  text-shadow: 0 0 2cqw rgb(250 204 21 / 0.6);
 }
+.card-stars i { font-style: normal; color: #facc15; }
+.card-stars i[data-on] { color: #ef2b3d; text-shadow: 0 0 2cqw rgb(239 43 61 / 0.7); }
 .card-serial { margin-left: auto; padding-left: 2cqw; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-new {
   position: absolute;
