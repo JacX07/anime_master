@@ -55,14 +55,16 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 
 **Combos en duo** : Mystère expose, Combat frappe la cible exposée ; Cœur protège, les alliés protégés tapent plus fort ; Magie partage son drain avec Cœur. Le +15 % ne se déclenche qu'avec au moins 10 % des PV max en bouclier restant, y compris pour celui du second joueur au 1er tour.
 
-**Mode manuel** : à chaque action, le joueur choisit le sort (base, affilié, secondaire, tertiaire ou ultime si chargé) et la cible. Base, Combat, Mystère et Magie visent un ennemi vivant ; Cœur un allié vivant ; Aventure n'a pas de cible (zone).
+**Mode manuel** : l'attaque de base est présélectionnée. Toucher un ennemi suffit à l'attaquer ; le joueur peut choisir un autre sort avant sa cible. Toucher à nouveau le sort sélectionné revient à l'attaque de base. La sélection revient à la base après chaque choix joué, changement d'acteur ou mise à jour du journal, y compris après un buff instantané. Aucune attaque n'est lancée sans choix de cible en manuel. Base, Combat, Mystère et Magie visent un ennemi vivant ; Cœur un allié vivant ; Aventure n'a pas de cible (zone).
+
+**Buff personnel instantané (SSR/UR)** : un secondaire, tertiaire ou ultime purement bénéfique pour le lanceur rend immédiatement la main à la même carte. Il doit être sans cible manuelle, avec uniquement bonus positifs de stats, soin, régénération, bouclier, réduction, immunité ou purge sur soi, ou provocation. Le lanceur peut enchaîner d'autres sorts prêts puis terminer avec une attaque ou un sort payant. Les effets mêlant dégâts et protection, les buffs d'équipe et les sorts pouvant cibler un allié gardent leur coût d'un tour. Les recharges avancent une seule fois par tour ; chaque buff lancé entre normalement en recharge ou consomme sa jauge. Poison, régénération et durées ne progressent qu'après l'action qui termine le tour. Le bonus personnel d'un tour s'applique à l'attaque immédiate, puis expire. Le texte du sort indique « Tour immédiat ».
 
 **Mode automatique** (et PvM en arrière-plan) : Cœur ne lance son sort que si un allié est sous 70 % de PV. Combat garde son sort au plus 2 actions en attendant une cible exposée, si un allié Mystère est en vie.
 
-**Ultime** : se charge en combat (§4 ter). Son activation utilise l'action de la carte ; l'IA automatique le privilégie dès qu'il peut être lancé utilement.
+**Ultime** : se charge en combat (§4 ter). Son activation utilise l'action de la carte, avec continuation immédiate pour un buff personnel pur SSR/UR ; l'IA automatique le privilégie dès qu'il peut être lancé utilement.
 
 ### 4 bis. Sorts secondaires et tertiaires personnalisés *(intégrés)*
-Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire et ultime. Ils sont disponibles en manuel et en automatique ; une carte ne lance qu'un sort par tour de cette carte.
+Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire et ultime. Ils sont disponibles en manuel et en automatique ; les buffs personnels purs peuvent précéder l'action qui termine le tour de la carte.
 
 - `src/lib/skill-data.json` contient les **236 fiches réécrites**, chacune avec un secondaire, un tertiaire et un ultime nommés. `skill-data.ts` alimente les trois catalogues du moteur et de l'interface. Ces valeurs finales ne reçoivent plus les anciens coefficients de réduction.
 - Le **secondaire** se recharge en **5 tours** de la carte ; le **tertiaire** en **7 tours**. Les valeurs, noms et combinaisons sont propres à chaque personnage ; le tertiaire apporte surtout des bonus, malus et protections.
@@ -150,7 +152,7 @@ Les noms et effets sont des propositions, modifiables.
 
 ### 4 ter. Attaques de base SSR/UR et ultimes *(intégrés)*
 
-L'ultime reste distinct des sorts secondaire et tertiaire (§4 bis). Une activation consomme l'action du personnage. La fiche de chaque SSR/UR vient du catalogue statique ; à terme, si une carte propose plusieurs ultimes, l'équipe pourra en équiper un seul.
+L'ultime reste distinct des sorts secondaire et tertiaire (§4 bis). Une activation termine normalement le tour du personnage ; un ultime purement personnel SSR/UR rend immédiatement la main selon la règle des buffs instantanés (§4). La fiche de chaque SSR/UR vient du catalogue statique ; à terme, si une carte propose plusieurs ultimes, l'équipe pourra en équiper un seul.
 
 **Attaque de base personnalisée** : les **236 SSR/UR actifs** ont chacun une fiche statique avec un nom et un effet dans `src/lib/basic-attack-roster.ts`. Les 47 fiches personnalisées sont listées ci-dessous ; les 189 autres portent chacune le nom unique de leur sort signature, précédé de « Frappe inspirée de », avec un effet léger tiré de son archétype. `npx tsx scripts/generate-basic-attacks.ts` régénère le snapshot depuis la base et les sorts actuels. Pour un futur personnage sans fiche, le moteur garde un fallback depuis son sort ou le sort générique de son type. Chaque coup reste à **1× ATK** et applique un seul petit effet s'il touche. Il ne peut pas infliger de contrôle, de dégâts de zone, de résurrection, d'exécution ou d'action supplémentaire. Plafonds : ATK/DEF ±3 % pour la prochaine action concernée, critique ou esquive ±3 points jusqu'à la prochaine action, ignore-DEF 3 % sur la prochaine attaque, bouclier ou soin de 2 % des PV max (0,08 % pour Gojo, 0,1 % pour Nishinoya et 0,5 % pour Rei, Megumi, Roxy, Izumi et Nezuko après calibrage), drain de 2 % des dégâts, ou poison de 0,5 % des PV max sur une action. Un effet identique ne se cumule pas.
 

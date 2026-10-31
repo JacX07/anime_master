@@ -6,7 +6,7 @@ import { applyAction, autoAction, createBattle, currentActor, legalActions, seed
 import { historyOf, replayAll } from "../src/lib/battle-replay";
 import { SECONDARY_DATA, TERTIARY_DATA, ULTIMATE_DATA } from "../src/lib/skill-data";
 import { BATTLE } from "../src/lib/battle";
-import { describeSpell, type CharacterSpell } from "../src/lib/spells";
+import { describeSpell, isSoloBuff, type CharacterSpell } from "../src/lib/spells";
 
 const CATALOGS = { special: SECONDARY_DATA, tertiary: TERTIARY_DATA, ultimate: ULTIMATE_DATA } as const;
 const fx = <K extends string>(id: number, slot: keyof typeof CATALOGS, k: K) =>
@@ -264,6 +264,45 @@ check("Catalogues runtime : 236 personnages dans les trois emplacements", Object
   play(st, "tertiary", null);
   until(st, "A2");
   check("Purge : retire l'étourdissement avant le tour de l'allié", !st.teams.A[1].fx.some((effect) => effect.key === "stun") && evs(st, "skip").length === 0);
+}
+
+{
+  const buff: CharacterSpell = { name: "Renfort personnel", target: null, effects: [{ k: "mod", stat: "atk", amount: 0.25, turns: 1, to: "self" }] };
+  const st = start([card(SASUKE, { spell: buff, noBasicAttack: true }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+  const actor = st.teams.A[0];
+  actor.tIn = 2;
+  actor.fx.push({ key: "poison", amount: 0.01, turns: 3, fresh: false });
+  const hp = actor.hp;
+  play(st, "special", null);
+  check("Buff solo SSR : le lanceur conserve immédiatement la main", isSoloBuff(buff) && currentActor(st)?.id === "A1" && actor.continuingTurn && describeSpell(buff).includes("Tour immédiat"));
+  check("Buff instantané : ni poison ni expiration avant l'action suivante", actor.hp === hp && evs(st, "poison").length === 0 && actor.fx.find((effect) => effect.stat === "atk")?.turns === 1);
+  check("Buff instantané : impossible de relancer le même sort", !legalActions(st).some((action) => action.spell === "special"));
+  check("Buff instantané : ne débloque pas un autre sort un tour trop tôt", !legalActions(st).some((action) => action.spell === "tertiary"));
+  const loaded: BattleState = { ...JSON.parse(JSON.stringify(st)), rng: seededRandom(7) };
+  play(loaded, "base", "B1");
+  check("Buff instantané : sauvegarde et action suivante restent dans un seul tour", currentActor(loaded)?.id === "B1" && loaded.teams.A[0].tIn === 1 && loaded.teams.A[0].pIn === 5 && !loaded.teams.A[0].continuingTurn);
+  check("Buff instantané : un seul tic de poison et le bonus d'un tour est consommé", evs(loaded, "poison").length === 1 && !loaded.teams.A[0].fx.some((effect) => effect.stat === "atk"));
+  const control = start([card(SASUKE, { noBasicAttack: true }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+  play(control, "base", "B1");
+  check("Buff instantané : le bonus renforce bien l'attaque qui suit", Math.abs(evs(loaded, "damage")[0].amount / evs(control, "damage")[0].amount - 1.25) < 1e-6);
+}
+{
+  const self: CharacterSpell = { name: "Protection", target: null, effects: [{ k: "shield", pct: 0.1, to: "self" }] };
+  const st = start([card(SASUKE, { rarity: "UR", spell: self, tertiary: self, ultimate: self }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+  st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
+  play(st, "ultimate", null); play(st, "special", null); play(st, "tertiary", null);
+  check("Buffs solo UR : l'enchaînement des trois slots est borné par leurs recharges", currentActor(st)?.id === "A1" && legalActions(st).map((action) => action.spell).join() === "base" && st.teams.A[0].ultimateGauge === 0);
+  play(st, "base", "B1");
+  check("Buffs solo UR : l'attaque termine le tour et charge normalement la jauge", currentActor(st)?.id === "B1" && st.teams.A[0].ultimateGauge === BATTLE.ultimateGaugeBase);
+}
+{
+  const mixed: CharacterSpell = { name: "Frappe protégée", target: "foe", effects: [{ k: "damage", mult: 1 }, { k: "shield", pct: 0.1, to: "self" }] };
+  const group: CharacterSpell = { name: "Renfort d'équipe", target: null, effects: [{ k: "mod", stat: "atk", amount: 0.25, turns: 2, to: "team" }] };
+  for (const spell of [mixed, group]) {
+    const st = start([card(SASUKE, { spell }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
+    play(st, "special", spell.target ? "B1" : null);
+    check(`${spell.name} : conserve son coût d'un tour`, !isSoloBuff(spell) && currentActor(st)?.id === "B1");
+  }
 }
 
 // Combats complets : équipes de SSR/UR écrits, journal rejouable, pas d'erreur

@@ -359,12 +359,12 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     log: log.slice(from),
     actor: running ? currentActor(st)!.id : null,
     choices: running ? legalActions(st) : [],
-    // Prêt quand spellIn ≤ 1 au début de l'action (voir Unit.spellIn dans battle.ts)
+    // Le compteur avance une fois par tour, même après un buff instantané.
     wait: running
       ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => [
-          [u.id, Math.max(0, u.spellIn - 1)],
-          [`${u.id}:special`, Math.max(0, u.pIn - 1)],
-          [`${u.id}:tertiary`, Math.max(0, u.tIn - 1)],
+          [u.id, Math.max(0, u.spellIn - (u.continuingTurn ? 0 : 1))],
+          [`${u.id}:special`, Math.max(0, u.pIn - (u.continuingTurn ? 0 : 1))],
+          [`${u.id}:tertiary`, Math.max(0, u.tIn - (u.continuingTurn ? 0 : 1))],
           [`${u.id}:ultimate`, Math.max(0, BATTLE.ultimateGaugeMax - u.ultimateGauge)],
         ])))
       : {},

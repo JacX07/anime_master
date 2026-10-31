@@ -417,6 +417,11 @@ export function describeEffect(e: Effect, detailed = false): string {
   }
 }
 const capital = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+export const isSoloBuff = (spell: CharacterSpell): boolean => spell.target === null && spell.effects.length > 0 && spell.effects.every((effect) => {
+  if (effect.k === "taunt") return true;
+  if (effect.k === "mod") return effect.to === "self" && effect.amount > 0;
+  return (effect.k === "heal" || effect.k === "regen" || effect.k === "shield" || effect.k === "reduce" || effect.k === "immune" || effect.k === "purge") && effect.to === "self";
+});
 /** Description d'un sort : multiplicateurs masqués par défaut, visibles avec `detailed` */
-export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + ".";
+export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + "." + (isSoloBuff(sp) ? " Tour immédiat : le lanceur peut rejouer." : "");
 export const SPELL_TARGET_LABEL = { foe: "1 ennemi", ally: "1 allié", deadAlly: "1 allié mort", none: "Aucune cible" } as const;

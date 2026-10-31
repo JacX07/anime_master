@@ -7,7 +7,7 @@
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
 import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
-import { spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
+import { isSoloBuff, spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
 import { balanceSecondary, powerTertiaryDamage } from "./character-skills";
 import { TERTIARY_SPELLS } from "./tertiary-catalog";
 import { ULTIMATE_CATALOG } from "./ultimate-catalog";
@@ -251,6 +251,7 @@ interface Unit {
   ultimate: CharacterSpell | null;
   ultimateGauge: number;
   revived: boolean;
+  continuingTurn: boolean;
   fx: Fx[];
 }
 
@@ -336,7 +337,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: 0,
-      revived: false, fx: [],
+      revived: false, continuingTurn: false, fx: [],
     };
   });
 }
@@ -398,6 +399,7 @@ function advanceCooldowns(u: Unit) {
 }
 
 function finishUnitTurn(st: BattleState, u: Unit) {
+  u.continuingTurn = false;
   for (const status of ["elan", "weaken"] as const) {
     if (u[status] <= 0 || (status === "weaken" && u[status] > 1 && hasFx(u, "immune"))) continue;
     if (--u[status] === 0) st.log.push({ kind: "status", target: u.id, status, on: false });
@@ -471,6 +473,7 @@ function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (Unit
 
 /** Les SSR et UR ont 4 emplacements personnalisés (base, secondaire, tertiaire, ultime) : ils n'ont pas de sort de type. */
 export const hasCharacterSlots = (rarity: string) => rarity === "SSR" || rarity === "UR";
+const cooldownReady = (actor: Unit, remaining: number) => remaining <= (actor.continuingTurn ? 0 : 1);
 
 /** Ce que la carte courante peut faire : attaque de base, sorts prêts et ultime chargé. */
 export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId | null)[] }[] {
@@ -480,14 +483,14 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
   const foes = foesFor(st, u).map((f) => f.id);
   const list: { spell: Spell; targets: (UnitId | null)[] }[] = [{ spell: "base", targets: foes }];
   if (hasFx(u, "silence")) return list;
-  if (u.spellIn <= 1 && !hasCharacterSlots(u.card.rarity)) {
+  if (cooldownReady(u, u.spellIn) && !hasCharacterSlots(u.card.rarity)) {
     const t = u.card.type;
     const targets = t === "AVENTURE" ? [null] : t === "COEUR" ? alive(st, u.side).map((x) => x.id) : foes;
     list.push({ spell: "affinity", targets });
   }
   for (const slot of ["special", "tertiary", "ultimate"] as const) {
     const spell = spellFor(u, slot);
-    const ready = slot === "special" ? u.pIn <= 1 : slot === "tertiary" ? u.tIn <= 1 : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
+    const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
     if (!spell || !ready) continue;
     const targets = targetsForSpell(st, u, spell);
     if (targets.length) list.push({ spell: slot, targets });
@@ -498,7 +501,7 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
 /** Mode auto : lance un sort personnel prêt si sa cible et son effet sont utiles. */
 function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): Action | null {
   const spell = spellFor(u, slot);
-  const ready = slot === "special" ? u.pIn <= 1 : slot === "tertiary" ? u.tIn <= 1 : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
+  const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
   if (!spell || !ready) return null;
   const targets = targetsForSpell(st, u, spell);
   if (!targets.length) return null;
@@ -537,7 +540,7 @@ export function autoAction(st: BattleState): Action {
   if (special) return special;
   const tertiary = autoSpecial(st, u, "tertiary");
   if (tertiary) return tertiary;
-  if (u.spellIn > 1 || hasCharacterSlots(u.card.rarity)) return base;
+  if (!cooldownReady(u, u.spellIn) || hasCharacterSlots(u.card.rarity)) return base;
   const t = u.card.type;
   if (t === "COMBAT") {
     const exposed = st.opts.combos ? foes.filter((f) => f.exposed) : [];
@@ -560,7 +563,7 @@ export function applyAction(st: BattleState, action: Action) {
   if (!allowed?.targets.includes(action.target)) throw new Error("Action impossible");
   const u = unit(st, id);
   const { rng, opts, log } = st;
-  advanceCooldowns(u);
+  if (!u.continuingTurn) advanceCooldowns(u);
 
   // Un bonus ignore-DEF reste applicable à tous les coups d'une même action (par exemple une zone).
   const pendingIgnoreFx = u.fx.find((f) => f.key === "ignoreDef");
@@ -794,6 +797,11 @@ export function applyAction(st: BattleState, action: Action) {
     const old = u.ultimateGauge;
     u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : BATTLE.ultimateGaugePerHit));
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
+  }
+  if (activeSpell && hasCharacterSlots(u.card.rarity) && isSoloBuff(activeSpell)) {
+    u.continuingTurn = true;
+    for (const effect of u.fx) effect.fresh = false;
+    return;
   }
   finishUnitTurn(st, u);
 

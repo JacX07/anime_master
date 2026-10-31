@@ -1,5 +1,7 @@
 # Compositions SSR/UR — 31 octobre 2026
 
+Archive avant les buffs personnels instantanés et la correction de l'ultime de Gojo. Les chiffres suivants décrivent cette ancienne version du moteur. L'audit des buffs actuels est dans [buff-tempo.md](buff-tempo.md).
+
 ## Configuration
 
 - Catalogue : 236 personnages, trois sorts personnels chacun, sans rôle affiché dans le jeu.
