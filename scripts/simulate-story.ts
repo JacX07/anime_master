@@ -13,8 +13,9 @@ const arg = (name: string, d: number) => {
   return i < 0 ? d : Number(process.argv[i + 1]);
 };
 const GAMES = arg("--games", 300);
-const MAX = arg("--max", UNIVERSES[14].difficulty);
-UNIVERSES.forEach((u, i) => (u.difficulty = 1 + ((MAX - 1) * i) / (UNIVERSES.length - 1)));
+const MAX = arg("--max", 0);
+// Sans --max : difficultés réelles de src/lib/story.ts ; avec --max, rampe linéaire de 1 à MAX (pour comparer des variantes)
+if (MAX) UNIVERSES.forEach((u, i) => (u.difficulty = 1 + ((MAX - 1) * i) / (UNIVERSES.length - 1)));
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
@@ -59,7 +60,7 @@ async function main() {
   const enemies = new Map<string, BattleCard[]>();
   for (const u of UNIVERSES) for (const lv of LEVELS_SHOWN) enemies.set(`${u.key}:${lv}`, await storyEnemies(u, lv));
 
-  console.log(`Difficulté du dernier univers ×${MAX.toFixed(2)}, ${GAMES} combats par case, victoire (%) aux combats 1 / 8 / 15 (boss final)\n`);
+  console.log(`${MAX ? `Rampe de difficulté 1 → ${MAX.toFixed(2)}` : "Difficultés réelles"}, ${GAMES} combats par case, victoire (%) aux combats 1 / 8 / 15 (boss final)\n`);
   console.log("équipe".padEnd(15) + UNIVERSES.map((u) => String(u.rank).padStart(3 * 3 + 1)).join(""));
   console.log(" ".repeat(15) + UNIVERSES.map(() => "   1  8 15").join(""));
   for (const [name, make] of Object.entries(teams)) {

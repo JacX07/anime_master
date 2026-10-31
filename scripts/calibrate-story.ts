@@ -1,7 +1,7 @@
 // Calibre la difficulté de chaque univers de l'histoire (docs/specs/pvm.md) : par dichotomie, jusqu'à ce qu'une équipe de référence
 // (1 UR + 3 SSR, 5 étoiles, arme) batte le boss final avec un taux cible qui descend de 95 % (univers 1) à 20 % (univers 15).
 // Écrit les valeurs dans /tmp/story-difficulty.txt, à reporter dans `DIFFICULTY` de src/lib/story.ts.
-// Usage : npx tsx scripts/calibrate-story.ts [--games 400] [--first 0.95] [--last 0.2]
+// Usage : npx tsx scripts/calibrate-story.ts [--games 400] [--first 0.95] [--from 1] [--last 0.2]
 
 import { writeFileSync } from "node:fs";
 import type { Rarity } from "../src/generated/prisma/enums";
@@ -14,6 +14,7 @@ const arg = (name: string, d: number) => {
   const i = process.argv.indexOf(name);
   return i < 0 ? d : Number(process.argv[i + 1]);
 };
+const FROM = arg("--from", 1);
 const GAMES = arg("--games", 400), FIRST = arg("--first", 0.95), LAST = arg("--last", 0.2);
 function seeded(seed: number): Random {
   let a = seed >>> 0;
@@ -39,6 +40,7 @@ async function main() {
 
   const out: number[] = [];
   for (const u of UNIVERSES) {
+    if (u.rank < FROM) continue;
     const target = FIRST + ((LAST - FIRST) * (u.rank - 1)) / (UNIVERSES.length - 1);
     let lo = 0.6, hi = 3;
     for (let i = 0; i < 9; i++) {
