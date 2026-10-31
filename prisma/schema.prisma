@@ -764,3 +764,15 @@ model DailyGain {
 
   @@id([userId, day, source])
 }
+
+/// Sort de personnage édité dans le Spell Builder (/builder, dev seulement). Le jeu lit spells.ts ; ceci sert à l'éditeur et à la simulation.
+model SpellOverride {
+  characterId Int      @id
+  /// CharacterSpell sérialisé
+  spell       Json
+  /// "ready" (composé d'effets existants) ou "pending" (mécanique à implémenter)
+  status      String   @default("ready")
+  /// Description libre de la mécanique demandée (statut pending)
+  wish        String?
+  updatedAt   DateTime @updatedAt
+}

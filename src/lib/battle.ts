@@ -41,6 +41,8 @@ export interface BattleCard {
   boss?: boolean;
   /** Retire le sort de personnage de cette carte (simulations d'équilibre) */
   noSpell?: boolean;
+  /** Sort de personnage imposé (Spell Builder) : prioritaire sur celui de spells.ts */
+  spell?: CharacterSpell;
 }
 
 /** Passif d'arme : esquive des sorts affiliés adverses, ou renfort de l'ATK des alliés d'un type (porteur compris). */
@@ -281,7 +283,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.cooldownStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
       spellIn: 2, held: 0, exposed: false, weaken: 0, elan: 0,
-      spell: opts.spells && !card.noSpell ? spellOf(card.characterId, card.rarity, card.type) : null,
+      spell: opts.spells && !card.noSpell ? card.spell ?? spellOf(card.characterId, card.rarity, card.type) : null,
       pIn: SPELL_FIRST, revived: false, fx: [],
     };
   });
