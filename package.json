@@ -37,6 +37,7 @@
     "check:spells": "tsx scripts/check-spells.ts",
     "simulate:spells": "tsx scripts/simulate-spells.ts",
     "calibrate:spells": "tsx scripts/calibrate-spells.ts",
+    "calibrate:archetypes": "tsx scripts/calibrate-archetypes.ts",
     "check:tower": "tsx scripts/check-tower.ts",
     "simulate:tower": "tsx scripts/simulate-tower.ts"
   },
