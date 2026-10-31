@@ -36,3 +36,16 @@
 .eq-slot[data-rarity="UR"], .eq-card[data-rarity="UR"] { border-color: #ff6bd6; }
 .eq-slot[data-rarity="SSR"], .eq-card[data-rarity="SSR"] { border-color: #ffb454; }
 .eq-slot[data-selected] { border-color: #ffd166; }
+.eq-sp { font-size: 0.7rem; color: #ffd166 !important; }
+.eq-dialog { padding: 0; border: 1px solid #6cb2ff; border-radius: 0.8rem; background: #0b1526; color: #e8f0ff; width: min(46rem, 94vw); max-height: 90vh; }
+.eq-dialog::backdrop { background: #000b; }
+.eq-dlg { display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr; gap: 1.2rem; padding: 1.2rem; }
+.eq-dlg-art { margin: 0; display: grid; gap: 0.5rem; align-content: start; }
+.eq-dlg-art img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 0.5rem; border: 2px solid #35507c; }
+.eq-dlg-art[data-rarity="SSR"] img { border-color: #ffb454; }
+.eq-dlg-art[data-rarity="UR"] img { border-color: #ff6bd6; }
+.eq-dlg-art figcaption { display: grid; gap: 0.15rem; }
+.eq-dlg-art small { color: #9fb2cf; display: inline-flex; gap: 0.25rem; align-items: center; }
+.eq-dlg-spells { overflow-y: auto; max-height: calc(90vh - 2.4rem); display: grid; gap: 0.8rem; align-content: start; }
+.eq-dlg-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+@media (max-width: 34rem) { .eq-dlg { grid-template-columns: 1fr; } .eq-dlg-art img { max-height: 14rem; } }

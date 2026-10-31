@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { autoAttackTeamAction, autoDefenseTeamAction, setAttackTeamAction, setDefenseTeamAction } from "@/app/battle-actions";
 import { affinity, BATTLE } from "@/lib/battle";
@@ -59,6 +59,46 @@ function SpellList({ card }: { card: TeamCard }) {
   );
 }
 
+
+/** Fenêtre d'un personnage : portrait à gauche, sorts à droite, bouton pour l'ajouter à l'équipe ou l'en retirer. */
+function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (card && !d.open) d.showModal();
+    if (!card && d.open) d.close();
+  }, [card]);
+  return (
+    <dialog ref={ref} className="eq-dialog" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()} aria-label={card ? `Sorts de ${card.name}` : undefined}>
+      {card && (
+        <div className="eq-dlg">
+          <figure className="eq-dlg-art" data-rarity={card.rarity}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
+            <figcaption>
+              <b>{card.name}</b>
+              <small>{card.series}</small>
+              <small><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name} · {RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</small>
+              <small>ATK {num.format(card.attack)} · DEF {num.format(card.defense)}</small>
+            </figcaption>
+          </figure>
+          <div className="eq-dlg-spells">
+            <h2 className="eq-h">Sorts</h2>
+            <SpellList card={card} />
+            <div className="eq-dlg-btns">
+              <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
+                {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
+              </button>
+              <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </dialog>
+  );
+}
+
 export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record<Kind, Slots> }) {
   const byId = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards]);
   const [kind, setKind] = useState<Kind>("ATTACK");
@@ -92,7 +132,6 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
     next[target] = id;
     setSlots(next);
     setSelected(next.findIndex((x, i) => i > target && !x) >= 0 ? next.findIndex((x, i) => i > target && !x) : null);
-    setFocus(id);
   };
   const clear = (i: number) => {
     const next = [...slots];
@@ -193,14 +232,17 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
         )}
       </section>
 
-      {focused && (
-        <section className="eq-focus" aria-label={`Sorts de ${focused.name}`}>
-          <h2 className="eq-h">
-            Sorts de {focused.name} <small>({RARITY_NAMES[focused.rarity]}, {TYPE_LABELS[focused.type].name})</small>
-          </h2>
-          <SpellList card={focused} />
-        </section>
-      )}
+      <CardDialog
+        card={focused}
+        slot={focused ? slots.indexOf(focused.id) : -1}
+        full={selected === null && slots.every(Boolean)}
+        onClose={() => setFocus(null)}
+        onToggle={(c) => {
+          if (slots.includes(c.id)) clear(slots.indexOf(c.id));
+          else pick(c.id);
+          setFocus(null);
+        }}
+      />
 
       <section className="eq-pick" aria-label="Ma collection">
         <h2 className="eq-h">Ma collection <small>{num.format(filtered.length)} carte{filtered.length > 1 ? "s" : ""}</small></h2>
@@ -221,14 +263,14 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
             const at = slots.indexOf(c.id);
             return (
               <li key={c.id} className="eq-card" data-rarity={c.rarity} data-in={at >= 0 || undefined}>
-                <button type="button" onClick={() => pick(c.id)} aria-label={`${at >= 0 ? "Retirer" : "Choisir"} ${c.name}`}>
+                <button type="button" onClick={() => setFocus(c.id)} aria-label={`Voir les sorts de ${c.name}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={c.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
                   <span className="eq-name">{c.name}</span>
                   <small><TypeIcon type={c.type} /> {RARITY_NAMES[c.rarity]}{c.stars > 0 ? ` · ${c.stars}★` : ""}</small>
+                  <small className="eq-sp">★ {spellOf(c.characterId, c.rarity, c.type)?.name ?? "Pas de sort perso"}</small>
                   {at >= 0 && <span className="eq-badge">Emplacement {at + 1}</span>}
                 </button>
-                <button type="button" className="eq-info" onClick={() => setFocus(c.id)} aria-label={`Voir les sorts de ${c.name}`}>Sorts</button>
               </li>
             );
           })}
