@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
 import { Stat, TypeIcon } from "@/components/icons";
@@ -49,6 +50,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           <p className="vt-sub">
             {num.format(progress.owned)} personnages sur {num.format(progress.total)}
           </p>
+          <Link href="/album/ur" className="vt-chip mt-3">Galerie UR</Link>
         </header>
 
         <AlbumFilters filters={filters} sortable={album.worlds !== null} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
