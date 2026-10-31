@@ -315,6 +315,12 @@ function PopView({ pop }: { pop: Pop }) {
         </span>
       );
     }
+    case "dodge":
+      return (
+        <span className="bt-num" data-kind="status" data-status="elan" style={style}>
+          Esquive !
+        </span>
+      );
     case "heal":
       return (
         <>

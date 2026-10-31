@@ -17,6 +17,7 @@ export interface UnitState {
 /** Élément éphémère posé sur une carte : nombre flottant, effet de type, étiquette d'état. */
 export type Pop =
   | { id: number; unit: UnitId; kind: "damage"; amount: number; absorbed: number; crit: boolean; affinity: "strong" | "weak" | null; exposedBonus: boolean }
+  | { id: number; unit: UnitId; kind: "dodge" }
   | { id: number; unit: UnitId; kind: "heal"; amount: number }
   | { id: number; unit: UnitId; kind: "shield"; amount: number }
   | { id: number; unit: UnitId; kind: "status"; status: "exposed" | "weaken" | "elan"; on: boolean }
@@ -85,6 +86,9 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       pop({ unit: ev.target, kind: "fx", fx: cur?.spell === "affinity" ? cur.type : "base", big: cur?.spell === "affinity" });
       pop({ unit: ev.target, kind: "damage", amount: ev.amount, absorbed: ev.absorbed, crit: ev.crit, affinity: ev.affinity, exposedBonus: ev.exposedBonus });
       break;
+    case "dodge":
+      pop({ unit: ev.target, kind: "dodge" });
+      break;
     case "heal":
       patch(ev.target, { hp: ev.hp });
       pop({ unit: ev.target, kind: "heal", amount: ev.amount });
@@ -133,6 +137,8 @@ export function holdFor(log: BattleEvent[], i: number): number {
       // Zone : les coups s'enchaînent
       if (next?.kind === "damage") return 170;
       return ev.crit ? 520 : 400;
+    case "dodge":
+      return next?.kind === "damage" || next?.kind === "dodge" ? 170 : 400;
     case "heal":
       return next?.kind === "shield" ? 180 : 340;
     case "shield":
