@@ -1,6 +1,6 @@
 "use server";
 
-import { abandonBattle, BattleError, finishAuto, getBattle, playAction, setAttackTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, BattleError, getBattle, playAction, setAttackTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -29,8 +29,9 @@ export async function getBattleAction(battleId: string) {
 export async function playActionAction(battleId: string, action: Action) {
   return run(async (id) => ({ battle: await playAction(id, String(battleId), action) }));
 }
-export async function finishAutoAction(battleId: string) {
-  return run(async (id) => ({ battle: await finishAuto(id, String(battleId)) }));
+/** La stratégie automatique joue l'action du joueur (bouton Auto) */
+export async function playAutoAction(battleId: string) {
+  return run(async (id) => ({ battle: await playAction(id, String(battleId), null) }));
 }
 export async function abandonBattleAction(battleId: string) {
   return run(async (id) => (await abandonBattle(id, String(battleId)), {}));

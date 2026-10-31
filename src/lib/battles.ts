@@ -219,8 +219,9 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
 const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
-export async function playAction(userId: string, battleId: string, action: Action, now = new Date()): Promise<BattleView> {
-  if (!isSpell(action?.spell) || (action.target !== null && typeof action.target !== "string")) throw new BattleError("Action invalide.");
+export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date()): Promise<BattleView> {
+  // action = null : la stratégie automatique joue à la place du joueur (bouton Auto) ; elle est enregistrée comme un choix du joueur
+  if (action && (!isSpell(action.spell) || (action.target !== null && typeof action.target !== "string"))) throw new BattleError("Action invalide.");
   await sweepBattles(now);
   const row = await prisma.battle.findFirst({ where: { id: battleId, userId, manual: true } });
   if (!row) throw new BattleError("Combat introuvable.");
@@ -229,8 +230,10 @@ export async function playAction(userId: string, battleId: string, action: Actio
   const actions = row.actions as unknown as Action[];
   const st = replay(teams, row.seed, actions);
   const from = st.log.length;
+  if (!currentActor(st)) throw new BattleError("Ce combat est terminé.");
+  const chosen: Action = action ? { spell: action.spell, target: action.target } : autoAction(st);
   try {
-    applyAction(st, { spell: action.spell, target: action.target });
+    applyAction(st, chosen);
   } catch {
     throw new BattleError("Action impossible.");
   }
@@ -240,30 +243,13 @@ export async function playAction(userId: string, battleId: string, action: Actio
   const saved = await prisma.battle.updateMany({
     where: { id: row.id, status: "RUNNING", steps: row.steps },
     data: {
-      actions: [...actions, { spell: action.spell, target: action.target }] as unknown as Prisma.InputJsonValue,
+      actions: [...actions, chosen] as unknown as Prisma.InputJsonValue,
       steps: row.steps + 1,
       ...(done ? { status: "DONE", winner: done.winner, log: done.log as unknown as Prisma.InputJsonValue, endedAt: now } : {}),
     },
   });
   if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
   return toView({ ...row, status: done ? "DONE" : "RUNNING" }, st, from);
-}
-
-/** Passe en automatique : les deux camps jouent la stratégie automatique jusqu'à la fin. Renvoie les nouveaux événements. */
-export async function finishAuto(userId: string, battleId: string, now = new Date()): Promise<BattleView> {
-  await sweepBattles(now);
-  const row = await prisma.battle.findFirst({ where: { id: battleId, userId, manual: true } });
-  if (!row) throw new BattleError("Combat introuvable.");
-  if (row.status !== "RUNNING") throw new BattleError("Ce combat est terminé.");
-  const st = replay(row.teams as unknown as BattleTeams, row.seed, row.actions as unknown as Action[]);
-  const from = st.log.length;
-  for (let actor = currentActor(st); actor; actor = currentActor(st)) applyAction(st, autoAction(st));
-  const saved = await prisma.battle.updateMany({
-    where: { id: row.id, status: "RUNNING", steps: row.steps },
-    data: { status: "DONE", winner: st.result!.winner, log: st.log as unknown as Prisma.InputJsonValue, endedAt: now },
-  });
-  if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
-  return toView({ ...row, status: "DONE" }, st, from);
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */

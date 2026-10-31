@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { abandonBattleAction, finishAutoAction, playActionAction, setAttackTeamAction, startBattleAction } from "@/app/battle-actions";
+import { useRef, useState, useTransition } from "react";
+import { abandonBattleAction, playActionAction, playAutoAction, setAttackTeamAction, startBattleAction } from "@/app/battle-actions";
 import type { Spell, UnitId } from "@/lib/battle";
 import type { BattleView } from "@/lib/battles";
 import { BattlePlayer, type PlayerCharacter } from "./BattlePlayer";
@@ -27,7 +27,9 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
   const [log, setLog] = useState(initial?.log ?? []);
   const [teamReady, setTeamReady] = useState(ready);
   const [opponent, setOpponent] = useState(initial?.opponent ?? opponents[0].key);
-  const [manual, setManual] = useState(initial?.manual ?? true);
+  // Choix du mode au lancement ; pendant le combat, `auto` se change à tout moment
+  const [manual, setManual] = useState(true);
+  const [auto, setAuto] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
@@ -42,8 +44,10 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
 
   const launch = () =>
     start(async () => {
-      const r = await startBattleAction(opponent, manual);
+      // Tous les combats sont suivis par le serveur : l'auto n'est qu'un réglage qu'on peut changer en route
+      const r = await startBattleAction(opponent, true);
       if (!r.ok) return setError(r.error);
+      setAuto(!manual);
       setView(r.battle);
       setLog(r.battle.log);
       setError(null);
@@ -60,15 +64,26 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
       setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: r.battle.actor, choices: r.battle.choices, wait: r.battle.wait } : v));
     });
 
-  const goAuto = () =>
+  // Auto : le serveur joue l'action de ta carte. Une seule requête à la fois (le lecteur peut redemander à chaque rendu).
+  const inflight = useRef(false);
+  const autoStep = () => {
+    if (!view || inflight.current) return;
+    inflight.current = true;
     start(async () => {
-      if (!view) return;
-      const r = await finishAutoAction(view.id);
-      if (!r.ok) return setError(r.error);
-      setError(null);
-      setLog((l) => [...l, ...r.battle.log]);
-      setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: null, choices: [], wait: {} } : v));
+      try {
+        const r = await playAutoAction(view.id);
+        if (!r.ok) {
+          setAuto(false);
+          return setError(r.error);
+        }
+        setError(null);
+        setLog((l) => [...l, ...r.battle.log]);
+        setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: r.battle.actor, choices: r.battle.choices, wait: r.battle.wait } : v));
+      } finally {
+        inflight.current = false;
+      }
     });
+  };
 
   const backToMenu = () => {
     setView(null);
@@ -98,7 +113,7 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
           ))}
         </fieldset>
         <fieldset className="bt-pick">
-          <legend>Mode</legend>
+          <legend>Mode de départ (modifiable en plein combat)</legend>
           <label className="bt-choice" data-on={!manual || undefined}>
             <input type="radio" name="mode" checked={!manual} onChange={() => setManual(false)} />
             <b>Automatique</b>
@@ -164,7 +179,9 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
               error,
               onPlay: play,
               onAbandon: view.status === "RUNNING" ? abandon : undefined,
-              onAuto: view.status === "RUNNING" ? goAuto : undefined,
+              auto,
+              onToggleAuto: () => setAuto((a) => !a),
+              onAutoStep: autoStep,
               onNext: backToMenu,
             }
           : undefined

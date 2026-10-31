@@ -44,8 +44,11 @@ export interface LiveControl {
   busy: boolean;
   error?: string | null;
   onPlay: (spell: Spell, target: UnitId | null) => void;
-  /** Passe en automatique : les deux équipes jouent seules jusqu'à la fin */
-  onAuto?: () => void;
+  /** Mode auto : la stratégie automatique joue à ta place, on peut revenir au manuel à tout moment */
+  auto: boolean;
+  onToggleAuto: () => void;
+  /** Demande au serveur de jouer l'action de la carte qui doit agir */
+  onAutoStep: () => void;
   /** Abandon du combat en cours (compté comme perdu) */
   onAbandon?: () => void;
   /** Bouton de l'écran de fin à la place du lien « Nouveau combat » */
@@ -82,7 +85,17 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const caughtUp = rp.idx >= log.length;
   const finished = caughtUp && (!live || rp.end !== null);
   const [spell, setSpell] = useState<Spell | null>(null);
-  const awaiting = !!live && caughtUp && !rp.end && live.actor !== null;
+  // `ready` : le journal est rattrapé et une de tes cartes doit agir ; `awaiting` : c'est à toi de choisir (pas en auto)
+  const ready = !!live && caughtUp && !rp.end && live.actor !== null;
+  const awaiting = ready && !live?.auto;
+  const autoStep = live?.onAutoStep;
+  const autoOn = !!live?.auto;
+  const autoBusy = !!live?.busy;
+  const autoFailed = !!live?.error;
+  useEffect(() => {
+    // En auto, dès que l'écran a rattrapé le journal, le serveur joue l'action suivante
+    if (ready && autoOn && !autoBusy && !autoFailed && playing) autoStep?.();
+  }, [ready, autoOn, autoBusy, autoFailed, playing, autoStep, rp.idx]);
   const choice = awaiting ? live?.choices.find((c) => c.spell === spell) : undefined;
   const play = (s: Spell, target: UnitId | null) => {
     setSpell(null);
@@ -275,9 +288,9 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             Musique
           </button>
         </div>
-        {live?.onAuto && !end && (
-          <button type="button" className="bt-btn" onClick={live.onAuto} disabled={live.busy} title="Les deux équipes jouent seules jusqu'à la fin">
-            Passer en auto
+        {live && !end && (
+          <button type="button" className="bt-btn" aria-pressed={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
+            {live.auto ? "Auto" : "Manuel"}
           </button>
         )}
         {live?.onAbandon && !end && (
