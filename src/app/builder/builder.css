@@ -9,6 +9,9 @@
 .sb-list button[aria-pressed="true"] { border-color: #ffd166; background: #16305a; }
 .sb-list img { width: 2.2rem; height: 2.9rem; object-fit: cover; border-radius: 0.25rem; }
 .sb-list small { display: block; color: #8ea3c4; }
+.sb-list h2 { margin: 0 0 0.6rem; font-size: 1rem; }
+.sb-list > .sb-desc { margin-bottom: 0.6rem; }
+.sb-spell-name { display: block; margin-top: 0.3rem; color: #ffd166; font-size: 0.85rem; }
 .sb-edit { display: grid; gap: 0.8rem; }
 .sb-edit h2 { margin: 0; font-size: 1.15rem; }
 .sb-edit h2 small { color: #8ea3c4; font-weight: 400; margin-left: 0.4rem; }

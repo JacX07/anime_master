@@ -29,7 +29,7 @@ export default function BuilderPage() {
       <div className="vt-inner">
         <header className="pg-head">
           <h1 className="vt-title">Spell Builder</h1>
-          <p className="vt-sub">Écris le sort d&apos;un SSR ou UR, puis simule-le pour vérifier qu&apos;il ne casse pas l&apos;équilibre. Dev seulement : le jeu lit toujours spells.ts tant que tu n&apos;exportes pas.</p>
+          <p className="vt-sub">Consulte les sorts existants des SSR et UR, modifie leurs effets, puis simule-les pour vérifier l&apos;équilibre. Dev seulement : les modifications restent dans le builder tant que tu ne les exportes pas.</p>
         </header>
         <Suspense fallback={<p className="vt-muted">Chargement…</p>}>
           <Loaded />

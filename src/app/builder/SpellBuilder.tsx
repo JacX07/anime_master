@@ -33,7 +33,8 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
-    return chars.filter((c) => (!rar || c.rarity === rar) && (!s || c.name.toLowerCase().includes(s))).slice(0, 80);
+    return chars.filter((c) => (!rar || c.rarity === rar) && (!s ||
+      [c.name, c.base.name, c.custom?.name ?? ""].some((name) => name.toLowerCase().includes(s))));
   }, [chars, q, rar]);
 
   const pick = (c: BuilderChar) => {
@@ -46,7 +47,8 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
     setMsg(r.ok ? "Enregistré." : r.error);
   });
   const reset = () => ch && start(async () => {
-    await resetSpellAction(ch.id);
+    const r = await resetSpellAction(ch.id);
+    if (!r.ok) { setMsg(r.error); return; }
     setSpell(clone(ch.base)); setSim(null); setMsg("Retour au sort du jeu.");
   });
 
@@ -76,19 +78,25 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
   return (
     <div className="sb">
       <aside className="sb-list">
+        <h2>Sorts existants</h2>
         <div className="sb-filters">
-          <input placeholder="Chercher un personnage" value={q} onChange={(e) => setQ(e.target.value)} />
-          <select value={rar} onChange={(e) => setRar(e.target.value)}>
+          <input aria-label="Chercher un personnage ou un sort" placeholder="Personnage ou sort" value={q} onChange={(e) => setQ(e.target.value)} />
+          <select aria-label="Rareté" value={rar} onChange={(e) => setRar(e.target.value)}>
             <option value="">SSR + UR</option><option>SSR</option><option>UR</option>
           </select>
         </div>
+        <p className="sb-desc" role="status">{list.length} personnage{list.length > 1 ? "s" : ""} · Clique pour modifier son sort.</p>
+        {list.length === 0 && <p className="vt-muted">Aucun personnage ou sort trouvé.</p>}
         <ul>
           {list.map((c) => (
             <li key={c.id}>
               <button type="button" aria-pressed={c.id === id} onClick={() => pick(c)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={c.imageUrl} alt="" loading="lazy" />
-                <span>{c.name}<small>{c.rarity} · {c.type}{c.custom ? " · modifié" : ""}</small></span>
+                <span>{c.name}<small>{c.rarity} · {c.type}{c.custom ? " · modifié" : ""}</small>
+                  <strong className="sb-spell-name">{(c.custom ?? c.base).name}</strong>
+                  <small>{describeSpell(c.custom ?? c.base)}</small>
+                </span>
               </button>
             </li>
           ))}
@@ -98,6 +106,13 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
       {ch && spell ? (
         <section className="sb-edit">
           <h2>{ch.name} <small>{ch.rarity} · {ch.type} · ATK {ch.attack} / DEF {ch.defense}</small></h2>
+          <div className="sb-preview">
+            <strong>Sort d&apos;origine : {ch.base.name}</strong>
+            <p>{describeSpell(ch.base, true)}</p>
+            <button type="button" className="bt-btn" onClick={() => {
+              setSpell(clone(ch.base)); setSim(null); setMsg("Sort d’origine chargé dans l’éditeur. Enregistre pour conserver tes modifications.");
+            }}>Modifier le sort d&apos;origine</button>
+          </div>
           <label className="sb-row">Nom du sort
             <input value={spell.name} maxLength={60} onChange={(e) => edit((s) => { s.name = e.target.value; })} />
           </label>
@@ -150,7 +165,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
           <MechanicPanel characterId={ch.id} />
         </section>
       ) : (
-        <p className="vt-muted">Choisis un personnage à gauche.</p>
+        <p className="vt-muted">Consulte les sorts existants à gauche, puis sélectionne un personnage pour modifier son nom, sa cible et ses effets.</p>
       )}
     </div>
   );
