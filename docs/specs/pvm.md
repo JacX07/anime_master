@@ -19,8 +19,7 @@ Une ressource, une source : chaque mode a un rôle propre.
 Détaillé dans la section « Mode histoire » ci-dessous.
 
 ### Raid
-- Des **boss** qui droppent la ressource **rare** de l'éveil.
-- D'abord en solo. À terme, peut-être du multijoueur ; première étape possible : un boss d'événement à PV partagés entre tous les joueurs, avec un classement des contributions.
+Détaillé dans la section « Raid » ci-dessous.
 
 ### Tour multiverselle
 - Décrite à l'étape 7 ci-dessous (écrite pour l'ancien combat 3 cartes, à aligner sur le 4 contre 4).
@@ -98,6 +97,41 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 - Tables de niveau, de coûts d'éveil et de drops : à la charge de Claude, qui les propose et les valide au simulateur avant de les présenter.
 - Modèle de données : `StoryProgress` (joueur, univers, combat atteint), définitions des univers dans le code, `Battle.mode = STORY` déjà prévu.
 - Moteur : bonus de stats et de PV du boss, équipe adverse construite par niveau (aujourd'hui `PVM_OPPONENTS`).
+
+---
+
+## Raid *(proposé le 2026-10-31, à valider, rien n'est codé)*
+
+> Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-story.ts` étendu au raid.
+
+### Principe
+- Un **boss de raid** est un monstre énorme sorti d'une brèche majeure. Il tombe et lâche la ressource **rare** : le **cœur de brèche** *(nom proposé, lore des brèches)*. C'est sa **seule source**. Il sert aux étoiles 4 et 5 (avec un doublon du personnage, voir [combat.md](combat.md) §2).
+- Combat **4 contre 4** avec l'équipe d'attaque, en manuel ou en auto : le boss (carte géante, gros bonus de stats) et 3 sbires.
+- **Solo d'abord.** Le multijoueur viendra après (boss d'événement à PV partagés, classement des contributions).
+
+### La récompense dépend des dégâts, pas seulement de la victoire
+- Le boss est taillé pour qu'**une équipe moyenne ne le tue pas du premier coup**. On est donc payé selon la **part de PV du boss retirée** (paliers : 25 %, 50 %, 75 %, 100 % *(simulateur)*), en plus d'un bonus à la victoire.
+- Conséquence voulue : **une défaite rapporte toujours quelque chose**, jamais de combat « pour rien ». Une équipe faible progresse, simplement plus lentement.
+- Le combat dure au plus 30 tours (plafond du moteur) : les PV restants du boss décident alors du palier.
+
+### Tickets
+- Une récompense rare doit être rythmée, contrairement à l'histoire. **3 tickets par jour**, qui s'accumulent jusqu'à **6** (on peut manquer un jour sans rien perdre).
+- Un combat de raid coûte 1 ticket, quel que soit le résultat. **Aucun achat de ticket**, aucune autre source de ressource rare : la patience suffit, c'est la règle du jeu.
+- Lancer plusieurs combats en auto d'affilée est permis jusqu'à épuisement des tickets ; chaque combat reste enregistré et rejouable.
+
+### Boss et difficultés
+- **Un boss par semaine**, qui tourne parmi quelques boss de types différents (un type d'affinité dominant chacun), pour que l'équipe idéale change.
+- **Trois niveaux de difficulté** par boss : Normal (ouvert), Difficile et Cauchemar (ouverts en battant le niveau précédent). Plus dur = plus de cœurs.
+- Le premier boss est ouvert dès que le **tutoriel de l'histoire** est fini.
+
+### Coût des étoiles 4 et 5 *(à fixer, simulateur)*
+- 4★ et 5★ : **cœurs de brèche** (UR environ 2× SSR) + **un doublon** du personnage.
+- Cible : un joueur qui fait ses tickets chaque jour obtient une carte 5★ en **quelques semaines**, pas en quelques mois.
+
+### À écrire / à décider
+- Noms et types des boss de raid, difficulté et récompenses en cœurs.
+- Modèle de données : `RaidBoss`, tickets du joueur, meilleur score par boss et difficulté ; `Battle.mode = RAID` est déjà prévu.
+- Moteur : boss géant avec plusieurs fois les PV d'une carte, mesure des dégâts infligés (le journal les contient déjà).
 
 ---
 
