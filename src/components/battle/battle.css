@@ -1,40 +1,59 @@
 /* Lecteur de combat 4 contre 4 (BattlePlayer). --spd : vitesse de lecture (1, 2 ou 4), appliquée aux transitions. */
 
+/* Plein écran, sans défilement : par-dessus le menu du site pour l'immersion.
+   Grand écran : historique | plateau | sorts. Téléphone : plateau, puis sorts ; l'historique s'ouvre en tiroir. */
+.bt-layout {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas: "stage" "spells";
+  gap: 0.6rem;
+  padding: 0.6rem;
+  overflow: hidden;
+  color: #e8f0ff;
+  font-family: var(--font-sora), sans-serif;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, #2a4f9066, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, #7a2a9055, transparent 70%),
+    linear-gradient(#0d1a30, #070d19);
+}
+.bt-layout > .bt-history { grid-area: hist; }
+.bt-layout > .bt-spells { grid-area: spells; max-height: 11rem; overflow-y: auto; }
+@media (min-width: 70rem) {
+  .bt-layout {
+    grid-template-columns: minmax(15rem, 1fr) auto minmax(15rem, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "hist stage spells";
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  .bt-layout > .bt-spells { max-height: none; align-self: center; max-height: 100%; }
+  .bt-layout > .bt-history { display: flex; max-height: 100%; }
+  .bt-drawer-btn { display: none; }
+}
+
 .bt {
   --spd: 1;
+  grid-area: stage;
   position: relative;
+  justify-self: center;
+  align-self: center;
   width: 100%;
-  /* Assez étroit pour que les deux équipes et les contrôles tiennent dans la hauteur de l'écran */
-  max-width: min(52rem, calc(100dvh * 0.78));
-  margin: 0 auto;
+  /* Largeur déduite de la hauteur : deux équipes, l'en-tête et les contrôles (≈ 23 rem, mesurés) doivent tenir sans défilement.
+     Une carte fait 5:7, donc 4 cartes sur 2 rangées demandent ≈ 1,43 fois la hauteur restante en largeur. */
+  width: min(100%, max(18rem, calc((100dvh - 34rem) * 1.43 + 3.4rem)));
   display: flex;
   flex-direction: column;
-  gap: clamp(0.6rem, 2.5vw, 1.2rem);
-  padding: clamp(0.6rem, 2.5vw, 1.2rem);
-  border: 1px solid #ffffff1c;
-  border-radius: 0.9rem;
-  background:
-    radial-gradient(ellipse 70% 35% at 50% 0%, #2a4f9055, transparent 70%),
-    radial-gradient(ellipse 70% 35% at 50% 100%, #7a2a9044, transparent 70%),
-    linear-gradient(#0d1a30, #0a1322);
+  gap: 0.5rem;
+  padding: 0.8rem;
   overflow: hidden;
   user-select: none;
 }
-
-/* Plateau + historique : côte à côte sur grand écran, l'un sous l'autre sur téléphone */
-.bt-layout {
-  display: grid;
-  gap: 0.8rem;
-  width: 100%;
-  max-width: 76rem;
-  margin: 0 auto;
-}
-@media (min-width: 62rem) {
-  .bt-layout {
-    grid-template-columns: minmax(0, 1fr) 19rem;
-    align-items: start;
-  }
-  .bt-history { position: sticky; top: 0.75rem; max-height: calc(100dvh - 1.5rem); }
+@media (min-width: 70rem) {
+  .bt { width: min(calc((100dvh - 23.5rem) * 1.43 + 3.4rem), calc(100vw - 36rem)); }
 }
 
 .bt-unit { cursor: pointer; }
@@ -88,10 +107,9 @@ button.bt-spell { position: relative; }
 
 /* Historique des actions */
 .bt-history {
-  display: flex;
+  display: none;
   flex-direction: column;
   min-height: 0;
-  max-height: 22rem;
   padding: 0.7rem 0.8rem;
   border: 1px solid #ffffff1c;
   border-radius: 0.9rem;
@@ -99,9 +117,14 @@ button.bt-spell { position: relative; }
   color: #d6e2f5;
   font-size: 0.78rem;
 }
-.bt-history-title { margin: 0 0 0.5rem; font-size: 0.95rem; }
+/* Téléphone : l'historique s'ouvre par-dessus le plateau */
+.bt-layout > .bt-history[data-open] { display: flex; position: fixed; inset: 0.6rem; z-index: 110; box-shadow: 0 0 0 100vmax #000a; }
+.bt-history-title { margin: 0 0 0.5rem; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
+.bt-history-close { display: none; }
+.bt-history[data-open] .bt-history-close { display: inline-block; }
+@media (min-width: 70rem) { .bt-history-close { display: none !important; } }
 .bt-history-empty { margin: 0; color: #9fb2cf; }
-.bt-history ol { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem; }
+.bt-history ol { list-style: none; margin: 0; padding: 0; overflow-y: auto; min-height: 0; flex: 1; display: flex; flex-direction: column; gap: 0.45rem; }
 .bt-history ol > li { padding: 0.4rem 0.55rem; border-radius: 0.45rem; background: #ffffff0d; border-left: 3px solid #7a2a90; display: flex; flex-direction: column; gap: 0.1rem; }
 .bt-history ol > li[data-side="A"] { border-left-color: #4b8bff; }
 .bt-history ol > li small { font-weight: 400; color: #9fb2cf; }
@@ -116,6 +139,10 @@ button.bt-spell { position: relative; }
   min-height: 1.6rem;
   font-size: 0.85rem;
 }
+.bt-line { flex: 1; min-width: 0; }
+.bt-exit { margin-left: auto; display: grid; place-items: center; }
+.bt-drawer-btn { margin-left: auto; }
+.bt-drawer-btn + .bt-exit { margin-left: 0; }
 .bt-round {
   font-family: var(--font-michroma), var(--font-sora), sans-serif;
   letter-spacing: 0.04em;

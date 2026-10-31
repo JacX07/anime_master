@@ -110,6 +110,7 @@ export function ManualArena({ initial, bestCardIds, teamReady: ready }: Props) {
         log={log}
         characters={characters}
         names={NAMES}
+        exitHref="/combat/manuel"
         live={{
           actor: view.actor,
           choices: view.choices,
@@ -117,6 +118,7 @@ export function ManualArena({ initial, bestCardIds, teamReady: ready }: Props) {
           busy: pending,
           error,
           onPlay: play,
+          onAbandon: view.status === "RUNNING" ? abandon : undefined,
           onNext: () => {
             setView(null);
             setLog([]);
@@ -124,13 +126,6 @@ export function ManualArena({ initial, bestCardIds, teamReady: ready }: Props) {
           },
         }}
       />
-      {view.status === "RUNNING" && (
-        <p style={{ textAlign: "center", marginTop: "0.8rem" }}>
-          <button type="button" className="bt-btn" onClick={abandon} disabled={pending}>
-            Abandonner (compté comme perdu)
-          </button>
-        </p>
-      )}
     </>
   );
 }

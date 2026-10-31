@@ -116,7 +116,12 @@ export function History({
   rp,
   characters,
   names,
+  open,
+  onClose,
 }: {
+  /** Téléphone : tiroir ouvert par-dessus le plateau */
+  open: boolean;
+  onClose: () => void;
   entries: HistoryEntry[];
   rp: Replay;
   characters: Record<number, PlayerCharacter>;
@@ -142,8 +147,13 @@ export function History({
     }
   };
   return (
-    <aside className="bt-history" aria-label="Historique des actions">
-      <h3 className="bt-history-title">Historique</h3>
+    <aside className="bt-history" aria-label="Historique des actions" data-open={open || undefined}>
+      <h3 className="bt-history-title">
+        Historique
+        <button type="button" className="bt-btn bt-history-close" onClick={onClose}>
+          Fermer
+        </button>
+      </h3>
       {entries.length === 0 ? (
         <p className="bt-history-empty">Aucune action pour l&apos;instant.</p>
       ) : (

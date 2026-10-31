@@ -26,6 +26,8 @@ interface Props {
   names?: Record<Side, string>;
   /** Lien « nouveau combat » de l'écran de fin */
   nextHref?: string;
+  /** Où mène la croix « Quitter » (le combat prend tout l'écran) */
+  exitHref?: string;
   /** Mode manuel : le journal grandit à chaque choix du joueur */
   live?: LiveControl;
 }
@@ -40,6 +42,8 @@ export interface LiveControl {
   busy: boolean;
   error?: string | null;
   onPlay: (spell: Spell, target: UnitId | null) => void;
+  /** Abandon du combat en cours (compté comme perdu) */
+  onAbandon?: () => void;
   /** Bouton de l'écran de fin à la place du lien « Nouveau combat » */
   onNext?: () => void;
 }
@@ -57,7 +61,16 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, live }: Props) {
+export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, exitHref = "/", live }: Props) {
+  // Plein écran : la page derrière ne défile pas
+  useEffect(() => {
+    const before = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = before;
+    };
+  }, []);
+  const [drawer, setDrawer] = useState(false);
   const [rp, setRp] = useState<Replay>(() => replayStart(log));
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
@@ -185,17 +198,26 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
-    <div className="bt-layout">
-    <div className="bt" ref={stage} onPointerDown={() => getAudio().unlock()} style={{ "--spd": speed } as React.CSSProperties}>
+    <div className="bt-layout" onPointerDown={() => getAudio().unlock()}>
+      <History entries={history} rp={rp} characters={characters} names={names} open={drawer} onClose={() => setDrawer(false)} />
+    <div className="bt" ref={stage} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
         <span className="bt-line">
           {end
             ? "Combat terminé"
-            : rp.cur && actorName
-              ? `${actorName} · ${rp.cur.spell === "base" ? "Attaque" : SPELL_NAMES[rp.cur.type]}`
-              : ""}
+            : awaiting && live?.actor
+              ? `À toi : ${characters[rp.info[live.actor].characterId]?.name ?? ""}`
+              : rp.cur && actorName
+                ? `${actorName} · ${rp.cur.spell === "base" ? "Attaque" : SPELL_NAMES[rp.cur.type]}`
+                : ""}
         </span>
+        <button type="button" className="bt-btn bt-drawer-btn" onClick={() => setDrawer(true)}>
+          Historique
+        </button>
+        <Link className="bt-btn bt-exit" href={exitHref} aria-label="Quitter le combat" title="Quitter le combat">
+          ✕
+        </Link>
       </div>
 
       {(["B", "A"] as const).map((side) => (
@@ -207,7 +229,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           <div className="bt-row">
             {POSITIONS.map((p) => {
               const id = `${side}${p}` as UnitId;
-              return <Unit key={id} id={id} rp={rp} characters={characters} acting={(rp.cur?.actor === id && !finished) || (awaiting && live?.actor === id)}
+              return <Unit key={id} id={id} rp={rp} characters={characters} acting={awaiting ? live?.actor === id : rp.cur?.actor === id && !finished}
                   turn={awaiting && live?.actor === id}
                   picked={spellUnit === id}
                   targetable={!!choice?.targets.includes(id)}
@@ -249,34 +271,15 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             Musique
           </button>
         </div>
+        {live?.onAbandon && !end && (
+          <button type="button" className="bt-btn" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
+            Abandonner
+          </button>
+        )}
         <div className="bt-progress" role="progressbar" aria-valuemin={0} aria-valuemax={log.length} aria-valuenow={rp.idx} aria-label="Avancement du combat">
           <i style={{ width: `${(rp.idx / log.length) * 100}%` }} />
         </div>
       </div>
-
-      <SpellsPanel
-        unit={rp.info[spellUnit]}
-        character={characters[rp.info[spellUnit].characterId]}
-        followsAction={picked === null}
-        choose={
-          awaiting && live
-            ? {
-                choices: live.choices,
-                spell,
-                wait: live.wait[spellUnit] ?? 0,
-                busy: live.busy,
-                error: live.error,
-                onSpell: (s) => {
-                  const c = live.choices.find((x) => x.spell === s);
-                  // Sort de zone : pas de cible à choisir
-                  if (c && c.targets.length === 1 && c.targets[0] === null) play(s, null);
-                  else setSpell(s === spell ? null : s);
-                },
-              }
-            : undefined
-        }
-      />
-      {live?.error && !awaiting && <p className="bt-error" role="alert">{live.error}</p>}
 
       {end && (
         <div className="bt-end" role="status" data-winner={end.winner ?? "draw"}>
@@ -300,11 +303,36 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                 Nouveau combat
               </Link>
             )}
+            <Link className="bt-btn" href={exitHref}>
+              Quitter
+            </Link>
           </span>
         </div>
       )}
     </div>
-    <History entries={history} rp={rp} characters={characters} names={names} />
+
+      <SpellsPanel
+        unit={rp.info[spellUnit]}
+        character={characters[rp.info[spellUnit].characterId]}
+        followsAction={picked === null}
+        choose={
+          awaiting && live
+            ? {
+                choices: live.choices,
+                spell,
+                wait: live.wait[spellUnit] ?? 0,
+                busy: live.busy,
+                error: live.error,
+                onSpell: (s) => {
+                  const c = live.choices.find((x) => x.spell === s);
+                  // Sort de zone : pas de cible à choisir
+                  if (c && c.targets.length === 1 && c.targets[0] === null) play(s, null);
+                  else setSpell(s === spell ? null : s);
+                },
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }
