@@ -61,6 +61,49 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 
 **Ultime** : **désactivé pour le moment** (décidé le 2026-10-31), retiré du moteur. Il reviendra avec les ultimes écrits par anime et les ultimes personnels des UR. *(L'essai précédent n'était qu'un bouche-trou pour mesurer le poids d'un ultime : jauge de 100, +20 par action et +10 par coup reçu, puis le sort affilié ×2 sur toute l'équipe adverse ; il donnait 60 % à 4 SSR avec ultimes contre 4 SSR sans.)*
 
+### 4 bis. Sorts de personnage *(proposé le 2026-10-31, à valider)*
+Décidé : les SSR et UR ont un **3ᵉ sort**, propre à leur personnage, avec son cooldown. Il s'ajoute au sort de base et au sort affilié (qui restent), en manuel comme en automatique. Il remplace l'idée d'ultime à jauge (§4, désactivé).
+
+- **Cooldown 5 actions**, premier lancer à la 3ᵉ action de la carte. Le sort affilié et le sort perso ont chacun leur compteur ; une carte ne lance qu'un sort par action.
+- **Format** : une liste d'effets pris dans un vocabulaire fixe du moteur, écrite en données dans un fichier (`src/lib/spells.ts`), sans code de combat par sort. Un SSR ou UR sans sort écrit reçoit un **sort générique** déduit de son type et de son rôle (principal / secondaire).
+- **Effets disponibles** (tous déjà connus du moteur) : dégâts × ATK sur une cible ou sur tous les ennemis ; ignorer une part de la DEF ; soigner le lanceur, un allié ou toute l'équipe (% de PV max) ; bouclier ; **exposer** ; **affaiblir** ; **élan** ; drainer (soin = part des dégâts).
+- **Budget** (pour que le sort ne fasse pas dérailler l'équilibre, à fixer au simulateur) : SSR environ **2,0× ATK** sur une cible, ou 0,9× en zone, avec un effet secondaire léger ; UR environ **2,4×** ou 1,1× en zone, avec un effet plus fort. Un effet de zone, de soin d'équipe ou de bouclier d'équipe coûte du multiplicateur.
+- **Automatique** : lancé dès qu'il est prêt sur l'ennemi le plus faible ; un soin ou un bouclier seulement si un allié est blessé.
+- **Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier (ci-dessous), les autres univers au fil du temps.
+
+| Perso | Sort | Effet |
+|---|---|---|
+| Luffy (UR) | Gomu Gomu no Gatling | 2,4× ATK sur une cible, ignore 30 % de la DEF |
+| Zoro (UR) | Santoryu Ogi | 2,4× ATK sur une cible, expose |
+| Sanji (SSR) | Diable Jambe | 2,0× ATK, ignore 30 % de la DEF |
+| Robin (SSR) | Mil Fleur | 0,9× ATK sur tous les ennemis, affaiblit |
+| Law (SSR) | Room | 1,6× ATK sur une cible, expose |
+| Nami (SSR) | Thunderbolt Tempo | 0,9× ATK sur tous les ennemis, affaiblit |
+| Ace (SSR) | Hiken | 2,0× ATK, 20 % des dégâts rendus en PV |
+| Chopper (SSR) | Rumble Ball | soigne 25 % des PV max de l'allié ciblé, élan 2 actions sur lui |
+| Usopp (SSR) | Étoile de feu | 1,6× ATK, affaiblit |
+| Naruto (UR) | Rasengan géant | 2,4× ATK sur une cible, 25 % des dégâts rendus à l'équipe |
+| Itachi (UR) | Tsukuyomi | 1,2× ATK, expose et affaiblit pendant 2 actions |
+| Kakashi (UR) | Raikiri | 2,4× ATK, ignore 40 % de la DEF |
+| Sasuke (SSR) | Chidori | 2,0× ATK, ignore 30 % de la DEF |
+| Shikamaru (SSR) | Possession des ombres | 1,2× ATK, expose, affaiblit |
+| Gaara (SSR) | Tombeau de sable | bouclier de 15 % des PV max à toute l'équipe |
+| Jiraiya (SSR) | Rasengan crapaud | 0,9× ATK sur tous les ennemis |
+| Gojo (UR) | Pourpre | 1,1× ATK sur tous les ennemis, expose |
+| Yuji (UR) | Poing divergent | 2,4× ATK, ignore 30 % de la DEF |
+| Megumi (UR) | Chimère des ombres | 1,1× ATK sur tous les ennemis, affaiblit |
+| Nanami (SSR) | Ratio 7:3 | 2,0× ATK, ignore 30 % de la DEF |
+| Nobara (SSR) | Résonance | 1,6× ATK, affaiblit |
+| Maki (SSR) | Lance du rêve | 2,0× ATK sur une cible, expose |
+| Sukuna (SSR) | Démantèlement | 0,9× ATK sur tous les ennemis, ignore 20 % de la DEF |
+| Yuta (SSR) | Rika | 2,0× ATK, 20 % des dégâts rendus en PV |
+| Inumaki (SSR) | Mot-clé : « Arrêtez-vous » | 1,2× ATK, affaiblit tous les ennemis |
+| Getou (SSR) | Manipulation de malédiction | 0,9× ATK sur tous les ennemis, élan à l'équipe |
+| Toji (SSR) | Lance inversée | 2,0× ATK, ignore 40 % de la DEF |
+| Todo (SSR) | Boogie Woogie | 1,6× ATK, expose |
+
+Les noms et effets sont des propositions, modifiables.
+
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.
