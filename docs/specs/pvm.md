@@ -19,8 +19,7 @@ Une ressource, une source : chaque mode a un rôle propre.
 Détaillé dans la section « Mode histoire » ci-dessous.
 
 ### Raid
-- Des **boss** qui droppent la ressource **rare** de l'éveil.
-- D'abord en solo. À terme, peut-être du multijoueur ; première étape possible : un boss d'événement à PV partagés entre tous les joueurs, avec un classement des contributions.
+Détaillé dans la section « Raid » ci-dessous.
 
 ### Tour multiverselle
 - Décrite à l'étape 7 ci-dessous (écrite pour l'ancien combat 3 cartes, à aligner sur le 4 contre 4).
@@ -28,7 +27,7 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 
 ---
 
-## Mode histoire *(discuté le 2026-10-31, rien n'est codé)*
+## Mode histoire *(discuté le 2026-10-31 ; serveur codé le 2026-10-31, pas encore d'interface)*
 
 > Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-battle.ts`. Tout le reste est décidé.
 
@@ -49,9 +48,11 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 
 ### Ennemis
 - Les ennemis **gardent leurs sorts** (rôle par type, [combat.md](combat.md)) mais **pas leurs stats d'origine** : leurs stats viennent du **niveau du combat**, sinon un anime sans SR serait trop facile et un anime plein d'UR impossible.
-- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi (table niveau × rareté *(simulateur)*). **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
+- **Niveau de combat** : un nombre fixé par combat (1 à 15 dans un univers, plus pour les univers difficiles). Il donne les stats de l'ennemi : **moyenne de sa rareté × échelle du niveau**, l'échelle montant de 0,3 (niveau 1) à 1,0 (niveau 15) en ligne droite. Valeurs validées le 2026-10-31 avec `npm run simulate:story`. **Les joueurs n'ont pas de niveau** : leur progression reste la rareté, les étoiles et l'arme.
 - **Difficulté progressive, pas par paliers** : le joueur garde la même équipe principale, il ne doit pas écraser l'acte 1 puis l'acte 2 d'un coup. Chaque combat mélange des raretés qui montent peu à peu (un combat de début : surtout N et R ; milieu : SR, un SSR ; fin : SSR, un UR en boss final). La rareté de l'ennemi sert à son apparence et à son niveau.
-- **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de stats *(simulateur)*. Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
+- **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de **×1,25** sur l'ATK, la DEF et donc les PV (validé). Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
+- **Mélange de raretés par combat** (le boss est la 4ᵉ carte aux combats 5, 10 et 15) : 1–3 : N, N, N, R puis N, N, R, R puis N, R, R, R · 4–5 : R, R, R, SR puis R, R, SR, SR · 6–7 : R, SR, SR, SR · 8 : SR, SR, SR, SSR · 9 : SR, SR, SSR, SSR · 10–11 : SR, SSR, SSR, SSR · 12–13 : SSR ×4 · 14–15 : SSR, SSR, SSR, UR.
+- **Repères mesurés** (victoire en auto) : 4 R → jusqu'au combat 7 ; 4 SR → jusqu'au 9 (le boss du 10 est le premier mur) ; 4 SSR → jusqu'au 13, boss final 6 % ; 4 SSR 5★ avec arme → boss final 61 % ; 1 UR + 3 SSR 5★ → 91 % ; 4 UR → 95 %. **Un boss final difficile est voulu** (validé) : il pousse à éveiller et à farmer.
 - Chaque combat affiche une **puissance conseillée**.
 
 ### Ressources d'éveil
@@ -68,6 +69,14 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 - Dans un univers d'anime, les drops sont à **50 % ressource de l'univers, 50 % ressource commune** *(à équilibrer)*.
 - Éveiller un personnage coûte de la ressource commune et, s'il vient d'un univers, un peu de la ressource de cet univers. **Plus la rareté est haute, plus le coût est élevé** : un UR demande plus qu'un SSR.
 - Les étoiles 4 et 5 demandent en plus la ressource rare du raid (voir « Raid »).
+- **Étoiles 1 à 3 : histoire seule** (proposé le 2026-10-31, à valider). Les étoiles 4 et 5 viendront avec le raid.
+  - **Coût total** (ressources confondues) pour passer de 0 à 3★ : **N 25 · R 50 · SR 100 · SSR 200 · UR 400**. Réparti : 1★ 20 %, 2★ 30 %, 3★ 50 %.
+  - **Carte d'un univers** : moitié ressource commune, moitié ressource de son univers (même proportion que les drops : farmer son univers est le plus efficace).
+  - **Carte d'un anime sans univers** : 60 % du coût total, en ressource commune seulement (un peu plus d'effort, aucune ressource d'univers à trouver).
+- **Drops** par combat gagné : `4 + niveau ÷ 2` unités (niveau 1 : 4, niveau 10 : 9, niveau 15 : 11), tirées 50 % ressource de l'univers, 50 % commune.
+  - **Premier passage** : ×3 le drop du combat ; boss final : ×10 et ressource d'arme légendaire.
+  - **Plafond quotidien** sur les combats rejoués : **500 unités au taux plein**, ensuite **25 %**. Il se remet à zéro chaque jour.
+- **Ce que ça donne** (un joueur qui rejoue un combat de niveau 9, soit 8 unités) : SR 3★ ≈ 13 combats, SSR 3★ ≈ 25 combats (3 lots de 10), UR 3★ ≈ 50 combats, soit moins d'une journée au taux plein. Finir un univers une première fois rapporte environ 360 unités, soit presque un SSR 3★.
 - Les ressources de **fabrication des armes légendaires** tombent aussi ici (boss finaux surtout) ; recettes à écrire plus tard.
 
 ### Récompenses
@@ -83,11 +92,91 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 - Seuls les personnages du labo parlent (Dr Hakase, Akari, Pew), quelques lignes au début et à la fin de chaque acte. Les personnages d'anime ne parlent jamais.
 - Un boss final vaincu : sa signature est rétablie, et Pew réagit à son départ (direction de caractérisation dans `lore.md`).
 
+### Univers de collision *(validés le 2026-10-31 ; après le lancement)*
+Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont personnages / dont SSR ou UR). Les noms sont des propositions du lore des brèches. Chacun a sa ressource d'éveil et sa ressource d'arme légendaire (boss finaux) ; le boss final est le SSR ou UR le plus populaire du lot.
+
+| Univers | Thème | Anime (exemples) | Ressource d'éveil | Ressource d'arme |
+|---|---|---|---|---|
+| **Les Royaumes Échoués** | Mondes parallèles, héros convoqués | Re:ZERO 32/3 · Slime 22/1 · Mushoku Tensei 19/3 · Overlord 17/0 · Eminence in Shadow 15/1 · Solo Leveling 13/1 · SAO 19/2 · Danmachi 16/0 | Pierre de convocation | Fragment de grimoire |
+| **La Nuit des Maudits** | Horreur, démons, morts | Tokyo Ghoul 22/3 · Chainsaw Man 18/5 · Berserk 13/2 · Soul Eater 17/1 · Black Butler 14/0 · Hanako-kun 14/1 · Akame ga Kill 14/2 · Hell's Paradise 13/0 · Danganronpa 17/0 · When They Cry 17/0 | Larme d'ombre | Lame maudite |
+| **La Ligue des Terrains** | Sport et compétition | Blue Lock 21/1 · Kuroko 13/0 · Free! 13/0 · Haikyu 35/8 (si pas d'univers à part) | Trophée | Équipement de légende |
+| **Le Grand Concert** | Idols, musique, vie de tous les jours | Love Live 34/0 · BanG Dream 29/0 · Umamusume 29/0 · Holo no Graffiti 27/0 · Colorful Stage 18/0 · Fruits Basket 20/2 · Horimiya 13/2 | Bâton lumineux | Instrument d'or |
+| **La Grande Alchimie** | Magie, guildes, aventure | Fairy Tail 29/1 · Black Clover 32/2 · Seven Deadly Sins 18/1 · Fire Force 21/1 · Fullmetal Alchemist 21/3 · Frieren 15/2 · Dr. Stone 19/1 | Pierre philosophale | Cristal de magie |
+
+- Ces cinq univers couvrent environ 30 anime moyens qui n'auraient jamais d'univers à eux. Les gros anime avec beaucoup de SSR ou UR (My Hero Academia, Bleach, Attack on Titan, Demon Slayer, Hunter x Hunter, JoJo, Dragon Ball) sont de bons candidats pour de futurs **univers d'anime** et sont laissés de côté ici.
+- Les anime sans SSR ni UR (Love Live, BanG Dream...) ne peuvent pas donner de boss final : l'univers choisit un boss parmi les autres anime du lot, ou un SR le plus populaire.
+
+### Modèle de données (histoire et raid) *(proposé le 2026-10-31, rien n'est codé)*
+- **Définitions dans le code, pas en base** (comme `PVM_OPPONENTS`) : univers (clé, nom, sorte, anime, ressource d'éveil et d'arme), mélange de raretés et niveau de chaque combat, boss de raid et leur rotation. Elles changent avec le jeu, pas avec les joueurs.
+- `StoryProgress` : joueur, univers, plus haut combat gagné (1 à 15), une ligne par (joueur, univers).
+- `ResourceStock` : joueur, clé de ressource (`fruit-du-demon`, `fragment-de-signature`, `coeur-de-breche`…), quantité. Un seul tableau pour toutes les ressources.
+- `DailyGain` : joueur, jour, source (`STORY` ou `RAID`), unités déjà versées au taux plein ; sert au plafond doux.
+- `RaidBest` : joueur, boss, difficulté, meilleur palier de dégâts et victoire ou non ; sert à débloquer la difficulté suivante (on paie à chaque combat, pas seulement au meilleur).
+- `Battle` existe déjà (`mode` STORY ou RAID, graine, copies des cartes, journal). On y ajoute la clé du combat joué (univers + niveau, ou boss + difficulté) et le butin versé.
+- Le butin d'un combat est versé **dans la même transaction** que l'enregistrement de sa fin, pour qu'un combat ne paie jamais deux fois.
+- **Moteur** : pas de nouveau code de combat. Il suffit de construire l'équipe adverse (stats par niveau, bonus boss, option « PV du boss ») à partir des définitions, et de lire la part de PV retirée dans l'événement `end` (`hpLeft`).
+
+### Réalisation (serveur, 2026-10-31)
+- `src/lib/story.ts` (pur) : univers de lancement, mélange de raretés, échelle, butin. `src/lib/battles.ts` : ennemis par niveau (personnages de la franchise, tirage fixé par univers + niveau), déverrouillage, butin versé dans la transaction de fin de combat (auto et manuel). Clé de combat : `story:<univers>:<niveau>` ; vérifié par `npm run check:story`.
+- Valeurs de départ **non spécifiées**, à équilibrer : Ryō du premier passage `10 + 5 × niveau` (+300 au boss final), cristaux 1 / 2 (boss d'acte) / 5 (boss final), 1 unité de ressource d'arme par victoire du boss final. Le plafond quotidien ne compte pas la ressource d'arme.
+- Pas encore fait : interface, cartes boss plus grandes, puissance conseillée, lots de combats auto, histoire racontée, éveil (coûts d'étoiles).
+
 ### À écrire / à décider
-- Liste des univers de collision (thèmes, noms, quels anime) et de leurs ressources.
+- Univers de collision : voir la proposition ci-dessous (thèmes et noms à valider).
 - Tables de niveau, de coûts d'éveil et de drops : à la charge de Claude, qui les propose et les valide au simulateur avant de les présenter.
-- Modèle de données : `StoryProgress` (joueur, univers, combat atteint), définitions des univers dans le code, `Battle.mode = STORY` déjà prévu.
+- Modèle de données : voir « Modèle de données (histoire et raid) » ci-dessous.
 - Moteur : bonus de stats et de PV du boss, équipe adverse construite par niveau (aujourd'hui `PVM_OPPONENTS`).
+
+---
+
+## Raid *(validé le 2026-10-31, rien n'est codé)*
+
+> Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-story.ts` étendu au raid.
+
+### Principe
+- Un **boss de raid** est un monstre énorme sorti d'une brèche majeure. Il tombe et lâche la ressource **rare** : le **cœur de brèche** *(nom proposé, lore des brèches)*. C'est sa **seule source**. Il sert aux étoiles 4 et 5 (avec un doublon du personnage, voir [combat.md](combat.md) §2).
+- Combat **4 contre 4** avec l'équipe d'attaque, en manuel ou en auto : le boss (carte géante, gros bonus de stats) et 3 sbires.
+- **Solo d'abord.** Le multijoueur viendra après (boss d'événement à PV partagés, classement des contributions).
+
+### La récompense dépend des dégâts, pas seulement de la victoire
+- Le boss est taillé pour qu'**une équipe moyenne ne le tue pas du premier coup**. On est donc payé selon la **part de PV du boss retirée** (paliers : 25 %, 50 %, 75 %, 100 % *(simulateur)*), en plus d'un bonus à la victoire.
+- Conséquence voulue : **une défaite rapporte toujours quelque chose**, jamais de combat « pour rien ». Une équipe faible progresse, simplement plus lentement.
+- Le combat dure au plus 30 tours (plafond du moteur) : les PV restants du boss décident alors du palier.
+
+### Illimité, avec un plafond doux *(décidé le 2026-10-31 : pas de tickets pour l'instant)*
+- **Aucun ticket, aucune limite de combats** : comme l'histoire, on peut relancer le boss autant qu'on veut, en manuel ou en auto (lots de combats auto d'affilée, chacun enregistré et rejouable).
+- Le rythme vient du **plafond quotidien doux** de l'histoire : les cœurs de brèche sont versés **au taux plein jusqu'à un seuil par jour** *(simulateur)*, puis à **taux réduit**. Il ne ferme jamais la porte.
+- Si ce plafond ne suffit pas à tenir la rareté des cœurs, les tickets restent un levier de repli (3 par jour, cumulables jusqu'à 6), non retenu pour l'instant.
+
+### Boss et difficultés
+- **Un boss par semaine**, qui tourne parmi quelques boss de types différents (un type d'affinité dominant chacun), pour que l'équipe idéale change.
+- **Trois niveaux de difficulté** par boss : Normal (ouvert), Difficile et Cauchemar (ouverts en battant le niveau précédent). Plus dur = plus de cœurs.
+- Le premier boss est ouvert dès que le **tutoriel de l'histoire** est fini.
+
+### Les chiffres *(validés le 2026-10-31, simulés avec `npm run simulate:raid`)*
+- **Équipe adverse** : un boss UR plus 3 sbires SSR. Stats = moyenne de la rareté × échelle de la difficulté : **Normal 0,85 · Difficile 1,15 · Cauchemar 1,5** ; le boss a en plus **×1,6**.
+- **Mesuré** (part de PV adverses retirée, victoires entre parenthèses, en auto) :
+
+| Équipe | Normal | Difficile | Cauchemar |
+|---|---|---|---|
+| 4 SR | 32 % (0) | 13 % (0) | 7 % (0) |
+| 4 SSR | 81 % (24) | 34 % (0) | 14 % (0) |
+| 4 SSR 3★ | 88 % (44) | 42 % (0) | 17 % (0) |
+| 1 UR + 3 SSR 3★ | 98 % (84) | 47 % (0) | 19 % (0) |
+| 4 SSR 5★ avec arme | 97 % (81) | 53 % (0) | 21 % (0) |
+| 4 UR | 100 % (99) | 71 % (7) | 29 % (0) |
+| 4 UR 5★ avec arme | 100 % (100) | 93 % (58) | 47 % (1) |
+
+  Lecture : le Normal est jouable dès une équipe de SSR et se gagne avec quelques étoiles ; le Difficile demande des UR ou des 5★ ; le Cauchemar est un objectif de fin de jeu, mais il rapporte déjà en le tentant.
+- **Cœurs de brèche par combat, au Normal** : 1 à 25 % des PV adverses retirés, 2 à 50 %, 3 à 75 %, **5 à la victoire** (paliers non cumulés). **Difficile ×2, Cauchemar ×4.**
+- **Coût en cœurs** : SSR **4★ 60, 5★ 120** (+ un doublon chacune) ; UR ×2 (**120 et 240**). N, R et SR n'ont pas de 4★ ni de 5★ à ce stade.
+- **Plafond quotidien doux** : **15 cœurs par jour au taux plein**, puis 25 % (une équipe de SSR 3★ qui joue le Normal en fait environ 3,6 par combat).
+- **Ce que ça donne** : un joueur qui fait ses 4 ou 5 combats par jour en 5★ un SSR en **environ 12 jours** et un UR en **environ 24 jours**. Un gros farmeur (30 combats par jour) gagne environ 40 cœurs par jour grâce au taux réduit : un UR en 10 jours environ. La porte n'est jamais fermée.
+
+### À écrire / à décider
+- Noms et types des boss de raid, difficulté et récompenses en cœurs.
+- Modèle de données : `RaidBoss`, tickets du joueur, meilleur score par boss et difficulté ; `Battle.mode = RAID` est déjà prévu.
+- Moteur : boss géant avec plusieurs fois les PV d'une carte, mesure des dégâts infligés (le journal les contient déjà).
 
 ---
 

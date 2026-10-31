@@ -26,6 +26,14 @@ interface Props {
   names?: Record<Side, string>;
   /** Lien « nouveau combat » de l'écran de fin */
   nextHref?: string;
+  /** Appelé une fois, quand la lecture arrive au bout du journal */
+  onEnd?: () => void;
+  /** Titre affiché en haut à gauche (ex. nom du combat d'histoire) */
+  title?: string;
+  /** Contenu ajouté à l'écran de fin (butin, boutons de la page appelante) */
+  endExtra?: React.ReactNode;
+  /** Quitter par une fonction plutôt que par un lien */
+  onExit?: () => void;
   /** « Nouveau combat » sous forme de bouton (à la place du lien) */
   onNext?: () => void;
   /** Où mène la croix « Quitter » (le combat prend tout l'écran) */
@@ -68,7 +76,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, exitHref = "/", live }: Props) {
+export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -110,6 +118,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     const t = setTimeout(() => setRp((s) => replayStep(s, log)), holdFor(log, rp.idx - 1) / speed);
     return () => clearTimeout(t);
   }, [playing, caughtUp, speed, rp.idx, log]);
+
+  useEffect(() => {
+    if (finished) onEnd?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished]);
 
   // Vitesse courante pour les animations et les sons programmés depuis des effets
   const speedRef = useRef(speed);
@@ -219,6 +232,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       <History entries={history} rp={rp} characters={characters} names={names} open={drawer} onClose={() => setDrawer(false)} />
     <div className="bt" ref={stage} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
+        {title && <b className="bt-title">{title}</b>}
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
         <span className="bt-line">
           {end
@@ -232,9 +246,15 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         <button type="button" className="bt-btn bt-drawer-btn" onClick={() => setDrawer(true)}>
           Historique
         </button>
-        <Link className="bt-btn bt-exit" href={exitHref} aria-label="Quitter le combat" title="Quitter le combat">
-          ✕
-        </Link>
+        {onExit ? (
+          <button type="button" className="bt-btn bt-exit" onClick={onExit} aria-label="Quitter le combat" title="Quitter le combat">
+            ✕
+          </button>
+        ) : (
+          <Link className="bt-btn bt-exit" href={exitHref} aria-label="Quitter le combat" title="Quitter le combat">
+            ✕
+          </Link>
+        )}
       </div>
 
       {(["B", "A"] as const).map((side) => (
@@ -325,10 +345,18 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                 Nouveau combat
               </Link>
             )}
-            <Link className="bt-btn" href={exitHref}>
-              Quitter
-            </Link>
+            {!endExtra &&
+              (onExit ? (
+                <button type="button" className="bt-btn" onClick={onExit}>
+                  Quitter
+                </button>
+              ) : (
+                <Link className="bt-btn" href={exitHref}>
+                  Quitter
+                </Link>
+              ))}
           </span>
+          {endExtra}
         </div>
       )}
     </div>

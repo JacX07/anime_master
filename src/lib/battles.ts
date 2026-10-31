@@ -10,6 +10,12 @@ import {
   type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId,
 } from "./battle";
 import { prisma } from "./db";
+import { afterGain } from "./crystal-stock";
+import { startOfDay } from "./economy";
+import {
+  baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, MIX, storyLoot,
+  universeOf, UNIVERSES, type Loot, type Universe,
+} from "./story";
 
 export class BattleError extends Error {}
 
@@ -41,7 +47,112 @@ const toBattleCard = (c: CharacterRow, stars = 0): BattleCard => ({
   franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId, stars, weapon: null,
 });
 
+// ── Histoire : ennemis et butin ─────────────────────────────────────────────
+
+const STORY_PREFIX = "story:";
+export const storyKey = (universe: string, level: number) => `${STORY_PREFIX}${universe}:${level}`;
+function parseStory(key: string): { universe: Universe; level: number } | null {
+  if (!key.startsWith(STORY_PREFIX)) return null;
+  const [u, l] = key.slice(STORY_PREFIX.length).split(":");
+  const universe = universeOf(u), level = Number(l);
+  if (!universe || !Number.isInteger(level) || level < 1 || level > LEVELS) throw new BattleError("Combat d'histoire inconnu.");
+  return { universe, level };
+}
+
+const RARITY_ORDER: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
+let rarityMeans: Record<string, { attack: number; defense: number }> | null = null;
+async function meanStats() {
+  if (!rarityMeans) {
+    const rows = await prisma.character.groupBy({ by: ["rarity"], where: { disabled: false }, _avg: { attack: true, defense: true } });
+    rarityMeans = Object.fromEntries(rows.map((r) => [r.rarity, { attack: r._avg.attack ?? 0, defense: r._avg.defense ?? 0 }]));
+  }
+  return rarityMeans;
+}
+
+/** Les 4 ennemis d'un combat d'histoire : personnages de l'anime (même combat, mêmes ennemis), stats = moyenne de leur rareté × échelle du niveau. */
+async function storyEnemies(universe: Universe, level: number): Promise<BattleCard[]> {
+  const rows = await prisma.character.findMany({
+    where: { disabled: false, mainMedia: { franchiseId: universe.franchiseId } },
+    orderBy: [{ favourites: "desc" }, { id: "asc" }],
+    select: CHARACTER_SELECT,
+  });
+  if (rows.length < 4) throw new BattleError("Univers incomplet.");
+  const means = await meanStats();
+  const rng = seededRandom(universe.franchiseId * 100 + level);
+  const used = new Set<number>();
+  // Rareté demandée, à défaut la plus proche (d'abord plus basse)
+  const pick = (want: Rarity, popular: boolean) => {
+    const w = RARITY_ORDER.indexOf(want);
+    const order = RARITY_ORDER.map((r, i) => ({ r, d: Math.abs(i - w) + (i > w ? 0.5 : 0) })).sort((a, b) => a.d - b.d);
+    for (const { r } of order) {
+      const pool = rows.filter((c) => c.rarity === r && !used.has(c.id));
+      if (pool.length) return pool[popular ? 0 : Math.floor(rng() * pool.length)];
+    }
+    return rows.find((c) => !used.has(c.id))!;
+  };
+  return MIX[level - 1].map((want, i) => {
+    const boss = isBoss(level) && i === 3;
+    let c: CharacterRow;
+    if (boss && isFinalBoss(level)) {
+      // Boss final : le SSR ou UR le plus aimé, à défaut un SR
+      c = rows.filter((x) => !used.has(x.id) && (x.rarity === "SSR" || x.rarity === "UR"))[0] ?? pick("SR", true);
+    } else c = pick(want, boss);
+    used.add(c.id);
+    const m = means[c.rarity], k = levelScale(level) * (boss ? BOSS_BONUS : 1);
+    return { ...toBattleCard(c), attack: Math.round(m.attack * k), defense: Math.round(m.defense * k) };
+  });
+}
+
+/** Butin d'une victoire, versé dans la transaction qui enregistre la fin du combat : un combat ne paie qu'une fois. */
+async function settleStory(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, now: Date): Promise<Loot> {
+  const { universe, level } = parseStory(opponent)!;
+  // Premier passage : le `updateMany` conditionnel désigne un seul gagnant, même avec deux combats simultanés
+  await tx.storyProgress.upsert({ where: { userId_universe: { userId, universe: universe.key } }, create: { userId, universe: universe.key }, update: {} });
+  const first = (await tx.storyProgress.updateMany({ where: { userId, universe: universe.key, maxLevel: { lt: level } }, data: { maxLevel: level } })).count === 1;
+  const day = startOfDay(now);
+  const daily = await tx.dailyGain.findUnique({ where: { userId_day_source: { userId, day, source: "STORY" } } });
+  const fullUnits = Math.max(0, DAILY_FULL_UNITS - (daily?.units ?? 0));
+  const loot = storyLoot(universe, level, first, fullUnits, seededRandom(seed ^ 0x5eed));
+  if (!first) {
+    await tx.dailyGain.upsert({
+      where: { userId_day_source: { userId, day, source: "STORY" } },
+      create: { userId, day, source: "STORY", units: Math.min(baseUnits(level), fullUnits) },
+      update: { units: { increment: Math.min(baseUnits(level), fullUnits) } },
+    });
+  }
+  for (const [key, quantity] of Object.entries(loot.resources)) {
+    await tx.resourceStock.upsert({ where: { userId_key: { userId, key } }, create: { userId, key, quantity }, update: { quantity: { increment: quantity } } });
+  }
+  if (loot.ryo || loot.crystals) {
+    const u = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { crystals: true, crystalsUpdatedAt: true } });
+    await tx.user.update({
+      where: { id: userId },
+      data: { balance: { increment: loot.ryo }, ...(loot.crystals ? afterGain(u.crystals, u.crystalsUpdatedAt, now, loot.crystals) : {}) },
+    });
+    if (loot.ryo) await tx.currencyLedger.create({ data: { userId, amount: loot.ryo, reason: "STORY", refId: opponent } });
+  }
+  return loot;
+}
+
+/** Ce que le joueur peut jouer : plus haut combat gagné par univers, univers ouverts. */
+export async function getStoryProgress(userId: string) {
+  const rows = await prisma.storyProgress.findMany({ where: { userId } });
+  const max = (key: string) => rows.find((r) => r.universe === key)?.maxLevel ?? 0;
+  return UNIVERSES.map((u) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, max(UNIVERSES[0].key)) }));
+}
+
+async function checkStoryAccess(userId: string, universe: Universe, level: number) {
+  const progress = await getStoryProgress(userId);
+  const p = progress.find((x) => x.universe === universe)!;
+  if (!p.unlocked) throw new BattleError("Univers verrouillé : termine d'abord le tutoriel.");
+  if (level > p.maxLevel + 1) throw new BattleError("Combat verrouillé : gagne le précédent.");
+}
+
+const toJson = (x: unknown) => x as Prisma.InputJsonValue;
+
 async function opponentCards(key: string, mine: BattleCard[]): Promise<BattleCard[]> {
+  const story = parseStory(key);
+  if (story) return storyEnemies(story.universe, story.level);
   const def = PVM_OPPONENTS[key];
   if (!def) throw new BattleError("Adversaire inconnu.");
   const cards: BattleCard[] = [];
@@ -90,6 +201,24 @@ export async function setAttackTeam(userId: string, cardIds: string[]) {
   });
 }
 
+/** Équipe d'attaque par défaut : les 4 cartes les plus rares du joueur (puis les plus populaires), hors enchères. */
+export async function autoAttackTeam(userId: string) {
+  const cards = await prisma.card.findMany({
+    where: { ownerId: userId, inAuction: false },
+    select: { id: true, characterId: true, character: { select: { rarity: true, power: true } } },
+  });
+  const rank = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 } as const;
+  cards.sort((a, b) => rank[b.character.rarity] - rank[a.character.rarity] || b.character.power - a.character.power);
+  const picked: string[] = [], seen = new Set<number>();
+  for (const c of cards) {
+    if (seen.has(c.characterId) || picked.length >= 4) continue;
+    seen.add(c.characterId);
+    picked.push(c.id);
+  }
+  if (picked.length < 4) throw new BattleError("Il te faut au moins 4 personnages différents.");
+  await setAttackTeam(userId, picked);
+}
+
 /** Équipe d'attaque, positions 1 à 4 (null = vide). Les cartes qui ont changé de main sont retirées. */
 export async function getAttackTeam(userId: string) {
   const team = await prisma.battleTeam.findUnique({
@@ -125,6 +254,8 @@ export interface BattleView {
   manual: boolean;
   status: "RUNNING" | "DONE" | "ABANDONED";
   winner: Side | null;
+  /** Butin d'une victoire d'histoire */
+  loot: Loot | null;
   log: BattleEvent[];
   /** Carte du joueur qui doit agir (mode manuel, combat en cours) */
   actor: UnitId | null;
@@ -132,7 +263,7 @@ export interface BattleView {
   /** Actions que chaque carte doit encore attendre avant son sort affilié (0 = prêt), combat en cours */
   wait: Record<string, number>;
   /** Nom et image des 8 personnages, pour l'affichage */
-  characters: Record<number, { name: string; imageUrl: string }>;
+  characters: Record<number, { name: string; imageUrl: string; rarity: Rarity; type: CardType }>;
 }
 
 /** Rejoue un combat manuel : choix enregistrés pour A, stratégie automatique pour B, jusqu'au prochain choix de A. */
@@ -151,8 +282,8 @@ function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleStat
 
 async function charactersOf(teams: BattleTeams) {
   const ids = [...teams.A, ...teams.B].map((c) => c.characterId);
-  const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, imageUrl: true } });
-  return Object.fromEntries(rows.map((r) => [r.id, { name: r.name, imageUrl: r.imageUrl }]));
+  const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, imageUrl: true, rarity: true, type: true } });
+  return Object.fromEntries(rows.map((r) => [r.id, { name: r.name, imageUrl: r.imageUrl, rarity: r.rarity, type: r.type }]));
 }
 
 type BattleRow = Prisma.BattleGetPayload<object>;
@@ -164,6 +295,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
   return {
     id: row.id, mode: row.mode, opponent: row.opponent, manual: row.manual, status: st?.result ? "DONE" : row.status,
     winner: (st?.result ? st.result.winner : (row.winner as Side | null)) ?? null,
+    loot: (row.loot as unknown as Loot | null) ?? null,
     log: log.slice(from),
     actor: running ? currentActor(st)!.id : null,
     choices: running ? legalActions(st) : [],
@@ -190,20 +322,26 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING" } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
+  const story = parseStory(opponent);
+  if (story) await checkStoryAccess(userId, story.universe, story.level);
+  const mode: BattleMode = story ? "STORY" : "TEST";
   const mine = slots.map((s) => toBattleCard(s!.character, s!.stars));
   const teams: BattleTeams = { A: mine, B: await opponentCards(opponent, mine) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed));
-    const row = await prisma.battle.create({
-      data: {
-        userId, mode: "TEST", opponent, manual, seed, teams: teams as unknown as Prisma.InputJsonValue,
-        status: "DONE", winner: result.winner, log: result.log as unknown as Prisma.InputJsonValue, endedAt: now,
-      },
+    const row = await prisma.$transaction(async (tx) => {
+      const loot = story && result.winner === "A" ? await settleStory(tx, userId, opponent, seed, now) : null;
+      return tx.battle.create({
+        data: {
+          userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
+          log: toJson(result.log), loot: loot ? toJson(loot) : undefined, endedAt: now,
+        },
+      });
     });
     return toView(row, null);
   }
-  const row = await prisma.battle.create({ data: { userId, mode: "TEST", opponent, manual, seed, teams: teams as unknown as Prisma.InputJsonValue } });
+  const row = await prisma.battle.create({ data: { userId, mode, opponent, manual, seed, teams: toJson(teams) } });
   return toView(row, replay(teams, seed, []));
 }
 
@@ -239,17 +377,24 @@ export async function playAction(userId: string, battleId: string, action: Actio
   }
   for (let actor = currentActor(st); actor && actor.id.startsWith("B"); actor = currentActor(st)) applyAction(st, autoAction(st));
   const done = st.result;
-  // Verrou : l'écriture n'a lieu que si personne n'a joué entre-temps
-  const saved = await prisma.battle.updateMany({
-    where: { id: row.id, status: "RUNNING", steps: row.steps },
-    data: {
-      actions: [...actions, chosen] as unknown as Prisma.InputJsonValue,
-      steps: row.steps + 1,
-      ...(done ? { status: "DONE", winner: done.winner, log: done.log as unknown as Prisma.InputJsonValue, endedAt: now } : {}),
-    },
-  });
-  if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
-  return toView({ ...row, status: done ? "DONE" : "RUNNING" }, st, from);
+  // Verrou : l'écriture n'a lieu que si personne n'a joué entre-temps. Le butin est versé dans la même transaction que la fin du combat ; si le verrou échoue, rien n'est payé
+  let loot: Loot | null = null;
+  await prisma.$transaction(async (tx) => {
+    const saved = await tx.battle.updateMany({
+      where: { id: row.id, status: "RUNNING", steps: row.steps },
+      data: {
+        actions: toJson([...actions, chosen]),
+        steps: row.steps + 1,
+        ...(done ? { status: "DONE", winner: done.winner, log: toJson(done.log), endedAt: now } : {}),
+      },
+    });
+    if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
+    if (done?.winner === "A" && row.mode === "STORY") {
+      loot = await settleStory(tx, userId, row.opponent, row.seed, now);
+      await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
+    }
+    });
+  return toView({ ...row, status: done ? "DONE" : "RUNNING", loot }, st, from);
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */

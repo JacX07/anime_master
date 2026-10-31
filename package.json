@@ -19,6 +19,7 @@
     "simulate": "tsx scripts/simulate-crystals.ts",
     "simulate:battle": "tsx scripts/simulate-battle.ts",
     "simulate:story": "tsx scripts/simulate-story.ts",
+    "simulate:raid": "tsx scripts/simulate-raid.ts",
     "check:recharge": "tsx scripts/check-recharge.ts",
     "check:economy": "tsx scripts/check-economy.ts",
     "check:trades": "tsx scripts/check-trades.ts",
@@ -30,7 +31,8 @@
     "check:expeditions": "tsx scripts/check-expeditions.ts",
     "check:battle": "tsx scripts/check-battle.ts",
     "check:replay": "tsx scripts/check-replay.ts",
-    "check:battles": "tsx scripts/check-battles.ts"
+    "check:battles": "tsx scripts/check-battles.ts",
+    "check:story": "tsx scripts/check-story.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

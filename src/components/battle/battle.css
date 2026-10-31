@@ -148,6 +148,8 @@ button.bt-spell { position: relative; }
   font-size: 0.85rem;
 }
 .bt-line { flex: 1; min-width: 0; }
+.bt-title { font-weight: 600; color: #e8f0ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
+.bt-end .hs-result { max-height: 60%; overflow-y: auto; }
 .bt-exit { margin-left: auto; display: grid; place-items: center; }
 .bt-drawer-btn { margin-left: auto; }
 .bt-drawer-btn + .bt-exit { margin-left: 0; }
