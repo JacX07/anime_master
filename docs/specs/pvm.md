@@ -70,6 +70,14 @@ Détaillé dans la section « Mode histoire » ci-dessous.
 - Dans un univers d'anime, les drops sont à **50 % ressource de l'univers, 50 % ressource commune** *(à équilibrer)*.
 - Éveiller un personnage coûte de la ressource commune et, s'il vient d'un univers, un peu de la ressource de cet univers. **Plus la rareté est haute, plus le coût est élevé** : un UR demande plus qu'un SSR.
 - Les étoiles 4 et 5 demandent en plus la ressource rare du raid (voir « Raid »).
+- **Étoiles 1 à 3 : histoire seule** (proposé le 2026-10-31, à valider). Les étoiles 4 et 5 viendront avec le raid.
+  - **Coût total** (ressources confondues) pour passer de 0 à 3★ : **N 25 · R 50 · SR 100 · SSR 200 · UR 400**. Réparti : 1★ 20 %, 2★ 30 %, 3★ 50 %.
+  - **Carte d'un univers** : moitié ressource commune, moitié ressource de son univers (même proportion que les drops : farmer son univers est le plus efficace).
+  - **Carte d'un anime sans univers** : 60 % du coût total, en ressource commune seulement (un peu plus d'effort, aucune ressource d'univers à trouver).
+- **Drops** par combat gagné : `4 + niveau ÷ 2` unités (niveau 1 : 4, niveau 10 : 9, niveau 15 : 11), tirées 50 % ressource de l'univers, 50 % commune.
+  - **Premier passage** : ×3 le drop du combat ; boss final : ×10 et ressource d'arme légendaire.
+  - **Plafond quotidien** sur les combats rejoués : **500 unités au taux plein**, ensuite **25 %**. Il se remet à zéro chaque jour.
+- **Ce que ça donne** (un joueur qui rejoue un combat de niveau 9, soit 8 unités) : SR 3★ ≈ 13 combats, SSR 3★ ≈ 25 combats (3 lots de 10), UR 3★ ≈ 50 combats, soit moins d'une journée au taux plein. Finir un univers une première fois rapporte environ 360 unités, soit presque un SSR 3★.
 - Les ressources de **fabrication des armes légendaires** tombent aussi ici (boss finaux surtout) ; recettes à écrire plus tard.
 
 ### Récompenses
