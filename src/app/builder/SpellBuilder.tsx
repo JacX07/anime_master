@@ -7,12 +7,12 @@ import { describeBasicAttack, type BasicAttack, type BasicRider } from "@/lib/ba
 import { describeEffect, describeSpell, type CharacterSpell, type Effect } from "@/lib/spells";
 import { MechanicPanel } from "./MechanicPanel";
 import { resetSpellAction, saveSpellAction } from "./actions";
+import type { SimResult } from "@/lib/spell-sim";
 
 export interface BuilderChar {
   id: number; name: string; imageUrl: string; rarity: "SSR" | "UR"; type: string; attack: number; defense: number;
   spells: BuilderEntry[];
 }
-interface Sim { games: number; weight: number; ssrVsUr: number | null; verdict: "trop fort" | "ok" | "inutile" }
 
 const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
 const pts = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(1)} pts`;
@@ -27,7 +27,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
   const [msg, setMsg] = useState("");
   const [games, setGames] = useState(4000);
   const [prog, setProg] = useState<number | null>(null);
-  const [sim, setSim] = useState<Sim | null>(null);
+  const [sim, setSim] = useState<SimResult | null>(null);
   const [pending, start] = useTransition();
   const ch = chars.find((c) => c.id === id) ?? null;
   const entry = ch?.spells.find((s) => s.slot === slot);
@@ -48,7 +48,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
   const pick = (c: BuilderChar, next: BuilderEntry = c.spells[0]) => {
     setId(c.id); setSlot(next.slot); load(next.custom ?? next.original);
   };
-  const edit = (f: (s: CharacterSpell) => void) => setSpell((s) => { if (!s) return s; const n = clone(s); f(n); return n; });
+  const edit = (f: (s: CharacterSpell) => void) => { setSim(null); setSpell((s) => { if (!s) return s; const n = clone(s); f(n); return n; }); };
 
   const save = () => ch && value && start(async () => {
     const r = await saveSpellAction(ch.id, value, slot);
@@ -135,10 +135,10 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
             <button type="button" className="bt-btn" disabled={busy} onClick={() => load(entry.original)}>Modifier le sort d&apos;origine</button>
           </div>
           <label className="sb-row">Nom du sort
-            <input value={value.name} disabled={busy} maxLength={60} onChange={(e) => basic ? setBasic({ ...basic, name: e.target.value }) : edit((s) => { s.name = e.target.value; })} />
+            <input value={value.name} disabled={busy} maxLength={60} onChange={(e) => { setSim(null); if (basic) setBasic({ ...basic, name: e.target.value }); else edit((s) => { s.name = e.target.value; }); }} />
           </label>
           <fieldset className="sb-editor-fields" disabled={busy}>
-          {basic && <BasicEditor attack={basic} onChange={setBasic} />}
+          {basic && <BasicEditor attack={basic} onChange={(value) => { setBasic(value); setSim(null); }} />}
           {spell && <>
           <label className="sb-row">Cible
             <select value={String(spell.target)} onChange={(e) => edit((s) => { s.target = e.target.value === "null" ? null : (e.target.value as CharacterSpell["target"]); })}>
@@ -179,14 +179,16 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
 
           <div className="sb-sim">
             <select disabled={busy} value={games} onChange={(e) => setGames(Number(e.target.value))}>
-              <option value={500}>Rapide (500 combats, ±2 pts)</option><option value={4000}>Précis (4 000 combats)</option>
+              <option value={500}>Rapide (500 paires)</option><option value={4000}>Précis (4 000 paires)</option>
             </select>
             <button type="button" className="bt-btn sb-go" onClick={simulate} disabled={busy || (spell !== null && !spell.effects.length)}>Simulate</button>
             {prog !== null && <progress value={prog} max={1} />}
           </div>
           {sim && (
             <div className="sb-result" data-verdict={sim.verdict}>
-              <p><strong>{sim.verdict.toUpperCase()}</strong> — le sort pèse <strong>{pts(sim.weight)}</strong> ({slot === "secondary" ? "cible +4, plage +1 à +6" : "repères historiques +1 à +6 ; à interpréter selon cet emplacement"}), {sim.games} combats.</p>
+              <p><strong>{sim.verdict.toUpperCase()}</strong> — <strong>{pts(sim.delta)}</strong> par rapport au sort d&apos;origine ({sim.games} paires de combats).</p>
+              <p>Impact isolé : brouillon {pts(sim.weight)} · origine {pts(sim.referenceWeight)}. Incertitude sur l&apos;écart : ±{(sim.margin * 100).toFixed(1)} pt à 95 %.</p>
+              <p className="sb-desc">Mêmes équipes et mêmes graines pour le brouillon et l&apos;origine. Cette comparaison mesure la modification ; elle ne certifie pas l&apos;équilibre global du sort existant.</p>
               {sim.ssrVsUr !== null && <p>4 SSR (emplacement testé isolé sur ce personnage) contre 4 UR sans capacités personnalisées : {(sim.ssrVsUr * 100).toFixed(1)} % de victoires{sim.ssrVsUr >= 0.5 ? " ⚠ un UR doit dominer" : ""}.</p>}
             </div>
           )}

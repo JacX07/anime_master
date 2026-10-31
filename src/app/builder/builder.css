@@ -36,8 +36,8 @@
 .sb-sim progress { width: 12rem; }
 .sb-result { padding: 0.6rem 0.8rem; border-radius: 0.5rem; border: 1px solid #35507c; }
 .sb-result p { margin: 0.2rem 0; }
-.sb-result[data-verdict="ok"] { border-color: #7be0a0; }
-.sb-result[data-verdict="trop fort"], .sb-result[data-verdict="inutile"] { border-color: #ff8a8a; }
+.sb-result[data-verdict="inchangé"], .sb-result[data-verdict="comparable"] { border-color: #7be0a0; }
+.sb-result[data-verdict="plus fort"], .sb-result[data-verdict="plus faible"] { border-color: #ff8a8a; }
 @media (max-width: 800px) { .sb { grid-template-columns: 1fr; } .sb-list { position: static; max-height: 18rem; } }
 .sb-mech { border-top: 1px solid #35507c; padding-top: 0.8rem; display: grid; gap: 0.6rem; }
 .sb-mech summary { cursor: pointer; font-weight: 600; color: #6cb2ff; }

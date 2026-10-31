@@ -6,6 +6,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { prisma } from "../src/lib/db";
+import type { SimResult } from "../src/lib/spell-sim";
 
 const ROOT = process.cwd();
 const MAX_ATTEMPTS = 2;
@@ -106,8 +107,8 @@ async function main() {
       const r = sh(wt, "npx", ["tsx", "scripts/builder-sim.ts", String(job.characterId), draftFile, "2000"]);
       rmSync(draftFile);
       if (r.ok) {
-        const s = JSON.parse(r.out.trim().split("\n").pop()!) as { weight: number; verdict: string; ssrVsUr: number | null };
-        sim = `${s.verdict.toUpperCase()} — poids ${(s.weight * 100).toFixed(1)} pts (2000 combats, cible +4)${s.ssrVsUr !== null ? `, 4 SSR vs 4 UR sans sorts : ${(s.ssrVsUr * 100).toFixed(1)} %` : ""}`;
+        const s = JSON.parse(r.out.trim().split("\n").pop()!) as SimResult;
+        sim = `${s.verdict.toUpperCase()} — écart ${(s.delta * 100).toFixed(1)} pts face au sort d’origine (±${(s.margin * 100).toFixed(1)} pt, 2000 paires)${s.ssrVsUr !== null ? `, 4 SSR vs 4 UR sans sorts : ${(s.ssrVsUr * 100).toFixed(1)} %` : ""}`;
       } else sim = `simulation impossible : ${tail(r.out, 400)}`;
     }
 
