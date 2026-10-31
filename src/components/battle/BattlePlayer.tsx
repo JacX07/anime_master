@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import type { BattleEvent, Side, UnitId } from "@/lib/battle";
-import { holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Replay } from "@/lib/battle-replay";
+import { holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { TypeIcon } from "../icons";
 import "./battle.css";
@@ -47,6 +47,53 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     return () => clearTimeout(t);
   }, [playing, finished, speed, rp.idx, log]);
 
+  // Mouvements des cartes (Web Animations, durées divisées par la vitesse) : élan vers la cible, secousse à l'impact
+  const stage = useRef<HTMLDivElement>(null);
+  const speedRef = useRef(speed);
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
+  useEffect(() => {
+    const ev = log[rp.idx - 1];
+    const root = stage.current;
+    if (!ev || !root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const el = (id: UnitId) => root.querySelector<HTMLElement>(`[data-unit="${id}"]`);
+    const ms = (n: number) => n / speedRef.current;
+    if (ev.kind === "action") {
+      const a = el(ev.actor);
+      const t = ev.target && ev.target[0] !== ev.actor[0] ? el(ev.target) : null;
+      if (!a) return;
+      if (!t) {
+        // Zone, soin ou soutien : la carte se lève sur place
+        a.animate([{ transform: "none" }, { transform: "translateY(-6%) scale(1.1)", offset: 0.45 }, { transform: "none" }], { duration: ms(700), easing: "ease-in-out" });
+      } else {
+        const ra = a.getBoundingClientRect();
+        const rt = t.getBoundingClientRect();
+        const dx = (rt.left + rt.width / 2 - (ra.left + ra.width / 2)) * 0.62;
+        const dy = (rt.top + rt.height / 2 - (ra.top + ra.height / 2)) * 0.62;
+        // Le sommet de l'élan tombe sur l'impact (480 ms plus tard, voir holdFor)
+        a.animate([{ transform: "none" }, { transform: `translate(${dx}px, ${dy}px) scale(1.12)`, offset: 0.63 }, { transform: "none" }], {
+          duration: ms(760),
+          easing: "cubic-bezier(.35,.05,.3,1)",
+        });
+      }
+    } else if (ev.kind === "damage") {
+      const card = el(ev.target)?.querySelector<HTMLElement>(".bt-card");
+      const k = ev.crit ? 1.6 : 1;
+      card?.animate(
+        [
+          { transform: "none", filter: "brightness(2.4)" },
+          { transform: `translateX(${-5 * k}%)`, offset: 0.2 },
+          { transform: `translateX(${4 * k}%)`, offset: 0.45 },
+          { transform: `translateX(${-2 * k}%)`, offset: 0.7 },
+          { transform: "none", filter: "brightness(1)" },
+        ],
+        { duration: ms(ev.crit ? 460 : 320), easing: "ease-out" },
+      );
+      if (ev.crit) root.animate([{ transform: "none" }, { transform: "translate(-6px, 3px)" }, { transform: "translate(5px, -3px)" }, { transform: "none" }], { duration: ms(300) });
+    }
+  }, [rp.idx, log]);
+
   const restart = () => {
     setRp(replayStart(log));
     setPlaying(true);
@@ -58,7 +105,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
   return (
-    <div className="bt" style={{ "--spd": speed } as React.CSSProperties}>
+    <div className="bt" ref={stage} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
         <span className="bt-line">
@@ -98,7 +145,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           {finished ? "Rejouer" : playing ? "❚❚ Pause" : "▶ Lecture"}
         </button>
         <button type="button" className="bt-btn" onClick={skip} disabled={finished} aria-label="Aller à la fin" title="Aller à la fin">
-          ⏭
+          Fin
         </button>
         <div className="bt-speed" role="group" aria-label="Vitesse">
           {SPEEDS.map((s) => (
@@ -141,6 +188,7 @@ function Unit({ id, rp, characters, acting }: { id: UnitId; rp: Replay; characte
   const st = rp.units[id];
   const ch = characters[info.characterId];
   const aimed = rp.cur?.target === id && !rp.end;
+  const cast = acting && rp.cur ? (rp.cur.spell === "base" ? "Attaque" : SPELL_NAMES[rp.cur.type]) : null;
   return (
     <div className="bt-unit" data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
       <div className="bt-card">
@@ -166,6 +214,11 @@ function Unit({ id, rp, characters, acting }: { id: UnitId; rp: Replay; characte
         </div>
         {st.ko && <span className="bt-ko">K.O.</span>}
       </div>
+      {cast && (
+        <span key={rp.cur!.n} className="bt-cast">
+          {cast}
+        </span>
+      )}
       <div className="bt-bars" role="meter" aria-label={`PV de ${ch?.name ?? id}`} aria-valuemin={0} aria-valuemax={Math.round(info.maxHp)} aria-valuenow={Math.round(st.hp)}>
         <div className="bt-hp">
           <i style={{ width: `${(st.hp / info.maxHp) * 100}%` }} />
@@ -178,6 +231,74 @@ function Unit({ id, rp, characters, acting }: { id: UnitId; rp: Replay; characte
         {num.format(Math.ceil(st.hp))}
         {st.shield > 0.5 && <span className="bt-shnum"> +{num.format(Math.ceil(st.shield))}</span>}
       </div>
+      <div className="bt-pops" aria-hidden>
+        {rp.pops
+          .filter((p) => p.unit === id)
+          .map((p) => (
+            <PopView key={p.id} pop={p} />
+          ))}
+      </div>
     </div>
+  );
+}
+
+const STATUS_POP = { exposed: "Exposé !", weaken: "Affaibli", elan: "Élan !" } as const;
+
+/** Nombre flottant ou effet de sort posé sur une carte ; il s'anime et s'efface tout seul (voir battle.css). */
+function PopView({ pop }: { pop: Pop }) {
+  // Décalage stable propre à chaque pop, pour que deux nombres consécutifs ne se superposent pas
+  const style = { "--ox": `${((pop.id * 37) % 41) - 20}%` } as React.CSSProperties;
+  switch (pop.kind) {
+    case "fx":
+      return <Fx fx={pop.fx} big={pop.big} />;
+    case "damage": {
+      const soaked = pop.absorbed >= pop.amount * 0.999;
+      return (
+        <span className="bt-num" data-kind={soaked ? "soaked" : "damage"} data-crit={pop.crit || undefined} style={style}>
+          {num.format(Math.round(pop.amount))}
+          {pop.crit && <small>CRITIQUE</small>}
+          {pop.affinity && <small data-affinity={pop.affinity}>{pop.affinity === "strong" ? "▲ Efficace" : "▼ Résisté"}</small>}
+          {pop.exposedBonus && <small>◎ Exposé</small>}
+          {!soaked && pop.absorbed > 0 && <small data-affinity="shield">Bouclier −{num.format(Math.round(pop.absorbed))}</small>}
+        </span>
+      );
+    }
+    case "heal":
+      return (
+        <>
+          <Fx fx="heal" big={false} />
+          <span className="bt-num" data-kind="heal" style={style}>
+            +{num.format(Math.round(pop.amount))}
+          </span>
+        </>
+      );
+    case "shield":
+      return pop.amount > 0 ? (
+        <span className="bt-num" data-kind="shield" style={style}>
+          +{num.format(Math.round(pop.amount))}
+        </span>
+      ) : (
+        <span className="bt-num" data-kind="soaked" style={style}>
+          Bouclier perdu
+        </span>
+      );
+    case "status":
+      return pop.on ? (
+        <span className="bt-num" data-kind="status" data-status={pop.status} style={style}>
+          {STATUS_POP[pop.status]}
+        </span>
+      ) : null;
+  }
+}
+
+/** Effet visuel d'un sort : un décor de particules par type, tracé en CSS (voir [data-fx] dans battle.css). */
+function Fx({ fx, big }: { fx: CardType | "base" | "heal"; big: boolean }) {
+  const parts = fx === "COMBAT" || fx === "MAGIE" ? 8 : fx === "heal" || fx === "base" ? 5 : 3;
+  return (
+    <span className="bt-fx" data-fx={fx} data-big={big || undefined} aria-hidden>
+      {Array.from({ length: parts }, (_, i) => (
+        <i key={i} style={{ "--i": i, "--n": parts } as React.CSSProperties} />
+      ))}
+    </span>
   );
 }

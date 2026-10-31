@@ -20,15 +20,17 @@ export default function CombatTestPage({ searchParams }: { searchParams: Promise
   );
 }
 
+const randomSeed = () => Math.floor(Math.random() * 1e9);
+
 async function Demo({ searchParams }: { searchParams: Promise<{ seed?: string }> }) {
   // Graine aléatoire : à calculer à la requête, pas au pré-rendu
   await connection();
   const { seed: raw } = await searchParams;
-  const seed = raw && Number.isSafeInteger(Number(raw)) ? Number(raw) : Math.floor(Math.random() * 1e9);
+  const seed = raw && Number.isSafeInteger(Number(raw)) ? Number(raw) : randomSeed();
   const { log, characters } = await demoBattle(seed);
   return (
     <>
-      <BattlePlayer key={seed} log={log} characters={characters} nextHref={`/combat/test?seed=${Math.floor(Math.random() * 1e9)}`} />
+      <BattlePlayer key={seed} log={log} characters={characters} nextHref={`/combat/test?seed=${randomSeed()}`} />
       <p className="vt-muted">
         Graine {seed} : ajoute <code>?seed={seed}</code> à l&apos;adresse pour revoir le même combat.
       </p>
