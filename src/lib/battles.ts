@@ -3,7 +3,7 @@
 // Mode manuel : seul le camp A (le joueur) est choisi ; le camp B joue avec la stratégie automatique. L'état n'est jamais
 // gardé en mémoire : il se recalcule depuis la copie des cartes, la graine et les choix enregistrés.
 
-import type { BattleMode, CardType, Rarity } from "../generated/prisma/enums";
+import type { BattleMode, CardType, Rarity, TeamKind } from "../generated/prisma/enums";
 import type { Prisma } from "../generated/prisma/client";
 import {
   applyAction, autoAction, battle, createBattle, currentActor, legalActions, seededRandom,
@@ -183,16 +183,16 @@ async function opponentCards(key: string, mine: BattleCard[]): Promise<BattleCar
 
 // ── Équipe d'attaque ────────────────────────────────────────────────────────
 
-/** Enregistre l'équipe d'attaque : 4 cartes différentes du joueur, dans l'ordre des positions. */
-export async function setAttackTeam(userId: string, cardIds: string[]) {
+/** Enregistre une équipe (attaque ou défense) : 4 cartes différentes du joueur, dans l'ordre des positions. */
+export async function setTeam(userId: string, kind: TeamKind, cardIds: string[]) {
   const ids = [...new Set(cardIds)];
   if (ids.length !== 4 || cardIds.length !== 4) throw new BattleError("Choisis 4 cartes différentes.");
   const owned = await prisma.card.count({ where: { id: { in: ids }, ownerId: userId } });
   if (owned !== 4) throw new BattleError("Une des cartes ne t'appartient pas.");
   await prisma.$transaction(async (tx) => {
     const team = await tx.battleTeam.upsert({
-      where: { userId_kind: { userId, kind: "ATTACK" } },
-      create: { userId, kind: "ATTACK" },
+      where: { userId_kind: { userId, kind } },
+      create: { userId, kind },
       update: {},
       select: { id: true },
     });
@@ -201,8 +201,10 @@ export async function setAttackTeam(userId: string, cardIds: string[]) {
   });
 }
 
-/** Équipe d'attaque par défaut : les 4 cartes les plus rares du joueur (puis les plus populaires), hors enchères. */
-export async function autoAttackTeam(userId: string) {
+export const setAttackTeam = (userId: string, cardIds: string[]) => setTeam(userId, "ATTACK", cardIds);
+
+/** Équipe par défaut : les 4 cartes les plus rares du joueur (puis les plus populaires), hors enchères. */
+export async function autoTeam(userId: string, kind: TeamKind = "ATTACK") {
   const cards = await prisma.card.findMany({
     where: { ownerId: userId, inAuction: false },
     select: { id: true, characterId: true, character: { select: { rarity: true, power: true } } },
@@ -216,13 +218,15 @@ export async function autoAttackTeam(userId: string) {
     picked.push(c.id);
   }
   if (picked.length < 4) throw new BattleError("Il te faut au moins 4 personnages différents.");
-  await setAttackTeam(userId, picked);
+  await setTeam(userId, kind, picked);
+  return picked;
 }
+export const autoAttackTeam = (userId: string) => autoTeam(userId, "ATTACK");
 
-/** Équipe d'attaque, positions 1 à 4 (null = vide). Les cartes qui ont changé de main sont retirées. */
-export async function getAttackTeam(userId: string) {
+/** Équipe enregistrée, positions 1 à 4 (null = vide). Les cartes qui ont changé de main sont retirées. */
+export async function getTeam(userId: string, kind: TeamKind) {
   const team = await prisma.battleTeam.findUnique({
-    where: { userId_kind: { userId, kind: "ATTACK" } },
+    where: { userId_kind: { userId, kind } },
     select: {
       id: true,
       slots: {
@@ -238,6 +242,7 @@ export async function getAttackTeam(userId: string) {
   for (const s of team.slots) if (s.card.ownerId === userId) slots[s.position - 1] = s.card;
   return slots;
 }
+export const getAttackTeam = (userId: string) => getTeam(userId, "ATTACK");
 
 // ── Combats ─────────────────────────────────────────────────────────────────
 

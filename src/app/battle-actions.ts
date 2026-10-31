@@ -1,6 +1,6 @@
 "use server";
 
-import { abandonBattle, autoAttackTeam, BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, autoTeam, BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -21,7 +21,13 @@ export async function setAttackTeamAction(cardIds: string[]) {
   return run(async (id) => (await setAttackTeam(id, (cardIds ?? []).map(String)), {}));
 }
 export async function autoAttackTeamAction() {
-  return run(async (id) => (await autoAttackTeam(id), {}));
+  return run(async (id) => ({ cardIds: await autoTeam(id, "ATTACK") }));
+}
+export async function setDefenseTeamAction(cardIds: string[]) {
+  return run(async (id) => (await setTeam(id, "DEFENSE", (cardIds ?? []).map(String)), {}));
+}
+export async function autoDefenseTeamAction() {
+  return run(async (id) => ({ cardIds: await autoTeam(id, "DEFENSE") }));
 }
 export async function startBattleAction(opponent: string, manual: boolean) {
   return run(async (id) => ({ battle: await startBattle(id, String(opponent), Boolean(manual)) }));

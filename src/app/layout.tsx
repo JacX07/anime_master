@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 // Barre du haut : ce que je possède reste visible (Paquets, Album, Inventaire) ; le reste est rangé par intention dans des onglets
 // qui se déroulent (Jouer, Marché) ; le classement reste seul. Une nouvelle page rejoint la famille qui correspond à ce qu'on y fait.
 const PLAY: NavItem[] = [
+  { href: "/equipe", icon: "t-coeur", label: "Équipe" },
   { href: "/histoire", icon: "t-aventure", label: "Histoire" },
   { href: "/combat", icon: "nav-duels", label: "Donjon" },
   { href: "/duels", icon: "nav-duels", label: "Duels" },
