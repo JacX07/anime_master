@@ -1,6 +1,6 @@
 "use client";
 
-import type { Side, UnitId, UnitView } from "@/lib/battle";
+import type { Side, Spell, UnitId, UnitView } from "@/lib/battle";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, type HistoryEntry, type Replay } from "@/lib/battle-replay";
 import { TypeIcon } from "../icons";
 import type { PlayerCharacter } from "./BattlePlayer";
@@ -9,31 +9,82 @@ const num = new Intl.NumberFormat("fr-FR");
 const STATE_LABELS = { exposed: "exposé", weaken: "affaibli", elan: "en élan" } as const;
 
 /** Sorts de la carte choisie : sort de base et sort affilié de son type. */
-export function SpellsPanel({ unit, character, followsAction }: { unit: UnitView; character?: PlayerCharacter; followsAction: boolean }) {
+export function SpellsPanel({
+  unit,
+  character,
+  followsAction,
+  choose,
+}: {
+  unit: UnitView;
+  character?: PlayerCharacter;
+  followsAction: boolean;
+  /** Mode manuel, à ton tour : les sorts deviennent des boutons */
+  choose?: {
+    choices: { spell: Spell; targets: (UnitId | null)[] }[];
+    spell: Spell | null;
+    busy: boolean;
+    error?: string | null;
+    onSpell: (spell: Spell) => void;
+  };
+}) {
   const affinity = SPELL_INFO[unit.type];
+  const spells = [
+    { key: "base" as const, title: <>{BASE_SPELL.name}</>, target: BASE_SPELL.target, text: BASE_SPELL.text, note: null },
+    { key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, note: AFFINITY_COOLDOWN },
+  ];
   return (
-    <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`}>
+    <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`} data-choosing={choose ? "" : undefined}>
       <h3 className="bt-spells-title">
         {character?.name}{" "}
         <small>
           ATK {num.format(Math.round(unit.atk))} · DEF {num.format(Math.round(unit.def))} · PV {num.format(Math.round(unit.maxHp))}
         </small>
-        <small>{followsAction ? "Touche une carte pour voir ses sorts" : "Touche à nouveau la carte pour suivre l'action"}</small>
+        <small>
+          {choose
+            ? choose.busy
+              ? "Envoi…"
+              : choose.spell
+                ? "Touche la cible sur le plateau"
+                : "À toi de jouer : choisis un sort"
+            : followsAction
+              ? "Touche une carte pour voir ses sorts"
+              : "Touche à nouveau la carte pour suivre l'action"}
+        </small>
       </h3>
+      {choose?.error && (
+        <p className="bt-error" role="alert">
+          {choose.error}
+        </p>
+      )}
       <div className="bt-spell-list">
-        <div className="bt-spell">
-          <b>{BASE_SPELL.name}</b>
-          <em>{BASE_SPELL.target}</em>
-          <p>{BASE_SPELL.text}</p>
-        </div>
-        <div className="bt-spell" data-type={unit.type}>
-          <b>
-            <TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}
-          </b>
-          <em>{affinity.target}</em>
-          <p>{affinity.text}</p>
-          <small>{AFFINITY_COOLDOWN}</small>
-        </div>
+        {spells.map((s) => {
+          const ready = !choose || choose.choices.some((c) => c.spell === s.key);
+          const body = (
+            <>
+              <b>{s.title}</b>
+              <em>{s.target}</em>
+              <p>{s.text}</p>
+              {s.note && <small>{choose && !ready ? "En rechargement : pas encore disponible." : s.note}</small>}
+            </>
+          );
+          return choose ? (
+            <button
+              key={s.key}
+              type="button"
+              className="bt-spell"
+              data-type={s.key === "affinity" ? unit.type : undefined}
+              aria-pressed={choose.spell === s.key}
+              disabled={!ready || choose.busy}
+              onClick={() => choose.onSpell(s.key)}
+            >
+              {body}
+            </button>
+          ) : (
+            <div key={s.key} className="bt-spell" data-type={s.key === "affinity" ? unit.type : undefined}>
+              {body}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

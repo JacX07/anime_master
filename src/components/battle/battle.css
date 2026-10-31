@@ -59,6 +59,16 @@
 .bt-spell p { margin: 0.2rem 0 0; line-height: 1.35; }
 .bt-spell small { display: block; margin-top: 0.25rem; color: #9fb2cf; font-size: 0.68rem; }
 
+/* Mode manuel : sorts cliquables, cibles qui clignotent */
+button.bt-spell { font: inherit; color: inherit; text-align: left; cursor: pointer; border: 1px solid #ffffff1c; border-left: 3px solid var(--type, #8fb5ff); }
+button.bt-spell:hover:not(:disabled) { background: #ffffff1c; }
+button.bt-spell[aria-pressed="true"] { background: #4b8bff33; border-color: #8fb5ff; }
+button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
+.bt-spells[data-choosing] { border-color: #8fb5ff; box-shadow: 0 0 14px #4b8bff55; }
+.bt-error { margin: 0 0 0.4rem; color: #ffb4b4; font-size: 0.8rem; }
+.bt-unit[data-targetable] .bt-card { box-shadow: 0 0 0 2px #ffd166, 0 0 16px #ff9f1cbb; animation: bt-target 0.9s ease-in-out infinite alternate; }
+@keyframes bt-target { to { box-shadow: 0 0 0 3px #ffd166, 0 0 26px #ff9f1c; } }
+
 /* Historique des actions */
 .bt-history {
   display: flex;

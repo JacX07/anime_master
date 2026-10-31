@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
-import type { BattleEvent, Side, UnitId } from "@/lib/battle";
+import type { BattleEvent, Side, Spell, UnitId } from "@/lib/battle";
 import { historyOf, holdFor, replayAll, replayStart, replayStep, SPELL_NAMES, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { TypeIcon } from "../icons";
@@ -26,6 +26,20 @@ interface Props {
   names?: Record<Side, string>;
   /** Lien « nouveau combat » de l'écran de fin */
   nextHref?: string;
+  /** Mode manuel : le journal grandit à chaque choix du joueur */
+  live?: LiveControl;
+}
+
+/** Ce que le mode manuel donne au lecteur : qui doit agir, les choix permis, et comment jouer. */
+export interface LiveControl {
+  /** Carte du joueur qui doit agir (null : l'adversaire joue ou le combat est fini) */
+  actor: UnitId | null;
+  choices: { spell: Spell; targets: (UnitId | null)[] }[];
+  busy: boolean;
+  error?: string | null;
+  onPlay: (spell: Spell, target: UnitId | null) => void;
+  /** Bouton de l'écran de fin à la place du lien « Nouveau combat » */
+  onNext?: () => void;
 }
 
 const SPEEDS = [1, 2, 4] as const;
@@ -36,20 +50,29 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref }: Props) {
+export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, live }: Props) {
   const [rp, setRp] = useState<Replay>(() => replayStart(log));
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
-  const finished = rp.idx >= log.length;
+  // En direct (mode manuel), le journal grandit : rattraper le journal ne veut pas dire que le combat est fini
+  const caughtUp = rp.idx >= log.length;
+  const finished = caughtUp && (!live || rp.end !== null);
+  const [spell, setSpell] = useState<Spell | null>(null);
+  const awaiting = !!live && caughtUp && !rp.end && live.actor !== null;
+  const choice = awaiting ? live?.choices.find((c) => c.spell === spell) : undefined;
+  const play = (s: Spell, target: UnitId | null) => {
+    setSpell(null);
+    live?.onPlay(s, target);
+  };
   // Carte dont les sorts sont affichés sous le plateau : celle qu'on a touchée, sinon celle qui joue
   const [picked, setPicked] = useState<UnitId | null>(null);
 
   // Chaque événement reste à l'écran le temps de sa durée (divisée par la vitesse), puis le suivant s'applique
   useEffect(() => {
-    if (!playing || finished) return;
+    if (!playing || caughtUp) return;
     const t = setTimeout(() => setRp((s) => replayStep(s, log)), holdFor(log, rp.idx - 1) / speed);
     return () => clearTimeout(t);
-  }, [playing, finished, speed, rp.idx, log]);
+  }, [playing, caughtUp, speed, rp.idx, log]);
 
   // Vitesse courante pour les animations et les sons programmés depuis des effets
   const speedRef = useRef(speed);
@@ -152,7 +175,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
   const history = historyOf(log, rp.idx);
-  const spellUnit = picked ?? rp.cur?.actor ?? ("A1" as UnitId);
+  const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
     <div className="bt-layout">
@@ -177,7 +200,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           <div className="bt-row">
             {POSITIONS.map((p) => {
               const id = `${side}${p}` as UnitId;
-              return <Unit key={id} id={id} rp={rp} characters={characters} acting={rp.cur?.actor === id && !finished} picked={spellUnit === id} onPick={() => setPicked(picked === id ? null : id)} />;
+              return <Unit key={id} id={id} rp={rp} characters={characters} acting={rp.cur?.actor === id && !finished}
+                  picked={spellUnit === id}
+                  targetable={!!choice?.targets.includes(id)}
+                  onPick={() => (choice?.targets.includes(id) ? play(choice.spell, id) : setPicked(picked === id ? null : id))}
+                />;
             })}
           </div>
         </section>
@@ -218,7 +245,28 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         </div>
       </div>
 
-      <SpellsPanel unit={rp.info[spellUnit]} character={characters[rp.info[spellUnit].characterId]} followsAction={picked === null} />
+      <SpellsPanel
+        unit={rp.info[spellUnit]}
+        character={characters[rp.info[spellUnit].characterId]}
+        followsAction={picked === null}
+        choose={
+          awaiting && live
+            ? {
+                choices: live.choices,
+                spell,
+                busy: live.busy,
+                error: live.error,
+                onSpell: (s) => {
+                  const c = live.choices.find((x) => x.spell === s);
+                  // Sort de zone : pas de cible à choisir
+                  if (c && c.targets.length === 1 && c.targets[0] === null) play(s, null);
+                  else setSpell(s === spell ? null : s);
+                },
+              }
+            : undefined
+        }
+      />
+      {live?.error && !awaiting && <p className="bt-error" role="alert">{live.error}</p>}
 
       {end && (
         <div className="bt-end" role="status" data-winner={end.winner ?? "draw"}>
@@ -232,6 +280,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             <button type="button" className="bt-btn" onClick={restart}>
               Rejouer
             </button>
+            {live?.onNext && (
+              <button type="button" className="bt-btn" onClick={live.onNext}>
+                Nouveau combat
+              </button>
+            )}
             {nextHref && (
               <Link className="bt-btn" href={nextHref}>
                 Nouveau combat
@@ -246,7 +299,17 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   );
 }
 
-function Unit({ id, rp, characters, acting, picked, onPick }: { id: UnitId; rp: Replay; characters: Record<number, PlayerCharacter>; acting: boolean; picked: boolean; onPick: () => void }) {
+function Unit({
+  id, rp, characters, acting, picked, targetable, onPick,
+}: {
+  id: UnitId;
+  rp: Replay;
+  characters: Record<number, PlayerCharacter>;
+  acting: boolean;
+  picked: boolean;
+  targetable: boolean;
+  onPick: () => void;
+}) {
   const info = rp.info[id];
   const st = rp.units[id];
   const ch = characters[info.characterId];
@@ -266,6 +329,7 @@ function Unit({ id, rp, characters, acting, picked, onPick }: { id: UnitId; rp: 
         }
       }}
       data-picked={picked || undefined}
+      data-targetable={targetable || undefined}
       data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
       <div className="bt-card">
         {/* Image servie par le CDN AniList, comme sur les cartes de l'album */}
