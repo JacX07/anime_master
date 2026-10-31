@@ -21,7 +21,7 @@
     linear-gradient(#0d1a30, #070d19);
 }
 .bt-layout > .bt-history { grid-area: hist; }
-.bt-layout > .bt-spells { grid-area: spells; max-height: 11rem; overflow-y: auto; }
+.bt-layout > .bt-spells { grid-area: spells; max-height: 45dvh; overflow-y: auto; }
 @media (min-width: 70rem) {
   .bt-layout {
     grid-template-columns: minmax(15rem, 1fr) auto minmax(15rem, 1fr);
@@ -54,6 +54,9 @@
 }
 @media (min-width: 70rem) {
   .bt { width: min(calc((100dvh - 23.5rem) * 1.43 + 3.4rem), calc(100vw - 36rem)); }
+}
+@media (max-width: 69.999rem) {
+  .bt { max-height: 100%; overflow-y: auto; }
 }
 
 .bt-unit { cursor: pointer; }
@@ -341,7 +344,6 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-states li:not([data-bad]):not([data-state="elan"]) { background: #4fd6a0; }
 .bt-states li[data-bad]:not([data-state="exposed"]):not([data-state="weaken"]) { background: #ff7a8a; }
 .bt-spell[data-special] { border-color: #ffd166; }
-.bt-spell[data-ultimate] { border-color: #ff8ab3; box-shadow: inset 0 0 14px #ff8ab311; }
 .bt-states li { position: relative; cursor: help; }
 /* Les pastilles suivent la carte quand elle avance (9 % de la hauteur de la carte = 12,6 cqw) */
 .bt-states { transition: translate calc(0.25s / var(--spd)) ease-out; }
