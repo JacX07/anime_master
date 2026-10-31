@@ -2,12 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CharacterCard, type CharacterCardProps } from "@/components/CharacterCard";
+import { BATTLE } from "@/lib/battle";
 import { awakenCardAction } from "../awaken-actions";
 
-export type AwakenRow = {
-  id: string; name: string; imageUrl: string | null; rarity: string; stars: number;
+export type AwakenRow = Omit<CharacterCardProps, "stars" | "serial" | "count" | "isNew" | "missing"> & {
+  id: string;
+  stars: number;
   cost: { name: string; quantity: number; have: number }[];
 };
+
+const pct = (n: number) => `+${Math.round(n * 100)} %`;
 
 export function AwakenList({ rows }: { rows: AwakenRow[] }) {
   const router = useRouter();
@@ -21,16 +26,20 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
       if (res.ok) router.refresh();
     });
   return (
-    <div className="inv">
+    <div>
       {message && <p role="alert" className="vt-muted">{message}</p>}
-      <ul className="inv-list">
-        {rows.map((r) => {
-          const affordable = r.cost.every((c) => c.have >= c.quantity);
+      <ul style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1.5rem", listStyle: "none", padding: 0 }}>
+        {rows.map(({ id, cost, stars, ...card }) => {
+          const affordable = cost.every((c) => c.have >= c.quantity);
           return (
-            <li key={r.id} className="inv-item" data-empty={!affordable || undefined}>
-              <b>{r.name} <small>{r.rarity} · {r.stars}★ → {r.stars + 1}★</small></b>
-              <span className="inv-n">{r.cost.map((c) => `${c.quantity} ${c.name}`).join(" + ")}</span>
-              <button type="button" disabled={!affordable || pending} onClick={() => awaken(r.id)}>
+            <li key={id} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <CharacterCard {...card} stars={stars} />
+              <small>
+                {stars}★ → {stars + 1}★ : {pct(stars * BATTLE.starBonus)} → {pct((stars + 1) * BATTLE.starBonus)} ATK, DEF, PV
+                {stars + 1 === BATTLE.secondaryCdStar ? " · sort secondaire plus rapide" : ""}
+              </small>
+              <small className="vt-muted">{cost.map((c) => `${c.quantity} ${c.name} (${c.have})`).join(" + ")}</small>
+              <button type="button" disabled={!affordable || pending} onClick={() => awaken(id)}>
                 {affordable ? "Éveiller" : "Ressources insuffisantes"}
               </button>
             </li>

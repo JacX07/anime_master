@@ -155,7 +155,7 @@ h3 {
   z-index: 2;
   filter: drop-shadow(0 0 1.6cqw color-mix(in srgb, var(--rarity) 85%, #000));
 }
-.card-finish { position: absolute; top: 24cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
+.card-finish { position: absolute; top: 34cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
   position: absolute;
   top: 3cqw;
@@ -182,8 +182,8 @@ h3 {
 }
 .card-stars {
   position: absolute;
-  top: 26cqw;
-  right: 3cqw;
+  top: 24cqw;
+  left: 3cqw;
   z-index: 2;
   padding: 0.5cqw 2.5cqw;
   border-radius: 999px;
