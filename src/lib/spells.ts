@@ -11,7 +11,7 @@ export type ModStat = "atk" | "def" | "crit" | "dodge";
 
 export type Effect =
   /** Dégâts × ATK ; `zone` touche tous les ennemis ; `drain` rend au lanceur cette part des dégâts ; `pierce` traverse les boucliers (et l'esquive) */
-  | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; pierce?: boolean; drain?: number; critSure?: boolean }
+  | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; ignoreMissing?: number; pierce?: boolean; drain?: number; critSure?: boolean }
   /** Bonus ou malus (amount négatif) de la stat, en part (0,2 = +20 %, ou +20 points de critique) */
   | { k: "mod"; stat: ModStat; amount: number; turns: number; to: Scope }
   | { k: "heal"; pct: number; to: Scope }
@@ -398,6 +398,7 @@ export function describeEffect(e: Effect, detailed = false): string {
       return [
         detailed ? `${String(e.mult).replace(".", ",")}× ATK${e.zone ? " sur tous les ennemis" : ""}` : e.zone ? "Frappe tous les ennemis en même temps" : "Frappe la cible",
         e.ignoreDef && `ignore ${pct(e.ignoreDef)} de la DEF`,
+        e.ignoreMissing && `ignore ${pct(e.ignoreMissing)} de plus de la DEF × PV manquants du lanceur`,
         e.pierce && "traverse les boucliers",
         e.critSure && "coup critique assuré",
         e.drain && `rend ${pct(e.drain)} des dégâts en PV`,

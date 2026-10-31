@@ -23,6 +23,7 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
       { key: "mult", label: "× ATK", type: "number", min: 0.05, max: 5, step: 0.01, def: 1 },
       flag("zone", "Tous les ennemis"),
       { key: "ignoreDef", label: "Ignore DEF", type: "number", min: 0, max: 1, step: 0.05, def: 0 },
+      { key: "ignoreMissing", label: "+ Ignore DEF par PV manquants", type: "number", min: 0, max: 1, step: 0.05, def: 0 },
       flag("pierce", "Traverse boucliers"),
       { key: "drain", label: "Vol de vie", type: "number", min: 0, max: 1, step: 0.05, def: 0 },
       flag("critSure", "Critique assuré"),

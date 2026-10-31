@@ -1,1 +1,62 @@
-{}
+{
+  "40": {
+    "secondary": {
+      "name": "Gomu Gomu no Gatling",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.5,
+          "ignoreDef": 0.1
+        }
+      ],
+      "final": true
+    }
+  },
+  "130102": {
+    "ultimate": {
+      "name": "Chainsaw Man",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.9,
+          "zone": true,
+          "ignoreDef": 0.5
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": 0.4,
+          "turns": 3,
+          "to": "self"
+        }
+      ],
+      "final": true
+    }
+  },
+  "422": {
+    "ultimate": {
+      "name": "Armure du Berserker",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": 0.35,
+          "turns": 2,
+          "to": "self"
+        },
+        {
+          "k": "damage",
+          "mult": 4.8,
+          "critSure": true,
+          "drain": 0.2,
+          "ignoreDef": 0.3,
+          "ignoreMissing": 0.6
+        }
+      ],
+      "final": true
+    }
+  }
+}

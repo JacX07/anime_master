@@ -700,7 +700,9 @@ export function applyAction(st: BattleState, action: Action) {
         case "damage": {
           const targets = e.zone ? alive(st, enemy(u.side)) : target ? [target] : [];
           let total = 0;
-          for (const t of targets) total += hit(t, e.mult, e.ignoreDef ?? 0, false, e.pierce, e.critSure);
+          // L'ignore-DEF peut grandir avec les PV manquants du lanceur (part de PV max manquants × ignoreMissing)
+          const ignore = (e.ignoreDef ?? 0) + (e.ignoreMissing ?? 0) * (1 - u.hp / u.maxHp);
+          for (const t of targets) total += hit(t, e.mult, ignore, false, e.pierce, e.critSure);
           if (e.drain) heal(u, total * e.drain);
           break;
         }
