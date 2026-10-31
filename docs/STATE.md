@@ -1,6 +1,6 @@
 # État du projet — passation
 
-Mis à jour le 2026-10-13 (expéditions codées, bannières visuelles, nouvelle musique). La spec complète est dans `SPEC.md` (source de vérité) ; ce fichier n'en résume que l'avancement.
+Mis à jour le 2026-10-13 (expéditions codées, bannières visuelles, nouvelle musique). La spec complète est dans `docs/specs/` (source de vérité, index dans `docs/specs/README.md`) ; ce fichier n'en résume que l'avancement.
 
 ## Fait et committé
 - **Étape 1 — base de personnages** : import AniList (`npm run import`, ~20 min ; `-- --recompute` pour recalculer sans refetch). 4 717 persos, rareté par percentile de favoris, stats, type via les tags de la série principale.
@@ -55,7 +55,7 @@ Scène statique `public/pack-opening/futur.html?embed=1` dans une iframe de mêm
 Révélation deux fois plus rapide ; un clic (ou Espace / Entrée / Échap) pendant une animation la saute (`requestSkip` dans `engine.js`). Sur `/packs`, le menu du site flotte sur la scène plein écran, au style de la maquette (règles `body:has(.scene-page)` dans `globals.css`) ; `AlbumLink` affiche le compteur `+N` des cartes rangées et pulse à chaque arrivée.
 
 ## Décisions et raisons
-- **Spec d'abord** : on valide dans `SPEC.md` avant de coder ; l'utilisateur parle français.
+- **Spec d'abord** : on valide dans `docs/specs/` avant de coder ; l'utilisateur parle français.
 - **Types depuis les tags AniList** (plutôt que les genres) : plus discriminants ; coefficients d'équilibrage pour éviter que Cœur dépasse 40 %.
 - **Images en `<img>` depuis le CDN AniList**, pas `next/image` : ne pas copier les images sur le serveur.
 - **Stock de paquets calculé à la lecture** (`packsStored` + `lastPackAt`) : pas de tâche planifiée.
@@ -69,7 +69,7 @@ Révélation deux fois plus rapide ; un clic (ou Espace / Entrée / Échap) pend
 ## Fichiers clés
 | Fichier | Rôle |
 |---|---|
-| `SPEC.md` | Spécification complète et critères de fin d'étape |
+| `docs/specs/` | Spécification par thème et critères de fin d'étape |
 | `AGENTS.md` | Règles : lire la doc Next 16 dans `node_modules/next/dist/docs/`, commit + push après chaque fonctionnalité |
 | `prisma/schema.prisma` | Modèle de données (SQLite local, compatible PostgreSQL) |
 | `scripts/import.ts`, `scripts/simulate.ts`, `scripts/check-recharge.ts` | Import AniList, simulation des taux, vérification de la recharge |

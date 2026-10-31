@@ -1,6 +1,6 @@
 # Anime Masters
 
-Jeu de cartes à collectionner de personnages d'anime. Spécifications complètes : [SPEC.md](SPEC.md).
+Jeu de cartes à collectionner de personnages d'anime. Spécifications complètes : [docs/specs/](docs/specs/README.md).
 
 ## Prérequis
 - Node.js 24 (voir `.nvmrc` : `nvm use`)
