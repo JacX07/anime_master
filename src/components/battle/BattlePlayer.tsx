@@ -325,6 +325,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
 
       {end && (
         <div className="bt-end" role="status" data-winner={end.winner ?? "draw"}>
+          {endExtra !== undefined ? (
+            // La page appelante fournit tout l'écran de fin (résultat, butin, boutons)
+            endExtra
+          ) : (
+            <>
           <b>{end.winner ? `Victoire — ${names[end.winner]}` : "Match nul"}</b>
           <span>
             {end.reason === "ko"
@@ -345,18 +350,18 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                 Nouveau combat
               </Link>
             )}
-            {!endExtra &&
-              (onExit ? (
-                <button type="button" className="bt-btn" onClick={onExit}>
-                  Quitter
-                </button>
-              ) : (
-                <Link className="bt-btn" href={exitHref}>
-                  Quitter
-                </Link>
-              ))}
+            {onExit ? (
+              <button type="button" className="bt-btn" onClick={onExit}>
+                Quitter
+              </button>
+            ) : (
+              <Link className="bt-btn" href={exitHref}>
+                Quitter
+              </Link>
+            )}
           </span>
-          {endExtra}
+            </>
+          )}
         </div>
       )}
     </div>
