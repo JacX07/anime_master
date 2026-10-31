@@ -36,7 +36,8 @@
     "check:spells": "tsx scripts/check-spells.ts",
     "simulate:spells": "tsx scripts/simulate-spells.ts",
     "calibrate:spells": "tsx scripts/calibrate-spells.ts",
-    "check:tower": "tsx scripts/check-tower.ts"
+    "check:tower": "tsx scripts/check-tower.ts",
+    "simulate:tower": "tsx scripts/simulate-tower.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",
