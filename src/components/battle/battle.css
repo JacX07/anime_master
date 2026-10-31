@@ -65,6 +65,23 @@ button.bt-spell:hover:not(:disabled) { background: #ffffff1c; }
 button.bt-spell[aria-pressed="true"] { background: #4b8bff33; border-color: #8fb5ff; }
 button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-spells[data-choosing] { border-color: #8fb5ff; box-shadow: 0 0 14px #4b8bff55; }
+button.bt-spell { position: relative; }
+.bt-wait {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  padding: 0 0.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #0b1424;
+  border: 2px solid #8fb5ff;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+}
 .bt-error { margin: 0 0 0.4rem; color: #ffb4b4; font-size: 0.8rem; }
 .bt-unit[data-targetable] .bt-card { box-shadow: 0 0 0 2px #ffd166, 0 0 16px #ff9f1cbb; animation: bt-target 0.9s ease-in-out infinite alternate; }
 @keyframes bt-target { to { box-shadow: 0 0 0 3px #ffd166, 0 0 26px #ff9f1c; } }
@@ -154,6 +171,25 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-unit[data-type="COEUR"] { --type: #ff7fb0; }
 .bt-unit[data-type="AVENTURE"] { --type: #4fd6a0; }
 .bt-unit[data-acting] { z-index: 5; }
+/* La carte qui joue avance d'un cran vers l'adversaire et grossit un peu */
+.bt-team[data-side="A"] .bt-unit[data-acting] .bt-card { translate: 0 -9%; scale: 1.08; }
+.bt-team[data-side="B"] .bt-unit[data-acting] .bt-card { translate: 0 9%; scale: 1.08; }
+.bt-unit[data-turn] .bt-card { box-shadow: 0 0 0 3px #ffd166, 0 0 24px #ff9f1c; }
+.bt-unit[data-turn]::after {
+  content: "À toi !";
+  position: absolute;
+  top: -0.9rem;
+  left: 50%;
+  translate: -50% 0;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #ffd166;
+  color: #1a1204;
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+  z-index: 6;
+}
 
 .bt-card {
   position: relative;
@@ -163,7 +199,7 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
   border: max(2px, 2.4cqw) solid var(--rarity);
   background: var(--panel);
   box-shadow: 0 0 0 1px #0008, 0 0.5rem 1.2rem #0007;
-  transition: filter calc(0.5s / var(--spd)), opacity calc(0.5s / var(--spd)), box-shadow calc(0.3s / var(--spd));
+  transition: filter calc(0.5s / var(--spd)), opacity calc(0.5s / var(--spd)), box-shadow calc(0.3s / var(--spd)), translate calc(0.25s / var(--spd)) ease-out, scale calc(0.25s / var(--spd)) ease-out;
 }
 .bt-unit[data-rarity="SSR"] .bt-card { box-shadow: 0 0 0 1px #0008, 0 0 14px #f59e0b66; }
 .bt-unit[data-rarity="UR"] .bt-card { box-shadow: 0 0 0 1px #0008, 0 0 18px #ff3b4a88; }

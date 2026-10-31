@@ -115,6 +115,8 @@ export interface BattleView {
   /** Carte du joueur qui doit agir (mode manuel, combat en cours) */
   actor: UnitId | null;
   choices: { spell: Spell; targets: (UnitId | null)[] }[];
+  /** Actions que chaque carte doit encore attendre avant son sort affilié (0 = prêt), combat en cours */
+  wait: Record<string, number>;
   /** Nom et image des 8 personnages, pour l'affichage */
   characters: Record<number, { name: string; imageUrl: string }>;
 }
@@ -151,6 +153,10 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     log: log.slice(from),
     actor: running ? currentActor(st)!.id : null,
     choices: running ? legalActions(st) : [],
+    // Prêt quand spellIn ≤ 1 au début de l'action (voir Unit.spellIn dans battle.ts)
+    wait: running
+      ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].map((u) => [u.id, Math.max(0, u.spellIn - 1)])))
+      : {},
     characters: await charactersOf(teams),
   };
 }

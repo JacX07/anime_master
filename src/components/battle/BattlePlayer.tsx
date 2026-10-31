@@ -35,6 +35,8 @@ export interface LiveControl {
   /** Carte du joueur qui doit agir (null : l'adversaire joue ou le combat est fini) */
   actor: UnitId | null;
   choices: { spell: Spell; targets: (UnitId | null)[] }[];
+  /** Actions que chaque carte doit encore attendre avant son sort affilié */
+  wait: Record<string, number>;
   busy: boolean;
   error?: string | null;
   onPlay: (spell: Spell, target: UnitId | null) => void;
@@ -200,7 +202,8 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           <div className="bt-row">
             {POSITIONS.map((p) => {
               const id = `${side}${p}` as UnitId;
-              return <Unit key={id} id={id} rp={rp} characters={characters} acting={rp.cur?.actor === id && !finished}
+              return <Unit key={id} id={id} rp={rp} characters={characters} acting={(rp.cur?.actor === id && !finished) || (awaiting && live?.actor === id)}
+                  turn={awaiting && live?.actor === id}
                   picked={spellUnit === id}
                   targetable={!!choice?.targets.includes(id)}
                   onPick={() => (choice?.targets.includes(id) ? play(choice.spell, id) : setPicked(picked === id ? null : id))}
@@ -254,6 +257,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             ? {
                 choices: live.choices,
                 spell,
+                wait: live.wait[spellUnit] ?? 0,
                 busy: live.busy,
                 error: live.error,
                 onSpell: (s) => {
@@ -300,8 +304,10 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
 }
 
 function Unit({
-  id, rp, characters, acting, picked, targetable, onPick,
+  id, rp, characters, acting, turn, picked, targetable, onPick,
 }: {
+  /** C'est à toi de choisir pour cette carte (mode manuel) */
+  turn: boolean;
   id: UnitId;
   rp: Replay;
   characters: Record<number, PlayerCharacter>;
@@ -330,6 +336,7 @@ function Unit({
       }}
       data-picked={picked || undefined}
       data-targetable={targetable || undefined}
+      data-turn={turn || undefined}
       data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
       <div className="bt-card">
         {/* Image servie par le CDN AniList, comme sur les cartes de l'album */}

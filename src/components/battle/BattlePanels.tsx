@@ -22,6 +22,8 @@ export function SpellsPanel({
   choose?: {
     choices: { spell: Spell; targets: (UnitId | null)[] }[];
     spell: Spell | null;
+    /** Actions à attendre avant le sort affilié de cette carte */
+    wait: number;
     busy: boolean;
     error?: string | null;
     onSpell: (spell: Spell) => void;
@@ -64,7 +66,12 @@ export function SpellsPanel({
               <b>{s.title}</b>
               <em>{s.target}</em>
               <p>{s.text}</p>
-              {s.note && <small>{choose && !ready ? "En rechargement : pas encore disponible." : s.note}</small>}
+              {s.note && <small>{choose && !ready ? `Prêt dans ${choose.wait} action${choose.wait > 1 ? "s" : ""}.` : s.note}</small>}
+              {choose && !ready && s.key === "affinity" && (
+                <span className="bt-wait" aria-hidden>
+                  {choose.wait}
+                </span>
+              )}
             </>
           );
           return choose ? (

@@ -52,7 +52,7 @@ export function ManualArena({ initial, bestCardIds, teamReady: ready }: Props) {
       setError(null);
       // Seuls les nouveaux événements sont renvoyés ; le journal s'allonge
       setLog((l) => [...l, ...r.battle.log]);
-      setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: r.battle.actor, choices: r.battle.choices } : v));
+      setView((v) => (v ? { ...v, status: r.battle.status, winner: r.battle.winner, actor: r.battle.actor, choices: r.battle.choices, wait: r.battle.wait } : v));
     });
 
   const abandon = () =>
@@ -113,6 +113,7 @@ export function ManualArena({ initial, bestCardIds, teamReady: ready }: Props) {
         live={{
           actor: view.actor,
           choices: view.choices,
+          wait: view.wait,
           busy: pending,
           error,
           onPlay: play,
