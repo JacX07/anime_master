@@ -60,6 +60,7 @@ Détaillé dans la section « Raid » ci-dessous.
 - **Boss** : carte **plus grande**, **barre de PV plus large**, bonus de **×1,25** sur l'ATK, la DEF et donc les PV (validé). Les autres ennemis sont des **sbires** : cartes plus petites. L'équipe adverse reste de 4 cartes (1 boss + 3 sbires) pour garder le moteur 4 contre 4 ; les actes plus tardifs peuvent avoir 2 boss.
 - **Mélange de raretés par combat** (le boss est la 4ᵉ carte aux combats 5, 10 et 15) : 1–3 : N, N, N, R puis N, N, R, R puis N, R, R, R · 4–5 : R, R, R, SR puis R, R, SR, SR · 6–7 : R, SR, SR, SR · 8 : SR, SR, SR, SSR · 9 : SR, SR, SSR, SSR · 10–11 : SR, SSR, SSR, SSR · 12–13 : SSR ×4 · 14–15 : SSR, SSR, SSR, UR.
 - **Repères mesurés** (victoire en auto) : 4 R → jusqu'au combat 7 ; 4 SR → jusqu'au 9 (le boss du 10 est le premier mur) ; 4 SSR → jusqu'au 13, boss final 6 % ; 4 SSR 5★ avec arme → boss final 61 % ; 1 UR + 3 SSR 5★ → 91 % ; 4 UR → 95 %. **Un boss final difficile est voulu** (validé) : il pousse à éveiller et à farmer.
+  - *Avec les sorts de personnage (2026-10-31, 1 000 combats par case)* : mêmes repères à quelques points près (4 SR → jusqu'au 9, 4 SSR → jusqu'au 13, boss final 7 % ; 4 SSR 5★ avec arme 59 % ; 1 UR + 3 SSR 5★ 86 % ; 4 UR 92 %). Les ennemis ont aussi leurs sorts, l'effet s'annule.
 - Chaque combat affiche une **puissance conseillée**.
 
 ### Ressources d'éveil
@@ -173,6 +174,8 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 | 4 SSR 5★ avec arme | 97 % (81) | 53 % (0) | 21 % (0) |
 | 4 UR | 100 % (99) | 71 % (7) | 29 % (0) |
 | 4 UR 5★ avec arme | 100 % (100) | 93 % (58) | 47 % (1) |
+
+  *Avec les sorts de personnage (2026-10-31, 1 000 combats par case)* : écart de 0 à 5 points partout (4 SSR : 77 % de PV retirés, 21 victoires au Normal ; 4 UR : 98 victoires au Normal, 10 au Difficile ; 4 UR 5★ avec arme : 60 au Difficile, 0 au Cauchemar). Les chiffres de cœurs et de plafond restent valables.
 
   Lecture : le Normal est jouable dès une équipe de SSR et se gagne avec quelques étoiles ; le Difficile demande des UR ou des 5★ ; le Cauchemar est un objectif de fin de jeu, mais il rapporte déjà en le tentant.
 - **Cœurs de brèche par combat, au Normal** : 1 à 25 % des PV adverses retirés, 2 à 50 %, 3 à 75 %, **5 à la victoire** (paliers non cumulés). **Difficile ×2, Cauchemar ×4.**
