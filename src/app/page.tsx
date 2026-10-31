@@ -84,6 +84,7 @@ async function Menu() {
           <Item href="/album" title="Mon album" hint={`${num.format(s.owned)} sur ${num.format(s.total)} personnages`} />
           <Item href="/market" title="Bourse des brèches" hint="Enchères entre joueurs" />
           <Item href="/duels" title="Duels" hint="Quiz et combats de cartes" />
+          <Item href="/donjon" title="Donjon" hint="Ton équipe contre des monstres au hasard (test)" />
           <Item href="/expeditions" title="Expéditions" hint="Envoie tes cartes explorer les brèches" />
           <Item href="/leaderboard" title="Classement" hint="Duel et collection" />
         </MenuNav>
