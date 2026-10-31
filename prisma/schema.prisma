@@ -776,3 +776,23 @@ model SpellOverride {
   wish        String?
   updatedAt   DateTime @updatedAt
 }
+
+/// Demande de nouvelle mécanique de sort, implémentée par un agent Claude Code sur une branche (Spell Builder, dev seulement).
+model MechanicJob {
+  id          String   @id @default(cuid())
+  characterId Int
+  /// Description du sort voulu, en français
+  wish        String
+  /// queued | running | review (prête à valider) | failed | merged | discarded
+  status      String   @default("queued")
+  branch      String?
+  attempts    Int      @default(0)
+  /// Résumé de l'agent, garde-fous, fichiers touchés, simulation
+  report      String?
+  /// Brouillon du sort écrit par l'agent (CharacterSpell JSON)
+  draft       Json?
+  /// Journal d'exécution
+  log         String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

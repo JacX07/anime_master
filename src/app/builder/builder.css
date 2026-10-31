@@ -32,3 +32,12 @@
 .sb-result[data-verdict="ok"] { border-color: #7be0a0; }
 .sb-result[data-verdict="trop fort"], .sb-result[data-verdict="inutile"] { border-color: #ff8a8a; }
 @media (max-width: 800px) { .sb { grid-template-columns: 1fr; } .sb-list { position: static; max-height: 18rem; } }
+.sb-mech { border-top: 1px solid #35507c; padding-top: 0.8rem; display: grid; gap: 0.6rem; }
+.sb-mech summary { cursor: pointer; font-weight: 600; color: #6cb2ff; }
+.sb-mech textarea { padding: 0.5rem 0.6rem; border: 1px solid #35507c; border-radius: 0.4rem; background: #0b1526; color: inherit; font: inherit; }
+.sb-job { border: 1px solid #35507c; border-radius: 0.5rem; padding: 0.6rem 0.8rem; }
+.sb-job[data-status="review"] { border-color: #7be0a0; }
+.sb-job[data-status="failed"] { border-color: #ff8a8a; }
+.sb-job p { margin: 0.3rem 0; }
+.sb-job pre { white-space: pre-wrap; font-size: 0.8rem; background: #0b1526; padding: 0.5rem; border-radius: 0.4rem; max-height: 18rem; overflow: auto; }
+.sb-err { color: #ff8a8a; }

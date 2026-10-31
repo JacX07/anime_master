@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { builderAllowed } from "@/lib/builder";
 import { prisma } from "@/lib/db";
+import { discardMechanic, mergeMechanic, startMechanic } from "@/lib/mechanic";
 import { parseSpell } from "@/lib/spell-schema";
 
 export async function saveSpellAction(characterId: number, spell: unknown) {
@@ -24,5 +25,26 @@ export async function resetSpellAction(characterId: number) {
   if (!(await builderAllowed())) return { ok: false as const, error: "Accès refusé" };
   await prisma.spellOverride.deleteMany({ where: { characterId } });
   revalidatePath("/builder");
+  return { ok: true as const };
+}
+
+export async function startMechanicAction(characterId: number, wish: string) {
+  if (!(await builderAllowed())) return { ok: false as const, error: "Accès refusé" };
+  const text = wish.trim().slice(0, 1000);
+  if (text.length < 10) return { ok: false as const, error: "Décris le sort en une phrase au moins" };
+  await startMechanic(characterId, text);
+  return { ok: true as const };
+}
+
+export async function mergeMechanicAction(jobId: string) {
+  if (!(await builderAllowed())) return { ok: false as const, error: "Accès refusé" };
+  const r = await mergeMechanic(jobId);
+  revalidatePath("/builder");
+  return r;
+}
+
+export async function discardMechanicAction(jobId: string) {
+  if (!(await builderAllowed())) return { ok: false as const, error: "Accès refusé" };
+  await discardMechanic(jobId);
   return { ok: true as const };
 }

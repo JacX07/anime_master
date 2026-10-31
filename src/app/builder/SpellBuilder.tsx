@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { EFFECTS, newEffect, TARGET_CHOICES, type Field } from "@/lib/spell-schema";
 import { spellSource } from "@/lib/spell-export";
 import { describeEffect, describeSpell, type CharacterSpell, type Effect } from "@/lib/spells";
+import { MechanicPanel } from "./MechanicPanel";
 import { resetSpellAction, saveSpellAction } from "./actions";
 
 export interface BuilderChar {
@@ -146,6 +147,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
               {sim.ssrVsUr !== null && <p>4 SSR avec sorts contre 4 UR sans sorts : {(sim.ssrVsUr * 100).toFixed(1)} % de victoires{sim.ssrVsUr >= 0.5 ? " ⚠ un UR doit dominer" : ""}.</p>}
             </div>
           )}
+          <MechanicPanel characterId={ch.id} />
         </section>
       ) : (
         <p className="vt-muted">Choisis un personnage à gauche.</p>
