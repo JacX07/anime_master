@@ -21,6 +21,8 @@ import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./
 
 import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
+import { artifactMainStat, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEON_PREFIX, DUNGEON_RESOURCE, levelReward, parseDungeonKey, setBonus, type ArtifactSlot } from "./dungeons";
+import type { CharacterSpell } from "./spells";
 
 export class BattleError extends Error {}
 
@@ -178,6 +180,42 @@ async function raidEnemies(boss: RaidBoss, difficulty: RaidDifficulty): Promise<
   return [...minions.map((c) => mk(c, difficulty.scale, false)), mk(leader, difficulty.scale * RAID_BOSS_BONUS, true)];
 }
 
+const dungeonMechanic = (level: number): CharacterSpell | undefined => level < 4 ? undefined : level < 7
+  ? { name: "Carapace abyssale", target: null, effects: [{ k: "damage", mult: 0.28, zone: true }, { k: "shield", pct: 0.12, to: "self" }] }
+  : level < 10
+    ? { name: "Vague écrasante", target: null, effects: [{ k: "damage", mult: 0.48, zone: true }, { k: "mod", stat: "atk", amount: -0.12, turns: 2, to: "foes" }] }
+    : { name: "Marée noire", target: null, effects: [{ k: "damage", mult: 0.65, zone: true }, { k: "mod", stat: "def", amount: 0.2, turns: 2, to: "team" }] };
+
+async function dungeonEnemies(level: number): Promise<BattleCard[]> {
+  const rows = await prisma.character.findMany({ where: { disabled: false, mainMedia: { franchiseId: { in: [21] } } }, orderBy: [{ favourites: "desc" }, { id: "asc" }], select: CHARACTER_SELECT });
+  if (rows.length < 4) throw new BattleError("Le donjon One Piece est indisponible : il manque des personnages.");
+  const boss = rows.find((c) => c.rarity === "UR") ?? rows.find((c) => c.rarity === "SSR") ?? rows[0];
+  const minions = rows.filter((c) => c.id !== boss.id).slice(0, 3);
+  const means = await meanStats();
+  const scale = 0.72 + (level - 1) * 0.115;
+  const minionRarity = levelReward(level).rarity;
+  return [...minions.map((c) => ({ ...toBattleCard(c), franchiseId: null, attack: Math.round(means[minionRarity].attack * scale), defense: Math.round(means[minionRarity].defense * scale), rarity: minionRarity })), {
+    ...toBattleCard(boss), franchiseId: null, attack: Math.round(means[boss.rarity].attack * scale * 1.7), defense: Math.round(means[boss.rarity].defense * scale * 1.7), boss: true, speed: 100 + level * 2, spell: dungeonMechanic(level),
+  }];
+}
+
+async function settleDungeon(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number): Promise<Loot> {
+  const level = parseDungeonKey(opponent)!;
+  const progressId = { userId_dungeon: { userId, dungeon: DUNGEON_KEY } };
+  await tx.dungeonProgress.upsert({ where: progressId, create: { userId, dungeon: DUNGEON_KEY }, update: {} });
+  await tx.dungeonProgress.updateMany({ where: { userId, dungeon: DUNGEON_KEY, maxLevel: { lt: level } }, data: { maxLevel: level } });
+  const progress = await tx.dungeonProgress.findUniqueOrThrow({ where: progressId });
+  const slot = ARTIFACT_SLOTS[progress.nextSlot % ARTIFACT_SLOTS.length];
+  const rarity = levelReward(level).rarity;
+  const main = artifactMainStat(slot, rarity, seed);
+  const subStats = artifactSubStats(slot, rarity, seed ^ 0xa271);
+  await tx.artifact.create({ data: { userId, setKey: DUNGEON_KEY, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
+  await tx.dungeonProgress.update({ where: progressId, data: { nextSlot: (progress.nextSlot + 1) % ARTIFACT_SLOTS.length } });
+  const material = levelReward(level).resource;
+  if (material) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: DUNGEON_RESOURCE } }, create: { userId, key: DUNGEON_RESOURCE, quantity: material }, update: { quantity: { increment: material } } });
+  return { ryo: 0, crystals: 0, resources: material ? { [DUNGEON_RESOURCE]: material } : {}, artifact: { slot, rarity, mainStat: main.stat, mainValue: main.value, subStats } };
+}
+
 /** Difficultés ouvertes pour ce joueur : le Normal après le tutoriel, puis chaque niveau en battant le précédent (sur n'importe quel boss). */
 export async function raidUnlocked(userId: string): Promise<{ tutorial: boolean; open: string[] }> {
   const [tuto, wins] = await Promise.all([
@@ -322,6 +360,8 @@ async function opponentCards(key: string): Promise<BattleCard[]> {
   if (raid) return raidEnemies(raid.boss, raid.difficulty);
   const floor = parseTower(key);
   if (floor) return towerEnemies(floor);
+  const dungeon = parseDungeonKey(key);
+  if (dungeon) return dungeonEnemies(dungeon);
   const def = PVM_OPPONENTS[key];
   if (!def) throw new BattleError("Adversaire inconnu.");
   const cards: BattleCard[] = [];
@@ -399,6 +439,53 @@ export async function getTeam(userId: string, kind: TeamKind) {
   return slots;
 }
 export const getAttackTeam = (userId: string) => getTeam(userId, "ATTACK");
+
+async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnType<typeof getAttackTeam>>[number]>[]) {
+  const artifacts = await prisma.artifact.findMany({ where: { userId, equippedCardId: { in: slots.map((s) => s.id) } } });
+  return slots.map((card) => {
+    const worn = artifacts.filter((a) => a.equippedCardId === card.id && a.setKey === DUNGEON_KEY);
+    const bonus = setBonus(worn.length);
+    const stats = { attack: bonus.attack, defense: 0, hp: 0, speed: 0, crit: 0, critDamage: bonus.critDamage, dodge: 0, flatAttack: 0, flatDefense: 0, flatHp: 0 };
+    for (const a of worn) {
+      const key = a.mainStat as keyof typeof stats;
+      if (key in stats) stats[key] += a.mainValue;
+      if (Array.isArray(a.subStats)) for (const item of a.subStats) {
+        if (!item || typeof item !== "object" || !("stat" in item) || !("value" in item)) continue;
+        const sub = item as { stat: string; value: number };
+        if (sub.stat in stats && typeof sub.value === "number" && Number.isFinite(sub.value)) stats[sub.stat as keyof typeof stats] += sub.value;
+      }
+    }
+    return { ...card, artifactStats: stats };
+  });
+}
+
+export async function equipArtifact(userId: string, artifactId: string, cardId: string | null) {
+  const artifact = await prisma.artifact.findFirst({ where: { id: artifactId, userId }, select: { id: true, slot: true } });
+  if (!artifact || !ARTIFACT_SLOTS.includes(artifact.slot as ArtifactSlot)) throw new BattleError("Artefact introuvable.");
+  if (cardId !== null && !(await prisma.card.findFirst({ where: { id: cardId, ownerId: userId }, select: { id: true } }))) throw new BattleError("Cette carte ne t'appartient pas.");
+  await prisma.$transaction(async (tx) => {
+    if (cardId) await tx.artifact.updateMany({ where: { userId, equippedCardId: cardId, slot: artifact.slot }, data: { equippedCardId: null } });
+    const changed = await tx.artifact.updateMany({ where: { id: artifact.id, userId }, data: { equippedCardId: cardId } });
+    if (changed.count !== 1) throw new BattleError("Artefact introuvable.");
+  });
+}
+
+export async function getDungeonState(userId: string) {
+  const [progress, artifacts, team] = await Promise.all([
+    prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: DUNGEON_KEY } } }),
+    prisma.artifact.findMany({ where: { userId }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], include: { equippedCard: { select: { character: { select: { name: true } } } } } }),
+    getAttackTeam(userId),
+  ]);
+  return { maxLevel: progress?.maxLevel ?? 0, nextSlot: progress?.nextSlot ?? 0, artifacts, team };
+}
+
+export async function getArtifactInventory(userId: string) {
+  const [artifacts, cards] = await Promise.all([
+    prisma.artifact.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, include: { equippedCard: { select: { id: true, character: { select: { name: true } } } } } }),
+    prisma.card.findMany({ where: { ownerId: userId }, orderBy: [{ character: { rarity: "desc" } }, { serial: "desc" }], select: { id: true, serial: true, character: { select: { name: true } } } }),
+  ]);
+  return { artifacts, cards };
+}
 
 // ── Combats ─────────────────────────────────────────────────────────────────
 
@@ -492,24 +579,31 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   const slots = await getAttackTeam(userId);
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   const story = parseStory(opponent);
+  const dungeonLevel = opponent.startsWith(DUNGEON_PREFIX) ? parseDungeonKey(opponent) : null;
+  if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");
   if (story) await checkStoryAccess(userId, story.universe, story.level);
+  if (dungeonLevel) {
+    const progress = await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: DUNGEON_KEY } }, select: { maxLevel: true } });
+    if (dungeonLevel > (progress?.maxLevel ?? 0) + 1) throw new BattleError("Difficulté verrouillée : gagne la précédente.");
+  }
   const raid = parseRaid(opponent);
   if (raid) await checkRaidAccess(userId, raid.boss, raid.difficulty, now);
   const floor = parseTower(opponent);
   if (floor && floor > (await getTowerFloor(userId)) + 1) throw new BattleError("Étage verrouillé : gagne le précédent.");
-  const mode: BattleMode = story ? "STORY" : raid ? "RAID" : floor ? "TOWER" : "TEST";
+  const mode: BattleMode = story ? "STORY" : raid ? "RAID" : floor ? "TOWER" : dungeonLevel ? "DUNGEON" : "TEST";
   // Un combat suivi à la fois et par mode. En histoire et dans la Tour, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
-  if (manual && (story || floor || raid)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+  if (manual && (story || floor || raid || dungeonLevel)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
-  const mine = slots.map((s) => toBattleCard(s!.character, s!.stars, s!.weaponKey));
+  const fitted = await equippedCards(userId, slots as NonNullable<typeof slots[number]>[]);
+  const mine = fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
   const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1" };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true });
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
-      const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : null;
+      const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
       return tx.battle.create({
         data: {
           userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
@@ -570,8 +664,8 @@ export async function playAction(userId: string, battleId: string, action: Actio
     if (done && row.mode === "RAID") {
       loot = await settleRaid(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
-    } else if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER")) {
-      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, now) : await settleTower(tx, userId, row.opponent, now);
+    } else if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER" || row.mode === "DUNGEON")) {
+      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, now) : row.mode === "TOWER" ? await settleTower(tx, userId, row.opponent, now) : await settleDungeon(tx, userId, row.opponent, row.seed);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     }
     });

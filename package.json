@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "vendor:three": "node scripts/vendor-three.mjs",
-    "predev": "npm run vendor:three",
+    "predev": "npm run db:generate && npm run vendor:three",
     "prebuild": "npm run vendor:three",
     "dev": "next dev",
     "build": "next build",
@@ -46,7 +46,8 @@
     "calibrate:spells": "tsx scripts/calibrate-spells.ts",
     "calibrate:archetypes": "tsx scripts/calibrate-archetypes.ts",
     "check:tower": "tsx scripts/check-tower.ts",
-    "simulate:tower": "tsx scripts/simulate-tower.ts"
+    "simulate:tower": "tsx scripts/simulate-tower.ts",
+    "check:dungeon": "tsx scripts/check-dungeon.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

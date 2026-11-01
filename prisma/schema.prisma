@@ -185,6 +185,8 @@ model User {
   sessions            Session[]
   accounts            Account[]
   cards               Card[]
+  artifacts           Artifact[]
+  dungeonProgress     DungeonProgress[]
   packOpenings        PackOpening[]
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
@@ -261,6 +263,7 @@ model Card {
   stars           Int              @default(0)
   /// Arme forgée pour cet exemplaire ; suit la carte lors des échanges.
   weaponKey       String?
+  artifacts      Artifact[]
   expeditionCards ExpeditionCard[]
   teamSlots       BattleTeamSlot[]
   tradeItems      TradeItem[]
@@ -685,6 +688,7 @@ enum BattleMode {
   STORY
   RAID
   TOWER
+  DUNGEON
   ARENA
 }
 
@@ -780,6 +784,37 @@ model DailyGain {
   units  Int      @default(0)
 
   @@id([userId, day, source])
+}
+
+/// Progression gagnée dans un donjon défini dans le code.
+model DungeonProgress {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dungeon  String
+  maxLevel Int    @default(0)
+  nextSlot Int    @default(0)
+
+  @@id([userId, dungeon])
+}
+
+/// Artefact lié au compte ; il peut être déplacé librement entre ses cartes.
+model Artifact {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  setKey          String
+  slot            String
+  rarity          Rarity
+  level           Int      @default(0)
+  mainStat        String
+  mainValue       Float
+  subStats        Json     @default("[]")
+  equippedCardId  String?
+  equippedCard    Card?    @relation(fields: [equippedCardId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, equippedCardId, slot])
+  @@index([userId, setKey, slot])
 }
 
 /// Sort de personnage édité dans le Spell Builder (/builder, dev seulement). Le jeu lit spells.ts ; ceci sert à l'éditeur et à la simulation.

@@ -43,6 +43,8 @@ export interface BattleCard {
   stars?: number;
   /** Arme légendaire, équipable à 5 étoiles seulement */
   weapon?: Weapon | null;
+  /** Bonus d'artefacts et de set, calculés côté serveur avant la copie du combat. */
+  artifactStats?: { attack: number; defense: number; hp: number; speed: number; crit: number; critDamage: number; dodge: number; flatAttack: number; flatDefense: number; flatHp: number };
   /** Boss d'histoire ou de raid : résiste au silence */
   boss?: boolean;
   /** Retire le sort de personnage de cette carte (simulations d'équilibre) */
@@ -314,7 +316,7 @@ function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
     const urs = same.filter((o) => o !== c && o.rarity === "UR").length;
     const passive = opts.passive ? Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr) : 0;
     const franchise = opts.franchise ? BATTLE.franchiseBonus[same.length] ?? 0 : 0;
-    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0);
+    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0) + (c.artifactStats?.attack ?? 0);
   });
 }
 
@@ -332,15 +334,15 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
   const bonus = statBonus(team, opts);
   const aura = auraBonus(team);
   return team.map((card, i) => {
-    const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i]);
+    const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i] + (card.artifactStats?.hp ?? 0)) + (card.artifactStats?.flatHp ?? 0);
     const p = weaponOf(card)?.passive;
     const rawSecondary = opts.spells && !card.noSpell ? card.spell ?? spellOf(card.characterId, card.rarity, card.type) : null;
     const rawTertiary = opts.spells && !card.noTertiary ? card.tertiary ?? TERTIARY_SPELLS[card.characterId] ?? null : null;
     return {
       id: `${side}${i + 1}` as UnitId,
-      card, side, speed: Math.max(1, card.speed ?? 100), gauge: 0, maxHp, hp: maxHp, shield: 0,
-      atk: card.attack * (1 + bonus[i] + aura[i]),
-      def: card.defense * (1 + bonus[i]),
+      card, side, speed: Math.max(1, (card.speed ?? 100) + (card.artifactStats?.speed ?? 0)), gauge: 0, maxHp, hp: maxHp, shield: 0,
+      atk: card.attack * (1 + bonus[i] + aura[i]) + (card.artifactStats?.flatAttack ?? 0),
+      def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       tertiaryCd: BATTLE.tertiaryCooldown - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
@@ -699,7 +701,7 @@ export function applyAction(st: BattleState, action: Action) {
     }
     ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef);
     // Esquive : arme (sorts affiliés seulement) ou effet d'un sort ; un coup qui traverse ne s'esquive pas
-    const dodge = pierce ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
+    const dodge = pierce ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + (t.card.artifactStats?.dodge ?? 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
     if (dodge > 0 && rng() < dodge) {
       log.push({ kind: "dodge", source: u.id, target: t.id });
       return 0;
@@ -710,8 +712,8 @@ export function applyAction(st: BattleState, action: Action) {
     if (opts.combos && u.shield >= u.maxHp * BATTLE.comboShieldThreshold) atk *= 1.15;
     const aff = affinity(u.card.type, t.card.type);
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
-    const crit = critSure || rng() < clamp(BATTLE.critRate + fxSum(u, "crit"), 0, BATTLE.critCap);
-    if (crit) dmg *= BATTLE.critDamage;
+    const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + fxSum(u, "crit"), 0, BATTLE.critCap);
+    if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 - clamp(fxKeySum(t, "reduce"), 0, BATTLE.reduceCap);
