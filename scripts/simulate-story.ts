@@ -7,6 +7,7 @@ import { battle, type BattleCard, type Random, type Weapon } from "../src/lib/ba
 import { storyEnemies } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
 import { UNIVERSES } from "../src/lib/story";
+import { WEAPON_STAT } from "../src/lib/weapons";
 
 const arg = (name: string, d: number) => {
   const i = process.argv.indexOf(name);
@@ -41,7 +42,7 @@ async function main() {
   }));
   const by = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
 
-  const weapon: Weapon = { stat: 0.05, passive: null };
+  const weapon: Weapon = { stat: WEAPON_STAT, passive: null };
   const mk = (rarities: Rarity[], stars: number, w = false) => () =>
     rarities.map((r) => ({ ...any(by[r]), stars, weapon: w && stars === 5 ? weapon : null }));
   const teams: Record<string, () => BattleCard[]> = {

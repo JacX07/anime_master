@@ -464,13 +464,13 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 ### 3. Arme légendaire
 - Équipable uniquement sur une carte éveillée 5 étoiles (le moteur l'ignore sinon).
 - **Fabriquée** à partir des ressources obtenues en jeu, et **difficile** à obtenir.
-- **+5 % d'ATK, de DEF et de PV**, et un **passif**. Deux passifs codés pour l'essai :
+- **+10 % d'ATK, de DEF et de PV**, et un **passif**. Deux passifs disponibles :
   - **Esquive** : chance d'esquiver chaque coup d'un sort affilié adverse.
   - **Renfort de type** : +X % d'ATK aux alliés d'un type, porteur compris.
-- Liste des armes, recettes et passifs définitifs : à écrire.
+- Forge disponible sur `/forge` : une arme du type de la carte, liée à cet exemplaire. Recette provisoire : 20 ressources de boss final et 50 cœurs de brèche. Liste et règles dans [donjons.md](donjons.md#forge-disponible-2026-11-01).
 - **Révisé le 2026-10-31** : l'arme devient plus forte, avec artefacts et boss mondial ; les armes génériques d'abord (une par type), des armes dédiées ensuite. Voir [donjons.md](donjons.md). La limite de puissance de ce tableau est assouplie (power creep voulu).
 
-### Mesures (2026-10-31, 3 000 combats par case)
+### Mesures historiques (2026-10-31, 3 000 combats par case)
 Équipes de 4 cartes de même rareté, tirées au hasard.
 
 | Par étoile | Arme | SSR 5★ armé contre UR 0★ | SR 5★ armé contre SSR 0★ | SSR 5★ sans arme contre SSR 0★ | UR 5★ armé contre UR 0★ |
@@ -480,7 +480,7 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 | +3 % | +5 % | 28 % | 11 % | 96 % | 99 % |
 | +4 % | +5 % | 46 % | 22 % | 99 % | 100 % |
 
-- **Retenu : +2 % par étoile et +5 % pour l'arme.** Un UR à 0 étoile gagne encore 86 % du temps contre un SSR éveillé et armé : la rareté domine. À rareté égale, l'éveil compte beaucoup (89 %), parce que le combat amplifie les écarts.
+- **Valeurs retenues le 2026-10-31, depuis remplacées : +2 % par étoile et +5 % pour l'arme.** Un UR à 0 étoile gagne encore 86 % du temps contre un SSR éveillé et armé : la rareté domine. À rareté égale, l'éveil compte beaucoup (89 %), parce que le combat amplifie les écarts.
 - Le cooldown réduit seul (sans les stats) vaut 55 % contre 45 %.
 - Passifs, portés par une seule carte (équipe contre la même sans le passif) : esquive 3 % = +0,6 point (presque rien) ; esquive 10 % = +3 ; renfort de type +5 % = +7 ; renfort +10 % = +14.
 - **À décider** : la force des passifs. 3 % d'esquive ne se sent pas, 10 % commence à compter.

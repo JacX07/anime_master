@@ -30,9 +30,9 @@ export interface Universe {
 
 /**
  * Échelle des stats au dernier combat de chaque univers, réglée par `npm run calibrate:story` : une équipe de référence
- * (1 UR + 3 SSR en 5 étoiles avec arme) bat le boss final dans 95 % des cas dans le 1er univers, 20 % dans le 15ᵉ.
+ * (1 UR + 3 SSR en 5 étoiles, arme +10 % sans passif) vise 95 % de victoires dans le 1er univers, 20 % dans le 15ᵉ.
  */
-const DIFFICULTY = [0.98,  0.98,  1.03,  1.05,  1.02,  1.06,  1.07,  1.1,  1.12,  1.09,  1.16,  1.11,  1.13,  1.13,  1.22];
+const DIFFICULTY = [0.99, 0.86, 1.23, 1.2, 1.18, 1.27, 1.19, 1.14, 1.03, 1.24, 1.29, 1.26, 1.28, 1.55, 1.42];
 /** Échelle du 1er combat : 0,3 pour le tutoriel, 0,75 pour le dernier univers. */
 const START_SCALE = Array.from({ length: 15 }, (_, i) => +(0.3 + (0.45 * i) / 14).toFixed(3));
 /** Cases de décalage du mélange de raretés : 0 pour le tutoriel, 7 pour le dernier univers. */

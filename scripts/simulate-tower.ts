@@ -6,6 +6,7 @@ import type { Rarity } from "../src/generated/prisma/enums";
 import { battle, type BattleCard, type Random, type Weapon } from "../src/lib/battle";
 import { prisma } from "../src/lib/db";
 import { floorRarities, floorScale, MAX_FLOOR } from "../src/lib/tower";
+import { WEAPON_STAT } from "../src/lib/weapons";
 
 const arg = (name: string, d: number) => {
   const i = process.argv.indexOf(name);
@@ -43,7 +44,7 @@ async function main() {
       ...any(by[r]), attack: Math.round(mean[r].a * floorScale(floor)), defense: Math.round(mean[r].d * floorScale(floor)), stars: 0, weapon: null,
     }));
 
-  const weapon: Weapon = { stat: 0.05, passive: null };
+  const weapon: Weapon = { stat: WEAPON_STAT, passive: null };
   const mk = (rarities: Rarity[], stars: number, w = false) => () =>
     rarities.map((r) => ({ ...any(by[r]), stars, weapon: w && stars === 5 ? weapon : null }));
   const teams: Record<string, () => BattleCard[]> = {

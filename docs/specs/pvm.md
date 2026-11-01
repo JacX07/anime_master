@@ -409,3 +409,9 @@ Classement « **étage maximum atteint** », en cas d'égalité le joueur arriv�
 - Liste des 10 premiers jalons et leurs traits (AniList n'indique pas qui est un méchant : choix à la main).
 - Durée d'un combat : une habitude quotidienne ou une corvée ?
 - Cause du dérèglement, origine de Pew, nature de l'étage 500 (voir `lore.md`).
+
+### Calibration de l'histoire — 2026-11-01
+
+Les difficultés sont recalibrées sur le moteur actuel : 1 UR + 3 SSR aléatoires, 5★, bonus d'arme +10 % sans passif. Cible au boss final : 95 % dans le premier univers, puis baisse linéaire jusqu'à 20 % dans le dernier. Les passifs d'armes restent un avantage de composition au-dessus de cette référence.
+
+Commande : `npm run calibrate:story -- --games 1000`, neuf étapes de dichotomie par univers. Vérification indépendante : `npm run calibrate:story -- --verify --games 1000` ; elle mesure les valeurs courantes avec une autre graine sans réécrire le fichier temporaire. Les taux restent des estimations sur des compositions aléatoires, pas une garantie pour chaque équipe.
