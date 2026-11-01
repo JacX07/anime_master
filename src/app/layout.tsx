@@ -106,7 +106,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         {children}
         <footer className="py-6 text-center text-xs text-muted">
-          Données et images : <a href="https://anilist.co" className="hover:underline">AniList</a>
+          Données et images : <a href="https://anilist.co" className="hover:underline">AniList</a> · Sons électriques : <a href="https://www.littlerobotsoundfactory.com" className="hover:underline">Little Robot Sound Factory</a> (CC BY 3.0)
         </footer>
       </body>
     </html>

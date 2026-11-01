@@ -4,6 +4,7 @@
 
 import type { BattleEvent } from "@/lib/battle";
 import type { CardType } from "@/generated/prisma/enums";
+import type { AttackElement } from "@/lib/attack-element";
 import { BattleMusic } from "./music";
 
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
@@ -11,6 +12,11 @@ const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
 const MUSIC_LEVEL = 10 ** (-12.6 / 20);
 // Secondes d'élan sautées au début de blade.ogg (l'entaille est à 0,13 s dans le fichier).
 const BLADE_LEAD = 0.07;
+// Sons élémentaires (direction A validée, public/audio/battle/elements) : l'impact tombe à 0,48 s dans chaque fichier.
+const ELEMENT_IMPACT = 0.48;
+const ELEMENTS: AttackElement[] = ["feu", "eau", "foudre", "air", "terre"];
+/** Élément et style visuel de la carte qui agit : les sorts jouent la séquence entière, les coups seulement l'impact. */
+export interface ActorSound { element: AttackElement | null; magic: boolean }
 
 export class BattleAudio {
   sfxOn = true;
@@ -22,6 +28,7 @@ export class BattleAudio {
   private noise!: AudioBuffer;
   private blade: AudioBuffer | null = null;
   private bladeRequest: AbortController | null = null;
+  private elements = new Map<AttackElement, AudioBuffer>();
 
   private init(): AudioContext {
     if (this.ctx) return this.ctx;
@@ -49,6 +56,7 @@ export class BattleAudio {
     this.ctx = ctx;
     this.musicEngine = new BattleMusic(ctx, this.music, this.noise);
     void this.loadBlade(ctx);
+    void this.loadElements(ctx);
     return ctx;
   }
 
@@ -109,6 +117,31 @@ export class BattleAudio {
     source.stop(t + duration + 0.01);
   }
 
+  private async loadElements(ctx: AudioContext) {
+    await Promise.all(ELEMENTS.map(async (element) => {
+      try {
+        const response = await fetch(`/audio/battle/elements/${element}.ogg`);
+        if (!response.ok) throw new Error(`Son ${element} indisponible (${response.status})`);
+        const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+        if (this.ctx === ctx) this.elements.set(element, buffer);
+      } catch (error) {
+        console.warn("Impossible de charger un son d'élément.", error);
+      }
+    }));
+  }
+
+  /** Son d'élément joué à partir de `offset` secondes du fichier. */
+  private element(t: number, element: AttackElement, offset: number, gain: number) {
+    const buffer = this.elements.get(element);
+    if (!buffer || !this.ctx) return;
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    const g = this.ctx.createGain();
+    g.gain.value = 0.55 * gain;
+    source.connect(g).connect(this.sfx);
+    source.start(t, offset);
+  }
+
   /** Une note : oscillateur dont la fréquence glisse de f0 à f1, avec une enveloppe courte. */
   private tone(t: number, type: OscillatorType, f0: number, f1: number, dur: number, gain: number, dest: AudioNode = this.sfx) {
     const ctx = this.ctx!;
@@ -162,7 +195,7 @@ export class BattleAudio {
    * Joue le son d'un événement du journal. `prev` est l'événement d'avant (pour ne pas répéter un son sur une zone ou une
    * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
    */
-  play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special" | "tertiary" | "ultimate"; type: CardType } | null, speed: number) {
+  play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special" | "tertiary" | "ultimate"; type: CardType } | null, speed: number, actor: ActorSound = { element: null, magic: false }) {
     if (!this.sfxOn) return;
     const ctx = this.init();
     if (ctx.state === "suspended") return;
@@ -174,12 +207,23 @@ export class BattleAudio {
         this.tone(t, "sine", 150 * v, 90, 0.2 * k, 0.1);
         break;
       case "action":
-        if (ev.spell !== "base") this.cast(t, cur?.type ?? "COMBAT", k, v);
+        // Un sort élémentaire couvre son lancement et son impact (le premier coup tombe 480 ms de replay plus tard)
+        if (actor.element && actor.magic) this.element(t, actor.element, Math.max(0, ELEMENT_IMPACT - ELEMENT_IMPACT / speed), 1);
+        else if (ev.spell !== "base") this.cast(t, cur?.type ?? "COMBAT", k, v);
         break;
       case "damage": {
         const chain = prev?.kind === "damage" ? 0.6 : 1;
         const soaked = ev.absorbed >= ev.amount * 0.999;
         const power = (ev.affinity === "strong" ? 1.2 : ev.affinity === "weak" ? 0.7 : 1) * chain;
+        if (actor.element) {
+          if (actor.magic) {
+            // Le fichier lancé avec l'action porte déjà l'impact : on ne garde que le renfort du critique
+            if (ev.crit) { this.tone(t, "sine", 110, 38, 0.3 * k, 0.4); this.duck(t); }
+            break;
+          }
+          // Coup de mêlée ou de lame : l'impact élémentaire s'ajoute au coup, une fois par action
+          if (prev?.kind !== "damage") this.element(t, actor.element, ELEMENT_IMPACT - 0.03, 0.7);
+        }
         if (cur?.spell === "base") {
           this.bladeHit(t, speed, v, power * (soaked ? 0.55 : ev.crit ? 1.25 : 1));
           if (ev.crit) this.duck(t);
@@ -203,7 +247,7 @@ export class BattleAudio {
         break;
       }
       case "dodge":
-        if (cur?.spell === "base") this.bladeHit(t, speed, v, 0.5);
+        if (cur?.spell === "base" && !(actor.element && actor.magic)) this.bladeHit(t, speed, v, 0.5);
         break;
       case "heal":
         if (prev?.kind === "heal") break;

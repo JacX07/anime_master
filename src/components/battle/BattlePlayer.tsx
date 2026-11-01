@@ -174,8 +174,13 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     lastIdx.current = rp.idx;
     const ev = log[rp.idx - 1];
     // Un seul événement à la fois : pas de bruit quand on saute à la fin ou qu'on recommence
-    if (ev && rp.idx === before + 1) getAudio().play(ev, log[rp.idx - 2], rp.cur, speedRef.current);
-  }, [rp.idx, rp.cur, log]);
+    if (ev && rp.idx === before + 1) {
+      // Carte qui agit : l'acteur d'une action, la source d'un coup
+      const who = ev.kind === "action" ? ev.actor : ev.kind === "damage" || ev.kind === "dodge" ? ev.source : null;
+      const id = who ? rp.info[who]?.characterId : undefined;
+      getAudio().play(ev, log[rp.idx - 2], rp.cur, speedRef.current, { element: id ? attackElement(id) : null, magic: id ? attackVisual(id) === "magic" : false });
+    }
+  }, [rp.idx, rp.cur, rp.info, log]);
   const toggle = (key: "bt-sfx" | "bt-music", on: boolean, set: (v: boolean) => void) => {
     set(on);
     localStorage.setItem(key, on ? "on" : "off");
