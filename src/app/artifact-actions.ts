@@ -9,7 +9,8 @@ export async function upgradeArtifactAction(artifactId: string, level: number) {
   if (!user) return { ok: false as const, error: "Ta session a expiré." };
   try {
     await upgradeArtifact(user.id, String(artifactId), level);
-    revalidatePath("/", "layout");
+    revalidatePath("/equipe");
+    revalidatePath("/inventaire");
     return { ok: true as const };
   } catch (error) {
     if (error instanceof BattleError) return { ok: false as const, error: error.message };

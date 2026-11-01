@@ -48,8 +48,8 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
     <div className="inventory-workspace">
       <div>
         {visible.length ? <div className="inventory-grid" role="group" aria-label="Choisir un objet">
-          {visible.map((item) => <button type="button" key={item.key} className="inventory-slot" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls="inventory-detail" aria-label={`${item.name}, ${number.format(item.quantity)} en stock`} title={`${item.name} · ${number.format(item.quantity)}`} onClick={() => setSelectedKey(item.key)}>
-            <ItemIcon item={item} /><span className="inventory-quantity">{number.format(item.quantity)}</span>
+          {visible.map((item) => <button type="button" key={item.key} className="inventory-slot" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls="inventory-detail" aria-label={`${item.name}, ${number.format(item.quantity)} en stock${item.equippedBy ? `, équipé sur ${item.equippedBy.name}` : ""}`} title={`${item.name}${item.equippedBy ? ` · Équipé sur ${item.equippedBy.name}` : ` · ${number.format(item.quantity)}`}`} onClick={() => setSelectedKey(item.key)}>
+            <ItemIcon item={item} />{item.equippedBy && <span className="inventory-equipped-badge" title={`Équipé sur ${item.equippedBy.name}`}>✓ {item.equippedBy.name}</span>}<span className="inventory-quantity">{number.format(item.quantity)}</span>
           </button>)}
           {Array.from({ length: slots - visible.length }, (_, i) => <span key={`empty-${i}`} className="inventory-slot inventory-slot-empty" aria-hidden="true" />)}
         </div> : <div className="inventory-empty"><h3>{category === "Consommables" ? "Aucun consommable pour le moment" : "Aucun objet à afficher"}</h3><p>{query || universe ? "Essaie un autre nom ou un autre univers." : "Tes prochains butins apparaîtront ici. Tu peux aussi afficher les objets non possédés."}</p><Link href="/histoire">Explorer l’histoire</Link></div>}
@@ -59,6 +59,7 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
         {selected ? <><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={128} /></div>
           <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}</p><h3>{selected.name}</h3>
           <p className="inventory-description">{selected.description}</p>
+          {selected.equippedBy && <p className="inventory-equipped-owner">✓ Équipé sur <b>{selected.equippedBy.name}</b></p>}
           <dl><div><dt>{selected.artifact ? "Rareté" : "En stock"}</dt><dd>{selected.artifact ? artifactRarity(selected.artifact.rarity).label : number.format(selected.quantity)}</dd></div><div><dt>Provenance</dt><dd>{selected.source}</dd></div>
             {selected.artifact && <><div><dt>Niveau</dt><dd>{selected.artifact.level}</dd></div><div><dt>{artifactStatLabel(selected.artifact.mainStat)}</dt><dd>{artifactStatValue(selected.artifact.mainStat, selected.artifact.mainValue)}</dd></div>{selected.artifact.subStats.map((stat, index) => <div key={`${stat.stat}-${index}`}><dt>{artifactStatLabel(stat.stat)}</dt><dd>{artifactStatValue(stat.stat, stat.value)}</dd></div>)}</>}
           </dl>
@@ -81,7 +82,6 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
               try {
                 const result = await upgradeArtifactAction(selected.artifact!.id, selected.artifact!.level);
                 if (!result.ok) setError(result.error);
-                else router.refresh();
               } catch { setError("L’amélioration a échoué, réessaie."); }
             });
           }}>{selected.artifact.level >= ARTIFACT_MAX_LEVEL ? "Niveau maximum +10" : `Améliorer · ${artifactUpgradeCost(selected.artifact.rarity, selected.artifact.level).toLocaleString("fr-FR")} Ryō`}</button>}

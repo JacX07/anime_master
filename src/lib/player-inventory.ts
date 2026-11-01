@@ -1,4 +1,4 @@
-import { artifactRarity } from "./artifact-display";
+import { artifactRarity, ONE_PIECE_ARTIFACT_NAMES } from "./artifact-display";
 import { prisma } from "./db";
 import { inventoryResources, type InventoryItem } from "./inventory";
 import { weaponDef } from "./weapons";
@@ -15,7 +15,7 @@ export async function getPlayerInventory(userId: string) {
   const equipment: InventoryItem[] = armed.flatMap((card) => {
     const weapon = weaponDef(card.weaponKey!);
     return weapon ? [{
-      key: `weapon:${card.id}`, name: weapon.name, quantity: 1, categories: ["Équipement"], universe: "common",
+      key: `weapon:${card.id}`, equippedBy: { id: card.id, name: card.character.name }, name: weapon.name, quantity: 1, categories: ["Équipement"], universe: "common",
       source: "Forge légendaire", description: `Équipée sur ${card.character.name} #${card.serial}. +10 % d’ATK, de DEF et de PV. ${weapon.passive} Cette arme reste liée à cet exemplaire.`,
       icon: "weapon", tone: "gold", links: [{ href: "/forge", label: "Voir à la forge" }],
     }] : [];
@@ -24,10 +24,10 @@ export async function getPlayerInventory(userId: string) {
     const slot = SLOT_NAMES[artifact.slot as ArtifactSlot] ?? artifact.slot;
     const file = ({ CASQUE: "helmet", PLASTRON: "breastplate", GANTS: "gauntlets", BOTTES: "boots" } as const)[artifact.slot as ArtifactSlot];
     return {
-      key: `artifact:${artifact.id}`, name: `${slot} des profondeurs`, quantity: 1, categories: ["Équipement"], universe: "one-piece",
+      key: `artifact:${artifact.id}`, equippedBy: artifact.equippedCard ? { id: artifact.equippedCard.id, name: artifact.equippedCard.character.name } : undefined, name: ONE_PIECE_ARTIFACT_NAMES[artifact.slot] ?? `${slot} des profondeurs`, quantity: 1, categories: ["Équipement"], universe: "one-piece",
       source: "Donjon One Piece", description: `Artefact ${slot.toLocaleLowerCase("fr")} du set marin. Niveau ${artifact.level}. ${artifact.equippedCard ? `Équipé sur ${artifact.equippedCard.character.name}.` : "À équiper sur une carte."}`,
       icon: "artifact", tone: artifactRarity(artifact.rarity).tone, image: `/images/artifacts/one-piece-${file ?? "helmet"}-anime.png`, links: [{ href: "/donjons", label: "Donjon One Piece" }],
-      artifact: { id: artifact.id, slot: artifact.slot, rarity: artifact.rarity, mainStat: artifact.mainStat, mainValue: artifact.mainValue, subStats: artifact.subStats as { stat: string; value: number }[], level: artifact.level, equippedCard: artifact.equippedCard },
+      artifact: { setKey: artifact.setKey, id: artifact.id, slot: artifact.slot, rarity: artifact.rarity, mainStat: artifact.mainStat, mainValue: artifact.mainValue, subStats: artifact.subStats as { stat: string; value: number }[], level: artifact.level, equippedCard: artifact.equippedCard },
     };
   });
   return { items: [...inventoryResources(stock), ...equipment, ...artifacts], cards: artifactInventory.cards, balance: wallet.balance };

@@ -32,13 +32,13 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
   const weapon = weaponDef(card.weaponKey ?? "");
   const artifacts = inventory.items.filter((item) => item.artifact);
   const visible = artifacts.filter((item) => item.artifact!.slot === slot);
-  function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string) {
+  function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string, refresh = true) {
     setMessage("");
     start(async () => {
       try {
         const result = await action();
         setMessage(result.ok ? success : result.error ?? "L’opération a échoué.");
-        if (result.ok) router.refresh();
+        if (result.ok && refresh) router.refresh();
       } catch { setMessage("L’opération a échoué, réessaie."); }
     });
   }
@@ -71,7 +71,7 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
             <p className="gear-owner">{worn ? `Équipé sur ${card.name}` : artifact.equippedCard ? `Porté par ${artifact.equippedCard.character.name}` : "Disponible"}</p>
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
             {!max && <p className="gear-preview">Au niveau +{artifact.level + 1} : {artifactStatValue(artifact.mainStat, upgradedMainValue(artifact.mainValue, artifact.level))} {artifactStatLabel(artifact.mainStat)}</p>}
-            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +10" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button>
+            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`, false)}>{max ? "Niveau maximum +10" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button>
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
           </article>;
         })}</div>

@@ -18,3 +18,10 @@ export const artifactRarity = (rarity: Rarity) => ({
   SSR: { label: "Légendaire", tone: "gold" as const, color: "#ffc45c" },
   UR: { label: "Légendaire", tone: "gold" as const, color: "#ffc45c" },
 }[rarity]);
+
+export const ONE_PIECE_ARTIFACT_NAMES: Record<string, string> = {
+  CASQUE: "Chapeau de paille de Luffy",
+  PLASTRON: "Gilet rouge de Luffy",
+  GANTS: "Mitaines du Thousand Sunny",
+  BOTTES: "Bottes de Grand Line",
+};

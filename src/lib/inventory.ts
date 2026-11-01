@@ -9,6 +9,7 @@ export type InventoryCategory = typeof INVENTORY_CATEGORIES[number];
 export type InventoryItem = {
   key: string;
   resource?: string;
+  equippedBy?: { id: string; name: string };
   name: string;
   quantity: number;
   categories: InventoryCategory[];
@@ -20,6 +21,7 @@ export type InventoryItem = {
   links: { href: string; label: string }[];
   image?: string;
   artifact?: {
+    setKey?: string;
     id: string;
     slot: string;
     rarity: Rarity;
@@ -60,6 +62,6 @@ export function filterInventory(items: InventoryItem[], category: InventoryCateg
     return (showEmpty || item.quantity > 0)
     && (category === "Tout" || item.categories.includes(category))
     && (!universe || item.universe === universe)
-    && normalize(`${item.name} ${item.source} ${item.description} ${artifactSearch}`).includes(search);
+    && normalize(`${item.name} ${item.source} ${item.description} ${item.equippedBy?.name ?? ""} ${artifactSearch}`).includes(search);
   }).sort((a, b) => (sort === "quantity" ? b.quantity - a.quantity : 0) || a.name.localeCompare(b.name, "fr") || a.key.localeCompare(b.key));
 }
