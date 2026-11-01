@@ -1,4 +1,3 @@
-import { sumArtifactStats } from "./artifact-stats";
 import { adventureLock } from "./adventure-state";
 // Combats 4 contre 4 côté serveur (docs/specs/combat.md §10) : équipe d'attaque enregistrée, lancement, mode manuel, abandon.
 // Le moteur (battle.ts) est pur ; ici on lit les cartes, on enregistre le combat et on rejoue l'état à chaque action.
@@ -23,7 +22,7 @@ import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./
 
 import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
-import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEON_PREFIX, DUNGEON_RESOURCE, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
+import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEON_PREFIX, DUNGEON_RESOURCE, levelReward, parseDungeonKey, setBonus, type ArtifactSlot } from "./dungeons";
 import type { CharacterSpell } from "./spells";
 
 export class BattleError extends Error {}
@@ -119,12 +118,8 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
 }
 
 /** Butin d'une victoire, versé dans la transaction qui enregistre la fin du combat : un combat ne paie qu'une fois. */
-async function settleStory(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, stars: number, now: Date): Promise<Loot> {
+async function settleStory(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, now: Date): Promise<Loot> {
   const { universe, level } = parseStory(opponent)!;
-  if (stars > 0) {
-    await tx.storyStageStar.upsert({ where: { userId_universe_level: { userId, universe: universe.key, level } }, create: { userId, universe: universe.key, level, stars }, update: {} });
-    await tx.storyStageStar.updateMany({ where: { userId, universe: universe.key, level, stars: { lt: stars } }, data: { stars } });
-  }
   // Premier passage : le `updateMany` conditionnel désigne un seul gagnant, même avec deux combats simultanés
   await tx.storyProgress.upsert({ where: { userId_universe: { userId, universe: universe.key } }, create: { userId, universe: universe.key }, update: {} });
   const first = (await tx.storyProgress.updateMany({ where: { userId, universe: universe.key, maxLevel: { lt: level } }, data: { maxLevel: level } })).count === 1;
@@ -348,16 +343,8 @@ export async function towerLeaderboard(top = 20) {
 /** Ce que le joueur peut jouer : plus haut combat gagné par univers, univers ouverts. */
 export async function getStoryProgress(userId: string) {
   const rows = await prisma.storyProgress.findMany({ where: { userId } });
-  const best = await prisma.storyStageStar.findMany({ where: { userId } });
   const max = (key: string) => rows.find((r) => r.universe === key)?.maxLevel ?? 0;
-  return UNIVERSES.map((u, i) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, i === 0 ? 0 : max(UNIVERSES[i - 1].key)), stars: Object.fromEntries(Array.from({ length: LEVELS }, (_, j) => { const level = j + 1; return [level, Math.max(best.find((r) => r.universe === u.key && r.level === level)?.stars ?? 0, level <= max(u.key) ? 1 : 0)]; })) }));
-}
-
-export function storyStars(won: boolean, events: readonly BattleEvent[], teamSize: number) {
-  if (!won) return 0;
-  if (teamSize === 2) return 3;
-  if (!events.some((event) => event.kind === "ko" && event.target.startsWith("A"))) return 2;
-  return 1;
+  return UNIVERSES.map((u, i) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, i === 0 ? 0 : max(UNIVERSES[i - 1].key)) }));
 }
 
 async function checkStoryAccess(userId: string, universe: Universe, level: number) {
@@ -460,7 +447,17 @@ async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnTy
   const artifacts = await prisma.artifact.findMany({ where: { userId, equippedCardId: { in: slots.map((s) => s.id) } } });
   return slots.map((card) => {
     const worn = artifacts.filter((a) => a.equippedCardId === card.id && a.setKey === DUNGEON_KEY);
-    const stats = sumArtifactStats(worn);
+    const bonus = setBonus(worn.length);
+    const stats = { attack: bonus.attack, defense: 0, hp: 0, speed: 0, crit: 0, critDamage: bonus.critDamage, dodge: 0, flatAttack: 0, flatDefense: 0, flatHp: 0 };
+    for (const a of worn) {
+      const key = a.mainStat as keyof typeof stats;
+      if (key in stats) stats[key] += a.mainValue;
+      if (Array.isArray(a.subStats)) for (const item of a.subStats) {
+        if (!item || typeof item !== "object" || !("stat" in item) || !("value" in item)) continue;
+        const sub = item as { stat: string; value: number };
+        if (sub.stat in stats && typeof sub.value === "number" && Number.isFinite(sub.value)) stats[sub.stat as keyof typeof stats] += sub.value;
+      }
+    }
     return { ...card, artifactStats: stats };
   });
 }
@@ -514,7 +511,6 @@ export interface BattleView {
   winner: Side | null;
   /** Butin d'une victoire d'histoire */
   loot: Loot | null;
-  storyStars: number | null;
   log: BattleEvent[];
   /** Carte du joueur qui doit agir (mode manuel, combat en cours) */
   actor: UnitId | null;
@@ -557,7 +553,6 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     id: row.id, mode: row.mode, opponent: row.opponent, manual: row.manual, status: st?.result ? "DONE" : row.status,
     winner: (st?.result ? st.result.winner : (row.winner as Side | null)) ?? null,
     loot: (row.loot as unknown as Loot | null) ?? null,
-    storyStars: row.storyStars,
     log: log.slice(from),
     actor: running ? currentActor(st)!.id : null,
     choices: running ? legalActions(st) : [],
@@ -584,23 +579,16 @@ export async function sweepBattles(now = new Date()) {
 }
 
 /** Lance un combat avec l'équipe d'attaque du joueur. Automatique : calculé en entier. Manuel : un seul en cours à la fois. */
-export async function startBattle(userId: string, opponent: string, manual: boolean, now = new Date(), storyCardIds?: string[]): Promise<BattleView> {
+export async function startBattle(userId: string, opponent: string, manual: boolean, now = new Date()): Promise<BattleView> {
   const adventureMode = opponent.startsWith("dungeon:") ? "dungeon" : opponent.startsWith("raid:") ? "raid" : opponent.startsWith("tower:") ? "tower" : null;
   if (adventureMode) {
     const locked = await adventureLock(userId, adventureMode);
     if (locked) throw new BattleError(locked);
   }
   await sweepBattles(now);
-  const story = parseStory(opponent);
   const slots = await getAttackTeam(userId);
-  let storyCards: NonNullable<typeof slots[number]>[] | null = null;
-  if (storyCardIds !== undefined) {
-    if (!story || !Array.isArray(storyCardIds) || ![2, 4].includes(storyCardIds.length) || storyCardIds.some((id) => typeof id !== "string") || new Set(storyCardIds).size !== storyCardIds.length) throw new BattleError("Choisis 2 ou 4 cartes différentes pour l'histoire.");
-    const owned = await prisma.card.findMany({ where: { id: { in: storyCardIds }, ownerId: userId, inAuction: false }, select: { id: true, ownerId: true, stars: true, weaponKey: true, finish: true, character: { select: { ...CHARACTER_SELECT, name: true, imageUrl: true } } } });
-    const byId = new Map(owned.map((card) => [card.id, card]));
-    storyCards = storyCardIds.map((id) => byId.get(id)).filter((card): card is (typeof owned)[number] => !!card);
-    if (storyCards.length !== storyCardIds.length || new Set(storyCards.map((card) => card.character.id)).size !== storyCards.length) throw new BattleError("Choisis deux personnages différents qui t'appartiennent.");
-  } else if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
+  if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
+  const story = parseStory(opponent);
   const dungeonLevel = opponent.startsWith(DUNGEON_PREFIX) ? parseDungeonKey(opponent) : null;
   if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");
   if (story) await checkStoryAccess(userId, story.universe, story.level);
@@ -617,7 +605,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (manual && (story || floor || raid || dungeonLevel)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
-  const fitted = await equippedCards(userId, storyCards ?? slots as NonNullable<typeof slots[number]>[]);
+  const fitted = await equippedCards(userId, slots as NonNullable<typeof slots[number]>[]);
   const mine = fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
   const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1" };
   const seed = Math.floor(Math.random() * 2 ** 31);
@@ -625,12 +613,11 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true });
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
-      const stars = story ? storyStars(won, result.log, teams.A.length) : null;
-      const loot = story && won ? await settleStory(tx, userId, opponent, seed, stars!, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
+      const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
       return tx.battle.create({
         data: {
           userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
-          log: toJson(result.log), loot: loot ? toJson(loot) : undefined, storyStars: stars, endedAt: now,
+          log: toJson(result.log), loot: loot ? toJson(loot) : undefined, endedAt: now,
         },
       });
     });
@@ -674,7 +661,6 @@ export async function playAction(userId: string, battleId: string, action: Actio
   const done = st.result;
   // Verrou : l'écriture n'a lieu que si personne n'a joué entre-temps. Le butin est versé dans la même transaction que la fin du combat ; si le verrou échoue, rien n'est payé
   let loot: Loot | null = null;
-  let score: number | null = null;
   await prisma.$transaction(async (tx) => {
     const saved = await tx.battle.updateMany({
       where: { id: row.id, status: "RUNNING", steps: row.steps },
@@ -689,15 +675,11 @@ export async function playAction(userId: string, battleId: string, action: Actio
       loot = await settleRaid(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     } else if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER" || row.mode === "DUNGEON")) {
-      score = row.mode === "STORY" ? storyStars(true, done.log, teams.A.length) : null;
-      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, score!, now) : row.mode === "TOWER" ? await settleTower(tx, userId, row.opponent, now) : await settleDungeon(tx, userId, row.opponent, row.seed);
-      await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot), ...(score !== null ? { storyStars: score } : {}) } });
-    } else if (done && row.mode === "STORY") {
-      score = 0;
-      await tx.battle.update({ where: { id: row.id }, data: { storyStars: 0 } });
+      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, now) : row.mode === "TOWER" ? await settleTower(tx, userId, row.opponent, now) : await settleDungeon(tx, userId, row.opponent, row.seed);
+      await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     }
     });
-  return toView({ ...row, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
+  return toView({ ...row, status: done ? "DONE" : "RUNNING", loot }, st, from);
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */

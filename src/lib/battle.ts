@@ -324,7 +324,7 @@ function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
     const urs = same.filter((o) => o !== c && o.rarity === "UR").length;
     const passive = opts.passive ? Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr) : 0;
     const franchise = opts.franchise ? BATTLE.franchiseBonus[same.length] ?? 0 : 0;
-    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0);
+    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0) + (c.artifactStats?.attack ?? 0);
   });
 }
 
@@ -350,7 +350,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
     return {
       id: `${side}${i + 1}` as UnitId,
       card, side, speed: Math.max(1, (card.speed ?? 100) + (card.artifactStats?.speed ?? 0)), gauge: 0, maxHp, hp: maxHp, shield: 0,
-      atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
+      atk: card.attack * (1 + bonus[i] + aura[i]) + (card.artifactStats?.flatAttack ?? 0),
       def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
