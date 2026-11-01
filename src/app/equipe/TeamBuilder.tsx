@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { autoAttackTeamAction, autoDefenseTeamAction, setAttackTeamAction, setDefenseTeamAction } from "@/app/battle-actions";
 import { affinity, BATTLE } from "@/lib/battle";
@@ -35,6 +36,53 @@ const num = new Intl.NumberFormat("fr-FR");
 const RARITIES: Rarity[] = ["UR", "SSR", "SR", "R", "N"];
 const TYPES = Object.keys(TYPE_LABELS) as CardType[];
 const MAX_SHOWN = 60;
+const CYCLE: CardType[] = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"];
+
+/** Pastille de rareté sur l'image : code court coloré. */
+function RarityTag({ rarity }: { rarity: Rarity }) {
+  return <span className="eq-rarity" data-rarity={rarity} title={RARITY_NAMES[rarity]}>{rarity}</span>;
+}
+
+/** Légende latérale : à quoi correspond chaque icône de type. */
+function TypeLegend() {
+  return (
+    <aside className="eq-legend" aria-label="Légende des types">
+      <h2 className="eq-h">Types</h2>
+      <ul>
+        {CYCLE.map((t, i) => (
+          <li key={t}>
+            <b><TypeIcon type={t} /> {TYPE_LABELS[t].name}</b>
+            <small>Sort : {SPELL_NAMES[t]} · {SPELL_INFO[t].target}</small>
+            <p>{SPELL_INFO[t].text}</p>
+            <small>Fort contre {TYPE_LABELS[CYCLE[(i + 1) % CYCLE.length]].name} · faible contre {TYPE_LABELS[CYCLE[(i + CYCLE.length - 1) % CYCLE.length]].name}</small>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+}
+
+/** Demande d'enregistrer avant de quitter la page avec une équipe modifiée. */
+function LeaveDialog({ open, canSave, pending, onSave, onLeave, onStay }: { open: boolean; canSave: boolean; pending: boolean; onSave: () => void; onLeave: () => void; onStay: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) d.showModal();
+    if (!open && d.open) d.close();
+  }, [open]);
+  return (
+    <dialog ref={ref} className="eq-dialog eq-leave" onClose={onStay} aria-labelledby="eq-leave-title">
+      <h2 id="eq-leave-title" className="eq-h">Enregistrer ton équipe ?</h2>
+      <p>Tu as modifié ton équipe sans l&apos;enregistrer.{canSave ? "" : " Elle doit compter 4 cartes pour être enregistrée."}</p>
+      <div className="eq-dlg-btns">
+        <button type="button" className="bt-btn" onClick={onSave} disabled={!canSave || pending}>{pending ? "Enregistrement…" : "Enregistrer et quitter"}</button>
+        <button type="button" className="bt-btn" onClick={onLeave} disabled={pending}>Quitter sans enregistrer</button>
+        <button type="button" className="bt-btn" onClick={onStay} disabled={pending}>Rester</button>
+      </div>
+    </dialog>
+  );
+}
 
 function SpellList({ card }: { card: TeamCard }) {
   const info = SPELL_INFO[card.type];
@@ -101,8 +149,11 @@ function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | 
       {card && (
         <div className="eq-dlg">
           <figure className="eq-dlg-art" data-rarity={card.rarity}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
+            <div className="eq-art">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
+              <RarityTag rarity={card.rarity} />
+            </div>
             <figcaption>
               <b>{card.name}</b>
               <small>{card.series}</small>
@@ -166,13 +217,57 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
     setSlots(next);
   };
 
+  const isDirty = (k: Kind) => teams[k].join() !== savedTeams[k].join();
+  const anyDirty = isDirty("ATTACK") || isDirty("DEFENSE");
+  const router = useRouter();
+  const [leaveTo, setLeaveTo] = useState<string | null>(null);
+  const bypass = useRef(false);
+
+  // Fermeture d'onglet ou rechargement : alerte native du navigateur.
+  useEffect(() => {
+    if (!anyDirty) return;
+    const warn = (e: BeforeUnloadEvent) => { if (!bypass.current) e.preventDefault(); };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [anyDirty]);
+  // Liens internes : on intercepte le clic pour proposer d'enregistrer.
+  useEffect(() => {
+    if (!anyDirty) return;
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || bypass.current || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === "_blank") return;
+      const url = new URL(a.href, location.href);
+      if (url.origin !== location.origin || (url.pathname === location.pathname && url.search === location.search)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setLeaveTo(url.pathname + url.search + url.hash);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [anyDirty]);
+  const leave = () => {
+    if (!leaveTo) return;
+    bypass.current = true;
+    router.push(leaveTo);
+  };
+
+  const saveTeam = async (k: Kind) => {
+    const ids = teams[k] as string[];
+    const r = await (k === "ATTACK" ? setAttackTeamAction(ids) : setDefenseTeamAction(ids));
+    if (!r.ok) { setMsg({ ok: false, text: r.error }); return false; }
+    setSavedTeams((s) => ({ ...s, [k]: teams[k] }));
+    return true;
+  };
   const save = () =>
     start(async () => {
-      const ids = slots as string[];
-      const r = await (kind === "ATTACK" ? setAttackTeamAction(ids) : setDefenseTeamAction(ids));
-      if (!r.ok) return setMsg({ ok: false, text: r.error });
-      setSavedTeams((s) => ({ ...s, [kind]: slots }));
-      setMsg({ ok: true, text: kind === "ATTACK" ? "Équipe d'attaque enregistrée." : "Équipe de défense enregistrée." });
+      if (await saveTeam(kind)) setMsg({ ok: true, text: kind === "ATTACK" ? "Équipe d'attaque enregistrée." : "Équipe de défense enregistrée." });
+    });
+  const dirtyKinds = (["ATTACK", "DEFENSE"] as const).filter(isDirty);
+  const canSaveAll = dirtyKinds.every((k) => teams[k].every(Boolean));
+  const saveAndLeave = () =>
+    start(async () => {
+      for (const k of dirtyKinds) if (!(await saveTeam(k))) { setLeaveTo(null); return; }
+      leave();
     });
   const auto = () =>
     start(async () => {
@@ -201,6 +296,7 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
   const exposed = TYPES.filter((t) => live.length > 0 && live.every((c) => affinity(t, c.type) > 1));
 
   return (
+    <div className="eq-layout">
     <div className="eq">
       <nav className="eq-tabs" aria-label="Type d'équipe">
         {(["ATTACK", "DEFENSE"] as const).map((k) => (
@@ -218,8 +314,11 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
               <span className="eq-pos">{i + 1}</span>
               {c ? (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.imageUrl} alt="" referrerPolicy="no-referrer" />
+                  <span className="eq-art">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.imageUrl} alt="" referrerPolicy="no-referrer" />
+                    <RarityTag rarity={c.rarity} />
+                  </span>
                   <span className="eq-name">{c.name}</span>
                   <small><TypeIcon type={c.type} /> {RARITY_NAMES[c.rarity]}{c.stars > 0 ? ` · ${c.stars}★` : ""}</small>
                   <small>ATK {num.format(c.attack)} · DEF {num.format(c.defense)}</small>
@@ -291,8 +390,11 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
             return (
               <li key={c.id} className="eq-card" data-rarity={c.rarity} data-in={at >= 0 || undefined}>
                 <button type="button" onClick={() => setFocus(c.id)} aria-label={`Voir les sorts de ${c.name}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                  <span className="eq-art">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                    <RarityTag rarity={c.rarity} />
+                  </span>
                   <span className="eq-name">{c.name}</span>
                   <small><TypeIcon type={c.type} /> {RARITY_NAMES[c.rarity]}{c.stars > 0 ? ` · ${c.stars}★` : ""}</small>
                   <small className="eq-sp">★ {spellOf(c.characterId, c.rarity, c.type)?.name ?? "Pas de sort perso"}{ULTIMATE_CATALOG[c.characterId] && (c.rarity === "SSR" || c.rarity === "UR") ? ` · ✦ ${ULTIMATE_CATALOG[c.characterId].name}` : ""}</small>
@@ -306,6 +408,9 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
           <button type="button" className="bt-btn" onClick={() => setShown((n) => n + MAX_SHOWN)}>Voir plus ({filtered.length - shown} restantes)</button>
         )}
       </section>
+    </div>
+    <TypeLegend />
+    <LeaveDialog open={leaveTo !== null} canSave={canSaveAll} pending={pending} onSave={saveAndLeave} onLeave={leave} onStay={() => setLeaveTo(null)} />
     </div>
   );
 }

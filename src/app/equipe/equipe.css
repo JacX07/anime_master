@@ -9,8 +9,14 @@
 .eq-slot { display: grid; gap: 0.4rem; padding: 0.6rem; border: 1px solid #35507c; border-radius: 0.6rem; background: #0f1d33; }
 .eq-slot[data-selected] { border-color: #ffd166; box-shadow: 0 0 0 2px #ffd16655; }
 .eq-slot-main { position: relative; display: grid; gap: 0.2rem; justify-items: center; text-align: center; background: none; border: 0; color: inherit; cursor: pointer; min-height: 11rem; align-content: start; }
-.eq-slot-main img, .eq-card img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 0.4rem; }
-.eq-slot-main img { max-height: 9rem; }
+.eq-art { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; border-radius: 0.4rem; overflow: hidden; background: #070e1a; }
+.eq-art img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.eq-rarity { position: absolute; top: 0.25rem; right: 0.25rem; padding: 0.1rem 0.35rem; border-radius: 0.25rem; background: #08101deb; border: 1px solid currentColor; font-size: 0.65rem; font-weight: 700; line-height: 1.2; color: var(--rarity-N); }
+.eq-rarity[data-rarity="R"] { color: var(--rarity-R); }
+.eq-rarity[data-rarity="SR"] { color: var(--rarity-SR); }
+.eq-rarity[data-rarity="SSR"] { color: var(--rarity-SSR); }
+.eq-rarity[data-rarity="UR"] { color: var(--rarity-UR); }
+.eq-pos { z-index: 1; }
 .eq-slot-main small, .eq-card small { color: #9fb2cf; display: inline-flex; gap: 0.25rem; align-items: center; justify-content: center; }
 .eq-pos { position: absolute; top: 0.2rem; left: 0.2rem; background: #000a; border-radius: 999px; min-width: 1.4rem; height: 1.4rem; display: grid; place-items: center; font-size: 0.75rem; }
 .eq-empty { margin-top: 4rem; color: #8ea3c4; }
@@ -34,19 +40,31 @@
 .eq-card[data-in] { border-color: #ffd166; }
 .eq-badge { font-size: 0.7rem; color: #ffd166; }
 .eq-info { position: absolute; top: 0.4rem; right: 0.4rem; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 999px; border: 1px solid #ffffff40; background: #000a; color: #e8f0ff; cursor: pointer; }
-.eq-slot[data-rarity="UR"], .eq-card[data-rarity="UR"] { border-color: #ff6bd6; }
-.eq-slot[data-rarity="SSR"], .eq-card[data-rarity="SSR"] { border-color: #ffb454; }
+.eq-slot[data-rarity="SR"], .eq-card[data-rarity="SR"] { border-color: var(--rarity-SR); }
+.eq-slot[data-rarity="UR"], .eq-card[data-rarity="UR"] { border-color: var(--rarity-UR); }
+.eq-slot[data-rarity="SSR"], .eq-card[data-rarity="SSR"] { border-color: var(--rarity-SSR); }
 .eq-slot[data-selected] { border-color: #ffd166; }
 .eq-sp { font-size: 0.7rem; color: #ffd166 !important; }
 .eq-dialog { padding: 0; border: 1px solid #6cb2ff; border-radius: 0.8rem; background: #0b1526; color: #e8f0ff; width: min(46rem, 94vw); max-height: 90vh; }
 .eq-dialog::backdrop { background: #000b; }
 .eq-dlg { display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr; gap: 1.2rem; padding: 1.2rem; }
 .eq-dlg-art { margin: 0; display: grid; gap: 0.5rem; align-content: start; }
-.eq-dlg-art img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 0.5rem; border: 2px solid #35507c; }
-.eq-dlg-art[data-rarity="SSR"] img { border-color: #ffb454; }
-.eq-dlg-art[data-rarity="UR"] img { border-color: #ff6bd6; }
+.eq-dlg-art .eq-art { border-radius: 0.5rem; border: 2px solid #35507c; }
+.eq-dlg-art[data-rarity="SR"] .eq-art { border-color: var(--rarity-SR); }
+.eq-dlg-art[data-rarity="SSR"] .eq-art { border-color: var(--rarity-SSR); }
+.eq-dlg-art[data-rarity="UR"] .eq-art { border-color: var(--rarity-UR); }
 .eq-dlg-art figcaption { display: grid; gap: 0.15rem; }
 .eq-dlg-art small { color: #9fb2cf; display: inline-flex; gap: 0.25rem; align-items: center; }
 .eq-dlg-spells { overflow-y: auto; max-height: calc(90vh - 2.4rem); display: grid; gap: 0.8rem; align-content: start; }
 .eq-dlg-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-@media (max-width: 34rem) { .eq-dlg { grid-template-columns: 1fr; } .eq-dlg-art img { max-height: 14rem; } }
+@media (max-width: 34rem) { .eq-dlg { grid-template-columns: 1fr; } .eq-dlg-art .eq-art { max-height: 18rem; aspect-ratio: auto; height: 18rem; } }
+.eq-layout { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 1.2rem; align-items: start; }
+.eq { min-width: 0; }
+.eq-legend { position: sticky; top: 1rem; padding: 0.8rem 1rem; border: 1px solid #35507c; border-radius: 0.6rem; background: #0f1d33; }
+.eq-legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+.eq-legend b { display: flex; gap: 0.35rem; align-items: center; }
+.eq-legend p { margin: 0.15rem 0; font-size: 0.8rem; color: #c9d6ea; }
+.eq-legend small { display: block; font-size: 0.72rem; color: #8ea3c4; }
+.eq-leave { width: min(28rem, 94vw); padding: 1.2rem; }
+.eq-leave p { margin: 0 0 1rem; color: #c9d6ea; }
+@media (max-width: 60rem) { .eq-layout { grid-template-columns: 1fr; } .eq-legend { position: static; } }
