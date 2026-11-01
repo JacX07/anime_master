@@ -10,9 +10,10 @@ import type { BattleView } from "@/lib/battles";
 import { RARITY_NAMES } from "@/lib/labels";
 import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES } from "@/lib/story";
 import type { Rarity } from "@/generated/prisma/enums";
+import { StoryMap } from "./StoryMap";
 import "./histoire.css";
 
-interface UniverseView {
+export interface UniverseView {
   key: string;
   name: string;
   resource: string;
@@ -64,7 +65,6 @@ function Countdown({ seconds, label, onDone, onCancel }: { seconds: number; labe
 export function StoryBoard({ universes, team, stock }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [universe, setUniverse] = useState(universes[0].key);
   const [error, setError] = useState<string | null>(null);
   const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number; auto: boolean } | null>(null);
   // « Enchaîner » : après une victoire, le combat suivant démarre tout seul (réglage gardé d'une visite à l'autre)
@@ -73,10 +73,9 @@ export function StoryBoard({ universes, team, stock }: Props) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setChain(localStorage.getItem("bt-chain") === "on");
   }, []);
-  const u = universes.find((x) => x.key === universe)!;
   const ready = team.every(Boolean);
 
-  function run(level: number) {
+  function run(level: number, u: UniverseView = fight?.universe ?? universes[0]) {
     setError(null);
     start(async () => {
       // Combat suivi par le serveur : Auto ou Manuel comme au dernier combat, modifiable en route
@@ -181,41 +180,15 @@ export function StoryBoard({ universes, team, stock }: Props) {
         </button>
       </section>
 
-      <nav className="hs-tabs" aria-label="Univers">
-        {universes.map((x) => (
-          <button key={x.key} type="button" className="hs-tab" aria-pressed={x.key === universe} disabled={!x.unlocked} onClick={() => setUniverse(x.key)}>
-            <span>{x.rank}. {x.name}</span>
-            <small>{x.kind === "collision" ? "Collision · " : ""}{x.unlocked ? `${x.maxLevel} / ${LEVELS}` : "Verrouillé"}</small>
-          </button>
-        ))}
-      </nav>
-      {!u.unlocked && <p className="vt-muted">Termine {universes[u.rank - 2]?.name} (15 combats) pour ouvrir cet univers.</p>}
-      <p className="vt-count">
-        {u.kind === "collision" ? "Univers de collision : des personnages de plusieurs anime." : "Univers d'anime."} Ennemis de ×{u.startScale.toFixed(2).replace(".", ",")} à ×{u.difficulty.toFixed(2).replace(".", ",")} des stats de leur rareté{u.rank === 1 ? " (tutoriel)" : ""}.
-      </p>
-
-      <p className="vt-count">
-        Ressources : {resName(u.resource)} {stock[u.resource] ?? 0} · {resName("fragment-de-signature")} {stock["fragment-de-signature"] ?? 0} · {resName(u.weaponResource)} {stock[u.weaponResource] ?? 0}
-      </p>
       {error && <p className="hs-error" role="alert">{error}</p>}
-
-      <ol className="hs-levels">
-        {u.mixes.map((mix, i) => {
-          const n = i + 1;
-          const done = n <= u.maxLevel, open = u.unlocked && n <= u.maxLevel + 1;
-          return (
-            <li key={n} className={`hs-level${isBoss(n) ? " hs-boss" : ""}${done ? " hs-done" : ""}`}>
-              <div>
-                <b>{levelTitle(n)}</b>
-                <small>{mix.join(" · ")}</small>
-              </div>
-              <button type="button" className="bt-btn" disabled={!open || !ready || pending} onClick={() => run(n)}>
-                {done ? "Rejouer" : open ? "Combattre" : "Verrouillé"}
-              </button>
-            </li>
-          );
-        })}
-      </ol>
+      <StoryMap
+        key={universes.map((u) => `${u.key}:${u.maxLevel}:${u.unlocked}`).join("|")}
+        universes={universes}
+        stock={stock}
+        ready={ready}
+        pending={pending}
+        onFight={run}
+      />
     </>
   );
 }
