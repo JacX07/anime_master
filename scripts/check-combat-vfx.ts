@@ -4,6 +4,8 @@ import type { BattleEvent, UnitId } from "../src/lib/battle";
 import { ATTACK_VISUALS } from "../src/lib/attack-visual";
 import { BASIC_ATTACK_ROSTER } from "../src/lib/basic-attack-roster";
 import { actionVisualTargets } from "../src/lib/combat-vfx-events";
+import { STATUS_INFO } from "../src/lib/battle-replay";
+import { PERSISTENT_STATUSES, STATUS_FX } from "../src/components/battle/status-vfx";
 
 const action = (target: UnitId | null = "B1"): BattleEvent => ({ kind: "action", actor: "A1", spell: "ultimate", target });
 const damage = (target: UnitId): BattleEvent => ({ kind: "damage", source: "A1", target, amount: 10, absorbed: 0, crit: false, affinity: null, exposedBonus: false, hp: 90, shield: 0 });
@@ -38,4 +40,12 @@ assert.deepEqual(actionVisualTargets([damage("B1"), action(), damage("B2")], 0),
 // Chaque personnage de base roster a un style d'attaque explicite.
 assert.equal(Object.keys(BASIC_ATTACK_ROSTER).length, 236);
 assert.deepEqual(Object.keys(ATTACK_VISUALS).sort(), Object.keys(BASIC_ATTACK_ROSTER).sort());
+// Chaque statut a son effet d'application ; malus et bonus suivent STATUS_INFO ; seuls les persistants ont une boucle.
+for (const [key, info] of Object.entries(STATUS_INFO)) {
+  const fx = STATUS_FX[key as keyof typeof STATUS_INFO];
+  assert.ok(fx?.apply, `effet manquant : ${key}`);
+  assert.equal(fx.bad, info.bad, `bonus/malus incohérent : ${key}`);
+}
+for (const key of PERSISTENT_STATUSES) assert.ok(STATUS_FX[key].ambient, `boucle manquante : ${key}`);
+console.log("✓ effets de statut : 19 statuts, 6 persistants");
 console.log("✓ combat VFX : cibles, frontières d'action, délais et styles (236 personnages)");

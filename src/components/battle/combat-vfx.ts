@@ -243,6 +243,35 @@ export class CombatVfx {
     this.animate(card, [{ opacity: 0 }, { opacity: 0 }], { delay: T, duration: 380 });
   }
 
+  /** Overlay d'application d'un statut (repère 120×152 calé sur la carte) et réaction de la carte : saut (bonus) ou affaissement (malus). */
+  status(card: HTMLElement, markup: string, bad: boolean, shake = false) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = card.getBoundingClientRect(), bounds = this.root.getBoundingClientRect(), w = rect.width, h = rect.height;
+    const svg = document.createElementNS(NS, "svg");
+    svg.classList.add("bt-sfx", "bt-sfx-ap");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("viewBox", "0 0 120 152");
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.style.cssText = `left:${rect.left - bounds.left + this.root.scrollLeft - w * 15 / 90}px;top:${rect.top - bounds.top + this.root.scrollTop - h * 14 / 124}px;width:${w * 120 / 90}px;height:${h * 152 / 124}px;z-index:21;`;
+    svg.innerHTML = markup;
+    this.root.append(svg); this.nodes.add(svg);
+    // CSS animations of the drawing follow the player's speed and pause like our own.
+    const adopted = svg.getAnimations({ subtree: true });
+    for (const animation of adopted) {
+      animation.playbackRate = this.speed;
+      if (this.paused) animation.pause();
+      this.animations.add(animation);
+    }
+    const remove = () => { svg.remove(); this.nodes.delete(svg); for (const animation of adopted) this.animations.delete(animation); };
+    void this.animate(svg, [{ opacity: 1 }, { opacity: 1 }], { duration: 1900 }).finished.then(remove, remove);
+    const motion: Keyframe[] = shake
+      ? [{ transform: "none" }, { transform: "translateX(-5%) rotate(-2deg)", offset: .04 }, { transform: "translateX(5%) rotate(2deg)", offset: .08 }, { transform: "translateX(-2%)", offset: .12 }, { transform: "none", offset: .16 }, { transform: "none" }]
+      : bad
+        ? [{ transform: "none", filter: "none" }, { transform: "translateY(3%) scale(.97)", filter: "saturate(.25) brightness(.75)", offset: .07 }, { transform: "none", filter: "none", offset: .26 }, { transform: "none", filter: "none" }]
+        : [{ transform: "none" }, { transform: "translateY(-5%) scale(1.04)", offset: .07 }, { transform: "none", offset: .18 }, { transform: "none" }];
+    this.animate(card, motion, { duration: 1800 });
+  }
+
   clear() {
     for (const animation of this.animations) animation.cancel();
     this.animations.clear();

@@ -747,3 +747,134 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt[data-paused] *,
 .bt[data-paused] *::before,
 .bt[data-paused] *::after { animation-play-state: paused !important; }
+
+/* ── Effets de statut (status-vfx.ts) ── repère 120×152, la carte occupe x 15–105, y 14–138 */
+.bt-sfx { position: absolute; pointer-events: none; overflow: visible; --d: 1.8s; }
+.bt-sfx-am { left: -16.67cqw; top: -15.8cqw; width: 133.33cqw; height: 171.6cqw; z-index: 3; transition: translate calc(0.25s / var(--spd)) ease-out, scale calc(0.25s / var(--spd)) ease-out; }
+.bt-team[data-side="A"] .bt-unit[data-acting] .bt-sfx-am { translate: 0 -12.6cqw; scale: 1.08; }
+.bt-team[data-side="B"] .bt-unit[data-acting] .bt-sfx-am { translate: 0 12.6cqw; scale: 1.08; }
+@media (prefers-reduced-motion: reduce) { .bt-sfx { display: none; } }
+.bt-sfx .ap, .bt-sfx .ap *, .bt-sfx .am, .bt-sfx .am * { transform-box: fill-box; transform-origin: center; }
+.bt-sfx .ap, .bt-sfx .ap * { animation-duration: var(--d); animation-iteration-count: 1; animation-fill-mode: both; }
+/* 1 ATK+ flames */.bt-sfx .fl{animation-name:sfx-flame}
+@keyframes sfx-flame{0%{opacity:0;transform:translateY(0) scale(.2)}8%{opacity:1;transform:translateY(-4px) scale(1)}32%{opacity:1;transform:translateY(-58px) scale(1.15)}44%,100%{opacity:0;transform:translateY(-80px) scale(.5)}}
+.bt-sfx .emb{animation:sfx-ember 1.6s infinite linear}
+@keyframes sfx-ember{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-70px)}}
+/* 2 ATK- chains */.bt-sfx .chain{animation-name:sfx-chainDrop}
+@keyframes sfx-chainDrop{0%{opacity:0;transform:translateY(-70px)}16%{opacity:1;transform:translateY(4px)}22%{transform:translateY(-3px)}28%{transform:none}70%{opacity:1}85%,100%{opacity:0}}
+.bt-sfx .drip{animation-name:sfx-drip}
+@keyframes sfx-drip{0%,10%{opacity:0;transform:translateY(-6px) scaleY(.4)}20%{opacity:1;transform:none}60%{opacity:1;transform:translateY(46px) scaleY(1.4)}72%,100%{opacity:0;transform:translateY(60px)}}
+.bt-sfx .sway{animation:sfx-sway 2.4s ease-in-out infinite}
+@keyframes sfx-sway{50%{transform:rotate(3deg)}}
+.bt-sfx .drip2{animation:sfx-drip2 2.6s infinite}
+@keyframes sfx-drip2{0%{opacity:0;transform:none}15%{opacity:.9}80%{opacity:.9;transform:translateY(40px) scaleY(1.3)}100%{opacity:0;transform:translateY(50px)}}
+/* 3 DEF+ hex */.bt-sfx .hx{animation-name:sfx-hexIn}
+@keyframes sfx-hexIn{0%{opacity:0;transform:translate(var(--x),var(--y)) scale(.3) rotate(60deg)}24%{opacity:1;transform:none}32%{opacity:1;fill:#fff}40%{fill:#4fa3ff55}62%{opacity:.8}80%,100%{opacity:0}}
+.bt-sfx .hxa{animation:sfx-breath 2.4s ease-in-out infinite}
+@keyframes sfx-breath{0%,100%{opacity:.18}50%{opacity:.5}}
+/* 4 DEF- shatter */.bt-sfx .shd{animation-name:sfx-shieldIn}
+@keyframes sfx-shieldIn{0%{opacity:0;transform:scale(1.6)}12%,30%{opacity:1;transform:none}31%,100%{opacity:0}}
+.bt-sfx .crk{animation-name:sfx-crack;stroke-dasharray:60;stroke-dashoffset:60}
+@keyframes sfx-crack{0%,18%{opacity:0;stroke-dashoffset:60}19%{opacity:1}28%{stroke-dashoffset:0;opacity:1}31%,100%{opacity:0;stroke-dashoffset:0}}
+.bt-sfx .sh{animation-name:sfx-shard;opacity:0}
+@keyframes sfx-shard{0%,30%{opacity:0;transform:none}31%{opacity:1;transform:none}70%{opacity:1;transform:translate(var(--x),55px) rotate(var(--r))}80%,100%{opacity:0;transform:translate(var(--x),70px) rotate(var(--r))}}
+.bt-sfx .fall{animation:sfx-fall 3s infinite}
+@keyframes sfx-fall{0%,40%{opacity:0;transform:none}50%{opacity:1}100%{opacity:0;transform:translate(-4px,40px) rotate(90deg)}}
+/* 5 CRIT+ */.bt-sfx .cst{animation-name:sfx-critIn}
+@keyframes sfx-critIn{0%{opacity:0;transform:scale(0) rotate(-90deg)}12%{opacity:1;transform:scale(1.35) rotate(0)}20%{transform:scale(1)}48%{opacity:1;transform:scale(1) rotate(45deg)}62%,100%{opacity:0;transform:translate(30px,-46px) scale(.25) rotate(90deg)}}
+.bt-sfx .ray{animation-name:sfx-ray}
+@keyframes sfx-ray{0%,10%{opacity:0;transform:scale(.4)}16%{opacity:1}36%,100%{opacity:0;transform:scale(1.4)}}
+.bt-sfx .tw{animation:sfx-twinkle 1.8s infinite}
+@keyframes sfx-twinkle{0%,60%,100%{opacity:0;transform:scale(.2) rotate(0)}75%{opacity:1;transform:scale(1) rotate(45deg)}}
+/* 6 CRIT- */.bt-sfx .cdn{animation-name:sfx-critDown}
+@keyframes sfx-critDown{0%{opacity:0;transform:scale(.4)}10%{opacity:1;transform:scale(1);fill:#ffd23f}30%{fill:#7c7f8f;transform:scale(.95)}40%{transform:rotate(-8deg)}70%{opacity:1;transform:translateY(46px) rotate(-70deg) scale(.7)}82%,100%{opacity:0;transform:translateY(56px) rotate(-90deg) scale(.6);fill:#7c7f8f}}
+.bt-sfx .dull{animation:sfx-dull 2.4s infinite}
+@keyframes sfx-dull{0%,100%{opacity:.35}50%{opacity:.7}}
+/* 7 DODGE+ */.bt-sfx .gL,.bt-sfx .gR{animation-name:sfx-ghost}
+.bt-sfx .gL{--x:-16px}
+.bt-sfx .gR{--x:16px}
+@keyframes sfx-ghost{0%{opacity:0;transform:none}8%{opacity:.75;transform:translateX(var(--x))}30%{opacity:.5;transform:translateX(calc(var(--x)*1.2))}46%,100%{opacity:0;transform:none}}
+.bt-sfx .wind{animation-name:sfx-wind;stroke-dasharray:80;stroke-dashoffset:80}
+@keyframes sfx-wind{0%,6%{stroke-dashoffset:80;opacity:1}26%{stroke-dashoffset:0;opacity:1}40%,100%{stroke-dashoffset:-80;opacity:0}}
+.bt-sfx .flick{animation:sfx-flick 2.6s infinite}
+@keyframes sfx-flick{0%,78%,100%{opacity:0;transform:none}82%{opacity:.6;transform:translateX(-12px)}90%{opacity:0;transform:translateX(-18px)}}
+/* 8 DODGE- weight */.bt-sfx .wt{animation-name:sfx-weight}
+@keyframes sfx-weight{0%{opacity:0;transform:translateY(-90px)}14%{opacity:1;transform:translateY(0)}18%{transform:translateY(-6px) scaleY(1.05)}22%{transform:none}62%{opacity:1}76%,100%{opacity:0}}
+.bt-sfx .dust{animation-name:sfx-dust;opacity:0}
+@keyframes sfx-dust{0%,13%{opacity:0;transform:scale(.3)}17%{opacity:1}42%,100%{opacity:0;transform:translateX(var(--x)) scale(1.5)}}
+.bt-sfx .wob{animation:sfx-wob 1.4s ease-in-out infinite}
+@keyframes sfx-wob{50%{transform:rotate(-6deg)}}
+/* 9 SPEED+ */.bt-sfx .chv{animation-name:sfx-chev}
+@keyframes sfx-chev{0%{opacity:0;transform:translateY(30px)}10%{opacity:1}34%{opacity:1;transform:translateY(-60px)}44%,100%{opacity:0;transform:translateY(-80px)}}
+.bt-sfx .chva{animation:sfx-chev2 1.2s linear infinite}
+@keyframes sfx-chev2{0%{opacity:0;transform:translateY(20px)}30%{opacity:1}100%{opacity:0;transform:translateY(-40px)}}
+/* 10 SPEED- */.bt-sfx .ice{animation-name:sfx-ice}
+@keyframes sfx-ice{0%{opacity:0;transform:scale(0)}22%{opacity:1;transform:scale(1.1)}28%{transform:scale(1)}72%{opacity:1}86%,100%{opacity:0}}
+.bt-sfx .clk{animation-name:sfx-clk}
+@keyframes sfx-clk{0%,8%{opacity:0;transform:scale(.5)}16%{opacity:1;transform:scale(1)}60%{opacity:1}72%,100%{opacity:0}}
+.bt-sfx .hand{animation-name:sfx-hand;transform-box:view-box;transform-origin:60px 76px}
+@keyframes sfx-hand{0%,14%{transform:rotate(0)}24%{transform:rotate(250deg)}40%{transform:rotate(320deg)}60%,100%{transform:rotate(340deg)}}
+.bt-sfx .flake{animation:sfx-flake 3s linear infinite}
+@keyframes sfx-flake{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translateY(60px) rotate(180deg)}}
+.bt-sfx .glint{animation:sfx-twinkle 2.2s infinite}
+/* 11 SILENCE */.bt-sfx .tal{animation-name:sfx-talisman}
+@keyframes sfx-talisman{0%{opacity:0;transform:scale(2.2) rotate(-40deg)}12%{opacity:1;transform:scale(.95) rotate(-12deg)}17%,80%{opacity:1;transform:rotate(-12deg)}92%,100%{opacity:0;transform:rotate(-12deg)}}
+.bt-sfx .slap{animation-name:sfx-slap;opacity:0}
+@keyframes sfx-slap{0%,11%{opacity:0;transform:scale(.6)}14%{opacity:1}30%,100%{opacity:0;transform:scale(1.4)}}
+.bt-sfx .flut{animation:sfx-flut 1.6s ease-in-out infinite;transform-origin:50% 0}
+@keyframes sfx-flut{0%,100%{transform:rotate(-12deg) skewX(0)}50%{transform:rotate(-10deg) skewX(4deg)}}
+/* 12 STUN */.bt-sfx .orb{transform-box:view-box!important;transform-origin:0 0!important;animation:sfx-orbitE 1.1s linear infinite!important}
+.bt-sfx .orbw{animation-name:sfx-orbIn}
+@keyframes sfx-orbIn{0%,10%{opacity:0}18%,85%{opacity:1}100%{opacity:0}}
+.bt-sfx .bonk{animation-name:sfx-bonk;opacity:0}
+@keyframes sfx-bonk{0%{opacity:0;transform:scale(.2)}6%{opacity:1;transform:scale(1.2)}20%,100%{opacity:0;transform:scale(1.5)}}
+/* 13 IMMUNE */.bt-sfx .dia{animation-name:sfx-dia}
+@keyframes sfx-dia{0%{opacity:0;transform:scale(.15) rotate(45deg)}20%{opacity:1;transform:scale(1.08) rotate(0)}28%{transform:scale(1)}62%{opacity:1}82%,100%{opacity:0;transform:scale(1.04)}}
+.bt-sfx .sweep{animation-name:sfx-sweep}
+@keyframes sfx-sweep{0%,22%{opacity:0;transform:translateX(-70px) skewX(-20deg)}26%{opacity:.45}44%,100%{opacity:0;transform:translateX(70px) skewX(-20deg)}}
+.bt-sfx .goldrun{stroke-dasharray:18 300;animation:sfx-run 2.2s linear infinite}
+@keyframes sfx-run{to{stroke-dashoffset:-318}}
+/* 14 POISON */.bt-sfx .splat{animation-name:sfx-splat}
+@keyframes sfx-splat{0%{opacity:0;transform:translateY(-60px) scale(.6)}12%{opacity:1;transform:translateY(0) scale(1,.7)}18%{transform:scale(1.15,.9)}62%{opacity:1}80%,100%{opacity:0}}
+.bt-sfx .skull{animation-name:sfx-skull}
+@keyframes sfx-skull{0%,12%{opacity:0;transform:scale(.3)}22%{opacity:1;transform:scale(1.2)}28%{transform:scale(1)}55%{opacity:1;transform:translateY(-10px)}70%,100%{opacity:0;transform:translateY(-22px)}}
+.bt-sfx .tint{animation-name:sfx-tint}
+@keyframes sfx-tint{0%,10%{opacity:0}20%{opacity:.45}70%{opacity:.25}90%,100%{opacity:0}}
+.bt-sfx .bub{animation:sfx-bub 1.8s ease-in infinite}
+@keyframes sfx-bub{0%{opacity:0;transform:translateY(0) scale(.5)}20%{opacity:1}90%{opacity:1;transform:translateY(-55px) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.4)}}
+.bt-sfx .tintA{animation:sfx-tintA 2.4s ease-in-out infinite}
+@keyframes sfx-tintA{0%,100%{opacity:.08}50%{opacity:.22}}
+/* 15 TAUNT */.bt-sfx .vein{animation-name:sfx-vein}
+@keyframes sfx-vein{0%{opacity:0;transform:scale(0)}10%{opacity:1;transform:scale(1.4)}16%{transform:scale(.9)}22%{transform:scale(1.1)}28%,70%{opacity:1;transform:scale(1)}84%,100%{opacity:0}}
+.bt-sfx .ring{animation-name:sfx-ring;opacity:0}
+@keyframes sfx-ring{0%,8%{opacity:0;transform:scale(1)}12%{opacity:1}50%,100%{opacity:0;transform:scale(1.5)}}
+.bt-sfx .ring2{animation-name:sfx-ring2;opacity:0}
+@keyframes sfx-ring2{0%,20%{opacity:0;transform:scale(1)}24%{opacity:1}62%,100%{opacity:0;transform:scale(1.5)}}
+.bt-sfx .pulse{animation:sfx-pulse 1.2s ease-in-out infinite}
+@keyframes sfx-pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+/* 16 REGEN */.bt-sfx .crs{animation-name:sfx-crs}
+@keyframes sfx-crs{0%{opacity:0;transform:translate(0,30px) scale(.4)}12%{opacity:1}46%{opacity:1;transform:translate(var(--x),-50px) scale(1) rotate(20deg)}58%,100%{opacity:0;transform:translate(var(--x),-66px) scale(.6)}}
+.bt-sfx .glow{animation-name:sfx-glow}
+@keyframes sfx-glow{0%{opacity:0}16%{opacity:.5}60%,100%{opacity:0}}
+.bt-sfx .crsA{animation:sfx-crsA 2.4s ease-out infinite}
+@keyframes sfx-crsA{0%{opacity:0;transform:translateY(10px) scale(.5)}25%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-34px)}}
+/* 17 IGNORE DEF */.bt-sfx .sh2{animation-name:sfx-sh2}
+@keyframes sfx-sh2{0%{opacity:0;transform:scale(.6)}10%,22%{opacity:1;transform:none}23%{opacity:1}30%{opacity:0}100%{opacity:0}}
+.bt-sfx .half{animation-name:sfx-half;opacity:0}
+@keyframes sfx-half{0%,22%{opacity:0;transform:none}23%{opacity:1;transform:none}52%{opacity:1;transform:translate(var(--x),18px) rotate(var(--r))}64%,100%{opacity:0;transform:translate(var(--x),28px) rotate(var(--r))}}
+.bt-sfx .spear{animation-name:sfx-spear}
+@keyframes sfx-spear{0%,14%{opacity:0;transform:translate(-90px,70px)}22%{opacity:1;transform:translate(0,0)}46%{opacity:1;transform:translate(14px,-11px)}58%,100%{opacity:0;transform:translate(24px,-19px)}}
+.bt-sfx .edge{stroke-dasharray:10 220;animation:sfx-run2 1.6s linear infinite}
+@keyframes sfx-run2{to{stroke-dashoffset:-230}}
+/* 18 EXPOSED */.bt-sfx .ret{animation-name:sfx-ret;transform-box:view-box;transform-origin:60px 76px}
+@keyframes sfx-ret{0%{opacity:0;transform:scale(2.4) rotate(-120deg)}26%{opacity:1;transform:scale(.92) rotate(0)}30%{transform:scale(1)}72%{opacity:1}86%,100%{opacity:0}}
+.bt-sfx .lock{animation-name:sfx-lock;opacity:0}
+@keyframes sfx-lock{0%,25%{opacity:0;transform:scale(.4)}29%{opacity:1;transform:scale(1.2)}44%,100%{opacity:0;transform:scale(1.6)}}
+.bt-sfx .brk{animation-name:sfx-brk}
+@keyframes sfx-brk{0%,20%{opacity:0;transform:scale(1.3)}30%{opacity:1;transform:none}72%{opacity:1}86%,100%{opacity:0}}
+.bt-sfx .retA{transform-box:view-box;transform-origin:60px 76px;animation:sfx-spin 6s linear infinite}
+@keyframes sfx-spin{to{transform:rotate(360deg)}}
+.bt-sfx .retP{animation:sfx-pulse 1.4s ease-in-out infinite}
+@keyframes sfx-orbitE{0.00%{transform:translate(90.0px,22.0px) scale(0.93)}6.25%{transform:translate(87.7px,25.4px) scale(0.99)}12.50%{transform:translate(81.2px,28.4px) scale(1.05)}18.75%{transform:translate(71.5px,30.3px) scale(1.09)}25.00%{transform:translate(60.0px,31.0px) scale(1.10)}31.25%{transform:translate(48.5px,30.3px) scale(1.09)}37.50%{transform:translate(38.8px,28.4px) scale(1.05)}43.75%{transform:translate(32.3px,25.4px) scale(0.99)}50.00%{transform:translate(30.0px,22.0px) scale(0.93)}56.25%{transform:translate(32.3px,18.6px) scale(0.86)}62.50%{transform:translate(38.8px,15.6px) scale(0.80)}68.75%{transform:translate(48.5px,13.7px) scale(0.76)}75.00%{transform:translate(60.0px,13.0px) scale(0.75)}81.25%{transform:translate(71.5px,13.7px) scale(0.76)}87.50%{transform:translate(81.2px,15.6px) scale(0.80)}93.75%{transform:translate(87.7px,18.6px) scale(0.86)}100.00%{transform:translate(90.0px,22.0px) scale(0.92)}}
+.bt-sfx .rim{animation-name:sfx-rim;opacity:0}
+@keyframes sfx-rim{0%{opacity:0}8%{opacity:1}45%{opacity:.6}70%,100%{opacity:0}}

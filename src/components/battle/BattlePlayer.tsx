@@ -9,6 +9,7 @@ import { TYPE_LABELS } from "@/lib/labels";
 import { attackVisual, attackWeapon } from "@/lib/attack-visual";
 import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
+import { PERSISTENT_STATUSES, STATUS_FX } from "./status-vfx";
 import { TypeIcon } from "../icons";
 import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
@@ -243,6 +244,10 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           duration: 760, easing: "cubic-bezier(.35,.05,.3,1)",
         });
       }
+    } else if (ev.kind === "status" && ev.on) {
+      const card = el(ev.target)?.querySelector<HTMLElement>(".bt-card");
+      const fx = STATUS_FX[ev.status];
+      if (card && fx) controller.status(card, fx.apply, fx.bad, ev.status === "stun");
     } else if (ev.kind === "damage") {
       const card = el(ev.target)?.querySelector<HTMLElement>(".bt-card");
       const k = ev.crit ? 1.6 : 1;
@@ -477,6 +482,8 @@ function Unit({
   const ch = characters[info.characterId];
   const aimed = rp.cur?.target === id && !rp.end;
   const cast = acting && rp.cur ? spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name) : null;
+  // Effets persistants : seulement les statuts qui changent la lecture du combat
+  const ambient = st.ko ? "" : PERSISTENT_STATUSES.filter((k) => (k === "exposed" ? st.exposed : (st.fx as Status[]).includes(k))).map((k) => STATUS_FX[k].ambient).join("");
   return (
     <div
       className="bt-unit"
@@ -513,6 +520,7 @@ function Unit({
         </div>
         {st.ko && <span className="bt-ko">K.O.</span>}
       </div>
+      {ambient && <svg className="bt-sfx bt-sfx-am" viewBox="0 0 120 152" preserveAspectRatio="none" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ambient }} />}
       {/* Hors de la carte (qui rogne ce qui dépasse) pour que l'infobulle puisse sortir */}
       <ul className="bt-states" aria-label="États">
         {(["exposed", "weaken", "elan"] as const)
