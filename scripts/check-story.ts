@@ -4,7 +4,7 @@
 // Usage : npm run check:story
 
 import { startOfDay } from "../src/lib/economy";
-import { BattleError, getStoryProgress, playAction, setAttackTeam, startBattle, storyEnemies, storyKey, type BattleTeams } from "../src/lib/battles";
+import { BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, startBattle, storyEnemies, storyKey, storyStars, type BattleTeams } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
 import { baseUnits, COMMON_RESOURCE, DAILY_FULL_UNITS, UNIVERSES } from "../src/lib/story";
 
@@ -18,6 +18,10 @@ const sum = (r: Record<string, number> | undefined) => Object.values(r ?? {}).re
 const OP = UNIVERSES[0], key = (l: number) => storyKey(OP.key, l);
 
 async function main() {
+  check("Défaite : 0 étoile", storyStars(false, [], 4) === 0);
+  check("Victoire sans K.-O. : 2 étoiles", storyStars(true, [], 4) === 2);
+  check("Victoire avec K.-O. : 1 étoile", storyStars(true, [{ kind: "ko", target: "A1" }], 4) === 1);
+  check("Duo de deux personnages : 3 étoiles même avec un K.-O.", storyStars(true, [{ kind: "ko", target: "A1" }], 2) === 3);
   const uid = `sty-${Date.now()}`;
   const pulls = new Map<number, number>();
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
@@ -53,6 +57,16 @@ async function main() {
     check("Rejeu : drop simple, sans Ryō ni cristaux", sum(b.loot?.resources) === baseUnits(1) && b.loot?.ryo === 0 && b.loot?.crystals === 0, `${sum(b.loot?.resources)} unités`);
     check("Rejeu : Ryō inchangés", (await prisma.user.findUniqueOrThrow({ where: { id: uid }, select: { balance: true } })).balance === u1.balance);
 
+    // Score de duo, meilleur score conservé, rejeu idempotent
+    check("Une sélection d'un personnage est refusée", await rejects(startBattle(uid, key(1), false, new Date(), [cards[0]])));
+    const duo = await startBattle(uid, key(1), false, new Date(), cards.slice(0, 2));
+    const duoTeams = (await prisma.battle.findUniqueOrThrow({ where: { id: duo.id }, select: { teams: true } })).teams as unknown as BattleTeams;
+    check("Un combat lancé avec exactement deux cartes donne 3 étoiles", duo.storyStars === 3 && duoTeams.A.length === 2);
+    check("Meilleur score de l'étape enregistré", (await prisma.storyStageStar.findUniqueOrThrow({ where: { userId_universe_level: { userId: uid, universe: OP.key, level: 1 } } })).stars === 3);
+    await startBattle(uid, key(1), false);
+    check("Un rejeu à 4 cartes ne rétrograde pas le meilleur score", (await prisma.storyStageStar.findUniqueOrThrow({ where: { userId_universe_level: { userId: uid, universe: OP.key, level: 1 } } })).stars === 3);
+    check("Un rejeu reste consultable sans rejouer le règlement", (await getBattle(uid, duo.id)).storyStars === 3);
+
     // Plafond quotidien
     await prisma.dailyGain.upsert({
       where: { userId_day_source: { userId: uid, day: startOfDay(new Date()), source: "STORY" } },
@@ -66,6 +80,7 @@ async function main() {
     const both = await Promise.all([startBattle(uid, key(2), false), startBattle(uid, key(2), false)]);
     check("Deux combats simultanés : un seul premier passage", both.filter((x) => (x.loot?.ryo ?? 0) > 0).length === 1);
     check("Progression à 2", (await getStoryProgress(uid))[0].maxLevel === 2);
+    check("Ancien niveau gagné reste à 1 étoile au minimum", (await getStoryProgress(uid))[0].stars[2] >= 1);
 
     // Ennemis stables
     const e = async (id: string) => ((await prisma.battle.findUniqueOrThrow({ where: { id } })).teams as unknown as BattleTeams).B;
@@ -98,6 +113,7 @@ async function main() {
       view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0] });
     }
     check("Manuel : combat terminé", view.status === "DONE");
+    check("Manuel : score d'histoire persisté", view.storyStars !== null && (await getBattle(uid, view.id)).storyStars === view.storyStars);
     if (view.winner === "A") {
       const gain = sum(await stock()) - before;
       check("Manuel : butin versé une fois à la victoire", view.loot !== null && gain === sum(view.loot.resources), `${gain} unités`);
@@ -115,7 +131,7 @@ async function main() {
     await setAttackTeam(uid, wc);
     await prisma.storyProgress.update({ where: { userId_universe: { userId: uid, universe: OP.key } }, data: { maxLevel: 11 } });
     const lost = await startBattle(uid, key(12), false);
-    check("Défaite : aucun butin, aucune pénalité", lost.winner !== "A" && lost.loot === null);
+    check("Défaite : 0 étoile, aucun butin, aucune pénalité", lost.winner !== "A" && lost.storyStars === 0 && lost.loot === null);
     check("Ressource commune bien nommée", COMMON_RESOURCE in (await stock()) || sum(await stock()) > 0);
   } finally {
     for (const [characterId, count] of pulls) await prisma.character.update({ where: { id: characterId }, data: { pullCount: count } });

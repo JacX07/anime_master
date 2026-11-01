@@ -34,7 +34,7 @@ Détaillé dans la section « Raid » ci-dessous.
 
 ---
 
-## Mode histoire *(discuté le 2026-10-31 ; serveur codé le 2026-10-31, pas encore d'interface)*
+## Mode histoire *(discuté le 2026-10-31 ; interface et serveur codés le 2026-11-01)*
 
 > Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-battle.ts`. Tout le reste est décidé.
 
@@ -147,6 +147,8 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 
 ### Réalisation (serveur, 2026-10-31)
 - `src/lib/story.ts` (pur) : univers de lancement, mélange de raretés, échelle, butin. `src/lib/battles.ts` : ennemis par niveau (personnages de la franchise, tirage fixé par univers + niveau), déverrouillage, butin versé dans la transaction de fin de combat (auto et manuel). Clé de combat : `story:<univers>:<niveau>` ; vérifié par `npm run check:story`.
+- Étoiles d'histoire : victoire = 1 ; victoire sans K.-O. allié = 2 ; victoire avec exactement 2 personnages distincts = 3, même si un allié tombe. Le duo est choisi dans l'interface histoire et n'assouplit pas les équipes à 4 des autres modes. `StoryStageStar` conserve le meilleur score par étape dans la transaction de fin ; les anciens niveaux gagnés sont initialisés à 1 étoile. La carte affiche les étoiles par étape et le total parmi les étapes accessibles.
+- **Paliers d'étoiles** (codé le 2026-11-01 : `src/lib/story-star-rewards.ts`, `story-star-claims.ts`, `StarRewards.tsx`, `npm run check:story-stars`) : chaque univers a 45 étoiles possibles et 4 paliers **à 12, 24, 36 et 45 étoiles**, à réclamer à la main (une seule fois par palier, table `StoryStarClaim`). Lots de départ *(à équilibrer)* : 150 / 300 / 500 / 1000 Ryō, 2 / 3 / 5 / 10 cristaux, 20 / 40 / 60 / 100 unités de la ressource d'éveil de l'univers (× facteur de butin de l'univers), et 3 unités de ressource d'arme légendaire au dernier palier. Le panneau est affiché au-dessus de la carte pour l'univers en cours de visite. Rejouer un combat pour monter ses étoiles est donc toujours récompensé.
 - Valeurs de départ **non spécifiées**, à équilibrer : Ryō du premier passage `10 + 5 × niveau` (+300 au boss final), cristaux 1 / 2 (boss d'acte) / 5 (boss final), 1 unité de ressource d'arme par victoire du boss final. Le plafond quotidien ne compte pas la ressource d'arme.
 - Pas encore fait : cartes boss plus grandes, puissance conseillée, lots de combats auto, histoire racontée, éveil des étoiles 4 et 5 (raid). L'éveil 1 à 3★ est fait (page `/eveil`).
 

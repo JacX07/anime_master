@@ -33,8 +33,8 @@ export async function setDefenseTeamAction(cardIds: string[]) {
 export async function autoDefenseTeamAction() {
   return run(async (id) => ({ cardIds: await autoTeam(id, "DEFENSE") }));
 }
-export async function startBattleAction(opponent: string, manual: boolean) {
-  return run(async (id) => ({ battle: await startBattle(id, String(opponent), Boolean(manual)) }));
+export async function startBattleAction(opponent: string, manual: boolean, storyCardIds?: string[]) {
+  return run(async (id) => ({ battle: await startBattle(id, String(opponent), Boolean(manual), new Date(), storyCardIds) }));
 }
 export async function getStoryProgressAction() {
   return run(async (id) => ({ progress: await getStoryProgress(id) }));

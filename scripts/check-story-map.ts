@@ -25,8 +25,8 @@ for (const u of UNIVERSES) {
 }
 console.log("✓ Reprise : nouveau joueur, victoire, actes, univers, parcours terminé et 15 décors/boss.");
 
-const universes = UNIVERSES.map((u, i) => ({ ...u, ...progress([15, 5])[i], mixes: Array.from({ length: 15 }, () => ["R", "R", "SR", "SR"]) }));
-const html = renderToStaticMarkup(createElement(StoryMap, { universes, stock: {}, ready: true, pending: false, onFight() {} }));
+const universes = UNIVERSES.map((u, i) => ({ ...u, ...progress([15, 5])[i], claimed: [], stars: Object.fromEntries(Array.from({ length: 15 }, (_, level) => [level + 1, level < (progress([15, 5])[i]?.maxLevel ?? 0) ? 1 : 0])), mixes: Array.from({ length: 15 }, () => ["R", "R", "SR", "SR"]) }));
+const html = renderToStaticMarkup(createElement(StoryMap, { universes, stock: {}, ready: true, chosenTeamSize: 4, pending: false, onFight() {} }));
 assert.equal((html.match(/data-level=/g) ?? []).length, 225);
 assert.equal((html.match(/class="hs-map-act"/g) ?? []).length, 45);
 assert.equal((html.match(/aria-current="step"/g) ?? []).length, 1);

@@ -179,6 +179,8 @@ model User {
   battleTeams         BattleTeam[]
   battles             Battle[]
   storyProgress       StoryProgress[]
+  storyStars          StoryStageStar[]
+  storyStarClaims     StoryStarClaim[]
   towerProgress       TowerProgress?
   resources           ResourceStock[]
   dailyGains          DailyGain[]
@@ -723,6 +725,8 @@ model Battle {
   log       Json?
   /// Butin versé à la fin (histoire, raid) : { ryo, crystals, resources: { clé: quantité } }
   loot      Json?
+  /// Meilleur score obtenu à la fin d'un combat d'histoire.
+  storyStars Int?
   createdAt DateTime     @default(now())
   endedAt   DateTime?
 
@@ -740,6 +744,28 @@ model StoryProgress {
   maxLevel Int    @default(0)
 
   @@id([userId, universe])
+}
+
+/// Meilleur nombre d'étoiles par combat d'histoire (0 à 3).
+model StoryStageStar {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  universe String
+  level    Int
+  stars    Int    @default(0)
+
+  @@id([userId, universe, level])
+}
+
+/// Palier de récompense d'étoiles réclamé (un par joueur, univers et palier).
+model StoryStarClaim {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  universe  String
+  tier      Int
+  claimedAt DateTime @default(now())
+
+  @@id([userId, universe, tier])
 }
 
 /// Plus haut étage de la Tour gagné (0 = aucun) ; classement par étage atteint.

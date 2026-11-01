@@ -35,6 +35,7 @@
     "check:replay": "tsx scripts/check-replay.ts",
     "check:battles": "tsx scripts/check-battles.ts",
     "check:story": "tsx scripts/check-story.ts",
+    "check:story-stars": "tsx scripts/check-story-stars.ts",
     "check:story-map": "tsx scripts/check-story-map.ts",
     "check:story-drops": "tsx scripts/check-story-drops.ts",
     "check:story-bosses": "tsx scripts/check-story-bosses.ts",

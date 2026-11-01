@@ -5,6 +5,7 @@ import { ResourceArt } from "@/components/ResourceArt";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { autoAttackTeamAction, startBattleAction } from "@/app/battle-actions";
+import { claimStarTierAction } from "@/app/story-star-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
 import { RARITY_NAMES } from "@/lib/labels";
@@ -27,10 +28,16 @@ export interface UniverseView {
   difficulty: number;
   /** Raretés des 4 ennemis de chacun des 15 combats */
   mixes: string[][];
+  stars: Record<number, number>;
+  /** Paliers d'étoiles déjà réclamés */
+  claimed: number[];
 }
+interface StoryCard { id: string; characterId: number; name: string; imageUrl: string; rarity: Rarity }
 interface Props {
   universes: UniverseView[];
   team: ({ name: string; imageUrl: string; rarity: Rarity } | null)[];
+  attackIds: (string | null)[];
+  ownedCards: StoryCard[];
   stock: Record<string, number>;
 }
 
@@ -62,24 +69,27 @@ function Countdown({ seconds, label, onDone, onCancel }: { seconds: number; labe
   );
 }
 
-export function StoryBoard({ universes, team, stock }: Props) {
+export function StoryBoard({ universes, team, attackIds, ownedCards, stock }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number; auto: boolean } | null>(null);
   // « Enchaîner » : après une victoire, le combat suivant démarre tout seul (réglage gardé d'une visite à l'autre)
   const [chain, setChain] = useState(false);
+  const [duo, setDuo] = useState(false);
+  const [duoIds, setDuoIds] = useState<string[]>(attackIds.filter((id): id is string => !!id).slice(0, 2));
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setChain(localStorage.getItem("bt-chain") === "on");
   }, []);
-  const ready = team.every(Boolean);
+  const selectedIds = duo ? duoIds : attackIds.filter((id): id is string => !!id);
+  const ready = duo ? duoIds.length === 2 : team.every(Boolean);
 
   function run(level: number, u: UniverseView = fight?.universe ?? universes[0]) {
     setError(null);
     start(async () => {
       // Combat suivi par le serveur : Auto ou Manuel comme au dernier combat, modifiable en route
-      const res = await startBattleAction(`story:${u.key}:${level}`, true);
+      const res = await startBattleAction(`story:${u.key}:${level}`, true, duo ? duoIds : undefined);
       if (!res.ok) return setError(res.error);
       setFight({ battle: res.battle, universe: u, level, auto: localStorage.getItem("bt-auto") !== "off" });
     });
@@ -110,6 +120,7 @@ export function StoryBoard({ universes, team, stock }: Props) {
           renderEnd={(battle) => (
           <div className="hs-result" role="status">
             <b>{battle.winner === "A" ? "Victoire !" : "Défaite — aucune pénalité."}</b>
+            {battle.storyStars !== null && <p className="hs-stars-result" aria-label={`${battle.storyStars} étoile${battle.storyStars === 1 ? " pleine" : "s pleines"}, ${3 - battle.storyStars} étoile${3 - battle.storyStars === 1 ? " vide" : "s vides"}`} title={`${battle.storyStars} étoile${battle.storyStars === 1 ? " pleine" : "s pleines"}, ${3 - battle.storyStars} étoile${3 - battle.storyStars === 1 ? " vide" : "s vides"}`}>{"★".repeat(battle.storyStars)}{"☆".repeat(3 - battle.storyStars)} <span>{battle.storyStars}/3 étoiles</span></p>}
             {battle.loot && (
               <ul>
                 {battle.loot.ryo > 0 && <li><ResourceArt resource="ryo" />{battle.loot.ryo} Ryō</li>}
@@ -161,7 +172,24 @@ export function StoryBoard({ universes, team, stock }: Props) {
     <>
       <section className="hs-team" aria-label="Équipe d’attaque">
         <h2 className="hs-h">Ton équipe d’attaque</h2>
+        <div className="hs-team-modes" role="group" aria-label="Taille de l’équipe histoire">
+          <button type="button" className={`bt-btn${!duo ? " is-active" : ""}`} aria-pressed={!duo} onClick={() => setDuo(false)}>Équipe habituelle · 4 cartes</button>
+          <button type="button" className={`bt-btn${duo ? " is-active" : ""}`} aria-pressed={duo} onClick={() => setDuo(true)}>Duo · 2 cartes</button>
+        </div>
+        {duo && <div className="hs-duo-picker">
+          <p>Choisis exactement deux personnages. Une victoire en duo donne 3 étoiles, même si un personnage tombe au combat.</p>
+          <div className="hs-duo-cards">{ownedCards.map((card) => <label key={card.id} className={`hs-duo-card${duoIds.includes(card.id) ? " is-selected" : ""}`}>
+            <input type="checkbox" checked={duoIds.includes(card.id)} disabled={!duoIds.includes(card.id) && (duoIds.length >= 2 || duoIds.some((id) => ownedCards.find((x) => x.id === id)?.characterId === card.characterId))} onChange={(e) => setDuoIds((ids) => e.target.checked ? [...ids, card.id] : ids.filter((id) => id !== card.id))} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={card.imageUrl} alt="" /><span>{card.name}</span><small>{RARITY_NAMES[card.rarity]}</small>
+          </label>)}</div>
+          <p aria-live="polite">{duoIds.length}/2 personnages choisis</p>
+        </div>}
         {ready ? (
+          duo ? <ul className="hs-cards">{ownedCards.filter((c) => duoIds.includes(c.id)).map((c) => <li key={c.id} className={`hs-card hs-r-${c.rarity}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={c.imageUrl} alt="" /><span>{c.name}</span><small>{RARITY_NAMES[c.rarity]}</small>
+          </li>)}</ul> : (
           <ul className="hs-cards">
             {team.map((c, i) => (
               <li key={i} className={`hs-card hs-r-${c!.rarity}`}>
@@ -172,13 +200,14 @@ export function StoryBoard({ universes, team, stock }: Props) {
               </li>
             ))}
           </ul>
-        ) : (
+        )) : (
           <p className="vt-muted">Il te faut une équipe de 4 cartes pour combattre.</p>
         )}
         <button type="button" className="bt-btn" disabled={pending} onClick={autoTeam}>
-          {ready ? "Reprendre mes 4 cartes les plus rares" : "Composer mon équipe automatiquement"}
+          {duo ? "Composer une équipe de 4 cartes pour les autres modes" : ready ? "Reprendre mes 4 cartes les plus rares" : "Composer mon équipe automatiquement"}
         </button>
       </section>
+      <p className="hs-star-rules" title="Une victoire en duo donne toujours 3 étoiles, même avec un personnage mis K.-O.">Étoiles : victoire = 1 · aucun K.-O. = 2 · victoire en duo de 2 personnages = 3. Le duo compte 3 étoiles même si un personnage tombe.</p>
 
       {error && <p className="hs-error" role="alert">{error}</p>}
       <StoryMap
@@ -186,8 +215,10 @@ export function StoryBoard({ universes, team, stock }: Props) {
         universes={universes}
         stock={stock}
         ready={ready}
+        chosenTeamSize={selectedIds.length}
         pending={pending}
         onFight={run}
+        onClaim={async (universe, tier) => { const res = await claimStarTierAction(universe, tier); if (res.ok) router.refresh(); return res; }}
       />
     </>
   );
