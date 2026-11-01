@@ -6,7 +6,9 @@ import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
 import { historyOf, holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
-import { attackVisual } from "@/lib/attack-visual";
+import { attackVisual, attackWeapon } from "@/lib/attack-visual";
+import { actionVisualTargets } from "@/lib/combat-vfx-events";
+import { CombatVfx } from "./combat-vfx";
 import { TypeIcon } from "../icons";
 import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
@@ -109,10 +111,17 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const [picked, setPicked] = useState<UnitId | null>(null);
 
   // Chaque événement reste à l'écran le temps de sa durée (divisée par la vitesse), puis le suivant s'applique
+  const playbackHold = useRef({ idx: rp.idx, remaining: holdFor(log, rp.idx - 1) });
   useEffect(() => {
+    if (playbackHold.current.idx !== rp.idx) playbackHold.current = { idx: rp.idx, remaining: holdFor(log, rp.idx - 1) };
     if (!playing || caughtUp) return;
-    const t = setTimeout(() => setRp((s) => replayStep(s, log)), holdFor(log, rp.idx - 1) / speed);
-    return () => clearTimeout(t);
+    const hold = playbackHold.current;
+    const started = performance.now();
+    const t = setTimeout(() => setRp((s) => replayStep(s, log)), hold.remaining / speed);
+    return () => {
+      clearTimeout(t);
+      hold.remaining = Math.max(0, hold.remaining - (performance.now() - started) * speed);
+    };
   }, [playing, caughtUp, speed, rp.idx, log]);
 
   useEffect(() => {
@@ -171,57 +180,69 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
 
   // Mouvements des cartes (Web Animations, durées divisées par la vitesse) : élan vers la cible, secousse à l'impact
   const stage = useRef<HTMLDivElement>(null);
+  const vfx = useRef<CombatVfx | null>(null);
+  const visualIndex = useRef(rp.idx);
   useEffect(() => {
+    if (!stage.current) return;
+    const controller = new CombatVfx(stage.current);
+    vfx.current = controller;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onMotionChange = () => controller.clear();
+    reducedMotion.addEventListener("change", onMotionChange);
+    return () => {
+      reducedMotion.removeEventListener("change", onMotionChange);
+      controller.clear();
+      vfx.current = null;
+    };
+  }, []);
+  useEffect(() => { vfx.current?.setPlayback(speed, playing); }, [speed, playing]);
+  useEffect(() => {
+    const before = visualIndex.current;
+    visualIndex.current = rp.idx;
+    if (before === rp.idx) return;
+    if (rp.idx !== before + 1) { vfx.current?.clear(); return; }
     const ev = log[rp.idx - 1];
     const root = stage.current;
-    if (!ev || !root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const controller = vfx.current;
+    if (!controller || !ev || !root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = (id: UnitId) => root.querySelector<HTMLElement>(`[data-unit="${id}"]`);
-    const ms = (n: number) => n / speedRef.current;
     if (ev.kind === "action") {
       const a = el(ev.actor);
       const t = ev.target && ev.target[0] !== ev.actor[0] ? el(ev.target) : null;
       if (!a) return;
-      const visual = ev.spell === "base" ? attackVisual(rp.info[ev.actor].characterId) : "melee";
-      if (!t) {
+      const visual = attackVisual(rp.info[ev.actor].characterId);
+      const targets = actionVisualTargets(log, rp.idx - 1);
+      const center = (card: HTMLElement) => {
+        const r = card.querySelector(".bt-card")?.getBoundingClientRect() ?? card.getBoundingClientRect();
+        const bounds = root.getBoundingClientRect();
+        return { x: r.left + r.width / 2 - bounds.left + root.scrollLeft, y: r.top + r.height / 2 - bounds.top + root.scrollTop };
+      };
+      if (visual !== "melee") {
+        const from = center(a);
+        const intensity = ev.spell === "ultimate" ? 1.35 : ev.spell === "base" ? 1 : 1.15;
+        for (const hit of targets) {
+          const target = el(hit.target);
+          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon: attackWeapon(rp.info[ev.actor].characterId), dodge: hit.dodge });
+        }
+        if (!targets.length) controller.play({ style: visual, from, to: { x: from.x + 70, y: from.y }, impactAt: 480, intensity, weapon: attackWeapon(rp.info[ev.actor].characterId), support: true });
+        controller.animate(a, [{ transform: "none" }, { transform: "scale(1.04)", offset: .3 }, { transform: "none" }], { duration: 480 });
+      } else if (!t) {
         // Zone, soin ou soutien : la carte se lève sur place
-        a.animate([{ transform: "none" }, { transform: "translateY(-6%) scale(1.1)", offset: 0.45 }, { transform: "none" }], { duration: ms(700), easing: "ease-in-out" });
-      } else if (visual === "magic" || visual === "gun") {
-        const ra = a.getBoundingClientRect();
-        const rt = t.getBoundingClientRect();
-        const rr = root.getBoundingClientRect();
-        const x = ra.left + ra.width / 2 - rr.left + root.scrollLeft;
-        const y = ra.top + ra.height / 2 - rr.top + root.scrollTop;
-        const dx = rt.left + rt.width / 2 - (ra.left + ra.width / 2);
-        const dy = rt.top + rt.height / 2 - (ra.top + ra.height / 2);
-        const shot = document.createElement("span");
-        shot.className = `bt-projectile bt-projectile--${visual}`;
-        shot.style.left = `${x}px`;
-        shot.style.top = `${y}px`;
-        shot.setAttribute("aria-hidden", "true");
-        root.appendChild(shot);
-        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        const flight = shot.animate([
-          { transform: `translate(-50%, -50%) rotate(${angle}deg) scale(.4)`, opacity: 0 },
-          { transform: `translate(-50%, -50%) rotate(${angle}deg) scale(1)`, opacity: 1, offset: .2 },
-          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${angle}deg) scale(1)`, opacity: 1 },
-        ], { duration: ms(480), easing: "ease-in" });
-        flight.onfinish = () => shot.remove();
-        a.animate([{ transform: "none" }, { transform: "scale(1.06)", offset: .3 }, { transform: "none" }], { duration: ms(480) });
+        controller.animate(a, [{ transform: "none" }, { transform: "translateY(-6%) scale(1.1)", offset: 0.45 }, { transform: "none" }], { duration: 700, easing: "ease-in-out" });
       } else {
         const ra = a.getBoundingClientRect();
         const rt = t.getBoundingClientRect();
         const dx = (rt.left + rt.width / 2 - (ra.left + ra.width / 2)) * 0.62;
         const dy = (rt.top + rt.height / 2 - (ra.top + ra.height / 2)) * 0.62;
         // Le sommet de l'élan tombe sur l'impact (480 ms plus tard, voir holdFor)
-        a.animate([{ transform: "none" }, { transform: `translate(${dx}px, ${dy}px) scale(1.12)`, offset: 0.63 }, { transform: "none" }], {
-          duration: ms(760),
-          easing: "cubic-bezier(.35,.05,.3,1)",
+        controller.animate(a, [{ transform: "none" }, { transform: `translate(${dx}px, ${dy}px) scale(1.12)`, offset: 0.63 }, { transform: "none" }], {
+          duration: 760, easing: "cubic-bezier(.35,.05,.3,1)",
         });
       }
     } else if (ev.kind === "damage") {
       const card = el(ev.target)?.querySelector<HTMLElement>(".bt-card");
       const k = ev.crit ? 1.6 : 1;
-      card?.animate(
+      if (card) controller.animate(card,
         [
           { transform: "none", filter: "brightness(2.4)" },
           { transform: `translateX(${-5 * k}%)`, offset: 0.2 },
@@ -229,9 +250,9 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           { transform: `translateX(${-2 * k}%)`, offset: 0.7 },
           { transform: "none", filter: "brightness(1)" },
         ],
-        { duration: ms(ev.crit ? 460 : 320), easing: "ease-out" },
+        { duration: ev.crit ? 460 : 320, easing: "ease-out" },
       );
-      if (ev.crit) root.animate([{ transform: "none" }, { transform: "translate(-6px, 3px)" }, { transform: "translate(5px, -3px)" }, { transform: "none" }], { duration: ms(300) });
+      if (ev.crit) controller.animate(root,[{ transform: "none" }, { transform: "translate(-6px, 3px)" }, { transform: "translate(5px, -3px)" }, { transform: "none" }], { duration: 300 });
     }
   }, [rp.idx, rp.info, log]);
 
@@ -251,7 +272,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   return (
     <div className="bt-layout" onPointerDown={() => getAudio().unlock()}>
       <History entries={history} rp={rp} characters={characters} names={names} open={drawer} onClose={() => setDrawer(false)} />
-    <div className="bt" ref={stage} style={{ "--spd": speed } as React.CSSProperties}>
+    <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
         {title && <b className="bt-title">{title}</b>}
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
@@ -599,7 +620,7 @@ function PopView({ pop }: { pop: Pop }) {
 }
 
 /** Effet visuel d'un sort : un décor de particules par type, tracé en CSS (voir [data-fx] dans battle.css). */
-function Fx({ fx, big }: { fx: CardType | "base" | "slash" | "heal"; big: boolean }) {
+function Fx({ fx, big }: { fx: CardType | "base" | "heal"; big: boolean }) {
   const parts = fx === "COMBAT" || fx === "MAGIE" ? 8 : fx === "heal" || fx === "base" ? 5 : 3;
   return (
     <span className="bt-fx" data-fx={fx} data-big={big || undefined} aria-hidden>

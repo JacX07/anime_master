@@ -1,0 +1,130 @@
+import type { AttackVisual } from "@/lib/attack-visual";
+
+type Point = { x: number; y: number };
+export interface CombatVfxOptions {
+  style: Exclude<AttackVisual, "melee">;
+  from: Point;
+  to: Point;
+  /** Replay milliseconds, independent of playback speed. */
+  impactAt: number;
+  intensity?: number;
+  weapon?: "katana" | "greatsword";
+  support?: boolean;
+  dodge?: boolean;
+}
+
+const NS = "http://www.w3.org/2000/svg";
+const ink = "#151a36";
+const burst = `<path d="M0-34 6-12 26-23 13-5 39 0 14 6 26 25 7 14 0 38-6 13-28 25-13 5-37 0-12-7-25-26-5-12Z" fill="#fff5dc" stroke="${ink}" stroke-width="2"/><path d="M0-24 3-7 18-14 8-2 25 0 8 3 15 16 2 8 0 25-4 7-18 16-7 2-23 0-8-4-15-17-3-8Z" fill="white"/>`;
+
+/** Flat cel drawings: one dark contour, two color planes, a sharp white core. */
+function artwork(style: CombatVfxOptions["style"], weapon: CombatVfxOptions["weapon"]): string {
+  if (style === "slash") return `
+    <g data-part="weapon" stroke="${ink}" stroke-linejoin="round" stroke-width="2">
+      ${weapon === "greatsword"
+        ? '<path d="M30-10 135-14 155 0 135 14 30 10Z" fill="#8b9bad"/><path d="M33-9 134-12 149 0 33 0Z" fill="#dce9f1"/>'
+        : '<path d="M30-4Q96-2 155-24Q150-10 136-6Q81 10 30 5Z" fill="#a8bfce"/><path d="M31 3Q92 7 149-17" fill="none" stroke="#fff5de" stroke-width="2"/>'}
+      <path d="M25-12 32-12 32 12 25 12Z" fill="#c8a967"/>
+      <path d="M0-4H25V5H0Z" fill="#263448"/><path d="M3-4 10 5 17-4 24 5" fill="none" stroke="#aebac6" stroke-width="1"/>
+    </g>
+    <g data-part="trail">
+      <path d="M-148 26Q-12-87 120-18L141 0 116 24Q-8-46-148 26Z" fill="#315fe5" stroke="${ink}" stroke-width="2"/>
+      <path d="M-137 24Q10-60 132 0Q14-28-137 24Z" fill="#fff5dc"/>
+      <path d="M-120 38-92 21-58 18-84 30Z M-54-38-39-44-21-39-40-39Z M70-42 87-36 93-28Z" fill="#5995ff"/>
+    </g>`;
+  if (style === "magic") return `
+    <g data-part="seal" fill="none" stroke="#a896ff" stroke-width="1.7">
+      <ellipse rx="11" ry="26"/><ellipse rx="7" ry="20"/><path d="M0-20 7 10-7 10Z M0 20 7-10-7-10Z M-17-7-13-4M13 4 17 7M-4-30H4M-4 30H4"/>
+    </g>
+    <g data-part="projectile" stroke="${ink}" stroke-linejoin="round" stroke-width="1.5">
+      <path d="M-95 0-72-8-82-18-48-11-37-26-28-15-12-22 3-15 18-21 35-9 47 0 31 10 12 9-4 22-18 14-36 24-42 11-65 15-57 5Z" fill="#8354e8"/>
+      <path d="M-76 0-48-5-29-16-22-7-7-13 6-7 20-12 39 0 20 6 5 5-8 13-18 6-34 14-38 5-54 8Z" fill="#b6a0ff" stroke="none"/>
+      <path d="M-64 0-38-2-22-9-14-3 0-8 12-3 31 0 13 3 1 2-13 7-21 2-37 6Z" fill="#fff8ed" stroke="none"/>
+      <path d="M-72-27-60-23-63-16Z M-48 28-34 31-40 24Z M-7-33 1-27-8-26Z" fill="#ac84ff" stroke="none"/>
+    </g>`;
+  return `
+    <g transform="translate(24 0)"><g data-part="weapon" stroke="${ink}" stroke-width="1.5" stroke-linejoin="round">
+      <path d="M-8-9H43V2H17L10 25H-4L2 2H-8Z" fill="#343e50"/>
+      <path d="M-6-8H42V-3H-6Z" fill="#8995a5"/><path d="M16 3Q30 17 31 3M0 10 9 13M-2 16 7 19" fill="none" stroke="#a0a8b1" stroke-width="1"/>
+    <g data-part="flash" stroke="none"><path d="M43-6 54-12 51-5 69-4 53 0 56 7 43 2Z" fill="#ffcd7d"/><path d="M43-4 58-4 49 0 43 0Z" fill="#fff9dc"/></g>
+    </g></g><g data-part="projectile"><path d="M-100 0H0" stroke="#fff4d6" stroke-width="1.2"/></g>
+    <g data-part="casing"><path d="M0 0H7V3H0Z" fill="#d4b775" stroke="${ink}" stroke-width=".6"/></g>`;
+}
+
+/** Owns only its animations and temporary SVGs. Safe to interrupt and reuse. */
+export class CombatVfx {
+  private animations = new Set<Animation>();
+  private nodes = new Set<SVGSVGElement>();
+  private speed = 1;
+  private paused = false;
+  constructor(private root: HTMLElement) {}
+
+  animate(el: Element, frames: Keyframe[], options: KeyframeAnimationOptions): Animation {
+    const animation = el.animate(frames, options);
+    animation.playbackRate = this.speed;
+    if (this.paused) animation.pause();
+    this.animations.add(animation);
+    void animation.finished.then(() => {
+      this.animations.delete(animation);
+      animation.cancel();
+    }, () => this.animations.delete(animation));
+    return animation;
+  }
+
+  setPlayback(speed: number, playing: boolean) {
+    this.speed = speed;
+    this.paused = !playing;
+    for (const animation of this.animations) {
+      animation.updatePlaybackRate(speed);
+      if (playing) animation.play(); else animation.pause();
+    }
+  }
+
+  clear() {
+    for (const animation of this.animations) animation.cancel();
+    this.animations.clear();
+    for (const node of this.nodes) node.remove();
+    this.nodes.clear();
+  }
+
+  play({ style, from, to, impactAt, intensity = 1, weapon = "katana", support = false, dodge = false }: CombatVfxOptions) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const distance = Math.hypot(dx, dy);
+    const scale = Math.min(1, Math.max(.38, distance / 420)) * Math.min(1.4, intensity);
+    const length = distance / scale;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const svg = document.createElementNS(NS, "svg");
+    svg.classList.add("bt-cel-vfx");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("width", "1"); svg.setAttribute("height", "1");
+    svg.style.cssText = `position:absolute;left:${from.x}px;top:${from.y}px;overflow:visible;pointer-events:none;z-index:20;`;
+    svg.innerHTML = `<g transform="rotate(${angle}) scale(${scale})">${artwork(style, weapon)}<g transform="translate(${length} 0)"><g data-part="impact">${burst}</g></g></g>`;
+    this.root.append(svg); this.nodes.add(svg);
+    const end = impactAt + 260;
+    const run = (part: string, frames: Keyframe[], start: number, duration: number) => {
+      const el = svg.querySelector(`[data-part="${part}"]`);
+      if (!el) return;
+      (el as SVGElement).style.opacity = "0";
+      this.animate(el, frames, { delay: start, duration, fill: "both" });
+    };
+    const weaponEnd = support ? 0 : length - 140;
+    if (style === "slash") {
+      run("weapon", [{ opacity: 0, transform: "rotate(-32deg) scale(.8)" }, { opacity: 1, transform: "rotate(-42deg)", offset: .28 }, { opacity: 1, transform: `translateX(${weaponEnd}px) rotate(8deg)`, offset: impactAt / end }, { opacity: 0, transform: `translateX(${weaponEnd}px) rotate(18deg)` }], 0, end);
+      run("trail", [{ opacity: 0, transform: `translateX(${length - 130}px) scaleX(.2)` }, { opacity: 1, transform: `translateX(${length - 130}px) scaleX(1)`, offset: .45 }, { opacity: 0, transform: `translateX(${length - 120}px) scaleX(1.05)` }], support ? 160 : Math.max(0, impactAt - 110), 300);
+    } else if (style === "magic") {
+      run("seal", [{ opacity: 0, transform: "scale(.7)" }, { opacity: 1, transform: "scale(1)", offset: .25 }, { opacity: 0, transform: "scale(1.15)" }], 0, impactAt + 80);
+      run("projectile", [{ opacity: 0, transform: "translateX(40px) scale(.7)" }, { opacity: 1, transform: "translateX(55px)", offset: .2 }, { opacity: 1, transform: `translateX(${support ? 60 : length - 35}px)`, offset: 300 / 420 }, { opacity: 1, transform: `translateX(${support ? 60 : length - 35}px)`, offset: .8 }, { opacity: 0, transform: `translateX(${support ? 65 : length}px) scale(.7)` }], Math.max(0, impactAt - 300), 420);
+    } else {
+      const shoot = Math.max(0, impactAt - 70);
+      run("weapon", [{ opacity: 0, transform: "translateX(-8px)" }, { opacity: 1, offset: .2 }, { opacity: 1, transform: "translateX(-5px)", offset: .65 }, { opacity: 0, transform: "none" }], 0, end);
+      run("flash", [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 0 }], shoot, 70);
+      run("projectile", [{ opacity: 0, transform: "translateX(80px) scaleX(.2)" }, { opacity: 1, offset: .15 }, { opacity: 1, transform: `translateX(${support ? 100 : length}px) scaleX(1)`, offset: .85 }, { opacity: 0 }], shoot, 80);
+      run("casing", [{ opacity: 0, transform: "translate(20px, -5px)" }, { opacity: 1, transform: "translate(15px, -20px) rotate(40deg)", offset: .4 }, { opacity: 0, transform: "translate(4px, 15px) rotate(100deg)" }], shoot, 250);
+    }
+    if (!support && !dodge) run("impact", [{ opacity: 0, transform: "scale(.3)" }, { opacity: 1, transform: "scale(1)", offset: .15 }, { opacity: 0, transform: "scale(1.2)" }], impactAt, 220);
+    // A single lifetime animation removes the whole drawing, including support effects.
+    const lifetime = this.animate(svg, [{ opacity: 1 }, { opacity: 1 }], { duration: end + 100 });
+    void lifetime.finished.then(() => { svg.remove(); this.nodes.delete(svg); }, () => { svg.remove(); this.nodes.delete(svg); });
+  }
+}

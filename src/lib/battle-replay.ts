@@ -28,7 +28,7 @@ export type Pop =
   | { id: number; unit: UnitId; kind: "revive" }
   | { id: number; unit: UnitId; kind: "resist" }
   /** Effet visuel d'un sort sur sa cible : `fx` est le type du lanceur, ou "base" pour le sort de base */
-  | { id: number; unit: UnitId; kind: "fx"; fx: CardType | "base" | "slash"; big: boolean };
+  | { id: number; unit: UnitId; kind: "fx"; fx: CardType | "base"; big: boolean };
 
 /** Un pop avant numérotation */
 type NewPop = Pop extends infer P ? (P extends { id: number } ? Omit<P, "id"> : never) : never;
@@ -164,7 +164,9 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "damage":
       patch(ev.target, { hp: ev.hp, shield: ev.shield });
-      pop({ unit: ev.target, kind: "fx", fx: cur && cur.spell !== "base" ? cur.type : cur && attackVisual(state.info[cur.actor].characterId) === "slash" ? "slash" : "base", big: !!cur && cur.spell !== "base" });
+      if (!cur || attackVisual(state.info[cur.actor].characterId) === "melee") {
+        pop({ unit: ev.target, kind: "fx", fx: cur && cur.spell !== "base" ? cur.type : "base", big: !!cur && cur.spell !== "base" });
+      }
       pop({ unit: ev.target, kind: "damage", amount: ev.amount, absorbed: ev.absorbed, crit: ev.crit, affinity: ev.affinity, exposedBonus: ev.exposedBonus });
       break;
     case "dodge":

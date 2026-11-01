@@ -631,8 +631,6 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 
 /* Combat : deux entailles croisées et des étincelles orange */
-.bt-fx[data-fx="slash"]::before,
-.bt-fx[data-fx="slash"]::after,
 .bt-fx[data-fx="COMBAT"]::before,
 .bt-fx[data-fx="COMBAT"]::after {
   width: 120cqw;
@@ -644,21 +642,7 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 .bt-fx[data-fx="COMBAT"]::before { rotate: -38deg; }
 .bt-fx[data-fx="COMBAT"]::after { rotate: 32deg; animation-delay: calc(0.08s / var(--spd)); }
-.bt-fx[data-fx="slash"]::before { rotate: -38deg; }
-.bt-fx[data-fx="slash"]::after { rotate: -25deg; animation-delay: calc(0.08s / var(--spd)); }
 .bt-fx[data-fx="COMBAT"] i { background: #ffb347; box-shadow: 0 0 8px #ff6b5e; }
-
-.bt-projectile { position: absolute; z-index: 20; pointer-events: none; }
-.bt-projectile--magic {
-  width: 3rem; height: 1.3rem; border-radius: 50%;
-  background: radial-gradient(ellipse at 70%, #fff 5%, #a8efff 30%, #538dff 60%, transparent 75%);
-  box-shadow: 0 0 1rem #71caff, -1rem 0 1rem #7967ff;
-}
-.bt-projectile--gun {
-  width: 2rem; height: .25rem; border-radius: 50%;
-  background: linear-gradient(90deg, transparent, #ffad35, #fff);
-  box-shadow: 0 0 .6rem #ff9a26;
-}
 
 /* Mystère : anneaux violets qui se resserrent et un tourbillon */
 .bt-fx[data-fx="MYSTERE"]::before {
@@ -742,3 +726,7 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
   25% { opacity: 1; }
   100% { opacity: 0; transform: translateY(-48cqw) scale(1); }
 }
+
+.bt[data-paused] *,
+.bt[data-paused] *::before,
+.bt[data-paused] *::after { animation-play-state: paused !important; }
