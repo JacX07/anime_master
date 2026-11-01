@@ -12,6 +12,7 @@ import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { StatisticsPanel } from "./StatisticsPanel";
 import { EquipmentPanel } from "./EquipmentPanel";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { TypeIcon } from "@/components/icons";
@@ -141,7 +142,7 @@ function SpellList({ card }: { card: TeamCard }) {
 
 
 /** Fenêtre d’un personnage : portrait, inventaire ciblé, sorts et composition de l’équipe. */
-function CardDialog({ card, slot, full, onClose, onToggle, inventory }: { inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
+function CardDialog({ card, slot, full, onClose, onToggle, inventory, team }: { team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [tab, setTab] = useState("inventory");
   useEffect(() => {
@@ -171,9 +172,10 @@ function CardDialog({ card, slot, full, onClose, onToggle, inventory }: { invent
             <div className="eq-character-tabs" role="group" aria-label="Détails du personnage">
               <button type="button" className="bt-btn" aria-pressed={tab === "inventory"} onClick={() => setTab("inventory")}>Équipement</button>
               <button type="button" className="bt-btn" aria-pressed={tab === "spells"} onClick={() => setTab("spells")}>Sorts</button>
+              <button type="button" className="bt-btn" aria-pressed={tab === "stats"} onClick={() => setTab("stats")}>Statistiques</button>
               <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
             </div>
-            {tab === "inventory" ? <EquipmentPanel inventory={inventory} card={card} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
+            {tab === "inventory" ? <EquipmentPanel inventory={inventory} card={card} /> : tab === "stats" ? <StatisticsPanel card={card} team={team} inventory={inventory} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
             <div className="eq-dlg-btns">
               <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
                 {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
@@ -371,6 +373,7 @@ export function TeamBuilder({ cards, saved, inventory }: { inventory: PlayerInve
       <CardDialog
         key={focused?.id ?? "closed"}
         inventory={inventory}
+        team={members.filter((member): member is TeamCard => member !== null)}
         card={focused}
         slot={focused ? slots.indexOf(focused.id) : -1}
         full={selected === null && slots.every(Boolean)}
