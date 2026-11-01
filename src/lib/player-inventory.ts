@@ -26,7 +26,7 @@ export async function getPlayerInventory(userId: string) {
     return {
       key: `artifact:${artifact.id}`, name: `${slot} des profondeurs`, quantity: 1, categories: ["Équipement"], universe: "one-piece",
       source: "Donjon One Piece", description: `Artefact ${slot.toLocaleLowerCase("fr")} du set marin. Niveau ${artifact.level}. ${artifact.equippedCard ? `Équipé sur ${artifact.equippedCard.character.name}.` : "À équiper sur une carte."}`,
-      icon: "artifact", tone: artifactRarity(artifact.rarity).tone, image: `/images/artifacts/one-piece-${file ?? "helmet"}.webp`, links: [{ href: "/donjons", label: "Donjon One Piece" }],
+      icon: "artifact", tone: artifactRarity(artifact.rarity).tone, image: `/images/artifacts/one-piece-${file ?? "helmet"}-anime.png`, links: [{ href: "/donjons", label: "Donjon One Piece" }],
       artifact: { id: artifact.id, slot: artifact.slot, rarity: artifact.rarity, mainStat: artifact.mainStat, mainValue: artifact.mainValue, subStats: artifact.subStats as { stat: string; value: number }[], level: artifact.level, equippedCard: artifact.equippedCard },
     };
   });
