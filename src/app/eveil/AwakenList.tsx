@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CharacterCard, type CharacterCardProps } from "@/components/CharacterCard";
 import { BATTLE } from "@/lib/battle";
 import { awakenCardAction } from "../awaken-actions";
+import styles from "./AwakenList.module.css";
 
 export type AwakenRow = Omit<CharacterCardProps, "stars" | "serial" | "count" | "isNew" | "missing"> & {
   id: string;
@@ -46,7 +47,8 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
                 {cost.map((c) => <span key={c.key}><ResourceArt resource={c.key} size={24} />{c.quantity} {c.name} ({c.have}) </span>)}
                 {duplicate && ` + 1 doublon consommé (${duplicate.available} libre${duplicate.available > 1 ? "s" : ""})`}
               </small>
-              <button type="button" disabled={!affordable || pending} onClick={() => awaken(id)}>
+              <button className={styles.awakenButton} type="button" disabled={!affordable || pending} onClick={() => awaken(id)}>
+                <span aria-hidden="true">✦</span>{" "}
                 {affordable ? "Éveiller" : duplicate && duplicate.available === 0 ? "Il faut un doublon libre" : "Ressources insuffisantes"}
               </button>
             </li>
