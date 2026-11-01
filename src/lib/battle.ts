@@ -6,6 +6,7 @@
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
+import { attackElement, ELEMENT_RIDER } from "./attack-element";
 import { BOSS_SKILLS } from "./boss-skills";
 import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
 import { isSoloBuff, spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
@@ -50,6 +51,8 @@ export interface BattleCard {
   boss?: boolean;
   /** Retire le sort de personnage de cette carte (simulations d'équilibre) */
   noSpell?: boolean;
+  /** Sans l'effet d'élément du sort secondaire (simulation) */
+  noElement?: boolean;
   /** Désactive seulement l'effet de l'attaque de base (simulations d'équilibre) */
   noBasicAttack?: boolean;
   /** Désactive l'ultime ou le sort tertiaire (simulations d'équilibre) */
@@ -151,11 +154,13 @@ export interface BattleOptions {
   startingSide?: Side | null;
   /** Active l'ordonnanceur à jauge (désactivé pour préserver les combats existants). */
   gauge?: boolean;
+  /** Effets d'élément du sort secondaire (par défaut : oui ; désactivé pour rejouer les combats enregistrés avant eux). */
+  elements?: boolean;
 }
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -215,7 +220,7 @@ export type BattleEvent =
   | { kind: "shield"; source: UnitId | null; target: UnitId; amount: number; shield: number }
   | { kind: "status"; target: UnitId; status: Status; on: boolean }
   /** Perte de PV du poison, à la fin de l'action du porteur */
-  | { kind: "poison"; target: UnitId; amount: number; hp: number }
+  | { kind: "poison"; target: UnitId; amount: number; hp: number; burn?: boolean }
   /** Une carte morte revient au combat */
   | { kind: "revive"; source: UnitId; target: UnitId; hp: number }
   /** Un malus est refusé (immunité, ou boss contre le silence) */
@@ -279,7 +284,7 @@ interface Fx {
   turns: number;
   fresh: boolean;
 }
-const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun"]);
+const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -319,7 +324,7 @@ function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
     const urs = same.filter((o) => o !== c && o.rarity === "UR").length;
     const passive = opts.passive ? Math.min(BATTLE.passiveCap, urs * BATTLE.passivePerUr) : 0;
     const franchise = opts.franchise ? BATTLE.franchiseBonus[same.length] ?? 0 : 0;
-    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0) + (c.artifactStats?.attack ?? 0);
+    return passive + franchise + starsOf(c) * BATTLE.starBonus + (weaponOf(c)?.stat ?? 0);
   });
 }
 
@@ -345,7 +350,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
     return {
       id: `${side}${i + 1}` as UnitId,
       card, side, speed: Math.max(1, (card.speed ?? 100) + (card.artifactStats?.speed ?? 0)), gauge: 0, maxHp, hp: maxHp, shield: 0,
-      atk: card.attack * (1 + bonus[i] + aura[i]) + (card.artifactStats?.flatAttack ?? 0),
+      atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
       def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
@@ -377,7 +382,7 @@ const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.h
 const strongestFoes = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
-  const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, ...options, startingSide: options.startingSide ?? null };
+  const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, elements: true, ...options, startingSide: options.startingSide ?? null };
   const teams: Record<Side, Unit[]> = { A: makeUnits(a, "A", opts), B: makeUnits(b, "B", opts) };
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
@@ -534,10 +539,10 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       effect.fresh = false;
       continue;
     }
-    if (u.hp > 0 && effect.key === "poison") {
+    if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn")) {
       const amount = Math.min(u.hp, u.maxHp * effect.amount);
       u.hp -= amount;
-      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp });
+      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.key === "burn" ? { burn: true } : {}) });
       if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
     }
     if (u.hp > 0 && effect.key === "regen") {
@@ -698,6 +703,8 @@ export function applyAction(st: BattleState, action: Action) {
   const pendingIgnoreDef = pendingIgnoreFx?.amount ?? 0;
   let consumedIgnoreFx = false;
   let landedHit = false;
+  /** Cibles réellement touchées par l'action (pour l'effet d'élément) */
+  const struck = new Set<Unit>();
   const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false) => {
     // L'ignore-DEF accordé par une attaque de base est consommé sur la prochaine action offensive.
     if (pendingIgnoreFx && !consumedIgnoreFx) {
@@ -729,7 +736,7 @@ export function applyAction(st: BattleState, action: Action) {
       kind: "damage", source: u.id, target: t.id, amount: dmg, absorbed, crit,
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
-    if (dmg > 0) landedHit = true;
+    if (dmg > 0) { landedHit = true; struck.add(t); }
     if (t.hp === 0) log.push({ kind: "ko", target: t.id });
     return dmg;
   };
@@ -771,6 +778,42 @@ export function applyAction(st: BattleState, action: Action) {
     if (status === "exposed") t.exposed = turns > 0;
     else t[status] = turns;
     if (was !== turns > 0) log.push({ kind: "status", target: t.id, status, on: turns > 0 });
+  };
+
+  /** Effet d'élément du sort secondaire (attack-element.ts) : sur les cibles touchées, ou sur le lanceur et ses alliés. */
+  const applyElement = () => {
+    const element = opts.elements && !u.card.noElement ? attackElement(u.card.characterId) : null;
+    const r = ELEMENT_RIDER;
+    if (!element) return;
+    const hitFoes = [...struck].filter((t) => t.hp > 0 && t.side !== u.side);
+    switch (element) {
+      case "eau": {
+        for (const t of hitFoes) addFx(t, "wet", 0, r.wetTurns);
+        const allies = alive(st, u.side);
+        const others = allies.filter((a) => a !== u);
+        const pool = others.length ? others : allies;
+        if (pool.length) { const ally = pool[Math.floor(rng() * pool.length)]; heal(ally, ally.maxHp * r.healPct); }
+        break;
+      }
+      case "foudre":
+        for (const t of hitFoes) {
+          const wet = t.fx.find((f) => f.key === "wet");
+          if (!wet) continue;
+          dropFx(t, wet);
+          addFx(t, "stun", 0, r.stunTurns);
+        }
+        break;
+      case "terre":
+        for (const t of hitFoes) addFx(t, "speedDown", r.slow, r.slowTurns, "speed");
+        break;
+      case "feu":
+        // Une zone brûle moins fort chaque cible (calibrage : sinon +12 pp pour Mustang et Megumin)
+        for (const t of hitFoes) addFx(t, "burn", hitFoes.length > 1 ? r.burnPct * r.burnZoneScale : r.burnPct, r.burnTurns);
+        break;
+      case "air":
+        addFx(u, "dodgeUp", r.dodge, r.dodgeTurns, "dodge");
+        break;
+    }
   };
 
   const basic = action.spell === "base" && !u.card.noBasicAttack ? u.card.basicAttack ?? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
@@ -889,6 +932,7 @@ export function applyAction(st: BattleState, action: Action) {
           break;
       }
     }
+    if (action.spell === "special") applyElement();
   } else {
     u.spellIn = u.cooldown;
     u.held = 0;

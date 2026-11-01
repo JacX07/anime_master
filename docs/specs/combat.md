@@ -254,6 +254,24 @@ Les durées sont en **actions du ciblé** ; « équipe » = alliés vivants, « 
 
 **Lecture** : les archétypes de **frappe** ont les plus gros multiplicateurs (autour de 1) parce qu'ils ne font que des dégâts ; ceux qui ajoutent un effet de **zone** ou d'**équipe** descendent entre 0,2 et 0,6 pour rester à valeur égale. Les plus bas sont `plague` (0,2) et `blind` (0,3) : leur effet touche **tous** les ennemis. `hex` est le seul qui monte pour les UR (1,23 contre 1,10) : c'est le résultat de la calibration, pas une règle de conception. Le silence est sans effet sur un boss. L'orientation de simulation (attaque / soutien / protection / contrôle / hybride, §4 bis) est une étiquette du simulateur, **pas** l'archétype.
 
+### 4 quinquies. Éléments *(décidé et codé le 2026-11-01)*
+
+36 SSR/UR ont un **élément** selon leur lore (`src/lib/attack-element.ts`) : feu 11, eau 8, foudre 6, air 5, terre 6. L'élément donne une animation et un bruitage propres (maquette `public/mockups/elements.html`, direction sonore A « nerveux ») et ajoute un effet à leur **sort secondaire (★)**. L'effet porte sur les **ennemis réellement touchés** par ce sort (pas d'esquive), ou sur le lanceur et ses alliés.
+
+| Élément | Effet du sort secondaire |
+|---|---|
+| Eau | Soigne un **allié vivant au hasard** (un autre que le lanceur s'il y en a) de **10 % de ses PV max** ; les cibles touchées sont **trempées** pendant 2 de leurs actions |
+| Foudre | Une cible **trempée** est **étourdie** (son prochain tour) et séchée. Sans eau, pas d'effet. Les boss résistent, comme à tout étourdissement |
+| Terre | **Vitesse −25 %** des cibles touchées, 2 actions |
+| Feu | **Brûlure** : 5 % des PV max à la fin de chaque action de la cible, 2 actions ; **moitié** (2,5 %) par cible quand le sort touche plusieurs ennemis |
+| Air | **Esquive +20 points** pour le lanceur, 2 actions |
+
+- Brûlure et Trempé sont des **malus** : bloqués par l'immunité, retirés par la purge. La brûlure se renouvelle sans se cumuler, ne passe pas par la réduction de dégâts et peut achever, comme le poison.
+- **Versions** : les combats manuels enregistrés avant (`teams.elements` absent) se rejouent sans ces effets ; les nouveaux portent `elements: "elements-v1"`.
+- **Calibrage** (`npx tsx scripts/simulate-elements.ts`, 300 paires par perso, équipe de sa rareté contre la même équipe sans l'effet) : feu +2,9 pp en moyenne (Mustang +6,3, Megumin +5,1, Reze +5,1 après la demi-brûlure de zone ; Mustang faisait +12,2 avant), air +2,8 pp, terre +0,9 pp, eau −0,4 pp, foudre seule −0,2 pp, **eau + foudre dans la même équipe +3,3 pp**.
+- **À revoir** : 12 sorts secondaires ne frappent aucun ennemi. Pour l'eau (Roxy, Aqua, Giyuu) et l'air (Howl, Tatsumaki), le soin et l'esquive restent actifs ; mais le feu d'Itachi, Nezuko et Rengoku et la terre d'Alphonse, Gaara, Reiner et Kirishima n'ont **aucun effet**. La foudre seule ne fait rien sans un allié d'eau : c'est voulu.
+- Test : `npx tsx scripts/check-elements.ts`.
+
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.

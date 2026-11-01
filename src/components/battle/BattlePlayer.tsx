@@ -337,7 +337,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             {rp.first === side && <span title="Cette équipe joue en premier"> · commence</span>}
           </h3>
           <div className="bt-row">
-            {POSITIONS.map((p) => {
+            {POSITIONS.filter((p) => rp.info[`${side}${p}` as UnitId]).map((p) => {
               const id = `${side}${p}` as UnitId;
               return <Unit key={id} id={id} rp={rp} characters={characters} acting={awaiting ? live?.actor === id : rp.cur?.actor === id && !finished}
                   turn={awaiting && live?.actor === id}
@@ -632,7 +632,7 @@ function PopView({ pop }: { pop: Pop }) {
       return (
         <span className="bt-num" data-kind="damage" style={style}>
           {num.format(Math.round(pop.amount))}
-          <small>Poison</small>
+          <small>{pop.burn ? "Brûlure" : "Poison"}</small>
         </span>
       );
     case "revive":

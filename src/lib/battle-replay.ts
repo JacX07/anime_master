@@ -24,7 +24,7 @@ export type Pop =
   | { id: number; unit: UnitId; kind: "heal"; amount: number }
   | { id: number; unit: UnitId; kind: "shield"; amount: number }
   | { id: number; unit: UnitId; kind: "status"; status: Status; on: boolean }
-  | { id: number; unit: UnitId; kind: "poison"; amount: number }
+  | { id: number; unit: UnitId; kind: "poison"; amount: number; burn?: boolean }
   | { id: number; unit: UnitId; kind: "revive" }
   | { id: number; unit: UnitId; kind: "resist" }
   /** Effet visuel d'un sort sur sa cible : `fx` est le type du lanceur, ou "base" pour le sort de base */
@@ -78,6 +78,8 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   taunt: { label: "Provocation", glyph: "⚑", help: "Les ennemis ne peuvent viser que cette carte avec leurs attaques à cible unique.", bad: false },
   reduce: { label: "Dégâts réduits", glyph: "⛉", help: "Subit moins de dégâts.", bad: false },
   regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacun de ses tours.", bad: false },
+  burn: { label: "Brûlure", glyph: "♨", help: "Perd 5 % de ses PV max à la fin de chacun de ses tours.", bad: true },
+  wet: { label: "Trempé", glyph: "≋", help: "Un sort de foudre l'étourdira (son prochain tour).", bad: true },
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
 };
 
@@ -189,7 +191,7 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "poison":
       patch(ev.target, { hp: ev.hp });
-      pop({ unit: ev.target, kind: "poison", amount: ev.amount });
+      pop({ unit: ev.target, kind: "poison", amount: ev.amount, ...(ev.burn ? { burn: true } : {}) });
       break;
     case "revive":
       patch(ev.target, { hp: ev.hp, shield: 0, ko: false });
