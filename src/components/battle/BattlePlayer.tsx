@@ -294,7 +294,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actor = rp.cur && !finished ? rp.info[rp.cur.actor] : null;
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
-  const order = end ? [] : replayTurnOrder(log, rp.idx, rp.cur?.actor ?? null, rp.info, (id) => !!rp.units[id]?.ko, caughtUp && live ? live.timeline.length ? live.timeline : live.actor ? [live.actor] : [] : undefined);
+  const order = end ? [] : replayTurnOrder(log, rp.idx, rp.cur?.actor ?? null, rp.info, (id) => !!rp.units[id]?.ko, caughtUp && live ? live.timeline : undefined, !caughtUp ? live?.timeline : undefined);
   const history = historyOf(log, rp.idx);
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
@@ -401,6 +401,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
 
       {end && (
         <div className="bt-end" role="region" aria-label="Résultat du combat" data-winner={end.winner ?? "draw"}>
+          <div className="bt-result-window">
           {endExtra !== undefined ? (
             // La page appelante fournit tout l'écran de fin (résultat, butin, boutons)
             endExtra
@@ -439,6 +440,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             </>
           )}
           <BattleReport log={log} characters={characters} names={names} />
+          </div>
         </div>
       )}
     </div>

@@ -450,7 +450,22 @@ const effectiveSpeed = (u: Unit) => Math.max(20, u.speed * (1 + clamp(fxSum(u, "
 
 /** Prochains acteurs selon l'ordonnanceur à jauge, sans modifier le combat. */
 export function timeline(st: BattleState, n: number): UnitId[] {
-  if (!st.opts.gauge || st.result || !Number.isInteger(n) || n <= 0) return [];
+  if (st.result || !Number.isInteger(n) || n <= 0) return [];
+  if (!st.opts.gauge) {
+    // Projection des tours alternés, sans appliquer de dégâts ni modifier le combat.
+    const units = Object.fromEntries([...st.teams.A, ...st.teams.B].map(u => [u.id, { hp: u.hp, stun: u.fx.filter(f => f.key === "stun").map(f => f.turns + (f.fresh ? 1 : 0)) }]));
+    const actors: UnitId[] = [];
+    const slots = BATTLE.teamSize * 2;
+    for (let offset = 0; actors.length < n && offset < slots * (n + 100); offset++) {
+      const slot = (st.slot + offset) % slots;
+      const id = `${st.order[slot % 2]}${Math.floor(slot / 2) + 1}` as UnitId;
+      const unit = units[id];
+      if (!unit || unit.hp <= 0) continue;
+      if (!unit.stun.some(turns => turns > 0)) actors.push(id);
+      unit.stun = unit.stun.map(turns => turns - 1);
+    }
+    return actors;
+  }
   const units = [...st.teams.A, ...st.teams.B].map((u) => ({
     id: u.id, side: u.side, gauge: u.gauge, hp: u.hp, baseSpeed: u.speed,
     fx: u.fx.map((f) => ({ key: f.key, stat: f.stat, amount: f.amount, turns: f.turns, fresh: f.fresh })),

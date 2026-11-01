@@ -570,7 +570,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
           [`${u.id}:ultimate`, Math.max(0, BATTLE.ultimateGaugeMax - u.ultimateGauge)],
         ])))
       : {},
-    timeline: running && st.opts.gauge ? timeline(st, 8) : [],
+    timeline: running ? timeline(st, 5) : [],
     characters: await charactersOf(teams),
   };
 }

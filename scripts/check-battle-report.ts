@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { applyAction, createBattle, type BattleCard, type BattleEvent, type UnitView } from "../src/lib/battle";
+import { applyAction, createBattle, currentActor, timeline, type BattleCard, type BattleEvent, type UnitView } from "../src/lib/battle";
 import { battleReport, replayTurnOrder } from "../src/lib/battle-report";
 const unit = (id: UnitView["id"]): UnitView => ({ id, characterId: id === "A1" ? 1 : 2, rarity: "SSR", type: "COMBAT", atk: 100, def: 100, speed: 100, maxHp: 1000, hp: 1000, shield: 0, ultimateGauge: 0, ultimateGaugeMax: 100 });
 const log: BattleEvent[] = [
@@ -35,3 +35,14 @@ applyAction(state, { spell: "special", target: "B1" });
 applyAction(state, { spell: "base", target: "A1" });
 assert(state.log.some((event) => event.kind === "poison" && event.source === "A1" && event.target === "B1"));
 console.log("Bilan conforme : sur-dégâts, absorption, soins effectifs, KO, résurrection, anciens DoT et source du poison. Ordre live/replay vérifié.");
+
+const queueState = createBattle([card, card], [card, card], () => .5, { gauge: false, combos: false });
+currentActor(queueState);
+const beforeQueue = JSON.stringify(queueState, (key, value) => key === "rng" ? undefined : value);
+const predicted = timeline(queueState, 5);
+assert.equal(predicted.length, 5);
+assert.equal(predicted[0], currentActor(queueState)!.id);
+assert.equal(new Set(predicted).size, 4);
+assert.equal(JSON.stringify(queueState, (key, value) => key === "rng" ? undefined : value), beforeQueue);
+assert.deepEqual(replayTurnOrder([], 0, "A1", info, () => false, undefined, ["B1", "A1", "B1", "A1", "B1"]), ["A1", "B1", "A1", "B1", "A1"]);
+console.log("File de cinq passages : projection alternée sans mutation et remplissage pendant le replay conformes.");

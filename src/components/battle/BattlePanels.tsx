@@ -130,8 +130,13 @@ export function SpellsPanel({
           const wait = s.key === "special" ? choose?.waitSpecial ?? 0 : s.key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0;
           const ready = !choose || choose.choices.some((c) => c.spell === s.key);
           const turnsWait = s.key === "affinity" || s.key === "special" || s.key === "tertiary";
+          const charge = Math.min(100, Math.max(0, ultimateGauge / ultimateGaugeMax * 100));
           const body = (
             <>
+              {s.key === "ultimate" && <span className="bt-ultimate-charge" role="progressbar" aria-label="Charge de l’ultime" aria-valuemin={0} aria-valuemax={ultimateGaugeMax} aria-valuenow={ultimateGauge} data-ready={charge >= 100 || undefined}>
+                <svg viewBox="0 0 64 64" aria-hidden="true"><circle className="bt-charge-track" cx="32" cy="32" r="27" /><circle className="bt-charge-fill" cx="32" cy="32" r="27" pathLength="100" strokeDasharray={`${charge} 100`} /></svg>
+                <span>{charge >= 100 ? "Prêt" : `${Math.round(charge)}%`}</span>
+              </span>}
               <b>{s.title}</b>
               <em>{s.target}</em>
               <p>{s.text}</p>
@@ -151,7 +156,7 @@ export function SpellsPanel({
               className="bt-spell"
               title={s.tooltip}
               aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`}
-              data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}
+              data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}
               aria-pressed={choose.spell === s.key}
               disabled={!ready || choose.busy}
               onClick={() => choose.onSpell(s.key)}
@@ -159,7 +164,7 @@ export function SpellsPanel({
               {body}
             </button>
           ) : (
-            <div key={s.key} className="bt-spell" tabIndex={0} title={s.tooltip} aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`} data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined}>
+            <div key={s.key} className="bt-spell" tabIndex={0} title={s.tooltip} aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`} data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}>
               {body}
             </div>
           );

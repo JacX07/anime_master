@@ -44,7 +44,7 @@ export function battleReport(log: BattleEvent[]) {
 }
 
 /** En replay, le journal est l'ordre exact ; en direct rattrapé, la file serveur fait autorité. */
-export function replayTurnOrder(log: BattleEvent[], index: number, current: UnitId | null, info: Partial<Record<UnitId, UnitView>>, dead: (id: UnitId) => boolean, live?: UnitId[]) {
-  const ids = live ?? [ ...(current ? [current] : []), ...log.slice(index).flatMap((event) => event.kind === "action" ? [event.actor] : []) ];
-  return ids.filter((id) => info[id] && !dead(id)).slice(0, 8);
+export function replayTurnOrder(log: BattleEvent[], index: number, current: UnitId | null, info: Partial<Record<UnitId, UnitView>>, dead: (id: UnitId) => boolean, live?: UnitId[], pending: UnitId[] = []) {
+  const ids = live ?? [ ...(current ? [current] : []), ...log.slice(index).flatMap((event) => event.kind === "action" || event.kind === "skip" ? [event.actor] : []), ...pending ];
+  return ids.filter((id) => info[id] && !dead(id)).slice(0, 5);
 }
