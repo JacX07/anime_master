@@ -3082,3 +3082,46 @@ body.scene-night {
 .pf-ach small { color: var(--muted); font-size: 0.75rem; }
 .pf-anime { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
 .pf-anime li { padding: 0.25rem 0.7rem; border: 1px solid #ffffff22; border-radius: 999px; font-size: 0.85rem; }
+
+/* ---------- Pastille de rareté (UR, SSR, SR brillantes ; R, N sobres) ---------- */
+.rtag {
+  --rt: var(--rarity-N); --rt-hi: #e2e8f0; --rt-lo: #475569; --rt-bg: #0e1626;
+  position: relative;
+  display: inline-block;
+  padding: 0.12em 0.5em;
+  border-radius: 0.35em;
+  border: 1px solid var(--rt);
+  background: #08101deb;
+  color: var(--rt);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+}
+.rtag[data-rarity="R"] { --rt: var(--rarity-R); }
+.rtag[data-rarity="SR"] { --rt: var(--rarity-SR); --rt-hi: #e9d5ff; --rt-lo: #4c1d95; --rt-bg: #170c26; --rt-txt: #e4c8ff; }
+.rtag[data-rarity="SSR"] { --rt: var(--rarity-SSR); --rt-hi: #fff1c2; --rt-lo: #7c4a03; --rt-bg: #21160a; --rt-txt: #ffd88a; }
+.rtag[data-rarity="UR"] { --rt: var(--rarity-UR); --rt-hi: #ffd0d4; --rt-lo: #7a0f1c; --rt-bg: #1d0b12; --rt-txt: #ff8a93; }
+.rtag:is([data-rarity="SR"], [data-rarity="SSR"], [data-rarity="UR"]) {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--rt-bg) 70%, var(--rt)) 0%, var(--rt-bg) 55%, var(--rt-bg) 100%) padding-box,
+    linear-gradient(135deg, var(--rt-hi) 0%, var(--rt) 30%, var(--rt-lo) 55%, var(--rt) 80%, var(--rt-hi) 100%) border-box;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--rt) 60%, transparent), inset 0 0 6px color-mix(in srgb, var(--rt) 25%, transparent);
+  color: transparent;
+}
+.rtag:is([data-rarity="SR"], [data-rarity="SSR"], [data-rarity="UR"])::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, #ffffff30, transparent 45%);
+}
+.rtag:is([data-rarity="SR"], [data-rarity="SSR"], [data-rarity="UR"]) > b {
+  font-weight: inherit;
+  background: linear-gradient(180deg, #fff 0%, #fff 45%, color-mix(in srgb, #fff 55%, var(--rt-txt)) 60%, var(--rt-txt) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--rt) 60%, transparent));
+}

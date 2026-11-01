@@ -500,7 +500,7 @@ function Unit({
         <span className="bt-type" title={TYPE_LABELS[info.type].name}>
           <TypeIcon type={info.type} />
         </span>
-        <span className="bt-rarity">{info.rarity}</span>
+        <span className="bt-rarity rtag" data-rarity={info.rarity}><b>{info.rarity}</b></span>
         {rel && (
           <span className="bt-aff" data-aff={rel} title={rel === "strong" ? "Le lanceur inflige ×1,1 à ce type" : "Le lanceur inflige ×0,95 à ce type, et en reçoit ×1,1"}>
             {rel === "strong" ? "▲ ×1,1" : "▼ ×0,95"}

@@ -40,7 +40,7 @@ const CYCLE: CardType[] = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"];
 
 /** Pastille de rareté sur l'image : code court coloré. */
 function RarityTag({ rarity }: { rarity: Rarity }) {
-  return <span className="eq-rarity" data-rarity={rarity} title={RARITY_NAMES[rarity]}>{rarity}</span>;
+  return <span className="eq-rarity rtag" data-rarity={rarity} title={RARITY_NAMES[rarity]}><b>{rarity}</b></span>;
 }
 
 /** Légende latérale : à quoi correspond chaque icône de type. */

@@ -11,11 +11,7 @@
 .eq-slot-main { position: relative; display: grid; gap: 0.2rem; justify-items: center; text-align: center; background: none; border: 0; color: inherit; cursor: pointer; min-height: 11rem; align-content: start; }
 .eq-art { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; border-radius: 0.4rem; overflow: hidden; background: #070e1a; }
 .eq-art img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.eq-rarity { position: absolute; top: 0.25rem; right: 0.25rem; padding: 0.1rem 0.35rem; border-radius: 0.25rem; background: #08101deb; border: 1px solid currentColor; font-size: 0.65rem; font-weight: 700; line-height: 1.2; color: var(--rarity-N); }
-.eq-rarity[data-rarity="R"] { color: var(--rarity-R); }
-.eq-rarity[data-rarity="SR"] { color: var(--rarity-SR); }
-.eq-rarity[data-rarity="SSR"] { color: var(--rarity-SSR); }
-.eq-rarity[data-rarity="UR"] { color: var(--rarity-UR); }
+.eq-art .eq-rarity { position: absolute; top: 0.25rem; right: 0.25rem; font-size: 0.65rem; }
 .eq-pos { z-index: 1; }
 .eq-slot-main small, .eq-card small { color: #9fb2cf; display: inline-flex; gap: 0.25rem; align-items: center; justify-content: center; }
 .eq-pos { position: absolute; top: 0.2rem; left: 0.2rem; background: #000a; border-radius: 999px; min-width: 1.4rem; height: 1.4rem; display: grid; place-items: center; font-size: 0.75rem; }

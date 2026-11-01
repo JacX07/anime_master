@@ -301,18 +301,12 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
   border: 1px solid var(--type);
 }
 .bt-type svg { width: 70%; height: 70%; }
-.bt-rarity {
+.bt-card .bt-rarity {
   position: absolute;
   top: 3cqw;
   right: 3cqw;
   z-index: 2;
-  padding: 0 2.5cqw;
-  border-radius: 99px;
-  background: var(--rarity);
-  color: #0a1322;
   font-size: max(0.55rem, 10cqw);
-  font-weight: 800;
-  line-height: 1.5;
 }
 .bt-name {
   position: absolute;

@@ -55,7 +55,7 @@ export function Editor({ initialItems }: { initialItems: ArtItem[] }) {
               {item.url ?
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={item.url} src={item.url} alt="" loading="lazy" /> : <Icon name="bonus" />}
-              {item.rarity && <span className="art-rarity" style={{ color: `var(--rarity-${item.rarity})` }}>{item.rarity}</span>}
+              {item.rarity && <span className="art-rarity rtag" data-rarity={item.rarity}><b>{item.rarity}</b></span>}
               {item.custom && <span className="art-custom" title="Image personnalisée" aria-label="Image personnalisée">✓</span>}
             </div>
             <span className="art-tile-name">{item.name}</span><span className="art-tile-series">{item.detail.replace(/^[A-Z]+ · /, "")}</span>
@@ -70,7 +70,7 @@ export function Editor({ initialItems }: { initialItems: ArtItem[] }) {
             <img key={selected.url} src={selected.url} alt={`Illustration de ${selected.name}`} /> : <div className="art-no-image"><Icon name="bonus" /><span>Ton illustration apparaîtra ici</span></div>}
         </div>
         <div className="art-inspector-body">
-          <div className="art-inspector-heading"><h2>{selected.name}</h2>{selected.rarity && <span style={{ color: `var(--rarity-${selected.rarity})` }}>{selected.rarity}</span>}</div>
+          <div className="art-inspector-heading"><h2>{selected.name}</h2>{selected.rarity && <span className="rtag" data-rarity={selected.rarity}><b>{selected.rarity}</b></span>}</div>
           <p className="art-series">{selected.detail.replace(/^[A-Z]+ · /, "")}</p>
           <p className="art-image-status"><i data-custom={selected.custom} />{selected.custom ? "Illustration personnalisée" : selected.url ? "Illustration d’origine" : "Aucune illustration"}</p>
           <label className={`art-dropzone ${dragging ? "art-dragging" : ""} ${busy ? "art-disabled" : ""}`} onDragOver={(e) => { e.preventDefault(); if (!busy) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={(e) => { e.preventDefault(); setDragging(false); const file = e.dataTransfer.files[0]; if (file && !busy) void update(selected, file); }}>
