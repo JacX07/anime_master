@@ -6,7 +6,7 @@ export type ArtifactStats = NonNullable<BattleCard["artifactStats"]>;
 export function sumArtifactStats(artifacts: { setKey?: string; mainStat: string; mainValue: number; subStats: unknown }[]): ArtifactStats {
   const worn = artifacts.filter((a) => (a.setKey ?? DUNGEON_KEY) === DUNGEON_KEY);
   const bonus = setBonus(worn.length);
-  const stats: ArtifactStats = { attack: bonus.attack, defense: 0, hp: 0, speed: 0, crit: 0, critDamage: bonus.critDamage, dodge: 0, flatAttack: 0, flatDefense: 0, flatHp: 0 };
+  const stats: Required<ArtifactStats> = { magicSkill: 0, attack: bonus.attack, defense: 0, hp: 0, speed: 0, crit: 0, critDamage: bonus.critDamage, dodge: 0, flatAttack: 0, flatDefense: 0, flatHp: 0 };
   const add = (stat: string, value: unknown) => {
     if (Object.hasOwn(stats, stat) && typeof value === "number" && Number.isFinite(value)) stats[stat as keyof ArtifactStats] += value;
   };

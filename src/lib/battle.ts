@@ -1,3 +1,4 @@
+import { isMagicalSpell, magicSkillMultiplier } from "./magic-skill";
 // Combat 4 contre 4 à sorts (docs/specs/combat.md) : moteur pur, sans accès à la base.
 // Le combat avance action par action (createBattle → currentActor → applyAction), ce qui sert au mode manuel ;
 // battle() le joue en entier avec la stratégie automatique. Chaque étape est inscrite dans un journal (BattleEvent)
@@ -46,7 +47,7 @@ export interface BattleCard {
   /** Arme légendaire, équipable à 5 étoiles seulement */
   weapon?: Weapon | null;
   /** Bonus d'artefacts et de set, calculés côté serveur avant la copie du combat. */
-  artifactStats?: { attack: number; defense: number; hp: number; speed: number; crit: number; critDamage: number; dodge: number; flatAttack: number; flatDefense: number; flatHp: number };
+  artifactStats?: { magicSkill?: number; attack: number; defense: number; hp: number; speed: number; crit: number; critDamage: number; dodge: number; flatAttack: number; flatDefense: number; flatHp: number };
   /** Boss d'histoire ou de raid : résiste au silence */
   boss?: boolean;
   /** Retire le sort de personnage de cette carte (simulations d'équilibre) */
@@ -806,6 +807,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     if (opts.combos && u.shield >= u.maxHp * BATTLE.comboShieldThreshold) atk *= 1.15;
     const aff = affinity(u.card.type, t.card.type);
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
+    const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
+    if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + fxSum(u, "crit"), 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;

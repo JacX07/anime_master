@@ -34,6 +34,7 @@ export const artifactMainStat = (slot: ArtifactSlot, rarity: Rarity, seed: numbe
   const random = randomFor(seed ^ 0xa271);
   if (slot === "GANTS") {
     const options = [
+      { stat: "magicSkill", value: [0.025, 0.04, 0.065, 0.11, 0.16][tier] },
       { stat: "crit", value: [0.03, 0.05, 0.08, 0.12, 0.16][tier] },
       { stat: "critDamage", value: [0.05, 0.1, 0.17, 0.26, 0.36][tier] },
       { stat: "flatAttack", value: flatMainValues.flatAttack[tier] },
@@ -53,8 +54,8 @@ export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: numbe
   const random = randomFor(seed);
   const base = ["N", "R", "SR", "SSR", "UR"].indexOf(rarity);
   const count = [0, Math.floor(random() * 2), 1, 1 + Math.floor(random() * 2), 2 + Math.floor(random() * 2)][base];
-  const choices = ["hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage", "dodge"].filter((stat) => stat !== mainStat);
-  const max: Record<string, number> = { hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05, dodge: 0.025 };
+  const choices = ["magicSkill", "hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage", "dodge"].filter((stat) => stat !== mainStat);
+  const max: Record<string, number> = { magicSkill: 0.025, hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05, dodge: 0.025 };
   const result: ArtifactSubStat[] = [];
   while (result.length < count && choices.length) {
     const stat = choices.splice(Math.floor(random() * choices.length), 1)[0];

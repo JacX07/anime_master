@@ -20,7 +20,7 @@ async function main() {
     }
   }
   check("Emplacements accessibles et proches de 25 % sur 80 000 graines", slots.size === 4 && [...slots.values()].every((n) => Math.abs(n / 80_000 - 0.25) < 0.01), [...slots].map(([s, n]) => `${s} ${(100 * n / 80_000).toFixed(1)} %`).join(", "));
-  check("Huit stats de gants équiprobables et proches de 12,5 %", gloveStats.size === 8 && [...gloveStats.values()].every((n) => Math.abs(n / (slots.get("GANTS") ?? 1) - 0.125) < 0.02), [...gloveStats].map(([s, n]) => `${s} ${(100 * n / (slots.get("GANTS") ?? 1)).toFixed(1)} %`).join(", "));
+  check("Neuf stats de gants équiprobables, compétence magique incluse", gloveStats.size === 9 && gloveStats.has("magicSkill") && [...gloveStats.values()].every((n) => Math.abs(n / (slots.get("GANTS") ?? 1) - 1 / 9) < 0.02), [...gloveStats].map(([s, n]) => `${s} ${(100 * n / (slots.get("GANTS") ?? 1)).toFixed(1)} %`).join(", "));
   check("Valeurs plates des gants dans les plages documentées", (["N", "R", "SR", "SSR", "UR"] as const).every((rarity) => {
     const expected = { N: [20, 16, 101], R: [57, 45, 285], SR: [140, 107, 692], SSR: [333, 249, 1628], UR: [653, 436, 3049] }[rarity];
     for (let seed = 0; seed < 20_000; seed++) {

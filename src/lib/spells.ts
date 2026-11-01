@@ -44,6 +44,8 @@ export type Effect =
   | { k: "counter"; mult: number; turns: number };
 
 export interface CharacterSpell {
+  /** Nature explicite du sort ; indépendante du type de la carte. */
+  damageKind?: "physical" | "magic";
   name: string;
   /** Ce que le joueur choisit : un ennemi, un allié, un allié mort, ou rien (zone, équipe, soi) */
   target: "foe" | "ally" | "deadAlly" | null;

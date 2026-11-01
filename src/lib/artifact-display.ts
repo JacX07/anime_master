@@ -1,9 +1,9 @@
 import type { Rarity } from "../generated/prisma/enums";
 const labels: Record<string, string> = {
-  hp: "PV", attack: "ATK", defense: "DEF", flatHp: "PV", flatAttack: "ATK", flatDefense: "DEF",
+  magicSkill: "Compétence magique", hp: "PV", attack: "ATK", defense: "DEF", flatHp: "PV", flatAttack: "ATK", flatDefense: "DEF",
   crit: "Chance de critique", critDamage: "Dégâts critiques", speed: "Vitesse", dodge: "Esquive",
 };
-const percentStats = new Set(["hp", "attack", "defense", "crit", "critDamage", "dodge"]);
+const percentStats = new Set(["magicSkill", "hp", "attack", "defense", "crit", "critDamage", "dodge"]);
 const number = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
 export const artifactStatLabel = (stat: string) => labels[stat] ?? stat;

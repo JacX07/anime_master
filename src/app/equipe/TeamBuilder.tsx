@@ -12,6 +12,7 @@ import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { isMagicalSpell } from "@/lib/magic-skill";
 import { StatisticsPanel } from "./StatisticsPanel";
 import { EquipmentPanel } from "./EquipmentPanel";
 import type { getPlayerInventory } from "@/lib/player-inventory";
@@ -114,21 +115,21 @@ function SpellList({ card }: { card: TeamCard }) {
       )}
       {own && (
         <li tabIndex={0} title={describeSpell(own, true)}>
-          <b>★ {own.name}</b> <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
+          <b>★ {own.name}</b>{isMagicalSpell(card, "special", own) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
           <p>{describeSpell(own)}</p>
           <small>Rechargement : {SPELL_COOLDOWN} tours de cette carte.</small>
         </li>
       )}
       {tertiary && (
         <li tabIndex={0} title={describeSpell(tertiary, true)}>
-          <b>◇ {tertiary.name}</b> <small>{SPELL_TARGET_LABEL[tertiary.target ?? "none"]}</small>
+          <b>◇ {tertiary.name}</b>{isMagicalSpell(card, "tertiary", tertiary) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[tertiary.target ?? "none"]}</small>
           <p>{describeSpell(tertiary)}</p>
           <small>Rechargement : {BATTLE.tertiaryCooldown} tours de cette carte.</small>
         </li>
       )}
       {ultimate && (
         <li tabIndex={0} title={describeSpell(ultimate, true)}>
-          <b>✦ {ultimate.name}</b> <small>{SPELL_TARGET_LABEL[ultimate.target ?? "none"]}</small>
+          <b>✦ {ultimate.name}</b>{isMagicalSpell(card, "ultimate", ultimate) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[ultimate.target ?? "none"]}</small>
           <p>{describeSpell(ultimate)}</p>
           <small>Jauge de {BATTLE.ultimateGaugeMax} : +{BATTLE.ultimateGaugeBase} par attaque de base réussie, +{BATTLE.ultimateGaugePerHit} par sort offensif réussi, remise à zéro après l&apos;ultime.</small>
         </li>
