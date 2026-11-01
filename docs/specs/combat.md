@@ -400,7 +400,7 @@ Les bottes d'artefact donnent de la **vitesse**. Le moteur n'en a pas (alternanc
 - **À redéfinir avec la piste B** : le premier joueur (jauge initiale 0, égalité tranchée par la Puissance, comme aujourd'hui) ; la compensation du second (bouclier de 15 %) ; le plafond de 30 tours (devient un plafond de durée, soit 300 instants à vitesse 100) ; « prochain tour » des étourdissements (la jauge est vidée) ; sorts qui donnent ou retirent de la vitesse (à ajouter plus tard, sur le modèle des bonus d'ATK).
 
 ### Suite
-L'étape 3 active maintenant les vitesses de base dans les combats réels, avec la version du scheduler enregistrée pour les combats manuels persistés. Il reste à ajouter la vitesse aux effets et au builder, puis la timeline et les bottes d'artefact.
+L'étape 3 active maintenant les vitesses de base dans les combats réels, avec la version du scheduler enregistrée pour les combats manuels persistés. L'étape 4 ajoute les effets de vitesse, leur édition dans le builder et la timeline du combat suivi. Il reste les bottes d'artefact.
 
 ### Boucle à jauge : implémentation *(2026-11-01)*
 Dans `battle.ts`, tout l'ordre de jeu tient dans `currentActor` et `nextSlot` (emplacement = position × 2 + rang). C'est la seule partie à remplacer ; sorts, effets, ultimes et cooldowns ne changent pas.
@@ -435,7 +435,7 @@ Dans `battle.ts`, tout l'ordre de jeu tient dans `currentActor` et `nextSlot` (e
 1. Ajouter `speed` à `BattleCard` et `Unit`, `gauge` à `Unit` ; pas de changement tant que toutes les vitesses valent 100.
 2. Remplacer `currentActor` / `nextSlot` par la boucle à jauge, derrière une option `gauge: false` par défaut. Vérifier que `check:battle` et `check:replay` donnent des journaux **identiques** à vitesse égale.
 3. ✅ Brancher `speedOf(id)` pour les SSR/UR, activer la jauge dans les combats réels, et mesurer avec `simulate:battle`.
-4. Ajouter la stat `speed` au vocabulaire d'effets et au builder, puis `timeline`.
+4. ✅ Ajouter `speed` au vocabulaire d'effets et au builder, puis `timeline`.
 5. Artefacts (bottes), recalibrage des difficultés.
 
 **Mesure étape 3** — `npm run simulate:battle -- --games 1000 --seed 42`, puis même commande avec `--gauge`. Comparaison déterministe, non appariée, sur 153 000 combats par exécution : durée moyenne **13,3 → 12,9 tours**, p95 **30 → 29**, combats au-delà de 15 tours **24,7 → 23,1 %**, plafond de 30 tours **4,8 → 4,6 %**. Pas de recalibrage appliqué.

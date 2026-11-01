@@ -39,7 +39,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
   const apply = (next: BattleView) => {
     setError(null);
     setLog((l) => [...l, ...next.log]);
-    setView((v) => ({ ...v, status: next.status, winner: next.winner, loot: next.loot, actor: next.actor, choices: next.choices, wait: next.wait }));
+    setView((v) => ({ ...v, status: next.status, winner: next.winner, loot: next.loot, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
   };
 
   const send = (call: () => ReturnType<typeof playAutoAction>) => {
@@ -96,6 +96,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
         actor: view.actor,
         choices: view.choices,
         wait: view.wait,
+        timeline: view.timeline,
         busy: pending,
         error,
         onPlay: play,

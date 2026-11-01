@@ -10,7 +10,7 @@ export type Field =
   | { key: string; label: string; type: "choice"; options: Record<string, string>; def: string };
 
 const SCOPES = { target: "la cible", self: "le lanceur", team: "l'équipe", foes: "tous les ennemis" };
-const STATS = { atk: "ATK", def: "DEF", crit: "Critique", dodge: "Esquive" };
+const STATS = { atk: "ATK", def: "DEF", crit: "Critique", dodge: "Esquive", speed: "Vitesse" };
 const scope = (def: string): Field => ({ key: "to", label: "Qui", type: "choice", options: SCOPES, def });
 const turns = (def: number): Field => ({ key: "turns", label: "Tours", type: "number", min: 1, max: 6, step: 1, def });
 const pctField = (label: string, def: number, max = 1): Field => ({ key: "pct", label, type: "number", min: 0.01, max, step: 0.01, def });

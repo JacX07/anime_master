@@ -2,7 +2,7 @@
 // purge, réanimation unique, coup qui traverse les boucliers, journal rejouable. Pur (aucune base).
 // Usage : npm run check:spells
 
-import { applyAction, autoAction, createBattle, currentActor, legalActions, seededRandom, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
+import { applyAction, autoAction, createBattle, currentActor, legalActions, seededRandom, timeline, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
 import { historyOf, replayAll } from "../src/lib/battle-replay";
 import { SECONDARY_DATA, TERTIARY_DATA, ULTIMATE_DATA } from "../src/lib/skill-data";
 import { BATTLE } from "../src/lib/battle";
@@ -33,6 +33,23 @@ function until(st: BattleState, id: string) {
     const a = autoAction(st);
     play(st, "base", a.spell === "base" ? a.target : legalActions(st)[0].targets[0]);
   }
+}
+
+{
+  const st = createBattle([card(13)], [dummy(1)], seededRandom(3), { gauge: true, passive: false, franchise: false });
+  st.teams.A[0].fx.push({ key: "speedUp", stat: "speed", amount: 0.6, turns: 20, fresh: false }, { key: "speedUp", stat: "speed", amount: 0.6, turns: 20, fresh: false });
+  st.teams.B[0].fx.push({ key: "speedDown", stat: "speed", amount: -0.6, turns: 20, fresh: false });
+  const before = JSON.stringify(st.teams);
+  const next = timeline(st, 6);
+  check("Timeline : buffs plafonnés à +60 %, malus à −60 %, et état inchangé", next.join() === "A1,A1,A1,A1,B1,A1" && JSON.stringify(st.teams) === before, next.join());
+  const actor = currentActor(st)?.id;
+  check("Timeline : premier acteur identique à currentActor", actor === next[0]);
+  check("Timeline : acteur déjà réservé reste en tête", timeline(st, 6)[0] === actor);
+}
+{
+  const st = createBattle([card(13)], [dummy(1, { speed: 30 })], seededRandom(4), { gauge: true, passive: false, franchise: false });
+  st.teams.B[0].fx.push({ key: "speedDown", stat: "speed", amount: -0.6, turns: 2, fresh: false });
+  check("Vitesse : plancher absolu de 20", timeline(st, 6).at(-1) === "B1");
 }
 
 // Les catalogues réécrits alimentent bien les trois emplacements SSR/UR.

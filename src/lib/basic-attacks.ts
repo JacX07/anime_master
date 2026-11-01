@@ -8,7 +8,7 @@ import { spellOf, type Effect, type ModStat } from "./spells";
 import { SKILL_OVERRIDES } from "./skill-overrides";
 
 export type BasicRider =
-  | { kind: "mod"; stat: ModStat; amount: number; to: "self" | "target" }
+  | { kind: "mod"; stat: Exclude<ModStat, "speed">; amount: number; to: "self" | "target" }
   | { kind: "heal"; pct: number }
   | { kind: "shield"; pct: number }
   | { kind: "poison"; pct: number }
@@ -20,7 +20,7 @@ export interface BasicAttack {
   rider: BasicRider;
 }
 
-const mod = (stat: ModStat, amount: number, to: "self" | "target"): BasicRider => ({ kind: "mod", stat, amount, to });
+const mod = (stat: Exclude<ModStat, "speed">, amount: number, to: "self" | "target"): BasicRider => ({ kind: "mod", stat, amount, to });
 const named = (name: string, rider: BasicRider): BasicAttack => ({ name, rider });
 
 /** Fiches dédiées : nom emblématique et effet de base limité à une seule cible. */
@@ -103,8 +103,8 @@ const ARCHETYPE_RIDERS: Record<BasicSignatureArchetype, BasicRider> = {
 
 function riderFromSignature(effects: Effect[]): BasicRider {
   const mods = effects.filter((e): e is Extract<Effect, { k: "mod" }> => e.k === "mod");
-  const modEffect = mods.find((e) => e.amount < 0) ?? mods[0];
-  if (modEffect) {
+  const modEffect = mods.find((e) => e.stat !== "speed" && e.amount < 0) ?? mods.find((e) => e.stat !== "speed");
+  if (modEffect && modEffect.stat !== "speed") {
     return mod(modEffect.stat, Math.sign(modEffect.amount || 1) * 0.03, modEffect.amount < 0 ? "target" : "self");
   }
 
@@ -138,7 +138,7 @@ export function basicAttackOf(characterId: number, rarity: Rarity, type: CardTyp
   return SKILL_OVERRIDES[characterId]?.base ?? BASIC_ATTACK_ROSTER[characterId]?.attack ?? createBasicAttack(characterId, rarity, type);
 }
 
-const statName: Record<ModStat, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive" };
+const statName: Record<Exclude<ModStat, "speed">, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive" };
 const percent = (n: number) => `${Number.isInteger(n * 100) ? n * 100 : (n * 100).toLocaleString("fr-FR")} %`;
 
 export function describeBasicRider(rider: BasicRider): string {

@@ -52,6 +52,7 @@ export interface LiveControl {
   choices: { spell: Spell; targets: (UnitId | null)[] }[];
   /** Actions que chaque carte doit encore attendre avant son sort affilié */
   wait: Record<string, number>;
+  timeline: UnitId[];
   busy: boolean;
   error?: string | null;
   onPlay: (spell: Spell, target: UnitId | null) => void;
@@ -298,6 +299,12 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           </Link>
         )}
       </div>
+
+      {live?.timeline.length ? <ol className="bt-timeline" aria-label="Prochaines actions">
+        {live.timeline.map((id, index) => <li key={`${id}-${index}`} data-side={id[0]} aria-label={`${index + 1}. ${characters[rp.info[id].characterId]?.name ?? id}`}>
+          <span>{characters[rp.info[id].characterId]?.name ?? id}</span>
+        </li>)}
+      </ol> : null}
 
       {(["B", "A"] as const).map((side) => (
         <section key={side} className="bt-team" data-side={side} data-result={end ? (end.winner === side ? "win" : end.winner ? "lose" : "draw") : undefined}>

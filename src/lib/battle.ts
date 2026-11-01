@@ -111,7 +111,7 @@ export const BATTLE = {
   secondaryCdStar: 3,
   /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort tertiaire baisse d'une action */
   tertiaryCdStar: 5,
-  /** Plafond du total des bonus ou malus d'ATK et de DEF (±), du critique et de l'esquive (0 à 100 %) */
+  /** Plafond du total des bonus ou malus d'ATK, DEF et vitesse (±), du critique et de l'esquive (0 à 100 %) */
   statCap: 0.6,
   /** Plafond de la réduction de dégâts subis */
   reduceCap: 0.7,
@@ -273,7 +273,7 @@ interface Fx {
   turns: number;
   fresh: boolean;
 }
-const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "silence", "poison", "stun"]);
+const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -417,6 +417,51 @@ function removeSecondShield(st: BattleState) {
 
 const GAUGE_THRESHOLD = 10_000;
 const GAUGE_TICKS_PER_ROUND = 100;
+const effectiveSpeed = (u: Unit) => Math.max(20, u.speed * (1 + clamp(fxSum(u, "speed"), -BATTLE.statCap, BATTLE.statCap)));
+
+/** Prochains acteurs selon l'ordonnanceur à jauge, sans modifier le combat. */
+export function timeline(st: BattleState, n: number): UnitId[] {
+  if (!st.opts.gauge || st.result || !Number.isInteger(n) || n <= 0) return [];
+  const units = [...st.teams.A, ...st.teams.B].map((u) => ({
+    id: u.id, side: u.side, gauge: u.gauge, hp: u.hp, baseSpeed: u.speed,
+    fx: u.fx.map((f) => ({ key: f.key, stat: f.stat, amount: f.amount, turns: f.turns, fresh: f.fresh })),
+  }));
+  const order = [...st.order];
+  const actors: UnitId[] = [];
+  let gaugeTicks = st.gaugeTicks;
+  const speed = (u: typeof units[number]) => Math.max(20, u.baseSpeed * (1 + clamp(u.fx.reduce((sum, f) => sum + (f.stat === "speed" ? f.amount : 0), 0), -BATTLE.statCap, BATTLE.statCap)));
+  const consume = (u: typeof units[number]) => {
+    for (const fx of [...u.fx]) {
+      if (fx.key === "ignoreDef") continue;
+      if (fx.fresh) fx.fresh = false;
+      else if (--fx.turns <= 0) u.fx = u.fx.filter((x) => x !== fx);
+    }
+  };
+  if (st.gaugeActor && n > 0) {
+    const actor = units.find((u) => u.id === st.gaugeActor);
+    if (actor) { actors.push(actor.id); consume(actor); }
+  }
+  while (actors.length < n) {
+    const living = units.filter((u) => u.hp > 0);
+    if (!living.length) break;
+    let ready = living.filter((u) => u.gauge >= GAUGE_THRESHOLD);
+    if (!ready.length) {
+      const ticks = Math.min(...living.map((u) => Math.ceil((GAUGE_THRESHOLD - u.gauge) / speed(u))));
+      gaugeTicks += ticks;
+      if (gaugeTicks > BATTLE.maxRounds * GAUGE_TICKS_PER_ROUND) break;
+      for (const u of living) u.gauge += ticks * speed(u);
+      ready = living.filter((u) => u.gauge >= GAUGE_THRESHOLD);
+    }
+    const slotOf = (u: typeof units[number]) => (Number(u.id.slice(1)) - 1) * 2 + order.indexOf(u.side);
+    ready.sort((a, b) => b.gauge - a.gauge || slotOf(a) - slotOf(b));
+    const actor = ready[0];
+    actor.gauge -= GAUGE_THRESHOLD;
+    if (actor.fx.some((fx) => fx.key === "stun")) { consume(actor); continue; }
+    actors.push(actor.id);
+    consume(actor);
+  }
+  return actors;
+}
 
 function gaugeActor(st: BattleState): Unit | null {
   while (!st.result) {
@@ -442,8 +487,8 @@ function gaugeActor(st: BattleState): Unit | null {
       return u;
     }
     const living = [...alive(st, "A"), ...alive(st, "B")];
-    const ticks = Math.min(...living.map((u) => Math.ceil((GAUGE_THRESHOLD - u.gauge) / u.speed)));
-    for (const u of [...st.teams.A, ...st.teams.B]) if (u.hp > 0) u.gauge += ticks * u.speed;
+    const ticks = Math.min(...living.map((u) => Math.ceil((GAUGE_THRESHOLD - u.gauge) / effectiveSpeed(u))));
+    for (const u of [...st.teams.A, ...st.teams.B]) if (u.hp > 0) u.gauge += ticks * effectiveSpeed(u);
     const nextTick = st.gaugeTicks + ticks;
     while (Math.floor(nextTick / GAUGE_TICKS_PER_ROUND) > st.round) {
       if (st.round >= BATTLE.maxRounds) {

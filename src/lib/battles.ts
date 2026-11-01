@@ -7,7 +7,7 @@ import type { BattleMode, CardType, Rarity, TeamKind } from "../generated/prisma
 import type { Prisma } from "../generated/prisma/client";
 import {
   BATTLE, applyAction, autoAction, battle, createBattle, currentActor, legalActions, seededRandom,
-  type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId,
+  type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId, timeline,
 } from "./battle";
 import { prisma } from "./db";
 import { afterGain } from "./crystal-stock";
@@ -425,6 +425,8 @@ export interface BattleView {
   choices: { spell: Spell; targets: (UnitId | null)[] }[];
   /** Actions que chaque carte doit encore attendre avant son sort affilié (0 = prêt), combat en cours */
   wait: Record<string, number>;
+  /** Prochains acteurs projetés par l'ordonnanceur à jauge. */
+  timeline: UnitId[];
   /** Nom et image des 8 personnages, pour l'affichage */
   characters: Record<number, { name: string; imageUrl: string; rarity: Rarity; type: CardType }>;
 }
@@ -471,6 +473,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
           [`${u.id}:ultimate`, Math.max(0, BATTLE.ultimateGaugeMax - u.ultimateGauge)],
         ])))
       : {},
+    timeline: running && st.opts.gauge ? timeline(st, 8) : [],
     characters: await charactersOf(teams),
   };
 }

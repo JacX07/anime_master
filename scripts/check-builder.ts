@@ -32,6 +32,8 @@ for (const id of Object.keys(BASIC_ATTACK_ROSTER).map(Number)) {
   }
 }
 const entries = builderEntries(13, "SSR", "COMBAT");
+const speedSpell = parseBuilderValue("secondary", { name: "Accélération", target: null, effects: [{ k: "mod", stat: "speed", amount: 0.6, turns: 2, to: "team" }] });
+assert.ok(speedSpell && "effects" in speedSpell && speedSpell.effects[0].k === "mod" && speedSpell.effects[0].stat === "speed" && speedSpell.effects[0].amount === 0.6);
 const secondary = entries[1].original;
 assert.deepEqual(readSlotDrafts(secondary), { secondary });
 assert.deepEqual(readSlotDrafts({ slots: { secondary, ultimate: entries[3].original } }), { secondary, ultimate: entries[3].original });

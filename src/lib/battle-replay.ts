@@ -69,6 +69,8 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   critDown: { label: "Critique −", glyph: "✦", help: "Sa chance de coup critique est réduite.", bad: true },
   dodgeUp: { label: "Esquive", glyph: "≈", help: "Elle a une chance d'esquiver les coups.", bad: false },
   dodgeDown: { label: "Esquive −", glyph: "≈", help: "Sa chance d'esquiver est réduite.", bad: true },
+  speedUp: { label: "Vitesse +", glyph: "↟", help: "Sa jauge se remplit plus vite, jusqu'à +60 %.", bad: false },
+  speedDown: { label: "Vitesse −", glyph: "↡", help: "Sa jauge se remplit moins vite, jusqu'à −60 %.", bad: true },
   silence: { label: "Silence", glyph: "✕", help: "Ne peut lancer que son sort de base.", bad: true },
   stun: { label: "Étourdi", glyph: "✹", help: "Ne peut pas agir pendant l'étourdissement ; les effets durables continuent.", bad: true },
   immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },

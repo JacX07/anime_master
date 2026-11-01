@@ -170,6 +170,29 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.bt-timeline {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  margin: 0;
+  padding: 0.2rem 0 0.35rem;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.bt-timeline li {
+  flex: 0 0 auto;
+  max-width: 7rem;
+  overflow: hidden;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid #4b8bff66;
+  border-radius: 0.35rem;
+  background: #4b8bff14;
+  color: #bcd5ff;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bt-timeline li[data-side="B"] { border-color: #ff9aa566; background: #ff9aa514; color: #ffc5cb; }
 
 .bt-team {
   display: flex;
