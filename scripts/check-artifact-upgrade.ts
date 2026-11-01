@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
 import { prisma } from "../src/lib/db";
 import { upgradeArtifact } from "../src/lib/upgrade-artifact";
-import { artifactUpgradeCost } from "../src/lib/artifact-upgrade";
+import { artifactUpgradeCost, upgradedSubStats } from "../src/lib/artifact-upgrade";
 
 async function main() {
+  const subs = [{ stat: "speed", value: 2 }, { stat: "attack", value: 0.02 }];
+  assert.deepEqual(upgradedSubStats(subs, 3, () => 0), subs);
+  for (const level of [4, 8, 12, 16]) assert.deepEqual(upgradedSubStats(subs, level, () => 0.99), [subs[0], { stat: "attack", value: 0.04 }]);
+  assert.deepEqual(upgradedSubStats([], 4), []);
   const id = `upgrade-${Date.now()}`;
   await prisma.user.create({ data: { id, name: id, username: id, email: `${id}@test.local` } });
   try {
@@ -20,16 +24,16 @@ async function main() {
     assert.equal(results.filter((r) => r.status === "fulfilled").length, 1);
     assert.equal((await prisma.user.findUniqueOrThrow({ where: { id } })).balance, 100000 - artifactUpgradeCost("SR", 0));
     await assert.rejects(upgradeArtifact(id, artifact.id, 0));
-    for (let level = 1; level < 10; level++) await upgradeArtifact(id, artifact.id, level);
+    for (let level = 1; level < 16; level++) await upgradeArtifact(id, artifact.id, level);
     const upgraded = await prisma.artifact.findUniqueOrThrow({ where: { id: artifact.id } });
-    assert.equal(upgraded.level, 10);
-    assert(Math.abs(upgraded.mainValue - 0.12) < 0.00001, "+50 % de la valeur de départ à +10");
-    assert.deepEqual(upgraded.subStats, artifact.subStats);
-    await assert.rejects(upgradeArtifact(id, artifact.id, 10));
+    assert.equal(upgraded.level, 16);
+    assert(Math.abs(upgraded.mainValue - 0.144) < 0.00001, "+80 % de la valeur de départ à +16");
+    assert.deepEqual(upgraded.subStats, [{ stat: "crit", value: 0.32 }]);
+    await assert.rejects(upgradeArtifact(id, artifact.id, 16));
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });
     const ledger = await prisma.currencyLedger.aggregate({ where: { userId: id }, _sum: { amount: true } });
     assert.equal(user.balance, ledger._sum.amount);
-    assert.equal(await prisma.currencyLedger.count({ where: { userId: id, reason: "ARTIFACT_UPGRADE" } }), 10);
+    assert.equal(await prisma.currencyLedger.count({ where: { userId: id, reason: "ARTIFACT_UPGRADE" } }), 16);
     console.log("Améliorations conformes : propriété, fonds, rollback, double clic, plafond, statistiques et journal Ryō.");
   } finally { await prisma.user.delete({ where: { id } }); }
 }

@@ -20,7 +20,7 @@ async function main() {
     }
   }
   check("Emplacements accessibles et proches de 25 % sur 80 000 graines", slots.size === 4 && [...slots.values()].every((n) => Math.abs(n / 80_000 - 0.25) < 0.01), [...slots].map(([s, n]) => `${s} ${(100 * n / 80_000).toFixed(1)} %`).join(", "));
-  check("Neuf stats de gants équiprobables, compétence magique incluse", gloveStats.size === 9 && gloveStats.has("magicSkill") && [...gloveStats.values()].every((n) => Math.abs(n / (slots.get("GANTS") ?? 1) - 1 / 9) < 0.02), [...gloveStats].map(([s, n]) => `${s} ${(100 * n / (slots.get("GANTS") ?? 1)).toFixed(1)} %`).join(", "));
+  check("Cinq stats de gants équiprobables, compétence magique incluse", gloveStats.size === 5 && gloveStats.has("magicSkill") && [...gloveStats.values()].every((n) => Math.abs(n / (slots.get("GANTS") ?? 1) - 1 / 5) < 0.02), [...gloveStats].map(([s, n]) => `${s} ${(100 * n / (slots.get("GANTS") ?? 1)).toFixed(1)} %`).join(", "));
   check("Valeurs plates des gants dans les plages documentées", (["N", "R", "SR", "SSR", "UR"] as const).every((rarity) => {
     const expected = { N: [20, 16, 101], R: [57, 45, 285], SR: [140, 107, 692], SSR: [333, 249, 1628], UR: [653, 436, 3049] }[rarity];
     for (let seed = 0; seed < 20_000; seed++) {
@@ -42,8 +42,13 @@ async function main() {
   }).every(Boolean)));
   check("Sous-stats selon la rareté, sans répéter la stat principale", ["N", "R", "SR", "SSR", "UR"].every((rarity) => {
     const stats = artifactSubStats("CASQUE", rarity as Rarity, 271);
-    return stats.length >= ({ N: 0, R: 0, SR: 1, SSR: 1, UR: 2 }[rarity as Rarity]) && stats.length <= ({ N: 0, R: 1, SR: 1, SSR: 2, UR: 3 }[rarity as Rarity]) && stats.every((s) => s.stat !== artifactMainStat("CASQUE", rarity as Rarity, 271).stat);
+    return stats.length === ({ N: 1, R: 2, SR: 3, SSR: 4, UR: 4 }[rarity as Rarity]) && new Set(stats.map((s) => s.stat)).size === stats.length && stats.every((s) => s.stat !== "dodge" && s.stat !== artifactMainStat("CASQUE", rarity as Rarity, 271).stat);
   }));
+  for (const slot of ["CASQUE", "PLASTRON", "GANTS", "BOTTES"] as const) {
+    const expected = slot === "GANTS" ? ["flatAttack", "attack", "crit", "magicSkill", "critDamage"] : slot === "BOTTES" ? ["speed", "flatAttack", "flatDefense", "flatHp", "attack", "defense", "hp"] : ["flatHp", "flatDefense", "flatAttack", "hp", "defense", "attack"];
+    const seen = new Set(Array.from({ length: 2000 }, (_, seed) => artifactMainStat(slot, "N", seed).stat));
+    check(`Stats autorisées : ${slot}`, seen.size === expected.length && expected.every((stat) => seen.has(stat)));
+  }
   const uid = `dg-${Date.now()}`;
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
   // Ces tests isolent le mode ; les conditions d’accès sont testées par check:adventure.

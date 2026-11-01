@@ -84,7 +84,7 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
                 if (!result.ok) setError(result.error);
               } catch { setError("L’amélioration a échoué, réessaie."); }
             });
-          }}>{selected.artifact.level >= ARTIFACT_MAX_LEVEL ? "Niveau maximum +10" : `Améliorer · ${artifactUpgradeCost(selected.artifact.rarity, selected.artifact.level).toLocaleString("fr-FR")} Ryō`}</button>}
+          }}>{selected.artifact.level >= ARTIFACT_MAX_LEVEL ? "Niveau maximum +16" : `Améliorer · ${artifactUpgradeCost(selected.artifact.rarity, selected.artifact.level).toLocaleString("fr-FR")} Ryō`}</button>}
           {error && <p role="alert" className="hs-error">{error}</p>}
           <div className="inventory-actions">{selected.links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}</div>
         </> : <div className="inventory-detail-placeholder"><span aria-hidden="true">◇</span><p>Sélectionne un objet pour découvrir ses détails.</p></div>}
