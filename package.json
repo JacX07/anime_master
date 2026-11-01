@@ -38,6 +38,7 @@
     "check:story-map": "tsx scripts/check-story-map.ts",
     "check:story-drops": "tsx scripts/check-story-drops.ts",
     "check:story-bosses": "tsx scripts/check-story-bosses.ts",
+    "check:doflamingo": "tsx scripts/check-doflamingo.ts",
     "check:inventory": "tsx scripts/check-inventory.ts",
     "check:weapons": "tsx scripts/check-weapons.ts",
     "check:awakening": "tsx scripts/check-awakening.ts",

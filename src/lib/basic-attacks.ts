@@ -13,7 +13,7 @@ export type BasicRider =
   | { kind: "shield"; pct: number }
   | { kind: "poison"; pct: number }
   | { kind: "drain"; pct: number }
-  | { kind: "ignoreDef"; pct: number };
+  | { kind: "ignoreDef"; pct: number; immediate?: boolean };
 
 export interface BasicAttack {
   name: string;
@@ -154,7 +154,7 @@ export function describeBasicRider(rider: BasicRider): string {
     case "shield": return `bouclier de ${percent(rider.pct)} des PV max pour le lanceur`;
     case "poison": return `poison : ${percent(rider.pct)} des PV max de la cible à son prochain tour`;
     case "drain": return `rend ${percent(rider.pct)} des dégâts infligés en PV`;
-    case "ignoreDef": return `ignore ${percent(rider.pct)} de la DEF sur la prochaine attaque du lanceur`;
+    case "ignoreDef": return `ignore ${percent(rider.pct)} de la DEF ${rider.immediate ? "sur cette attaque" : "sur la prochaine attaque du lanceur"}`;
   }
 }
 

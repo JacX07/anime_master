@@ -99,6 +99,11 @@ Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire e
 
 **Boss** *(décidé le 2026-10-31)* : les boss d'histoire et de raid **résistent au silence et à l'étourdissement** (sans effet sur eux) ; ils subissent tous les autres effets. Le **poison est mortel** (il peut achever une carte).
 
+**Doflamingo — boss de One Piece (acte 3)** : kit du Fruit du Fil, réservé au boss (la carte de collection garde son kit habituel).
+- **Goshikito** : attaque de base, ignore 15 % de la DEF dès ce coup, sans cumul sur l'attaque suivante.
+- **Parasite** : ralentit de 25 % les deux ennemis vivants à l'ATK la plus élevée pendant 2 actions de chaque cible ; recharge de 5 actions du boss. Aucun étourdissement. Une cible immunisée résiste sans report sur une troisième.
+- **Birdcage** : ultime à jauge pleine, 0,6× ATK sur tous les ennemis, puis 4 % des PV max pendant 2 actions de chaque cible. Les dégâts périodiques utilisent le statut poison existant pour représenter les fils qui entaillent. Pas de sort tertiaire générique ajouté à ce kit.
+
 **Gojo — Extension du territoire** : remplace Pourpre comme ultime. À jauge pleine, étourdit automatiquement les **deux ennemis vivants à l'ATK la plus élevée** : chacun passe **son prochain tour**, puis peut rejouer. À égalité d'ATK, l'ordre des emplacements départage les cibles. Avec un seul ennemi vivant, une seule cible est touchée. Cet effet partiel de zone ignore la provocation. Les deux cibles sont choisies avant la résistance : un boss ou un ennemi immunisé résiste sans transfert vers une troisième cible. L'IA conserve la jauge si les deux cibles sont protégées. Chaque tour passé apparaît dans le journal et le rejeu. La résistance des boss couvre désormais aussi l'étourdissement.
 
 **Lancement** : les 28 SSR et UR de One Piece, Naruto et Jujutsu Kaisen en premier ; les autres univers au fil du temps.

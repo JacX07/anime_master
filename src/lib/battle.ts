@@ -6,6 +6,7 @@
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
+import { BOSS_SKILLS } from "./boss-skills";
 import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
 import { isSoloBuff, spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
 import { balanceSecondary, powerTertiaryDamage } from "./character-skills";
@@ -336,6 +337,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
   const bonus = statBonus(team, opts);
   const aura = auraBonus(team);
   return team.map((card, i) => {
+    if (card.boss && BOSS_SKILLS[card.characterId]) card = { ...card, ...BOSS_SKILLS[card.characterId] };
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i] + (card.artifactStats?.hp ?? 0)) + (card.artifactStats?.flatHp ?? 0);
     const p = weaponOf(card)?.passive;
     const rawSecondary = opts.spells && !card.noSpell ? card.spell ?? spellOf(card.characterId, card.rarity, card.type) : null;
@@ -372,7 +374,7 @@ const alive = (st: BattleState, s: Side) => st.teams[s].filter((u) => u.hp > 0);
 const unit = (st: BattleState, id: UnitId) => st.teams[id[0] as Side][Number(id.slice(1)) - 1];
 const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m));
 const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.hp / m.maxHp ? x : m));
-const stunTargets = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
+const strongestFoes = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
   const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, ...options, startingSide: options.startingSide ?? null };
@@ -634,7 +636,7 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   const allies = alive(st, u.side), foes = foesFor(st, u);
   const fx = spell.effects;
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
-  if (only("stun") && !fx.some((effect) => effect.k === "stun" && stunTargets(st, u, effect.count).some((foe) => !foe.card.boss && !hasFx(foe, "immune")))) return null;
+  if (only("stun") && !fx.some((effect) => effect.k === "stun" && strongestFoes(st, u, effect.count).some((foe) => !foe.card.boss && !hasFx(foe, "immune")))) return null;
   if (spell.target === "deadAlly") return { spell: slot, target: targets[0] };
   if (fx.some((e) => e.k === "heal" || e.k === "purge") && fx.every((e) => e.k === "heal" || e.k === "purge")) {
     const hurt = allies.some((x) => x.hp < x.maxHp * BATTLE.healBelow);
@@ -783,7 +785,7 @@ export function applyAction(st: BattleState, action: Action) {
   }
   if (action.spell === "base") {
     if (u.spellIn === 0) u.held++;
-    const amount = hit(target!, 1);
+    const amount = hit(target!, 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
     if (amount > 0 && basic) {
       const applyRider = (rider: BasicRider) => {
         switch (rider.kind) {
@@ -810,7 +812,7 @@ export function applyAction(st: BattleState, action: Action) {
             heal(u, amount * rider.pct);
             break;
           case "ignoreDef":
-            addFx(u, "ignoreDef", rider.pct, 1);
+            if (!rider.immediate) addFx(u, "ignoreDef", rider.pct, 1);
             break;
         }
       };
@@ -833,7 +835,7 @@ export function applyAction(st: BattleState, action: Action) {
           break;
         }
         case "mod":
-          for (const t of who(e.to)) addFx(t, `${e.stat}${e.amount > 0 ? "Up" : "Down"}`, e.amount, e.turns, e.stat);
+          for (const t of e.to === "foes" && e.count ? strongestFoes(st, u, e.count) : who(e.to)) addFx(t, `${e.stat}${e.amount > 0 ? "Up" : "Down"}`, e.amount, e.turns, e.stat);
           break;
         case "heal":
           for (const t of who(e.to)) heal(t, t.maxHp * e.pct);
@@ -855,7 +857,7 @@ export function applyAction(st: BattleState, action: Action) {
           for (const t of who(e.to)) addFx(t, "silence", 0, e.turns);
           break;
         case "stun": {
-          const targets = stunTargets(st, u, e.count);
+          const targets = strongestFoes(st, u, e.count);
           for (const foe of targets) addFx(foe, "stun", 0, e.turns);
           break;
         }

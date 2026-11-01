@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { CardType } from "@/generated/prisma/enums";
 import { affinity as typeAffinity, BATTLE, hasCharacterSlots, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
+import { BOSS_SKILLS } from "@/lib/boss-skills";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
@@ -44,7 +45,8 @@ export function SpellsPanel({
   const types = Object.keys(TYPE_LABELS) as CardType[];
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
   const weakVs = types.find((t) => typeAffinity(unit.type, t) < 1)!;
-  const basic = basicAttackOf(unit.characterId, unit.rarity, unit.type);
+  const boss = unit.boss ? BOSS_SKILLS[unit.characterId] : undefined;
+  const basic = boss?.basicAttack ?? basicAttackOf(unit.characterId, unit.rarity, unit.type);
   const spells: { key: Spell; title: React.ReactNode; target: string; text: string; tooltip: string; note: string | null }[] = [
     { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic, false) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
   ];
@@ -53,7 +55,7 @@ export function SpellsPanel({
     spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, tooltip: affinity.details, note: AFFINITY_COOLDOWN });
   }
   const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
-  const own = rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null;
+  const own = boss?.spell ?? (rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null);
   if (own) {
     spells.push({
       key: "special" as const,
@@ -66,7 +68,7 @@ export function SpellsPanel({
   }
   const ultimateGauge = unit.ultimateGauge ?? 0;
   const ultimateGaugeMax = unit.ultimateGaugeMax ?? BATTLE.ultimateGaugeMax;
-  const rawTertiary = hasCharacterSlots(unit.rarity) ? TERTIARY_SPELLS[unit.characterId] : undefined;
+  const rawTertiary = !boss?.noTertiary && hasCharacterSlots(unit.rarity) ? TERTIARY_SPELLS[unit.characterId] : undefined;
   const tertiary = rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
   if (tertiary) {
     spells.push({
@@ -78,7 +80,7 @@ export function SpellsPanel({
       note: `Rechargement : ${BATTLE.tertiaryCooldown} tours.`,
     });
   }
-  const ultimate = hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined;
+  const ultimate = boss?.ultimate ?? (hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined);
   if (ultimate) {
     spells.push({
       key: "ultimate",

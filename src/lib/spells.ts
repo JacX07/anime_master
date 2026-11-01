@@ -13,7 +13,7 @@ export type Effect =
   /** Dégâts × ATK ; `zone` touche tous les ennemis ; `drain` rend au lanceur cette part des dégâts ; `pierce` traverse les boucliers (et l'esquive) */
   | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; ignoreMissing?: number; pierce?: boolean; drain?: number; critSure?: boolean }
   /** Bonus ou malus (amount négatif) de la stat, en part (0,2 = +20 %, ou +20 points de critique) */
-  | { k: "mod"; stat: ModStat; amount: number; turns: number; to: Scope }
+  | { k: "mod"; stat: ModStat; amount: number; turns: number; to: Scope; count?: number }
   | { k: "heal"; pct: number; to: Scope }
   | { k: "regen"; pct: number; turns: number; to: Scope }
   | { k: "shield"; pct: number; to: Scope }
@@ -404,7 +404,7 @@ export function describeEffect(e: Effect, detailed = false): string {
         e.drain && `rend ${pct(e.drain)} des dégâts en PV`,
       ].filter(Boolean).join(", ");
     case "mod":
-      return `${STAT_NAMES[e.stat]} ${amountText(e.stat, e.amount)} pour ${WHO[e.to]}, ${nx(e.turns)}`;
+      return `${STAT_NAMES[e.stat]} ${amountText(e.stat, e.amount)} pour ${e.to === "foes" && e.count ? `les ${e.count} ennemis vivants à l’ATK la plus élevée` : WHO[e.to]}, ${nx(e.turns)}`;
     case "heal": return `soigne ${WHO[e.to]} de ${pct(e.pct)} des PV max`;
     case "regen": return `soin sur la durée de ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "shield": return `bouclier de ${pct(e.pct)} des PV max pour ${WHO[e.to]}`;
