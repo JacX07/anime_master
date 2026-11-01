@@ -6,7 +6,7 @@ import { demoBattle } from "@/lib/battle-demo";
 
 export const metadata: Metadata = { title: "Test du lecteur de combat — Anime Masters", robots: { index: false } };
 
-export default function CombatTestPage({ searchParams }: { searchParams: Promise<{ seed?: string }> }) {
+export default function CombatTestPage({ searchParams }: { searchParams: Promise<{ seed?: string; ids?: string }> }) {
   return (
     <main className="vt">
       <div className="vt-inner">
@@ -22,12 +22,13 @@ export default function CombatTestPage({ searchParams }: { searchParams: Promise
 
 const randomSeed = () => Math.floor(Math.random() * 1e9);
 
-async function Demo({ searchParams }: { searchParams: Promise<{ seed?: string }> }) {
+async function Demo({ searchParams }: { searchParams: Promise<{ seed?: string; ids?: string }> }) {
   // Graine aléatoire : à calculer à la requête, pas au pré-rendu
   await connection();
-  const { seed: raw } = await searchParams;
+  const { seed: raw, ids: rawIds } = await searchParams;
+  const ids = (rawIds ?? "").split(",").map(Number).filter((n) => Number.isSafeInteger(n) && n > 0).slice(0, 8);
   const seed = raw && Number.isSafeInteger(Number(raw)) ? Number(raw) : randomSeed();
-  const { log, characters } = await demoBattle(seed);
+  const { log, characters } = await demoBattle(seed, ids);
   return (
     <>
       <BattlePlayer key={seed} log={log} characters={characters} nextHref={`/combat/test?seed=${randomSeed()}`} />

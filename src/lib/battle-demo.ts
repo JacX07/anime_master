@@ -36,15 +36,17 @@ function pickRarity(rng: Random): Rarity {
   return "SR";
 }
 
-export async function demoBattle(seed: number): Promise<{ log: BattleEvent[]; characters: Record<number, DemoCharacter> }> {
+/** `ids` force les personnages des premiers emplacements (page de test : `?ids=68,13,…`). */
+export async function demoBattle(seed: number, ids: number[] = []): Promise<{ log: BattleEvent[]; characters: Record<number, DemoCharacter> }> {
   const rng = seededRandom(seed);
   const used = new Set<number>();
   const cards: BattleCard[] = [];
   const characters: Record<number, DemoCharacter> = {};
   for (let i = 0; i < 8; i++) {
     const rarity = pickRarity(rng);
-    const where = { disabled: false, rarity, id: { notIn: [...used] } };
-    const count = await prisma.character.count({ where });
+    const forced = ids[i];
+    const where = forced ? { disabled: false, id: forced } : { disabled: false, rarity, id: { notIn: [...used] } };
+    const count = forced ? 1 : await prisma.character.count({ where });
     const c = await prisma.character.findFirst({
       where,
       skip: Math.floor(rng() * count),

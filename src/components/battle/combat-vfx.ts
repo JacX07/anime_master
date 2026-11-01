@@ -1,4 +1,6 @@
+import type { AttackElement } from "@/lib/attack-element";
 import type { AttackVisual, AttackWeapon } from "@/lib/attack-visual";
+import { ElementVfx, type ElementHit } from "./element-vfx";
 
 type Point = { x: number; y: number };
 export interface CombatVfxOptions {
@@ -15,6 +17,8 @@ export interface CombatVfxOptions {
   targetCard?: HTMLElement | null;
   /** Attacker card: it wields the blade and follows its grip. */
   actorCard?: HTMLElement | null;
+  /** Élément du personnage : remplace le projectile des sorts et ajoute son impact aux coupes. */
+  element?: AttackElement | null;
 }
 
 const NS = "http://www.w3.org/2000/svg";
@@ -152,7 +156,17 @@ export class CombatVfx {
   private nodes = new Set<Element>();
   private speed = 1;
   private paused = false;
-  constructor(private root: HTMLElement) {}
+  private elements: ElementVfx;
+  constructor(private root: HTMLElement) {
+    this.elements = new ElementVfx(root, (px, delay) => {
+      this.animate(root, [{ transform: "none" }, { transform: `translate(${-px}px, ${px / 2}px)` }, { transform: `translate(${px * .8}px, ${-px / 2}px)` }, { transform: `translate(${-px * .4}px, 0)` }, { transform: "none" }], { delay, duration: 280 });
+    });
+  }
+
+  /** Impact élémentaire seul (attaques de mêlée). */
+  elementHit(hit: ElementHit) {
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) this.elements.play(hit);
+  }
 
   animate(el: Element, frames: Keyframe[], options: KeyframeAnimationOptions): Animation {
     const animation = el.animate(frames, options);
@@ -169,6 +183,7 @@ export class CombatVfx {
   setPlayback(speed: number, playing: boolean) {
     this.speed = speed;
     this.paused = !playing;
+    this.elements.setPlayback(speed, playing);
     for (const animation of this.animations) {
       animation.updatePlaybackRate(speed);
       if (playing) animation.play(); else animation.pause();
@@ -272,15 +287,28 @@ export class CombatVfx {
     this.animate(card, motion, { duration: 1800 });
   }
 
+  /** Démontage du lecteur : retire aussi le canvas des éléments. */
+  dispose() {
+    this.clear();
+    this.elements.destroy();
+  }
+
   clear() {
+    this.elements.clear();
     for (const animation of this.animations) animation.cancel();
     this.animations.clear();
     for (const node of this.nodes) node.remove();
     this.nodes.clear();
   }
 
-  play({ style, from, to, impactAt, intensity = 1, weapon = "katana", support = false, dodge = false, targetCard = null, actorCard = null }: CombatVfxOptions) {
+  play({ style, from, to, impactAt, intensity = 1, weapon = "katana", support = false, dodge = false, targetCard = null, actorCard = null, element = null }: CombatVfxOptions) {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (element && !support && style !== "gun") {
+      const r = targetCard?.getBoundingClientRect();
+      this.elements.play({ element, style, from, to, card: { w: r?.width || 90, h: r?.height || 126 }, impactAt, intensity, dodge });
+      // Un sort élémentaire remplace entièrement le projectile générique
+      if (style === "magic") return;
+    }
     const dx = to.x - from.x, dy = to.y - from.y;
     const distance = Math.hypot(dx, dy);
     const scale = Math.min(1, Math.max(.38, distance / 420)) * Math.min(1.4, intensity);

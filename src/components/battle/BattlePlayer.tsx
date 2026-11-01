@@ -6,6 +6,7 @@ import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
 import { historyOf, holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
+import { attackElement } from "@/lib/attack-element";
 import { attackVisual, attackWeapon } from "@/lib/attack-visual";
 import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
@@ -193,7 +194,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     reducedMotion.addEventListener("change", onMotionChange);
     return () => {
       reducedMotion.removeEventListener("change", onMotionChange);
-      controller.clear();
+      controller.dispose();
       vfx.current = null;
     };
   }, []);
@@ -213,6 +214,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       const t = ev.target && ev.target[0] !== ev.actor[0] ? el(ev.target) : null;
       if (!a) return;
       const visual = attackVisual(rp.info[ev.actor].characterId);
+      const element = attackElement(rp.info[ev.actor].characterId);
       const targets = actionVisualTargets(log, rp.idx - 1);
       const center = (card: HTMLElement) => {
         const r = card.querySelector(".bt-card")?.getBoundingClientRect() ?? card.getBoundingClientRect();
@@ -227,7 +229,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         const wielder = visual === "slash" ? a : null;
         targets.forEach((hit, i) => {
           const target = el(hit.target);
-          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon, dodge: hit.dodge, targetCard: target.querySelector<HTMLElement>(".bt-card"), actorCard: i === 0 ? wielder : null });
+          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon, dodge: hit.dodge, targetCard: target.querySelector<HTMLElement>(".bt-card"), actorCard: i === 0 ? wielder : null, element });
         });
         if (!targets.length) controller.play({ style: visual, from, to: { x: from.x + 70, y: from.y }, impactAt: 480, intensity, weapon, support: true, actorCard: wielder });
         if (!wielder) controller.animate(a, [{ transform: "none" }, { transform: "scale(1.04)", offset: .3 }, { transform: "none" }], { duration: 480 });
@@ -243,6 +245,15 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         controller.animate(a, [{ transform: "none" }, { transform: `translate(${dx}px, ${dy}px) scale(1.12)`, offset: 0.63 }, { transform: "none" }], {
           duration: 760, easing: "cubic-bezier(.35,.05,.3,1)",
         });
+        if (element) {
+          const from = center(a);
+          for (const hit of targets) {
+            const target = el(hit.target), card = target?.querySelector<HTMLElement>(".bt-card");
+            if (!target || !card) continue;
+            const r = card.getBoundingClientRect();
+            controller.elementHit({ element, style: "melee", from, to: center(target), card: { w: r.width, h: r.height }, impactAt: hit.at, dodge: hit.dodge });
+          }
+        }
       }
     } else if (ev.kind === "status" && ev.on) {
       const card = el(ev.target)?.querySelector<HTMLElement>(".bt-card");
