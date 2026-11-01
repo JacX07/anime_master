@@ -10,8 +10,8 @@ button{font:inherit;font-size:12px;padding:5px 12px;border-radius:999px;border:1
 @media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style></head><body><main>
 <h1>Feu et eau : version courte</h1>
-<p>Chaque effet reste dans l'empreinte de la carte ciblée (pas de fumée ni de nappe qui déborde) et dure moins d'une demi-seconde après l'impact. Cliquer sur une case la rejoue. Les chiffres rouges montrent les dégâts du splash.</p>
-<button id="all">↻ Tout rejouer</button>
+<p>Les sons durent 0,8 à 0,9 s au lieu de 1,5 à 1,6 s (impact au même endroit). Active « Son » puis clique sur une case pour la rejouer. Les sons actuels (A) sont dans le dossier elements-sfx si tu veux comparer.</p>
+<div style="display:flex;gap:8px"><button id="all">↻ Tout rejouer</button><button id="snd" aria-pressed="false">🔇 Son : activer</button></div>
 <div class="grid" id="grid"></div>
 </main><script>
 const R=(a,b)=>a+Math.random()*(b-a),seg=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a))),eo=v=>1-(1-v)**3;
@@ -19,19 +19,21 @@ const FEU=["#fff6cf","#ffb63d","#ec4a1f","#6e170c"],EAU=["#effcff","#77d8ff","#2
 const W=450,H=240,GY=190,A={x:90,y:120},B={x:340,y:120},CW=80,CH=110;
 // Variantes : [id, titre, description, durée totale (s)]
 const V=[
- ["feu-a","Feu A — Flammèches","Boule de feu courte (0,2 s). À l'impact, une dizaine de petites langues de feu lèchent le bas de la carte (0,5 s), quelques braises. Pas de fumée. Une petite flamme reste au-dessus de la carte tant que la brûlure dure.",1.1],
- ["feu-b","Feu B — Éclat","Éclat orange en anneau à l'impact (0,25 s) puis trois langues de feu qui montent de 30 px, rien d'autre. Même petite flamme d'état au-dessus de la carte. Le plus discret.",1],
- ["eau-a","Eau A — Couronne","Goutte rapide (0,18 s). À l'impact, couronne de gouttes qui jaillit à ±50 px et retombe, anneau plat au sol (0,45 s). Les dégâts s'affichent avec le splash. Pas de nappe, pas de brume.",1.1],
- ["eau-b","Eau B — Gifle","Une nappe d'eau traverse la carte de gauche à droite (0,3 s) en laissant des gouttes ; les dégâts tombent au passage. Un peu plus de mouvement, aussi compact.",1.1],
+ ["feu-a","Feu A — Flammèches","Boule de feu courte, quelques langues de feu au bas de la carte. Son C : claque sèche et braises brèves, 0,85 s.",1.1],
+ ["feu-b","Feu B — Éclat","Anneau d'éclat puis trois langues de feu. Son D : coup mat avec plus de corps, sans crépitement, 0,9 s.",1],
+ ["eau-a","Eau A — Couronne","Jet d'eau effilé qui file droit (0,2 s), puis couronne de gouttes à ±50 px et anneau plat au sol (0,45 s). Son C : gerbe nette, 0,8 s, une seule retombée.",1.1],
+ ["eau-b","Eau B — Gifle","Même jet d'eau, puis une nappe qui traverse la carte (0,3 s). Son D : splash qui claque avec un coup grave, 0,85 s, plus de poids.",1.1],
 ];
-const cells={};
+const cells={};let sndOn=false;const SND={"feu-a":"feu-C","feu-b":"feu-D","eau-a":"eau-C","eau-b":"eau-D"},aud={};
+document.getElementById("snd").onclick=e=>{sndOn=!sndOn;e.target.textContent=sndOn?"🔊 Son : activé":"🔇 Son : activer";V.forEach(v=>reset(v[0]))};
+function playSnd(id,t){if(!sndOn)return;const a=aud[id]||(aud[id]=new Audio("elements-sfx/"+SND[id]+".ogg"));a.currentTime=Math.max(0,.48-.22+Math.min(0,t));a.volume=.7;a.play().catch(()=>{})}
 for(const [id,title,desc,dur] of V){
  const d=document.createElement("div");d.className="cell";d.innerHTML=`<canvas width="${W}" height="${H}"></canvas><div><h3>${title}</h3><p>${desc}</p></div>`;
  document.getElementById("grid").append(d);
- const cv=d.firstChild,x=cv.getContext("2d");cells[id]={x,t0:performance.now(),dur,P:[],fired:false,dmg:0};
+ const cv=d.firstChild,x=cv.getContext("2d");cells[id]={x,t0:performance.now(),dur,P:[],fired:false,dmg:0,trail:[]};
  d.onclick=()=>reset(id);
 }
-function reset(id){const c=cells[id];c.t0=performance.now()+150;c.P=[];c.fired=false;c.dmg=0}
+function reset(id){const c=cells[id];c.t0=performance.now()+150;c.P=[];c.trail=[];c.fired=false;c.dmg=0;c.snd=false}
 document.getElementById("all").onclick=()=>V.forEach(v=>reset(v[0]));
 function card(x,cx,cy,col,hit){
  x.save();x.translate(cx+(hit?R(-1.5,1.5):0),cy);x.fillStyle="#2b2745";x.strokeStyle=col;x.lineWidth=2;x.beginPath();x.roundRect(-CW/2,-CH/2,CW,CH,8);x.fill();x.stroke();
@@ -46,6 +48,7 @@ function dmgText(x,t,T,px,py){const k=seg(t,T,T+.7);if(k<=0||k>=1)return;x.save(
 function frame(id,now){
  const c=cells[id],x=c.x,t=(now-c.t0)/1000;x.clearRect(0,0,W,H);
  x.fillStyle="#1a1626";x.fillRect(0,GY,W,H-GY);x.strokeStyle="rgba(255,255,255,.12)";x.beginPath();x.moveTo(0,GY);x.lineTo(W,GY);x.stroke();
+ if(t>=-.0&&!c.snd){c.snd=true;playSnd(id,0)}
  if(t>c.dur+.6)reset(id);
  const T=.22,el=id.startsWith("feu")?FEU:EAU,hit=t>T&&t<T+.25;
  card(x,A.x,A.y,"#6f65b8",false);card(x,B.x,B.y,"#6f65b8",hit);
@@ -55,7 +58,16 @@ function frame(id,now){
  if(k>0&&k<1){const px=A.x+CW/2+(B.x-CW/2-A.x-CW/2)*k,py=A.y-12*Math.sin(Math.PI*k);
   x.globalCompositeOperation="lighter";
   if(el===FEU){glow(x,px,py,34,el[2],.7);glow(x,px,py,20,el[1]);glow(x,px,py,9,"#fff")}
-  else{x.globalCompositeOperation="source-over";x.fillStyle=el[2];x.beginPath();x.ellipse(px,py,11,9,0,0,7);x.fill();x.fillStyle=el[1];x.beginPath();x.ellipse(px-1,py-1,8,6,0,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.ellipse(px-3,py-3,3,1.6,-.6,0,7);x.fill()}
+  else{x.globalCompositeOperation="source-over";
+   // Jet d'eau : tête allongée et traîne effilée qui ondule
+   c.trail.push([px,py]);if(c.trail.length>34)c.trail.shift();
+   const n=c.trail.length;
+   for(const [w,col] of [[1,EAU[3]],[.82,EAU[2]],[.5,EAU[1]]]){x.fillStyle=col;x.beginPath();
+    for(let i=0;i<n;i++){const f=(i+1)/n,wob=Math.sin(i*.9+t*40)*1.5;x.lineTo(c.trail[i][0],c.trail[i][1]-(1+11*f**.6)*w+wob)}
+    for(let i=n-1;i>=0;i--){const f=(i+1)/n,wob=Math.sin(i*.9+t*40)*1.5;x.lineTo(c.trail[i][0],c.trail[i][1]+(1+11*f**.6)*w+wob)}
+    x.closePath();x.fill();const hp=c.trail[n-1];x.beginPath();x.ellipse(hp[0],hp[1],12*w,11*w,0,0,7);x.fill()}
+   x.fillStyle=EAU[0];x.globalAlpha=.8;x.beginPath();x.ellipse(px-3,py-5,9,2.5,0,0,7);x.fill();x.globalAlpha=1;
+   if(Math.random()<.8)c.P.push({k:"dr",x:px-R(0,14),y:py+R(-8,8),vx:-R(20,90),vy:R(-60,30),s:R(1.5,2.8),l:0,m:.3,col:EAU[0]})}
   x.globalCompositeOperation="source-over"}
  // impact : on génère les particules une fois
  if(t>=T&&!c.fired){c.fired=true;const bx=B.x,by=B.y;
