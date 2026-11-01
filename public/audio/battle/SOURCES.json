@@ -1,10 +1,22 @@
 {
   "blade.ogg": {
     "author": "Kenney",
-    "pack": "RPG Audio",
-    "source": "knifeSlice2.ogg",
-    "url": "https://kenney.nl/assets/rpg-audio",
+    "pack": "RPG Audio + Impact Sounds",
+    "sources": [
+      "rpg-audio/drawKnife1.ogg",
+      "rpg-audio/drawKnife2.ogg",
+      "rpg-audio/knifeSlice.ogg",
+      "rpg-audio/chop.ogg",
+      "rpg-audio/cloth1.ogg",
+      "rpg-audio/cloth4.ogg",
+      "impact-sounds/impactSoft_medium_002.ogg",
+      "impact-sounds/footstep_carpet_002.ogg"
+    ],
+    "urls": [
+      "https://kenney.nl/assets/rpg-audio",
+      "https://kenney.nl/assets/impact-sounds"
+    ],
     "license": "CC0-1.0",
-    "processing": "Même couche de lame que la maquette : vitesse 1.3, passe-haut 380 Hz, passe-bas 8500 Hz, coupe à 250 ms et fondus courts."
+    "processing": "Slash B long validé (maquette combat-impact-v5) : élan, entaille dans la chair, tissu déchiré, coup sourd. 0,5 s, stéréo."
   }
 }

@@ -9,6 +9,8 @@ import { BattleMusic } from "./music";
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
 // Même niveau que la maquette validée à 65 % (gain logarithmique).
 const MUSIC_LEVEL = 10 ** (-12.6 / 20);
+// Secondes d'élan sautées au début de blade.ogg (l'entaille est à 0,13 s dans le fichier).
+const BLADE_LEAD = 0.07;
 
 export class BattleAudio {
   sfxOn = true;
@@ -96,13 +98,14 @@ export class BattleAudio {
     const source = this.ctx.createBufferSource();
     source.buffer = this.blade;
     source.playbackRate.value = variation;
-    const duration = Math.min(this.blade.duration / variation, 0.26 / Math.sqrt(speed));
+    // Le fichier commence par un élan : on en saute le début pour que l'entaille tombe ~50 ms après le coup affiché.
+    const duration = Math.min((this.blade.duration - BLADE_LEAD) / variation, 0.45 / Math.sqrt(speed));
     const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.55 * power, t);
-    gain.gain.setValueAtTime(0.55 * power, t + Math.max(0, duration - 0.03));
+    gain.gain.setValueAtTime(0.3 * power, t);
+    gain.gain.setValueAtTime(0.3 * power, t + Math.max(0, duration - 0.05));
     gain.gain.linearRampToValueAtTime(0, t + duration);
     source.connect(gain).connect(this.sfx);
-    source.start(t);
+    source.start(t, BLADE_LEAD);
     source.stop(t + duration + 0.01);
   }
 
