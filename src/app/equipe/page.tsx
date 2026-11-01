@@ -1,3 +1,4 @@
+import { getPlayerInventory } from "@/lib/player-inventory";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/lib/db";
@@ -28,7 +29,7 @@ export default function TeamPage() {
 
 async function Builder() {
   const user = await requireUser();
-  const [attack, defense, cards] = await Promise.all([
+  const [attack, defense, cards, inventory] = await Promise.all([
     getTeam(user.id, "ATTACK"),
     getTeam(user.id, "DEFENSE"),
     prisma.card.findMany({
@@ -45,9 +46,11 @@ async function Builder() {
         },
       },
     }),
+    getPlayerInventory(user.id),
   ]);
   return (
     <TeamBuilder
+      inventory={inventory}
       cards={cards.map((c) => ({
         id: c.id,
         characterId: c.character.id,

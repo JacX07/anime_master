@@ -12,6 +12,9 @@ import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { InventoryGrid } from "../inventaire/InventoryGrid";
+import type { getPlayerInventory } from "@/lib/player-inventory";
+import "../inventaire/inventory-grid.css";
 import { TypeIcon } from "@/components/icons";
 import "@/components/battle/battle.css";
 import "./equipe.css";
@@ -30,6 +33,7 @@ export interface TeamCard {
   franchiseId: number | null;
   series: string | null;
 }
+type PlayerInventory = Awaited<ReturnType<typeof getPlayerInventory>>;
 type Kind = "ATTACK" | "DEFENSE";
 type Slots = (string | null)[];
 
@@ -136,9 +140,10 @@ function SpellList({ card }: { card: TeamCard }) {
 }
 
 
-/** Fenêtre d'un personnage : portrait à gauche, sorts à droite, bouton pour l'ajouter à l'équipe ou l'en retirer. */
-function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
+/** Fenêtre d’un personnage : portrait, inventaire ciblé, sorts et composition de l’équipe. */
+function CardDialog({ card, slot, full, onClose, onToggle, inventory }: { inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const [tab, setTab] = useState("inventory");
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -146,7 +151,7 @@ function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | 
     if (!card && d.open) d.close();
   }, [card]);
   return (
-    <dialog ref={ref} className="eq-dialog" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()} aria-label={card ? `Sorts de ${card.name}` : undefined}>
+    <dialog ref={ref} className="eq-dialog eq-character-dialog" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()} aria-label={card ? `Personnage et inventaire de ${card.name}` : undefined}>
       {card && (
         <div className="eq-dlg">
           <figure className="eq-dlg-art" data-rarity={card.rarity}>
@@ -163,8 +168,18 @@ function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | 
             </figcaption>
           </figure>
           <div className="eq-dlg-spells">
-            <h2 className="eq-h">Sorts</h2>
-            <SpellList card={card} />
+            <div className="eq-character-tabs" role="group" aria-label="Détails du personnage">
+              <button type="button" className="bt-btn" aria-pressed={tab === "inventory"} onClick={() => setTab("inventory")}>Inventaire</button>
+              <button type="button" className="bt-btn" aria-pressed={tab === "spells"} onClick={() => setTab("spells")}>Sorts</button>
+              <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
+            </div>
+            {tab === "inventory" ? <>
+              <section className="eq-equipped" aria-label="Artefacts équipés">
+                <h2 className="eq-h">Artefacts équipés</h2>
+                {inventory.items.some((item) => item.artifact?.equippedCard?.id === card.id) ? <ul>{inventory.items.filter((item) => item.artifact?.equippedCard?.id === card.id).map((item) => <li key={item.key}>{item.name} · {item.artifact!.rarity}</li>)}</ul> : <p>Aucun artefact équipé sur ce personnage.</p>}
+              </section>
+              <InventoryGrid {...inventory} targetCard={{ id: card.id, name: card.name }} />
+            </> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
             <div className="eq-dlg-btns">
               <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
                 {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
@@ -178,7 +193,7 @@ function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | 
   );
 }
 
-export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record<Kind, Slots> }) {
+export function TeamBuilder({ cards, saved, inventory }: { inventory: PlayerInventory; cards: TeamCard[]; saved: Record<Kind, Slots> }) {
   const byId = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards]);
   const [kind, setKind] = useState<Kind>("ATTACK");
   const [savedTeams, setSavedTeams] = useState(saved);
@@ -360,6 +375,8 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
       </section>
 
       <CardDialog
+        key={focused?.id ?? "closed"}
+        inventory={inventory}
         card={focused}
         slot={focused ? slots.indexOf(focused.id) : -1}
         full={selected === null && slots.every(Boolean)}
