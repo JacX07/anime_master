@@ -910,3 +910,35 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-row:has(> .bt-unit[data-boss]) > .bt-unit { flex: 1; min-width: 0; }
 .bt-row:has(> .bt-unit[data-boss]) > .bt-unit[data-boss] { flex: 1.28; }
 .bt-boss-badge { position: absolute; z-index: 6; left: 50%; top: -.8rem; translate: -50% 0; padding: .1rem .55rem; border: 1px solid #ffb6b1; border-radius: 999px; background: #731d35; color: #ffe1bd; font-size: clamp(.5rem, 8cqw, .75rem); font-weight: 800; white-space: nowrap; box-shadow: 0 0 12px #ff3b4a55; pointer-events: none; }
+
+/* Le résultat et son bilan défilent indépendamment du plateau, même sur téléphone. */
+.bt-layout-with-order .bt-end { position: fixed; inset: .65rem; z-index: 120; overflow-y: auto; padding: clamp(1rem, 3vw, 2rem); justify-content: flex-start; align-items: stretch; gap: 1rem; background: #0b1629f8; border: 1px solid #344e76; border-radius: .8rem; }
+.bt-layout-with-order .bt-end > b, .bt-layout-with-order .bt-end > span { align-self: center; }
+.bt-layout-with-order .bt-end .hs-result { max-height: none; overflow: visible; align-self: center; }
+.bt-report { width: min(100%, 62rem); align-self: center; background: #14233b; border: 1px solid #344e76; border-radius: .8rem; padding: clamp(.8rem, 2vw, 1.4rem); text-align: left; user-select: text; }
+.bt-report h2 { margin: 0 0 .3rem; font-size: 1.15rem; }
+.bt-report header > p, .bt-report-note { color: #a9bbd6; font-size: .72rem; line-height: 1.6; margin: .4rem 0; }
+.bt-report-filters { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1rem 0; }
+.bt-report-filters label { display: grid; gap: .35rem; color: #bacbe3; font-size: .7rem; flex: 1 1 10rem; }
+.bt-report select { width: 100%; color: #edf3ff; background: #0c192d; border: 1px solid #466389; border-radius: .4rem; padding: .6rem; font: inherit; }
+.bt-report-ranking { list-style: none; display: grid; gap: .6rem; margin: 0; padding: 0; }
+.bt-report-ranking li { --report-color: #81baff; display: flex; align-items: center; gap: .7rem; padding: .6rem; background: #0c192d; border-radius: .45rem; border-left: 2px solid var(--report-color); }
+.bt-report-ranking li[data-side="B"] { --report-color: #ff9aa5; }
+.bt-report-rank { color: #93aaca; font-size: .75rem; min-width: .9rem; }
+.bt-report-ranking img { width: 42px; height: 48px; object-fit: cover; object-position: center 20%; border-radius: .3rem; }
+.bt-report-person { min-width: 0; flex: 1; display: grid; gap: .5rem; }
+.bt-report-person > span { font-size: .8rem; overflow-wrap: anywhere; }
+.bt-report-person small { color: #93aaca; font-size: .65rem; }
+.bt-report-bar { height: .4rem; background: #24354f; border-radius: 1rem; overflow: hidden; }
+.bt-report-bar i { display: block; height: 100%; background: var(--report-color); }
+.bt-report-ranking strong { color: var(--report-color); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.bt-report details { margin-top: 1rem; }
+.bt-report summary { cursor: pointer; font-size: .8rem; color: #b7d3ff; padding: .4rem 0; }
+.bt-report-table-wrap { overflow-x: auto; }
+.bt-report table { width: 100%; border-collapse: collapse; font-size: .7rem; white-space: nowrap; margin: .5rem 0; }
+.bt-report th, .bt-report td { padding: .7rem; border-bottom: 1px solid #344e76; text-align: right; }
+.bt-report th:first-child { text-align: left; }
+.bt-report :is(select, summary):focus-visible { outline: 2px solid #a7d5ff; outline-offset: 2px; }
+@media(max-width: 500px) { .bt-report-person small { display: block; } .bt-report-ranking li { gap: .45rem; padding: .45rem; } .bt-report-ranking img { width: 32px; height: 42px; } .bt-report-person > span { font-size: .7rem; } .bt-report-ranking strong { font-size: .75rem; } }
+/* Aller à la fin pendant une pause ne doit pas figer le résultat à opacity:0. */
+.bt-layout-with-order .bt-end { animation: none; }

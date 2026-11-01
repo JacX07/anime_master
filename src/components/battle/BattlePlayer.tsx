@@ -12,6 +12,7 @@ import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
 import { PERSISTENT_STATUSES, STATUS_FX } from "./status-vfx";
 import { TypeIcon } from "../icons";
+import { BattleReport } from "./BattleReport";
 import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
 import { BattleAudio } from "./sound";
@@ -295,7 +296,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
-    <div className="bt-layout" onPointerDown={() => getAudio().unlock()}>
+    <div className="bt-layout bt-layout-with-order" onPointerDown={() => getAudio().unlock()}>
       <History entries={history} rp={rp} characters={characters} names={names} open={drawer} onClose={() => setDrawer(false)} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
@@ -401,7 +402,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       </div>
 
       {end && (
-        <div className="bt-end" role="status" data-winner={end.winner ?? "draw"}>
+        <div className="bt-end" role="region" aria-label="Résultat du combat" data-winner={end.winner ?? "draw"}>
           {endExtra !== undefined ? (
             // La page appelante fournit tout l'écran de fin (résultat, butin, boutons)
             endExtra
@@ -439,6 +440,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           </span>
             </>
           )}
+          <BattleReport log={log} characters={characters} names={names} />
         </div>
       )}
     </div>

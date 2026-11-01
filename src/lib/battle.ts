@@ -223,7 +223,7 @@ export type BattleEvent =
   | { kind: "shield"; source: UnitId | null; target: UnitId; amount: number; shield: number }
   | { kind: "status"; target: UnitId; status: Status; on: boolean }
   /** Perte de PV du poison, à la fin de l'action du porteur */
-  | { kind: "poison"; target: UnitId; amount: number; hp: number; burn?: boolean }
+  | { kind: "poison"; source?: UnitId; target: UnitId; amount: number; hp: number; burn?: boolean }
   /** Une carte morte revient au combat */
   | { kind: "revive"; source: UnitId; target: UnitId; hp: number; zombie?: boolean }
   /** Un malus est refusé (immunité, ou boss contre le silence) */
@@ -284,6 +284,8 @@ interface Unit {
 }
 
 interface Fx {
+  /** Lanceur de l’effet, pour le bilan de dégâts périodiques et soins. */
+  source?: UnitId;
   key: FxKey;
   stat?: ModStat;
   amount: number;
@@ -557,13 +559,13 @@ function finishUnitTurn(st: BattleState, u: Unit) {
     if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn")) {
       const amount = Math.min(u.hp, u.maxHp * effect.amount);
       u.hp -= amount;
-      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.key === "burn" ? { burn: true } : {}) });
+      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}) });
       if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
     }
     if (u.hp > 0 && effect.key === "regen") {
       const before = u.hp;
       u.hp = Math.min(u.maxHp, u.hp + u.maxHp * effect.amount);
-      if (u.hp > before) st.log.push({ kind: "heal", source: u.id, target: u.id, amount: u.hp - before, hp: u.hp });
+      if (u.hp > before) st.log.push({ kind: "heal", source: effect.source ?? u.id, target: u.id, amount: u.hp - before, hp: u.hp });
     }
     if (--effect.turns <= 0) {
       u.fx = u.fx.filter((fx) => fx !== effect);
@@ -857,11 +859,11 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         old.turns = Math.max(old.turns, turns);
         return;
       }
-      if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u });
+      if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u, source: u.id });
       else old.turns = Math.max(old.turns, turns);
       return;
     }
-    t.fx.push({ key, stat, amount, turns, fresh: t === u });
+    t.fx.push({ key, stat, amount, turns, fresh: t === u, source: u.id });
     log.push({ kind: "status", target: t.id, status: key, on: true });
   };
   const dropFx = (t: Unit, f: Fx) => {
