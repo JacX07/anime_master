@@ -10,8 +10,8 @@ import { Editor, type ArtItem } from "./Editor";
 
 export const metadata = { title: "Illustrations — Anime Masters", robots: { index: false } };
 export default function IllustrationsPage() {
-  return <main className="vt"><div className="vt-inner">
-    <header><h1 className="vt-title">Illustrations</h1><p className="vt-sub">Choisis un personnage, un objet ou une ressource, puis ajoute son image. Elle sera utilisée dans le jeu. PNG, JPEG ou WebP, 5 Mo maximum.</p></header>
+  return <main className="vt art-page"><div className="vt-inner">
+    <header className="art-page-heading"><h1 className="vt-title">Illustrations</h1><p className="vt-sub">Donne à chaque carte son illustration. Sélectionne un élément, puis importe ton image.</p></header>
     <Suspense fallback={<p>Chargement des illustrations…</p>}><Catalog /></Suspense>
   </div></main>;
 }
