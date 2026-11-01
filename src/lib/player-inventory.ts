@@ -1,3 +1,4 @@
+import { artifactRarity } from "./artifact-display";
 import { prisma } from "./db";
 import { inventoryResources, type InventoryItem } from "./inventory";
 import { weaponDef } from "./weapons";
@@ -5,10 +6,11 @@ import { getArtifactInventory } from "./battles";
 import { SLOT_NAMES, type ArtifactSlot } from "./dungeons";
 
 export async function getPlayerInventory(userId: string) {
-  const [stock, armed, artifactInventory] = await Promise.all([
+  const [stock, armed, artifactInventory, wallet] = await Promise.all([
     prisma.resourceStock.findMany({ where: { userId: userId } }),
     prisma.card.findMany({ where: { ownerId: userId, weaponKey: { not: null } }, select: { id: true, serial: true, weaponKey: true, character: { select: { name: true } } } }),
     getArtifactInventory(userId),
+    prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { balance: true } }),
   ]);
   const equipment: InventoryItem[] = armed.flatMap((card) => {
     const weapon = weaponDef(card.weaponKey!);
@@ -24,9 +26,9 @@ export async function getPlayerInventory(userId: string) {
     return {
       key: `artifact:${artifact.id}`, name: `${slot} des profondeurs`, quantity: 1, categories: ["Équipement"], universe: "one-piece",
       source: "Donjon One Piece", description: `Artefact ${slot.toLocaleLowerCase("fr")} du set marin. Niveau ${artifact.level}. ${artifact.equippedCard ? `Équipé sur ${artifact.equippedCard.character.name}.` : "À équiper sur une carte."}`,
-      icon: "artifact", tone: "gold", image: `/images/artifacts/one-piece-${file ?? "helmet"}.webp`, links: [{ href: "/donjons", label: "Donjon One Piece" }],
+      icon: "artifact", tone: artifactRarity(artifact.rarity).tone, image: `/images/artifacts/one-piece-${file ?? "helmet"}.webp`, links: [{ href: "/donjons", label: "Donjon One Piece" }],
       artifact: { id: artifact.id, slot: artifact.slot, rarity: artifact.rarity, mainStat: artifact.mainStat, mainValue: artifact.mainValue, subStats: artifact.subStats as { stat: string; value: number }[], level: artifact.level, equippedCard: artifact.equippedCard },
     };
   });
-  return { items: [...inventoryResources(stock), ...equipment, ...artifacts], cards: artifactInventory.cards };
+  return { items: [...inventoryResources(stock), ...equipment, ...artifacts], cards: artifactInventory.cards, balance: wallet.balance };
 }

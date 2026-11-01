@@ -38,6 +38,7 @@ async function Builder() {
       select: {
         id: true,
         stars: true,
+        weaponKey: true,
         character: {
           select: {
             id: true, name: true, imageUrl: true, rarity: true, type: true, attack: true, defense: true, mainMediaId: true,
@@ -62,6 +63,7 @@ async function Builder() {
         defense: c.character.defense,
         speed: speedOf(c.character.id),
         stars: c.stars,
+        weaponKey: c.weaponKey,
         franchiseId: c.character.mainMedia?.franchiseId ?? c.character.mainMediaId,
         series: c.character.mainMedia ? c.character.mainMedia.titleEnglish ?? c.character.mainMedia.titleRomaji : null,
       }))}

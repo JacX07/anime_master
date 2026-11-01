@@ -1,7 +1,7 @@
 import { COMMON_RESOURCE, RESOURCE_NAMES, UNIVERSES } from "./story";
 import { RAID_RESOURCE } from "./raid";
 import type { Rarity } from "@/generated/prisma/enums";
-import { artifactStatLabel, artifactStatValue } from "./artifact-display";
+import { artifactRarity, artifactStatLabel, artifactStatValue } from "./artifact-display";
 import { RARITY_NAMES } from "./labels";
 
 export const INVENTORY_CATEGORIES = ["Tout", "Éveil", "Forge", "Équipement", "Consommables"] as const;
@@ -16,7 +16,7 @@ export type InventoryItem = {
   source: string;
   description: string;
   icon: "crystal" | "heart" | "ore" | "weapon" | "artifact";
-  tone: "blue" | "violet" | "gold";
+  tone: "gray" | "blue" | "violet" | "gold";
   links: { href: string; label: string }[];
   image?: string;
   artifact?: {
@@ -56,7 +56,7 @@ const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u0
 export function filterInventory(items: InventoryItem[], category: InventoryCategory, query: string, universe: string, showEmpty: boolean, sort: string) {
   const search = normalize(query.trim());
   return items.filter((item) => {
-    const artifactSearch = item.artifact ? [RARITY_NAMES[item.artifact.rarity], item.artifact.rarity, `niveau ${item.artifact.level}`, artifactStatLabel(item.artifact.mainStat), artifactStatValue(item.artifact.mainStat, item.artifact.mainValue), ...item.artifact.subStats.flatMap((stat) => [artifactStatLabel(stat.stat), artifactStatValue(stat.stat, stat.value)])].join(" ") : "";
+    const artifactSearch = item.artifact ? [artifactRarity(item.artifact.rarity).label, RARITY_NAMES[item.artifact.rarity], item.artifact.rarity, `niveau ${item.artifact.level}`, artifactStatLabel(item.artifact.mainStat), artifactStatValue(item.artifact.mainStat, item.artifact.mainValue), ...item.artifact.subStats.flatMap((stat) => [artifactStatLabel(stat.stat), artifactStatValue(stat.stat, stat.value)])].join(" ") : "";
     return (showEmpty || item.quantity > 0)
     && (category === "Tout" || item.categories.includes(category))
     && (!universe || item.universe === universe)

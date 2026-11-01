@@ -106,3 +106,11 @@ Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **re
 La page `/forge` fabrique et équipe directement une arme générique du type de la carte, à 5★. Une seule arme par exemplaire ; elle suit la carte dans les échanges et ne peut pas être détachée. Une carte armée ne sert pas de doublon d'éveil. Les cartes en enchère, expédition ou échange en attente sont exclues de la forge.
 
 Recette provisoire tant que les donjons et le boss mondial ne sont pas disponibles : **20 ressources de boss final de l'histoire**, tous univers confondus (consommées dans l'ordre des univers), et **50 cœurs de brèche**. Le débit et l'équipement sont atomiques. Bonus : +10 % ATK, DEF et PV ; renfort +10 % ATK pour le type du porteur, ou esquive 15 % pour MYSTERE.
+
+### Équipement depuis l’équipe et amélioration (2026-11-01)
+
+Le portrait d’une carte ouvre son équipement : quatre emplacements d’artefacts (casque, plastron, gants, bottes) et l’arme liée à l’exemplaire. Un clic sur un emplacement affiche uniquement les objets de ce type, avec leurs boutons Équiper/Retirer et Améliorer. Les ressources et consommables restent dans l’inventaire général.
+
+Une amélioration garantie monte un artefact de +0 à +10, sans destruction ni changement de sous-stats. Chaque niveau ajoute 5 % de la valeur initiale de la stat principale (+50 % à +10). Le coût provisoire pour passer au niveau suivant est `(niveau actuel + 1) × base` : base 100/150/200/300/400 Ryō pour les grades N/R/SR/SSR/UR existants. Débit, niveau et journal `ARTIFACT_UPGRADE` sont transactionnels ; un niveau attendu empêche le double clic de payer deux améliorations.
+
+Palette des artefacts : Commun gris `#a7b4c9`, Rare bleu `#65b9ff`, Épique violet `#b68bff`, Légendaire or `#ffc45c`. Les anciens grades SSR et UR sont regroupés visuellement sous Légendaire ; leurs valeurs et leurs coûts sont conservés. Les raretés des cartes ne changent pas. Les nouvelles directions d’illustrations anime sont soumises au choix du joueur avant remplacement des images existantes.

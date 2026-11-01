@@ -12,9 +12,8 @@ import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
-import { InventoryGrid } from "../inventaire/InventoryGrid";
+import { EquipmentPanel } from "./EquipmentPanel";
 import type { getPlayerInventory } from "@/lib/player-inventory";
-import "../inventaire/inventory-grid.css";
 import { TypeIcon } from "@/components/icons";
 import "@/components/battle/battle.css";
 import "./equipe.css";
@@ -30,6 +29,7 @@ export interface TeamCard {
   defense: number;
   speed: number;
   stars: number;
+  weaponKey: string | null;
   franchiseId: number | null;
   series: string | null;
 }
@@ -169,17 +169,11 @@ function CardDialog({ card, slot, full, onClose, onToggle, inventory }: { invent
           </figure>
           <div className="eq-dlg-spells">
             <div className="eq-character-tabs" role="group" aria-label="Détails du personnage">
-              <button type="button" className="bt-btn" aria-pressed={tab === "inventory"} onClick={() => setTab("inventory")}>Inventaire</button>
+              <button type="button" className="bt-btn" aria-pressed={tab === "inventory"} onClick={() => setTab("inventory")}>Équipement</button>
               <button type="button" className="bt-btn" aria-pressed={tab === "spells"} onClick={() => setTab("spells")}>Sorts</button>
               <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
             </div>
-            {tab === "inventory" ? <>
-              <section className="eq-equipped" aria-label="Artefacts équipés">
-                <h2 className="eq-h">Artefacts équipés</h2>
-                {inventory.items.some((item) => item.artifact?.equippedCard?.id === card.id) ? <ul>{inventory.items.filter((item) => item.artifact?.equippedCard?.id === card.id).map((item) => <li key={item.key}>{item.name} · {item.artifact!.rarity}</li>)}</ul> : <p>Aucun artefact équipé sur ce personnage.</p>}
-              </section>
-              <InventoryGrid {...inventory} targetCard={{ id: card.id, name: card.name }} />
-            </> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
+            {tab === "inventory" ? <EquipmentPanel inventory={inventory} card={card} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
             <div className="eq-dlg-btns">
               <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
                 {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}

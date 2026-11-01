@@ -1,3 +1,4 @@
+import { artifactRarity } from "../src/lib/artifact-display";
 import assert from "node:assert/strict";
 import { filterInventory, inventoryResources, type InventoryItem } from "../src/lib/inventory";
 import { COMMON_RESOURCE, UNIVERSES } from "../src/lib/story";
@@ -28,3 +29,5 @@ assert.deepEqual(filterInventory(withArtifact, "Tout", "ATK", "", false, "name")
 assert.deepEqual(filterInventory(withArtifact, "Tout", "16 %", "", false, "name").map((item) => item.key), [artifact.key]);
 assert.equal(filterInventory(withArtifact, "Tout", "Ultra Rare", "", false, "name").length, 1);
 console.log("Inventaire conforme : catégories partagées, recherche sans accents, univers, tri, stocks vides et ressources futures.");
+
+assert.equal(new Set((["N", "R", "SR", "SSR", "UR"] as const).map((r) => artifactRarity(r).label)).size, 4);
