@@ -76,7 +76,7 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
           </article>;
         })}</div>
         {!visible.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
-        <p className="gear-help">Amélioration garantie jusqu’à +16 : +5 % de la valeur initiale de la stat principale par niveau. Aux niveaux 4, 8, 12 et 16, une sous-stat aléatoire est doublée.</p>
+        <p className="gear-help">Amélioration garantie jusqu’à +16 : +5 % de la valeur initiale de la stat principale par niveau. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ; si les quatre sont déjà présentes, une sous-stat aléatoire est doublée.</p>
       </>}
     </div>
     {message && <p className="gear-message" role="status">{message}</p>}

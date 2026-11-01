@@ -9,7 +9,7 @@ export async function upgradeArtifact(userId: string, artifactId: string, expect
     if (!artifact) throw new BattleError("Artefact introuvable.");
     if (artifact.level !== expectedLevel) throw new BattleError("Cet objet a changé. Actualise avant de l’améliorer.");
     const cost = artifactUpgradeCost(artifact.rarity, artifact.level);
-    const changed = await tx.artifact.updateMany({ where: { id: artifactId, userId, level: expectedLevel }, data: { level: { increment: 1 }, mainValue: upgradedMainValue(artifact.mainValue, expectedLevel), subStats: upgradedSubStats(artifact.subStats as { stat: string; value: number }[], expectedLevel + 1) } });
+    const changed = await tx.artifact.updateMany({ where: { id: artifactId, userId, level: expectedLevel }, data: { level: { increment: 1 }, mainValue: upgradedMainValue(artifact.mainValue, expectedLevel), subStats: upgradedSubStats(artifact.subStats as { stat: string; value: number }[], expectedLevel + 1, artifact.mainStat) } });
     if (changed.count !== 1) throw new BattleError("Cet objet a déjà été amélioré.");
     const paid = await tx.user.updateMany({ where: { id: userId, balance: { gte: cost } }, data: { balance: { decrement: cost } } });
     if (paid.count !== 1) throw new BattleError("Ryō insuffisants.");

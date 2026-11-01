@@ -42,11 +42,9 @@ export const artifactMainStat = (slot: ArtifactSlot, rarity: Rarity, seed: numbe
   const stat = stats[Math.floor(randomFor(seed ^ 0xa271)() * stats.length)];
   return { stat, value: options[stat] };
 };
-export interface ArtifactSubStat { stat: string; value: number }
-export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: number, mainStat = artifactMainStat(slot, rarity, seed).stat): ArtifactSubStat[] => {
+export type ArtifactSubStat = { stat: string; value: number };
+export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: number, mainStat = artifactMainStat(slot, rarity, seed).stat, count = [0, 1, 2, 3, 3][RARITIES.indexOf(rarity)]): ArtifactSubStat[] => {
   const random = randomFor(seed);
-  const base = ["N", "R", "SR", "SSR", "UR"].indexOf(rarity);
-  const count = [1, 2, 3, 4, 4][base];
   const choices = ["magicSkill", "hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage"].filter((stat) => stat !== mainStat);
   const max: Record<string, number> = { magicSkill: 0.025, hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05, dodge: 0.025 };
   const result: ArtifactSubStat[] = [];

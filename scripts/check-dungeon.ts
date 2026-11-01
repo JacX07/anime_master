@@ -42,7 +42,7 @@ async function main() {
   }).every(Boolean)));
   check("Sous-stats selon la rareté, sans répéter la stat principale", ["N", "R", "SR", "SSR", "UR"].every((rarity) => {
     const stats = artifactSubStats("CASQUE", rarity as Rarity, 271);
-    return stats.length === ({ N: 1, R: 2, SR: 3, SSR: 4, UR: 4 }[rarity as Rarity]) && new Set(stats.map((s) => s.stat)).size === stats.length && stats.every((s) => s.stat !== "dodge" && s.stat !== artifactMainStat("CASQUE", rarity as Rarity, 271).stat);
+    return stats.length === ({ N: 0, R: 1, SR: 2, SSR: 3, UR: 3 }[rarity as Rarity]) && new Set(stats.map((s) => s.stat)).size === stats.length && stats.every((s) => s.stat !== "dodge" && s.stat !== artifactMainStat("CASQUE", rarity as Rarity, 271).stat);
   }));
   for (const slot of ["CASQUE", "PLASTRON", "GANTS", "BOTTES"] as const) {
     const expected = slot === "GANTS" ? ["flatAttack", "attack", "crit", "magicSkill", "critDamage"] : slot === "BOTTES" ? ["speed", "flatAttack", "flatDefense", "flatHp", "attack", "defense", "hp"] : ["flatHp", "flatDefense", "flatAttack", "hp", "defense", "attack"];

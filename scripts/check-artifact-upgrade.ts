@@ -1,17 +1,28 @@
 import assert from "node:assert/strict";
+import { artifactSubStats } from "../src/lib/dungeons";
 import { prisma } from "../src/lib/db";
 import { upgradeArtifact } from "../src/lib/upgrade-artifact";
 import { artifactUpgradeCost, upgradedSubStats } from "../src/lib/artifact-upgrade";
 
 async function main() {
-  const subs = [{ stat: "speed", value: 2 }, { stat: "attack", value: 0.02 }];
-  assert.deepEqual(upgradedSubStats(subs, 3, () => 0), subs);
-  for (const level of [4, 8, 12, 16]) assert.deepEqual(upgradedSubStats(subs, level, () => 0.99), [subs[0], { stat: "attack", value: 0.04 }]);
-  assert.deepEqual(upgradedSubStats([], 4), []);
+  for (const rarity of ["N", "R", "SR", "SSR", "UR"] as const) {
+    let stats = artifactSubStats("CASQUE", rarity, 42, "attack");
+    const initial = stats.length;
+    for (let level = 1; level <= 16; level++) {
+      const before = stats;
+      stats = upgradedSubStats(stats, level, "attack", () => 0.5);
+      assert.equal(stats.length, Math.min(4, initial + Math.floor(level / 4)));
+      assert.equal(new Set(stats.map((sub) => sub.stat)).size, stats.length);
+      assert(stats.every((sub) => sub.stat !== "attack"));
+      if (level % 4 !== 0) assert.deepEqual(stats, before);
+      else if (before.length < 4) assert.deepEqual(stats.slice(0, before.length), before);
+      else assert.equal(stats.filter((sub, i) => sub.value === before[i].value * 2).length, 1);
+    }
+  }
   const id = `upgrade-${Date.now()}`;
   await prisma.user.create({ data: { id, name: id, username: id, email: `${id}@test.local` } });
   try {
-    const artifact = await prisma.artifact.create({ data: { userId: id, setKey: "one-piece", slot: "CASQUE", rarity: "SR", mainStat: "attack", mainValue: 0.08, subStats: [{ stat: "crit", value: 0.02 }] } });
+    const artifact = await prisma.artifact.create({ data: { userId: id, setKey: "one-piece", slot: "CASQUE", rarity: "SR", mainStat: "attack", mainValue: 0.08, subStats: [] } });
     await assert.rejects(upgradeArtifact("foreign", artifact.id, 0));
     await assert.rejects(upgradeArtifact(id, artifact.id, -1));
     await assert.rejects(upgradeArtifact(id, artifact.id, 0), /Ryō/);
@@ -28,7 +39,7 @@ async function main() {
     const upgraded = await prisma.artifact.findUniqueOrThrow({ where: { id: artifact.id } });
     assert.equal(upgraded.level, 16);
     assert(Math.abs(upgraded.mainValue - 0.144) < 0.00001, "+80 % de la valeur de départ à +16");
-    assert.deepEqual(upgraded.subStats, [{ stat: "crit", value: 0.32 }]);
+    assert.equal((upgraded.subStats as unknown[]).length, 4);
     await assert.rejects(upgradeArtifact(id, artifact.id, 16));
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });
     const ledger = await prisma.currencyLedger.aggregate({ where: { userId: id }, _sum: { amount: true } });
