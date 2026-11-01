@@ -499,7 +499,7 @@ function Unit({
   const aimed = rp.cur?.target === id && !rp.end;
   const cast = acting && rp.cur ? spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name) : null;
   // Effets persistants : seulement les statuts qui changent la lecture du combat
-  const ambient = st.ko ? "" : PERSISTENT_STATUSES.filter((k) => (k === "exposed" ? st.exposed : (st.fx as Status[]).includes(k))).map((k) => STATUS_FX[k].ambient).join("");
+  const ambient = st.ko || rp.end ? "" : PERSISTENT_STATUSES.filter((k) => (k === "exposed" ? st.exposed : (st.fx as Status[]).includes(k))).map((k) => STATUS_FX[k].ambient).join("");
   return (
     <div
       className="bt-unit"

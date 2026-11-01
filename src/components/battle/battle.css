@@ -760,6 +760,32 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 @keyframes sfx-flame{0%{opacity:0;transform:translateY(0) scale(.2)}8%{opacity:1;transform:translateY(-4px) scale(1)}32%{opacity:1;transform:translateY(-58px) scale(1.15)}44%,100%{opacity:0;transform:translateY(-80px) scale(.5)}}
 .bt-sfx .emb{animation:sfx-ember 1.6s infinite linear}
 @keyframes sfx-ember{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-70px)}}
+/* Brûlure : trois rubans texturés, aucun filtre animé ni voile sur le portrait. */
+.bt-sfx .burn-ribbon {
+  transform-box: fill-box; transform-origin: 50% 85%;
+  animation: burn-ribbon calc(.84s / var(--spd, 1)) ease-in-out infinite alternate;
+  animation-delay: calc(var(--burn-phase, 0s) / var(--spd, 1));
+}
+@keyframes burn-ribbon {
+  0% { transform: translateY(1px) skewX(-5deg) scale(.94, .91); opacity: .82; }
+  48% { transform: translateY(-1px) skewX(2deg) scale(1.04, 1.02); opacity: 1; }
+  100% { transform: translateY(-2px) skewX(6deg) scale(.97, 1.1); opacity: .93; }
+}
+.bt-sfx .burn-spark {
+  animation: burn-spark calc(1.7s / var(--spd, 1)) linear infinite;
+  animation-delay: calc(var(--burn-phase, 0s) / var(--spd, 1));
+}
+@keyframes burn-spark {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(3px, -31px); opacity: 0; }
+}
+.bt-sfx .burn-application { animation: burn-application .7s ease-out both; }
+.bt-sfx-ap .burn-spark {
+  animation-duration: 1.7s;
+  animation-delay: var(--burn-phase, 0s);
+}
+@keyframes burn-application { 0%, 50% { opacity: 1; } 100% { opacity: 0; } }
 /* 2 ATK- chains */.bt-sfx .chain{animation-name:sfx-chainDrop}
 @keyframes sfx-chainDrop{0%{opacity:0;transform:translateY(-70px)}16%{opacity:1;transform:translateY(4px)}22%{transform:translateY(-3px)}28%{transform:none}70%{opacity:1}85%,100%{opacity:0}}
 .bt-sfx .drip{animation-name:sfx-drip}

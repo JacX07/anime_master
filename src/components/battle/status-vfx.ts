@@ -1,7 +1,7 @@
 // Effets de statut (application ponctuelle + boucle persistante), dessin cel partagé avec la maquette validée.
 // Chaque entrée est un fragment SVG dans un repère 120×152 où la carte occupe x 15–105, y 14–138.
 import type { Status } from "@/lib/battle";
-import { BURN_EMBERS } from "./burn-vfx";
+import { BURN_APPLY, BURN_AURA } from "./burn-vfx";
 
 const ink="#151a36";
 const rim=(c: string)=>`<rect class="ap rim" x="13" y="12" width="94" height="128" rx="9" fill="none" stroke="${c}" stroke-width="3"/>`;
@@ -71,4 +71,4 @@ export const PERSISTENT_STATUSES: Status[] = ["stun", "silence", "poison", "burn
 
 export const STATUS_FX = {} as Record<Status, { apply: string; ambient: string; bad: boolean }>;
 const KEYS: Record<string, Status[]> = {"Élan · ATK +": ["elan", "atkUp"], "DEF + · Dégâts réduits": ["defUp", "reduce"], "Critique +": ["critUp"], "Esquive +": ["dodgeUp"], "Vitesse +": ["speedUp"], "Immunisé": ["immune"], "Régénération": ["regen"], "Provocation": ["taunt"], "Ignore DEF": ["ignoreDef"], "Affaibli · ATK −": ["weaken", "atkDown"], "DEF −": ["defDown"], "Critique −": ["critDown"], "Esquive −": ["dodgeDown"], "Vitesse −": ["speedDown"], "Silence": ["silence"], "Étourdi": ["stun"], "Poison": ["poison"], "Brûlure": ["burn"], "Trempé": ["wet"], "Exposé": ["exposed"]};
-for (const fx of FX) for (const key of KEYS[fx.name]) STATUS_FX[key] = { apply: fx.st === "burn" ? BURN_EMBERS : fx.ap, ambient: fx.st === "burn" ? BURN_EMBERS : fx.am, bad: !fx.b };
+for (const fx of FX) for (const key of KEYS[fx.name]) STATUS_FX[key] = { apply: fx.st === "burn" ? BURN_APPLY : fx.ap, ambient: fx.st === "burn" ? BURN_AURA : fx.am, bad: !fx.b };
