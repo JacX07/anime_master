@@ -6,7 +6,7 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 0.5
+          "mult": 0.42
         },
         {
           "k": "mod",
@@ -17,7 +17,7 @@
         },
         {
           "k": "damage",
-          "mult": 0.5
+          "mult": 0.42
         },
         {
           "k": "mod",
@@ -28,7 +28,7 @@
         },
         {
           "k": "damage",
-          "mult": 0.5
+          "mult": 0.42
         },
         {
           "k": "mod",
@@ -121,15 +121,15 @@
         {
           "k": "mod",
           "stat": "atk",
-          "amount": 0.4,
+          "amount": 0.25,
           "turns": 3,
           "to": "self"
         },
         {
           "k": "damage",
-          "mult": 1.9,
+          "mult": 1.3,
           "zone": true,
-          "ignoreDef": 0.5
+          "ignoreDef": 0.3
         }
       ],
       "final": true
@@ -208,7 +208,7 @@
         },
         {
           "k": "damage",
-          "mult": 1.5,
+          "mult": 0.9,
           "zone": true
         }
       ],
@@ -235,6 +235,11 @@
       "effects": [
         {
           "k": "resetCd"
+        },
+        {
+          "k": "heal",
+          "pct": 0.3,
+          "to": "team"
         }
       ],
       "final": true
@@ -247,7 +252,7 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 1.3,
+          "mult": 1.1,
           "critSure": true,
           "hits": 3,
           "extraHit": true,
@@ -264,7 +269,7 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 1.0
+          "mult": 4.0
         },
         {
           "k": "seal",
@@ -281,45 +286,66 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 0.8,
+          "mult": 0.3,
           "zone": true
         },
         {
           "k": "mod",
           "stat": "def",
-          "amount": -0.3,
+          "amount": -0.15,
           "turns": 2,
           "to": "foes"
         },
         {
           "k": "damage",
-          "mult": 0.8,
+          "mult": 0.3,
           "zone": true
         },
         {
           "k": "mod",
           "stat": "atk",
-          "amount": -0.3,
+          "amount": -0.15,
           "turns": 2,
           "to": "foes"
         },
         {
           "k": "damage",
-          "mult": 0.8,
+          "mult": 0.3,
           "zone": true
         },
         {
           "k": "mod",
           "stat": "dodge",
-          "amount": -0.5,
+          "amount": -0.25,
           "turns": 2,
           "to": "foes"
         },
         {
           "k": "mod",
           "stat": "speed",
-          "amount": -0.3,
+          "amount": -0.2,
           "turns": 2,
+          "to": "foes"
+        }
+      ],
+      "final": true
+    }
+  },
+  "88572": {
+    "ultimate": {
+      "name": "Puck : Hyoga Ultime",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.0,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": -0.25,
+          "turns": 3,
           "to": "foes"
         }
       ],

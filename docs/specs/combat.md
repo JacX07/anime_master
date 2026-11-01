@@ -274,6 +274,14 @@ Les durées sont en **actions du ciblé** ; « équipe » = alliés vivants, « 
 - **À revoir** : 12 sorts secondaires ne frappent aucun ennemi. Pour l'eau (Roxy, Aqua, Giyuu) et l'air (Howl, Tatsumaki), le soin et l'esquive restent actifs ; mais le feu d'Itachi, Nezuko et Rengoku et la terre d'Alphonse, Gaara, Reiner et Kirishima n'ont **aucun effet**. La foudre seule ne fait rien sans un allié d'eau : c'est voulu.
 - Test : `npx tsx scripts/check-elements.ts`.
 
+### 4 sexies. Kits spéciaux *(demandés et codés le 2026-11-01 ; valeurs dans `src/lib/skill-overrides.json`)*
+Nouveaux effets de sort (`src/lib/spells.ts`, moteur `battle.ts`) : `arise`, `counter`, `resetCd`, `bloodlust`, `seal`, `steal`, et sur les dégâts `hits`, `extraHit`, `ramp`. Vérifiés par `npm run check:kits` et `check:jinwoo`, équilibrés par `scripts/simulate-kits.ts` (mode jauge ; poids du kit d'un UR moyen ≈ +20 pp ± 7,5).
+- **Jin-U Seong (UR)** : *Domaine du monarque* (secondaire) : 2 tours, chaque coup reçu (survivant) déclenche une ombre qui riposte à 0,8× ATK, sans plafond. *Arise* (ultime) : relève tous les alliés morts en **zombies** (40 % PV, soignables), une fois par combat, ils disparaissent si Jin-U tombe. Rareté UR forcée (`RARITY_OVERRIDES`).
+- **Luffy** — Gatling : 3 frappes, chacune pose DEF −10 / −20 / −30 % pour 1 tour. **Killua** — Godspeed : vitesse +30 % 2 tours ; Foudre divine Kanmuru : frappe la cible choisie puis tous les autres (+10 % de dégâts par cible), vitesse +30 %.
+- **Eren** (ultime) : soin total, ATK et DEF +50 % 2 tours, DEF ennemie −35 % 3 tours puis frappe de zone. **Emilia** (passif) : si elle meurt, son ultime se lance automatiquement (une fois). **Momo** (passif) : immunisée au poison et à la brûlure.
+- **Makima** (ultime *Manipulation*) : vole un ennemi 2 tours, il joue pour nous ; dernier survivant de son camp, il est exécuté. Sans effet sur les boss. **Okabe** (ultime) : remet à zéro les recharges de l'équipe (+ soin 30 %). **Yuuji** (ultime) : 3 frappes critiques, une de plus si la cible a de la DEF en moins.
+- **Denji** (ultime) : soigné de 70 % des dégâts qu'il reçoit des ennemis, 3 tours, ATK +25 %, frappe de zone. **Kurapika** (ultime) : frappe et scelle un ennemi 3 tours ; s'il lance un sort (hors attaque de base) il meurt ; l'IA s'en abstient ; sans effet sur les boss. **Mob** (ultime) : 3 frappes de zone qui posent DEF −, ATK −, puis « tu ne peux pas fuir » = Esquive −25 % et Vitesse −20 %, 2 tours.
+
 ### 5. Synergies
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.
