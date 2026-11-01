@@ -12,6 +12,7 @@ import { getSessionUser } from "@/lib/session";
 import { priceHistory } from "@/lib/auctions";
 import { traders } from "@/lib/trades";
 import { wishesFor } from "@/lib/wishlist";
+import { speedOf } from "@/lib/speed";
 import { WishButton } from "./WishButton";
 import { CopyActions } from "./CopyActions";
 
@@ -57,6 +58,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
     ["Puissance", <Stat key="power" icon="puissance" accent="#00c8b4">{numFmt.format(c.power)}</Stat>],
     ["Attaque", <Stat key="atk" icon="atk">{numFmt.format(c.attack)}</Stat>],
     ["Défense", <Stat key="def" icon="def">{numFmt.format(c.defense)}</Stat>],
+    ["Vitesse", <span key="speed" className="stat">{numFmt.format(speedOf(c.id))}</span>],
     ["Favoris AniList", numFmt.format(c.favourites)],
     ["Exemplaires tirés", numFmt.format(c.pullCount)],
     ...(c.gender ? [["Genre", c.gender] as [string, string]] : []),
