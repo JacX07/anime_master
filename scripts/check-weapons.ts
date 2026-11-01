@@ -26,6 +26,9 @@ async function main() {
     await prisma.card.update({ where: { id: card.id }, data: { stars: 5, inAuction: true } });
     await assert.rejects(forgeWeapon(uid, card.id));
     await prisma.card.update({ where: { id: card.id }, data: { inAuction: false } });
+    await prisma.card.update({ where: { id: card.id }, data: { inExpedition: true } });
+    await assert.rejects(forgeWeapon(uid, card.id));
+    await prisma.card.update({ where: { id: card.id }, data: { inExpedition: false } });
     // A failed material payment must also roll back the hearts and weapon.
     await prisma.resourceStock.update({ where: { userId_key: { userId: uid, key: WEAPON_RESOURCE_KEYS[1] } }, data: { quantity: 12 } });
     await assert.rejects(forgeWeapon(uid, card.id));
