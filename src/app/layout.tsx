@@ -94,6 +94,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   Classement
                 </NavLink>
               </Suspense>
+              {(process.env.NODE_ENV === "development" || process.env.ART_EDITOR_USER_ID) && <Link href="/illustrations" className="site-link">Illustrations</Link>}
             </nav>
             <Suspense fallback={null}>
               <UserMenu />

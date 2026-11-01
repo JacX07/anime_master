@@ -1,3 +1,4 @@
+import { ResourceArt } from "@/components/ResourceArt";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/lib/db";
@@ -40,15 +41,15 @@ async function Items() {
       <section className="inv-group" aria-label="Commun">
         <h2 className="inv-h">Commun</h2>
         <ul className="inv-list">
-          <Item name={RESOURCE_NAMES[COMMON_RESOURCE] ?? COMMON_RESOURCE} n={qty(COMMON_RESOURCE)} hint="Une signature complète est nécessaire au retour d'un personnage." />
+          <Item resource={COMMON_RESOURCE} name={RESOURCE_NAMES[COMMON_RESOURCE] ?? COMMON_RESOURCE} n={qty(COMMON_RESOURCE)} hint="Une signature complète est nécessaire au retour d'un personnage." />
         </ul>
       </section>
       {UNIVERSES.map((u) => (
         <section key={u.key} className="inv-group" aria-label={u.name}>
           <h2 className="inv-h">{u.name}</h2>
           <ul className="inv-list">
-            <Item name={RESOURCE_NAMES[u.resource] ?? u.resource} n={qty(u.resource)} hint="Éveil des cartes de cet univers." />
-            <Item name={RESOURCE_NAMES[u.weaponResource] ?? u.weaponResource} n={qty(u.weaponResource)} hint="Arme légendaire." />
+            <Item resource={u.resource} name={RESOURCE_NAMES[u.resource] ?? u.resource} n={qty(u.resource)} hint="Éveil des cartes de cet univers." />
+            <Item resource={u.weaponResource} name={RESOURCE_NAMES[u.weaponResource] ?? u.weaponResource} n={qty(u.weaponResource)} hint="Arme légendaire." />
           </ul>
         </section>
       ))}
@@ -57,7 +58,7 @@ async function Items() {
           <h2 className="inv-h">Autres</h2>
           <ul className="inv-list">
             {others.map((r) => (
-              <Item key={r.key} name={RESOURCE_NAMES[r.key] ?? r.key} n={r.quantity} />
+              <Item key={r.key} resource={r.key} name={RESOURCE_NAMES[r.key] ?? r.key} n={r.quantity} />
             ))}
           </ul>
         </section>
@@ -66,10 +67,10 @@ async function Items() {
   );
 }
 
-function Item({ name, n, hint }: { name: string; n: number; hint?: string }) {
+function Item({ resource, name, n, hint }: { resource: string; name: string; n: number; hint?: string }) {
   return (
     <li className="inv-item" data-empty={n === 0 || undefined}>
-      <b>{name}</b>
+      <b><ResourceArt resource={resource} />{name}</b>
       <span className="inv-n">{num.format(n)}</span>
       {hint && <small>{hint}</small>}
     </li>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ResourceArt } from "@/components/ResourceArt";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CharacterCard, type CharacterCardProps } from "@/components/CharacterCard";
@@ -9,7 +10,7 @@ import { awakenCardAction } from "../awaken-actions";
 export type AwakenRow = Omit<CharacterCardProps, "stars" | "serial" | "count" | "isNew" | "missing"> & {
   id: string;
   stars: number;
-  cost: { name: string; quantity: number; have: number }[];
+  cost: { key: string; name: string; quantity: number; have: number }[];
   /** Étoiles 4 et 5 : un doublon libre est consommé ; `available` = combien tu en as */
   duplicate: { available: number } | null;
 };
@@ -42,7 +43,7 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
                 {stars + 1 === BATTLE.tertiaryCdStar ? " · sort tertiaire plus rapide" : ""}
               </small>
               <small className="vt-muted">
-                {cost.map((c) => `${c.quantity} ${c.name} (${c.have})`).join(" + ")}
+                {cost.map((c) => <span key={c.key}><ResourceArt resource={c.key} size={24} />{c.quantity} {c.name} ({c.have}) </span>)}
                 {duplicate && ` + 1 doublon consommé (${duplicate.available} libre${duplicate.available > 1 ? "s" : ""})`}
               </small>
               <button type="button" disabled={!affordable || pending} onClick={() => awaken(id)}>

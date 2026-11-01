@@ -1,3 +1,4 @@
+import { ResourceArt } from "@/components/ResourceArt";
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
@@ -30,7 +31,7 @@ async function Cards() {
       const def = WEAPONS.find((w) => w.type === card.character.type)!;
       return <article key={card.id} style={{ marginBlock: "1.5rem" }}>
         <h2>{card.character.name} · #{card.serial}</h2>
-        <p>{def.name} · {def.passive}</p>
+        <p><ResourceArt resource={def.key} size={56} />{def.name} · {def.passive}</p>
         {card.weaponKey ? <p>Arme équipée</p> : <ForgeForm cardId={card.id} disabled={card.inAuction || card.inExpedition || units < WEAPON_RECIPE.weaponUnits || hearts < WEAPON_RECIPE.hearts} />}
       </article>;
     })}</>;

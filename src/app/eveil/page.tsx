@@ -51,7 +51,7 @@ async function Cards() {
       id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity, type: c.character.type, attack: c.character.attack, defense: c.character.defense, power: c.character.power,
       finish: c.finish, series: c.character.mainMedia ? c.character.mainMedia.titleEnglish ?? c.character.mainMedia.titleRomaji : null, stars: c.stars,
       duplicate: dupes.has(c.id) ? { available: dupes.get(c.id)! } : null,
-      cost: cost.map((x) => ({ name: RESOURCE_NAMES[x.key] ?? x.key, quantity: x.quantity, have: have(x.key) })),
+      cost: cost.map((x) => ({ key: x.key, name: RESOURCE_NAMES[x.key] ?? x.key, quantity: x.quantity, have: have(x.key) })),
     };
   });
   return <AwakenList rows={rows} />;

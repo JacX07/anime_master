@@ -72,6 +72,7 @@ async function fetchAll(pages: number) {
 }
 
 async function saveRaw(kept: Kept[]) {
+  const customImages = new Map((await prisma.character.findMany({ where: { imageUrl: { startsWith: "/api/illustrations/" } }, select: { id: true, imageUrl: true } })).map((c) => [c.id, c.imageUrl]));
   // Séries : dédoublonnées sur l'ensemble des personnages
   const mediaById = new Map<number, AniListMedia>();
   for (const k of kept) for (const e of k.edges) mediaById.set(e.media.id, e.media);
@@ -107,7 +108,7 @@ async function saveRaw(kept: Kept[]) {
         const data = {
           name: c.name.full!.replace(/\s+/g, " ").trim(),
           nameNative: c.name.native?.trim() || null,
-          imageUrl: c.image!.large!,
+          imageUrl: customImages.get(c.id) ?? c.image!.large!,
           descriptionRaw: c.description,
           description: shortenDescription(cleaned),
           gender: c.gender,

@@ -1,5 +1,7 @@
 "use client";
 
+import { ResourceArt } from "@/components/ResourceArt";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { autoAttackTeamAction, startBattleAction } from "@/app/battle-actions";
@@ -111,10 +113,10 @@ export function StoryBoard({ universes, team, stock }: Props) {
             <b>{battle.winner === "A" ? "Victoire !" : "Défaite — aucune pénalité."}</b>
             {battle.loot && (
               <ul>
-                {battle.loot.ryo > 0 && <li>{battle.loot.ryo} Ryō</li>}
-                {battle.loot.crystals > 0 && <li>{battle.loot.crystals} {battle.loot.crystals > 1 ? "cristaux" : "cristal"}</li>}
+                {battle.loot.ryo > 0 && <li><ResourceArt resource="ryo" />{battle.loot.ryo} Ryō</li>}
+                {battle.loot.crystals > 0 && <li><ResourceArt resource="cristal" />{battle.loot.crystals} {battle.loot.crystals > 1 ? "cristaux" : "cristal"}</li>}
                 {Object.entries(battle.loot.resources).map(([k, n]) => (
-                  <li key={k}>{n} × {resName(k)}</li>
+                  <li key={k}><ResourceArt resource={k} />{n} × {resName(k)}</li>
                 ))}
               </ul>
             )}

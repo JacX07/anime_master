@@ -1,5 +1,7 @@
 "use client";
 
+import { ResourceArt } from "@/components/ResourceArt";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -61,7 +63,7 @@ export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsL
                 <b>{battle.winner === "A" ? "Boss vaincu !" : "Le boss tient bon — mais tu l'as entamé."}</b>
                 <ul>
                   <li>{share} % de ses PV retirés</li>
-                  <li>{gain > 0 ? `+${gain} cœur${gain > 1 ? "s" : ""} de brèche` : "Aucun cœur cette fois : il faut retirer au moins 25 % de ses PV."}</li>
+                  <li><ResourceArt resource="coeur-de-breche" />{gain > 0 ? `+${gain} cœur${gain > 1 ? "s" : ""} de brèche` : "Aucun cœur cette fois : il faut retirer au moins 25 % de ses PV."}</li>
                 </ul>
                 <div className="hs-actions">
                   <button type="button" className="bt-btn" onClick={() => setFight(null)}>Retour au raid</button>
