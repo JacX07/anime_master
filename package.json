@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "vendor:three": "node scripts/vendor-three.mjs",
-    "predev": "npm run db:generate && npm run vendor:three",
-    "prebuild": "npm run vendor:three",
+    "vendor:pixi": "node scripts/vendor-pixi.mjs",
+    "predev": "npm run db:generate && npm run vendor:pixi",
+    "prebuild": "npm run vendor:pixi",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -68,8 +68,7 @@
     "pixi.js": "^8.22.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "server-only": "^0.0.1",
-    "three": "0.186.0"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

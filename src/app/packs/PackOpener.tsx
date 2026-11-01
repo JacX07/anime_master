@@ -1,11 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
+import { Money, RarityGem } from "@/components/icons";
+import type { Rarity } from "@/generated/prisma/enums";
+import type { BannerInfo, RarityCounts } from "@/lib/banners";
 import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
-import type { OpenedCard, PlayerPackState } from "@/lib/packs";
-import { SSR_PITY, UR_PITY } from "@/lib/pull";
-import { openPackAction } from "./actions";
+import { CRYSTAL_BUY_SIZES } from "@/lib/economy";
+import type { OpenedPack, PlayerPackState } from "@/lib/packs";
+import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY, type LotSize } from "@/lib/pull";
+import { buyCrystalsAction, devGrantCrystalsAction, openPackAction } from "./actions";
+import { BulkSummary } from "./BulkSummary";
+import "./packs.css";
+
+const ORDER: Rarity[] = ["UR", "SSR", "SR", "R", "N"];
+const pct = (n: number) => `${+(n * 100).toFixed(2)} %`;
 
 /** Stock affiché, recalculé localement à chaque seconde à partir de l'état serveur. */
 function useLiveStock(state: PlayerPackState) {
@@ -22,10 +32,7 @@ function useLiveStock(state: PlayerPackState) {
   if (now < next) return { available: state.available, msLeft: next - now };
   const gained = 1 + Math.floor((now - next) / CRYSTAL_INTERVAL_MS);
   const available = Math.min(MAX_CRYSTALS, state.available + gained);
-  return {
-    available,
-    msLeft: available >= MAX_CRYSTALS ? null : next + gained * CRYSTAL_INTERVAL_MS - now,
-  };
+  return { available, msLeft: available >= MAX_CRYSTALS ? null : next + gained * CRYSTAL_INTERVAL_MS - now };
 }
 
 function formatDuration(ms: number) {
@@ -33,108 +40,188 @@ function formatDuration(ms: number) {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }
 
-export function PackOpener({ initialState }: { initialState: PlayerPackState }) {
+/** Ouverture de paquets en 2D (direction « Citadelle sombre ») : choix de la bannière et du lot, tirage côté serveur, cartes retournées une à une. */
+export function PackOpener({ initialState, banners = [], standardPool = {}, expeditionsReady = 0 }: { initialState: PlayerPackState; banners?: BannerInfo[]; standardPool?: RarityCounts; expeditionsReady?: number }) {
   const [state, setState] = useState(initialState);
-  const [cards, setCards] = useState<OpenedCard[] | null>(null);
+  const [bannerId, setBannerId] = useState<string | null>(null);
+  const [lot, setLot] = useState<LotSize>(5);
+  const [pack, setPack] = useState<OpenedPack | null>(null);
   const [revealed, setRevealed] = useState<boolean[]>([]);
-  const [pity, setPity] = useState<string | null>(null);
+  const [bulk, setBulk] = useState<OpenedPack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const { available, msLeft } = useLiveStock(state);
 
-  const allRevealed = cards !== null && revealed.every(Boolean);
+  const banner = banners.find((b) => b.id === bannerId) ?? null;
+  const kind = banner?.costKind ?? "NORMAL";
+  const wallet = kind === "SPECIAL" ? state.specialCrystals : kind === "WELCOME" ? state.welcomeDraws : available;
+  const unit = kind === "SPECIAL" ? "cristal spécial" : kind === "WELCOME" ? "tirage de bienvenue" : "cristal";
+  const unitPlural = kind === "SPECIAL" ? "cristaux spéciaux" : kind === "WELCOME" ? "tirages de bienvenue" : "cristaux";
+  const pool = banner?.pool ?? standardPool;
+  const locked = banner?.costKind === "WELCOME" && state.welcomeBannerId !== null && state.welcomeBannerId !== banner.id;
+  const waitingReveal = pack !== null && !revealed.every(Boolean);
+  const canOpen = !pending && !locked && wallet >= lot && !waitingReveal;
 
   function open() {
     setError(null);
     startTransition(async () => {
-      const result = await openPackAction(5);
-      if (!result.ok) {
-        setError(result.error);
-        return;
+      const r = await openPackAction(lot, bannerId);
+      if (!r.ok) return setError(r.error);
+      setState(r.pack.state);
+      if (r.pack.lotSize === 5) {
+        setPack(r.pack);
+        setRevealed(r.pack.cards.map(() => false));
+      } else {
+        setPack(null);
+        setBulk(r.pack);
       }
-      setState(result.pack.state);
-      setCards(result.pack.cards);
-      setRevealed(result.pack.cards.map(() => false));
-      setPity(
-        result.pack.pity === "UR" ? "Pity UR déclenché !" : result.pack.pity === "SSR" ? "Pity SSR déclenché !" : null,
-      );
+    });
+  }
+
+  function buy(count: number) {
+    setError(null);
+    startTransition(async () => {
+      const r = await buyCrystalsAction(count);
+      if (!r.ok) return setError(r.error);
+      setState(r.state);
+    });
+  }
+
+  function devGrant() {
+    startTransition(async () => {
+      const r = await devGrantCrystalsAction();
+      if (r.ok) setState(r.state);
     });
   }
 
   const reveal = (i: number) => setRevealed((r) => r.map((v, j) => v || j === i));
+  const best = pack ? ORDER.find((x) => pack.cards.some((c) => c.rarity === x)) : undefined;
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-2xl bg-panel p-5">
+    <div className="pk">
+      <header className="pk-head">
         <div>
-          <div className="text-3xl font-extrabold tabular-nums">
-            {available} <span className="text-base font-medium text-muted">/ {MAX_CRYSTALS} cristaux</span>
-          </div>
-          <div className="text-sm text-muted">
-            {msLeft === null ? "Stock plein" : `Prochain cristal dans ${formatDuration(msLeft)}`}
-          </div>
+          <p className="eyebrow">Salle des invocations</p>
+          <h1 className="vt-title">Paquets</h1>
         </div>
-        <div className="text-sm text-muted">
-          <div>
-            SSR garanti dans <b className="text-[var(--rarity-SSR)]">{SSR_PITY - state.cardsSinceSSR}</b> carte(s)
-          </div>
-          <div>
-            UR garanti dans <b className="text-[var(--rarity-UR)]">{UR_PITY - state.cardsSinceUR}</b> carte(s)
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={open}
-          disabled={pending || available < 5 || (cards !== null && !allRevealed)}
-          className="ml-auto rounded-xl bg-[#a68e5d] px-6 py-3 font-bold text-white shadow-lg shadow-[#a68e5d]/20 hover:bg-[#c4a76d] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {pending ? "Ouverture…" : cards ? "Ouvrir 5 de plus" : "Ouvrir 5 cartes (5 cristaux)"}
-        </button>
-      </section>
+        <dl className="pk-wallet">
+          <div><dt>Cristaux</dt><dd>{available}<span> / {MAX_CRYSTALS}</span></dd><small>{msLeft === null ? "Stock plein" : `Prochain dans ${formatDuration(msLeft)}`}</small></div>
+          {state.specialCrystals > 0 && <div><dt>Spéciaux</dt><dd>{state.specialCrystals}</dd></div>}
+          {state.welcomeDraws > 0 && <div><dt>Bienvenue</dt><dd>{state.welcomeDraws}</dd></div>}
+          <div><dt>Ryō</dt><dd><Money n={state.balance} /></dd></div>
+        </dl>
+      </header>
 
-      {error && (
-        <p role="alert" className="rounded-lg bg-rose-500/15 px-4 py-3 text-rose-300">
-          {error}
-        </p>
-      )}
-
-      {cards && (
-        <section className="flex flex-col items-center gap-6">
-          {pity && <p className="font-bold text-amber-300">{pity}</p>}
-          <div className="grid w-full max-w-5xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {cards.map((card, i) => (
-              <div
-                key={card.cardId}
-                className="flip"
-                data-revealed={revealed[i]}
-                onClick={() => reveal(i)}
-                role="button"
-                tabIndex={revealed[i] ? -1 : 0}
-                aria-label={revealed[i] ? card.name : `Retourner la carte ${i + 1}`}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && reveal(i)}
-              >
-                <div className="flip-inner">
-                  <div className="flip-face card-back">
-                    <span className="text-2xl font-black tracking-widest text-[#d5bb7f]/70">AM</span>
-                  </div>
-                  <div className="flip-face flip-front" aria-hidden={!revealed[i]}>
-                    <CharacterCard {...card} characterId={card.characterId} />
-                  </div>
-                </div>
-              </div>
+      <div className="pk-main">
+        <section className="pk-panel" aria-label="Bannières">
+          <h2>Bannière</h2>
+          <div className="pk-banners" role="radiogroup" aria-label="Choisir une bannière">
+            <button type="button" role="radio" aria-checked={bannerId === null} className="pk-banner" data-active={bannerId === null} onClick={() => setBannerId(null)}>
+              <small>Permanent</small>
+              <b>Paquet standard</b>
+              <span>Tout le catalogue, au prix de 1 cristal par carte.</span>
+            </button>
+            {banners.map((b) => (
+              <button type="button" role="radio" aria-checked={bannerId === b.id} key={b.id} className="pk-banner" data-active={bannerId === b.id} data-kind={b.costKind} onClick={() => setBannerId(b.id)}>
+                <small>{b.costKind === "SPECIAL" ? "Événement" : b.costKind === "WELCOME" ? "Bienvenue" : b.categoryLabel}</small>
+                <b>{b.name}</b>
+                <span>{b.description}</span>
+                <em>{b.weightPercent > 0 ? `${b.weightPercent} % de cartes de la bannière` : "Catalogue complet"}</em>
+              </button>
             ))}
           </div>
-          {!allRevealed && (
-            <button
-              type="button"
-              onClick={() => setRevealed((r) => r.map(() => true))}
-              className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold hover:bg-white/5"
-            >
-              Tout révéler
-            </button>
-          )}
+
+          <details className="pk-rates">
+            <summary>Taux et garanties</summary>
+            <table>
+              <thead><tr><th>Rareté</th><th>Carte</th><th>10ᵉ du ×10</th><th>Personnages</th></tr></thead>
+              <tbody>
+                {ORDER.map((r) => (
+                  <tr key={r}>
+                    <th scope="row"><RarityGem rarity={r} /> {r}</th>
+                    <td>{pct(RARITY_RATES.find(([x]) => x === r)?.[1] ?? 0)}</td>
+                    <td>{TENTH_CARD_RATES.find(([x]) => x === r) ? pct(TENTH_CARD_RATES.find(([x]) => x === r)![1]) : "—"}</td>
+                    <td>{pool[r] ?? 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p>Finitions : {FINISH_RATES.map(([f, p]) => `${f === "NORMAL" ? "Normale" : f === "HOLO" ? "Holo" : "Gold"} ${pct(p)}`).join(" · ")}.</p>
+            <p>Garantie : SSR ou mieux à la {SSR_PITY}ᵉ carte, UR à la {UR_PITY}ᵉ.</p>
+          </details>
         </section>
-      )}
+
+        <section className="pk-stage" aria-label="Ouverture">
+          {!pack && (
+            <div className="pk-pack" aria-hidden="true">
+              <span className="pk-pack-shine" />
+              <span className="pk-pack-logo">A</span>
+              <small>{banner ? banner.name.toUpperCase() : "ANIME MASTERS"}</small>
+              <strong>{lot} CARTES</strong>
+            </div>
+          )}
+
+          {pack && (
+            <div className="pk-cards" data-best={best}>
+              {pack.pity !== "NONE" && <p className="pk-pity">Garantie {pack.pity} déclenchée !</p>}
+              <div className="pk-grid">
+                {pack.cards.map((card, i) => (
+                  <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} onClick={() => reveal(i)} role="button" tabIndex={revealed[i] ? -1 : 0} aria-label={revealed[i] ? card.name : `Retourner la carte ${i + 1}`} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && reveal(i)}>
+                    <div className="flip-inner">
+                      <div className="flip-face card-back"><span>AM</span></div>
+                      <div className="flip-face flip-front" aria-hidden={!revealed[i]}><CharacterCard {...card} characterId={card.characterId} /></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {waitingReveal ? (
+                <button type="button" className="pk-ghost" onClick={() => setRevealed((r) => r.map(() => true))}>Tout révéler</button>
+              ) : (
+                <Link href="/album" className="pk-ghost">Voir l&apos;album</Link>
+              )}
+            </div>
+          )}
+
+          <div className="pk-controls">
+            <div className="pk-lots" role="radiogroup" aria-label="Taille du lot">
+              {LOT_SIZES.map((n) => (
+                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} onClick={() => setLot(n)}>×{n}</button>
+              ))}
+            </div>
+            <button type="button" className="pk-open" onClick={open} disabled={!canOpen}>
+              {pending ? "Ouverture…" : `Ouvrir ${lot} cartes · ${lot} ${lot > 1 ? unitPlural : unit}`}
+            </button>
+            {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
+            {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}
+            {kind === "NORMAL" && <p className="pk-note">Garantie : SSR dans {SSR_PITY - state.cardsSinceSSR} cartes · UR dans {UR_PITY - state.cardsSinceUR}</p>}
+            {error && <p role="alert" className="pk-error">{error}</p>}
+          </div>
+        </section>
+
+        <aside className="pk-panel" aria-label="Boutique">
+          <h2>Cristaux</h2>
+          <p className="pk-note">{state.crystalPrice} Ryō le cristal · {state.crystalsLeft} encore achetables aujourd&apos;hui.</p>
+          <div className="pk-buy">
+            {CRYSTAL_BUY_SIZES.map((n) => (
+              <button key={n} type="button" disabled={pending || state.crystalsLeft < n || state.balance < n * state.crystalPrice} onClick={() => buy(n)}>
+                <b>+{n}</b>
+                <Money n={n * state.crystalPrice} />
+              </button>
+            ))}
+          </div>
+          {expeditionsReady > 0 && (
+            <Link href="/expeditions" className="pk-expe">
+              <b>{expeditionsReady} expédition{expeditionsReady > 1 ? "s" : ""} terminée{expeditionsReady > 1 ? "s" : ""}</b>
+              <small>Récupérer les butins →</small>
+            </Link>
+          )}
+          {process.env.NODE_ENV !== "production" && (
+            <button type="button" className="pk-ghost" onClick={devGrant} disabled={pending}>Test : +50 cristaux</button>
+          )}
+        </aside>
+      </div>
+
+      {bulk && <BulkSummary bulk={bulk} onClose={() => setBulk(null)} />}
     </div>
   );
 }

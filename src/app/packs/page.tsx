@@ -4,7 +4,7 @@ import { listBanners, poolCounts } from "@/lib/banners";
 import { readyCount } from "@/lib/expeditions";
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
-import { ImmersiveOpener } from "./ImmersiveOpener";
+import { PackOpener } from "./PackOpener";
 
 export const metadata: Metadata = { title: "Paquets — Anime Masters" };
 
@@ -22,5 +22,5 @@ async function Packs() {
   const user = await requireUser();
   const state = await getPackState(user.id);
   const [banners, standardPool, ready] = await Promise.all([listBanners(state), poolCounts(), readyCount(user.id)]);
-  return <ImmersiveOpener initialState={state} banners={banners} standardPool={standardPool} expeditionsReady={ready} />;
+  return <PackOpener initialState={state} banners={banners} standardPool={standardPool} expeditionsReady={ready} />;
 }

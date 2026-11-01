@@ -50,7 +50,8 @@ Les couleurs de **rareté** (N, R, SR, SSR, UR) restent : c'est de l'information
 ## Avancement
 - Lot 1 (socle) : codé — jetons, polices, fond, barre du haut, formulaire de connexion, remplacement des anciens bleus dans `globals.css` et les fichiers hors combat.
 - Lot 2 : codé — cartes (bordure fine 1 px, pastille de rareté ronde ; les ornements de cadre SR+ restent), titres de page (Cinzel, plus petits), noms de mondes de l'album, accueil refait sans 3D (succès, paquet dessiné en CSS, bannières, profil en bref, raccourcis vers les modes), couleurs des pages Inventaire, Équipe, Histoire, Quêtes, Tour, Raid, Éveil, Builder.
-- Reste (lot 3) : combat (`battle.css`, aussi utilisé par Histoire : boutons et panneaux encore bleus), Donjons, nettoyage du code de la scène 3D (`SceneFrame`, `SceneBody`, `MenuNav`, `.gm-*`) et de la dépendance `three`.
+- Ouverture de paquets 2D : codée (`/packs` : bannières, lots ×5 / ×10, cartes retournées une à une, taux, boutique de cristaux). La scène 3D (`public/pack-opening`, écran de chargement, `three`) est supprimée ; PixiJS reste pour le combat.
+- Reste (lot 3) : combat (`battle.css`, aussi utilisé par Histoire : boutons et panneaux encore bleus), Donjons (à reprendre quand la session d'équilibrage des compositions aura fini).
 
 ## Questions ouvertes
 - Les écrans de la maquette qui n'existent pas encore (profil public, titres) : hors de ce chantier ?
