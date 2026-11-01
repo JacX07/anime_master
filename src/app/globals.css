@@ -75,10 +75,11 @@ h3 {
   aspect-ratio: 5 / 7;
   width: 100%;
   overflow: hidden;
-  border-radius: 0.75rem;
-  border: 3px solid var(--rarity);
+  border-radius: 0.55rem;
+  /* Bordure fine (maquette) : la rareté se lit surtout dans la pastille et une lueur discrète */
+  border: 1px solid color-mix(in srgb, var(--rarity) 80%, #313632);
   background: var(--panel);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.45);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 12px 30px rgb(0 0 0 / 0.35), 0 0 16px -6px var(--rarity);
   container-type: inline-size;
 }
 .card[data-rarity="R"] { --rarity: var(--rarity-R); }
@@ -99,7 +100,7 @@ h3 {
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: calc(0.75rem - 3px);
+  border-radius: calc(0.55rem - 1px);
   object-fit: cover;
   object-position: center top;
 }
@@ -108,15 +109,15 @@ h3 {
   position: absolute;
   inset: auto 0 0 0;
   z-index: 2;
-  border-radius: 0 0 calc(0.75rem - 3px) calc(0.75rem - 3px);
+  border-radius: 0 0 calc(0.55rem - 1px) calc(0.55rem - 1px);
   padding: 16cqw 6cqw 5cqw;
   display: flex;
   flex-direction: column;
   gap: 1.5cqw;
   background: linear-gradient(
     to top,
-    color-mix(in srgb, var(--rarity) 12%, #0b0b12) 0%,
-    rgb(11 11 18 / 0.92) 55%,
+    color-mix(in srgb, var(--rarity) 12%, #0b0e0f) 0%,
+    rgb(11 14 15 / 0.92) 55%,
     transparent 100%
   );
   text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
@@ -133,7 +134,7 @@ h3 {
 .card-series {
   display: flex;
   font-size: 5cqw;
-  color: #c4c4d4;
+  color: #b4b2aa;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -158,7 +159,7 @@ h3 {
   display: flex;
   gap: 2cqw;
   font-size: 3.7cqw;
-  color: #c4c4d4;
+  color: #b4b2aa;
 }
 .card-badge {
   position: absolute;
@@ -175,10 +176,15 @@ h3 {
   position: absolute;
   top: 2.5cqw;
   left: 2.5cqw;
-  width: 20cqw;
-  height: 20cqw;
+  width: 17cqw;
+  height: 17cqw;
+  padding: 2.4cqw;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid var(--rarity);
+  background: #111513;
   z-index: 2;
-  filter: drop-shadow(0 0 1.6cqw color-mix(in srgb, var(--rarity) 85%, #000));
+  box-shadow: 0 3px 10px #0009;
 }
 .card-finish { position: absolute; top: 34cqw; left: 4.5cqw; width: 8cqw; height: 8cqw; z-index: 2; }
 .card-kind {
@@ -243,7 +249,7 @@ h3 {
 /* Manquant (album) : image grisée et floutée, « ? » au centre */
 .card[data-missing] { border-color: #ffffff1f; border-style: dashed; background: var(--panel); }
 .card[data-missing] .card-art { filter: grayscale(1) blur(8px) brightness(0.3); transform: scale(1.08); }
-.card[data-missing] .card-name { color: #a1a1b5; }
+.card[data-missing] .card-name { color: #767b76; }
 .card-unknown {
   position: absolute;
   inset: 0 0 20%;
@@ -327,12 +333,12 @@ h3 {
   aspect-ratio: 5 / 7;
   width: 100%;
   border-radius: 0.75rem;
-  border: 3px solid #2a2a3d;
+  border: 3px solid #171b1a;
   display: grid;
   place-items: center;
   background:
     radial-gradient(circle at 50% 40%, #3b2a6b 0%, transparent 60%),
-    repeating-linear-gradient(45deg, #161622 0 10px, #1c1c2b 10px 20px);
+    repeating-linear-gradient(45deg, #111514 0 10px, #171b1a 10px 20px);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
   transition: transform 0.2s;
 }
@@ -350,11 +356,11 @@ h3 {
   font-size: 0.75rem;
   font-weight: 700;
   background: rgb(255 255 255 / 0.08);
-  color: #c4c4d4;
+  color: #b4b2aa;
 }
 .finish-tag[data-finish="HOLO"] {
   color: #0b0b12;
-  background: linear-gradient(90deg, #ff8fa3, #ffe08a, #86efac, #7dd3fc, #d8b4fe);
+  background: linear-gradient(90deg, #ff8fa3, #ffe08a, #86efac, #c4a76d, #d8b4fe);
 }
 .finish-tag[data-finish="GOLD"] {
   color: #0b0b12;
@@ -643,7 +649,7 @@ a.site-link:hover,
   cursor: pointer;
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
   background: linear-gradient(135deg, #c4a76d, #d5bb7f);
-  color: #06101e;
+  color: #111514;
   font: 400 0.8rem var(--font-display);
 }
 .avatar:hover {
@@ -688,7 +694,7 @@ a.site-link:hover,
 /* Variante labo clair : scène d'ouverture de paquets */
 body.scene-packs > .site-header {
   background: linear-gradient(#f4f7fb99, transparent);
-  color: #0d1b2a;
+  color: #0b0e0f;
 }
 body.scene-packs .site-header::after {
   background: linear-gradient(90deg, transparent, #a68e5d 25%, #d5bb7f 60%, transparent);
@@ -698,7 +704,7 @@ body.scene-packs .site-link[aria-current="page"]::after {
   box-shadow: 0 0 10px #a68e5d88;
 }
 body.scene-packs .res-item + .res-item {
-  border-image: linear-gradient(transparent, #0d1b2a33, transparent) 1;
+  border-image: linear-gradient(transparent, #0b0e0f33, transparent) 1;
 }
 body.scene-packs .res-power {
   color: #00968a;
@@ -931,7 +937,7 @@ body:has(.scene-loader[data-ready="false"]) .site-header {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #a68e5d, #d5bb7f 55%, #e6fffa);
-  box-shadow: 0 0 14px #4fd8ffaa;
+  box-shadow: 0 0 14px #d5bb7faa;
   transition: width 0.4s ease-out;
 }
 .scene-loader-meta {
@@ -954,7 +960,7 @@ body.scene-night {
 }
 .vt {
   flex: 1;
-  background: radial-gradient(ellipse 80% 40% at 50% -5%, #1c3d7066, transparent 70%), #0b0e0f;
+  background: radial-gradient(ellipse 80% 40% at 50% -5%, #171b1a66, transparent 70%), #0b0e0f;
   color: #e9e5dc;
   font-family: var(--font-dm), sans-serif;
 }
@@ -1078,10 +1084,10 @@ body.scene-night {
   font-size: 0.85rem;
 }
 .vt-members li[data-done="true"] {
-  color: #7fe0c4;
+  color: #c4a76d;
 }
 .vt-done {
-  color: #7fe0c4;
+  color: #c4a76d;
   font-size: 0.85rem;
 }
 .vt-chips {
@@ -1177,15 +1183,17 @@ body.scene-night {
 .wd-tile h2 {
   position: relative;
   z-index: 1;
-  max-width: 58%;
+  max-width: 62%;
   margin: 0;
-  font-family: var(--font-cinzel), var(--font-dm), sans-serif;
-  font-weight: 900;
-  font-size: 2.6rem;
-  line-height: 0.88;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+  line-height: 1.15;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--w);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .wd-star {
   position: absolute;
@@ -1247,9 +1255,9 @@ body.scene-night {
   color: #767b76;
 }
 .wd-count {
-  font-family: var(--font-cinzel), var(--font-dm), sans-serif;
-  font-weight: 800;
-  font-size: 2rem;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 600;
+  font-size: 1.7rem;
   line-height: 1;
   color: #ebe7dc;
 }
@@ -1392,7 +1400,7 @@ body:has(.scene-loader[data-ready="false"]) .site-header {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #a68e5d, #d5bb7f 55%, #e6fffa);
-  box-shadow: 0 0 14px #4fd8ffaa;
+  box-shadow: 0 0 14px #d5bb7faa;
   transition: width 0.4s ease-out;
 }
 .scene-loader-meta {
@@ -1415,7 +1423,7 @@ body.scene-night {
 }
 .vt {
   flex: 1;
-  background: radial-gradient(ellipse 80% 40% at 50% -5%, #1c3d7066, transparent 70%), #0b0e0f;
+  background: radial-gradient(ellipse 80% 40% at 50% -5%, #171b1a66, transparent 70%), #0b0e0f;
   color: #e9e5dc;
   font-family: var(--font-dm), sans-serif;
 }
@@ -1539,10 +1547,10 @@ body.scene-night {
   font-size: 0.85rem;
 }
 .vt-members li[data-done="true"] {
-  color: #7fe0c4;
+  color: #c4a76d;
 }
 .vt-done {
-  color: #7fe0c4;
+  color: #c4a76d;
   font-size: 0.85rem;
 }
 .vt-chips {
@@ -1638,15 +1646,17 @@ body.scene-night {
 .wd-tile h2 {
   position: relative;
   z-index: 1;
-  max-width: 58%;
+  max-width: 62%;
   margin: 0;
-  font-family: var(--font-cinzel), var(--font-dm), sans-serif;
-  font-weight: 900;
-  font-size: 2.6rem;
-  line-height: 0.88;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+  line-height: 1.15;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--w);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .wd-star {
   position: absolute;
@@ -1702,9 +1712,9 @@ body.scene-night {
   color: #767b76;
 }
 .wd-count {
-  font-family: var(--font-cinzel), var(--font-dm), sans-serif;
-  font-weight: 800;
-  font-size: 2rem;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 600;
+  font-size: 1.7rem;
   line-height: 1;
   color: #ebe7dc;
 }
@@ -2513,7 +2523,7 @@ body.scene-night {
   display: flex;
   justify-content: center;
   padding: 4.5rem 1rem 1rem;
-  background: #060d1acc;
+  background: #111514cc;
   backdrop-filter: blur(6px);
   font-family: var(--font-dm), sans-serif;
   color: #e9e5dc;
@@ -2581,7 +2591,7 @@ body.scene-night {
 .bulk-grid > .card[data-rarity="R"] { box-shadow: 0 0 14px 2px color-mix(in srgb, var(--rarity) 60%, transparent), 0 8px 24px rgb(0 0 0 / 0.45); }
 .bulk-grid > .card[data-rarity="SR"] { box-shadow: 0 0 22px 5px color-mix(in srgb, var(--rarity) 75%, transparent), 0 8px 24px rgb(0 0 0 / 0.45); }
 .bulk-grid > .card[data-rarity="SSR"] { box-shadow: 0 0 32px 9px color-mix(in srgb, var(--rarity) 85%, transparent), 0 8px 24px rgb(0 0 0 / 0.45); }
-.bulk-grid > .card[data-rarity="UR"] { box-shadow: 0 0 22px 6px #f43f5e99, 0 0 44px 12px #22d3ee88, 0 8px 24px rgb(0 0 0 / 0.45); }
+.bulk-grid > .card[data-rarity="UR"] { box-shadow: 0 0 22px 6px #f43f5e99, 0 0 44px 12px #c4a76d88, 0 8px 24px rgb(0 0 0 / 0.45); }
 .bulk footer {
   display: flex;
   justify-content: flex-end;
@@ -2594,7 +2604,7 @@ body.scene-night {
 .exp-report { padding: 0.7rem 1rem; border-radius: 0.8rem; background: #2fbf7122; border: 1px solid #2fbf71; }
 .exp-breaches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.8rem; }
 .exp-breaches button {
-  --c: #2b9bff; width: 100%; height: 100%; text-align: left; display: grid; gap: 0.3rem; padding: 0.9rem 1rem; cursor: pointer; color: inherit; font: inherit;
+  --c: #c4a76d; width: 100%; height: 100%; text-align: left; display: grid; gap: 0.3rem; padding: 0.9rem 1rem; cursor: pointer; color: inherit; font: inherit;
   border-radius: 1rem; border: 1.5px solid #ffffff22; position: relative; overflow: hidden;
   background: radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--c) 45%, transparent), transparent 60%), #111514;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -2623,7 +2633,7 @@ body.scene-night {
 .tour-seal p { margin: 0 0 0.8rem; line-height: 1.5; max-width: 38rem; }
 .tour-door {
   flex: none; width: 7rem; height: 11rem; border-radius: 3.5rem 3.5rem 0.4rem 0.4rem; border: 2px solid #7a5cff88;
-  background: repeating-linear-gradient(0deg, #0b1020 0 10px, #141c33 10px 12px), radial-gradient(circle at 50% 30%, #7a5cff55, transparent 70%);
+  background: repeating-linear-gradient(0deg, #111514 0 10px, #171b1a 10px 12px), radial-gradient(circle at 50% 30%, #7a5cff55, transparent 70%);
   box-shadow: 0 0 40px #7a5cff44, inset 0 0 30px #000;
 }
 .exp-tower { --c: #7a5cff; opacity: 0.85; border-style: dashed !important; }
@@ -2636,19 +2646,18 @@ body.scene-night {
    repères de coins sur les cartes montées en planche. */
 .vt-title,
 .vt-h2 {
-  font-family: var(--font-cinzel), var(--font-dm), sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
-  line-height: 0.86;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 500;
+  line-height: 1.08;
 }
 .vt-title {
-  font-size: clamp(3.4rem, 8vw, 5.5rem);
-  letter-spacing: 0.005em;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.015em;
 }
 .vt-h2 {
-  font-weight: 800;
-  font-size: 1.7rem;
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
   color: #767b76;
   margin-bottom: 0.9rem;
 }
@@ -2685,7 +2694,7 @@ body.scene-night {
   font-size: 1.7rem;
   line-height: 1;
   text-transform: uppercase;
-  color: #8d8a99;
+  color: #767b76;
 }
 .pg-tabs nav a small {
   margin-left: 0.4rem;
@@ -2773,7 +2782,7 @@ body.scene-night {
 [data-status="CANCELLED"] .trade-status {
   background: transparent;
   border-color: #ffffff30;
-  color: #8d8a99;
+  color: #767b76;
 }
 .trade-card .trade-sides {
   display: grid;
@@ -2831,7 +2840,7 @@ body.scene-night {
   aspect-ratio: 220 / 308;
   overflow: hidden;
   border: 2px solid var(--rc, #94a3b8);
-  background: #1b2238;
+  background: #171b1a;
 }
 .tp-card[data-r="R"] { --rc: var(--rarity-R); }
 .tp-card[data-r="SR"] { --rc: var(--rarity-SR); }
@@ -2869,7 +2878,7 @@ body.scene-night {
   display: block;
   margin-top: 0.3rem;
   font-size: 0.68rem;
-  color: #8d8a99;
+  color: #767b76;
 }
 .trade-side li.tp-ryo {
   align-self: center;
@@ -2908,7 +2917,7 @@ body.scene-night {
   opacity: 0.55;
 }
 .wish-grid .tp-cap b {
-  color: #7ee0c3;
+  color: #c4a76d;
   font-weight: 600;
 }
 .wish-grid .vt-btn {
@@ -2921,7 +2930,7 @@ body.scene-night {
   gap: 1.1rem;
 }
 .ach-grid li {
-  --w: #8d8a99;
+  --w: #767b76;
   gap: 0.5rem;
   padding: 0.9rem 1rem 0.8rem;
   border: 0;
@@ -2931,7 +2940,7 @@ body.scene-night {
   opacity: 0.6;
 }
 .ach-grid li[data-done="true"] {
-  --w: #7ee0c3;
+  --w: #c4a76d;
   border-color: var(--w);
 }
 .ach-grid li > b {
@@ -2967,7 +2976,7 @@ body.scene-night {
   font-weight: 900;
   font-size: 2rem;
   line-height: 1;
-  color: #8d8a99;
+  color: #767b76;
 }
 .rank-list li:nth-child(-n + 3) .rank {
   color: #f2a516;
@@ -3024,7 +3033,7 @@ body.scene-night {
 }
 .exp-open li {
   border: 0;
-  border-top: 2px solid #8d8a99;
+  border-top: 2px solid #767b76;
   border-radius: 0;
   background: linear-gradient(90deg, #ffffff0d, transparent 60%);
 }
@@ -3125,7 +3134,7 @@ body.scene-night {
   width: 4.4rem;
   height: 4.4rem;
   border-radius: 50%;
-  background: linear-gradient(145deg, #2b3f6e, #111514);
+  background: linear-gradient(145deg, #3b403b, #111514);
   border: 2px solid #ffffff33;
   font-size: 1.9rem;
   font-weight: 800;
@@ -3160,13 +3169,13 @@ body.scene-night {
 
 /* ---------- Pastille de rareté (UR, SSR, SR brillantes ; R, N sobres) ---------- */
 .rtag {
-  --rt: var(--rarity-N); --rt-hi: #e2e8f0; --rt-lo: #475569; --rt-bg: #111514;
+  --rt: var(--rarity-N); --rt-hi: #e9e5dc; --rt-lo: #3b403b; --rt-bg: #111514;
   position: relative;
   display: inline-block;
   padding: 0.12em 0.5em;
   border-radius: 0.35em;
   border: 1px solid var(--rt);
-  background: #08101deb;
+  background: #111514eb;
   color: var(--rt);
   font-weight: 800;
   line-height: 1.2;

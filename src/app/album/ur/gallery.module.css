@@ -30,14 +30,14 @@
   margin: auto;
   padding: 0;
   overflow: auto;
-  border: 1px solid #35507f;
+  border: 1px solid #313632;
   border-radius: 1rem;
   background: var(--background);
   color: var(--foreground);
 }
 
 .viewer::backdrop {
-  background: #030812ed;
+  background: #0b0e0fed;
 }
 
 .content {
@@ -69,13 +69,13 @@
   width: 100%;
   height: min(60dvh, 38rem);
   object-fit: contain;
-  background: #060d19;
+  background: #0b0e0f;
 }
 
 .control {
   min-height: 2.75rem;
   padding: 0.5rem 0.8rem;
-  border: 1px solid #35507f;
+  border: 1px solid #313632;
   border-radius: 0.5rem;
   background: var(--panel);
   color: inherit;
