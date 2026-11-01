@@ -23,6 +23,14 @@ export function attackElement(id: number): AttackElement | null {
   return ELEMENTS.get(id) ?? null;
 }
 
+/** Persos dont le sort ★ ne frappe aucun ennemi (Itachi, Nezuko, Rengoku, Alphonse, Gaara, Reiner, Kirishima) : visuel et son seulement, aucun effet de jeu. */
+const VISUAL_ONLY = new Set([14, 127518, 129133, 12, 1662, 46484, 89243]);
+
+/** Élément porteur d'un effet de jeu sur le sort secondaire (null pour les persos purement visuels). */
+export function effectElement(id: number): AttackElement | null {
+  return VISUAL_ONLY.has(id) ? null : attackElement(id);
+}
+
 /** Valeurs de l'effet d'élément porté par le sort secondaire (validées le 2026-11-01, à recalibrer après simulation). */
 export const ELEMENT_RIDER = {
   /** Eau : soigne un allié vivant au hasard (un autre que le lanceur s'il y en a) de 10 % de ses PV max, et trempe les cibles touchées. */

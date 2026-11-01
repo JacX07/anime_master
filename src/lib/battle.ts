@@ -6,7 +6,7 @@
 
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
-import { attackElement, ELEMENT_RIDER } from "./attack-element";
+import { effectElement, ELEMENT_RIDER } from "./attack-element";
 import { BOSS_SKILLS } from "./boss-skills";
 import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
 import { isSoloBuff, spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
@@ -782,7 +782,7 @@ export function applyAction(st: BattleState, action: Action) {
 
   /** Effet d'élément du sort secondaire (attack-element.ts) : sur les cibles touchées, ou sur le lanceur et ses alliés. */
   const applyElement = () => {
-    const element = opts.elements && !u.card.noElement ? attackElement(u.card.characterId) : null;
+    const element = opts.elements && !u.card.noElement ? effectElement(u.card.characterId) : null;
     const r = ELEMENT_RIDER;
     if (!element) return;
     const hitFoes = [...struck].filter((t) => t.hp > 0 && t.side !== u.side);

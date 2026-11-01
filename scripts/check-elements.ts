@@ -4,7 +4,7 @@
 
 import { applyAction, autoAction, createBattle, currentActor, legalActions, seededRandom, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
 import { replayAll } from "../src/lib/battle-replay";
-import { attackElement, ELEMENT_RIDER, type AttackElement } from "../src/lib/attack-element";
+import { attackElement, effectElement, ELEMENT_RIDER, type AttackElement } from "../src/lib/attack-element";
 import { spellOf } from "../src/lib/spells";
 
 let failures = 0;
@@ -111,6 +111,7 @@ for (const [label, wetFirst, boss] of [["combo", true, false], ["sans eau", fals
   while (currentActor(st2)) applyAction(st2, autoAction(st2));
   const end = replayAll(st2.log);
   check("journal rejouable", !!end.end);
+  check("7 persos sans cible : élément visuel seulement", [14, 127518, 129133, 12, 1662, 46484, 89243].every((id) => attackElement(id) && !effectElement(id)));
 }
 
 if (failures) { console.log(`\n${failures} échec(s).`); process.exit(1); }

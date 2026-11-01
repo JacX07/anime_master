@@ -258,6 +258,8 @@ Les durées sont en **actions du ciblé** ; « équipe » = alliés vivants, « 
 
 36 SSR/UR ont un **élément** selon leur lore (`src/lib/attack-element.ts`) : feu 11, eau 8, foudre 6, air 5, terre 6. L'élément donne une animation et un bruitage propres (maquette `public/mockups/elements.html`, direction sonore A « nerveux ») et ajoute un effet à leur **sort secondaire (★)**. L'effet porte sur les **ennemis réellement touchés** par ce sort (pas d'esquive), ou sur le lanceur et ses alliés.
 
+**Sept persos visuel seulement** *(décidé le 2026-11-01)* : Itachi, Nezuko, Rengoku, Alphonse, Gaara, Reiner et Kirishima ont un sort ★ (et un tertiaire) qui ne frappe aucun ennemi. Ils gardent l'animation et le bruitage de leur élément, mais aucun effet de jeu ni texte d'élément (`effectElement` dans `attack-element.ts`).
+
 | Élément | Effet du sort secondaire |
 |---|---|
 | Eau | Soigne un **allié vivant au hasard** (un autre que le lanceur s'il y en a) de **10 % de ses PV max** ; les cibles touchées sont **trempées** pendant 2 de leurs actions |

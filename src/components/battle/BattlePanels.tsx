@@ -8,7 +8,7 @@ import { BOSS_SKILLS } from "@/lib/boss-skills";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
-import { attackElement, describeElement } from "@/lib/attack-element";
+import { describeElement, effectElement } from "@/lib/attack-element";
 import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
@@ -56,7 +56,7 @@ export function SpellsPanel({
     spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, tooltip: affinity.details, note: AFFINITY_COOLDOWN });
   }
   const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
-  const element = attackElement(unit.characterId);
+  const element = effectElement(unit.characterId);
   const own = boss?.spell ?? (rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null);
   if (own) {
     spells.push({
