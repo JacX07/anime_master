@@ -48,6 +48,7 @@
     "check:raid": "tsx scripts/check-raid.ts",
     "check:spells": "tsx scripts/check-spells.ts",
     "check:jinwoo": "tsx scripts/check-jinwoo.ts",
+    "check:kits": "tsx scripts/check-kits.ts",
     "simulate:spells": "tsx scripts/simulate-spells.ts",
     "calibrate:spells": "tsx scripts/calibrate-spells.ts",
     "calibrate:archetypes": "tsx scripts/calibrate-archetypes.ts",

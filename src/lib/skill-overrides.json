@@ -6,8 +6,36 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 1.5,
-          "ignoreDef": 0.1
+          "mult": 0.5
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.1,
+          "turns": 1,
+          "to": "target"
+        },
+        {
+          "k": "damage",
+          "mult": 0.5
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.2,
+          "turns": 1,
+          "to": "target"
+        },
+        {
+          "k": "damage",
+          "mult": 0.5
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.3,
+          "turns": 1,
+          "to": "target"
         }
       ],
       "final": true
@@ -86,10 +114,9 @@
       "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 1.9,
-          "zone": true,
-          "ignoreDef": 0.5
+          "k": "bloodlust",
+          "pct": 0.7,
+          "turns": 3
         },
         {
           "k": "mod",
@@ -97,6 +124,203 @@
           "amount": 0.4,
           "turns": 3,
           "to": "self"
+        },
+        {
+          "k": "damage",
+          "mult": 1.9,
+          "zone": true,
+          "ignoreDef": 0.5
+        }
+      ],
+      "final": true
+    }
+  },
+  "27": {
+    "secondary": {
+      "name": "Godspeed",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.1
+        },
+        {
+          "k": "mod",
+          "stat": "speed",
+          "amount": 0.3,
+          "turns": 2,
+          "to": "self"
+        }
+      ],
+      "final": true
+    },
+    "ultimate": {
+      "name": "Foudre divine Kanmuru",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "mod",
+          "stat": "speed",
+          "amount": 0.3,
+          "turns": 2,
+          "to": "self"
+        },
+        {
+          "k": "damage",
+          "mult": 1.4,
+          "zone": true,
+          "ramp": 0.1
+        }
+      ],
+      "final": true
+    }
+  },
+  "40882": {
+    "ultimate": {
+      "name": "Titan Assaillant : Transformation",
+      "target": null,
+      "effects": [
+        {
+          "k": "heal",
+          "pct": 1.0,
+          "to": "self"
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": 0.5,
+          "turns": 2,
+          "to": "self"
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": 0.5,
+          "turns": 2,
+          "to": "self"
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.35,
+          "turns": 3,
+          "to": "foes"
+        },
+        {
+          "k": "damage",
+          "mult": 1.5,
+          "zone": true
+        }
+      ],
+      "final": true
+    }
+  },
+  "137080": {
+    "ultimate": {
+      "name": "Manipulation",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "steal",
+          "turns": 2
+        }
+      ],
+      "final": true
+    }
+  },
+  "35252": {
+    "ultimate": {
+      "name": "Time Leap",
+      "target": null,
+      "effects": [
+        {
+          "k": "resetCd"
+        }
+      ],
+      "final": true
+    }
+  },
+  "127212": {
+    "ultimate": {
+      "name": "Black Flash en série",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.3,
+          "critSure": true,
+          "hits": 3,
+          "extraHit": true,
+          "drain": 0.2
+        }
+      ],
+      "final": true
+    }
+  },
+  "28": {
+    "ultimate": {
+      "name": "Chaîne du jugement",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.0
+        },
+        {
+          "k": "seal",
+          "turns": 3
+        }
+      ],
+      "final": true
+    }
+  },
+  "89616": {
+    "ultimate": {
+      "name": "100 % : ???",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.8,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.3,
+          "turns": 2,
+          "to": "foes"
+        },
+        {
+          "k": "damage",
+          "mult": 0.8,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": -0.3,
+          "turns": 2,
+          "to": "foes"
+        },
+        {
+          "k": "damage",
+          "mult": 0.8,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "dodge",
+          "amount": -0.5,
+          "turns": 2,
+          "to": "foes"
+        },
+        {
+          "k": "mod",
+          "stat": "speed",
+          "amount": -0.3,
+          "turns": 2,
+          "to": "foes"
         }
       ],
       "final": true

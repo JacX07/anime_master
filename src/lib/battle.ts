@@ -160,7 +160,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -276,6 +276,8 @@ interface Unit {
   revived: boolean;
   /** Maître d'un zombie (Arise) : le zombie disparaît quand son maître tombe */
   master: UnitId | null;
+  /** Passif de mort (ultime lancé automatiquement) déjà utilisé */
+  deathCast: boolean;
   continuingTurn: boolean;
   fx: Fx[];
 }
@@ -288,7 +290,7 @@ interface Fx {
   turns: number;
   fresh: boolean;
 }
-const MALUS = new Set<string>(["atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
+const MALUS = new Set<string>(["seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -313,6 +315,8 @@ export interface BattleState {
   roundOpen: boolean;
   gaugeTicks: number;
   gaugeActor: UnitId | null;
+  /** Cartes actuellement volées (Makima) : active le calcul des camps par carte */
+  stolen: number;
   log: BattleEvent[];
   result: BattleResult | null;
 }
@@ -367,7 +371,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: 0,
-      revived: false, master: null, continuingTurn: false, fx: [],
+      revived: false, master: null, deathCast: false, continuingTurn: false, fx: [],
     };
   });
 }
@@ -379,7 +383,12 @@ const view = (u: Unit): UnitView => ({
   ultimateGauge: u.ultimateGauge, ultimateGaugeMax: BATTLE.ultimateGaugeMax,
 });
 const enemy = (s: Side): Side => (s === "A" ? "B" : "A");
-const alive = (st: BattleState, s: Side) => st.teams[s].filter((u) => u.hp > 0);
+/** Le camp d'une carte est `u.side` : il change quand elle est volée (Makima) ; sa position et son id restent ceux de son camp d'origine. */
+const alive = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B].filter((u) => u.side === s && u.hp > 0) : st.teams[s].filter((u) => u.hp > 0));
+const fallen = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B] : st.teams[s]).filter((u) => u.side === s && u.hp <= 0);
+/** Passifs : insensible aux dégâts sur la durée (Momo Ayase) ; lance son ultime en mourant (Emilia) */
+const DOT_IMMUNE = new Set([222594]);
+const DEATH_CAST = new Set([88572]);
 const unit = (st: BattleState, id: UnitId) => st.teams[id[0] as Side][Number(id.slice(1)) - 1];
 const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m));
 const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.hp / m.maxHp ? x : m));
@@ -391,7 +400,7 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
-    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, log: [], result: null,
+    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, stolen: 0, log: [], result: null,
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
@@ -482,7 +491,7 @@ export function timeline(st: BattleState, n: number): UnitId[] {
 
 function gaugeActor(st: BattleState): Unit | null {
   while (!st.result) {
-    vanishZombies(st);
+    processDeaths(st);
     if (!alive(st, "A").length || !alive(st, "B").length) {
       finish(st, false);
       return null;
@@ -562,13 +571,43 @@ function finishUnitTurn(st: BattleState, u: Unit) {
   }
 }
 
-/** Les zombies d'Arise disparaissent quand leur maître est tombé. */
-function vanishZombies(st: BattleState) {
-  for (const x of [...st.teams.A, ...st.teams.B]) {
-    if (x.hp > 0 && x.master && unit(st, x.master).hp <= 0) {
-      x.hp = 0;
-      x.shield = 0;
-      st.log.push({ kind: "ko", target: x.id });
+/** Conséquences d'une mort, avant que la carte suivante agisse : disparition des zombies, retour ou exécution des cartes volées, ultime automatique d'Emilia. */
+function processDeaths(st: BattleState) {
+  const all = () => [...st.teams.A, ...st.teams.B];
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (const x of all()) {
+      if (x.hp > 0 && x.master && unit(st, x.master).hp <= 0) {
+        x.hp = 0;
+        x.shield = 0;
+        st.log.push({ kind: "ko", target: x.id });
+        changed = true;
+      }
+      const home = x.id[0] as Side;
+      if (x.side !== home) {
+        // Carte volée : elle revient à la fin du contrôle ou à sa mort ; dernier survivant de son camp d'origine, elle est exécutée
+        const lastOfHome = x.hp > 0 && !all().some((o) => o !== x && o.id[0] === home && o.hp > 0);
+        if (lastOfHome) {
+          x.hp = 0;
+          x.shield = 0;
+          st.log.push({ kind: "ko", target: x.id });
+          changed = true;
+        }
+        if (x.hp <= 0 || !hasFx(x, "controlled")) {
+          x.side = home;
+          st.stolen--;
+          changed = true;
+        }
+      }
+      if (x.hp <= 0 && !x.deathCast && DEATH_CAST.has(x.card.characterId) && x.ultimate) {
+        x.deathCast = true;
+        const spell = x.ultimate;
+        const foes = alive(st, enemy(x.side));
+        if (foes.length && (spell.target === null || spell.target === "foe")) {
+          resolveAction(st, x, { spell: "ultimate", target: spell.target === "foe" ? weakest(foes).id : null }, true);
+          changed = true;
+        }
+      }
     }
   }
 }
@@ -580,7 +619,7 @@ export function currentActor(st: BattleState): UnitView | null {
     return u ? view(u) : null;
   }
   while (!st.result) {
-    vanishZombies(st);
+    processDeaths(st);
     if (!alive(st, "A").length || !alive(st, "B").length) {
       finish(st, false);
       break;
@@ -614,12 +653,16 @@ function spellFor(u: Unit, slot: "special" | "tertiary" | "ultimate"): Character
 /** Cibles possibles d'un sort personnel donné. */
 function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (UnitId | null)[] {
   switch (spell.target) {
-    case "foe": return foesFor(st, u).map((x) => x.id);
+    case "foe": {
+      // Sceau et vol : sans effet sur les boss, inutiles sur une carte déjà scellée ou volée
+      const needsMortal = spell.effects.some((e) => e.k === "seal" || e.k === "steal");
+      return foesFor(st, u).filter((x) => !needsMortal || (!x.card.boss && !hasFx(x, "seal") && !hasFx(x, "controlled"))).map((x) => x.id);
+    }
     case "ally": return alive(st, u.side).map((x) => x.id);
-    case "deadAlly": return u.revived ? [] : st.teams[u.side].filter((x) => x.hp <= 0).map((x) => x.id);
+    case "deadAlly": return u.revived ? [] : fallen(st, u.side).map((x) => x.id);
     default:
       // Arise : une fois par combat, et seulement s'il y a un mort à relever
-      if (spell.effects.some((e) => e.k === "arise")) return u.revived || !st.teams[u.side].some((x) => x.hp <= 0) ? [] : [null];
+      if (spell.effects.some((e) => e.k === "arise")) return u.revived || !fallen(st, u.side).length ? [] : [null];
       return [null];
   }
 }
@@ -671,8 +714,9 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   if (only("shield") && allies.every((x) => x.shield > x.maxHp * 0.05)) return null;
   if (spell.target === "ally") return { spell: slot, target: mostHurt(allies).id };
   if (spell.target === "foe") {
-    const control = fx.some((e) => e.k === "silence");
-    const pick = control ? foes.reduce((m, x) => (x.atk > m.atk ? x : m)) : weakest(foes);
+    const control = fx.some((e) => e.k === "silence" || e.k === "seal" || e.k === "steal");
+    const pool = foes.filter((f) => targets.includes(f.id));
+    const pick = control ? pool.reduce((m, x) => (x.atk > m.atk ? x : m)) : weakest(pool);
     return { spell: slot, target: pick.id };
   }
   return { spell: slot, target: null };
@@ -686,7 +730,7 @@ export function autoAction(st: BattleState): Action {
   const foes = foesFor(st, u);
   const allies = alive(st, u.side);
   const base: Action = { spell: "base", target: weakest(foes).id };
-  if (hasFx(u, "silence")) return base;
+  if (hasFx(u, "silence") || hasFx(u, "seal")) return base;
   const ultimate = autoSpecial(st, u, "ultimate");
   if (ultimate) return ultimate;
   const special = autoSpecial(st, u, "special");
@@ -714,9 +758,25 @@ export function applyAction(st: BattleState, action: Action) {
   if (!id) throw new Error("Combat terminé");
   const allowed = legalActions(st).find((x) => x.spell === action.spell);
   if (!allowed?.targets.includes(action.target)) throw new Error("Action impossible");
-  const u = unit(st, id);
+  resolveAction(st, unit(st, id), action, false);
+}
+
+/** Résout une action de `u`. `reaction` : lancée hors de son tour (ultime à la mort) : ni recharge, ni jauge, ni fin de tour. */
+function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boolean) {
   const { rng, opts, log } = st;
-  if (!u.continuingTurn) advanceCooldowns(u);
+  if (!reaction && action.spell !== "base" && hasFx(u, "seal")) {
+    // Sceau (Kurapika) : lancer un sort scellé est fatal
+    log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target });
+    u.hp = 0;
+    u.shield = 0;
+    log.push({ kind: "ko", target: u.id });
+    finishUnitTurn(st, u);
+    if (st.opts.gauge) st.gaugeActor = null;
+    else nextSlot(st);
+    currentActor(st);
+    return;
+  }
+  if (!reaction && !u.continuingTurn) advanceCooldowns(u);
 
   // Un bonus ignore-DEF reste applicable à tous les coups d'une même action (par exemple une zone).
   const pendingIgnoreFx = u.fx.find((f) => f.key === "ignoreDef");
@@ -760,7 +820,16 @@ export function applyAction(st: BattleState, action: Action) {
     });
     if (dmg > 0) { landedHit = true; struck.add(t); }
     if (t.hp === 0) log.push({ kind: "ko", target: t.id });
-    else if (t.side !== u.side && hasFx(t, "counter")) shadows.add(t);
+    else if (t.side !== u.side) {
+      if (hasFx(t, "counter")) shadows.add(t);
+      // Soif de sang (Denji) : soigné d'une part des dégâts reçus
+      const lust = fxKeySum(t, "bloodlust");
+      const back = Math.min(t.maxHp - t.hp, (dmg - absorbed) * lust);
+      if (lust > 0 && back > 0) {
+        t.hp += back;
+        log.push({ kind: "heal", source: t.id, target: t.id, amount: back, hp: t.hp });
+      }
+    }
     return dmg;
   };
   const heal = (t: Unit, amount: number) => {
@@ -771,7 +840,11 @@ export function applyAction(st: BattleState, action: Action) {
   /** Pose un effet durable ; un malus est refusé par l'immunité, et le silence par les boss. L'effet de même nature se renouvelle (le plus fort reste). */
   const addFx = (t: Unit, key: FxKey, amount: number, turns: number, stat?: ModStat) => {
     if (t.hp <= 0) return;
-    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun") && t.card.boss))) {
+    if ((key === "poison" || key === "burn") && DOT_IMMUNE.has(t.card.characterId)) {
+      log.push({ kind: "resist", target: t.id });
+      return;
+    }
+    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun" || key === "seal") && t.card.boss))) {
       log.push({ kind: "resist", target: t.id });
       return;
     }
@@ -844,7 +917,7 @@ export function applyAction(st: BattleState, action: Action) {
   const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : activeSpell?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}) });
   const target = action.target ? unit(st, action.target) : null;
-  if (action.spell === "ultimate") {
+  if (action.spell === "ultimate" && !reaction) {
     const spent = u.ultimateGauge;
     u.ultimateGauge = 0;
     log.push({ kind: "ultimateGauge", target: u.id, amount: -spent, current: 0, max: BATTLE.ultimateGaugeMax });
@@ -892,11 +965,16 @@ export function applyAction(st: BattleState, action: Action) {
     for (const e of activeSpell!.effects) {
       switch (e.k) {
         case "damage": {
-          const targets = e.zone ? alive(st, enemy(u.side)) : target ? [target] : [];
+          const foes = alive(st, enemy(u.side));
+          // Chaîne (Kanmuru) : la cible choisie d'abord, puis tous les autres ennemis
+          const targets = e.zone ? (e.ramp && target && target.hp > 0 ? [target, ...foes.filter((f) => f !== target)] : foes) : target ? [target] : [];
           let total = 0;
           // L'ignore-DEF peut grandir avec les PV manquants du lanceur (part de PV max manquants × ignoreMissing)
           const ignore = (e.ignoreDef ?? 0) + (e.ignoreMissing ?? 0) * (1 - u.hp / u.maxHp);
-          for (const t of targets) total += hit(t, e.mult, ignore, false, e.pierce, e.critSure);
+          for (const [i, t] of targets.entries()) {
+            const strikes = (e.hits ?? 1) + (e.extraHit && fxSum(t, "def") < 0 ? 1 : 0);
+            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure);
+          }
           if (e.drain) heal(u, total * e.drain);
           break;
         }
@@ -939,8 +1017,32 @@ export function applyAction(st: BattleState, action: Action) {
         case "counter":
           addFx(u, "counter", e.mult, e.turns);
           break;
+        case "bloodlust":
+          addFx(u, "bloodlust", e.pct, e.turns);
+          break;
+        case "resetCd":
+          for (const t of alive(st, u.side)) {
+            t.spellIn = Math.min(t.spellIn, SPELL_FIRST);
+            t.pIn = Math.min(t.pIn, SPELL_FIRST);
+            t.tIn = Math.min(t.tIn, SPELL_FIRST);
+          }
+          break;
+        case "seal":
+          for (const t of who("target")) addFx(t, "seal", 0, e.turns);
+          break;
+        case "steal":
+          for (const t of who("target")) {
+            if (t.card.boss || hasFx(t, "immune")) {
+              log.push({ kind: "resist", target: t.id });
+              continue;
+            }
+            t.side = u.side;
+            st.stolen++;
+            addFx(t, "controlled", 0, e.turns);
+          }
+          break;
         case "arise":
-          for (const dead of st.teams[u.side].filter((x) => x.hp <= 0)) {
+          for (const dead of fallen(st, u.side)) {
             u.revived = true;
             dead.hp = dead.maxHp * e.pct;
             dead.shield = 0;
@@ -1027,6 +1129,7 @@ export function applyAction(st: BattleState, action: Action) {
     u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : BATTLE.ultimateGaugePerHit));
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
+  if (reaction) return;
   if (activeSpell && hasCharacterSlots(u.card.rarity) && isSoloBuff(activeSpell)) {
     u.continuingTurn = true;
     for (const effect of u.fx) effect.fresh = false;

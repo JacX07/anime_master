@@ -51,6 +51,10 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "purge":
       case "taunt":
       case "arise":
+      case "resetCd":
+      case "bloodlust":
+      case "seal":
+      case "steal":
       case "counter":
       case "reduce": return effect;
     }

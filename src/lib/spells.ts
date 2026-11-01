@@ -10,8 +10,8 @@ export type Scope = "target" | "self" | "team" | "foes";
 export type ModStat = "atk" | "def" | "crit" | "dodge" | "speed";
 
 export type Effect =
-  /** Dégâts × ATK ; `zone` touche tous les ennemis ; `drain` rend au lanceur cette part des dégâts ; `pierce` traverse les boucliers (et l'esquive) */
-  | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; ignoreMissing?: number; pierce?: boolean; drain?: number; critSure?: boolean }
+  /** Dégâts × ATK ; `zone` touche tous les ennemis ; `drain` rend au lanceur cette part des dégâts ; `pierce` traverse les boucliers (et l'esquive) ; `ramp` (avec `zone`) : la cible choisie d'abord, puis les autres, +`ramp` de dégâts à chaque cible ; `hits` : nombre de frappes ; `extraHit` : une frappe de plus si la cible a de la DEF en moins */
+  | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; ignoreMissing?: number; pierce?: boolean; drain?: number; critSure?: boolean; ramp?: number; hits?: number; extraHit?: boolean }
   /** Bonus ou malus (amount négatif) de la stat, en part (0,2 = +20 %, ou +20 points de critique) */
   | { k: "mod"; stat: ModStat; amount: number; turns: number; to: Scope; count?: number }
   | { k: "heal"; pct: number; to: Scope }
@@ -30,6 +30,14 @@ export type Effect =
   | { k: "taunt"; turns: number }
   /** Dégâts subis réduits de `pct` pendant `turns` tours */
   | { k: "reduce"; pct: number; turns: number; to: Scope }
+  /** Remet à zéro les temps de recharge des sorts de l'équipe */
+  | { k: "resetCd" }
+  /** Le lanceur est soigné de `pct` des dégâts qu'il reçoit d'un ennemi, pendant `turns` tours */
+  | { k: "bloodlust"; pct: number; turns: number }
+  /** Scelle l'ennemi ciblé : s'il lance un sort (autre que l'attaque de base) avant la fin des `turns` tours, il meurt. Sans effet sur les boss. */
+  | { k: "seal"; turns: number }
+  /** Vole l'ennemi ciblé : il joue dans le camp du lanceur pendant `turns` tours ; s'il est le dernier survivant de son camp, il est exécuté. Sans effet sur les boss. */
+  | { k: "steal"; turns: number }
   /** Ressuscite tous les alliés morts en zombies (`pct` de leurs PV max) ; ils disparaissent si le lanceur meurt. Une fois par combat. */
   | { k: "arise"; pct: number }
   /** Contre-attaque du lanceur : chaque fois qu'un ennemi le frappe et qu'il survit, une ombre riposte (`mult` × ATK du lanceur), pendant `turns` tours */
@@ -405,6 +413,9 @@ export function describeEffect(e: Effect, detailed = false): string {
         e.ignoreMissing && `ignore ${pct(e.ignoreMissing)} de plus de la DEF × PV manquants du lanceur`,
         e.pierce && "traverse les boucliers",
         e.critSure && "coup critique assuré",
+        e.hits && e.hits > 1 && `${e.hits} frappes`,
+        e.extraHit && "une frappe de plus si la cible a de la DEF en moins",
+        e.ramp && `la cible choisie d'abord, puis les autres : +${pct(e.ramp)} de dégâts à chaque cible`,
         e.drain && `rend ${pct(e.drain)} des dégâts en PV`,
       ].filter(Boolean).join(", ");
     case "mod":
@@ -420,6 +431,10 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "revive": return `réanime un allié mort avec ${pct(e.pct)} de ses PV max (une fois par combat)`;
     case "taunt": return `provocation : les attaques à cible unique visent le lanceur, ${nx(e.turns)}`;
     case "reduce": return `dégâts subis −${pct(e.pct)} pour ${WHO[e.to]}, ${nx(e.turns)}`;
+    case "resetCd": return "remet à zéro les temps de recharge de l'équipe";
+    case "bloodlust": return `soigne le lanceur de ${pct(e.pct)} des dégâts qu'il reçoit des ennemis, ${nx(e.turns)}`;
+    case "seal": return `scelle l'ennemi : s'il lance un sort (hors attaque de base) pendant ${nx(e.turns)}, il meurt ; sans effet sur les boss`;
+    case "steal": return `vole un ennemi : il joue dans votre camp, ${nx(e.turns)} ; s'il est le dernier survivant de son camp, il est exécuté ; sans effet sur les boss`;
     case "arise": return `ressuscite tous les alliés morts en zombies avec ${pct(e.pct)} de leurs PV max (une fois par combat) ; ils disparaissent si le lanceur meurt`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;
   }
