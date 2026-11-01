@@ -1,6 +1,6 @@
 "use server";
 
-import { abandonBattle, autoTeam, BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, autoTeam, BattleError, equipArtifact, getBattle, getStoryProgress, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -47,4 +47,7 @@ export async function playAutoAction(battleId: string) {
 }
 export async function abandonBattleAction(battleId: string) {
   return run(async (id) => (await abandonBattle(id, String(battleId)), {}));
+}
+export async function equipArtifactAction(artifactId: string, cardId: string | null) {
+  return run(async (id) => (await equipArtifact(id, String(artifactId), cardId === null ? null : String(cardId)), {}));
 }

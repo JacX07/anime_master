@@ -29,6 +29,7 @@ const PLAY: NavItem[] = [
   { href: "/histoire", icon: "t-aventure", label: "Histoire" },
   { href: "/tour", icon: "nav-duels", label: "Tour" },
   { href: "/raid", icon: "nav-duels", label: "Raid" },
+  { href: "/donjons", icon: "t-combat", label: "Donjons" },
   { href: "/duels", icon: "nav-duels", label: "Duels" },
   { href: "/expeditions", icon: "unlock", label: "Expéditions" },
 ];
