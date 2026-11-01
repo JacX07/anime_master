@@ -82,7 +82,7 @@ export function StoryMap({ universes, stock, ready, pending, onFight }: {
         {universes.map((world) => (
           <section key={world.key} className="hs-map-world" aria-label={`Univers ${world.rank} : ${world.name}`} style={{
             "--hs-color": STORY_ART[world.key]?.color ?? "#80b4ff",
-            "--hs-art": `url("/story-map/${world.key}.svg")`,
+            "--hs-art": `url("${STORY_ART[world.key]?.background ?? `/story-map/${world.key}.svg`}")`,
           } as CSSProperties}>
             <header className="hs-map-world-head">
               <small>Univers {world.rank}{world.kind === "collision" ? " · Collision" : ""}{!world.unlocked ? " · Verrouillé" : ""}</small>

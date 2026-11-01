@@ -1,6 +1,6 @@
-// Décors provisoires : remplacer les SVG de public/story-map par les illustrations finales.
-export const STORY_ART: Record<string, { color: string; location: string }> = {
-  "one-piece": { color: "#59cbd6", location: "Grand Line" },
+// Décors du mode histoire ; les univers sans image gardent leur illustration SVG.
+export const STORY_ART: Record<string, { color: string; location: string; background?: string }> = {
+  "one-piece": { color: "#59cbd6", location: "Grand Line", background: "/story-map/one-piece.png" },
   "naruto": { color: "#eba25e", location: "Le pays du Feu" },
   "grand-concert": { color: "#e983d8", location: "La scène de collision" },
   "jujutsu-kaisen": { color: "#b28af0", location: "Le quartier condamné" },
