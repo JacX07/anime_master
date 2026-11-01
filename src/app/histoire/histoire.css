@@ -75,3 +75,13 @@
   .hs-map-selection h3 { font-size: .7rem; }
   .hs-map-selection > button { width: 100%; }
 }
+.hs-drops { margin: .75rem 0; padding: .75rem; background: #0b142488; border: 1px solid #304665; border-radius: 8px; }
+.hs-drops h4 { font-size: .75rem; font-weight: 600; margin: 0 0 .3rem; color: #d8e7ff; }
+.hs-drops ul { list-style: none; padding: 0; margin: .5rem 0; display: grid; gap: .4rem; }
+.hs-drops li { display: flex; align-items: center; gap: .4rem; font-size: .7rem; }
+.hs-drops li > span { flex: 1; }
+.hs-drops li small { display: block; font-size: .6rem; color: #8ea3c4; }
+.hs-drops li b { font-weight: 600; color: #84dfcb; white-space: nowrap; font-size: .65rem; }
+.hs-map-selection:has(.hs-drops) { align-items: flex-start; }
+.hs-map-selection:has(.hs-drops) > div { flex: 1; }
+@media (max-width: 600px) { .hs-map-selection:has(.hs-drops) > div { flex-basis: 100%; } }

@@ -4,6 +4,7 @@ import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES } from "@/lib/story";
 import { storyResume } from "@/lib/story-map";
 import type { UniverseView } from "./StoryBoard";
 import { STORY_ART } from "./story-art";
+import { StoryDrops } from "./StoryDrops";
 
 const points = [[130, 70], [270, 125], [430, 150], [535, 215], [370, 265]];
 const route = "M130 0V70C130 96 212 125 270 125S365 150 430 150 535 175 535 215 440 265 370 265 130 276 130 320";
@@ -124,6 +125,7 @@ export function StoryMap({ universes, stock, ready, pending, onFight }: {
           <small>Univers {u.rank} · Acte {Math.ceil(n / 5)} · Combat {n}</small>
           <h3>{u.name} · {isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}</h3>
           <p>Ennemis : {u.mixes[n - 1]?.join(" · ")} · ×{u.startScale.toFixed(2).replace(".", ",")} à ×{u.difficulty.toFixed(2).replace(".", ",")} des stats de leur rareté{u.rank === 1 ? " (tutoriel)" : ""}.</p>
+          <StoryDrops universeKey={u.key} level={n} cleared={n <= u.maxLevel} />
           <p className="hs-map-stock"><ResourceArt resource={u.resource} />{name(u.resource)} : {stock[u.resource] ?? 0} · <ResourceArt resource="fragment-de-signature" />{stock["fragment-de-signature"] ?? 0} fragments · <ResourceArt resource={u.weaponResource} />{name(u.weaponResource)} : {stock[u.weaponResource] ?? 0}</p>
           <p>{!u.unlocked ? "Termine l’univers précédent pour débloquer celui-ci." : !open ? "Remporte le combat précédent pour débloquer ce jalon." : !ready ? "Compose une équipe de 4 cartes pour combattre." : n <= u.maxLevel ? "Combat terminé · Rejouable" : "Prochain combat disponible"}</p>
         </div>

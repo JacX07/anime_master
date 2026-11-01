@@ -150,3 +150,16 @@ export function storyLoot(universe: Universe, level: number, firstClear: boolean
 /** Unités de ressource d'éveil d'un butin (celles qui comptent pour le plafond quotidien : les armes n'en font pas partie). */
 export const lootUnits = (loot: Loot, universe: Universe) =>
   Object.entries(loot.resources).reduce((s, [k, n]) => s + (k === universe.weaponResource ? 0 : n), 0);
+
+/** Aperçu calculé avec les mêmes règles que le butin versé ; le quota de rejeu peut réduire les quantités. */
+export function storyLootPreview(universe: Universe, level: number, firstClear: boolean) {
+  const full = storyLoot(universe, level, firstClear, DAILY_FULL_UNITS, () => 0.5);
+  const reduced = storyLoot(universe, level, firstClear, 0, () => 0.5);
+  return {
+    units: lootUnits(full, universe),
+    minUnits: lootUnits(reduced, universe),
+    ryo: full.ryo,
+    crystals: full.crystals,
+    weapon: full.resources[universe.weaponResource] ?? 0,
+  };
+}
