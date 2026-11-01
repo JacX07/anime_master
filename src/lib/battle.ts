@@ -165,6 +165,8 @@ export interface Action {
 
 /** Une carte en combat, telle que l'affichage la voit. */
 export interface UnitView {
+  /** Optionnel pour conserver la lecture des anciens journaux. */
+  boss?: boolean;
   id: UnitId;
   characterId: number;
   rarity: Rarity;
@@ -360,6 +362,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
 }
 
 const view = (u: Unit): UnitView => ({
+  ...(u.card.boss ? { boss: true } : {}),
   id: u.id, characterId: u.card.characterId, rarity: u.card.rarity, type: u.card.type,
   atk: u.atk, def: u.def, speed: u.speed, maxHp: u.maxHp, hp: u.hp, shield: u.shield,
   ultimateGauge: u.ultimateGauge, ultimateGaugeMax: BATTLE.ultimateGaugeMax,

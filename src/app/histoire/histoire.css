@@ -85,3 +85,4 @@
 .hs-map-selection:has(.hs-drops) { align-items: flex-start; }
 .hs-map-selection:has(.hs-drops) > div { flex: 1; }
 @media (max-width: 600px) { .hs-map-selection:has(.hs-drops) > div { flex-basis: 100%; } }
+.hs-map-boss-name { display: block; max-width: 170px; white-space: normal; text-align: center; font-weight: 600; font-size: .6rem; }

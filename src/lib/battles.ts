@@ -14,7 +14,7 @@ import { afterGain } from "./crystal-stock";
 import { startOfDay } from "./economy";
 import {
   baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, mixFor, storyLoot,
-  universeOf, UNIVERSES, type Loot, type Universe,
+  universeOf, UNIVERSES, STORY_BOSSES, type Loot, type Universe,
 } from "./story";
 import { bossOfWeek, DAILY_FULL_HEARTS, DIFFICULTIES, parseRaidKey, RAID_BOSS_BONUS, RAID_PREFIX, RAID_RESOURCE, raidHearts, type RaidBoss, type RaidDifficulty } from "./raid";
 import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./tower";
@@ -85,6 +85,9 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
   });
   if (rows.length < 4) throw new BattleError("Univers incomplet.");
   const means = await meanStats();
+  const fixed = STORY_BOSSES[universe.key]?.[level];
+  const fixedBoss = fixed ? rows.find((c) => c.id === fixed.characterId) : undefined;
+  if (fixed && !fixedBoss) throw new BattleError(`Boss indisponible : ${fixed.name}.`);
   const rng = seededRandom(universe.rank * 1000 + level);
   const used = new Set<number>();
   // Rareté demandée, à défaut la plus proche (d'abord plus basse)
@@ -92,15 +95,16 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
     const w = RARITY_ORDER.indexOf(want);
     const order = RARITY_ORDER.map((r, i) => ({ r, d: Math.abs(i - w) + (i > w ? 0.5 : 0) })).sort((a, b) => a.d - b.d);
     for (const { r } of order) {
-      const pool = rows.filter((c) => c.rarity === r && !used.has(c.id));
+      const pool = rows.filter((c) => c.rarity === r && !used.has(c.id) && c.id !== fixedBoss?.id);
       if (pool.length) return pool[popular ? 0 : Math.floor(rng() * pool.length)];
     }
-    return rows.find((c) => !used.has(c.id))!;
+    return rows.find((c) => !used.has(c.id) && c.id !== fixedBoss?.id)!;
   };
   return mixFor(universe, level).map((want, i) => {
     const boss = isBoss(level) && i === 3;
     let c: CharacterRow;
-    if (boss && isFinalBoss(level)) {
+    if (boss && fixedBoss) c = fixedBoss;
+    else if (boss && isFinalBoss(level)) {
       // Boss final : le SSR ou UR le plus aimé, à défaut un SR
       c = rows.filter((x) => !used.has(x.id) && (x.rarity === "SSR" || x.rarity === "UR"))[0] ?? pick("SR", true);
     } else c = pick(want, boss);

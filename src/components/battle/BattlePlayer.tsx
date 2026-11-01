@@ -500,8 +500,11 @@ function Unit({
       data-picked={picked || undefined}
       data-targetable={targetable || undefined}
       data-turn={turn || undefined}
+      data-boss={info.boss || undefined}
+      aria-label={`${ch?.name ?? id}${info.boss ? " · Boss" : ""}`}
       data-pos={id[1]}
       data-unit={id} data-rarity={info.rarity} data-type={info.type} data-ko={st.ko || undefined} data-acting={acting || undefined} data-aimed={aimed || undefined}>
+      {info.boss && <span className="bt-boss-badge">♛ Boss</span>}
       <div className="bt-card">
         {/* Image servie par le CDN AniList, comme sur les cartes de l'album */}
         {/* eslint-disable-next-line @next/next/no-img-element */}

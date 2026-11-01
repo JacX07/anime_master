@@ -878,3 +878,9 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 @keyframes sfx-orbitE{0.00%{transform:translate(90.0px,22.0px) scale(0.93)}6.25%{transform:translate(87.7px,25.4px) scale(0.99)}12.50%{transform:translate(81.2px,28.4px) scale(1.05)}18.75%{transform:translate(71.5px,30.3px) scale(1.09)}25.00%{transform:translate(60.0px,31.0px) scale(1.10)}31.25%{transform:translate(48.5px,30.3px) scale(1.09)}37.50%{transform:translate(38.8px,28.4px) scale(1.05)}43.75%{transform:translate(32.3px,25.4px) scale(0.99)}50.00%{transform:translate(30.0px,22.0px) scale(0.93)}56.25%{transform:translate(32.3px,18.6px) scale(0.86)}62.50%{transform:translate(38.8px,15.6px) scale(0.80)}68.75%{transform:translate(48.5px,13.7px) scale(0.76)}75.00%{transform:translate(60.0px,13.0px) scale(0.75)}81.25%{transform:translate(71.5px,13.7px) scale(0.76)}87.50%{transform:translate(81.2px,15.6px) scale(0.80)}93.75%{transform:translate(87.7px,18.6px) scale(0.86)}100.00%{transform:translate(90.0px,22.0px) scale(0.92)}}
 .bt-sfx .rim{animation-name:sfx-rim;opacity:0}
 @keyframes sfx-rim{0%{opacity:0}8%{opacity:1}45%{opacity:.6}70%,100%{opacity:0}}
+
+/* Le boss prend une vraie place plus large : carte, PV et effets gardent les mêmes coordonnées. */
+.bt-row:has(> .bt-unit[data-boss]) { display: flex; align-items: flex-end; padding-top: 1rem; }
+.bt-row:has(> .bt-unit[data-boss]) > .bt-unit { flex: 1; min-width: 0; }
+.bt-row:has(> .bt-unit[data-boss]) > .bt-unit[data-boss] { flex: 1.28; }
+.bt-boss-badge { position: absolute; z-index: 6; left: 50%; top: -.8rem; translate: -50% 0; padding: .1rem .55rem; border: 1px solid #ffb6b1; border-radius: 999px; background: #731d35; color: #ffe1bd; font-size: clamp(.5rem, 8cqw, .75rem); font-weight: 800; white-space: nowrap; box-shadow: 0 0 12px #ff3b4a55; pointer-events: none; }

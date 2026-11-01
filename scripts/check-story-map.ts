@@ -33,4 +33,8 @@ assert.equal((html.match(/aria-current="step"/g) ?? []).length, 1);
 assert.match(html, /data-universe="naruto" data-level="6"[^>]+aria-current="step"[^>]+aria-pressed="true"/);
 assert.match(html, /Univers 2 · Acte 2 · Combat 6/);
 assert.match(html, /La Nuit des Maudits/);
+assert.match(html, /one-piece-act-2\.png/);
+assert.match(html, /one-piece-act-3\.png/);
+assert.match(html, /Rob Lucci/);
+assert.match(html, /Donquixote Doflamingo/);
 console.log("✓ Carte rendue : 225 jalons, 45 actes et combat de reprise sélectionné dans le bon univers.");

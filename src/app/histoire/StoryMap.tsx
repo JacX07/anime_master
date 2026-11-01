@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ResourceArt } from "@/components/ResourceArt";
-import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES } from "@/lib/story";
+import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES, STORY_BOSSES } from "@/lib/story";
 import { storyResume } from "@/lib/story-map";
 import type { UniverseView } from "./StoryBoard";
 import { STORY_ART } from "./story-art";
@@ -89,9 +89,11 @@ export function StoryMap({ universes, stock, ready, pending, onFight }: {
               <h2>{world.name}</h2>
               <p>{STORY_ART[world.key]?.location}</p>
             </header>
-            {[1, 2, 3].map((act) => (
-              <div key={act} className="hs-map-act" data-key={world.key} data-act={act}>
-                <h3>Acte {act}<small>{act === 3 ? "Vers le boss final" : act === 2 ? "Au cœur de l’univers" : "Entrée dans l’univers"}</small></h3>
+            {[1, 2, 3].map((act) => {
+              const art = STORY_ART[world.key]?.acts?.[act];
+              return (
+              <div key={act} className="hs-map-act" data-key={world.key} data-act={act} style={art ? { "--hs-art": `url("${art.background}")` } as CSSProperties : undefined}>
+                <h3>Acte {act}<small>{art?.location ?? (act === 3 ? "Vers le boss final" : act === 2 ? "Au cœur de l’univers" : "Entrée dans l’univers")}</small></h3>
                 <svg className="hs-map-route" viewBox="0 0 720 320" preserveAspectRatio="none" aria-hidden="true">
                   <path d={route} stroke="#081323" strokeWidth="9" opacity=".8" />
                   <path d={route} stroke={world.maxLevel >= act * 5 ? "#00c8b4" : "#a1b7d4"} strokeWidth="2.5" strokeDasharray="3 8" opacity=".7" />
@@ -107,15 +109,16 @@ export function StoryMap({ universes, stock, ready, pending, onFight }: {
                       style={{ left: `${x / 720 * 100}%`, top: y }}
                       aria-current={current ? "step" : undefined}
                       aria-pressed={selected?.key === world.key && n === level}
-                      aria-label={`${world.name}, acte ${act}, ${isFinalBoss(level) ? "boss final" : isBoss(level) ? "boss d’acte" : "combat"} ${level}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}`}
+                      aria-label={`${world.name}${STORY_BOSSES[world.key]?.[level] ? ` · ${STORY_BOSSES[world.key][level].name}` : ""}, acte ${act}, ${isFinalBoss(level) ? "boss final" : isBoss(level) ? "boss d’acte" : "combat"} ${level}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}`}
                       onClick={() => setSelected({ key: world.key, level })}>
                       {isBoss(level) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }} /> : done ? "✓" : level}
-                      <small>{isFinalBoss(level) ? "Boss final" : isBoss(level) ? "Boss d’acte" : current ? "Vous êtes ici" : `${world.rank}-${level}`}{isBoss(level) && done ? " ✓" : ""}</small>
+                      <small>{isFinalBoss(level) ? "Boss final" : isBoss(level) ? "Boss d’acte" : current ? "Vous êtes ici" : `${world.rank}-${level}`}{isBoss(level) && done ? " ✓" : ""}{STORY_BOSSES[world.key]?.[level] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][level].name}</span>}</small>
                     </button>
                   );
                 })}
               </div>
-            ))}
+              );
+            })}
           </section>
         ))}
         <footer className="hs-map-end">Le bout du voyage · {universes.length} univers · {universes.length * LEVELS} combats</footer>
@@ -123,7 +126,7 @@ export function StoryMap({ universes, stock, ready, pending, onFight }: {
       {u && selected && <section className="hs-map-selection" aria-live="polite">
         <div>
           <small>Univers {u.rank} · Acte {Math.ceil(n / 5)} · Combat {n}</small>
-          <h3>{u.name} · {isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}</h3>
+          <h3>{u.name}{STORY_BOSSES[u.key]?.[n] ? ` · ${STORY_BOSSES[u.key][n].name}` : ""} · {isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}</h3>
           <p>Ennemis : {u.mixes[n - 1]?.join(" · ")} · ×{u.startScale.toFixed(2).replace(".", ",")} à ×{u.difficulty.toFixed(2).replace(".", ",")} des stats de leur rareté{u.rank === 1 ? " (tutoriel)" : ""}.</p>
           <StoryDrops universeKey={u.key} level={n} cleared={n <= u.maxLevel} />
           <p className="hs-map-stock"><ResourceArt resource={u.resource} />{name(u.resource)} : {stock[u.resource] ?? 0} · <ResourceArt resource="fragment-de-signature" />{stock["fragment-de-signature"] ?? 0} fragments · <ResourceArt resource={u.weaponResource} />{name(u.weaponResource)} : {stock[u.weaponResource] ?? 0}</p>

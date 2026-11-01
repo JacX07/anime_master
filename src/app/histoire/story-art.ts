@@ -1,6 +1,9 @@
 // Décors du mode histoire ; les univers sans image gardent leur illustration SVG.
-export const STORY_ART: Record<string, { color: string; location: string; background?: string }> = {
-  "one-piece": { color: "#59cbd6", location: "Grand Line", background: "/story-map/one-piece.png" },
+export const STORY_ART: Record<string, { color: string; location: string; background?: string; acts?: Record<number, { background: string; location: string }> }> = {
+  "one-piece": { color: "#59cbd6", location: "Grand Line", background: "/story-map/one-piece.png", acts: {
+    2: { background: "/story-map/one-piece-act-2.png", location: "Water Seven" },
+    3: { background: "/story-map/one-piece-act-3.png", location: "Dressrosa" },
+  } },
   "naruto": { color: "#eba25e", location: "Le pays du Feu" },
   "grand-concert": { color: "#e983d8", location: "La scène de collision" },
   "jujutsu-kaisen": { color: "#b28af0", location: "Le quartier condamné" },

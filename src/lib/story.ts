@@ -3,6 +3,14 @@
 import type { Rarity } from "../generated/prisma/enums";
 
 export const LEVELS = 15;
+/** Boss imposés par le scénario ; leurs stats restent celles du combat. */
+export const STORY_BOSSES: Record<string, Record<number, { characterId: number; name: string }>> = {
+  "one-piece": {
+    10: { characterId: 5677, name: "Rob Lucci" },
+    15: { characterId: 2754, name: "Donquixote Doflamingo" },
+  },
+};
+
 export const COMMON_RESOURCE = "fragment-de-signature";
 
 export interface Universe {
