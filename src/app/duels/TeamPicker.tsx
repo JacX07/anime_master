@@ -6,6 +6,7 @@ import { acceptDuelAction, createDuelAction, declineDuelAction } from "@/app/due
 import { RarityGem, Stat, TypeIcon } from "@/components/icons";
 import { TYPE_LABELS } from "@/lib/labels";
 import type { DuelCard } from "@/lib/duels";
+import { speedOf } from "@/lib/speed";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -68,6 +69,7 @@ export function TeamPicker({ cards, to, duelId }: { cards: DuelCard[]; to?: stri
                         <TypeIcon type={c.type} title={TYPE_LABELS[c.type].name} />
                         <Stat icon="atk">{num.format(c.attack)}</Stat>
                         <Stat icon="def">{num.format(c.defense)}</Stat>
+                        <Stat icon="speed" title={`Vitesse ${num.format(speedOf(c.characterId))}`}>{num.format(speedOf(c.characterId))}</Stat>
                       </span>
                     </div>
                     <span className="duel-order">
@@ -112,6 +114,7 @@ export function TeamPicker({ cards, to, duelId }: { cards: DuelCard[]; to?: stri
                 <span className="duel-stats vt-muted">
                   <Stat icon="atk">{num.format(c.attack)}</Stat>
                   <Stat icon="def">{num.format(c.defense)}</Stat>
+                  <Stat icon="speed" title={`Vitesse ${num.format(speedOf(c.characterId))}`}>{num.format(speedOf(c.characterId))}</Stat>
                 </span>
               </label>
             </li>

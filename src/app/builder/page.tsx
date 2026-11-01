@@ -5,6 +5,7 @@ import { cardRows } from "@/lib/spell-sim";
 import { builderEntries } from "@/lib/builder-catalog";
 import { SpellBuilder, type BuilderChar } from "./SpellBuilder";
 import "./builder.css";
+import { speedOf } from "@/lib/speed";
 
 export const metadata: Metadata = { title: "Spell Builder — Anime Masters", robots: { index: false } };
 
@@ -15,7 +16,7 @@ async function Loaded() {
   const chars: BuilderChar[] = rows.map((r) => {
     const o = over.get(r.id);
     return {
-      id: r.id, name: r.name, imageUrl: r.imageUrl, rarity: r.rarity as "SSR" | "UR", type: r.type, attack: r.attack, defense: r.defense,
+      id: r.id, name: r.name, imageUrl: r.imageUrl, rarity: r.rarity as "SSR" | "UR", type: r.type, attack: r.attack, defense: r.defense, speed: speedOf(r.id),
       spells: builderEntries(r.id, r.rarity, r.type, o?.spell),
     };
   });

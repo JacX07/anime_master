@@ -3,8 +3,10 @@ import { TYPE_LABELS } from "@/lib/labels";
 import { CardDeco } from "./CardDeco";
 import { Icon, RarityGem, Stat, TypeIcon } from "./icons";
 import type { Finish } from "@/lib/pull";
+import { speedOf } from "@/lib/speed";
 
 export interface CharacterCardProps {
+  characterId: number;
   name: string;
   imageUrl: string;
   rarity: Rarity;
@@ -30,6 +32,7 @@ const powerFmt = new Intl.NumberFormat("fr-FR");
 /** Carte d'un personnage : rareté (cadre), finition (effet), type et stats. */
 export function CharacterCard({
   name,
+  characterId,
   imageUrl,
   rarity,
   type,
@@ -81,6 +84,7 @@ export function CharacterCard({
             <span className="card-atkdef">
               <Stat icon="atk">{powerFmt.format(attack)}</Stat>
               <Stat icon="def">{powerFmt.format(defense)}</Stat>
+              <Stat icon="speed" title={`Vitesse ${powerFmt.format(speedOf(characterId))}`}>{powerFmt.format(speedOf(characterId))}</Stat>
             </span>
           </div>
         )}

@@ -94,7 +94,7 @@ export function SpellsPanel({
       <h3 className="bt-spells-title">
         {character?.name}{" "}
         <small>
-          ATK {num.format(Math.round(unit.atk))} · DEF {num.format(Math.round(unit.def))} · PV {num.format(Math.round(unit.maxHp))}
+          ATK {num.format(Math.round(unit.atk))} · DEF {num.format(Math.round(unit.def))} · VIT {num.format(Math.round(unit.speed))} · PV {num.format(Math.round(unit.maxHp))}
         </small>
         <small>
           {choose

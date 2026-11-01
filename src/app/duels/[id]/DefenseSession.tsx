@@ -124,6 +124,7 @@ export function DefenseSession({ duelId, started }: { duelId: string; started: b
           <TypeIcon type={q.card.type} title={TYPE_LABELS[q.card.type].name} />
           <Stat icon="atk">{num.format(q.card.attack)}</Stat>
           {q.card.defense !== null && <Stat icon="def">{num.format(q.card.defense)}</Stat>}
+          <Stat icon="speed" title={`Vitesse ${num.format(q.card.speed)}`}>{num.format(q.card.speed)}</Stat>
         </span>
       </aside>
       <section className="duel-question">

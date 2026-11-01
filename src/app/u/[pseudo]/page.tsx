@@ -79,7 +79,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
           <ul className="pf-showcase">
             {profile.showcase.map((e) => (
               <li key={e.id}>
-                <CharacterCard {...e} finish={e.owned?.best} count={undefined} />
+                <CharacterCard {...e} characterId={e.id} finish={e.owned?.best} count={undefined} />
               </li>
             ))}
           </ul>

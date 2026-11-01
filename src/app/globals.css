@@ -131,8 +131,8 @@ h3 {
 }
 .card-atkdef {
   display: flex;
-  gap: 4cqw;
-  font-size: 4.2cqw;
+  gap: 2cqw;
+  font-size: 3.7cqw;
   color: #c4c4d4;
 }
 .card-badge {

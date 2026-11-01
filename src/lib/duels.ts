@@ -6,6 +6,7 @@ import type { Prisma } from "../generated/prisma/client";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { checkAchievementsSafe } from "./achievements";
 import { prisma } from "./db";
+import { speedOf } from "./speed";
 import { generateQuestions, type QuestionPrompt } from "./duel-quiz";
 import {
   ANSWER_GRACE_MS,
@@ -143,7 +144,7 @@ export interface ServedQuestion {
   remainingMs: number;
   seconds: number;
   /** Carte attaquante : type, rareté et ATK toujours visibles ; image seulement si ce n'est pas une Mystère */
-  card: { type: CardType; rarity: Rarity; attack: number; defense: number | null; imageUrl: string | null };
+  card: { type: CardType; rarity: Rarity; attack: number; defense: number | null; speed: number; imageUrl: string | null };
 }
 
 const timeLimitMs = (type: CardType) => quizFormat(type).seconds * 1000;
@@ -180,7 +181,7 @@ export async function currentQuestion(userId: string, duelId: string, now = new 
       choices: q.choices as string[],
       remainingMs: Math.max(0, limit - (now.getTime() - servedAt.getTime())),
       seconds: limit / 1000,
-      card: { type: slot.type, rarity: ch.rarity, attack: slot.attack, defense: mystery ? null : slot.defense, imageUrl: mystery ? null : ch.imageUrl },
+      card: { type: slot.type, rarity: ch.rarity, attack: slot.attack, defense: mystery ? null : slot.defense, speed: speedOf(slot.characterId), imageUrl: mystery ? null : ch.imageUrl },
     };
   }
   await finishDefense(duelId, userId, now);

@@ -43,7 +43,7 @@ export function BulkSummary({ bulk, onClose }: { bulk: OpenedPack; onClose: () =
         </header>
         <div className="bulk-grid">
           {sorted.map((c) => (
-            <CharacterCard key={c.cardId} {...c} />
+            <CharacterCard key={c.cardId} {...c} characterId={c.characterId} />
           ))}
         </div>
         <footer>

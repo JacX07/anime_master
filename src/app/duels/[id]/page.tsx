@@ -9,6 +9,7 @@ import { duelCards, duelView, type DuelView } from "@/lib/duels";
 import { TYPE_LABELS } from "@/lib/labels";
 import { requireUser } from "@/lib/session";
 import { TeamPicker } from "../TeamPicker";
+import { speedOf } from "@/lib/speed";
 import { DefenseSession } from "./DefenseSession";
 import { Replay } from "./Replay";
 
@@ -53,6 +54,7 @@ function Team({ title, team }: { title: string; team: DuelView["myTeam"] }) {
                     <>
                       <Stat icon="atk">{num.format(s.attack)}</Stat>
                       <Stat icon="def">{num.format(s.defense)}</Stat>
+                      <Stat icon="speed" title={`Vitesse ${num.format(speedOf(s.character.id))}`}>{num.format(speedOf(s.character.id))}</Stat>
                     </>
                   )}
                 </span>

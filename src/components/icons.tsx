@@ -72,9 +72,9 @@ export function Money({ n, className = "" }: { n: number; className?: string }) 
 }
 
 /** Nombre précédé d'une icône (puissance, attaque, défense…). */
-export function Stat({ icon, children, accent }: { icon: IconName; children: ReactNode; accent?: string }) {
+export function Stat({ icon, children, accent, title }: { icon: IconName; children: ReactNode; accent?: string; title?: string }) {
   return (
-    <span className="stat">
+    <span className="stat" aria-label={title} role={title ? "img" : undefined}>
       <Icon name={icon} style={accent ? ({ "--acc": accent } as CSSProperties) : undefined} />
       {children}
     </span>

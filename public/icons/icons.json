@@ -168,6 +168,12 @@
    }
   ]
  },
+ "speed": {
+  "viewBox": "0 0 24 24",
+  "shapes": [
+   { "tag": "path", "attrs": { "d": "M3 7h10M1.5 12h13M3 17h10M14 5l6 7-6 7" } }
+  ]
+ },
  "ryo": {
   "viewBox": "0 0 24 24",
   "shapes": [

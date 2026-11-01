@@ -48,7 +48,7 @@ async function Cards() {
   const rows: AwakenRow[] = cards.map((c) => {
     const cost = awakenCost(c.character.rarity, c.stars + 1, universeOfFranchise(c.character.mainMedia?.franchiseId ?? c.character.mainMediaId));
     return {
-      id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity, type: c.character.type, attack: c.character.attack, defense: c.character.defense, power: c.character.power,
+      id: c.id, characterId: c.characterId, name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity, type: c.character.type, attack: c.character.attack, defense: c.character.defense, power: c.character.power,
       finish: c.finish, series: c.character.mainMedia ? c.character.mainMedia.titleEnglish ?? c.character.mainMedia.titleRomaji : null, stars: c.stars,
       duplicate: dupes.has(c.id) ? { available: dupes.get(c.id)! } : null,
       cost: cost.map((x) => ({ key: x.key, name: RESOURCE_NAMES[x.key] ?? x.key, quantity: x.quantity, have: have(x.key) })),

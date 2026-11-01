@@ -28,14 +28,14 @@ export function World({ world, filters }: { world: WorldBand; filters: Filters }
       <h2>{world.title}</h2>
       {star && (
         <div className="wd-star" style={{ "--rar": `var(--rarity-${star.rarity})` } as React.CSSProperties}>
-          <CharacterCard {...star} finish={star.owned?.best} count={star.owned?.count} stars={star.owned?.stars} missing={!star.owned} />
+          <CharacterCard {...star} characterId={star.id} finish={star.owned?.best} count={star.owned?.count} stars={star.owned?.stars} missing={!star.owned} />
         </div>
       )}
       {/* Au survol : quelques personnages du monde se déploient en éventail au-dessus de la tuile, la plus rare à droite et au premier plan */}
       <div className="wd-fan" aria-hidden>
         {[...world.preview].reverse().map((e) => (
           <div key={e.id}>
-            <CharacterCard {...e} finish={e.owned?.best} count={undefined} missing={!e.owned} />
+            <CharacterCard {...e} characterId={e.id} finish={e.owned?.best} count={undefined} missing={!e.owned} />
           </div>
         ))}
       </div>
@@ -60,7 +60,7 @@ export function CardItem({ entry: e }: { entry: AlbumEntry }) {
   return (
     <li>
       <Link href={`/character/${e.id}`} className="vt-card" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
-        <CharacterCard {...e} finish={e.owned?.best} count={e.owned?.count} stars={e.owned?.stars} missing={!e.owned} />
+        <CharacterCard {...e} characterId={e.id} finish={e.owned?.best} count={e.owned?.count} stars={e.owned?.stars} missing={!e.owned} />
       </Link>
     </li>
   );

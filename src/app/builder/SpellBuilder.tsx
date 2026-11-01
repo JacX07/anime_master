@@ -10,7 +10,7 @@ import { applyToGameAction, resetSpellAction, saveSpellAction } from "./actions"
 import type { SimResult } from "@/lib/spell-sim";
 
 export interface BuilderChar {
-  id: number; name: string; imageUrl: string; rarity: "SSR" | "UR"; type: string; attack: number; defense: number;
+  id: number; name: string; imageUrl: string; rarity: "SSR" | "UR"; type: string; attack: number; defense: number; speed: number;
   spells: BuilderEntry[];
 }
 
@@ -128,7 +128,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
 
       {ch && entry && value ? (
         <section className="sb-edit">
-          <h2>{ch.name} <small>{ch.rarity} · {ch.type} · ATK {ch.attack} / DEF {ch.defense}</small></h2>
+          <h2>{ch.name} <small>{ch.rarity} · {ch.type} · ATK {ch.attack} / DEF {ch.defense} / VIT {ch.speed}</small></h2>
           <div className="sb-actions" aria-label="Emplacement du sort">
             {ch.spells.map((s) => <button key={s.slot} type="button" className="bt-btn" aria-pressed={slot === s.slot} disabled={busy} onClick={() => pick(ch, s)}>{SLOT_LABELS[s.slot]}</button>)}
           </div>

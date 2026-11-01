@@ -169,6 +169,7 @@ export interface UnitView {
   type: CardType;
   atk: number;
   def: number;
+  speed: number;
   maxHp: number;
   hp: number;
   shield: number;
@@ -358,7 +359,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
 
 const view = (u: Unit): UnitView => ({
   id: u.id, characterId: u.card.characterId, rarity: u.card.rarity, type: u.card.type,
-  atk: u.atk, def: u.def, maxHp: u.maxHp, hp: u.hp, shield: u.shield,
+  atk: u.atk, def: u.def, speed: u.speed, maxHp: u.maxHp, hp: u.hp, shield: u.shield,
   ultimateGauge: u.ultimateGauge, ultimateGaugeMax: BATTLE.ultimateGaugeMax,
 });
 const enemy = (s: Side): Side => (s === "A" ? "B" : "A");

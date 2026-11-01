@@ -25,6 +25,7 @@ export interface TeamCard {
   type: CardType;
   attack: number;
   defense: number;
+  speed: number;
   stars: number;
   franchiseId: number | null;
   series: string | null;
@@ -158,7 +159,7 @@ function CardDialog({ card, slot, full, onClose, onToggle }: { card: TeamCard | 
               <b>{card.name}</b>
               <small>{card.series}</small>
               <small><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name} · {RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</small>
-              <small>ATK {num.format(card.attack)} · DEF {num.format(card.defense)}</small>
+              <small>ATK {num.format(card.attack)} · DEF {num.format(card.defense)} · VIT {num.format(card.speed)}</small>
             </figcaption>
           </figure>
           <div className="eq-dlg-spells">
@@ -321,7 +322,7 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
                   </span>
                   <span className="eq-name">{c.name}</span>
                   <small><TypeIcon type={c.type} /> {RARITY_NAMES[c.rarity]}{c.stars > 0 ? ` · ${c.stars}★` : ""}</small>
-                  <small>ATK {num.format(c.attack)} · DEF {num.format(c.defense)}</small>
+                  <small>ATK {num.format(c.attack)} · DEF {num.format(c.defense)} · VIT {num.format(c.speed)}</small>
                 </>
               ) : (
                 <span className="eq-empty">Vide</span>
@@ -350,7 +351,7 @@ export function TeamBuilder({ cards, saved }: { cards: TeamCard[]; saved: Record
           <p className="vt-muted">Ajoute des cartes pour voir les totaux et les synergies.</p>
         ) : (
           <ul>
-            <li>ATK {num.format(Math.round(total((c) => c.attack)))} · DEF {num.format(Math.round(total((c) => c.defense)))} (avant bonus de combat)</li>
+            <li>ATK {num.format(Math.round(total((c) => c.attack)))} · DEF {num.format(Math.round(total((c) => c.defense)))} · VIT {num.format(Math.round(total((c) => c.speed)))} (avant bonus de combat)</li>
             <li>Bonus de franchise : {franchise > 0 ? `+${Math.round(franchise * 100)} % d'ATK, de DEF et de PV` : "aucun (2 cartes du même anime : +3 %, 3 : +6 %, 4 : +10 %)"}</li>
             <li>Forte contre : {covered.length ? covered.map((t) => TYPE_LABELS[t].name).join(", ") : "—"}</li>
             {exposed.length > 0 && <li>Faible contre : {exposed.map((t) => TYPE_LABELS[t].name).join(", ")} (toute l&apos;équipe)</li>}

@@ -39,5 +39,5 @@ async function Illustrations() {
     },
   });
 
-  return <URGallery characters={characters.map(({ mainMedia, ...character }) => ({ ...character, series: seriesTitle(mainMedia) }))} />;
+  return <URGallery characters={characters.map(({ mainMedia, ...character }) => ({ ...character, characterId: character.id, series: seriesTitle(mainMedia) }))} />;
 }

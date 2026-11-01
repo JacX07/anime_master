@@ -118,7 +118,7 @@ export function PackOpener({ initialState }: { initialState: PlayerPackState }) 
                     <span className="text-2xl font-black tracking-widest text-[#8fb5ff]/70">AM</span>
                   </div>
                   <div className="flip-face flip-front" aria-hidden={!revealed[i]}>
-                    <CharacterCard {...card} />
+                    <CharacterCard {...card} characterId={card.characterId} />
                   </div>
                 </div>
               </div>

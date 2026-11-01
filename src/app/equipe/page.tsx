@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { getTeam } from "@/lib/battles";
 import { requireUser } from "@/lib/session";
+import { speedOf } from "@/lib/speed";
 import { TeamBuilder } from "./TeamBuilder";
 
 export const metadata: Metadata = { title: "Équipe — Anime Masters", robots: { index: false } };
@@ -56,6 +57,7 @@ async function Builder() {
         type: c.character.type,
         attack: c.character.attack,
         defense: c.character.defense,
+        speed: speedOf(c.character.id),
         stars: c.stars,
         franchiseId: c.character.mainMedia?.franchiseId ?? c.character.mainMediaId,
         series: c.character.mainMedia ? c.character.mainMedia.titleEnglish ?? c.character.mainMedia.titleRomaji : null,

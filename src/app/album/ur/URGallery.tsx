@@ -31,7 +31,7 @@ export function URGallery({ characters }: { characters: GalleryCharacter[] }) {
                 dialog.current?.showModal();
               }}
             >
-              <CharacterCard {...item} />
+              <CharacterCard {...item} characterId={item.id} />
             </button>
           </li>
         ))}
