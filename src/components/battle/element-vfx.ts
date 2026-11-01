@@ -7,7 +7,7 @@ type Pal = readonly [string, string, string, string];
 const PALETTES: Record<AttackElement, Pal> = {
   feu: ["#fff6cf", "#ffb63d", "#ec4a1f", "#6e170c"],
   eau: ["#effcff", "#77d8ff", "#2b82dc", "#123a7a"],
-  foudre: ["#ffffff", "#fff07a", "#ffc21f", "#4b2f8f"],
+  foudre: ["#ffffff", "#8fe3ff", "#2f9bff", "#16337d"],
   air: ["#ffffff", "#d6fff0", "#86e2c0", "#2a6e5e"],
   terre: ["#f3dcaa", "#bb8b52", "#7a5530", "#33220f"],
 };
@@ -19,12 +19,12 @@ interface Particle {
   col: string; a0: number; grow: number; flat: number; ground: number; curl: number; tx: number; ty: number;
 }
 interface Decal { k: "scorch" | "puddle" | "burn" | "crater"; x: number; s: number; life: number; max: number; seed: number[] }
-interface Slab { dx: number; h: number; w: number; tilt: number; delay: number; pts: number[][]; crack: number[][] }
+interface Spike { x: number; y: number; h: number; w: number; lean: number; d: number; up: boolean; gone: boolean }
 interface Effect {
   element: AttackElement; style: "magic" | "slash" | "melee"; c: Pal;
   ox: number; oy: number; k: number; ax: number; ay: number; gy: number; cw: number; ch: number;
   start: number; T: number; power: number; dodge: boolean;
-  P: Particle[]; D: Decal[]; trail: number[][]; hit: boolean; bolt: number[][] | null; slabs: Slab[] | null; crumbled: boolean;
+  P: Particle[]; D: Decal[]; trail: number[][]; hit: boolean; bolt: number[][] | null; spikes: Spike[] | null;
 }
 export interface ElementHit {
   element: AttackElement;
@@ -91,7 +91,7 @@ export class ElementVfx {
       ox: hit.to.x, oy: hit.to.y, k, ax: (hit.from.x - hit.to.x) / k, ay: (hit.from.y - hit.to.y) / k,
       gy: hit.card.h / k / 2 + 4, cw: hit.card.w / k, ch: hit.card.h / k,
       start: this.clock, T, power: (hit.style === "magic" ? 1 : .7) * Math.min(1.35, hit.intensity ?? 1), dodge: !!hit.dodge,
-      P: [], D: [], trail: [], hit: false, bolt: null, slabs: null, crumbled: false,
+      P: [], D: [], trail: [], hit: false, bolt: null, spikes: null,
     });
     if (!hit.dodge && (hit.element === "terre" || hit.element === "foudre")) this.shake(hit.element === "terre" ? 7 : 4, hit.impactAt);
     if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame(this.frame); }
@@ -342,7 +342,7 @@ export class ElementVfx {
           if (t > T - .02 && t < T + .22) {
             const pts = this.bolt(sx, sy, 0, 0, 40); e.bolt = pts;
             this.additive(() => {
-              this.stroke(pts, 22, "rgba(255,220,90,.18)"); this.stroke(pts, 10, "rgba(255,230,120,.45)"); this.stroke(pts, 5, c[1]); this.stroke(pts, 2, "#fff");
+              this.stroke(pts, 22, "rgba(47,155,255,.2)"); this.stroke(pts, 10, "rgba(120,200,255,.5)"); this.stroke(pts, 5, c[1]); this.stroke(pts, 2, "#fff");
               for (let i = 0; i < 4; i++) { const s = pts[2 + i * 2]; this.stroke(this.bolt(s[0], s[1], s[0] + nx * R(-70, 70) + dx * R(30, 90), s[1] + ny * R(-70, 70) + dy * R(30, 90), 16, 6), 2, c[2]); }
               this.stroke(this.bolt(0, 0, R(-30, 30), e.gy, 12, 6), 3, c[1]);
             });
@@ -350,17 +350,8 @@ export class ElementVfx {
           } else if (e.bolt && t > T && t < T + .55) this.additive(() => { x.globalAlpha = .35 * (1 - seg(t, T + .22, T + .55)); this.stroke(e.bolt!, 3, c[2]); x.globalAlpha = 1; });
         }
       } else if (e.element === "terre") {
-        // Fissure qui court du pied de l'attaquant au pied de la cible
-        const k = seg(t, T - .4, T);
-        if (k > 0 && k < 1) {
-          const x0 = e.ax, y0 = e.ay + e.gy, fx = x0 + (0 - x0) * eo(k), fy = y0 + (e.gy - y0) * eo(k), pts: number[][] = [[x0, y0]];
-          for (let i = 1; i <= 14; i++) { const q = i / 14 * eo(k); pts.push([x0 + (0 - x0) * q + nx * R(-4, 4), y0 + (e.gy - y0) * q + ny * R(-4, 4)]); }
-          this.stroke(pts, 4, "rgba(0,0,0,.85)"); x.globalAlpha = .7; this.stroke(pts.map((p) => [p[0], p[1] - 2]), 1.2, c[1]); x.globalAlpha = 1;
-          this.additive(() => this.glow(fx, fy, 30, c[1], .5));
-          if (Math.random() < .7) add({ k: "chunk", x: fx, y: fy - 4, vx: R(-40, 40), vy: R(-240, -120), g: 1100, max: .6, s: R(3, 6), vr: 5, col: c[2] });
-          if (Math.random() < .5) add({ k: "smoke", x: fx, y: fy - 8, vy: -25, vx: R(-20, 20), max: .8, s: R(16, 26), col: "#a88a62", a0: .5 });
-        }
-        if (t > T - .02 && !e.dodge) this.slabs(t);
+        // Pointes de roche qui jaillissent en rafale du pied de l'attaquant jusqu'à la cible
+        if (t > T - .3 && !e.dodge) this.spikes(t);
       } else if (!e.dodge || t < T) {
         const k = seg(t, T - .45, T);
         if (k > 0 && k < 1) {
@@ -415,40 +406,38 @@ export class ElementVfx {
   }
 
   /** Dalles de roche qui jaillissent sous la cible, tremblent puis s'effondrent en éboulis. */
-  private slabs(t: number) {
-    const e = this.e, x = this.x, c = e.c, T = e.T, gy = e.gy;
-    if (!e.slabs) e.slabs = ([[-74, 48, 42, -.32], [-30, 112, 60, -.1], [22, 132, 64, .08], [68, 78, 48, .28], [104, 40, 32, .5]] as const).map(([dx, h, w, tilt], j) => ({
-      dx, h, w, tilt: tilt + R(-.06, .06), delay: j % 2 * .04 + R(0, .03),
-      pts: [[-w / 2, 0], [-w / 2 + R(0, 6), -h * R(.55, .75)], [-w * R(.1, .25), -h], [w * R(.15, .3), -h * R(.82, .95)], [w / 2 - R(0, 5), -h * R(.35, .55)], [w / 2, 0]],
-      crack: [[R(-w * .2, w * .1), -h * .7], [R(-w * .1, w * .2), -h * .45], [R(-w * .25, w * .05), -h * .2]],
-    }));
-    const crumble = T + .6;
-    if (t < crumble) {
-      for (const sl of e.slabs) {
-        const k = seg(t, T - .02 + sl.delay, T + .14 + sl.delay); if (k <= 0) continue;
-        const ease = 1 + 2.70158 * (k - 1) ** 3 + 1.70158 * (k - 1) ** 2, Q = sl.pts, tr = t > crumble - .14 ? R(-1.5, 1.5) : 0;
-        x.save(); x.translate(sl.dx + tr, gy); x.rotate(sl.tilt * Math.min(1, ease)); x.scale(1, Math.max(.01, ease));
-        const outline = () => { x.beginPath(); Q.forEach((q, i) => i ? x.lineTo(q[0], q[1]) : x.moveTo(q[0], q[1])); x.closePath(); };
-        outline(); x.fillStyle = c[2]; x.fill(); x.save(); x.clip();
-        x.fillStyle = c[1]; x.beginPath(); x.moveTo(Q[0][0], 0); x.lineTo(Q[1][0], Q[1][1]); x.lineTo(Q[2][0], Q[2][1]); x.lineTo(Q[2][0] + sl.w * .12, -sl.h * .45); x.lineTo(-sl.w * .1, 0); x.fill();
-        x.fillStyle = "rgba(25,12,0,.5)"; x.beginPath(); x.moveTo(Q[3][0], Q[3][1]); x.lineTo(Q[4][0], Q[4][1]); x.lineTo(Q[5][0], 0); x.lineTo(sl.w * .16, 0); x.lineTo(Q[3][0] - sl.w * .06, -sl.h * .5); x.fill();
-        x.strokeStyle = "rgba(40,22,8,.45)"; x.lineWidth = 1.5;
-        for (let i = 1; i < 5; i++) { x.beginPath(); x.moveTo(-sl.w, -sl.h * i / 5 + 3); x.lineTo(sl.w, -sl.h * i / 5 - 3); x.stroke(); }
-        for (let i = 0; i < 10; i++) { x.fillStyle = i % 2 ? "rgba(0,0,0,.25)" : "rgba(255,240,210,.25)"; x.fillRect(((i * 37) % sl.w) - sl.w / 2, -((i * 53) % sl.h), 2, 2); }
-        const sh = x.createLinearGradient(0, 0, 0, -sl.h); sh.addColorStop(0, "rgba(0,0,0,.55)"); sh.addColorStop(.35, "rgba(0,0,0,0)"); x.fillStyle = sh; x.fillRect(-sl.w, -sl.h, sl.w * 2, sl.h);
-        x.restore();
-        outline(); x.lineWidth = 3; x.strokeStyle = INK; x.stroke();
-        x.strokeStyle = c[0]; x.lineWidth = 2; x.beginPath(); x.moveTo(Q[1][0] + 2, Q[1][1] + 2); x.lineTo(Q[2][0], Q[2][1] + 2); x.lineTo(Q[3][0] - 1, Q[3][1] + 2); x.stroke();
-        this.stroke([[Q[2][0], Q[2][1] + 2], ...sl.crack], 1.5, INK);
-        x.restore();
-        x.fillStyle = "#2c2015"; x.beginPath(); x.ellipse(sl.dx, gy - 1, sl.w * .8, 6, 0, 0, 7); x.fill();
+  private spikes(t: number) {
+    const e = this.e, x = this.x, c = e.c, T = e.T, gy = e.gy, add = this.add.bind(this);
+    const x0 = e.ax, y0 = e.ay + gy;
+    if (!e.spikes) e.spikes = Array.from({ length: 7 }, (_, i) => {
+      const f = .2 + .8 * i / 6;
+      return { x: x0 * (1 - f), y: y0 + (gy - y0) * f, h: (36 + i * 15) * 1.2, w: (24 + i * 3.5) * 1.2, lean: R(-.12, .12), d: i * .045, up: false, gone: false };
+    });
+    for (const p of e.spikes) {
+      const t0 = T - .27 + p.d, k = seg(t, t0, t0 + .12); if (k <= 0 || p.gone) continue;
+      if (!p.up) {
+        p.up = true;
+        add({ k: "smoke", x: p.x, y: p.y - 4, vy: -25, vx: R(-20, 20), drag: .97, vr: R(-1, 1), max: .5, s: 16 + p.h * .2, col: "#a88a62", a0: .5 });
+        for (let i = 0; i < 3; i++) add({ k: "chunk", x: p.x, y: p.y - 4, vx: R(-90, 90), vy: R(-220, -100), g: 1000, max: .6, s: R(3, 5), vr: R(-8, 8), col: c[2], ground: 3 });
       }
-    } else if (!e.crumbled) {
-      e.crumbled = true;
-      for (const sl of e.slabs) {
-        for (let i = 0; i < 16; i++) { const hy = R(.05, .95) * sl.h; this.add({ k: "chunk", x: sl.dx + R(-sl.w / 2, sl.w / 2) * (1 - hy / sl.h) + Math.sin(sl.tilt) * hy, y: gy - hy, vx: R(-90, 90), vy: R(-160, 10), g: 1100, max: R(.8, 1.4), s: R(4, 10) * (1 + sl.w / 80), vr: R(-8, 8), col: c[1 + (i % 3)], ground: 3 }); }
-        for (let i = 0; i < 3; i++) this.add({ k: "smoke", x: sl.dx + R(-20, 20), y: gy - R(10, sl.h * .6), vx: R(-40, 40), vy: R(-40, -10), drag: .96, vr: R(-1, 1), max: R(1, 1.6), s: R(30, 50), col: "#a88a62", a0: .6 });
+      if (t > T + .45 + p.d) {
+        p.gone = true;
+        for (let i = 0; i < 5; i++) add({ k: "chunk", x: p.x + R(-p.w / 2, p.w / 2), y: p.y - R(5, p.h), vx: R(-60, 60), vy: R(-90, 0), g: 1000, max: R(.6, .9), s: R(4, 7), vr: R(-8, 8), col: c[1 + (i % 3)], ground: 3 });
+        continue;
       }
+      const h = p.h * Math.max(.01, 1 + 2.2 * (k - 1) ** 3 + 1.2 * (k - 1) ** 2), w = p.w;
+      // fissure incandescente à la base
+      this.additive(() => this.glow(p.x, p.y, w * .9, "#ff9a2e", .5 * (1 - seg(t, t0 + .1, t0 + .35))));
+      x.save(); x.translate(p.x, p.y); x.rotate(p.lean);
+      const J = [[-w / 2, 0], [-w * .42, -h * .45], [-w * .2, -h * .62], [w * .05, -h], [w * .22, -h * .58], [w * .45, -h * .4], [w / 2, 0]];
+      x.beginPath(); J.forEach((q, i) => i ? x.lineTo(q[0], q[1]) : x.moveTo(q[0], q[1])); x.closePath(); x.fillStyle = c[1]; x.fill();
+      x.save(); x.clip();
+      x.fillStyle = "rgba(25,12,0,.55)"; x.beginPath(); x.moveTo(w * .05, -h); x.lineTo(w * .22, -h * .58); x.lineTo(w * .45, -h * .4); x.lineTo(w / 2, 0); x.lineTo(w * .03, 0); x.fill();
+      x.fillStyle = c[0]; x.globalAlpha = .55; x.beginPath(); x.moveTo(-w * .42, -h * .45); x.lineTo(-w * .2, -h * .62); x.lineTo(w * .05, -h); x.lineTo(-w * .02, -h * .5); x.fill(); x.globalAlpha = 1;
+      x.restore();
+      x.lineWidth = 2.5; x.strokeStyle = INK; x.stroke();
+      this.stroke([[-w * .05, -h * .1], [w * .02, -h * .3], [-w * .04, -h * .5]], 1.3, INK);
+      x.restore();
     }
   }
 }
