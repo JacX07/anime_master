@@ -3,7 +3,8 @@
 
 import { applyAction, autoAction, createBattle, currentActor, type BattleCard, type Random } from "../src/lib/battle";
 import { holdFor, replayAll } from "../src/lib/battle-replay";
-import { attackVisual } from "../src/lib/attack-visual";
+import { attackVisual, ATTACK_VISUALS, attackWeapon } from "../src/lib/attack-visual";
+import { BASIC_ATTACK_ROSTER } from "../src/lib/basic-attack-roster";
 import { strict as assert } from "node:assert";
 
 assert.equal(attackVisual(127212), "melee");
@@ -14,6 +15,11 @@ assert.equal(attackVisual(422), "slash");
 assert.equal(attackVisual(62), "slash");
 assert.equal(attackVisual(458), "gun");
 assert.equal(attackVisual(-1), "melee");
+assert.deepEqual(Object.keys(ATTACK_VISUALS).sort(), Object.keys(BASIC_ATTACK_ROSTER).sort(), "Every SSR/UR needs an explicit visual style");
+assert.equal(attackVisual(305), "melee");
+assert.equal(attackVisual(12), "melee");
+assert.equal(attackWeapon(422), "greatsword");
+assert.equal(attackWeapon(62), "katana");
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
