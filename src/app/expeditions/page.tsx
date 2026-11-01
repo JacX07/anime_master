@@ -1,3 +1,4 @@
+import { modeLockPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SceneBody } from "@/components/SceneBody";
@@ -21,6 +22,8 @@ export default function ExpeditionsPage() {
 
 async function Expeditions() {
   const user = await requireUser();
+  const locked = await modeLockPanel(user.id, "expeditions");
+  if (locked) return locked;
   const [state, cards] = await Promise.all([
     expeditionState(user.id),
     prisma.card.findMany({

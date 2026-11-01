@@ -1,3 +1,4 @@
+import { getAdventure } from "@/lib/adventure-state";
 import Link from "next/link";
 import { Suspense } from "react";
 import { signOut } from "@/app/auth-actions";
@@ -26,7 +27,7 @@ export async function UserMenu() {
       </div>
     );
   }
-  const [wallet, packs] = await Promise.all([getWallet(user.id), getPackState(user.id)]);
+  const [wallet, packs, adventure] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id)]);
   return (
     <form action={signOut} className="site-res">
       {wallet.canClaimBonus && <DailyBonus />}
@@ -45,6 +46,9 @@ export async function UserMenu() {
       <Suspense fallback={null}>
         <NotificationBell userId={user.id} />
       </Suspense>
+      <Link href="/quetes" className="site-link" title={`${adventure.rank.name} · ${adventure.xp} XP`}>
+        Arpenteur niv. {adventure.level}
+      </Link>
       <Link href={`/u/${encodeURIComponent(user.username)}`} className="site-link">
         Profil
       </Link>

@@ -30,6 +30,8 @@ async function main() {
   const stamp = Date.now(), uid = `exp-${stamp}`;
   const pulls = new Map<number, number>();
   const user = await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
+  // Ces tests isolent le mode ; les conditions d’accès sont testées par check:adventure.
+  await prisma.adventureRecord.create({ data: { userId: uid, key: "access:expeditions" } });
   try {
     const chars = await prisma.character.findMany({ where: { disabled: false, rarity: "SR" }, take: 12, select: { id: true, pullCount: true } });
     const opening = await prisma.packOpening.create({ data: { userId: uid, lotSize: 5, pityTriggered: "NONE" } });

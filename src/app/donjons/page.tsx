@@ -1,3 +1,4 @@
+import { modeLockPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SceneBody } from "@/components/SceneBody";
@@ -16,6 +17,8 @@ export default function DungeonsPage() {
 
 async function Dungeon() {
   const user = await requireUser();
+  const locked = await modeLockPanel(user.id, "dungeon");
+  if (locked) return locked;
   const [state, boss] = await Promise.all([
     getDungeonState(user.id),
     prisma.character.findFirst({ where: { disabled: false, rarity: "UR", mainMedia: { franchiseId: 21 } }, orderBy: [{ favourites: "desc" }, { id: "asc" }], select: { name: true, imageUrl: true } }),

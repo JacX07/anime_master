@@ -1,3 +1,4 @@
+import { adventureLock } from "./adventure-state";
 // Combats 4 contre 4 côté serveur (docs/specs/combat.md §10) : équipe d'attaque enregistrée, lancement, mode manuel, abandon.
 // Le moteur (battle.ts) est pur ; ici on lit les cartes, on enregistre le combat et on rejoue l'état à chaque action.
 // Mode manuel : seul le camp A (le joueur) est choisi ; le camp B joue avec la stratégie automatique. L'état n'est jamais
@@ -577,6 +578,11 @@ export async function sweepBattles(now = new Date()) {
 
 /** Lance un combat avec l'équipe d'attaque du joueur. Automatique : calculé en entier. Manuel : un seul en cours à la fois. */
 export async function startBattle(userId: string, opponent: string, manual: boolean, now = new Date()): Promise<BattleView> {
+  const adventureMode = opponent.startsWith("dungeon:") ? "dungeon" : opponent.startsWith("raid:") ? "raid" : opponent.startsWith("tower:") ? "tower" : null;
+  if (adventureMode) {
+    const locked = await adventureLock(userId, adventureMode);
+    if (locked) throw new BattleError(locked);
+  }
   await sweepBattles(now);
   const slots = await getAttackTeam(userId);
   if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");

@@ -1,3 +1,4 @@
+import { modeLockPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -23,6 +24,8 @@ export default function TowerPage() {
 
 async function Tower() {
   const user = await requireUser();
+  const locked = await modeLockPanel(user.id, "tower");
+  if (locked) return locked;
   const [maxFloor, team, top] = await Promise.all([getTowerFloor(user.id), getAttackTeam(user.id), towerLeaderboard(10)]);
   return (
     <div className="vt-inner">

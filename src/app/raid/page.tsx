@@ -1,3 +1,4 @@
+import { modeLockPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -23,6 +24,8 @@ export default function RaidPage() {
 
 async function Raid() {
   const user = await requireUser();
+  const locked = await modeLockPanel(user.id, "raid");
+  if (locked) return locked;
   const now = new Date();
   const [state, team] = await Promise.all([getRaidState(user.id, now), getAttackTeam(user.id)]);
   const leader = await prisma.character.findFirst({

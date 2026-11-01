@@ -1,3 +1,4 @@
+import { adventureLock } from "./adventure-state";
 // Expéditions (SPEC étape 4 ter) : une équipe de 1 à 3 cartes explore une brèche pendant 1, 6 ou 24 h, puis le joueur récupère le butin.
 // Le résultat se calcule à la récupération depuis une graine tirée au lancement (recharger ne change rien). Les passages d'état sont
 // conditionnels (updateMany) : un double clic ne paie jamais deux fois.
@@ -21,6 +22,8 @@ type Tx = Prisma.TransactionClient;
 export const usedSlots = (userId: string, db: Tx | typeof prisma = prisma) => db.expedition.count({ where: { userId, status: "RUNNING" } });
 
 export async function startExpedition(userId: string, breachId: string, cardIds: string[], now = new Date()) {
+  const locked = await adventureLock(userId, "expeditions");
+  if (locked) throw new ExpeditionError(locked);
   const breach = breachById(breachId);
   if (!breach) throw new ExpeditionError("Brèche inconnue.");
   const ids = [...new Set(cardIds)];

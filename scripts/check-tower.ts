@@ -18,6 +18,8 @@ async function main() {
   const uid = `twr-${Date.now()}`;
   const pulls = new Map<number, number>();
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
+  // Ces tests isolent le mode ; les conditions d’accès sont testées par check:adventure.
+  await prisma.adventureRecord.create({ data: { userId: uid, key: "access:tower" } });
   try {
     const opening = await prisma.packOpening.create({ data: { userId: uid, lotSize: 5, pityTriggered: "NONE" } });
     const give = async (characterId: number) => {
@@ -37,8 +39,7 @@ async function main() {
     await team("SR");
     check("Étage 2 verrouillé tant que le 1 n'est pas gagné", await rejects(startBattle(uid, "tower:2", false)));
     check("Étage hors limites refusé", await rejects(startBattle(uid, "tower:0", false)) && await rejects(startBattle(uid, "tower:501", false)));
-    const money = async () => (await prisma.user.findUniqueOrThrow({ where: { id: uid }, select: { balance: true } })).balance;
-    const base = await money();
+
     const a = await startBattle(uid, "tower:1", false), b = await startBattle(uid, "tower:1", false);
     check("Étage 1 : mêmes ennemis à chaque fois", JSON.stringify(Object.values(a.characters).slice(4)) === JSON.stringify(Object.values(b.characters).slice(4)));
     const rows = await prisma.battle.findMany({ where: { userId: uid }, orderBy: { createdAt: "asc" } });
@@ -51,7 +52,8 @@ async function main() {
       if (r.winner === "A") wins++;
     }
     check("Étage 1 gagné", (await getTowerFloor(uid)) === 1);
-    check("Ryō versés une seule fois (premier passage)", (await money()) - base === towerRyo(1), `${(await money()) - base} Ryō`);
+    const towerPaid = (await prisma.currencyLedger.aggregate({ where: { userId: uid, reason: "TOWER" }, _sum: { amount: true } }))._sum.amount ?? 0;
+    check("Ryō de Tour versés une seule fois (hors niveaux d’Arpenteur)", towerPaid === towerRyo(1), `${towerPaid} Ryō`);
     check("Étage 2 déverrouillé", !(await rejects(startBattle(uid, "tower:2", false))));
 
     // Mode manuel jusqu'au bout

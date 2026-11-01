@@ -46,6 +46,8 @@ async function main() {
   }));
   const uid = `dg-${Date.now()}`;
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
+  // Ces tests isolent le mode ; les conditions d’accès sont testées par check:adventure.
+  await prisma.adventureRecord.create({ data: { userId: uid, key: "access:dungeon" } });
   try {
     const opening = await prisma.packOpening.create({ data: { userId: uid, lotSize: 5, pityTriggered: "NONE" } });
     let serial = 920000 + Math.floor(Math.random() * 50000);

@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { abandonBattle, autoTeam, BattleError, equipArtifact, getBattle, getStoryProgress, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
@@ -9,7 +11,9 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
-    return { ok: true, ...(await fn(user.id)) };
+    const result = await fn(user.id);
+    if ("battle" in result && result.battle && typeof result.battle === "object" && "status" in result.battle && result.battle.status !== "RUNNING") revalidatePath("/", "layout");
+    return { ok: true, ...result };
   } catch (err) {
     if (err instanceof BattleError) return { ok: false, error: err.message };
     console.error("Échec de l'action de combat :", err);

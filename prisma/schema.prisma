@@ -161,6 +161,7 @@ model User {
   auctionsLeading     Auction[]              @relation("AuctionLeader")
   bids                Bid[]
   wishlist            WishlistItem[]
+  adventureRecords    AdventureRecord[]
   achievements        UserAchievement[]
   /// Titre équipé : clé du succès dont il vient (affiché à côté du pseudo)
   title               String?
@@ -847,4 +848,14 @@ model MechanicJob {
   log         String   @default("")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+/// Objectifs d’Arpenteur validés une seule fois ; XP et récompenses restent acquises.
+model AdventureRecord {
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key String
+  xp Int @default(0)
+  createdAt DateTime @default(now())
+  @@id([userId, key])
 }
