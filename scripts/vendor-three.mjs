@@ -10,3 +10,8 @@ mkdirSync(`${out}/build`, { recursive: true });
 for (const f of ["three.module.js", "three.core.js"]) cpSync(`${src}/build/${f}`, `${out}/build/${f}`);
 // Seuls les dossiers d'extensions utilisés par public/pack-opening (et ce qu'ils importent)
 for (const d of ["postprocessing", "shaders", "environments", "geometries", "objects", "utils"]) cpSync(`${src}/examples/jsm/${d}`, `${out}/addons/${d}`, { recursive: true });
+
+// PixiJS (effets 2D) : même principe, un seul module ESM minifié
+const pixi = JSON.parse(readFileSync("node_modules/pixi.js/package.json", "utf8")).version;
+mkdirSync(`public/vendor/pixi.js@${pixi}`, { recursive: true });
+cpSync("node_modules/pixi.js/dist/pixi.min.mjs", `public/vendor/pixi.js@${pixi}/pixi.min.mjs`);

@@ -1,0 +1,254 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sort de feu · Alchimie de la flamme (PixiJS)</title><style>
+*{box-sizing:border-box}body{margin:0;padding:16px;font:14px system-ui;color:#e3eaf7;background:#0d131d}
+h1{font-size:16px;margin:0 0 4px}p{font-size:12px;color:#9faec4;margin:0 0 12px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+button,select{font:inherit;background:#253043;color:#e3eaf7;border:1px solid #57657b;padding:8px 12px;border-radius:6px;cursor:pointer}
+button.primary{background:#b8321c;border-color:#ff8a4a}label,output{font-size:12px;color:#9faec4}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #ffb27a;outline-offset:2px}
+#scene{position:relative;max-width:960px;height:420px;border-radius:10px;overflow:hidden;background:radial-gradient(ellipse at 50% 120%,#3a2a2a 0%,#1a2130 55%,#111823 100%);border:1px solid #344055}
+#stage{position:absolute;inset:0;will-change:transform}
+#scene canvas{position:absolute;inset:0;pointer-events:none}
+.floor{position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(#0000,#0006);border-top:1px solid #ffffff10}
+.card{position:absolute;bottom:58px;width:124px;height:176px;border:2px solid #8296b4;border-radius:8px;background:#27344b;overflow:hidden;box-shadow:0 6px 14px #0007;transition:box-shadow .2s}
+.card img{width:100%;height:146px;object-fit:cover;object-position:top;transition:filter 1.6s}
+.card small{display:block;text-align:center;font-size:11px;line-height:26px;color:#eff3fa}
+.source{left:9%}.target{right:9%}
+.card.cast{box-shadow:0 0 0 2px #ff6a3a,0 0 22px #ff4a1a99}
+.card.hit{animation:hit .55s cubic-bezier(.2,.8,.3,1)}
+.card.burnt img{filter:sepia(.7) saturate(1.6) brightness(.65) hue-rotate(-12deg)}
+@keyframes hit{0%{filter:brightness(5) saturate(0)}18%{transform:translate(14px,-4px) rotate(3deg);filter:brightness(1.8) sepia(1) saturate(5) hue-rotate(-25deg)}55%{transform:translate(-4px,0) rotate(-1deg)}100%{transform:none;filter:none}}
+@media (max-width:600px){#scene{height:320px}.card{width:86px;height:124px;bottom:46px}.card img{height:100px}.card small{font-size:10px;line-height:22px}.source{left:5%}.target{right:5%}}
+</style></head><body>
+<h1>Alchimie de la flamme : claquement de doigts → traînée d'étincelles → embrasement</h1>
+<p>Maquette PixiJS v8 (calque canvas au-dessus de cartes DOM, comme dans le futur lecteur de combat). Style cel : contour encre, aplats, cœur blanc, flammes animées « en 2 » (12 i/s) et halo additif. Impact à 700 ms.</p>
+<div class="toolbar">
+  <button id="play" class="primary">▶ Lancer (Espace)</button>
+  <label>Vitesse <select id="speed"><option value="1">×1</option><option value="0.5">×0,5</option><option value="0.25">×0,25</option></select></label>
+  <label>Intensité <select id="intensity"><option value="1">Sort</option><option value="1.5" selected>Ultime</option></select></label>
+  <label><input type="checkbox" id="loop"> Boucle</label>
+  <output id="stats"></output>
+</div>
+<div id="scene"><div id="stage"><div class="floor"></div>
+  <div class="card source" id="src"><img src="https://s4.anilist.co/file/anilistcdn/character/large/b68-moBLY2WO2am3.png" alt=""><small>Roy Mustang</small></div>
+  <div class="card target" id="tgt"><img src="https://s4.anilist.co/file/anilistcdn/character/large/b66-bLbGWXrmDqfV.png" alt=""><small>Cible</small></div>
+</div></div>
+<script type="module">
+import { Application, Container, Graphics, Sprite, Texture, Text, DisplacementFilter } from "/vendor/pixi.js@8.22.0/pixi.min.mjs";
+
+const INK = 0x151a36;
+const FIRE = [0xffffff, 0xfff4b0, 0xffd23f, 0xff8a1f, 0xe2431a, 0x8a1e14];
+const SMOKE = [0x6a5550, 0x3e3438, 0x272330];
+const $ = (id) => document.getElementById(id);
+const scene = $("scene"), stageEl = $("stage"), src = $("src"), tgt = $("tgt");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const app = new Application();
+await app.init({ resizeTo: scene, backgroundAlpha: 0, antialias: true, autoDensity: true, resolution: Math.min(devicePixelRatio, 2), preference: "webgl" });
+stageEl.appendChild(app.canvas);
+
+// ---------- Textures générées (aucun asset externe) ----------
+function canvasTex(size, draw) { const c = document.createElement("canvas"); c.width = c.height = size; draw(c.getContext("2d"), size); return Texture.from(c); }
+const glowTex = canvasTex(128, (x, s) => { const g = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2); g.addColorStop(0, "#fff"); g.addColorStop(.35, "rgba(255,255,255,.45)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, s, s); });
+const gfxTex = (g) => { const t = app.renderer.generateTexture({ target: g, resolution: 2, antialias: true }); g.destroy(); return t; };
+// Langue de flamme cel : aplat blanc (teinté ensuite) + contour encre
+const flameTex = gfxTex(new Graphics().moveTo(0, -58).bezierCurveTo(10, -36, 26, -12, 24, 6).bezierCurveTo(22, 26, -22, 26, -24, 6).bezierCurveTo(-26, -12, -10, -36, 0, -58).closePath().fill(0xffffff).stroke({ width: 3.5, color: INK }));
+const puffTex = gfxTex(new Graphics().circle(0, 0, 24).fill(0xffffff).stroke({ width: 3, color: INK }));
+const noiseTex = canvasTex(256, (x, s) => { x.fillStyle = "#808080"; x.fillRect(0, 0, s, s); for (let i = 0; i < 260; i++) { const r = 8 + Math.random() * 30, px = Math.random() * s, py = Math.random() * s, g = x.createRadialGradient(px, py, 0, px, py, r), c = Math.random() < .5 ? "255,128,128" : "0,128,128"; g.addColorStop(0, `rgba(${c},.35)`); g.addColorStop(1, `rgba(${c},0)`); x.fillStyle = g; x.fillRect(px - r, py - r, r * 2, r * 2); } });
+noiseTex.source.style.addressMode = "repeat";
+
+// ---------- Calques ----------
+const smokeLayer = new Container(), fireLayer = new Container(), glowLayer = new Container(), topLayer = new Container();
+app.stage.addChild(smokeLayer, fireLayer, glowLayer, topLayer);
+const dispSprite = new Sprite(noiseTex); dispSprite.renderable = false; app.stage.addChild(dispSprite);
+const heat = new DisplacementFilter({ sprite: dispSprite, scale: 0 });
+fireLayer.filters = [heat];
+
+// ---------- Utilitaires ----------
+const rnd = (a, b) => a + Math.random() * (b - a);
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+const easeOut = (x) => 1 - (1 - x) ** 3;
+const easeOutBack = (x) => 1 + 2.7 * (x - 1) ** 3 + 1.7 * (x - 1) ** 2;
+function ramp(cols, k) {
+  const f = clamp01(k) * (cols.length - 1), i = Math.min(Math.floor(f), cols.length - 2), t = f - i, a = cols[i], b = cols[i + 1];
+  const ch = (s) => Math.round(((a >> s) & 255) + ((((b >> s) & 255) - ((a >> s) & 255)) * t));
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+}
+
+// ---------- Particules ----------
+let parts = [];
+function spawn(layer, tex, o) {
+  const s = new Sprite(tex); s.anchor.set(.5, o.ay ?? .5); if (o.add) s.blendMode = "add"; layer.addChild(s);
+  const p = { s, age: 0, vx: 0, vy: 0, g: 0, drag: 0, s0: 1, s1: 0, a0: 1, fade: 2, rot: 0, vr: 0, wob: 0, seed: Math.random() * 1000, ...o };
+  if (o.tint != null) s.tint = o.tint; s.position.set(p.x, p.y); s.scale.set(0); parts.push(p); return p;
+}
+function updateParts(dt) {
+  const f = dt / 1000;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]; p.age += dt; const k = p.age / p.life;
+    if (k >= 1) { p.s.destroy(); parts.splice(i, 1); continue; }
+    p.vy += p.g * f; const d = Math.pow(1 - p.drag, dt / 16.7); p.vx *= d; p.vy *= d;
+    p.x += (p.vx + (p.wob ? Math.sin((p.age + p.seed) / 110) * p.wob : 0)) * f; p.y += p.vy * f;
+    const sc = (p.s0 + (p.s1 - p.s0) * easeOut(k)) * Math.min(1, k * (p.pop ?? 8));
+    if (p.orient) p.s.rotation = Math.atan2(p.vx, -p.vy); else p.s.rotation = (p.rot += p.vr * f);
+    const stretch = p.streak ? 1 + Math.hypot(p.vx, p.vy) / p.streak : 1;
+    p.s.position.set(p.x, p.y); p.s.scale.set(sc, sc * stretch);
+    p.s.alpha = p.a0 * (1 - Math.pow(k, p.fade));
+    if (p.ramp) p.s.tint = ramp(p.ramp, k * (p.rampSpan ?? 1));
+  }
+}
+
+// ---------- Horloge, évènements, tweens ----------
+let t = 0, events = [], tweens = [], shakeAmp = 0, shakeDur = 1, shakeAge = 1, heatAmp = 0;
+const at = (ms, fn) => events.push({ ms, fn });
+const tween = (dur, fn, done) => tweens.push({ age: 0, dur, fn, done });
+const shake = (amp, dur) => { if (!reduced) { shakeAmp = amp; shakeDur = dur; shakeAge = 0; } };
+
+let speed = 1, playing = false, endAt = 0;
+app.ticker.add((tk) => {
+  const dt = Math.min(tk.deltaMS, 50) * speed;
+  if (playing) {
+    t += dt;
+    for (const e of events.filter((e) => e.ms <= t)) { events.splice(events.indexOf(e), 1); e.fn(); }
+    if (t >= endAt) { playing = false; if ($("loop").checked) setTimeout(play, 350); }
+  }
+  for (let i = tweens.length - 1; i >= 0; i--) { const w = tweens[i]; w.age += dt; const k = clamp01(w.age / w.dur); w.fn(k, dt); if (k >= 1) { tweens.splice(i, 1); w.done?.(); } }
+  updateParts(dt);
+  // Distorsion de chaleur sur les flammes
+  dispSprite.y -= dt * .09; dispSprite.x += dt * .02; heatAmp *= Math.pow(.9985, dt); heat.scale.x = heat.scale.y = 3 + heatAmp;
+  // Secousse
+  shakeAge += dt; const sk = clamp01(1 - shakeAge / shakeDur) ** 2 * shakeAmp;
+  stageEl.style.transform = sk > .2 ? `translate(${rnd(-sk, sk).toFixed(1)}px,${rnd(-sk, sk).toFixed(1)}px)` : "";
+  $("stats").textContent = `${parts.length} particules · ${Math.round(app.ticker.FPS)} i/s`;
+});
+
+function anchors() {
+  const r = scene.getBoundingClientRect(), a = src.getBoundingClientRect(), b = tgt.getBoundingClientRect();
+  return { hand: { x: a.right - r.left - 8, y: a.top - r.top + a.height * .34 }, target: { x: b.left - r.left + b.width / 2, y: b.top - r.top + b.height * .5 }, ground: b.bottom - r.top, size: b.width / 124 };
+}
+
+// ---------- Phase 1 : cercle de transmutation sur le gant ----------
+function charge(P) {
+  src.classList.add("cast");
+  const c = new Graphics(), R = 30 * P.size;
+  c.circle(0, 0, R).stroke({ width: 2.5, color: 0xff4a2a }).circle(0, 0, R * .78).stroke({ width: 1.5, color: 0xff7a3a });
+  const tri = [0, -R * .78, R * .675, R * .39, -R * .675, R * .39]; c.poly(tri).stroke({ width: 2, color: 0xff4a2a });
+  c.moveTo(0, -R * .3).bezierCurveTo(R * .22, -R * .05, R * .14, R * .2, 0, R * .22).bezierCurveTo(-R * .14, R * .2, -R * .22, -R * .05, 0, -R * .3).fill(0xff7a3a);
+  for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; c.moveTo(Math.cos(a) * R, Math.sin(a) * R).lineTo(Math.cos(a) * R * 1.18, Math.sin(a) * R * 1.18); }
+  c.stroke({ width: 1.5, color: 0xff4a2a });
+  c.position.set(P.hand.x, P.hand.y); c.blendMode = "add"; topLayer.addChild(c);
+  const g = new Sprite(glowTex); g.anchor.set(.5); g.blendMode = "add"; g.tint = 0xff3a1a; g.position.copyFrom(c.position); glowLayer.addChild(g);
+  tween(440, (k) => {
+    c.scale.set(easeOutBack(clamp01(k * 2.2)) * (1 + .04 * Math.sin(k * 40))); c.rotation = k * 3; c.alpha = k < .85 ? 1 : 1 - (k - .85) / .15;
+    g.scale.set(.9 + .25 * Math.sin(k * 25)); g.alpha = .7 * c.alpha;
+    if (Math.random() < .35) spawn(glowLayer, glowTex, { x: P.hand.x + rnd(-R, R), y: P.hand.y + rnd(-R, R), vy: rnd(-60, -20), life: 300, s0: .1, s1: 0, add: true, tint: 0xffa060 });
+  }, () => { c.destroy(); g.destroy(); });
+}
+
+// ---------- Phase 2 : claquement ----------
+function snap(P, I) {
+  const star = new Graphics();
+  const pts = []; for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, r = i % 2 ? 9 : 30; pts.push(Math.cos(a) * r, Math.sin(a) * r * (i % 4 === 0 ? 1.3 : 1)); }
+  star.poly(pts).fill(0xfff5dc).stroke({ width: 2.5, color: INK }).circle(0, 0, 7).fill(0xffffff);
+  star.position.set(P.hand.x, P.hand.y); topLayer.addChild(star);
+  tween(170, (k) => { star.scale.set(.3 + 1.1 * easeOut(k)); star.rotation = k * .4; star.alpha = 1 - k ** 3; }, () => star.destroy());
+  ring(P.hand, 8, 46 * P.size, 160, 3, 0xfff1c4);
+  for (let i = 0; i < 18 * I; i++) { const a = rnd(0, Math.PI * 2), v = rnd(220, 560); spawn(glowLayer, glowTex, { x: P.hand.x, y: P.hand.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, drag: .08, life: rnd(180, 340), s0: .12, s1: .02, add: true, orient: true, streak: 120, ramp: [0xffffff, 0xffe08a, 0xff7a2a] }); }
+  const txt = new Text({ text: "SNAP!", style: { fontFamily: "Impact, 'Arial Black', system-ui", fontSize: 30 * P.size, fontWeight: "900", fontStyle: "italic", fill: 0xffffff, stroke: { color: INK, width: 6 }, letterSpacing: 1 } });
+  txt.anchor.set(.5); txt.position.set(P.hand.x + 6, P.hand.y - 44 * P.size); txt.rotation = -.18; topLayer.addChild(txt);
+  tween(520, (k) => { txt.scale.set(k < .15 ? easeOutBack(k / .15) * 1.15 : 1.15 - k * .15); txt.alpha = k < .7 ? 1 : 1 - (k - .7) / .3; txt.y -= .02; }, () => txt.destroy());
+  shake(4, 140);
+  setTimeout(() => src.classList.remove("cast"), 200);
+}
+
+// ---------- Phase 3 : traînée d'étincelles qui s'embrase en chaîne ----------
+function trail(P, I, dur) {
+  const a = P.hand, b = P.target, c = { x: (a.x + b.x) / 2, y: Math.min(a.y, b.y) - 70 * P.size };
+  const bez = (k) => ({ x: (1 - k) ** 2 * a.x + 2 * (1 - k) * k * c.x + k * k * b.x, y: (1 - k) ** 2 * a.y + 2 * (1 - k) * k * c.y + k * k * b.y });
+  const head = new Sprite(glowTex); head.anchor.set(.5); head.blendMode = "add"; head.tint = 0xffe6a0; head.scale.set(.4); glowLayer.addChild(head);
+  const N = 9; let next = 1;
+  tween(dur, (k) => {
+    const e = k * k * (1.6 - .6 * k), p = bez(e); head.position.set(p.x, p.y);
+    for (let i = 0; i < 3; i++) spawn(glowLayer, glowTex, { x: p.x + rnd(-3, 3), y: p.y + rnd(-3, 3), vx: rnd(-60, 60), vy: rnd(-80, 40), g: 300, life: rnd(160, 300), s0: .11, s1: 0, add: true, orient: true, streak: 90, ramp: [0xffffff, 0xffd25a, 0xff6a1a] });
+    while (next < N && e >= next / N) { const q = bez(next / N), s = (.35 + .5 * next / N) * P.size * I ** .5; at(t + 30, () => puff(q, s)); next++; }
+  }, () => head.destroy());
+}
+function puff(q, s) {
+  const g = spawn(glowLayer, glowTex, { x: q.x, y: q.y, life: 260, s0: .9 * s, s1: 1.4 * s, add: true, tint: 0xff7a2a, a0: .8, pop: 12 });
+  for (let i = 0; i < 4; i++) spawn(fireLayer, flameTex, { x: q.x + rnd(-6, 6), y: q.y + rnd(-4, 4), vx: rnd(-40, 40), vy: rnd(-140, -60), g: -120, life: rnd(260, 420), s0: .45 * s, s1: .08 * s, ay: .7, orient: true, ramp: FIRE, rampSpan: 1, pop: 10 });
+  spawn(topLayer, glowTex, { x: q.x, y: q.y, life: 90, s0: .35 * s, s1: .1, add: true, tint: 0xffffff, pop: 99 });
+}
+
+// ---------- Phase 4 : embrasement ----------
+function ring(c, r0, r1, dur, w, color) {
+  const g = new Graphics(); g.blendMode = "add"; topLayer.addChild(g);
+  tween(dur, (k) => { g.clear().circle(c.x, c.y, r0 + (r1 - r0) * easeOut(k)).stroke({ width: w * (1 - k) + .5, color, alpha: 1 - k }); }, () => g.destroy());
+}
+function fireball(P, I, dur) {
+  const g = new Graphics(), R = 78 * P.size * I ** .6; fireLayer.addChild(g);
+  let step = 0, jit = [];
+  tween(dur, (k, dt) => {
+    step -= dt; if (step > 0) return; step = 1000 / 24; // animé « en 2 » : 24 i/s comme un dessin animé
+    const grow = k < .22 ? easeOutBack(k / .22) : 1 + (k - .22) * .35, r = R * grow, rise = -R * .7 * easeOut(k), cx = P.target.x, cy = P.target.y + rise;
+    jit = Array.from({ length: 16 }, (_, i) => (i % 2 ? .66 : 1) * rnd(.85, 1.15));
+    const shape = (s) => { const out = []; for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8 - Math.PI / 2, up = Math.sin(a) < 0 ? 1 + .5 * k : 1; out.push(cx + Math.cos(a) * r * s * jit[i], cy + Math.sin(a) * r * s * jit[i] * up); } return out; };
+    const fade = k < .6 ? 1 : 1 - (k - .6) / .4, dark = k > .55;
+    g.clear().poly(shape(1)).fill({ color: dark ? 0xa0261a : 0xe2431a, alpha: fade }).stroke({ width: 3.5, color: INK, alpha: fade })
+      .poly(shape(.76)).fill({ color: 0xff8a1f, alpha: fade }).poly(shape(.52)).fill({ color: 0xffd23f, alpha: fade });
+    if (k < .45) g.poly(shape(.3 * (1 - k / .45))).fill(0xffffff);
+  }, () => g.destroy());
+}
+function impact(P, I) {
+  const T = P.target, S = P.size, W = app.screen.width, H = app.screen.height;
+  // Flash plein écran puis lueur orange ambiante
+  const flash = new Graphics().rect(0, 0, W, H).fill(0xffffff); topLayer.addChild(flash);
+  tween(130, (k) => { flash.alpha = .75 * (1 - k); }, () => flash.destroy());
+  const amb = new Graphics().rect(0, 0, W, H).fill(0xff5a1a); amb.blendMode = "add"; glowLayer.addChild(amb);
+  tween(1100 * I, (k) => { amb.alpha = .32 * (1 - k) ** 2; }, () => amb.destroy());
+  const big = spawn(glowLayer, glowTex, { x: T.x, y: T.y, life: 900 * I, s0: 2.2 * S * I, s1: 3.4 * S * I, add: true, tint: 0xff8a2a, a0: .95, fade: 1.4, pop: 20 });
+  fireball(P, I, 820 * I ** .5);
+  ring(T, 20 * S, 150 * S * I, 360, 6, 0xfff1c4);
+  at(t + 90, () => ring(T, 10 * S, 110 * S * I, 300, 4, 0xffb060));
+  shake(13 * I, 520); heatAmp = 22 * I;
+  tgt.classList.remove("hit"); void tgt.offsetWidth; tgt.classList.add("hit", "burnt");
+  setTimeout(() => tgt.classList.remove("burnt"), 1900 / speed);
+  // Langues de flamme radiales
+  const n = Math.round(14 + 8 * I);
+  for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2 + rnd(-.15, .15), v = rnd(380, 620) * S * I ** .5; spawn(fireLayer, flameTex, { x: T.x, y: T.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, drag: .11, g: -260, life: rnd(380, 560), s0: rnd(.7, 1.1) * S, s1: .1, ay: .7, orient: true, ramp: FIRE, pop: 14 }); }
+  // Étincelles / braises
+  for (let i = 0; i < 34 * I; i++) { const a = rnd(0, Math.PI * 2), v = rnd(200, 700) * S; spawn(glowLayer, glowTex, { x: T.x, y: T.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 150, g: 380, drag: .04, life: rnd(500, 1100), s0: rnd(.07, .13), s1: .02, add: true, orient: true, streak: 160, ramp: [0xffffff, 0xffd060, 0xff5a1a], fade: 3 }); }
+  // Émetteur continu : brasier qui monte puis s'éteint
+  tween(950 * I, (k) => {
+    const rate = (1 - k) ** 1.5 * 3.2 * I;
+    for (let i = 0; i < rate; i++) {
+      const x = T.x + rnd(-38, 38) * S * (1 + k), y = T.y + rnd(-20, 30) * S;
+      spawn(fireLayer, flameTex, { x, y, vx: rnd(-40, 40), vy: rnd(-260, -120) * S, g: -320, wob: 60, life: rnd(420, 700), s0: rnd(.5, .9) * S * (1.2 - k * .5), s1: .06, ay: .7, orient: true, ramp: FIRE, pop: 9 });
+      if (Math.random() < .3) spawn(glowLayer, glowTex, { x, y, vx: rnd(-20, 20), vy: rnd(-200, -90), life: 500, s0: .8 * S, s1: .3, add: true, tint: 0xff6a1a, a0: .5, fade: 1.5 });
+    }
+    if (Math.random() < .4 * (1 - k)) spawn(glowLayer, glowTex, { x: T.x + rnd(-50, 50) * S, y: T.y, vx: rnd(-30, 30), vy: rnd(-200, -80), wob: 80, life: rnd(1100, 1900), s0: rnd(.05, .09), s1: .01, add: true, tint: 0xffb050, fade: 2.5 });
+  });
+  // Colonne de feu (ultime)
+  if (I > 1.2) at(t + 120, () => tween(700, (k) => {
+    for (let i = 0; i < 4 * (1 - k); i++) spawn(fireLayer, flameTex, { x: T.x + rnd(-26, 26) * S, y: P.ground - 4, vx: rnd(-20, 20), vy: rnd(-760, -480) * S, drag: .02, life: rnd(420, 620), s0: rnd(.8, 1.2) * S, s1: .1, ay: .7, orient: true, ramp: FIRE, pop: 12 });
+  }));
+  // Fumée cel + roussi au sol
+  at(t + 260, () => tween(1300, (k) => {
+    if (Math.random() < 1.1 * (1 - k)) spawn(smokeLayer, puffTex, { x: T.x + rnd(-45, 45) * S, y: T.y - rnd(20, 70) * S, vx: rnd(-25, 25), vy: rnd(-90, -40), wob: 30, life: rnd(1300, 2100), s0: rnd(.5, .8) * S, s1: rnd(1.4, 2) * S, a0: .85, fade: 1.6, ramp: SMOKE, pop: 6, vr: rnd(-.5, .5) });
+  }));
+  const scorch = new Graphics().ellipse(T.x, P.ground + 6, 90 * S * I ** .5, 12 * S).fill({ color: 0x0a0505, alpha: .6 }); smokeLayer.addChildAt(scorch, 0);
+  tween(2200, (k) => { scorch.alpha = k < .6 ? 1 : 1 - (k - .6) / .4; }, () => scorch.destroy());
+}
+
+// ---------- Séquence ----------
+function reset() {
+  events = []; for (const w of tweens) w.done?.(); tweens = []; for (const p of parts) p.s.destroy(); parts = [];
+  src.classList.remove("cast"); tgt.classList.remove("hit", "burnt"); heatAmp = 0;
+}
+function play() {
+  reset(); const P = anchors(), I = +$("intensity").value; t = 0; playing = true; endAt = 2900;
+  at(0, () => charge(P, I)); at(420, () => snap(P, I)); at(440, () => trail(P, I, 260)); at(700, () => impact(P, I));
+}
+$("play").onclick = play;
+$("speed").onchange = (e) => (speed = +e.target.value);
+addEventListener("keydown", (e) => { if (e.code === "Space" && e.target === document.body) { e.preventDefault(); play(); } });
+setTimeout(play, 400);
+</script></body></html>
