@@ -1,0 +1,45 @@
+{
+  "sources": [
+    {
+      "author": "Kenney",
+      "pack": "Impact Sounds",
+      "url": "https://kenney.nl/assets/impact-sounds",
+      "license": "CC0-1.0"
+    },
+    {
+      "author": "Kenney",
+      "pack": "RPG Audio",
+      "url": "https://kenney.nl/assets/rpg-audio",
+      "license": "CC0-1.0"
+    }
+  ],
+  "files": [
+    "impact-sounds/impactMetal_heavy_000.ogg",
+    "impact-sounds/impactMining_000.ogg",
+    "impact-sounds/impactPunch_heavy_002.ogg",
+    "impact-sounds/impactPunch_heavy_003.ogg",
+    "impact-sounds/impactSoft_heavy_000.ogg",
+    "impact-sounds/impactSoft_heavy_001.ogg",
+    "impact-sounds/impactWood_heavy_000.ogg",
+    "rpg-audio/chop.ogg",
+    "rpg-audio/knifeSlice2.ogg"
+  ],
+  "processing": "Découpe autour du transitoire, filtrage, transposition et couches de prises enregistrées. Aucun oscillateur, aucune réverbération ajoutée.",
+  "outputs": [
+    {
+      "file": "slash-sec.ogg",
+      "duration": 0.12,
+      "peak_dbfs": -2.46
+    },
+    {
+      "file": "choc-sort.ogg",
+      "duration": 0.29,
+      "peak_dbfs": -1.83
+    },
+    {
+      "file": "critique.ogg",
+      "duration": 0.44,
+      "peak_dbfs": -0.96
+    }
+  ]
+}
