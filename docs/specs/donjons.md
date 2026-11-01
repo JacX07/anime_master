@@ -55,7 +55,20 @@ Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **re
 ### Sets
 - **Un set par univers de l'histoire**, thématique (nom et bonus tirés de l'univers). Univers de départ : One Piece, Naruto, Jujutsu Kaisen ; les autres suivent la chaîne des univers ([pvm.md](pvm.md)).
 - Bonus de set : **2 pièces** (petit bonus), **4 pièces** (gros bonus, parfois un effet de combat).
-- Bonus exacts : à écrire.
+- Le bonus à 4 pièces **remplace** celui à 2 pièces (il ne s'y ajoute pas), comme le barème actuel de `setBonus`.
+- **Bonus validés le 2026-11-01** (les % d'esquive, de critique et de vitesse sont des **points**, ajoutés à la stat ; l'esquive totale est plafonnée à 60 %, voir [combat.md](combat.md)) :
+
+| Set | 2 pièces | 4 pièces |
+|---|---|---|
+| One Piece | +5 % ATK | +10 % ATK, +15 points de chance de critique |
+| Naruto | +5 points d'esquive | +10 points d'esquive, +15 % de vitesse |
+| Jujutsu Kaisen | +5 % de dégâts magiques | +15 % de dégâts magiques ; chaque sort actif charge **50** points d'ultime au lieu de 34 |
+| Dragon Ball Z | +10 % de dégâts physiques, +10 % DEF | +20 % de dégâts physiques, +20 % DEF |
+| Bleach | +25 % de dégâts de saignement | +40 % de dégâts de saignement ; **précision** : les attaques ne peuvent plus être esquivées |
+
+- Le bonus de saignement de Bleach ne s'applique que sur le saignement infligé par un porteur de sabre/épée (seuls eux en infligent, voir [combat.md](combat.md) §4 septies).
+- Les bonus « physique » et « magique » exigent un **type de dégâts** par carte : voir [combat.md](combat.md) §4 septies, « À trancher ».
+- Remplace l'ancien barème unique (+5 % ATK à 2 pièces, +10 % ATK et +15 % dégâts critiques à 4) ; les pièces sans set connu gardent l'ancien barème tant que les sets de Naruto, JJK, DBZ et Bleach n'existent pas.
 
 ## Donjons
 

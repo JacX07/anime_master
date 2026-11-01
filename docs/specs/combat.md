@@ -274,6 +274,26 @@ Les durées sont en **actions du ciblé** ; « équipe » = alliés vivants, « 
 - **À revoir** : 12 sorts secondaires ne frappent aucun ennemi. Pour l'eau (Roxy, Aqua, Giyuu) et l'air (Howl, Tatsumaki), le soin et l'esquive restent actifs ; mais le feu d'Itachi, Nezuko et Rengoku et la terre d'Alphonse, Gaara, Reiner et Kirishima n'ont **aucun effet**. La foudre seule ne fait rien sans un allié d'eau : c'est voulu.
 - Test : `npx tsx scripts/check-elements.ts`.
 
+### 4 septies. Combos d'éléments et saignement *(décidés le 2026-11-01, à coder)*
+
+**Combos** (dans les deux sens : l'ordre des deux éléments sur la cible n'a pas d'importance).
+- **Terre + feu** : si une cible porte la **brûlure** et reçoit une terre (ou porte la lenteur de terre et reçoit une brûlure), elle est **brisée** : **DEF −40 %** pendant 2 de ses actions.
+- **Air + eau** : si une cible **trempée** reçoit un coup d'air (ou l'inverse), elle est **affaiblie** : **+25 % de dégâts subis** pendant 2 de ses actions. Nouveau debuff « Affaiblissement ».
+- *(Proposé, à valider)* L'air n'a aujourd'hui aucun effet sur l'ennemi : un sort d'air qui touche un ennemi le marque **« Balayé »** pendant 2 actions, pour que le combo marche dans les deux sens.
+- *(Proposé)* Le combo se déclenche une fois, **ne se renouvelle pas** tant que Brisé/Affaibli est actif, et **consomme** la marque déclenchante. Sur un boss, DEF −20 % au lieu de −40 % *(rééquilibrage)*. Brisé et Affaibli sont des malus : bloqués par l'immunité, retirés par la purge.
+- Conflit à surveiller : la foudre consomme déjà « Trempé » ; l'eau + air et l'eau + foudre se disputent la même marque (premier arrivé).
+
+**Saignement** (nouveau debuff).
+- Seuls les personnages **portant un sabre/une épée** en infligent, par un **tag « lame » donné aux personnages** (Zoro, Ichigo, Kirigaya, etc.), pas aux armes ni aux sorts. Liste des cartes concernées : à établir.
+- Chaque attaque ou sort d'un porteur de lame qui touche ajoute **1 stack**, maximum **5**. À la fin de chaque action de la cible : **2 %, 4 %, 6 %, 8 %, 10 % de ses PV actuels** selon les stacks (2 % par stack).
+- Il **ne disparaît pas avec le temps** : seul un **soin reçu** par la cible l'efface (et la purge, comme tout malus). Bloqué par l'immunité, ne passe pas par la réduction de dégâts, peut achever, comme le poison.
+- Les PV **actuels** (et non max) limitent naturellement la puissance sur les cibles presque mortes ; un boss à PV pleins reçoit le maximum. *(Rééquilibrage possible : plafond de dégâts par tick sur un boss, à mesurer au simulateur.)*
+- Bonus de set Bleach : le tick est multiplié par 1,25 (2 pièces) ou 1,40 (4 pièces) quand le dernier stack vient d'un porteur du set.
+
+**Esquive** : plafond de **60 %** au total pour tous les bonus (carte, sorts, set), pour que le set Naruto ne rende pas une carte intouchable ; l'ancienne règle « 0 à 100 % » est remplacée. La précision de Bleach 4 pièces fait comme « traverse » : ignore l'esquive de la cible.
+
+**À trancher.** (1) Il n'existe pas de **type de dégâts physique/magique**, donc les sets JJK et DBZ n'ont pas de cible : proposition, un tag par personnage (physique par défaut, magique pour les mages, JJK, etc.) plutôt que par sort. (2) Valeurs à vérifier au simulateur : Naruto 4 pièces (+10 points d'esquive, +15 % de vitesse), DBZ 4 pièces (+20 % de dégâts et +20 % DEF cumulés) et le saignement d'un porteur de lame sur boss.
+
 ### 4 sexies. Kits spéciaux *(demandés et codés le 2026-11-01 ; valeurs dans `src/lib/skill-overrides.json`)*
 Nouveaux effets de sort (`src/lib/spells.ts`, moteur `battle.ts`) : `arise`, `counter`, `resetCd`, `bloodlust`, `seal`, `steal`, et sur les dégâts `hits`, `extraHit`, `ramp`. Vérifiés par `npm run check:kits` et `check:jinwoo`, équilibrés par `scripts/simulate-kits.ts` (mode jauge ; poids du kit d'un UR moyen ≈ +20 pp ± 7,5).
 - **Jin-U Seong (UR)** : *Domaine du monarque* (secondaire) : 2 tours, chaque coup reçu (survivant) déclenche une ombre qui riposte à 0,8× ATK, sans plafond. *Arise* (ultime) : relève tous les alliés morts en **zombies** (40 % PV, soignables), une fois par combat, ils disparaissent si Jin-U tombe. Rareté UR forcée (`RARITY_OVERRIDES`).
