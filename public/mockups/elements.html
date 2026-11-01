@@ -12,6 +12,7 @@ button[aria-pressed=true]{background:var(--c,#7a6cf0);border-color:var(--c,#7a6c
 </style></head><body><main>
 <div class="stage"><canvas id="cv" width="900" height="330"></canvas></div>
 <div class="bar"><span>Élément</span><span id="elBtns"></span><span style="margin-left:10px">Attaque</span><span id="stBtns"></span><button id="replay">↻ Rejouer</button></div>
+<div class="bar"><span>Son</span><span id="sfxBtns"></span><span style="font-size:12px;color:var(--quiet)">A = nerveux, façon anime · B = lourd, façon cinéma</span></div>
 <div class="els" id="els"></div>
 </main><script>
 const E={
@@ -57,10 +58,15 @@ function ui(){
   for(const k in STYLES){const b=document.createElement("button");b.dataset.v=k;b.textContent=STYLES[k];b.onclick=()=>{style=k;sync();play()};sb.append(b)}
   for(const k in E){const d=document.createElement("div");d.className="el";d.style.setProperty("--c",E[k].c[1]);d.innerHTML=`<h3>${E[k].name}</h3><p>${E[k].d}</p><div class="chips"></div>`;
     for(const [n,s] of ROSTER[k]){const b=document.createElement("button");b.innerHTML=`${n}<i>${STYLES[s]}</i>`;b.dataset.v=n;b.style.setProperty("--c",E[k].c[1]);b.onclick=()=>{elem=k;style=s;who=n;sync();play()};d.lastChild.append(b)}els.append(d)}
+  const fb=document.getElementById("sfxBtns");[["off","Muet"],["A","A · nerveux"],["B","B · lourd"]].forEach(([v,l])=>{const b=document.createElement("button");b.dataset.v=v;b.textContent=l;b.onclick=()=>{sfx=v;pressed(fb,sfx);play()};fb.append(b)});pressed(fb,sfx);
   document.getElementById("replay").onclick=play;sync();
 }
 function sync(){pressed(elBtns,elem);pressed(stBtns,style);document.querySelectorAll(".chips button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===who))}
-function play(){t0=performance.now();P=[];D=[];fired={};trail=[];}
+// Sons : impact à 0,48 s dans chaque fichier ; les sorts jouent la montée, les coups ne gardent que l'impact.
+let sfx="off";const SFX_IMPACT=.48,bank={};
+function sound(){if(sfx==="off")return;const key=`${elem}-${sfx}`,a=bank[key]||(bank[key]=new Audio(`elements-sfx/${key}.ogg`));const T=impactT();
+  const fromImpact=style!=="magic";setTimeout(()=>{a.pause();a.currentTime=fromImpact?SFX_IMPACT-.06:0;a.play().catch(()=>{})},Math.max(0,(fromImpact?T-.06:T-SFX_IMPACT)*1000))}
+function play(){t0=performance.now();P=[];D=[];fired={};trail=[];sound();}
 function add(p){P.push(Object.assign({vx:0,vy:0,g:0,drag:1,life:0,max:.6,s:4,k:"glow",rot:R(0,6),vr:0},p))}
 const C=()=>E[elem].c;
 function impactT(){return style==="melee"?.42:style==="slash"?.5:elem==="foudre"?.5:.82}

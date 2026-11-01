@@ -1,0 +1,27 @@
+{
+  "processing": "Montage de prises enregistrées : superposition, transposition par rééchantillonnage, filtrage, fondus, saturation douce, normalisation. Impact calé à 0,48 s. Aucun oscillateur.",
+  "sources": [
+    { "pack": "80 CC0 RPG SFX", "url": "https://opengameart.org/content/80-cc0-rpg-sfx", "license": "CC0-1.0" },
+    { "pack": "Catching Fire", "url": "https://opengameart.org/content/catching-fire", "license": "CC0-1.0" },
+    { "pack": "Fire Crackling", "url": "https://opengameart.org/content/fire-crackling", "license": "CC0-1.0" },
+    { "pack": "Flare Ignition", "url": "https://opengameart.org/content/flare-ignition", "license": "CC0-1.0" },
+    { "pack": "Fire Staff Sound Effects (LEGIT Audio)", "url": "https://opengameart.org/content/fire-staff-sound-effects", "license": "CC0-1.0" },
+    { "pack": "Dull Explosion", "url": "https://opengameart.org/content/dull-explosion", "license": "CC0-1.0" },
+    { "pack": "Chunky Explosion", "url": "https://opengameart.org/content/chunky-explosion", "license": "CC0-1.0" },
+    { "pack": "40 CC0 water / splash / slime SFX", "url": "https://opengameart.org/content/40-cc0-water-splash-slime-sfx", "license": "CC0-1.0" },
+    { "pack": "6 Short Water Splashes", "url": "https://opengameart.org/content/6-short-water-splashes", "license": "CC0-1.0" },
+    { "pack": "Electricity Game Sound Pack", "url": "https://opengameart.org/content/electricity-game-sound-pack", "license": "CC0-1.0" },
+    { "pack": "Electric Buzz", "url": "https://opengameart.org/content/electric-buzz", "license": "CC0-1.0" },
+    { "pack": "Rain + long thunder", "url": "https://opengameart.org/content/rain-long-thunder", "license": "CC0-1.0" },
+    { "pack": "Electric Sound Effects Library — Little Robot Sound Factory (www.littlerobotsoundfactory.com)", "url": "https://opengameart.org/content/electric-sound-effects-library", "license": "CC-BY-3.0", "attribution": "Little Robot Sound Factory" },
+    { "pack": "Swish – bamboo stick weapon swhoshes", "url": "https://opengameart.org/content/swish-bamboo-stick-weapon-swhoshes", "license": "CC0-1.0" },
+    { "pack": "Air whoosh", "url": "https://opengameart.org/content/air-whoosh", "license": "CC0-1.0" },
+    { "pack": "Short wind sound", "url": "https://opengameart.org/content/short-wind-sound", "license": "CC0-1.0" },
+    { "pack": "Wind / hit / time morph (qubodup)", "url": "https://opengameart.org/content/wind-hit-time-morph", "license": "CC0-1.0" },
+    { "pack": "Moving boulder", "url": "https://opengameart.org/content/moving-boulder", "license": "CC0-1.0" },
+    { "pack": "75 CC0 breaking / falling / hit SFX", "url": "https://opengameart.org/content/75-cc0-breaking-falling-hit-sfx", "license": "CC0-1.0" },
+    { "pack": "Cave in", "url": "https://opengameart.org/content/cave-in", "license": "CC0-1.0" },
+    { "pack": "Earth Element Magic Spell", "url": "https://opengameart.org/content/earth-element-magic-spell", "license": "CC0-1.0" },
+    { "pack": "5 Break, Crunch Impacts", "url": "https://opengameart.org/content/5-break-crunch-impacts", "license": "CC0-1.0" }
+  ]
+}
