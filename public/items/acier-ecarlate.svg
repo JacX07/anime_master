@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><title>acier-ecarlate (visuel temporaire)</title>
+<defs><radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#d8453a" stop-opacity=".45"/><stop offset="1" stop-color="#d8453a" stop-opacity="0"/></radialGradient>
+<linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd6d0"/><stop offset=".45" stop-color="#d8453a"/><stop offset="1" stop-color="#6e1410"/></linearGradient></defs>
+<circle cx="64" cy="64" r="62" fill="url(#g)"/><path d="M22 84 38 50h52l16 34Z" fill="url(#f)" stroke="#ffd6d0" stroke-width="2"/><path d="M22 84h84l-6 14H28Z" fill="#6e1410"/><path d="M38 50h52l-8 10H46Z" fill="#ffd6d0" opacity=".6"/><path d="M48 70h20" stroke="#ffd6d0" stroke-width="3" stroke-linecap="round"/></svg>

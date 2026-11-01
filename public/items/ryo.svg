@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><title>ryo (visuel temporaire)</title>
+<defs><radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e0b453" stop-opacity=".45"/><stop offset="1" stop-color="#e0b453" stop-opacity="0"/></radialGradient>
+<linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1c2"/><stop offset=".45" stop-color="#e0b453"/><stop offset="1" stop-color="#7a5418"/></linearGradient></defs>
+<circle cx="64" cy="64" r="62" fill="url(#g)"/><circle cx="64" cy="64" r="44" fill="url(#f)" stroke="#fff1c2" stroke-width="3"/><circle cx="64" cy="64" r="34" fill="none" stroke="#7a5418" stroke-width="3"/><rect x="54" y="54" width="20" height="20" fill="#7a5418" stroke="#fff1c2" stroke-width="2"/><path d="M36 44c6-10 14-16 24-18" stroke="#fff1c2" stroke-width="4" stroke-linecap="round" fill="none" opacity=".7"/></svg>

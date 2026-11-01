@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><title>metal-a-chakra (visuel temporaire)</title>
+<defs><radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#6aa8d8" stop-opacity=".45"/><stop offset="1" stop-color="#6aa8d8" stop-opacity="0"/></radialGradient>
+<linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dff3ff"/><stop offset=".45" stop-color="#6aa8d8"/><stop offset="1" stop-color="#24527c"/></linearGradient></defs>
+<circle cx="64" cy="64" r="62" fill="url(#g)"/><path d="M22 84 38 50h52l16 34Z" fill="url(#f)" stroke="#dff3ff" stroke-width="2"/><path d="M22 84h84l-6 14H28Z" fill="#24527c"/><path d="M38 50h52l-8 10H46Z" fill="#dff3ff" opacity=".6"/><path d="M48 70h20" stroke="#dff3ff" stroke-width="3" stroke-linecap="round"/></svg>

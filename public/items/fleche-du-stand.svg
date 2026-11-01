@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><title>fleche-du-stand (visuel temporaire)</title>
+<defs><radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#d8b048" stop-opacity=".45"/><stop offset="1" stop-color="#d8b048" stop-opacity="0"/></radialGradient>
+<linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0c4"/><stop offset=".45" stop-color="#d8b048"/><stop offset="1" stop-color="#6a5010"/></linearGradient></defs>
+<circle cx="64" cy="64" r="62" fill="url(#g)"/><path d="M24 104 94 34" stroke="#c9a258" stroke-width="7" stroke-linecap="round"/><path d="m82 18 30-4-4 30-10 4-20-20Z" fill="url(#f)" stroke="#fff0c4" stroke-width="2"/><path d="m24 104-6-18 10 8M24 104l18 6-8-10" fill="#d4485a" stroke="#d4485a" stroke-width="5" stroke-linejoin="round"/><circle cx="96" cy="30" r="4" fill="#fff0c4"/></svg>

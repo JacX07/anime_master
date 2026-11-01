@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><title>instrument-d-or (visuel temporaire)</title>
+<defs><radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e6b84a" stop-opacity=".45"/><stop offset="1" stop-color="#e6b84a" stop-opacity="0"/></radialGradient>
+<linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".45" stop-color="#e6b84a"/><stop offset="1" stop-color="#7a5612"/></linearGradient></defs>
+<circle cx="64" cy="64" r="62" fill="url(#g)"/><path d="M50 30 98 18v62" stroke="url(#f)" stroke-width="10" fill="none" stroke-linejoin="round"/><path d="M50 30v62" stroke="url(#f)" stroke-width="10"/><ellipse cx="38" cy="94" rx="16" ry="12" fill="url(#f)" stroke="#fff2c4" stroke-width="2"/><ellipse cx="86" cy="82" rx="16" ry="12" fill="url(#f)" stroke="#fff2c4" stroke-width="2"/><path d="M50 40 98 28" stroke="#fff2c4" stroke-width="3" opacity=".7"/></svg>
