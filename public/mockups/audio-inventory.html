@@ -1,0 +1,1102 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tous les sons du jeu — écoute</title><style>
+:root{color-scheme:light;--ink:var(--foreground,#16263c);--quiet:var(--muted-foreground,#64748b);--line:var(--border,#d7dfe9);--plate:var(--card,#fff);--blue:#477bfa;font-family:var(--font-sans,'Segoe UI',sans-serif)}*{box-sizing:border-box}body{margin:0;color:var(--ink)}main{max-width:950px;margin:16px auto;display:grid;gap:18px}h1{font-size:32px;letter-spacing:-.04em;margin:0 0 9px}p{line-height:1.5;color:var(--quiet);font-size:12px;margin:0}h2{font-size:19px;margin:0 0 12px}.controls{position:sticky;top:0;z-index:2;background:var(--plate);border:1px solid var(--line);border-radius:var(--radius,12px);padding:12px 16px;display:flex;align-items:center;gap:16px}.controls p{flex:1}button{font:inherit;font-size:11px;min-height:34px;padding:7px 11px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:7px;white-space:nowrap}button:hover,button:focus-visible{border-color:var(--blue);color:var(--blue)}button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}#stop{color:var(--blue);font-weight:700}.panel{padding:16px;background:var(--plate);border:1px solid var(--line);border-radius:var(--radius,12px)}.row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.id{font-size:11px;color:var(--quiet)}.name strong{font-size:12px;display:block}.name small{font-size:11px;display:block;color:var(--quiet);margin-top:3px}.buttons{display:flex;gap:5px;flex-wrap:wrap;justify-content:end;max-width:300px}.row.active{background:color-mix(in srgb,var(--blue) 8%,transparent)}.note{margin-top:12px;font-size:11px}@media(max-width:550px){.row{grid-template-columns:32px minmax(0,1fr) auto;gap:6px}.name small{font-size:10px}.buttons{max-width:110px}.buttons button{width:100%;font-size:10px}.panel{padding:12px}.controls{padding:10px}.name strong{font-size:11px}}
+</style></head><body><main><header><h1>Tous les sons, à portée d’écoute.</h1><p>Les identifiants reprennent notre liste. Musique de combat et lame sont validées. Chaque bouton rejoue le son du code actuel, isolé des autres.</p></header><div class="controls"><p id="status" role="status">Choisis un son. Les musiques continuent jusqu’à l’arrêt.</p><button id="stop" type="button">■ Tout arrêter</button></div><section class="panel"><h2>Combat</h2><div class="row"><span class="id">C01</span><div class="name"><strong>Musique de combat</strong><small>Validée · 152 BPM</small></div><div class="buttons"><button data-id="C01">▶ Écouter</button></div></div><div class="row"><span class="id">C02</span><div class="name"><strong>Lame</strong><small>Validée · coups de base</small></div><div class="buttons"><button data-id="C02">▶ Écouter</button><button data-id="C02" data-variant="critical">Critique</button><button data-id="C02" data-variant="blocked">Bloqué</button><button data-id="C02" data-variant="dodge">Esquivé</button></div></div><div class="row"><span class="id">C03</span><div class="name"><strong>Nouvelle manche</strong><small>Note grave descendante</small></div><div class="buttons"><button data-id="C03">▶ Écouter</button></div></div><div class="row"><span class="id">C04</span><div class="name"><strong>Sort Combat</strong><small>Souffle et attaque râpeuse</small></div><div class="buttons"><button data-id="C04">▶ Écouter</button></div></div><div class="row"><span class="id">C05</span><div class="name"><strong>Sort Mystère</strong><small>Tonalités proches et souffle sombre</small></div><div class="buttons"><button data-id="C05">▶ Écouter</button></div></div><div class="row"><span class="id">C06</span><div class="name"><strong>Sort Magie</strong><small>Trois notes montantes</small></div><div class="buttons"><button data-id="C06">▶ Écouter</button></div></div><div class="row"><span class="id">C07</span><div class="name"><strong>Sort Cœur</strong><small>Deux notes douces</small></div><div class="buttons"><button data-id="C07">▶ Écouter</button></div></div><div class="row"><span class="id">C08</span><div class="name"><strong>Sort Aventure</strong><small>Montée grave et souffle</small></div><div class="buttons"><button data-id="C08">▶ Écouter</button></div></div><div class="row"><span class="id">C09</span><div class="name"><strong>Impact de sort</strong><small>Choc grave et bruit court</small></div><div class="buttons"><button data-id="C09">▶ Écouter</button><button data-id="C09" data-variant="weak">Résisté</button></div></div><div class="row"><span class="id">C10</span><div class="name"><strong>Affinité favorable</strong><small>Impact avec accent aigu</small></div><div class="buttons"><button data-id="C10">▶ Écouter</button></div></div><div class="row"><span class="id">C11</span><div class="name"><strong>Critique de sort</strong><small>Impact, accent électronique et grave</small></div><div class="buttons"><button data-id="C11">▶ Écouter</button></div></div><div class="row"><span class="id">C12</span><div class="name"><strong>Sort absorbé</strong><small>Tintement de bouclier</small></div><div class="buttons"><button data-id="C12">▶ Écouter</button></div></div><div class="row"><span class="id">C13</span><div class="name"><strong>Soin</strong><small>Trois notes montantes</small></div><div class="buttons"><button data-id="C13">▶ Écouter</button></div></div><div class="row"><span class="id">C14</span><div class="name"><strong>Gain de bouclier</strong><small>Note montante</small></div><div class="buttons"><button data-id="C14">▶ Écouter</button></div></div><div class="row"><span class="id">C15</span><div class="name"><strong>Perte de bouclier</strong><small>Note descendante</small></div><div class="buttons"><button data-id="C15">▶ Écouter</button></div></div><div class="row"><span class="id">C16</span><div class="name"><strong>Exposé</strong><small>Bip aigu bref</small></div><div class="buttons"><button data-id="C16">▶ Écouter</button></div></div><div class="row"><span class="id">C17</span><div class="name"><strong>Affaibli</strong><small>Note descendante</small></div><div class="buttons"><button data-id="C17">▶ Écouter</button></div></div><div class="row"><span class="id">C18</span><div class="name"><strong>Autre statut</strong><small>Son générique · exemple : silence</small></div><div class="buttons"><button data-id="C18">▶ Écouter</button></div></div><div class="row"><span class="id">C19</span><div class="name"><strong>K.O.</strong><small>Descente râpeuse et souffle grave</small></div><div class="buttons"><button data-id="C19">▶ Écouter</button></div></div><div class="row"><span class="id">C20</span><div class="name"><strong>Victoire</strong><small>Arpège montant</small></div><div class="buttons"><button data-id="C20">▶ Écouter</button></div></div><div class="row"><span class="id">C21</span><div class="name"><strong>Défaite</strong><small>Arpège descendant</small></div><div class="buttons"><button data-id="C21">▶ Écouter</button></div></div><div class="row"><span class="id">C22</span><div class="name"><strong>Match nul</strong><small>Deux notes identiques</small></div><div class="buttons"><button data-id="C22">▶ Écouter</button></div></div><p class="note">Les cinq sons de lancement sont partagés par l’affinité, le spécial, le tertiaire et l’ultime. Les variantes d’impact utilisent les mêmes couches sonores.</p></section><section class="panel"><h2>Ouverture des paquets</h2><div class="row"><span class="id">P01</span><div class="name"><strong>Musique des paquets</strong><small>84 BPM · trois intensités</small></div><div class="buttons"><button data-id="P01">▶ Écouter</button><button data-id="P01" data-variant="1">Actif</button><button data-id="P01" data-variant="2">Intense</button></div></div><div class="row"><span class="id">P02</span><div class="name"><strong>Survol</strong><small>Tintement aigu</small></div><div class="buttons"><button data-id="P02">▶ Écouter</button></div></div><div class="row"><span class="id">P03</span><div class="name"><strong>Ouverture du booster</strong><small>Verre et accord pincé</small></div><div class="buttons"><button data-id="P03">▶ Écouter</button></div></div><div class="row"><span class="id">P04</span><div class="name"><strong>Apparition des noyaux</strong><small>Séquence des cinq noyaux</small></div><div class="buttons"><button data-id="P04">▶ Écouter</button></div></div><div class="row"><span class="id">P05</span><div class="name"><strong>Sélection</strong><small>Montée tonale</small></div><div class="buttons"><button data-id="P05">▶ Écouter</button></div></div><div class="row"><span class="id">P06</span><div class="name"><strong>Noyau brisé</strong><small>Fracas et éclats</small></div><div class="buttons"><button data-id="P06">▶ Écouter</button></div></div><div class="row"><span class="id">P07</span><div class="name"><strong>Carte N</strong><small>Deux tintements</small></div><div class="buttons"><button data-id="P07">▶ Écouter</button></div></div><div class="row"><span class="id">P08</span><div class="name"><strong>Carte R</strong><small>Trois tintements</small></div><div class="buttons"><button data-id="P08">▶ Écouter</button></div></div><div class="row"><span class="id">P09</span><div class="name"><strong>Carte SR</strong><small>Quatre tintements</small></div><div class="buttons"><button data-id="P09">▶ Écouter</button></div></div><div class="row"><span class="id">P10</span><div class="name"><strong>Signal SSR</strong><small>Cinq tintements · annonce des lots</small></div><div class="buttons"><button data-id="P10">▶ Écouter</button></div></div><div class="row"><span class="id">P11</span><div class="name"><strong>Signal UR</strong><small>Six tintements · annonce des lots</small></div><div class="buttons"><button data-id="P11">▶ Écouter</button></div></div><div class="row"><span class="id">P12</span><div class="name"><strong>Révélation SSR</strong><small>Koto, cloche, flûte et taiko</small></div><div class="buttons"><button data-id="P12">▶ Écouter</button></div></div><div class="row"><span class="id">P13</span><div class="name"><strong>Charge UR</strong><small>Montée et percussions</small></div><div class="buttons"><button data-id="P13">▶ Écouter</button></div></div><div class="row"><span class="id">P14</span><div class="name"><strong>Impact UR</strong><small>Taikos et cloche grave</small></div><div class="buttons"><button data-id="P14">▶ Écouter</button></div></div><div class="row"><span class="id">P15</span><div class="name"><strong>Carte en place</strong><small>Tintement court</small></div><div class="buttons"><button data-id="P15">▶ Écouter</button></div></div><div class="row"><span class="id">P16</span><div class="name"><strong>Rassemblement / rangement</strong><small>Tintements ascendants</small></div><div class="buttons"><button data-id="P16">▶ Écouter</button></div></div><div class="row"><span class="id">P17</span><div class="name"><strong>Arrivée dans l’album</strong><small>Petit carillon</small></div><div class="buttons"><button data-id="P17">▶ Écouter</button></div></div><p class="note">Pour P01, les couches musicales changent à la mesure suivante. Le ×5 et le ×10 réutilisent ces effets.</p></section><section class="panel"><h2>Définis mais inutilisés</h2><div class="row"><span class="id">U01</span><div class="name"><strong>Descellement de capsule</strong><small>Défini, inutilisé dans le parcours actuel</small></div><div class="buttons"><button data-id="U01">▶ Écouter</button></div></div><div class="row"><span class="id">U02</span><div class="name"><strong>Montée de portail</strong><small>Défini, inutilisé dans le parcours actuel</small></div><div class="buttons"><button data-id="U02">▶ Écouter</button></div></div><div class="row"><span class="id">U03</span><div class="name"><strong>Souffle de déplacement</strong><small>Défini, inutilisé dans le parcours actuel</small></div><div class="buttons"><button data-id="U03">▶ Écouter</button></div></div><div class="row"><span class="id">U04</span><div class="name"><strong>Lancement</strong><small>Défini, inutilisé dans le parcours actuel</small></div><div class="buttons"><button data-id="U04">▶ Écouter</button></div></div></section><p>Page d’écoute autonome. Aucun changement aux sons du jeu.</p></main><script>
+const musicModule={};(function(exports){"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BattleMusic = void 0;
+// Composition de combat validée dans public/mockups/battle-music.html.
+// Les 32 mesures gardent leur montée, leur respiration et leur dernier refrain.
+const BPM = 152;
+const STEP = 60 / BPM / 4;
+const BAR = STEP * 16;
+const hz = (note) => 440 * 2 ** ((note - 69) / 12);
+const CHORDS = [
+    { bass: 45, notes: [57, 60, 64] },
+    { bass: 41, notes: [53, 57, 60] },
+    { bass: 38, notes: [50, 53, 57] },
+    { bass: 40, notes: [52, 56, 59] },
+];
+// Un motif de huit mesures, avec respirations et réponse dans l'aigu.
+const MELODY = [
+    [[0, 76, 2], [3, 76, 1], [4, 79, 2], [7, 81, 3], [12, 79, 2], [14, 76, 2]],
+    [[0, 77, 3], [4, 76, 2], [6, 72, 2], [10, 74, 2], [12, 76, 4]],
+    [[0, 74, 2], [3, 77, 1], [4, 81, 3], [8, 79, 2], [10, 77, 2], [12, 76, 2], [14, 74, 2]],
+    [[0, 71, 3], [4, 74, 2], [7, 76, 2], [10, 80, 2], [12, 83, 3]],
+    [[0, 81, 2], [3, 81, 1], [4, 84, 2], [7, 83, 3], [12, 81, 2], [14, 79, 2]],
+    [[0, 81, 3], [4, 79, 2], [6, 77, 2], [10, 76, 2], [12, 77, 4]],
+    [[0, 77, 2], [3, 79, 1], [4, 81, 3], [8, 84, 2], [10, 83, 2], [12, 81, 3]],
+    [[0, 80, 3], [4, 76, 2], [7, 74, 2], [10, 71, 2], [12, 76, 2], [14, 80, 2]],
+];
+class BattleMusic {
+    constructor(ctx, output, noiseBuffer) {
+        this.ctx = ctx;
+        this.noiseBuffer = noiseBuffer;
+        this.timer = null;
+        this.step = 0;
+        this.nextTime = 0;
+        this.level = 1;
+        this.lastLevel = 0;
+        this.buses = Object.fromEntries(["drums", "bass", "rhythm", "lead", "strings"].map((name) => {
+            const gain = this.ctx.createGain();
+            gain.connect(output);
+            return [name, gain];
+        }));
+        const shape = this.ctx.createWaveShaper();
+        shape.curve = Float32Array.from({ length: 2048 }, (_, i) => Math.tanh((i / 1023.5 - 1) * 2.1) / Math.tanh(2.1));
+        shape.oversample = "2x";
+        const guitarFilter = this.ctx.createBiquadFilter();
+        guitarFilter.type = "lowpass";
+        guitarFilter.frequency.value = 2900;
+        this.buses.rhythm.disconnect();
+        this.buses.rhythm.connect(shape).connect(guitarFilter).connect(output);
+        this.reverb = this.ctx.createConvolver();
+        const impulse = this.ctx.createBuffer(2, Math.floor(this.ctx.sampleRate * 1.25), this.ctx.sampleRate);
+        for (let ch = 0; ch < 2; ch++) {
+            const data = impulse.getChannelData(ch);
+            for (let i = 0; i < data.length; i++)
+                data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) ** 3;
+        }
+        this.reverb.buffer = impulse;
+        const wet = this.ctx.createGain();
+        wet.gain.value = .13;
+        this.reverb.connect(wet).connect(output);
+        this.delay = this.ctx.createDelay(1);
+        this.delay.delayTime.value = STEP * 3;
+        const feedback = this.ctx.createGain();
+        feedback.gain.value = .24;
+        const delayFilter = this.ctx.createBiquadFilter();
+        delayFilter.type = "lowpass";
+        delayFilter.frequency.value = 2800;
+        this.delay.connect(delayFilter).connect(feedback).connect(this.delay);
+        const delayWet = this.ctx.createGain();
+        delayWet.gain.value = .2;
+        delayFilter.connect(delayWet).connect(output);
+    }
+    get playing() {
+        return this.timer !== null;
+    }
+    start() {
+        if (this.timer || this.ctx.state === "closed")
+            return;
+        // Reprendre sur une mesure évite de couper le premier accord après une pause.
+        this.step = Math.ceil(this.step / 16) * 16;
+        this.nextTime = this.ctx.currentTime + 0.08;
+        this.schedule();
+        this.timer = setInterval(() => this.schedule(), 25);
+    }
+    stop() {
+        if (this.timer)
+            clearInterval(this.timer);
+        this.timer = null;
+    }
+    envelope(gain, t, peak, attack, duration) {
+        gain.gain.setValueAtTime(.0001, t);
+        gain.gain.exponentialRampToValueAtTime(Math.max(.0002, peak), t + attack);
+        gain.gain.exponentialRampToValueAtTime(.0001, t + Math.max(attack + .005, duration));
+    }
+    voice(t, note, duration, gain, bus, options = {}) {
+        const output = this.ctx.createGain();
+        this.envelope(output, t, gain, options.attack ?? .006, duration);
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(options.cutoff ?? 3600, t);
+        filter.frequency.exponentialRampToValueAtTime(options.tail ?? 1300, t + duration);
+        filter.Q.value = options.q ?? .65;
+        filter.connect(output).connect(bus);
+        if (options.wet) {
+            const send = this.ctx.createGain();
+            send.gain.value = options.wet;
+            output.connect(send).connect(this.reverb);
+        }
+        if (options.echo) {
+            const send = this.ctx.createGain();
+            send.gain.value = options.echo;
+            output.connect(send).connect(this.delay);
+        }
+        (options.detune ? [-options.detune, options.detune] : [0]).forEach((cents) => {
+            const oscillator = this.ctx.createOscillator();
+            oscillator.type = options.type ?? "sawtooth";
+            oscillator.frequency.setValueAtTime(hz(note), t);
+            oscillator.detune.value = cents;
+            if (options.bend)
+                oscillator.frequency.exponentialRampToValueAtTime(hz(note + options.bend), t + .04);
+            oscillator.connect(filter);
+            oscillator.start(t);
+            oscillator.stop(t + duration + .025);
+        });
+    }
+    noise(t, duration, gain, from, to, type = "bandpass", wet = 0) {
+        const source = this.ctx.createBufferSource();
+        source.buffer = this.noiseBuffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = type;
+        filter.Q.value = .7;
+        filter.frequency.setValueAtTime(from, t);
+        filter.frequency.exponentialRampToValueAtTime(to, t + duration);
+        const output = this.ctx.createGain();
+        this.envelope(output, t, gain, .002, duration);
+        source.connect(filter).connect(output).connect(this.buses.drums);
+        if (wet) {
+            const send = this.ctx.createGain();
+            send.gain.value = wet;
+            output.connect(send).connect(this.reverb);
+        }
+        source.start(t, Math.random() * .3, duration);
+        source.stop(t + duration + .01);
+    }
+    drumTone(t, frequency, end, duration, gain) {
+        const oscillator = this.ctx.createOscillator();
+        const output = this.ctx.createGain();
+        oscillator.frequency.setValueAtTime(frequency, t);
+        oscillator.frequency.exponentialRampToValueAtTime(end, t + duration * .7);
+        this.envelope(output, t, gain, .002, duration);
+        oscillator.connect(output).connect(this.buses.drums);
+        oscillator.start(t);
+        oscillator.stop(t + duration + .02);
+    }
+    kick(t, power = 1) { this.drumTone(t, 155, 46, .22, .72 * power); this.noise(t, .025, .08 * power, 2200, 1200, "highpass"); }
+    snare(t, power = 1) { this.drumTone(t, 195, 120, .14, .17 * power); this.noise(t, .18, .34 * power, 1900, 1000, "bandpass", .12); this.noise(t, .09, .10 * power, 5200, 3500, "highpass"); }
+    hat(t, open = false, power = 1) { this.noise(t, open ? .19 : .045, (open ? .045 : .036) * power, 6900, open ? 5800 : 7200, "highpass"); }
+    crash(t, power = 1) { this.noise(t, 1.05, .13 * power, 7600, 3200, "highpass", .2); }
+    tom(t, high) { this.drumTone(t, high ? 210 : 140, high ? 95 : 64, .21, .26); this.noise(t, .04, .035, 2200, 600); }
+    setMix(t) {
+        this.buses.drums.gain.setTargetAtTime(this.level === 3 ? .93 : .82, t, .15);
+        this.buses.bass.gain.setTargetAtTime(.78, t, .15);
+        this.buses.rhythm.gain.setTargetAtTime(this.level === 1 ? .65 : .85, t, .18);
+        this.buses.lead.gain.setTargetAtTime(this.level === 1 ? .25 : .78, t, .2);
+        this.buses.strings.gain.setTargetAtTime(this.level === 1 ? .08 : this.level === 2 ? .36 : .53, t, .25);
+    }
+    musicStep(index, t) {
+        const bar = Math.floor(index / 16), s = index % 16, cycle = bar % 32;
+        const chord = CHORDS[bar % 4];
+        // La respiration centrale crée un contraste avant le dernier refrain.
+        const bridge = cycle >= 20 && cycle < 24;
+        if (s === 0) {
+            this.level = cycle < 4 || bridge ? 1 : cycle < 12 ? 2 : 3;
+            this.setMix(t);
+            if (bar % 8 === 0 || this.level > this.lastLevel)
+                this.crash(t, this.level === 3 ? 1 : .65);
+            this.lastLevel = this.level;
+            chord.notes.forEach((note) => this.voice(t, note + 12, BAR * .92, .018, this.buses.strings, { type: "triangle", attack: .15, cutoff: 1800, tail: 1200, wet: .3 }));
+        }
+        const kicks = bridge ? [0, 10] : this.level === 1 ? [0, 6, 8, 14] : [0, 3, 6, 8, 11, 14];
+        if (kicks.includes(s))
+            this.kick(t, s === 0 || s === 8 ? 1 : .78);
+        if (bridge ? s === 8 : s === 4 || s === 12)
+            this.snare(t);
+        if (this.level === 3 && s === 11 && bar % 2)
+            this.snare(t, .28);
+        if (s % 2 === 0)
+            this.hat(t, !bridge && s === 14 && bar % 2 === 1, s % 4 === 0 ? .8 : 1);
+        if (this.level === 3 && [3, 7, 11, 15].includes(s))
+            this.hat(t, false, .45);
+        if (s === 15 && bar % 4 === 3)
+            this.snare(t, .48);
+        if (bar % 8 === 7 && s >= 12) {
+            if (s === 12 || s === 14)
+                this.tom(t, s === 12);
+            if (s === 15)
+                this.snare(t, .7);
+        }
+        const bassSteps = bridge ? [0, 8] : [0, 3, 6, 8, 10, 14];
+        if (bassSteps.includes(s)) {
+            const note = chord.bass + (!bridge && s === 10 ? 12 : 0);
+            this.voice(t, note, bridge ? STEP * 6 : STEP * (s === 0 || s === 8 ? 2.6 : 1.6), .19, this.buses.bass, { cutoff: 650, tail: 260 });
+            this.voice(t, note, STEP * 1.8, .12, this.buses.bass, { type: "sine", cutoff: 400, tail: 180 });
+        }
+        const chugs = bridge ? [0, 8] : this.level === 1 ? [0, 6, 8, 14] : [0, 2, 3, 6, 8, 10, 11, 14];
+        if (chugs.includes(s)) {
+            const root = chord.bass + 12;
+            [root, root + 7, root + 12].forEach((note) => this.voice(t, note, STEP * (bridge ? 6 : s % 8 === 0 ? 2.3 : 1.15), .036, this.buses.rhythm, { cutoff: 2400, tail: 750, type: "sawtooth" }));
+        }
+        if (!bridge)
+            MELODY[bar % 8].forEach(([at, note, length]) => {
+                if (at !== s || (this.level === 1 && s !== 0 && s !== 7 && s !== 12))
+                    return;
+                this.voice(t, note, STEP * length * .90, .065, this.buses.lead, { detune: 5, cutoff: 4200, tail: 1700, echo: .3, wet: .14 });
+                if (this.level === 3)
+                    this.voice(t, note - 12, STEP * length * .82, .035, this.buses.lead, { type: "triangle", cutoff: 2300, tail: 1300, wet: .12 });
+            });
+        if (bridge && s === 0)
+            this.voice(t, [76, 77, 74, 80][bar % 4], BAR * .7, .065, this.buses.lead, { type: "triangle", attack: .05, cutoff: 2600, tail: 1400, echo: .5, wet: .4 });
+        if (this.level >= 2 && !bridge && [2, 6, 10, 14].includes(s)) {
+            const n = chord.notes[[0, 2, 1, 2][Math.floor(s / 4)]] + 12;
+            this.voice(t, n, STEP * 1.25, .04, this.buses.strings, { type: "sawtooth", attack: .015, cutoff: 2100, tail: 800, wet: .12 });
+        }
+    }
+    schedule() {
+        if (this.nextTime < this.ctx.currentTime - .3) {
+            const skipped = Math.ceil((this.ctx.currentTime - this.nextTime + .06) / STEP);
+            this.step += skipped;
+            this.nextTime += skipped * STEP;
+        }
+        while (this.nextTime < this.ctx.currentTime + .15) {
+            this.musicStep(this.step++, this.nextTime);
+            this.nextTime += STEP;
+        }
+    }
+}
+exports.BattleMusic = BattleMusic;
+
+})(musicModule);
+const battleModule={};(function(exports,require){"use strict";
+// Sons du lecteur de combat : synthèse WebAudio et prise de lame enregistrée pour les attaques de base.
+// Deux bus (effets, musique) passent par un master puis un compresseur, pour garder de la marge avant la saturation.
+// Les effets varient un peu à chaque coup (hauteur ±4 %) pour ne pas sonner en boucle, et la musique baisse un instant sous les gros impacts.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BattleAudio = void 0;
+const music_1 = require("./music");
+const midi = (n) => 440 * 2 ** ((n - 69) / 12);
+// Même niveau que la maquette validée à 65 % (gain logarithmique).
+const MUSIC_LEVEL = 10 ** (-12.6 / 20);
+class BattleAudio {
+    constructor() {
+        this.sfxOn = true;
+        this.musicOn = true;
+        this.ctx = null;
+        this.musicEngine = null;
+        this.blade = null;
+        this.bladeRequest = null;
+    }
+    init() {
+        if (this.ctx)
+            return this.ctx;
+        const Ctor = window.AudioContext ?? window.webkitAudioContext;
+        const ctx = new Ctor();
+        const master = ctx.createGain();
+        master.gain.value = 0.8;
+        const limiter = ctx.createDynamicsCompressor();
+        limiter.threshold.value = -12;
+        limiter.knee.value = 12;
+        limiter.ratio.value = 4;
+        limiter.attack.value = 0.008;
+        limiter.release.value = 0.18;
+        master.connect(limiter);
+        limiter.connect(ctx.destination);
+        this.sfx = ctx.createGain();
+        this.sfx.gain.value = this.sfxOn ? 1 : 0;
+        this.sfx.connect(master);
+        this.music = ctx.createGain();
+        this.music.gain.value = 0;
+        this.music.connect(master);
+        this.noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+        const data = this.noise.getChannelData(0);
+        for (let i = 0; i < data.length; i++)
+            data[i] = Math.random() * 2 - 1;
+        this.ctx = ctx;
+        this.musicEngine = new music_1.BattleMusic(ctx, this.music, this.noise);
+        void this.loadBlade(ctx);
+        return ctx;
+    }
+    /** À appeler depuis un geste de l'utilisateur : les navigateurs refusent de jouer du son avant. */
+    unlock() {
+        const ctx = this.init();
+        if (!this.blade && !this.bladeRequest)
+            void this.loadBlade(ctx);
+        // Le contexte peut être fermé avant la fin du resume (page quittée, double montage en dev) : sans importance
+        if (ctx.state === "suspended")
+            ctx.resume().catch(() => { });
+    }
+    /** Ferme le contexte audio (fin de la page) */
+    dispose() {
+        this.stopMusic();
+        this.musicEngine = null;
+        this.bladeRequest?.abort();
+        this.bladeRequest = null;
+        this.blade = null;
+        this.ctx?.close().catch(() => { });
+        this.ctx = null;
+    }
+    setSfx(on) {
+        this.sfxOn = on;
+        if (this.ctx)
+            this.sfx.gain.setTargetAtTime(on ? 1 : 0, this.ctx.currentTime, 0.02);
+    }
+    // ---------- Briques ----------
+    async loadBlade(ctx) {
+        const request = new AbortController();
+        this.bladeRequest = request;
+        try {
+            const response = await fetch("/audio/battle/blade.ogg", { signal: request.signal });
+            if (!response.ok)
+                throw new Error(`Audio de lame indisponible (${response.status})`);
+            const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+            if (this.ctx === ctx)
+                this.blade = buffer;
+        }
+        catch (error) {
+            if (!request.signal.aborted)
+                console.warn("Impossible de charger le son de lame.", error);
+        }
+        finally {
+            if (this.bladeRequest === request)
+                this.bladeRequest = null;
+        }
+    }
+    bladeHit(t, speed, variation, power) {
+        if (!this.blade || !this.ctx)
+            return;
+        const source = this.ctx.createBufferSource();
+        source.buffer = this.blade;
+        source.playbackRate.value = variation;
+        const duration = Math.min(this.blade.duration / variation, 0.26 / Math.sqrt(speed));
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.55 * power, t);
+        gain.gain.setValueAtTime(0.55 * power, t + Math.max(0, duration - 0.03));
+        gain.gain.linearRampToValueAtTime(0, t + duration);
+        source.connect(gain).connect(this.sfx);
+        source.start(t);
+        source.stop(t + duration + 0.01);
+    }
+    /** Une note : oscillateur dont la fréquence glisse de f0 à f1, avec une enveloppe courte. */
+    tone(t, type, f0, f1, dur, gain, dest = this.sfx) {
+        const ctx = this.ctx;
+        const o = ctx.createOscillator();
+        o.type = type;
+        o.frequency.setValueAtTime(f0, t);
+        if (f1 !== f0)
+            o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gain, t + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g);
+        g.connect(dest);
+        o.start(t);
+        o.stop(t + dur + 0.02);
+    }
+    /** Un souffle de bruit filtré dont la fréquence glisse de f0 à f1. */
+    hiss(t, filter, f0, f1, dur, gain, q = 1, dest = this.sfx) {
+        const ctx = this.ctx;
+        const s = ctx.createBufferSource();
+        s.buffer = this.noise;
+        s.loop = true;
+        const f = ctx.createBiquadFilter();
+        f.type = filter;
+        f.Q.value = q;
+        f.frequency.setValueAtTime(f0, t);
+        f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gain, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        s.connect(f);
+        f.connect(g);
+        g.connect(dest);
+        s.start(t, Math.random() * 0.5);
+        s.stop(t + dur + 0.02);
+    }
+    /** La musique baisse un instant sous un gros impact, puis revient. */
+    duck(t) {
+        if (!this.musicOn || !this.musicEngine?.playing)
+            return;
+        this.music.gain.cancelScheduledValues(t);
+        this.music.gain.setTargetAtTime(MUSIC_LEVEL * 0.45, t, 0.01);
+        this.music.gain.setTargetAtTime(MUSIC_LEVEL, t + 0.22, 0.18);
+    }
+    // ---------- Effets ----------
+    /**
+     * Joue le son d'un événement du journal. `prev` est l'événement d'avant (pour ne pas répéter un son sur une zone ou une
+     * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
+     */
+    play(ev, prev, cur, speed) {
+        if (!this.sfxOn)
+            return;
+        const ctx = this.init();
+        if (ctx.state === "suspended")
+            return;
+        const t = ctx.currentTime + 0.01;
+        const k = 1 / Math.min(speed, 2);
+        const v = 1 + (Math.random() - 0.5) * 0.08;
+        switch (ev.kind) {
+            case "round":
+                this.tone(t, "sine", 150 * v, 90, 0.2 * k, 0.1);
+                break;
+            case "action":
+                if (ev.spell !== "base")
+                    this.cast(t, cur?.type ?? "COMBAT", k, v);
+                break;
+            case "damage": {
+                const chain = prev?.kind === "damage" ? 0.6 : 1;
+                const soaked = ev.absorbed >= ev.amount * 0.999;
+                const power = (ev.affinity === "strong" ? 1.2 : ev.affinity === "weak" ? 0.7 : 1) * chain;
+                if (cur?.spell === "base") {
+                    this.bladeHit(t, speed, v, power * (soaked ? 0.55 : ev.crit ? 1.25 : 1));
+                    if (ev.crit)
+                        this.duck(t);
+                    break;
+                }
+                if (soaked) {
+                    // Le bouclier encaisse : un tintement métallique, sans choc
+                    this.tone(t, "triangle", 1800 * v, 1200, 0.14 * k, 0.16 * chain);
+                    this.hiss(t, "highpass", 5000, 3000, 0.05, 0.1 * chain);
+                    break;
+                }
+                this.tone(t, "sine", 160 * v, 48, 0.18 * k, 0.55 * power);
+                this.hiss(t, "lowpass", ev.affinity === "weak" ? 1200 : 2800, 350, 0.12 * k, 0.45 * power);
+                if (ev.affinity === "strong")
+                    this.tone(t, "triangle", 660 * v, 990, 0.12 * k, 0.1);
+                if (ev.crit) {
+                    this.tone(t, "square", 1200 * v, 2600, 0.12 * k, 0.1);
+                    this.tone(t, "sine", 110, 38, 0.3 * k, 0.5);
+                    this.hiss(t, "highpass", 6000, 2500, 0.1 * k, 0.2);
+                    this.duck(t);
+                }
+                break;
+            }
+            case "dodge":
+                if (cur?.spell === "base")
+                    this.bladeHit(t, speed, v, 0.5);
+                break;
+            case "heal":
+                if (prev?.kind === "heal")
+                    break;
+                this.tone(t, "sine", 660 * v, 660 * v, 0.28 * k, 0.12);
+                this.tone(t + 0.08 * k, "sine", 880 * v, 880 * v, 0.3 * k, 0.12);
+                this.tone(t + 0.16 * k, "sine", 1320 * v, 1320 * v, 0.3 * k, 0.07);
+                break;
+            case "shield":
+                if (ev.amount < 0)
+                    this.tone(t, "sine", 500, 200, 0.16 * k, 0.08);
+                else if (prev?.kind !== "shield")
+                    this.tone(t, "sine", 420 * v, 840 * v, 0.16 * k, 0.1);
+                break;
+            case "status":
+                if (!ev.on)
+                    break;
+                if (ev.status === "exposed")
+                    this.tone(t, "square", 1500, 1500, 0.06, 0.04);
+                else if (ev.status === "weaken")
+                    this.tone(t, "sine", 520, 240, 0.18 * k, 0.08);
+                else
+                    this.tone(t, "sine", 400, 820, 0.14 * k, 0.08);
+                break;
+            case "ko":
+                this.tone(t, "sawtooth", 280, 45, 0.55 * k, 0.16);
+                this.hiss(t, "lowpass", 700, 80, 0.5 * k, 0.3);
+                this.duck(t);
+                break;
+            case "end":
+                this.jingle(t, ev.winner);
+                break;
+        }
+    }
+    /** Bruit de lancement du sort affilié, propre à chaque type. */
+    cast(t, type, k, v) {
+        switch (type) {
+            case "COMBAT":
+                this.hiss(t, "highpass", 4500, 900, 0.16 * k, 0.3, 1);
+                this.tone(t, "sawtooth", 300 * v, 120, 0.14 * k, 0.07);
+                break;
+            case "MYSTERE":
+                this.tone(t, "sine", 330 * v, 220, 0.34 * k, 0.12);
+                this.tone(t, "sine", 340 * v, 226, 0.34 * k, 0.12);
+                this.hiss(t, "bandpass", 300, 900, 0.3 * k, 0.12, 4);
+                break;
+            case "MAGIE":
+                [880, 1175, 1568].forEach((f, i) => this.tone(t + i * 0.06 * k, "triangle", f * v, f * v, 0.22 * k, 0.1));
+                break;
+            case "COEUR":
+                this.tone(t, "sine", midi(72) * v, midi(72) * v, 0.45 * k, 0.1);
+                this.tone(t + 0.1 * k, "sine", midi(76) * v, midi(76) * v, 0.45 * k, 0.1);
+                break;
+            case "AVENTURE":
+                this.tone(t, "sine", 120 * v, 300, 0.4 * k, 0.22);
+                this.hiss(t, "lowpass", 300, 1800, 0.35 * k, 0.2);
+                break;
+        }
+    }
+    /** Fin du combat : arpège montant pour l'équipe A (le joueur), descendant pour l'équipe B, deux notes neutres pour un nul. */
+    jingle(t, winner) {
+        const notes = winner === "A" ? [72, 76, 79, 84] : winner === "B" ? [69, 65, 62, 57] : [67, 67];
+        notes.forEach((n, i) => this.tone(t + i * 0.16, "triangle", midi(n), midi(n), i === notes.length - 1 ? 0.9 : 0.3, 0.14));
+    }
+    // ---------- Musique ----------
+    /** Lance (ou relance) la boucle de musique avec un fondu d'entrée. */
+    startMusic() {
+        if (!this.musicOn || this.musicEngine?.playing)
+            return;
+        const ctx = this.init();
+        this.unlock();
+        this.music.gain.cancelScheduledValues(ctx.currentTime);
+        this.music.gain.setTargetAtTime(MUSIC_LEVEL, ctx.currentTime, 0.4);
+        this.musicEngine?.start();
+    }
+    /** Arrête la boucle avec un fondu de sortie. */
+    stopMusic() {
+        this.musicEngine?.stop();
+        if (this.ctx) {
+            this.music.gain.cancelScheduledValues(this.ctx.currentTime);
+            this.music.gain.setTargetAtTime(0, this.ctx.currentTime, 0.15);
+        }
+    }
+}
+exports.BattleAudio = BattleAudio;
+
+})(battleModule,()=>musicModule);
+function createPack(){
+ const intervals=[];
+ const setInterval=(fn,ms)=>{const id=globalThis.setInterval(fn,ms);intervals.push(id);return id;};
+ const dB = (v) => Math.pow(10, v / 20);
+const vary = (f, pct = 0.06) => f * (1 + (Math.random() * 2 - 1) * pct);
+const S = {
+  ctx: null, bus: {}, on: true, ambDb: -20,
+  init(theme) {
+    if (!this.ctx) {
+      const ctx = (this.ctx = new AudioContext());
+      const limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.value = -6; limiter.knee.value = 4; limiter.ratio.value = 12; limiter.attack.value = 0.003; limiter.release.value = 0.25;
+      const master = ctx.createGain(); master.gain.value = dB(-3);
+      master.connect(limiter).connect(ctx.destination);
+      const mk = (db) => { const g = ctx.createGain(); g.gain.value = dB(db); g.connect(master); return g; };
+      this.ambDb = theme.ambienceDb ?? -20;
+      this.bus = { master, sfx: mk(0), ui: mk(-6), amb: mk(this.ambDb) };
+      // Réverbe partagée : réponse impulsionnelle synthétique, envoyée depuis chaque son
+      const rev = ctx.createConvolver(), len = ctx.sampleRate * (theme.reverb?.seconds ?? 2.2), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+      rev.buffer = ir; this.bus.rev = ctx.createGain(); this.bus.rev.gain.value = theme.reverb?.wet ?? 0.25;
+      this.bus.rev.connect(rev).connect(master);
+      this.sounds.ambience?.();
+    }
+    if (this.ctx.state === "suspended") this.ctx.resume();
+  },
+  setOn(on) { this.on = on; if (this.ctx) this.bus.master.gain.setTargetAtTime(on ? dB(-3) : 0, this.ctx.currentTime, 0.05); },
+  duck(depthDb = -14, hold = 1.5) {
+    if (!this.ctx) return;
+    const g = this.bus.amb.gain, t = this.ctx.currentTime;
+    g.cancelScheduledValues(t); g.setTargetAtTime(dB(this.ambDb + depthDb), t, 0.02); g.setTargetAtTime(dB(this.ambDb), t + hold, 0.5);
+  },
+  out(node, bus = "sfx", wet = 0.4) { node.connect(this.bus[bus]); if (wet) { const s = this.ctx.createGain(); s.gain.value = wet; node.connect(s).connect(this.bus.rev); } },
+  tone(f, dur, { type = "sine", gain = 0.1, at = 0, slide = 0, attack = 0.008, bus = "sfx", wet = 0.3, cutoff = 0 } = {}) {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime + at, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, f * slide), t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let n = o.connect(g);
+    if (cutoff) { const f2 = this.ctx.createBiquadFilter(); f2.type = "lowpass"; f2.frequency.value = cutoff; n = n.connect(f2); }
+    this.out(n, bus, wet); o.start(t); o.stop(t + dur + 0.05);
+  },
+  noise(dur, { from = 800, to = 4000, gain = 0.1, at = 0, q = 1, type = "bandpass", bus = "sfx", wet = 0.2, attack = 0 } = {}) {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime + at, len = Math.ceil(this.ctx.sampleRate * dur);
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const s = this.ctx.createBufferSource(); s.buffer = buf;
+    const f = this.ctx.createBiquadFilter(); f.type = type; f.Q.value = q;
+    f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + dur);
+    const g = this.ctx.createGain();
+    if (attack) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + attack); } else g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    this.out(s.connect(f).connect(g), bus, wet); s.start(t);
+  },
+  // Corde pincée (Karplus-Strong) : luth, koto, harpe selon l'amortissement
+  pluck(f, dur = 1.5, { gain = 0.2, at = 0, damp = 0.996, bright = 0.6, bus = "sfx", wet = 0.35 } = {}) {
+    if (!this.ctx) return;
+    const sr = this.ctx.sampleRate, N = Math.max(2, Math.round(sr / f)), len = Math.ceil(sr * dur);
+    const buf = this.ctx.createBuffer(1, len, sr), d = buf.getChannelData(0), ring = new Float32Array(N);
+    let prev = 0; for (let i = 0; i < N; i++) { const r = Math.random() * 2 - 1; prev = prev + bright * (r - prev); ring[i] = prev; }
+    for (let i = 0; i < len; i++) { const k = i % N, v = ring[k]; d[i] = v; ring[k] = damp * 0.5 * (v + ring[(k + 1) % N]); }
+    const s = this.ctx.createBufferSource(); s.buffer = buf; const g = this.ctx.createGain(); g.gain.value = gain;
+    this.out(s.connect(g), bus, wet); s.start(this.ctx.currentTime + at);
+  },
+  // Cloche : partiels inharmoniques qui s'éteignent à des vitesses différentes
+  bell(f, dur = 2.5, { gain = 0.08, at = 0, bus = "sfx", wet = 0.5, partials = [1, 2.76, 5.4, 8.93] } = {}) {
+    partials.forEach((p, i) => this.tone(f * p, dur / (1 + i * 0.7), { gain: gain / (1 + i), at, attack: 0.003, bus, wet }));
+  },
+  // Nappe : oscillateurs désaccordés filtrés, attaque lente
+  pad(freqs, dur = 3, { gain = 0.03, at = 0, attack = 0.6, type = "sawtooth", cutoff = 1800, bus = "sfx", wet = 0.6 } = {}) {
+    freqs.forEach((f) => [-6, 6].forEach((cents) => this.tone(f * Math.pow(2, cents / 1200), dur, { type, gain, at, attack, cutoff, bus, wet })));
+  },
+  // Boucle de bruit filtré pour les ambiances (pluie, vent, feu…)
+  loopNoise({ type = "lowpass", freq = 400, q = 0.7, gain = 0.5, brown = true, lfo = 0, lfoDepth = 0 } = {}) {
+    const ctx = this.ctx, len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    let b = 0; for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; b = brown ? (b + 0.02 * w) / 1.02 : w; d[i] = brown ? b * 3.5 : w; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain(); g.gain.value = gain;
+    if (lfo) { const o = ctx.createOscillator(), og = ctx.createGain(); o.frequency.value = lfo; og.gain.value = lfoDepth; o.connect(og).connect(g.gain); o.start(); }
+    src.connect(f).connect(g).connect(this.bus.amb); src.start();
+    return { filter: f, gain: g };
+  },
+  drone(freqs, gain = 0.1, type = "sine") {
+    freqs.forEach((fr, i) => {
+      const o = this.ctx.createOscillator(), og = this.ctx.createGain(), lfo = this.ctx.createOscillator(), lg = this.ctx.createGain();
+      o.type = type; o.frequency.value = fr; og.gain.value = gain;
+      lfo.frequency.value = 0.05 + i * 0.03; lg.gain.value = gain * 0.7; lfo.connect(lg).connect(og.gain);
+      o.connect(og).connect(this.bus.amb); o.start(); lfo.start();
+    });
+  },
+  // Planifie un son récurrent irrégulier (oiseaux, carillon, gouttes…)
+  every(minS, maxS, fn) { const go = () => { if (this.on) fn(); setTimeout(go, (minS + Math.random() * (maxS - minS)) * 1000); }; setTimeout(go, minS * 1000); },
+};
+
+
+// Palettes sonores à comparer (page ?lab) : instruments plutôt qu'électro, tout synthétisé dans le navigateur (aucun fichier audio).
+// Chaque palette fournit les mêmes sons : tear (ouverture), flip(rareté), ssr, urCharge, urImpact, gather, collect.
+
+function createPalettes(s) {
+  const C = () => s.ctx;
+  const hz = (n) => 440 * 2 ** ((n - 69) / 12); // numéro MIDI → Hz
+  const env = (g, t, peak, a, d) => { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); };
+  let nb = null;
+  const noiseBuf = () => { const c = C(); if (!nb) { nb = c.createBuffer(1, c.sampleRate, c.sampleRate); const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return nb; };
+  let BUS = "sfx"; // bus de sortie des instruments : "sfx" pour les effets, "amb" pour la musique de fond
+  const route = (node, pan = 0, wet = 0.4, bus = BUS) => { const p = C().createStereoPanner(); p.pan.value = pan; node.connect(p); s.out(p, bus, wet); };
+
+  // Une voix : oscillateur(s) → filtre → enveloppe
+  function voice(t, f, { type = "sine", gain = 0.1, a = 0.01, d = 0.6, wet = 0.4, pan = 0, lp = 0, det = 0, slide = 0, sustain = 0 } = {}) {
+    const c = C(), g = c.createGain(); let tail = g;
+    if (lp) { const fl = c.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = lp; g.connect(fl); tail = fl; }
+    (det ? [-det, det] : [0]).forEach((cents) => {
+      const o = c.createOscillator(); o.type = type; o.frequency.setValueAtTime(f * 2 ** (cents / 1200) * (slide ? 1 / slide : 1), t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(f * 2 ** (cents / 1200), t + a + d * 0.5);
+      o.connect(g); o.start(t); o.stop(t + a + d + sustain + 0.1);
+    });
+    if (sustain) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + a); g.gain.setValueAtTime(gain, t + a + sustain); g.gain.exponentialRampToValueAtTime(0.0001, t + a + sustain + d); } else env(g, t, gain, a, d);
+    route(tail, pan, wet);
+  }
+  function noise(t, { from = 2000, to = 0, q = 1, gain = 0.1, a = 0.002, d = 0.2, type = "bandpass", wet = 0.3, pan = 0 } = {}) {
+    const c = C(), src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); src.buffer = noiseBuf(); f.type = type; f.Q.value = q;
+    f.frequency.setValueAtTime(from, t); if (to) f.frequency.exponentialRampToValueAtTime(to, t + a + d);
+    env(g, t, gain, a, d); src.connect(f).connect(g); src.start(t, Math.random() * 0.4, a + d + 0.1); route(g, pan, wet);
+  }
+  // Pincé (Karplus-Strong) : koto, harpe, cordes pincées
+  const plucks = new Map();
+  function pluck(t, f, { gain = 0.2, decay = 0.997, dur = 2, wet = 0.45, pan = 0 } = {}) {
+    const c = C(), key = `${Math.round(f)}|${decay}|${dur}`; let buf = plucks.get(key);
+    if (!buf) {
+      const sr = c.sampleRate, n = Math.floor(sr * dur), N = Math.max(2, Math.round(sr / f)); buf = c.createBuffer(1, n, sr); const d = buf.getChannelData(0);
+      for (let i = 0; i < N; i++) d[i] = Math.random() * 2 - 1;
+      for (let i = N; i < n; i++) d[i] = (d[i - N] + d[i - N + 1]) * 0.5 * decay;
+      plucks.set(key, buf);
+    }
+    const src = c.createBufferSource(), g = c.createGain(); src.buffer = buf; g.gain.value = gain; src.connect(g); src.start(t); route(g, pan, wet);
+  }
+  // Cloche / carillon : partiels inharmoniques à longue résonance
+  function bell(t, f, { gain = 0.1, dur = 3, wet = 0.6, parts = [1, 2.76, 5.4, 8.93], pan = 0 } = {}) { parts.forEach((m, i) => voice(t, f * m, { gain: gain / (1 + i * 1.3), a: 0.003, d: dur / (1 + i * 0.6), wet, pan })); }
+  const taiko = (t, p = 1) => { voice(t, 78, { gain: 0.34 * p, a: 0.003, d: 0.7, slide: 2.2, wet: 0.35 }); noise(t, { from: 900, to: 200, type: "lowpass", gain: 0.16 * p, d: 0.25, wet: 0.2 }); };
+  const timpani = (t, p = 1) => { voice(t, 98, { gain: 0.3 * p, a: 0.004, d: 1.2, slide: 1.35, wet: 0.5 }); voice(t, 147, { gain: 0.08 * p, a: 0.004, d: 0.7, wet: 0.5 }); };
+  const cymbal = (t, { gain = 0.12, swell = 1.5, d = 1.6 } = {}) => noise(t, { from: 6500, type: "highpass", gain, a: swell, d, wet: 0.5 });
+  const strings = (t, notes, dur, gain = 0.05) => notes.forEach((n) => voice(t, hz(n), { type: "sawtooth", gain, a: dur * 0.55, d: dur * 0.5, det: 9, lp: 1700, wet: 0.6 }));
+  const brass = (t, n, dur, gain = 0.09) => { const f = hz(n); [-6, 6].forEach((det) => voice(t, f, { type: "sawtooth", gain: gain / 2, a: 0.07, d: dur, sustain: Math.max(0, dur - 0.5), lp: 2600, det, wet: 0.45 })); };
+  // Voix « aah » : dents de scie filtrées par trois formants
+  function choir(t, n, dur, gain = 0.07) {
+    const c = C(), f = hz(n), g = c.createGain(); env(g, t, gain, dur * 0.45, dur * 0.6);
+    [-8, 0, 8].forEach((cents) => { const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.value = f * 2 ** (cents / 1200); const mix = c.createGain(); mix.gain.value = 1; o.connect(mix); [[800, 1], [1150, 0.5], [2900, 0.25]].forEach(([fq, k]) => { const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = fq; bp.Q.value = 6; const kg = c.createGain(); kg.gain.value = k; mix.connect(bp).connect(kg).connect(g); }); o.start(t); o.stop(t + dur * 1.1 + 0.2); });
+    route(g, 0, 0.7);
+  }
+  function flute(t, n, dur, gain = 0.1, { bend = 0 } = {}) { // shakuhachi : souffle + sinus vibré
+    const c = C(), o = c.createOscillator(), g = c.createGain(), lfo = c.createOscillator(), lg = c.createGain(); o.type = "sine"; o.frequency.setValueAtTime(hz(n - bend), t); if (bend) o.frequency.exponentialRampToValueAtTime(hz(n), t + dur * 0.4);
+    lfo.frequency.value = 5.2; lg.gain.value = 7; lfo.connect(lg).connect(o.detune); env(g, t, gain, dur * 0.3, dur * 0.8); o.connect(g); o.start(t); lfo.start(t); o.stop(t + dur * 1.2); lfo.stop(t + dur * 1.2); route(g, 0, 0.6);
+    noise(t, { from: hz(n) * 2, q: 3, type: "bandpass", gain: gain * 0.5, a: dur * 0.3, d: dur * 0.8, wet: 0.5 });
+  }
+  function piano(t, n, { gain = 0.14, d = 2.2, pan = 0 } = {}) { const f = hz(n); voice(t, f, { type: "triangle", gain, a: 0.004, d, wet: 0.5, pan }); voice(t, f * 2, { gain: gain * 0.25, a: 0.003, d: d * 0.4, wet: 0.5, pan }); voice(t, f * 3, { gain: gain * 0.08, a: 0.003, d: d * 0.25, wet: 0.5, pan }); noise(t, { from: 3000, q: 1, gain: gain * 0.15, d: 0.04, wet: 0.2, pan }); }
+  const now = () => C().currentTime;
+  const D = 62; // ré4 (MIDI)
+
+  return {
+    inst: { voice, noise, pluck, bell, taiko, timpani, flute, strings, hz, setBus: (b) => (BUS = b) },
+    // ----- A · Orchestre shonen : cuivres, timbales, cordes, chœur -----
+    orchestre: {
+      name: "A · Orchestre shonen", blurb: "Cuivres, timbales, cymbale, cordes et chœur : l'ouverture d'un shonen épique.",
+      tear() { const t = now(); timpani(t, 0.8); brass(t + 0.02, D + 12, 0.5, 0.06); cymbal(t, { gain: 0.05, swell: 0.1, d: 0.6 }); },
+      flip(r) { const t = now(); if (r === "N") pluck(t, hz(D + 12), { gain: 0.12 }); else if (r === "R") { pluck(t, hz(D + 16), { gain: 0.14 }); bell(t + 0.04, hz(D + 28), { gain: 0.04, dur: 1.2 }); } else if (r === "SR") { brass(t, D + 7, 0.6, 0.07); timpani(t, 0.6); } },
+      ssr() { const t = now(); timpani(t); [0, 4, 7, 12].forEach((k, i) => brass(t + i * 0.16, D + k, i === 3 ? 1.6 : 0.4, 0.08)); cymbal(t, { gain: 0.1, swell: 0.7, d: 1.6 }); bell(t + 0.5, hz(D + 36), { gain: 0.05, dur: 2 }); },
+      urCharge() { const t = now(); strings(t, [D - 12, D - 5, D, D + 4], 3, 0.045); for (let i = 0, at = 0, gap = 0.4; at < 2.8; i++, at += gap, gap *= 0.86) timpani(t + at, 0.3 + at / 5); cymbal(t + 0.4, { gain: 0.1, swell: 2.4, d: 0.8 }); choir(t + 1.2, D + 12, 2, 0.05); },
+      urImpact() { const t = now(); timpani(t, 1.3); taiko(t, 1.2); [0, 4, 7, 12, 16].forEach((k) => brass(t, D + k, 2.6, 0.07)); cymbal(t, { gain: 0.2, swell: 0.01, d: 3 }); choir(t, D + 12, 3.5, 0.09); choir(t, D + 19, 3.5, 0.06); bell(t + 0.1, hz(D + 36), { gain: 0.06, dur: 4 }); },
+      gather() { const t = now(); strings(t, [D + 7, D + 12], 0.9, 0.03); },
+      collect() { const t = now(); pluck(t, hz(D + 24), { gain: 0.13 }); bell(t + 0.05, hz(D + 36), { gain: 0.04, dur: 1 }); },
+    },
+    // ----- B · Japonais : koto, shakuhachi, taiko, cloche de temple (gamme hirajoshi) -----
+    wa: {
+      name: "B · Japonais (wa)", blurb: "Koto, flûte shakuhachi, gros taiko et cloche de temple : calme et solennel (SSR et UR seulement dans le jeu).",
+      tear() { const t = now(); [0, 2, 3, 7].forEach((k, i) => pluck(t + i * 0.05, hz(D + k), { gain: 0.09, decay: 0.998, dur: 2.2 })); },
+      flip(r) { const t = now(); const rank = ["N", "R", "SR"].indexOf(r); pluck(t, hz(D + [0, 3, 7][Math.max(0, rank)]), { gain: 0.09, dur: 1.6 }); },
+      select() { const t = now(); pluck(t, hz(D), { gain: 0.09, dur: 1.4 }); pluck(t + 0.1, hz(D + 7), { gain: 0.08, dur: 1.4 }); },
+      shatter(p = 1) { const t = now(); taiko(t, 0.5 * p); [0, 3, 7].forEach((k, i) => pluck(t + 0.04 + i * 0.05, hz(D + 12 + k), { gain: 0.08 * p, dur: 1.8 })); },
+      // Plus grave et plus doux que la première version : les notes sont une octave plus bas, les gains réduits, peu de bruit aigu
+      ssr() { const t = now(); bell(t, hz(D), { gain: 0.07, dur: 4, parts: [1, 2.01, 3.0] }); [0, 3, 7, 8, 12, 14].forEach((k, i) => pluck(t + 0.2 + i * 0.1, hz(D + k), { gain: 0.09, dur: 2.2 })); flute(t + 0.4, D + 7, 1.6, 0.05); taiko(t, 0.55); },
+      urCharge() { const t = now(); flute(t, D - 5, 3, 0.06, { bend: 3 }); for (let i = 0, at = 0, gap = 0.7; at < 2.8; i++, at += gap, gap *= 0.82) taiko(t + at, 0.25 + at / 7); noise(t, { from: 300, to: 1600, q: 0.7, gain: 0.035, a: 2.6, d: 0.4, wet: 0.5 }); [0, 3, 7].forEach((k, i) => pluck(t + 1.6 + i * 0.4, hz(D + k), { gain: 0.07 + i * 0.02, dur: 2.4 })); },
+      urImpact() { const t = now(); taiko(t, 1); taiko(t + 0.18, 0.7); taiko(t + 0.36, 0.9); bell(t, hz(D - 12), { gain: 0.1, dur: 6, parts: [1, 2.01, 3.0] }); [0, 3, 7, 12, 15].forEach((k, i) => pluck(t + 0.05 + i * 0.04, hz(D + k), { gain: 0.11, dur: 3 })); flute(t + 0.3, D + 12, 2.6, 0.06); },
+      gather() { const t = now(); [7, 3, 0].forEach((k, i) => pluck(t + i * 0.1, hz(D + 12 - k), { gain: 0.07 })); },
+      collect() { const t = now(); pluck(t, hz(D + 12), { gain: 0.09, dur: 1.5 }); },
+    },
+    // ----- C · Féérique : harpe, célesta, chœur doux (magical girl / fantasy) -----
+    feerique: {
+      name: "C · Féérique", blurb: "Harpe, célesta et chœur doux : lumineux et magique, façon fantasy.",
+      tear() { const t = now(); [0, 4, 7, 11, 14, 19].forEach((k, i) => pluck(t + i * 0.04, hz(D + 12 + k), { gain: 0.12, decay: 0.998, dur: 2, wet: 0.6 })); },
+      flip(r) { const t = now(); const rank = ["N", "R", "SR"].indexOf(r); bell(t, hz(D + 24 + rank * 4), { gain: 0.06 + rank * 0.02, dur: 1 + rank * 0.5, parts: [1, 2, 3, 4.2] }); },
+      ssr() { const t = now(); [0, 4, 7, 12, 16, 19, 24].forEach((k, i) => { pluck(t + i * 0.07, hz(D + 12 + k), { gain: 0.14, dur: 2.4, wet: 0.6 }); bell(t + i * 0.07, hz(D + 24 + k), { gain: 0.04, dur: 1.4, parts: [1, 2, 3, 4.2] }); }); choir(t + 0.2, D + 12, 2.2, 0.06); },
+      urCharge() { const t = now(); choir(t, D, 3, 0.05); choir(t + 0.5, D + 7, 2.5, 0.05); for (let i = 0, at = 0, gap = 0.3; at < 2.8; i++, at += gap, gap *= 0.9) pluck(t + at, hz(D + 12 + [0, 4, 7, 12, 16][i % 5] + (i > 8 ? 12 : 0)), { gain: 0.08 + at / 30, dur: 1.4, wet: 0.6 }); noise(t, { from: 4000, type: "highpass", gain: 0.05, a: 2.6, d: 0.5, wet: 0.5 }); },
+      urImpact() { const t = now(); [0, 4, 7, 12, 16, 19, 24, 28].forEach((k, i) => { pluck(t + i * 0.05, hz(D + k), { gain: 0.16, dur: 3, wet: 0.7 }); bell(t + i * 0.05, hz(D + 24 + k), { gain: 0.05, dur: 3, parts: [1, 2, 3, 4.2] }); }); choir(t, D + 12, 4, 0.09); choir(t, D + 16, 4, 0.06); choir(t, D + 19, 4, 0.06); bell(t, hz(D + 36), { gain: 0.08, dur: 5 }); },
+      gather() { const t = now(); [0, 4, 7, 12].forEach((k, i) => pluck(t + i * 0.07, hz(D + 24 + k), { gain: 0.08, dur: 1 })); },
+      collect() { const t = now(); bell(t, hz(D + 36), { gain: 0.07, dur: 1.4, parts: [1, 2, 3, 4.2] }); },
+    },
+    // ----- D · Piano émotionnel : piano, cordes, cœur qui bat (OST calme, tirée de tes références) -----
+    piano: {
+      name: "D · Piano émotionnel", blurb: "Piano, cordes et battements de cœur : sobre, un peu mélancolique, très « OST d'anime ».",
+      tear() { const t = now(); piano(t, D + 12, { gain: 0.12 }); piano(t + 0.09, D + 19, { gain: 0.1 }); },
+      flip(r) { const t = now(); const rank = ["N", "R", "SR"].indexOf(r); piano(t, D + 12 + [0, 4, 7][Math.max(0, rank)], { gain: 0.12 }); if (rank >= 1) piano(t + 0.1, D + 19 + rank, { gain: 0.09 }); },
+      ssr() { const t = now(); [0, 4, 7, 12, 16].forEach((k, i) => piano(t + i * 0.13, D + 12 + k, { gain: 0.14 + i * 0.01 })); strings(t + 0.3, [D, D + 7, D + 12], 2.4, 0.04); taiko(t + 0.5, 0.5); },
+      urCharge() { const t = now(); [D - 12, D - 5, D].forEach((n, i) => piano(t + i * 0.6, n, { gain: 0.14, d: 3 })); strings(t, [D - 12, D - 5, D, D + 4], 3, 0.045); for (let i = 0, at = 0.6, gap = 0.8; at < 2.8; i++, at += gap, gap *= 0.78) { taiko(t + at, 0.28 + at / 8); piano(t + at + 0.1, D + 12 + [0, 4, 7, 12][i % 4], { gain: 0.08 }); } },
+      urImpact() { const t = now(); [0, 4, 7, 12, 16, 19].forEach((k) => piano(t, D + k, { gain: 0.16, d: 4 })); piano(t, D - 12, { gain: 0.2, d: 4 }); strings(t, [D - 12, D, D + 7, D + 12, D + 16], 3.5, 0.06); taiko(t, 1.2); choir(t + 0.1, D + 12, 3.5, 0.06); bell(t + 0.1, hz(D + 36), { gain: 0.05, dur: 4 }); },
+      gather() { const t = now(); [0, 4, 7].forEach((k, i) => piano(t + i * 0.1, D + 12 + k, { gain: 0.07, d: 1 })); },
+      collect() { const t = now(); piano(t, D + 24, { gain: 0.09, d: 1.2 }); },
+    },
+  };
+}
+
+const PALETTE_ORDER = ["orchestre", "wa", "feerique", "piano"];
+
+// Cyber futuriste : un laboratoire immaculé, lumineux et calme. Blanc nacré, bleu signal, anneaux en lévitation.
+
+const LYDIAN = [523.25, 587.33, 659.25, 739.99, 783.99, 880, 987.77, 1046.5];
+
+const theme = {
+  id: "futur", name: "Cyber futuriste",
+  fonts: "https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@400;600&display=swap",
+  css: `
+    :root { --bg: #e9eff6; --ink: #0d1b2a; --muted: #0d1b2a99; --accent: #2b6cff; --accent2: #00c8b4; --hl: #2b6cff;
+      --font-display: "Michroma"; --font-body: "Sora"; --display-weight: 400;
+      --panel: #ffffffa8; --panel-line: #ffffff; --radius: 20px;
+      --logo: #0d1b2a; --logo-glow: none; --header-fade: #f4f7fb99;
+      --btn: #ffffffb0; --btn-line: #ffffff; --btn-primary: #0d1b2a; --btn-primary-ink: #fff;
+      --hint: #0d1b2a; --hint-glow: none;
+      --SSR: #f2a516; --UR: #ff3b4a;
+      --flash: radial-gradient(circle at 50% 45%, #ffffff 0%, #fff4d6aa 30%, transparent 65%);
+      --vig: radial-gradient(ellipse at 50% 45%, transparent 60%, #8aa0b833 100%);
+      --ur-bg: radial-gradient(circle, #ffffff, #dfe8f3 60%, #c3d3e6);
+      --ur-rays: repeating-conic-gradient(#2b6cff1a 0 2deg, transparent 2deg 9deg);
+      --ur-frame: conic-gradient(from var(--a), #2b6cff, #00c8b4, #f2a516, #7a5cff, #2b6cff);
+      --ur-label: linear-gradient(90deg, #0d1b2a, #2b6cff, #00c8b4, #0d1b2a);
+      --ur-glow: #2b6cff55; --ur-ink: #0d1b2a; }
+    .logo { font-size: 18px; letter-spacing: .08em; }
+    .hud { box-shadow: 0 20px 50px #5a789a33; }
+    .hud .big { font-size: 30px; }
+    .stock i { height: 6px; border-radius: 3px; } .stock i.on { box-shadow: none; }
+    .bar i { height: 4px; } .bar i.on { box-shadow: none; }
+    .btn { border-width: 1px; box-shadow: 0 8px 24px #5a789a22; }
+    .ur .label { font-size: clamp(36px, 6vw, 84px); letter-spacing: .04em; }
+    .booster { width: 170px; aspect-ratio: 1/1.7; }
+    .booster .cap { position: absolute; inset: 0; border-radius: 90px; background: linear-gradient(120deg, #ffffffee, #dfe9f5cc 45%, #ffffffee); box-shadow: 0 30px 60px #5a789a55, inset 0 0 0 1px #fff, inset 0 -30px 60px #2b6cff22; backdrop-filter: blur(6px); overflow: hidden; }
+    .booster .cap::before { content: ""; position: absolute; left: 50%; top: 50%; width: 60%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; border: 2px solid #2b6cff; box-shadow: 0 0 30px #2b6cff66, inset 0 0 20px #2b6cff44; animation: pulse 2.4s ease-in-out infinite; }
+    .booster .cap::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #2b6cff66; }
+    @keyframes pulse { 50% { scale: 1.08; opacity: .7; } }
+    .booster .lbl { position: absolute; bottom: 14%; left: 0; right: 0; text-align: center; font: 400 11px "Michroma"; letter-spacing: .12em; color: #0d1b2a; }
+    .booster .num { position: absolute; top: 14%; left: 0; right: 0; text-align: center; font: 400 22px "Michroma"; color: #2b6cff; }
+  `,
+  booster: `<span class="cap"></span><span class="num">05</span><span class="lbl">Capsule de cartes</span>`,
+  text: { open: "Touche la capsule pour l'ouvrir", done: "Synchronisation terminée. Survole tes cartes pour les admirer" },
+  rarity: { N: "#9aa8b8", R: "#2b9bff", SR: "#7a5cff", SSR: "#f2a516", UR: "#ff3b4a" },
+  urFrame: ["#2b6cff", "#00c8b4", "#f2a516", "#7a5cff", "#2b6cff"], urInk: "#ffd2d6", urStar: "+",
+  card: {
+    display: "Michroma", body: "Sora", ink: "#ffffff", sub: "#c6d5e6", panel: "#eef3f8", shade: "#0d1b2a", badge: "#0d1b2ac0", radius: 28, tint: 0.98,
+    back(g, w, h) {
+      // verre bleu nuit : contraste net avec le décor clair
+      const bg = g.createLinearGradient(0, 0, w, h); bg.addColorStop(0, "#1d3557"); bg.addColorStop(1, "#0d1b2a"); g.fillStyle = bg; g.fillRect(0, 0, w, h);
+      const sheen = g.createLinearGradient(0, 0, w, h * 0.6); sheen.addColorStop(0, "#ffffff22"); sheen.addColorStop(0.5, "#ffffff00"); g.fillStyle = sheen; g.fillRect(0, 0, w, h);
+      // pistes de circuit fines
+      g.strokeStyle = "#5b8cff66"; g.lineWidth = 2;
+      const r = (() => { let s = 5; return () => ((s = (s * 16807) % 2147483647) / 2147483647); })();
+      for (let i = 0; i < 26; i++) { let x = 40 + r() * (w - 80), y = 40 + r() * (h - 80); g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 3; k++) { if (r() < 0.5) x += (r() - 0.5) * 160; else y += (r() - 0.5) * 160; g.lineTo(x, y); } g.stroke(); g.fillStyle = "#2b6cff88"; g.beginPath(); g.arc(x, y, 4, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = "#0d1b2acc"; g.beginPath(); g.arc(w / 2, h / 2, 120, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = "#5b8cff"; g.lineWidth = 3; g.beginPath(); g.arc(w / 2, h / 2, 120, 0, Math.PI * 2); g.stroke();
+      g.strokeStyle = "#00c8b4"; g.lineWidth = 3; g.beginPath(); g.arc(w / 2, h / 2, 136, -0.6, 0.9); g.stroke();
+      g.fillStyle = "#ffffff"; g.font = '400 64px "Michroma"'; g.textAlign = "center"; g.fillText("AM", w / 2, h / 2 + 24);
+      g.font = '400 14px "Michroma"'; g.fillStyle = "#8fb0ff"; g.fillText("ANIME MASTERS · SERIES 01", w / 2, h - 50);
+      g.strokeStyle = "#ffffff33"; g.lineWidth = 2; g.beginPath(); g.roundRect(20, 20, w - 40, h - 40, 20); g.stroke();
+    },
+  },
+  render: { toneMapping: "none", bloom: [0.4, 0.4, 1.15] },
+  camera: { y: 2.5 },
+  fx: { ring: "#2b6cff", blend: "normal", spawn: ["#2b6cff", "#00c8b4", "#ffffff"], ssr: ["#f2a516", "#ffd36b", "#ffffff"], ur: ["#2b6cff", "#00c8b4", "#7a5cff", "#f2a516"], gravity: 0.3, burstSize: 0.08, lineGlow: 0.12 },
+  ambienceDb: -18, reverb: { seconds: 3.2, wet: 0.4 },
+
+  env({ THREE, scene, canvasTex, softDot, rng, GLSL_NOISE }) {
+    const R = rng(21);
+    // Cyclorama : fond infini, dégradé nacré qui se fond dans le sol
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(200, 48, 24), new THREE.ShaderMaterial({
+      side: THREE.BackSide, depthWrite: false, uniforms: { uTime: { value: 0 } },
+      vertexShader: `varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `uniform float uTime; varying vec3 vDir; ${GLSL_NOISE}
+        void main() { vec3 d = normalize(vDir);
+          vec3 col = mix(vec3(0.96, 0.975, 0.99), vec3(0.74, 0.81, 0.9), smoothstep(0.0, 0.7, d.y));
+          col += vec3(0.4, 0.6, 1.0) * 0.06 * smoothstep(0.3, 0.0, abs(d.y - 0.05));
+          gl_FragColor = vec4(srgb(col), 1.0); }`,
+    }));
+    scene.add(sky);
+    scene.fog = new THREE.Fog("#eef3f8", 18, 70);
+    scene.add(new THREE.HemisphereLight("#ffffff", "#b9c8da", 1.2));
+    const sun = new THREE.DirectionalLight("#ffffff", 0.9); sun.position.set(-4, 10, 6); scene.add(sun);
+
+    // Sol laqué : reflet discret sous un voile blanc
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(80, 64), new THREE.MeshStandardMaterial({ color: "#eef3f8", roughness: 0.3, metalness: 0.05, emissive: "#dbe4ee", emissiveIntensity: 0.75 }));
+    floor.rotation.x = -Math.PI / 2; floor.position.y = -0.6; scene.add(floor);
+    // Ombre de contact sous les cartes
+    const shadowTex = canvasTex(256, 256, (g) => { const r = g.createRadialGradient(128, 128, 0, 128, 128, 128); r.addColorStop(0, "#1b2c4433"); r.addColorStop(1, "#1b2c4400"); g.fillStyle = r; g.fillRect(0, 0, 256, 256); });
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = -0.59; scene.add(shadow);
+    // Lignes lumineuses au sol qui convergent vers le centre
+    const lineMat = new THREE.MeshBasicMaterial({ color: "#2b6cff", transparent: true, opacity: 0.5 });
+    for (let i = 0; i < 3; i++) { const ring = new THREE.Mesh(new THREE.RingGeometry(3.4 + i * 1.6, 3.42 + i * 1.6, 128), lineMat.clone()); ring.rotation.x = -Math.PI / 2; ring.position.y = -0.585; ring.material.opacity = 0.35 - i * 0.09; scene.add(ring); }
+
+    // Anneaux géants en lévitation derrière la scène
+    const white = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.35, metalness: 0.1, emissive: "#e6edf5", emissiveIntensity: 0.45 });
+    const glow = new THREE.MeshBasicMaterial({ color: new THREE.Color("#2b6cff").multiplyScalar(1.6) });
+    const rings = [];
+    [[10, 0.3, -26, 6], [15, 0.22, -34, 7], [6.5, 0.18, -20, 5]].forEach(([rad, tube, z, y], i) => {
+      const g = new THREE.Group(); g.position.set(0, y, z); scene.add(g);
+      g.add(new THREE.Mesh(new THREE.TorusGeometry(rad, tube, 24, 160), white));
+      const line = new THREE.Mesh(new THREE.TorusGeometry(rad - tube * 1.1, 0.025, 8, 160), glow); g.add(line);
+      // segments lumineux qui tournent le long de l'anneau
+      const arc = new THREE.Mesh(new THREE.TorusGeometry(rad + tube * 1.15, 0.04, 8, 64, 0.9), new THREE.MeshBasicMaterial({ color: new THREE.Color(i === 1 ? "#00c8b4" : "#2b6cff").multiplyScalar(1.8) })); g.add(arc);
+      g.rotation.x = 0.15 + i * 0.12; rings.push({ g, arc, speed: (i % 2 ? -1 : 1) * (0.25 + i * 0.1) });
+    });
+    // Monolithes au loin
+    for (let i = 0; i < 9; i++) { const hgt = 6 + R() * 16; const m = new THREE.Mesh(new THREE.BoxGeometry(1.2 + R() * 2, hgt, 1.2 + R() * 2), white); const a = -1.2 + (i / 8) * 2.4; m.position.set(Math.sin(a) * (42 + R() * 12), hgt / 2 - 0.6, -Math.cos(a) * (42 + R() * 12)); scene.add(m); }
+
+    // Anneaux holographiques fins autour du cercle de cartes
+    const holoRings = [0, 1, 2].map((i) => { const m = new THREE.Mesh(new THREE.TorusGeometry(2.9 + i * 0.18, 0.008, 6, 160), new THREE.MeshBasicMaterial({ color: i === 1 ? "#00c8b4" : "#2b6cff", transparent: true, opacity: 0.55 })); m.rotation.x = Math.PI / 2 + (i - 1) * 0.12; m.position.y = 1.55 + (i - 1) * 0.5; scene.add(m); return m; });
+
+    // Particules de données qui s'élèvent lentement
+    const P = 160, pp = new Float32Array(P * 3); for (let i = 0; i < P; i++) pp.set([(R() - 0.5) * 16, R() * 8 - 0.6, -10 + R() * 14], i * 3);
+    const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute("position", new THREE.BufferAttribute(pp, 3));
+    const sq = canvasTex(32, 32, (g) => { g.fillStyle = "#fff"; g.fillRect(8, 8, 16, 16); });
+    scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ size: 0.06, map: sq, color: "#2b6cff", transparent: true, opacity: 0.6, depthWrite: false })));
+
+    return {
+      update(dt, t) {
+        for (const r of rings) { r.g.rotation.z += dt * 0.02 * Math.sign(r.speed); r.arc.rotation.z += dt * r.speed; r.g.position.y += Math.sin(t * 0.5 + r.speed) * 0.002; }
+        holoRings.forEach((m, i) => { m.rotation.z += dt * (i % 2 ? -0.3 : 0.2); m.material.opacity = 0.4 + Math.sin(t * 1.5 + i) * 0.15; });
+        const a = pGeo.attributes.position.array; for (let i = 0; i < P; i++) { a[i * 3 + 1] += dt * (0.15 + (i % 7) * 0.03); if (a[i * 3 + 1] > 7.5) a[i * 3 + 1] = -0.6; }
+        pGeo.attributes.position.needsUpdate = true;
+      },
+    };
+  },
+
+  sounds(s) {
+    const ping = (f, at = 0, gain = 0.05, dur = 0.9) => { s.tone(f, dur, { gain, at, attack: 0.004, wet: 0.5 }); s.tone(f * 2, dur * 0.5, { gain: gain * 0.3, at, attack: 0.004, wet: 0.5 }); };
+    return {
+      ambience() { s.loopNoise({ type: "bandpass", freq: 1800, q: 0.4, gain: 0.25, brown: false, lfo: 0.06, lfoDepth: 0.12 }); s.drone([220, 329.63, 440.5], 0.035); },
+      hover: () => s.tone(vary(2637, 0.01), 0.12, { gain: 0.03, bus: "ui", wet: 0.4 }),
+      tear: () => { s.noise(0.6, { from: 6000, to: 1200, gain: 0.08, type: "highpass" }); s.tone(1400, 0.05, { type: "square", gain: 0.03, wet: 0.2 }); s.tone(880, 0.6, { gain: 0.05, at: 0.1, slide: 1.5, wet: 0.5 }); },
+      spawn: (i) => ping(LYDIAN[i + 1], i * 0.12 + 0.05, 0.05),
+      select: () => { s.tone(330, 0.5, { gain: 0.06, slide: 2, attack: 0.05, wet: 0.5 }); s.noise(0.4, { from: 800, to: 4000, gain: 0.03, attack: 0.2 }); },
+      flip: (r) => { const n = { N: 2, R: 3, SR: 4, SSR: 5, UR: 6 }[r]; for (let i = 0; i < n; i++) ping(LYDIAN[i] * 2, 0.03 + i * 0.06, 0.045, 0.7); },
+      ssr: () => { [1046.5, 1318.5, 1479.98, 1975.5].forEach((f, i) => s.bell(f, 3, { gain: 0.05, at: i * 0.05 })); s.pad([523.25, 659.25, 739.99, 987.77], 2.5, { type: "sine", gain: 0.04, attack: 0.2, wet: 0.7 }); },
+      urCharge: () => { s.tone(220, 1.2, { gain: 0.08, slide: 4, attack: 1, wet: 0.5 }); s.noise(1.2, { from: 500, to: 9000, gain: 0.05, attack: 1.1, type: "highpass" }); },
+      urImpact: () => {
+        s.tone(110, 1.5, { gain: 0.3, slide: 0.5, wet: 0.3 });
+        s.pad([261.63, 369.99, 392, 493.88, 587.33, 739.99], 4.2, { type: "sine", gain: 0.035, attack: 0.3, wet: 0.8 });
+        for (let i = 0; i < 16; i++) ping(LYDIAN[i % 8] * (i < 8 ? 2 : 4), 0.3 + i * 0.07, 0.03, 0.8);
+      },
+      settle: () => s.tone(vary(1318.5, 0.01), 0.15, { gain: 0.04, bus: "ui", wet: 0.3 }),
+    };
+  },
+};
+
+// Habillage sonore de la DA cyber futuriste.
+// - Musique générative en couches (pad, arpège, basse, charleston, pulsation) dont l'intensité suit l'action ;
+//   les changements de couche tombent sur la mesure suivante pour rester musicaux.
+// - Sons de verre : tintements en sinusoïdes (tink) et, pour le verre brisé, claquement + grains de bruit brillants.
+
+const BPM = 84, STEP = 60 / BPM / 4; // double croche
+// Ré majeur, progression « générique d'anime » : D(add9) · A/C# · Bm7 · G(6/9) — lumineuse, calme, avec un côté héroïque
+const BARS = [
+  { root: 73.42, chord: [146.83, 185.0, 220.0, 293.66, 329.63] },
+  { root: 69.3, chord: [138.59, 164.81, 220.0, 277.18, 329.63] },
+  { root: 61.74, chord: [123.47, 146.83, 185.0, 220.0, 293.66] },
+  { root: 49.0, chord: [196.0, 246.94, 293.66, 329.63, 440.0] },
+];
+const ARP = [0, 1, 2, 3, 4, 3, 2, 1]; // une note par croche
+// Mélodie (pas de double croche, demi-tons au-dessus de ré5, durée en pas) : un motif simple et chantable, joué au glockenspiel
+const MELODY = [
+  [[0, 4, 6], [8, 7, 6], [12, 9, 4]],
+  [[0, 11, 6], [8, 9, 6], [12, 7, 4]],
+  [[0, 9, 6], [8, 7, 6], [12, 4, 4]],
+  [[0, 5, 6], [8, 7, 4], [12, 9, 8]],
+];
+const LEVEL = [
+  { cutoff: 1800, arp: 4, lead: false, bass: false, drum: 0 },
+  { cutoff: 4200, arp: 2, lead: true, bass: true, drum: 0 },
+  { cutoff: 9000, arp: 2, lead: true, bass: true, drum: 1 },
+];
+
+
+function futurAudio(s) {
+  const W = createPalettes(s).wa; // palette japonaise, réservée aux SSR et UR
+  let noiseBuf = null;
+  const noise = (ctx) => { if (!noiseBuf) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; };
+  const env = (g, t, peak, a, d) => { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); };
+
+  // Tintement de verre : deux partiels inharmoniques, attaque nette, extinction rapide, position stéréo aléatoire
+  function tink(t, f, gain, decay = 0.18, wet = 0.6) {
+    const ctx = s.ctx, pan = ctx.createStereoPanner(); pan.pan.value = Math.random() * 1.6 - 0.8;
+    [[1, 1], [2.76, 0.35], [5.4, 0.12]].filter(([m]) => f * m < 16000).forEach(([m, k]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f * m;
+      env(g, t, gain * k, 0.002, decay / m ** 0.5); o.connect(g).connect(pan); o.start(t); o.stop(t + decay + 0.05);
+    });
+    s.out(pan, "sfx", wet);
+  }
+
+  // Musique
+  function startMusic() {
+    const ctx = s.ctx;
+    const out = ctx.createBiquadFilter(); out.type = "lowpass"; out.frequency.value = LEVEL[0].cutoff; out.Q.value = 0.5; out.connect(s.bus.amb);
+    // Bus des cordes et de la basse
+    const pump = ctx.createGain(); pump.connect(out);
+    const delay = ctx.createDelay(1), fb = ctx.createGain(), dlp = ctx.createBiquadFilter();
+    delay.delayTime.value = STEP * 3; fb.gain.value = 0.36; dlp.type = "lowpass"; dlp.frequency.value = 2400;
+    delay.connect(dlp).connect(fb).connect(delay); dlp.connect(out);
+    const rev = ctx.createGain(); rev.gain.value = 0.35; rev.connect(s.bus.rev);
+
+    const voice = (t, f, { type = "triangle", gain = 0.05, a = 0.005, d = 0.4, dest = out, send = 0 } = {}) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.value = f;
+      env(g, t, gain, a, d); o.connect(g).connect(dest);
+      if (send) { const sg = ctx.createGain(); sg.gain.value = send; g.connect(sg).connect(delay); g.connect(rev); }
+      o.start(t); o.stop(t + a + d + 0.05);
+    };
+    // Cordes : scies désaccordées, filtrées, attaque lente (nappe chaude plutôt que synthé froid)
+    const strings = (t, chord, dur) => {
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1100; lp.connect(pump);
+      chord.slice(0, 4).forEach((f) => [-9, 9].forEach((c) => {
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sawtooth"; o.frequency.value = f * 2 ** (c / 1200);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.0065, t + 1.5); g.gain.setValueAtTime(0.0065, t + dur - 0.8); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.5);
+        o.connect(g).connect(lp); g.connect(rev); o.start(t); o.stop(t + dur + 0.6);
+      }));
+    };
+    const bass = (t, f, d = 0.9) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f; env(g, t, 0.1, 0.02, d); o.connect(g).connect(pump); o.start(t); o.stop(t + d + 0.1); };
+    // Glockenspiel : sinus + partiel brillant, longue réverbération
+    const bell = (t, f, len) => { voice(t, f, { type: "sine", gain: 0.05, a: 0.004, d: 0.5 + len * STEP * 0.5, send: 0.8 }); voice(t, f * 4, { type: "sine", gain: 0.012, a: 0.002, d: 0.25, send: 0.5 }); };
+    // Taiko doux : coup grave arrondi, jamais agressif
+    const taiko = (t, power = 1) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.18);
+      env(g, t, 0.16 * power, 0.004, 0.5); o.connect(g).connect(out); g.connect(rev); o.start(t); o.stop(t + 0.6);
+    };
+    const shaker = (t) => { const src = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), g = ctx.createGain(); src.buffer = noise(ctx); hp.type = "highpass"; hp.frequency.value = 7500; env(g, t, 0.006, 0.002, 0.05); src.connect(hp).connect(g).connect(out); src.start(t, Math.random() * 0.3, 0.1); };
+
+    let level = 0, pending = 0, step = 0, next = ctx.currentTime + 0.1;
+    const tick = () => {
+      if (next < ctx.currentTime - 0.2) { next = ctx.currentTime + 0.05; step = 0; } // onglet en arrière-plan : on se recale
+      while (next < ctx.currentTime + 0.15) {
+        const t = next, barIx = Math.floor(step / 16) % 4, bar = BARS[barIx], i = step % 16;
+        if (i === 0) {
+          if (pending !== level) { level = pending; out.frequency.setTargetAtTime(LEVEL[level].cutoff, t, 0.6); }
+          strings(t, bar.chord, STEP * 16);
+        }
+        const L = LEVEL[level];
+        if (i % L.arp === 0) voice(t, bar.chord[ARP[(i / L.arp * (L.arp === 4 ? 2 : 1)) % ARP.length]] * 2, { gain: level ? 0.032 : 0.026, d: 0.55, send: 0.6 });
+        if (L.bass && (i === 0 || i === 8)) bass(t, bar.root);
+        if (L.lead) MELODY[barIx].forEach(([at, semi, len]) => at === i && bell(t, 587.33 * 2 ** (semi / 12), len));
+        if (L.drum && (i === 0 || i === 8 || (barIx === 3 && (i === 12 || i === 14)))) taiko(t, i === 0 ? 1 : 0.7);
+        if (L.drum && i % 2 === 0) shaker(t);
+        next += STEP; step++;
+      }
+    };
+    setInterval(tick, 25); tick();
+    s.music = { setLevel: (n) => (pending = Math.max(0, Math.min(2, n))) };
+  }
+
+  const base = {
+    ambience: startMusic,
+    // SSR : carillon doré qui monte (arpège de ré majeur) avec une longue résonance
+    ssr: () => { [587.33, 739.99, 880, 1174.66, 1480].forEach((f, i) => s.bell(f, 2.2, { gain: 0.04, at: i * 0.09, partials: [1, 2.76, 5.4] })); s.tone(146.83, 1.4, { gain: 0.06, slide: 1.2, attack: 0.05, wet: 0.5 }); },
+    // Ouverture du booster : petit éclat de verre et accord pincé
+    tear: () => { const t = s.ctx.currentTime; for (let i = 0; i < 6; i++) tink(t + i * 0.03, 3200 + Math.random() * 2400, 0.025, 0.25); [587.33, 739.99, 880].forEach((f, i) => s.tone(f, 0.9, { type: "triangle", gain: 0.035, at: 0.08 + i * 0.05, wet: 0.5 })); },
+    // Sélection : montée tonale propre, sans souffle
+    select: () => { s.tone(392, 0.45, { gain: 0.05, slide: 1.5, attack: 0.03, wet: 0.5 }); s.tone(587.33, 0.5, { type: "triangle", gain: 0.025, at: 0.12, wet: 0.6 }); },
+    // Charge UR : nappe qui s'ouvre et tintements qui accélèrent
+    urCharge: () => {
+      s.pad([293.66, 369.99, 440, 554.37], 1.4, { type: "sawtooth", gain: 0.012, attack: 1.1, cutoff: 2600, wet: 0.6 });
+      const t = s.ctx.currentTime; for (let i = 0; i < 18; i++) { const k = i / 18; tink(t + 1.2 * (1 - (1 - k) ** 2), 1800 + k * 4200, 0.012 + k * 0.012, 0.12); }
+    },
+    // Verre brisé : claquement sec, craquement de fond, puis pluie d'éclats (grains de bruit brillants + tintements)
+    shatter(power = 1) {
+      const ctx = s.ctx, t = ctx.currentTime;
+      // Choc : claquement très bref et brillant + petit coup sourd
+      const crack = ctx.createBufferSource(), chp = ctx.createBiquadFilter(), cg = ctx.createGain();
+      crack.buffer = noise(ctx); chp.type = "highpass"; chp.frequency.value = 2500; env(cg, t, 0.3 * power, 0.001, 0.05);
+      crack.connect(chp).connect(cg); s.out(cg, "sfx", 0.25); crack.start(t, Math.random() * 0.3, 0.1);
+      s.tone(110, 0.2, { gain: 0.07 * power, slide: 0.6, attack: 0.003, wet: 0.1 });
+      // Fracas : fine nappe de bruit aigu qui se tait vite
+      const body = ctx.createBufferSource(), bbp = ctx.createBiquadFilter(), bg = ctx.createGain();
+      body.buffer = noise(ctx); bbp.type = "bandpass"; bbp.Q.value = 0.8; bbp.frequency.setValueAtTime(7500, t); bbp.frequency.exponentialRampToValueAtTime(3500, t + 0.4);
+      env(bg, t + 0.005, 0.1 * power, 0.004, 0.35); body.connect(bbp).connect(bg); s.out(bg, "sfx", 0.45); body.start(t, Math.random() * 0.2, 0.45);
+      // Éclats qui tombent : grains de bruit très courts, filtrés étroits (cliquetis de morceaux de verre)
+      const grains = Math.round(70 * power);
+      for (let i = 0; i < grains; i++) {
+        const at = t + 0.02 + Math.random() ** 1.7 * 1.1, k = 1 - (at - t) / 1.2;
+        const g = ctx.createGain(), bp = ctx.createBiquadFilter(), src = ctx.createBufferSource(), pan = ctx.createStereoPanner();
+        src.buffer = noise(ctx); bp.type = "bandpass"; bp.frequency.value = 3000 + Math.random() * 8000; bp.Q.value = 3 + Math.random() * 6;
+        env(g, at, (0.05 + Math.random() * 0.07) * power * Math.max(0.15, k), 0.001, 0.008 + Math.random() * 0.02);
+        pan.pan.value = Math.random() * 1.8 - 0.9; src.connect(bp).connect(g).connect(pan); s.out(pan, "sfx", 0.35); src.start(at, Math.random() * 0.4, 0.05);
+      }
+      // Tintements aigus qui s'éteignent (éclats plus gros qui rebondissent)
+      const n = Math.round(22 * power);
+      for (let i = 0; i < n; i++) { const at = 0.01 + Math.random() ** 1.5 * 1.0; tink(t + at, 3500 + Math.random() * 6500, 0.035 * power * (1 - at * 0.5), 0.06 + Math.random() * 0.14, 0.45); }
+    },
+    // Éclats qui se rassemblent : tintements ascendants qui se resserrent
+    gather: () => { const t = s.ctx.currentTime; for (let i = 0; i < 14; i++) { const k = i / 14; tink(t + 0.6 * k ** 0.7, 1500 * 2 ** (k * 1.6), 0.02, 0.14, 0.7); } },
+    // Arrivée dans l'album : petit carillon montant
+    collect: () => { const t = s.ctx.currentTime; [0, 0.06, 0.12].forEach((at, i) => tink(t + at, 2400 * 2 ** (i / 3), 0.04, 0.3, 0.6)); s.tone(659.25, 0.5, { type: "triangle", gain: 0.035, slide: 1.5, wet: 0.5 }); },
+    // Scellé de capsule : clic, puis le verre chante et se fend
+    unseal: () => { [0, 0.07].forEach((at) => s.tone(2200, 0.04, { type: "square", gain: 0.02, at, bus: "ui", wet: 0.2 })); s.bell(1318.5, 1.6, { gain: 0.03, at: 0.05, partials: [1, 2.41, 3.9] }); },
+    // Portail : montée harmonique (pas de souffle), puis jaillissement scintillant
+    warp: () => { s.tone(146.83, 1.3, { type: "sawtooth", gain: 0.03, slide: 2, attack: 0.5, cutoff: 1500, wet: 0.4 }); s.tone(220, 1.3, { type: "sine", gain: 0.05, slide: 2, attack: 0.5, wet: 0.5 }); },
+    whoosh: () => { const t = s.ctx.currentTime; for (let i = 0; i < 16; i++) tink(t + i * 0.025, 5200 - i * 200, 0.02, 0.2); s.tone(110, 0.6, { gain: 0.12, slide: 0.5, wet: 0.3 }); },
+    launch: () => s.tone(440, 0.4, { type: "triangle", gain: 0.04, slide: 2.5, wet: 0.5 }),
+  };
+  // SSR et UR : koto, flûte, taiko et cloche de temple ; tout le reste garde les sons de verre d'origine
+  return { ...base, ssr: () => W.ssr(), urCharge: () => W.urCharge(), urImpact: () => W.urImpact() };
+}
+
+ S.sounds={...theme.sounds(S),...futurAudio(S)};
+ return {S,theme:{...theme,ambienceDb:-13},intervals};
+}
+const bladeBytes=Uint8Array.from(atob('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EErKnINQSkqZcxBKSSmUkkpKrYVSSkqptQIAAAocAAACbNCUWByg0JCVAEAqAIDBcSzL80RRNWXZsSTPE0XTVFXbdizL80TRNFXVti3PE0XTVFXX1XXL80TRVFXVdXXdE0XVVFXXlWXf90TRNFXVdWXZ903TdFXXlWXb9n3TNFXXdWVZtn1hdVXXlWXb1m1jWFXXdWXZtm1dOW7d1nXhF4ZhmNq67vu+LwzH8EwDAMATHACACmxYHeGkaCyw0JCVAEAGAABhDEIGIYUMQkghhZRCSCklAABgwAEAIMCEMlBoyEoAIBUAACDEWmuttdZaYqm11lprrbWGSmuttdZaa6211lprrbXWWmuttdZaa6211lprrbXWWmuttZRSSimllFJKKaWUUkoppZRSSimllFJKKaWUUkoppZRSSimllFJKKaWUUkoppZRSSimllFJKKRUA6FfhAOD/YMPqCCdFY4GFhqwEAMIBAABjlGIMOukkpNQw5RiEUlJJpZVGMecglJJSSq1VzklIpaXWWouxck5KSSm1FluMHYSUWmotxhhj7CCklFprMcYYYyilpRhjrDHWWkNJqbUYY4w111pSai3GWmutufeSUosxxlxr7rmX1mKsteacc849tRZjrTXn3HPwqbUYY8619957UK3FWGuuOQfhewEA3A0OABAJNs6wknRWOBpcaMhKACAkAIBAiDHGnHMOQgghREox5pxzEEIIIYRIKcaccw5CCCGEkDHmnHMQQgihlFIyxpxzDkIIJZRQSuaccxBCCKGUUkrJnHMOQgghlFJKKR10EEIIoZRSSimlcw5CCKGUUkoppYQQQiillFJKKaWUEEIIpZRSSimllBJCCKWUUkoppZRSQgihlFJKKaWkUkoIoZRSSimllFJKCSGUUkoppZRSSimhhFJKKaWUUkopJZRQSimllFJKKqUUAABw4AAAEGAEnWRUWYSNJlx4AAoNWQkAAAEAIM5abClGRjHnIIbIIMQghgopxZy1DCmDHKZMKYSUlc4xhoiTFlsLFQMAAEAQAEAgZAKBAigwkAEABwgJUgBAYYGhQ4QIEKPAwLi4tAEACEJkhkhELAaJCdVAUTEdACwuMOQDQIbGRtrFBXQZ4IIu7joQQhCCEMTiAApIwMEJNzzxhifc4ASdolIHAQAAAABwAAAPAADHBhAR0RxHh8cHSIjICElJ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'),c=>c.charCodeAt(0));
+let activeBattle=null,activePack=null,generation=0;const pending=new Set();
+const status=document.getElementById('status');
+function stop(){generation++;for(const id of pending)clearTimeout(id);pending.clear();activeBattle?.dispose();activeBattle=null;if(activePack){activePack.intervals.forEach(clearInterval);activePack.S.ctx?.close().catch(()=>{});activePack=null;}document.querySelectorAll('.row.active').forEach(r=>r.classList.remove('active'));status.textContent='Lecture arrêtée.';}
+function battleEvent(audio,id,variant){
+ const basic={spell:'base',type:'COMBAT'},cast={spell:'affinity',type:'COMBAT'};
+ const damage={kind:'damage',amount:100,absorbed:0,crit:false,affinity:null};
+ const play=(event,cur=cast)=>audio.play(event,undefined,cur,1);
+ if(id==='C01'){audio.startMusic();return;}
+ if(id==='C02'){if(variant==='dodge')play({kind:'dodge'},basic);else play({...damage,crit:variant==='critical',absorbed:variant==='blocked'?100:0},basic);return;}
+ const types={C04:'COMBAT',C05:'MYSTERE',C06:'MAGIE',C07:'COEUR',C08:'AVENTURE'};
+ if(types[id]){play({kind:'action',spell:'affinity'},{spell:'affinity',type:types[id]});return;}
+ const events={C03:{kind:'round'},C09:{...damage,affinity:variant==='weak'?'weak':null},C10:{...damage,affinity:'strong'},C11:{...damage,crit:true},C12:{...damage,absorbed:100},C13:{kind:'heal'},C14:{kind:'shield',amount:100},C15:{kind:'shield',amount:-100},C16:{kind:'status',status:'exposed',on:true},C17:{kind:'status',status:'weaken',on:true},C18:{kind:'status',status:'silence',on:true},C19:{kind:'ko'},C20:{kind:'end',winner:'A'},C21:{kind:'end',winner:'B'},C22:{kind:'end',winner:null}};
+ play(events[id]);
+}
+function packEvent(pack,id,variant){const s=pack.S;
+ if(id==='P01'){s.sounds.ambience();s.music?.setLevel(Number(variant||0));return;}
+ const map={P02:'hover',P03:'tear',P05:'select',P06:'shatter',P12:'ssr',P13:'urCharge',P14:'urImpact',P15:'settle',P16:'gather',P17:'collect',U01:'unseal',U02:'warp',U03:'whoosh',U04:'launch'};
+ if(id==='P04'){for(let i=0;i<5;i++){const task=setTimeout(()=>{pending.delete(task);s.sounds.spawn(i);},i*140);pending.add(task);}return;}
+ const ranks={P07:'N',P08:'R',P09:'SR',P10:'SSR',P11:'UR'};
+ if(ranks[id])s.sounds.flip(ranks[id]);else s.sounds[map[id]]();
+}
+async function listen(button){
+ stop();const token=generation;const id=button.dataset.id;
+ button.closest('.row').classList.add('active');status.textContent='Lecture : '+id+' · '+button.closest('.row').querySelector('strong').textContent;
+ try{
+ if(id.startsWith('C')){
+ const audio=new battleModule.BattleAudio();activeBattle=audio;let ready,bladeError;
+ audio.loadBlade=ctx=>ready=ctx.decodeAudioData(bladeBytes.slice().buffer).then(buffer=>{if(audio.ctx===ctx)audio.blade=buffer;}).catch(error=>{bladeError=error;});
+ audio.unlock();await audio.ctx.resume();await ready;
+ if(token!==generation)return;
+ if(bladeError)throw bladeError;
+ battleEvent(audio,id,button.dataset.variant);
+ }else{
+ const pack=createPack();activePack=pack;
+ // Isoler l'effet : l'ambiance n'est lancée que par le bouton P01.
+ const ambience=pack.S.sounds.ambience;pack.S.sounds.ambience=undefined;pack.S.init(pack.theme);
+ pack.S.sounds.ambience=ambience;
+ await pack.S.ctx.resume();if(token!==generation)return;
+ packEvent(pack,id,button.dataset.variant);
+ }
+ }catch(error){if(token===generation){stop();status.textContent='Lecture impossible : '+error.message;}}
+}
+// Le générateur d'ambiance doit garder la même fermeture que les autres effets.
+document.querySelectorAll('button[data-id]').forEach(button=>button.addEventListener('click',()=>listen(button)));
+document.getElementById('stop').addEventListener('click',stop);window.addEventListener('pagehide',stop);
+</script></body></html>
