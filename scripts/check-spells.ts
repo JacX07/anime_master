@@ -308,9 +308,9 @@ check("Catalogues runtime : 236 personnages dans les trois emplacements", Object
   const st = start([card(SASUKE, { rarity: "UR", spell: self, tertiary: self, ultimate: self }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
   play(st, "ultimate", null); play(st, "special", null); play(st, "tertiary", null);
-  check("Buffs solo UR : l'enchaînement des trois slots est borné par leurs recharges", currentActor(st)?.id === "A1" && legalActions(st).map((action) => action.spell).join() === "base" && st.teams.A[0].ultimateGauge === 0);
+  check("Buffs solo UR : l'enchaînement des trois slots est borné par leurs recharges", currentActor(st)?.id === "A1" && legalActions(st).map((action) => action.spell).join() === "base" && st.teams.A[0].ultimateGauge === 2 * BATTLE.ultimateGaugePerHit);
   play(st, "base", "B1");
-  check("Buffs solo UR : l'attaque termine le tour et charge normalement la jauge", currentActor(st)?.id === "B1" && st.teams.A[0].ultimateGauge === BATTLE.ultimateGaugeBase);
+  check("Buffs solo UR : les buffs chargent la jauge (34) et l'attaque termine le tour (+50, plafonné)", currentActor(st)?.id === "B1" && st.teams.A[0].ultimateGauge === Math.min(BATTLE.ultimateGaugeMax, 2 * BATTLE.ultimateGaugePerHit + BATTLE.ultimateGaugeBase));
 }
 {
   const mixed: CharacterSpell = { name: "Frappe protégée", target: "foe", effects: [{ k: "damage", mult: 1 }, { k: "shield", pct: 0.1, to: "self" }] };

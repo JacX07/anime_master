@@ -967,7 +967,8 @@ export function applyAction(st: BattleState, action: Action) {
       for (const x of allies) setStatus(x, "elan", BATTLE.statusTurns);
     }
   }
-  if (landedHit && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {
+  // Un sort actif (même sans dégât : buff, soin, debuff) charge la jauge comme une attaque qui touche
+  if ((landedHit || activeSpell) && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {
     const old = u.ultimateGauge;
     u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : BATTLE.ultimateGaugePerHit));
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
