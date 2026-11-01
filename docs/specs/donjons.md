@@ -34,7 +34,7 @@ Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **re
 |---|---|
 | Casque | % PV, % DEF ou % ATK |
 | Plastron | % PV, % DEF ou % ATK |
-| Gants | Dégâts critiques ou chance de critique |
+| Gants | Chance de critique, dégâts critiques, ATK/DEF/PV plats ou ATK/DEF/PV % (huit choix équiprobables) |
 | Bottes | **Vitesse** |
 
 - Les % s'appliquent aux stats de base de la carte, comme les bonus actuels.
@@ -61,7 +61,8 @@ Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **re
 
 - **Plusieurs donjons**, un par set (donc par univers de l'histoire). Un donjon = **un boss unique, difficile**, avec ses sbires (moteur 4 contre 4, boss géant).
 - **10 niveaux de difficulté** par donjon, débloqués un par un. Les niveaux montent la force du boss et la **rareté des artefacts** : 2 niveaux par rareté (niv. 1–2 N, 3–4 R, 5–6 SR, 7–8 SSR, 9–10 UR).
-- **Butin** d'une victoire : une pièce du set du donjon, de l'emplacement tiré avec une **pitié** (on ne reste jamais indéfiniment sans l'emplacement manquant). Les niveaux élevés lâchent aussi des **matériaux d'arme légendaire**.
+- **Butin** d'une victoire : exactement une pièce du set du donjon. Casque, plastron, gants et bottes ont chacun 25 % de chances ; aucun cycle ni garantie d'obtenir chaque emplacement en quatre victoires. Le tirage est déterministe par graine de combat, avec flux séparés pour l'emplacement, la stat principale et les sous-stats. Les niveaux élevés lâchent aussi des **matériaux d'arme légendaire**.
+- Gants : huit stats principales à 12,5 % chacune : critique, dégâts critiques, ATK/DEF/PV plats et ATK/DEF/PV %. Les flats sont l'équivalent arrondi des stats moyennes de base multipliées par le taux principal en % de même rareté. Valeurs N/R/SR/SSR/UR : ATK +20/+57/+140/+333/+653, DEF +16/+45/+107/+249/+436, PV +101/+285/+692/+1 628/+3 049. Les valeurs en % utilisent les tables déjà appliquées au casque/plastron : 2,5/4/6,5/11/16 %. Critique et dégâts critiques gardent leurs tables existantes : 3/5/8/12/16 % et 5/10/17/26/36 %.
 - **Illimité avec plafond quotidien doux**, comme l'histoire : au-delà du seuil, les gains continuent à taux réduit ([pvm.md](pvm.md), « Rejouer et farmer »). Source `DUNGEON` dans `DailyGain`.
 - Lots de combats automatiques et manuel disponibles, comme l'histoire. Défaite sans pénalité.
 
@@ -93,8 +94,7 @@ Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **re
 ## Modèle de données *(proposé)*
 
 - `Artifact` : joueur, set (clé d'univers), emplacement, rareté, niveau, stat principale et valeur, sous-stats (JSON), carte équipée (nullable), verrou.
-- `ArtifactPity` : joueur, donjon, compteur par emplacement.
-- `DungeonProgress` : joueur, donjon, plus haut niveau gagné (1 à 10).
+- `DungeonProgress` : joueur, donjon, plus haut niveau gagné (1 à 10). L'ancien champ `nextSlot` peut rester en base mais n'est plus lu ni mis à jour.
 - `ResourceStock` existe déjà pour les matériaux d'arme et d'amélioration.
 - `WorldBossDaily` : joueur, jour, victoire récompensée ou non.
 - `Battle.mode` : ajouter `DUNGEON` et `WORLD_BOSS`.

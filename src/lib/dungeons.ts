@@ -10,6 +10,16 @@ export const SLOT_NAMES: Record<ArtifactSlot, string> = { CASQUE: "Casque", PLAS
 export const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 export const DIFFICULTY_RARITY = (level: number): Rarity => RARITIES[Math.min(4, Math.floor((level - 1) / 2))];
 export const dungeonKey = (level: number) => `${DUNGEON_PREFIX}${DUNGEON_KEY}:${level}`;
+const randomFor = (seed: number) => {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let value = Math.imul(state ^ (state >>> 15), state | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+};
+export const artifactSlot = (seed: number): ArtifactSlot => ARTIFACT_SLOTS[Math.floor(randomFor(seed ^ 0x51ed270b)() * ARTIFACT_SLOTS.length)];
 export const parseDungeonKey = (key: string) => {
   const match = /^dungeon:one-piece:(\d{1,2})$/.exec(key);
   if (!match) return null;
@@ -19,19 +29,31 @@ export const parseDungeonKey = (key: string) => {
 };
 export const artifactMainStat = (slot: ArtifactSlot, rarity: Rarity, seed: number) => {
   const tier = RARITIES.indexOf(rarity);
+  const flatMainValues = { flatAttack: [20, 57, 140, 333, 653], flatDefense: [16, 45, 107, 249, 436], flatHp: [101, 285, 692, 1628, 3049] };
   if (slot === "BOTTES") return { stat: "speed", value: [4, 6, 9, 13, 18][tier] };
-  if (slot === "GANTS") return seed % 2 ? { stat: "crit", value: [0.03, 0.05, 0.08, 0.12, 0.16][tier] } : { stat: "critDamage", value: [0.05, 0.1, 0.17, 0.26, 0.36][tier] };
-  const main = ["hp", "defense", "attack"][seed % 3];
+  const random = randomFor(seed ^ 0xa271);
+  if (slot === "GANTS") {
+    const options = [
+      { stat: "crit", value: [0.03, 0.05, 0.08, 0.12, 0.16][tier] },
+      { stat: "critDamage", value: [0.05, 0.1, 0.17, 0.26, 0.36][tier] },
+      { stat: "flatAttack", value: flatMainValues.flatAttack[tier] },
+      { stat: "flatDefense", value: flatMainValues.flatDefense[tier] },
+      { stat: "flatHp", value: flatMainValues.flatHp[tier] },
+      { stat: "attack", value: [0.025, 0.04, 0.065, 0.11, 0.16][tier] },
+      { stat: "defense", value: [0.025, 0.04, 0.065, 0.11, 0.16][tier] },
+      { stat: "hp", value: [0.025, 0.04, 0.065, 0.11, 0.16][tier] },
+    ];
+    return options[Math.floor(random() * options.length)];
+  }
+  const main = ["hp", "defense", "attack"][Math.floor(random() * 3)];
   return { stat: main, value: [0.025, 0.04, 0.065, 0.11, 0.16][tier] };
 };
 export interface ArtifactSubStat { stat: string; value: number }
-export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: number): ArtifactSubStat[] => {
-  let state = seed >>> 0;
-  const random = () => { state = (Math.imul(state ^ (state >>> 15), state | 1) + 0x6d2b79f5) | 0; return (state >>> 0) / 4294967296; };
+export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: number, mainStat = artifactMainStat(slot, rarity, seed).stat): ArtifactSubStat[] => {
+  const random = randomFor(seed);
   const base = ["N", "R", "SR", "SSR", "UR"].indexOf(rarity);
   const count = [0, Math.floor(random() * 2), 1, 1 + Math.floor(random() * 2), 2 + Math.floor(random() * 2)][base];
-  const main = artifactMainStat(slot, rarity, seed).stat;
-  const choices = ["hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage", "dodge"].filter((stat) => stat !== main);
+  const choices = ["hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage", "dodge"].filter((stat) => stat !== mainStat);
   const max: Record<string, number> = { hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05, dodge: 0.025 };
   const result: ArtifactSubStat[] = [];
   while (result.length < count && choices.length) {

@@ -21,7 +21,7 @@ import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./
 
 import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
-import { artifactMainStat, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEON_PREFIX, DUNGEON_RESOURCE, levelReward, parseDungeonKey, setBonus, type ArtifactSlot } from "./dungeons";
+import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEON_PREFIX, DUNGEON_RESOURCE, levelReward, parseDungeonKey, setBonus, type ArtifactSlot } from "./dungeons";
 import type { CharacterSpell } from "./spells";
 
 export class BattleError extends Error {}
@@ -208,13 +208,11 @@ async function settleDungeon(tx: Prisma.TransactionClient, userId: string, oppon
   const progressId = { userId_dungeon: { userId, dungeon: DUNGEON_KEY } };
   await tx.dungeonProgress.upsert({ where: progressId, create: { userId, dungeon: DUNGEON_KEY }, update: {} });
   await tx.dungeonProgress.updateMany({ where: { userId, dungeon: DUNGEON_KEY, maxLevel: { lt: level } }, data: { maxLevel: level } });
-  const progress = await tx.dungeonProgress.findUniqueOrThrow({ where: progressId });
-  const slot = ARTIFACT_SLOTS[progress.nextSlot % ARTIFACT_SLOTS.length];
+  const slot = artifactSlot(seed);
   const rarity = levelReward(level).rarity;
-  const main = artifactMainStat(slot, rarity, seed);
-  const subStats = artifactSubStats(slot, rarity, seed ^ 0xa271);
+  const main = artifactMainStat(slot, rarity, seed ^ 0x4d3c2b1a);
+  const subStats = artifactSubStats(slot, rarity, seed ^ 0x7f4a7c15, main.stat);
   await tx.artifact.create({ data: { userId, setKey: DUNGEON_KEY, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
-  await tx.dungeonProgress.update({ where: progressId, data: { nextSlot: (progress.nextSlot + 1) % ARTIFACT_SLOTS.length } });
   const material = levelReward(level).resource;
   if (material) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: DUNGEON_RESOURCE } }, create: { userId, key: DUNGEON_RESOURCE, quantity: material }, update: { quantity: { increment: material } } });
   return { ryo: 0, crystals: 0, resources: material ? { [DUNGEON_RESOURCE]: material } : {}, artifact: { slot, rarity, mainStat: main.stat, mainValue: main.value, subStats } };
@@ -480,7 +478,7 @@ export async function getDungeonState(userId: string) {
     prisma.artifact.findMany({ where: { userId }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], include: { equippedCard: { select: { character: { select: { name: true } } } } } }),
     getAttackTeam(userId),
   ]);
-  return { maxLevel: progress?.maxLevel ?? 0, nextSlot: progress?.nextSlot ?? 0, artifacts, team };
+  return { maxLevel: progress?.maxLevel ?? 0, artifacts, team };
 }
 
 export async function getArtifactInventory(userId: string) {

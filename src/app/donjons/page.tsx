@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { SceneBody } from "@/components/SceneBody";
 import { getDungeonState } from "@/lib/battles";
 import { requireUser } from "@/lib/session";
-import { ARTIFACT_SLOTS, DUNGEON_NAME, levelReward, SLOT_NAMES, type ArtifactSlot } from "@/lib/dungeons";
+import { DUNGEON_NAME, levelReward, type ArtifactSlot } from "@/lib/dungeons";
 import { prisma } from "@/lib/db";
 import { DungeonsBoard } from "./DungeonsBoard";
 import "./donjons.css";
@@ -23,6 +23,6 @@ async function Dungeon() {
   const artifacts = state.artifacts.map((a) => ({ id: a.id, slot: a.slot as ArtifactSlot, rarity: a.rarity, mainStat: a.mainStat, mainValue: a.mainValue, subStats: a.subStats as { stat: string; value: number }[], equipped: a.equippedCard?.character.name ?? null }));
   return <div className="vt-inner dungeon-page">
     <header className="pg-head"><h1 className="vt-title">Donjons</h1><p className="vt-sub">Affronte le gardien du Trône des profondeurs, gagne des artefacts du set One Piece et fais progresser ton équipe. Les tentatives sont illimitées ; une défaite ne dépense rien.</p></header>
-    <DungeonsBoard name={DUNGEON_NAME} boss={boss} maxLevel={state.maxLevel} team={state.team.map((c) => c ? { id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null)} artifacts={artifacts} levels={Array.from({ length: 10 }, (_, i) => { const level = i + 1; const r = levelReward(level); return { level, rarity: r.rarity, resource: r.resource, mechanic: r.mechanic, open: level <= state.maxLevel + 1, slot: SLOT_NAMES[ARTIFACT_SLOTS[state.nextSlot]] }; })} />
+    <DungeonsBoard name={DUNGEON_NAME} boss={boss} maxLevel={state.maxLevel} team={state.team.map((c) => c ? { id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null)} artifacts={artifacts} levels={Array.from({ length: 10 }, (_, i) => { const level = i + 1; const r = levelReward(level); return { level, rarity: r.rarity, resource: r.resource, mechanic: r.mechanic, open: level <= state.maxLevel + 1 }; })} />
   </div>;
 }
