@@ -1,4 +1,4 @@
-import type { BattleEvent, UnitId } from "./battle";
+import type { BattleEvent, UnitId, UnitView } from "./battle";
 
 export type BattleReportRow = { id: UnitId; characterId: number; dealt: number; taken: number; absorbed: number; healing: number; shields: number; actions: number; kos: number };
 /** Scores effectifs : PV réellement retirés + bouclier absorbé, sans sur-dégâts ni sur-soins. */
@@ -43,3 +43,8 @@ export function battleReport(log: BattleEvent[]) {
   return { rows: [...rows.values()], unattributed };
 }
 
+/** En replay, le journal est l'ordre exact ; en direct rattrapé, la file serveur fait autorité. */
+export function replayTurnOrder(log: BattleEvent[], index: number, current: UnitId | null, info: Partial<Record<UnitId, UnitView>>, dead: (id: UnitId) => boolean, live?: UnitId[]) {
+  const ids = live ?? [ ...(current ? [current] : []), ...log.slice(index).flatMap((event) => event.kind === "action" ? [event.actor] : []) ];
+  return ids.filter((id) => info[id] && !dead(id)).slice(0, 8);
+}

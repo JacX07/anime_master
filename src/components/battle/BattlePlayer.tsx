@@ -12,6 +12,8 @@ import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
 import { PERSISTENT_STATUSES, STATUS_FX } from "./status-vfx";
 import { TypeIcon } from "../icons";
+import { TurnOrder } from "./TurnOrder";
+import { replayTurnOrder } from "@/lib/battle-report";
 import { BattleReport } from "./BattleReport";
 import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
@@ -292,11 +294,13 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actor = rp.cur && !finished ? rp.info[rp.cur.actor] : null;
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
+  const order = end ? [] : replayTurnOrder(log, rp.idx, rp.cur?.actor ?? null, rp.info, (id) => !!rp.units[id]?.ko, caughtUp && live ? live.timeline.length ? live.timeline : live.actor ? [live.actor] : [] : undefined);
   const history = historyOf(log, rp.idx);
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
     <div className="bt-layout bt-layout-with-order" onPointerDown={() => getAudio().unlock()}>
+      <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
       <History entries={history} rp={rp} characters={characters} names={names} open={drawer} onClose={() => setDrawer(false)} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
@@ -324,12 +328,6 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
           </Link>
         )}
       </div>
-
-      {live?.timeline.length ? <ol className="bt-timeline" aria-label="Prochaines actions">
-        {live.timeline.map((id, index) => <li key={`${id}-${index}`} data-side={id[0]} aria-label={`${index + 1}. ${characters[rp.info[id].characterId]?.name ?? id}`}>
-          <span>{characters[rp.info[id].characterId]?.name ?? id}</span>
-        </li>)}
-      </ol> : null}
 
       {(["B", "A"] as const).map((side) => (
         <section key={side} className="bt-team" data-side={side} data-result={end ? (end.winner === side ? "win" : end.winner ? "lose" : "draw") : undefined}>

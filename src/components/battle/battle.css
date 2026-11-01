@@ -911,6 +911,32 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-row:has(> .bt-unit[data-boss]) > .bt-unit[data-boss] { flex: 1.28; }
 .bt-boss-badge { position: absolute; z-index: 6; left: 50%; top: -.8rem; translate: -50% 0; padding: .1rem .55rem; border: 1px solid #ffb6b1; border-radius: 999px; background: #731d35; color: #ffe1bd; font-size: clamp(.5rem, 8cqw, .75rem); font-weight: 800; white-space: nowrap; box-shadow: 0 0 12px #ff3b4a55; pointer-events: none; }
 
+/* File de portraits : la tête est l’acteur courant, les doublons annoncent ses prochains tours. */
+.bt-layout-with-order { grid-template-columns: 3.4rem minmax(0, 1fr); grid-template-areas: "turns stage" "spells spells"; }
+.bt-turn-order { grid-area: turns; min-height: 0; overflow-y: auto; align-self: stretch; padding: .25rem; scrollbar-width: thin; }
+.bt-turn-order h2 { font-size: .65rem; margin: .25rem 0 .65rem; text-align: center; color: #a8bddd; }
+.bt-turn-order ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .55rem; }
+.bt-turn-order li { --turn-color: #7cbaff; position: relative; }
+.bt-turn-order li[data-side="B"] { --turn-color: #ff929f; }
+.bt-turn-order button { position: relative; width: 100%; border: 1px solid color-mix(in srgb, var(--turn-color) 55%, transparent); padding: .15rem; border-radius: .4rem; background: #102039; color: #edf3ff; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.bt-turn-order img, .bt-turn-fallback { width: 100%; aspect-ratio: 1; object-fit: cover; object-position: center 20%; border-radius: .25rem; }
+.bt-turn-fallback { display: grid; place-items: center; background: #31435c; }
+.bt-turn-order li[data-current] button { border: 2px solid var(--turn-color); box-shadow: 0 0 12px color-mix(in srgb, var(--turn-color) 25%, transparent); }
+.bt-turn-number { position: absolute; top: -.3rem; left: -.25rem; background: var(--turn-color); color: #101b2b; border-radius: .2rem; min-width: 1rem; padding: .05rem; font-size: .6rem; font-weight: 700; }
+.bt-turn-name { width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .55rem; padding-top: .15rem; }
+.bt-turn-now { font-size: .5rem; color: var(--turn-color); }
+.bt-turn-order > small { display: block; text-align: center; color: #a8bddd; font-size: .6rem; }
+.bt-turn-order button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media(min-width: 70rem) {
+  .bt-layout-with-order { grid-template-columns: 5.5rem minmax(0, 1fr) minmax(15rem, 20rem); grid-template-areas: "turns stage spells"; }
+  .bt-layout-with-order > .bt-history { display: none; }
+  .bt-layout-with-order > .bt-history[data-open] { display: flex; }
+  .bt-layout-with-order .bt-drawer-btn { display: inline-flex; }
+  .bt-layout-with-order .bt-history[data-open] .bt-history-close { display: inline-block !important; }
+  .bt-layout-with-order .bt { width: min(100%, calc((100dvh - 23.5rem) * 1.43 + 3.4rem)); }
+  .bt-turn-name { font-size: .65rem; }
+  .bt-turn-now, .bt-turn-order h2 { font-size: .65rem; }
+}
 /* Le résultat et son bilan défilent indépendamment du plateau, même sur téléphone. */
 .bt-layout-with-order .bt-end { position: fixed; inset: .65rem; z-index: 120; overflow-y: auto; padding: clamp(1rem, 3vw, 2rem); justify-content: flex-start; align-items: stretch; gap: 1rem; background: #0b1629f8; border: 1px solid #344e76; border-radius: .8rem; }
 .bt-layout-with-order .bt-end > b, .bt-layout-with-order .bt-end > span { align-self: center; }
