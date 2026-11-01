@@ -20,6 +20,7 @@ import { bossOfWeek, DAILY_FULL_HEARTS, DIFFICULTIES, parseRaidKey, RAID_BOSS_BO
 import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./tower";
 
 import { weaponDef } from "./weapons";
+import { speedOf } from "./speed";
 
 export class BattleError extends Error {}
 
@@ -47,6 +48,7 @@ type CharacterRow = Prisma.CharacterGetPayload<{ select: typeof CHARACTER_SELECT
 
 const toBattleCard = (c: CharacterRow, stars = 0, weaponKey: string | null = null): BattleCard => ({
   characterId: c.id, rarity: c.rarity, type: c.type, attack: c.attack, defense: c.defense, power: c.power,
+  speed: speedOf(c.id),
   franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId, stars, weapon: stars === 5 ? weaponDef(weaponKey ?? "")?.weapon ?? null : null,
 });
 
@@ -104,7 +106,7 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
     // La rareté de la case (pas celle du personnage tiré) fixe les stats : un univers sans SSR reste aussi dur qu'un autre
     const m = means[want], k = levelScale(universe, level) * (boss ? BOSS_BONUS : 1);
     // Pas de synergie de franchise pour les ennemis : la difficulté vient du niveau et de l'univers (valeurs calibrées sans synergie)
-    return { ...toBattleCard(c), franchiseId: null, rarity: want, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss };
+    return { ...toBattleCard(c), franchiseId: null, rarity: want, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss, ...(boss ? { speed: 100 } : {}) };
   });
 }
 
@@ -171,7 +173,7 @@ async function raidEnemies(boss: RaidBoss, difficulty: RaidDifficulty): Promise<
   const mk = (c: CharacterRow, k: number, isBoss: boolean): BattleCard => {
     const m = means[c.rarity];
     // Pas de synergie de franchise pour les ennemis (comme l'histoire)
-    return { ...toBattleCard(c), franchiseId: null, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), ...(isBoss ? { boss: true } : {}) };
+    return { ...toBattleCard(c), franchiseId: null, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), ...(isBoss ? { boss: true, speed: 100 } : {}) };
   };
   return [...minions.map((c) => mk(c, difficulty.scale, false)), mk(leader, difficulty.scale * RAID_BOSS_BONUS, true)];
 }
@@ -403,6 +405,8 @@ export const getAttackTeam = (userId: string) => getTeam(userId, "ATTACK");
 export interface BattleTeams {
   A: BattleCard[];
   B: BattleCard[];
+  /** Absent in persisted battles created before the gauge scheduler. */
+  scheduler?: "gauge-v1";
 }
 
 /** Ce que le navigateur reçoit : le journal (complet ou depuis le dernier envoi) et, en manuel, les choix possibles. */
@@ -427,7 +431,7 @@ export interface BattleView {
 
 /** Rejoue un combat manuel : choix enregistrés pour A, stratégie automatique pour B, jusqu'au prochain choix de A. */
 function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleState {
-  const st = createBattle(teams.A, teams.B, seededRandom(seed));
+  const st = createBattle(teams.A, teams.B, seededRandom(seed), { gauge: teams.scheduler === "gauge-v1" });
   let next = 0;
   for (let actor = currentActor(st); actor; actor = currentActor(st)) {
     if (actor.id.startsWith("A")) {
@@ -496,10 +500,10 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const mine = slots.map((s) => toBattleCard(s!.character, s!.stars, s!.weaponKey));
-  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent) };
+  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1" };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
-    const result = battle(teams.A, teams.B, seededRandom(seed));
+    const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true });
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
       const loot = story && won ? await settleStory(tx, userId, opponent, seed, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : null;

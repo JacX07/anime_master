@@ -48,9 +48,10 @@ async function main() {
     const auto = await startBattle(uid, "test", false);
     const row = await prisma.battle.findUniqueOrThrow({ where: { id: auto.id } });
     const teams = row.teams as unknown as BattleTeams;
-    const recomputed = battle(teams.A, teams.B, seededRandom(row.seed));
+    const recomputed = battle(teams.A, teams.B, seededRandom(row.seed), { gauge: teams.scheduler === "gauge-v1" });
     const last = auto.log[auto.log.length - 1];
     check("Automatique : combat terminé et journal complet", auto.status === "DONE" && last?.kind === "end" && last.winner === auto.winner && row.winner === auto.winner);
+    check("Automatique : version du scheduler persistée", teams.scheduler === "gauge-v1");
     check("Automatique : la graine enregistrée redonne le même journal", same(recomputed.log, row.log));
     check("Automatique : noms et images des 8 personnages fournis", Object.keys(auto.characters).length === 8);
     check("Replay : getBattle renvoie le journal enregistré", same((await getBattle(uid, auto.id)).log, auto.log));

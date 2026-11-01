@@ -5,6 +5,7 @@ import "server-only";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { battle, type BattleCard, type BattleEvent, type Random } from "./battle";
 import { prisma } from "./db";
+import { speedOf } from "./speed";
 
 export function seededRandom(seed: number): Random {
   let a = seed >>> 0;
@@ -52,9 +53,9 @@ export async function demoBattle(seed: number): Promise<{ log: BattleEvent[]; ch
     });
     if (!c) throw new Error(`Aucun personnage de rareté ${rarity}`);
     used.add(c.id);
-    cards.push({ characterId: c.id, rarity: c.rarity, type: c.type, attack: c.attack, defense: c.defense, power: c.power, franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId });
+    cards.push({ characterId: c.id, rarity: c.rarity, type: c.type, attack: c.attack, defense: c.defense, power: c.power, speed: speedOf(c.id), franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId });
     characters[c.id] = { name: c.name, imageUrl: c.imageUrl, rarity: c.rarity, type: c.type, series: c.mainMedia?.titleEnglish ?? c.mainMedia?.titleRomaji ?? null };
   }
-  const result = battle(cards.slice(0, 4), cards.slice(4), rng);
+  const result = battle(cards.slice(0, 4), cards.slice(4), rng, { gauge: true });
   return { log: result.log, characters };
 }

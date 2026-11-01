@@ -5,6 +5,7 @@
 import type { CardType, Rarity } from "../src/generated/prisma/enums";
 import { BATTLE, battle, type BattleCard, type BattleOptions, type Random, type Weapon } from "../src/lib/battle";
 import { prisma } from "../src/lib/db";
+import { speedOf } from "../src/lib/speed";
 
 const arg = (name: string, d: number) => {
   const i = process.argv.indexOf(name);
@@ -12,6 +13,7 @@ const arg = (name: string, d: number) => {
 };
 const GAMES = arg("--games", 10_000);
 const SEED = arg("--seed", 42);
+const SCHEDULER: BattleOptions = process.argv.includes("--gauge") ? { gauge: true } : {};
 
 /** Surcharges des valeurs du moteur pour comparer des variantes : --defK 2000 --hpMult 1 */
 BATTLE.defK = arg("--defK", BATTLE.defK);
@@ -43,6 +45,7 @@ const rows = await prisma.character.findMany({
 });
 const pool: BattleCard[] = rows.map((r) => ({
   characterId: r.id, rarity: r.rarity, type: r.type, attack: r.attack, defense: r.defense, power: r.power,
+  speed: speedOf(r.id),
   franchiseId: r.mainMedia?.franchiseId ?? r.mainMediaId,
 }));
 const byRarity = Object.fromEntries(RARITIES.map((r) => [r, pool.filter((c) => c.rarity === r)])) as Record<Rarity, BattleCard[]>;
@@ -53,7 +56,7 @@ console.log(`defK ${BATTLE.defK} · PV × ${HP_MULT} · Pool : ${pool.length} pe
 const durations: number[] = [];
 let timeouts = 0;
 function play(a: BattleCard[], b: BattleCard[], opts?: BattleOptions) {
-  const r = battle(a, b, rng, opts);
+  const r = battle(a, b, rng, { ...SCHEDULER, ...opts });
   durations.push(r.rounds);
   if (r.timeout) timeouts++;
   return r;

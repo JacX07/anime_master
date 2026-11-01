@@ -6,6 +6,7 @@ import {
   BATTLE, affinity, applyAction, autoAction, battle, createBattle, currentActor, legalActions,
   type BattleCard, type BattleEvent, type Random, type UnitId,
 } from "../src/lib/battle";
+import { BASE_SPEED, speedOf } from "../src/lib/speed";
 
 let failures = 0;
 function check(label: string, ok: boolean, detail = "") {
@@ -137,6 +138,7 @@ for (let i = 0; i < 300; i++) {
 check("Pas à pas avec autoAction = battle()", autoSame);
 
 // 3b. Ordonnanceur à jauge : parité à vitesse égale et fréquence supérieure à vitesse élevée.
+check("Vitesse lore connue et valeur de repli", speedOf(1) === 104 && speedOf(-1) === BASE_SPEED && BASE_SPEED === 100);
 let gaugeParity = true;
 let gaugeParityDetail = "";
 for (let i = 0; i < 100; i++) {
