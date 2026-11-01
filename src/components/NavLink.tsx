@@ -6,8 +6,9 @@ import type { ReactNode } from "react";
 import { Icon } from "./icons";
 
 /** Entrée de la barre du haut : icône + nom, soulignée quand on est sur la page. */
-export function NavLink({ href, icon, children }: { href: string; icon: string; children: ReactNode }) {
-  const current = usePathname().startsWith(href);
+export function NavLink({ href, icon, exact, children }: { href: string; icon: string; exact?: boolean; children: ReactNode }) {
+  const pathname = usePathname();
+  const current = exact ? pathname === href : pathname.startsWith(href);
   return (
     <Link href={href} className="site-link" aria-current={current ? "page" : undefined}>
       <Icon name={icon} />

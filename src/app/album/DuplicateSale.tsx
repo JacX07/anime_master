@@ -51,8 +51,8 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
           </p>
           <div className="flex flex-wrap gap-2">
             {RARITY_ORDER.map((r) => (
-              <label key={r} className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 has-[:checked]:border-[#4b8bff]">
-                <input type="checkbox" checked={rarities.includes(r)} onChange={() => toggle(r)} className="accent-[#4b8bff]" />
+              <label key={r} className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 has-[:checked]:border-[#c4a76d]">
+                <input type="checkbox" checked={rarities.includes(r)} onChange={() => toggle(r)} className="accent-[#c4a76d]" />
                 <b style={{ color: `var(--rarity-${r})` }}>{r}</b>
               </label>
             ))}

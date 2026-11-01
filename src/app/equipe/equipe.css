@@ -27,7 +27,7 @@
 .eq-preview ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.2rem; }
 .eq-spells { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 .eq-spells p { margin: 0.15rem 0; }
-.eq-spells li:focus-visible { outline: 2px solid #8fb5ff; outline-offset: 3px; border-radius: 0.25rem; }
+.eq-spells li:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 3px; border-radius: 0.25rem; }
 .eq-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
 .eq-filters input, .eq-filters select { padding: 0.4rem 0.6rem; border: 1px solid #35507c; border-radius: 0.4rem; background: #0b1526; color: inherit; }
 .eq-grid { list-style: none; margin: 0 0 0.8rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.6rem; }

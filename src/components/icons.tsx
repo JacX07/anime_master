@@ -16,8 +16,8 @@ export function IconSprite() {
     <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="am-lg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#4b8bff" />
-          <stop offset="1" stopColor="#00c8b4" />
+          <stop offset="0" stopColor="#c4a76d" />
+          <stop offset="1" stopColor="#d5bb7f" />
         </linearGradient>
       </defs>
       {Object.entries(sprite).map(([id, { viewBox, shapes }]) => (

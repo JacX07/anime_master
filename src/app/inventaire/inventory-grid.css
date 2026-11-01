@@ -1,5 +1,5 @@
 .inventory-page { background: radial-gradient(ellipse at 70% 0%, #20365566, transparent 65%), #0b1424; }
-.inventory-title { margin: 0 0 .5rem; color: #edf2ff; font: 700 clamp(1.8rem, 3vw, 2.6rem)/1.2 var(--font-sora), sans-serif; letter-spacing: -.05em; }
+.inventory-title { margin: 0 0 .5rem; color: #edf2ff; font: 700 clamp(1.8rem, 3vw, 2.6rem)/1.2 var(--font-dm), sans-serif; letter-spacing: -.05em; }
 .inventory { --inv-ink: #edf2ff; --inv-muted: #a8b5d3; --inv-line: #344763; --inv-mint: #85e7e1; color: var(--inv-ink); background: #141f35; border: 1px solid #2b3d58; border-top: 3px solid var(--inv-mint); border-radius: 1rem; padding: clamp(1rem, 2.5vw, 2rem); min-width: 0; }
 .inventory-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
 .inventory-heading h2 { font-size: 1.2rem; margin: 0 0 .4rem; letter-spacing: -.035em; }

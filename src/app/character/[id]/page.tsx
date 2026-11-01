@@ -55,7 +55,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
   const facts: [string, React.ReactNode][] = [
     ["Rareté", `${c.rarity} · ${RARITY_NAMES[c.rarity]}`],
     ["Type", <span key="type" className="stat"><TypeIcon type={c.type} />{t.name}</span>],
-    ["Puissance", <Stat key="power" icon="puissance" accent="#00c8b4">{numFmt.format(c.power)}</Stat>],
+    ["Puissance", <Stat key="power" icon="puissance" accent="#d5bb7f">{numFmt.format(c.power)}</Stat>],
     ["Attaque", <Stat key="atk" icon="atk">{numFmt.format(c.attack)}</Stat>],
     ["Défense", <Stat key="def" icon="def">{numFmt.format(c.defense)}</Stat>],
     ["Vitesse", <span key="speed" className="stat">{numFmt.format(speedOf(c.id))}</span>],
@@ -81,7 +81,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
         <header>
           <h1 className="text-3xl font-extrabold">{c.name}</h1>
           {c.nameNative && <p className="text-muted">{c.nameNative}</p>}
-          {c.series && <p className="mt-1 text-sm text-[#8fb5ff]">{c.series}</p>}
+          {c.series && <p className="mt-1 text-sm text-[#d5bb7f]">{c.series}</p>}
         </header>
 
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -167,7 +167,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
                     {FINISH_NAMES[o.finish]}
                   </span>
                   {user && o.username !== user.username && (
-                    <Link href={`/trades/new?to=${encodeURIComponent(o.username)}&ask=${o.id}`} className="ml-auto text-[#8fb5ff] hover:underline">
+                    <Link href={`/trades/new?to=${encodeURIComponent(o.username)}&ask=${o.id}`} className="ml-auto text-[#d5bb7f] hover:underline">
                       Proposer un échange
                     </Link>
                   )}

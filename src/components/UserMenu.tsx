@@ -47,7 +47,7 @@ export async function UserMenu() {
         <NotificationBell userId={user.id} />
       </Suspense>
       <Link href="/quetes" className="site-link" title={`${adventure.rank.name} · ${adventure.xp} XP`}>
-        Arpenteur niv. {adventure.level}
+        <span className="site-long">Arpenteur niv.</span><span className="site-short">Niv.</span> {adventure.level}
       </Link>
       <Link href={`/u/${encodeURIComponent(user.username)}`} className="site-link">
         Profil

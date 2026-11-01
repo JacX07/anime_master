@@ -41,14 +41,14 @@ export function CopyActions({ cardId, locked, forTrade, inAuction, inExpedition,
 
   if (inAuction)
     return (
-      <Link href="/market" className="rounded-lg border border-[#4b8bff] px-3 py-1 text-xs font-semibold text-[#8fb5ff]">
+      <Link href="/market" className="rounded-lg border border-[#c4a76d] px-3 py-1 text-xs font-semibold text-[#d5bb7f]">
         Aux enchères →
       </Link>
     );
 
   if (inExpedition)
     return (
-      <Link href="/expeditions" className="rounded-lg border border-[#4b8bff] px-3 py-1 text-xs font-semibold text-[#8fb5ff]">
+      <Link href="/expeditions" className="rounded-lg border border-[#c4a76d] px-3 py-1 text-xs font-semibold text-[#d5bb7f]">
         En expédition →
       </Link>
     );
@@ -72,7 +72,7 @@ export function CopyActions({ cardId, locked, forTrade, inAuction, inExpedition,
           onClick={() => run(() => toggleForTradeAction(cardId, !forTrade))}
           aria-pressed={forTrade}
           title={locked ? "Déverrouille la carte pour la proposer" : forTrade ? "Ne plus proposer à l'échange" : "Proposer à l'échange"}
-          className={`rounded-lg border px-2.5 py-1 text-xs font-semibold hover:bg-white/5 disabled:opacity-40 ${forTrade ? "border-[#00c8b4] text-[#00c8b4]" : "border-white/10"}`}
+          className={`rounded-lg border px-2.5 py-1 text-xs font-semibold hover:bg-white/5 disabled:opacity-40 ${forTrade ? "border-[#d5bb7f] text-[#d5bb7f]" : "border-white/10"}`}
         >
           {forTrade ? "À échanger ✓" : "À échanger"}
         </button>

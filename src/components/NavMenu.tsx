@@ -12,7 +12,7 @@ export interface NavItem {
 }
 
 /** Onglet « agrégateur » : un seul bouton dans la barre, qui déroule la liste des pages d'une même famille. Souligné quand on est sur l'une d'elles. */
-export function NavMenu({ icon, label, items }: { icon: string; label: string; items: NavItem[] }) {
+export function NavMenu({ icon, label, items, className = "" }: { icon: string; label: string; items: NavItem[]; className?: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -46,7 +46,7 @@ export function NavMenu({ icon, label, items }: { icon: string; label: string; i
     <div className="nav-menu" ref={root}>
       <button
         type="button"
-        className="site-link nav-menu-btn"
+        className={`site-link nav-menu-btn ${className}`}
         aria-expanded={open}
         aria-controls={panelId}
         aria-haspopup="true"

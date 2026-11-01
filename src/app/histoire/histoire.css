@@ -15,7 +15,7 @@
 .hs-map { overflow: hidden; border: 1px solid #304665; border-radius: 12px; background: #0b1424; }
 .hs-map-toolbar { padding: 1rem 1.25rem; background: #111f38; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .hs-map-toolbar p { color: #8ea3c4; font-size: .8rem; margin: 0; }
-.hs-map-viewport { height: 640px; max-height: 75svh; overflow-y: auto; overflow-x: hidden; position: relative; overscroll-behavior-y: contain; scrollbar-color: #4b8bff #101c31; scrollbar-width: thin; overflow-anchor: none; }
+.hs-map-viewport { height: 640px; max-height: 75svh; overflow-y: auto; overflow-x: hidden; position: relative; overscroll-behavior-y: contain; scrollbar-color: #c4a76d #101c31; scrollbar-width: thin; overflow-anchor: none; }
 .hs-map-tracker { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .75rem 1.25rem; background: #0b1424ed; border-block: 1px solid #54719855; backdrop-filter: blur(12px); font-size: .75rem; color: #b7d2ff; }
 .hs-map-tracker select { background: #111f38; border: 1px solid #304665; padding: .35rem; border-radius: 5px; max-width: 210px; font: inherit; color: #e8f0ff; }
 .hs-map-world { position: relative; isolation: isolate; background: linear-gradient(color-mix(in srgb, var(--hs-color) 12%, #0b1424), #0b1424); }
@@ -31,13 +31,13 @@
 .hs-map-route { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .hs-map-route path { fill: none; stroke-linecap: round; }
 .hs-map-node { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; border: 2px solid #647d9d; background: #13233ded; color: #9aadc5; font-weight: 700; box-shadow: 0 4px 14px #0009, 0 0 0 4px #0b142466; cursor: pointer; }
-.hs-map-node.is-done { color: #9af2dc; border-color: #00c8b4; background: #133c43; }
-.hs-map-node.is-current { width: 49px; height: 49px; color: #fff; border-color: #b1d5ff; background: #285fc8; box-shadow: 0 0 0 7px #4b8bff30, 0 0 30px #4b8bff99; }
+.hs-map-node.is-done { color: #9af2dc; border-color: #d5bb7f; background: #133c43; }
+.hs-map-node.is-current { width: 49px; height: 49px; color: #fff; border-color: #b1d5ff; background: #285fc8; box-shadow: 0 0 0 7px #c4a76d30, 0 0 30px #c4a76d99; }
 .hs-map-node small { position: absolute; top: calc(100% + 7px); color: #cfddf0; font-size: .6rem; font-weight: 400; white-space: nowrap; text-shadow: 0 2px 5px #000; }
 .hs-map-node.is-current small { color: #b7dcff; }
 .hs-map-node.is-boss { width: 53px; height: 58px; border-radius: 12px 12px 23px 23px; background: linear-gradient(145deg, #5e2139, #240f26); border-color: #ff667a; box-shadow: 0 0 0 5px #ff3b4a22, 0 0 30px #ff3b4a44; }
-.hs-map-node.is-boss.is-done { border-color: #00c8b4; box-shadow: 0 0 0 5px #00c8b422; }
-.hs-map-node.is-boss.is-current { border-color: #b1d5ff; box-shadow: 0 0 0 7px #4b8bff30, 0 0 30px #4b8bff99; }
+.hs-map-node.is-boss.is-done { border-color: #d5bb7f; box-shadow: 0 0 0 5px #d5bb7f22; }
+.hs-map-node.is-boss.is-current { border-color: #b1d5ff; box-shadow: 0 0 0 7px #c4a76d30, 0 0 30px #c4a76d99; }
 .hs-map-emblem { display: block; width: 30px; height: 30px; background: center / contain no-repeat; }
 .hs-map-node.is-boss small { color: #ff9db2; }
 .hs-map-node.is-final { width: 62px; height: 65px; border-color: #ff9d74; }

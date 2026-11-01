@@ -104,7 +104,7 @@ export function StoryMap({ universes, stock, ready, chosenTeamSize, pending, onF
                 <h3>Acte {act}<small>{art?.location ?? (act === 3 ? "Vers le boss final" : act === 2 ? "Au cœur de l’univers" : "Entrée dans l’univers")}</small></h3>
                 <svg className="hs-map-route" viewBox="0 0 720 320" preserveAspectRatio="none" aria-hidden="true">
                   <path d={route} stroke="#081323" strokeWidth="9" opacity=".8" />
-                  <path d={route} stroke={world.maxLevel >= act * 5 ? "#00c8b4" : "#a1b7d4"} strokeWidth="2.5" strokeDasharray="3 8" opacity=".7" />
+                  <path d={route} stroke={world.maxLevel >= act * 5 ? "#d5bb7f" : "#a1b7d4"} strokeWidth="2.5" strokeDasharray="3 8" opacity=".7" />
                 </svg>
                 {points.map(([x, y], i) => {
                   const level = (act - 1) * 5 + i + 1;
