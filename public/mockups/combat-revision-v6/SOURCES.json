@@ -1,0 +1,84 @@
+{
+  "sources": [
+    {
+      "author": "Kenney",
+      "pack": "Impact Sounds",
+      "url": "https://kenney.nl/assets/impact-sounds",
+      "license": "CC0-1.0"
+    },
+    {
+      "author": "Kenney",
+      "pack": "RPG Audio",
+      "url": "https://kenney.nl/assets/rpg-audio",
+      "license": "CC0-1.0"
+    },
+    {
+      "author": "HaelDB",
+      "pack": "Male grunt/yelling sounds",
+      "url": "https://opengameart.org/content/male-gruntyelling-sounds",
+      "license": "CC0-1.0"
+    }
+  ],
+  "files": [
+    "impact-sounds/footstep_carpet_002.ogg",
+    "impact-sounds/impactPunch_heavy_000.ogg",
+    "impact-sounds/impactPunch_heavy_002.ogg",
+    "impact-sounds/impactPunch_heavy_003.ogg",
+    "impact-sounds/impactPunch_heavy_004.ogg",
+    "impact-sounds/impactPunch_medium_000.ogg",
+    "impact-sounds/impactPunch_medium_001.ogg",
+    "impact-sounds/impactPunch_medium_002.ogg",
+    "impact-sounds/impactPunch_medium_003.ogg",
+    "impact-sounds/impactPunch_medium_004.ogg",
+    "impact-sounds/impactSoft_heavy_001.ogg",
+    "impact-sounds/impactSoft_heavy_002.ogg",
+    "impact-sounds/impactSoft_heavy_003.ogg",
+    "impact-sounds/impactSoft_medium_002.ogg",
+    "impact-sounds/impactWood_light_001.ogg",
+    "impact-sounds/impactWood_light_003.ogg",
+    "opengameart-haeldb/1yell2.wav",
+    "opengameart-haeldb/3grunt3.wav",
+    "opengameart-haeldb/3grunt4.wav",
+    "opengameart-haeldb/3grunt5.wav",
+    "opengameart-haeldb/3yell3.wav",
+    "rpg-audio/chop.ogg",
+    "rpg-audio/cloth1.ogg",
+    "rpg-audio/cloth2.ogg",
+    "rpg-audio/cloth3.ogg",
+    "rpg-audio/cloth4.ogg",
+    "rpg-audio/drawKnife1.ogg",
+    "rpg-audio/drawKnife2.ogg",
+    "rpg-audio/dropLeather.ogg",
+    "rpg-audio/handleSmallLeather.ogg",
+    "rpg-audio/knifeSlice.ogg",
+    "rpg-audio/knifeSlice2.ogg"
+  ],
+  "processing": "Coup sur le corps (prises Kenney) + voix humaine qui encaisse, posée 30 à 45 ms après le contact. Aucune synthèse.",
+  "outputs": [
+    {
+      "file": "sort-voix-1.ogg",
+      "duration": 0.8,
+      "peak_dbfs": -1.08
+    },
+    {
+      "file": "sort-voix-2.ogg",
+      "duration": 0.8,
+      "peak_dbfs": -1.14
+    },
+    {
+      "file": "sort-voix-3.ogg",
+      "duration": 0.8,
+      "peak_dbfs": -1.04
+    },
+    {
+      "file": "sort-voix-4.ogg",
+      "duration": 0.8,
+      "peak_dbfs": -1.12
+    },
+    {
+      "file": "sort-voix-5.ogg",
+      "duration": 0.8,
+      "peak_dbfs": -1.12
+    }
+  ]
+}
