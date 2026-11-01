@@ -215,22 +215,17 @@ export class ElementVfx {
   // ---------- impact
   private burst(px: number, py: number) {
     const e = this.e, c = e.c, power = e.power, gy = e.gy, add = this.add.bind(this);
-    add({ k: "ring", x: px, y: py, max: .3, s: 10, grow: 100, col: c[1] });
-    add({ k: "flash", x: px, y: py, max: .2, s: 110, col: c[0] });
+    const compact = e.element === "feu" || e.element === "eau";
+    add({ k: "ring", x: px, y: py, max: .3, s: 10, grow: compact ? 50 : 100, col: c[1] });
+    add({ k: "flash", x: px, y: py, max: .2, s: compact ? 70 : 110, col: c[0] });
     if (e.element === "feu") {
-      this.decal("scorch", px, 80, 2);
-      for (let i = 0; i < 50 * power; i++) { const a = R(0, 6.28), v = R(60, 340); add({ k: "ember", x: px, y: py, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 90, g: -140, drag: .92, max: R(.5, 1.3), s: R(1.5, 3.5), col: i % 3 ? c[1] : c[0] }); }
-      for (let i = 0; i < 8; i++) add({ k: "flame", x: px + R(-40, 40), y: py + R(-10, 40), vy: R(-140, -60), vx: R(-20, 20), max: R(.5, .9), s: R(16, 30) });
-      // La carte s'embrase : langues de feu sur toute sa surface
-      for (let i = 0; i < 24 * power; i++) add({ k: "tongue", x: R(-e.cw * .36, e.cw * .36), y: R(0, e.ch * .47), vy: R(-60, -25), vx: R(-8, 8), life: -R(0, .45), max: R(.5, .85), s: R(13, 22) });
-      for (let i = 0; i < 12; i++) add({ k: "smoke", x: px + R(-40, 40), y: py - R(30, 60), vx: R(-25, 25), vy: R(-70, -30), drag: .98, vr: R(-1, 1), max: R(1.3, 2), s: R(30, 50), col: "#4a3836", a0: .55 });
+      // Compact : trois langues de feu au pied de la carte, rien qui déborde
+      for (let i = 0; i < 3; i++) add({ k: "tongue", x: (i - 1) * e.cw * .28, y: e.ch * .47 - 6, vy: -90, vx: 0, life: -i * .05, max: .45, s: R(10, 14) });
     }
     if (e.element === "eau") {
-      this.decal("puddle", px, 100, 2.2);
-      for (let i = 0; i < 70 * power; i++) { const a = R(-3.1, 0), v = R(120, 440); add({ k: "drop", x: px, y: py, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 900, drag: .99, max: R(.6, 1.2), s: R(2, 5), col: i % 3 ? c[1] : c[0], ground: 1 }); }
-      for (let i = 0; i < 14; i++) { const a = R(0, 6.28); add({ k: "bubble", x: px + Math.cos(a) * R(0, 40), y: py + Math.sin(a) * R(0, 40), vx: R(-30, 30), vy: R(-60, -20), max: R(.6, 1.1), s: R(2, 6), col: c[0] }); }
-      add({ k: "ring", x: px, y: gy - 20, max: .6, s: 20, grow: 180, col: c[0], flat: .3 });
-      for (let i = 0; i < 10; i++) add({ k: "smoke", x: px + R(-50, 50), y: py + R(-30, 30), vx: R(-40, 40), vy: R(-30, 0), drag: .97, vr: R(-1, 1), max: R(.9, 1.4), s: R(34, 56), col: "#bfeaff", a0: .5 });
+      // Compact : couronne de gouttes à ±50 px et anneau plat au sol, sans nappe ni brume
+      for (let i = 0; i < 22 * power; i++) { const a = R(-2.6, -.55), v = R(110, 230); add({ k: "drop", x: px, y: py + e.ch * .5 - 18, vx: Math.cos(a) * v * .6, vy: Math.sin(a) * v, g: 700, drag: .99, max: R(.35, .5), s: R(2, 4), col: i % 3 ? c[1] : c[0], ground: 1 }); }
+      add({ k: "ring", x: px, y: gy - 4, max: .45, s: 10, grow: 52, col: c[0], flat: .3 });
     }
     if (e.element === "foudre") {
       this.decal("burn", px, 80, 1.8);
@@ -371,7 +366,7 @@ export class ElementVfx {
         if (k > 0 && k < 1) {
           const q = (u: number) => { const ee = u ** 3 * .35 + u * .65, arc = -40 * Math.sin(Math.PI * ee) * (e.element === "eau" ? .9 : .6); return [sx + dx * travel * ee + nx * arc * -1, sy + dy * travel * ee + ny * arc * -1]; };
           const [px, py] = q(k);
-          e.trail.push([px, py]); if (e.trail.length > 14) e.trail.shift();
+          e.trail.push([px, py]); if (e.trail.length > (e.element === "eau" ? 34 : 14)) e.trail.shift();
           if (e.element === "feu") {
             this.lamp(px, py, 90, c[1], .9);
             for (let i = 0; i < 3; i++) add({ k: "ember", x: px + R(-8, 8), y: py + R(-8, 8), vx: -dx * R(20, 90), vy: -dy * R(20, 90) - R(10, 60), g: -60, max: R(.3, .7), s: R(1.5, 3), col: i ? c[1] : c[0] });
@@ -385,16 +380,17 @@ export class ElementVfx {
           if (e.element === "eau") {
             this.lamp(px, py, 70, c[1], .5);
             if (Math.random() < .9) add({ k: "drop", x: px + R(-10, 10), y: py + R(-10, 10), vx: -dx * R(0, 90), vy: -dy * R(0, 90) + R(-60, 40), g: 700, max: .7, s: R(2, 3.5), col: c[0], ground: 1 });
-            for (let w = 3; w >= 1; w--) { x.globalAlpha = .25 + w * .12; this.stroke(e.trail.map((p, i) => { const o = Math.sin(i * .9 + t * 20) * w * 2; return [p[0] + nx * o, p[1] + ny * o]; }), w * 5, w === 3 ? c[3] : w === 2 ? c[2] : c[1]); }
-            x.globalAlpha = 1;
-            const w = Math.sin(t * 40) * 3;
-            x.fillStyle = c[2]; x.strokeStyle = INK; x.lineWidth = 2.5; x.beginPath(); x.ellipse(px, py, 23 + w, 21 - w, 0, 0, 7); x.fill(); x.stroke();
-            const og = x.createRadialGradient(px - 6, py - 6, 2, px, py, 22); og.addColorStop(0, c[0]); og.addColorStop(.5, c[1]); og.addColorStop(1, c[2]);
-            x.fillStyle = og; x.beginPath(); x.ellipse(px, py, 20 + w, 18 - w, 0, 0, 7); x.fill();
-            x.strokeStyle = "rgba(255,255,255,.55)"; x.lineWidth = 1.2;
-            for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(px + Math.sin(t * 9 + i * 2) * 6, py + Math.cos(t * 7 + i) * 5, 6 + i * 3, i, i + 1.6); x.stroke(); }
-            for (let i = 0; i < 4; i++) { const ang = t * 12 + i * 1.57; x.fillStyle = c[0]; x.beginPath(); x.arc(px + Math.cos(ang) * 30, py + Math.sin(ang) * 12, 2.2, 0, 7); x.fill(); }
-            x.fillStyle = "#fff"; x.beginPath(); x.ellipse(px - 8, py - 9, 5, 2.5, -.6, 0, 7); x.fill();
+            // Jet d'eau : tête arrondie et traîne effilée qui ondule
+            const n = e.trail.length;
+            for (const [w, col] of [[1, c[3]], [.82, c[2]], [.5, c[1]]] as const) {
+              const edge = (i: number, sign: number) => { const f = (i + 1) / n, o = (1 + 11 * f ** .6) * w * sign + Math.sin(i * .9 + t * 40) * 1.5; return [e.trail[i][0] + nx * o, e.trail[i][1] + ny * o]; };
+              x.fillStyle = col; x.beginPath();
+              for (let i = 0; i < n; i++) { const q2 = edge(i, -1); x.lineTo(q2[0], q2[1]); }
+              for (let i = n - 1; i >= 0; i--) { const q2 = edge(i, 1); x.lineTo(q2[0], q2[1]); }
+              x.closePath(); x.fill();
+              x.beginPath(); x.ellipse(px, py, 12 * w, 11 * w, 0, 0, 7); x.fill();
+            }
+            x.fillStyle = c[0]; x.globalAlpha = .8; x.beginPath(); x.ellipse(px - 3, py - 5, 9, 2.5, 0, 0, 7); x.fill(); x.globalAlpha = 1;
           }
           if (e.element === "air") for (let j = 0; j < 3; j++) {
             const kk = seg(t, T - .45 + j * .05, T + j * .03); if (kk <= 0 || kk >= 1) continue;
