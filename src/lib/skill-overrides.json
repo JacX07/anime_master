@@ -13,28 +13,6 @@
       "final": true
     }
   },
-  "130102": {
-    "ultimate": {
-      "name": "Chainsaw Man",
-      "target": null,
-      "effects": [
-        {
-          "k": "damage",
-          "mult": 1.9,
-          "zone": true,
-          "ignoreDef": 0.5
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": 0.4,
-          "turns": 3,
-          "to": "self"
-        }
-      ],
-      "final": true
-    }
-  },
   "422": {
     "ultimate": {
       "name": "Armure du Berserker",
@@ -54,6 +32,71 @@
           "drain": 0.2,
           "ignoreDef": 0.3,
           "ignoreMissing": 0.6
+        }
+      ],
+      "final": true
+    }
+  },
+  "129928": {
+    "secondary": {
+      "name": "Domaine du monarque",
+      "target": null,
+      "effects": [
+        {
+          "k": "counter",
+          "mult": 0.8,
+          "turns": 2
+        }
+      ],
+      "final": true
+    },
+    "tertiary": {
+      "name": "Soldats d'ombres",
+      "target": null,
+      "effects": [
+        {
+          "k": "shield",
+          "pct": 0.2,
+          "to": "team"
+        },
+        {
+          "k": "reduce",
+          "pct": 0.2,
+          "turns": 2,
+          "to": "team"
+        }
+      ],
+      "final": true
+    },
+    "ultimate": {
+      "name": "Arise",
+      "target": null,
+      "effects": [
+        {
+          "k": "arise",
+          "pct": 0.4
+        }
+      ],
+      "final": true
+    }
+  },
+  "130102": {
+    "ultimate": {
+      "name": "Chainsaw Man",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.9,
+          "zone": true,
+          "ignoreDef": 0.5
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": 0.4,
+          "turns": 3,
+          "to": "self"
         }
       ],
       "final": true

@@ -76,6 +76,8 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },
   poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacun de ses tours.", bad: true },
   taunt: { label: "Provocation", glyph: "⚑", help: "Les ennemis ne peuvent viser que cette carte avec leurs attaques à cible unique.", bad: false },
+  counter: { label: "Domaine du monarque", glyph: "☾", help: "Quand cette carte est frappée et survit, une ombre sort de ses pieds et riposte.", bad: false },
+  zombie: { label: "Zombie", glyph: "✝", help: "Ressuscité par Arise. Disparaît si son maître tombe.", bad: false },
   reduce: { label: "Dégâts réduits", glyph: "⛉", help: "Subit moins de dégâts.", bad: false },
   regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacun de ses tours.", bad: false },
   burn: { label: "Brûlure", glyph: "♨", help: "Perd 5 % de ses PV max à la fin de chacun de ses tours.", bad: true },

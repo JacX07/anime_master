@@ -16,6 +16,11 @@ const RARITY_CUTOFFS: [Rarity, number][] = [
 
 export const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 
+/** Raretés imposées par le design, quels que soient les favoris (survivent aux réimports). */
+export const RARITY_OVERRIDES: Record<number, Rarity> = {
+  129928: "UR", // Jin-U Seong (Solo Leveling)
+};
+
 /** Classe par favoris décroissants (égalité : plus petit id d'abord) et attribue les raretés. */
 export function assignRarities<T extends { id: number; favourites: number }>(
   characters: T[],
@@ -25,7 +30,7 @@ export function assignRarities<T extends { id: number; favourites: number }>(
   const result = new Map<number, Rarity>();
   sorted.forEach((c, index) => {
     const rarity = RARITY_CUTOFFS.find(([, cutoff]) => index < Math.round(cutoff * total))?.[0] ?? "N";
-    result.set(c.id, rarity);
+    result.set(c.id, RARITY_OVERRIDES[c.id] ?? rarity);
   });
   return result;
 }
@@ -162,9 +167,10 @@ export interface StatsInput {
 }
 
 /** favMin / favMax par rareté, pour placer chaque personnage dans sa plage. */
-export function favouriteBounds(characters: { favourites: number; rarity: Rarity }[]) {
+export function favouriteBounds(characters: { id?: number; favourites: number; rarity: Rarity }[]) {
   const bounds = new Map<Rarity, { min: number; max: number }>();
   for (const c of characters) {
+    if ("id" in c && RARITY_OVERRIDES[c.id as number]) continue; // une rareté imposée ne déforme pas la plage des autres
     const b = bounds.get(c.rarity);
     if (!b) bounds.set(c.rarity, { min: c.favourites, max: c.favourites });
     else {

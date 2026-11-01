@@ -160,7 +160,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -212,6 +212,8 @@ export type BattleEvent =
       exposedBonus: boolean;
       hp: number;
       shield: number;
+      /** Riposte d'une ombre (Domaine du monarque) */
+      shadow?: boolean;
     }
   /** Le coup d'un sort affilié est esquivé (passif d'arme) : aucun dégât */
   | { kind: "dodge"; source: UnitId; target: UnitId }
@@ -222,7 +224,7 @@ export type BattleEvent =
   /** Perte de PV du poison, à la fin de l'action du porteur */
   | { kind: "poison"; target: UnitId; amount: number; hp: number; burn?: boolean }
   /** Une carte morte revient au combat */
-  | { kind: "revive"; source: UnitId; target: UnitId; hp: number }
+  | { kind: "revive"; source: UnitId; target: UnitId; hp: number; zombie?: boolean }
   /** Un malus est refusé (immunité, ou boss contre le silence) */
   | { kind: "resist"; target: UnitId }
   | { kind: "ko"; target: UnitId }
@@ -272,6 +274,8 @@ interface Unit {
   ultimate: CharacterSpell | null;
   ultimateGauge: number;
   revived: boolean;
+  /** Maître d'un zombie (Arise) : le zombie disparaît quand son maître tombe */
+  master: UnitId | null;
   continuingTurn: boolean;
   fx: Fx[];
 }
@@ -363,7 +367,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: 0,
-      revived: false, continuingTurn: false, fx: [],
+      revived: false, master: null, continuingTurn: false, fx: [],
     };
   });
 }
@@ -478,6 +482,7 @@ export function timeline(st: BattleState, n: number): UnitId[] {
 
 function gaugeActor(st: BattleState): Unit | null {
   while (!st.result) {
+    vanishZombies(st);
     if (!alive(st, "A").length || !alive(st, "B").length) {
       finish(st, false);
       return null;
@@ -557,6 +562,17 @@ function finishUnitTurn(st: BattleState, u: Unit) {
   }
 }
 
+/** Les zombies d'Arise disparaissent quand leur maître est tombé. */
+function vanishZombies(st: BattleState) {
+  for (const x of [...st.teams.A, ...st.teams.B]) {
+    if (x.hp > 0 && x.master && unit(st, x.master).hp <= 0) {
+      x.hp = 0;
+      x.shield = 0;
+      st.log.push({ kind: "ko", target: x.id });
+    }
+  }
+}
+
 /** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV ou étourdies et ouvre les tours. */
 export function currentActor(st: BattleState): UnitView | null {
   if (st.opts.gauge) {
@@ -564,6 +580,7 @@ export function currentActor(st: BattleState): UnitView | null {
     return u ? view(u) : null;
   }
   while (!st.result) {
+    vanishZombies(st);
     if (!alive(st, "A").length || !alive(st, "B").length) {
       finish(st, false);
       break;
@@ -600,7 +617,10 @@ function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (Unit
     case "foe": return foesFor(st, u).map((x) => x.id);
     case "ally": return alive(st, u.side).map((x) => x.id);
     case "deadAlly": return u.revived ? [] : st.teams[u.side].filter((x) => x.hp <= 0).map((x) => x.id);
-    default: return [null];
+    default:
+      // Arise : une fois par combat, et seulement s'il y a un mort à relever
+      if (spell.effects.some((e) => e.k === "arise")) return u.revived || !st.teams[u.side].some((x) => x.hp <= 0) ? [] : [null];
+      return [null];
   }
 }
 
@@ -705,6 +725,8 @@ export function applyAction(st: BattleState, action: Action) {
   let landedHit = false;
   /** Cibles réellement touchées par l'action (pour l'effet d'élément) */
   const struck = new Set<Unit>();
+  /** Cartes frappées qui ripostent (Domaine du monarque), une ombre par action */
+  const shadows = new Set<Unit>();
   const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false) => {
     // L'ignore-DEF accordé par une attaque de base est consommé sur la prochaine action offensive.
     if (pendingIgnoreFx && !consumedIgnoreFx) {
@@ -738,6 +760,7 @@ export function applyAction(st: BattleState, action: Action) {
     });
     if (dmg > 0) { landedHit = true; struck.add(t); }
     if (t.hp === 0) log.push({ kind: "ko", target: t.id });
+    else if (t.side !== u.side && hasFx(t, "counter")) shadows.add(t);
     return dmg;
   };
   const heal = (t: Unit, amount: number) => {
@@ -913,6 +936,20 @@ export function applyAction(st: BattleState, action: Action) {
         case "reduce":
           for (const t of who(e.to)) addFx(t, "reduce", e.pct, e.turns);
           break;
+        case "counter":
+          addFx(u, "counter", e.mult, e.turns);
+          break;
+        case "arise":
+          for (const dead of st.teams[u.side].filter((x) => x.hp <= 0)) {
+            u.revived = true;
+            dead.hp = dead.maxHp * e.pct;
+            dead.shield = 0;
+            dead.fx = [];
+            Object.assign(dead, { exposed: false, weaken: 0, elan: 0, spellIn: 2, pIn: SPELL_FIRST, tIn: SPELL_FIRST, held: 0, master: u.id });
+            log.push({ kind: "revive", source: u.id, target: dead.id, hp: dead.hp, zombie: true });
+            addFx(dead, "zombie", 0, 999);
+          }
+          break;
         case "purge":
           for (const t of who(e.to)) {
             for (const f of t.fx.filter((x) => MALUS.has(x.key))) dropFx(t, f);
@@ -966,6 +1003,23 @@ export function applyAction(st: BattleState, action: Action) {
       for (const f of foes) hit(f, 0.6);
       for (const x of allies) setStatus(x, "elan", BATTLE.statusTurns);
     }
+  }
+  // Domaine du monarque : l'ombre de chaque carte frappée riposte à l'attaquant s'il est encore debout
+  for (const owner of shadows) {
+    if (owner.hp <= 0 || u.hp <= 0) continue;
+    const def = u.def * (1 + clamp(fxSum(u, "def"), -BATTLE.statCap, BATTLE.statCap));
+    const aff = affinity(owner.card.type, u.card.type);
+    let dmg = owner.atk * aff * fxKeySum(owner, "counter") * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
+    dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
+    dmg *= 1 - clamp(fxKeySum(u, "reduce"), 0, BATTLE.reduceCap);
+    const absorbed = Math.min(u.shield, dmg);
+    u.shield -= absorbed;
+    u.hp = Math.max(0, u.hp - (dmg - absorbed));
+    log.push({
+      kind: "damage", source: owner.id, target: u.id, amount: dmg, absorbed, crit: false,
+      affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus: false, hp: u.hp, shield: u.shield, shadow: true,
+    });
+    if (u.hp === 0) log.push({ kind: "ko", target: u.id });
   }
   // Un sort actif (même sans dégât : buff, soin, debuff) charge la jauge comme une attaque qui touche
   if ((landedHit || activeSpell) && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {

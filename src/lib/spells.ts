@@ -29,7 +29,11 @@ export type Effect =
   /** Provocation du lanceur : les attaques à cible unique des ennemis ne peuvent viser que lui pendant `turns` tours */
   | { k: "taunt"; turns: number }
   /** Dégâts subis réduits de `pct` pendant `turns` tours */
-  | { k: "reduce"; pct: number; turns: number; to: Scope };
+  | { k: "reduce"; pct: number; turns: number; to: Scope }
+  /** Ressuscite tous les alliés morts en zombies (`pct` de leurs PV max) ; ils disparaissent si le lanceur meurt. Une fois par combat. */
+  | { k: "arise"; pct: number }
+  /** Contre-attaque du lanceur : chaque fois qu'un ennemi le frappe et qu'il survit, une ombre riposte (`mult` × ATK du lanceur), pendant `turns` tours */
+  | { k: "counter"; mult: number; turns: number };
 
 export interface CharacterSpell {
   name: string;
@@ -416,11 +420,13 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "revive": return `réanime un allié mort avec ${pct(e.pct)} de ses PV max (une fois par combat)`;
     case "taunt": return `provocation : les attaques à cible unique visent le lanceur, ${nx(e.turns)}`;
     case "reduce": return `dégâts subis −${pct(e.pct)} pour ${WHO[e.to]}, ${nx(e.turns)}`;
+    case "arise": return `ressuscite tous les alliés morts en zombies avec ${pct(e.pct)} de leurs PV max (une fois par combat) ; ils disparaissent si le lanceur meurt`;
+    case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;
   }
 }
 const capital = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 export const isSoloBuff = (spell: CharacterSpell): boolean => spell.target === null && spell.effects.length > 0 && spell.effects.every((effect) => {
-  if (effect.k === "taunt") return true;
+  if (effect.k === "taunt" || effect.k === "counter") return true;
   if (effect.k === "mod") return effect.to === "self" && effect.amount > 0;
   return (effect.k === "heal" || effect.k === "regen" || effect.k === "shield" || effect.k === "reduce" || effect.k === "immune" || effect.k === "purge") && effect.to === "self";
 });

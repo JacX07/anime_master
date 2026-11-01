@@ -48,6 +48,8 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
   purge: { label: "Purge des malus", fields: [scope("team")] },
   revive: { label: "Réanimation", fields: [pctField("% PV max", 0.2)] },
   taunt: { label: "Provocation (soi)", fields: [turns(2)] },
+  arise: { label: "Arise (zombies)", fields: [pctField("% PV max", 0.4)] },
+  counter: { label: "Contre-attaque d'ombre (soi)", fields: [{ key: "mult", label: "× ATK", type: "number", min: 0.2, max: 2, step: 0.05, def: 0.8 }, turns(2)] },
   reduce: { label: "Réduction des dégâts subis", fields: [pctField("Réduction", 0.3, 0.8), turns(2), scope("self")] },
 };
 

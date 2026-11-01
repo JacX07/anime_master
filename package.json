@@ -47,6 +47,7 @@
     "check:awakening": "tsx scripts/check-awakening.ts",
     "check:raid": "tsx scripts/check-raid.ts",
     "check:spells": "tsx scripts/check-spells.ts",
+    "check:jinwoo": "tsx scripts/check-jinwoo.ts",
     "simulate:spells": "tsx scripts/simulate-spells.ts",
     "calibrate:spells": "tsx scripts/calibrate-spells.ts",
     "calibrate:archetypes": "tsx scripts/calibrate-archetypes.ts",

@@ -50,6 +50,8 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "revive": return { ...effect, pct: Math.min(0.2, Math.max(0.15, effect.pct * scale)) };
       case "purge":
       case "taunt":
+      case "arise":
+      case "counter":
       case "reduce": return effect;
     }
   });
