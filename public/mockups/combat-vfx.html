@@ -99,13 +99,13 @@ function arcPose(length, T, weapon) {
     return (t) => {
         if (t < start + 120) {
             const e = easeOut(seg(t, start, start + 120));
-            return { x: 70, y: 6, r: -8, s: s * (.7 + .3 * e), o: e };
+            return { x: 0, y: 0, r: -8, s: s * (.7 + .3 * e), o: e };
         }
         if (t < travel)
-            return { x: 70, y: 6, r: -8, s, o: 1 };
+            return { x: 0, y: 0, r: -8, s, o: 1 };
         if (t < T - 80) {
             const e = easeInOut(seg(t, travel, T - 80));
-            return { x: lerp(70, pivot[0], e), y: lerp(6, pivot[1], e), r: lerp(-8, SWING.raised, e), s, o: 1 };
+            return { x: pivot[0] * e, y: pivot[1] * e, r: lerp(-8, SWING.raised, e), s, o: 1 };
         }
         let r;
         if (t < T - 40)
@@ -118,7 +118,8 @@ function arcPose(length, T, weapon) {
             r = lerp(SWING.contact, SWING.follow, easeOut(seg(t, T + 45, T + 100)));
         else
             r = SWING.follow + 6 * easeOut(seg(t, T + 100, T + 300));
-        return { x: pivot[0], y: pivot[1], r, s, o: 1 - seg(t, T + 220, T + 340) };
+        const back = 1 - easeInOut(seg(t, T + 120, T + 400));
+        return { x: pivot[0] * back, y: pivot[1] * back, r, s, o: 1 - seg(t, T + 260, T + 380) };
     };
 }
 function arcArtwork(length, weapon) {
@@ -182,15 +183,22 @@ class CombatVfx {
             const last = k === shown.length - 1, to = last ? T + 380 : shown[k + 1];
             timeline(`trail${k}`, (t) => ({ opacity: t < from || t >= to ? 0 : last ? 1 - seg(t, T + 140, T + 380) : 1 }));
         });
+        return (t) => { const p = pose(t); return { ...p, r: p.r * .08 * (1 - seg(t, T + 120, T + 400)) }; };
     }
     /** Iaï: sheathed stance, invisible draw, then the click of the resheath splits the target. */
     iai(timeline, length, T, dodge) {
         const stance = length * .36, start = Math.max(0, T - 480), draw = T - 190;
-        timeline("sheath", (t) => {
-            const e = easeOut(seg(t, start, start + 100)), slide = easeInOut(seg(t, start + 100, start + 230));
+        // The holder walks to the stance, snaps forward on the invisible draw, and walks back after the click.
+        const holder = (t) => {
+            const out = easeInOut(seg(t, start + 100, start + 230)) * (1 - easeInOut(seg(t, T + 120, T + 420)));
             const tremble = t > start + 230 && t < draw ? .5 * Math.sin(t / 9) : 0;
+            const snap = 10 * Math.sin(Math.PI * seg(t, draw, draw + 60));
+            return { x: stance * out + tremble + snap, y: 28 * out, r: 0, s: 1, o: 1 };
+        };
+        timeline("sheath", (t) => {
+            const e = easeOut(seg(t, start, start + 100)), h = holder(t);
             const hidden = t >= draw && t < draw + 40;
-            return poseFrame({ x: lerp(70, stance, slide) + tremble, y: lerp(10, 28, slide), r: -6, s: .75 * (.7 + .3 * e), o: hidden ? 0 : e * (1 - seg(t, T + 300, T + 450)) });
+            return poseFrame({ x: h.x, y: h.y, r: -6, s: .75 * (.7 + .3 * e), o: hidden ? 0 : e * (1 - seg(t, T + 340, T + 450)) });
         });
         timeline("thumb", (t) => ({ opacity: 1, transform: `translateX(${(4 * seg(t, T - 260, T - 230) * (1 - seg(t, T - 20, T))).toFixed(2)}px)` }));
         timeline("click", (t) => ({ opacity: t < T ? 0 : 1 - seg(t, T, T + 110), transform: `scale(${(.6 + 1.6 * seg(t, T, T + 110)).toFixed(2)})` }));
@@ -206,6 +214,7 @@ class CombatVfx {
                 const e = seg(t, T, T + 170), k = .3 + .7 * easeOut(e);
                 return { opacity: t < T ? 0 : 1 - e, transform: `scale(${k.toFixed(3)}, ${(k * .45).toFixed(3)})` };
             });
+        return holder;
     }
     /** Two clipped copies of the target card drift apart along the cut, then close back. */
     splitCard(card, T, cutAngle) {
@@ -235,7 +244,7 @@ class CombatVfx {
             node.remove();
         this.nodes.clear();
     }
-    play({ style, from, to, impactAt, intensity = 1, weapon = "katana", support = false, dodge = false, targetCard = null }) {
+    play({ style, from, to, impactAt, intensity = 1, weapon = "katana", support = false, dodge = false, targetCard = null, actorCard = null }) {
         if (matchMedia("(prefers-reduced-motion: reduce)").matches)
             return;
         const dx = to.x - from.x, dy = to.y - from.y;
@@ -251,10 +260,10 @@ class CombatVfx {
         svg.style.cssText = `position:absolute;left:${from.x}px;top:${from.y}px;overflow:visible;pointer-events:none;z-index:20;`;
         const iai = style === "slash" && weapon === "iai" && !support;
         const art = style !== "slash" ? artwork(style) : iai ? iaiArtwork(length) : arcArtwork(length, weapon);
-        svg.innerHTML = `<g transform="rotate(${angle}) scale(${scale})">${art}<g transform="translate(${length} 0)"><g data-part="impact">${burst}</g></g></g>`;
+        svg.innerHTML = `<g transform="rotate(${angle}) scale(${scale})">${art}${iai ? "" : `<g transform="translate(${length} 0)"><g data-part="impact">${burst}</g></g>`}</g>`;
         this.root.append(svg);
         this.nodes.add(svg);
-        const end = impactAt + (style !== "slash" ? 260 : iai ? 460 : 360);
+        const end = impactAt + (style !== "slash" ? 260 : iai ? 460 : 420);
         const run = (part, frames, start, duration) => {
             const el = svg.querySelector(`[data-part="${part}"]`);
             if (!el)
@@ -263,13 +272,14 @@ class CombatVfx {
             this.animate(el, frames, { delay: start, duration, fill: "both" });
         };
         const timeline = (part, frame) => run(part, sample(end, frame), 0, end);
+        let holder = null;
         if (iai) {
-            this.iai(timeline, length, impactAt, dodge);
+            holder = this.iai(timeline, length, impactAt, dodge);
             if (targetCard && !dodge)
                 this.splitCard(targetCard, impactAt, angle + IAI_TILT);
         }
         else if (style === "slash") {
-            this.arc(timeline, length, impactAt, weapon);
+            holder = this.arc(timeline, length, impactAt, weapon);
         }
         else if (style === "magic") {
             run("seal", [{ opacity: 0, transform: "scale(.7)" }, { opacity: 1, transform: "scale(1)", offset: .25 }, { opacity: 0, transform: "scale(1.15)" }], 0, impactAt + 80);
@@ -282,6 +292,14 @@ class CombatVfx {
             run("projectile", [{ opacity: 0, transform: "translateX(80px) scaleX(.2)" }, { opacity: 1, offset: .15 }, { opacity: 1, transform: `translateX(${support ? 100 : length}px) scaleX(1)`, offset: .85 }, { opacity: 0 }], shoot, 80);
             run("casing", [{ opacity: 0, transform: "translate(20px, -5px)" }, { opacity: 1, transform: "translate(15px, -20px) rotate(40deg)", offset: .4 }, { opacity: 0, transform: "translate(4px, 15px) rotate(100deg)" }], shoot, 250);
         }
+        if (holder && actorCard) {
+            // Local grip position -> screen offset of the card centre.
+            const a = angle * Math.PI / 180, cos = Math.cos(a) * scale, sin = Math.sin(a) * scale, hold = holder;
+            this.animate(actorCard, sample(end, (t) => {
+                const p = hold(t), lift = 1 + .08 * Math.min(1, Math.hypot(p.x, p.y) / 40);
+                return { transform: `translate(${(p.x * cos - p.y * sin).toFixed(1)}px, ${(p.x * sin + p.y * cos).toFixed(1)}px) rotate(${p.r.toFixed(2)}deg) scale(${lift.toFixed(3)})` };
+            }), { duration: end });
+        }
         if (!support && !dodge && !iai)
             run("impact", [{ opacity: 0, transform: "scale(.3)" }, { opacity: 1, transform: "scale(1)", offset: .15 }, { opacity: 0, transform: "scale(1.2)" }], impactAt, 220);
         // A single lifetime animation removes the whole drawing, including support effects.
@@ -292,7 +310,7 @@ class CombatVfx {
 
 const entries=[...document.querySelectorAll('.scene')].map(root=>({root,controller:new CombatVfx(root)}));
 const status=document.getElementById('status');let speed=1;
-function draw(paused=false,at=0){for(const {root,controller} of entries){controller.clear();controller.setPlayback(speed,!paused);const a=root.querySelector('.source'),b=root.querySelector('.target');controller.play({style:root.dataset.style,weapon:root.dataset.weapon,from:{x:a.offsetLeft+35,y:75},to:{x:b.offsetLeft+35,y:75},impactAt:480,targetCard:b,intensity:Number(document.getElementById('intensity').value)});if(paused)root.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=at})}status.textContent=paused?at+' ms':'Lecture';}
+function draw(paused=false,at=0){for(const {root,controller} of entries){controller.clear();controller.setPlayback(speed,!paused);const a=root.querySelector('.source'),b=root.querySelector('.target');controller.play({style:root.dataset.style,weapon:root.dataset.weapon,from:{x:a.offsetLeft+35,y:75},to:{x:b.offsetLeft+35,y:75},impactAt:480,targetCard:b,actorCard:root.dataset.style==='slash'?a:null,intensity:Number(document.getElementById('intensity').value)});if(paused)root.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=at})}status.textContent=paused?at+' ms':'Lecture';}
 document.getElementById('play').onclick=()=>draw();
 document.getElementById('pause').onclick=()=>entries.forEach(e=>e.controller.setPlayback(speed,false));
 document.getElementById('stop').onclick=()=>{entries.forEach(e=>e.controller.clear());status.textContent='Interrompu'};
@@ -308,7 +326,7 @@ async function check(){
   await wait(60);assert(Math.abs(frozen.currentTime-time)<1,'Pause');
   for(const speed of [1,2,4]){
     entries.forEach(e=>e.controller.clear());draw();entries.forEach(e=>e.controller.setPlayback(speed,true));
-    await wait(1100/speed+80);
+    await wait(1300/speed+150);
     assert(entries.every(e=>!e.root.querySelector('.bt-cel-vfx')&&!e.root.getAnimations({subtree:true}).length),'Fin x'+speed);
   }
   for(let i=0;i<30;i++){draw();entries.forEach(e=>e.controller.clear())}

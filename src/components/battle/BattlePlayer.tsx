@@ -222,12 +222,14 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
         const from = center(a);
         const intensity = ev.spell === "ultimate" ? 1.35 : ev.spell === "base" ? 1 : 1.15;
         const weapon = attackWeapon(rp.info[ev.actor].characterId);
-        for (const hit of targets) {
+        // Une lame est brandie par la carte : elle suit la première coupe (une zone ne la déplace qu'une fois)
+        const wielder = visual === "slash" ? a : null;
+        targets.forEach((hit, i) => {
           const target = el(hit.target);
-          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon, dodge: hit.dodge, targetCard: target.querySelector<HTMLElement>(".bt-card") });
-        }
-        if (!targets.length) controller.play({ style: visual, from, to: { x: from.x + 70, y: from.y }, impactAt: 480, intensity, weapon, support: true });
-        controller.animate(a, [{ transform: "none" }, { transform: "scale(1.04)", offset: .3 }, { transform: "none" }], { duration: 480 });
+          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon, dodge: hit.dodge, targetCard: target.querySelector<HTMLElement>(".bt-card"), actorCard: i === 0 ? wielder : null });
+        });
+        if (!targets.length) controller.play({ style: visual, from, to: { x: from.x + 70, y: from.y }, impactAt: 480, intensity, weapon, support: true, actorCard: wielder });
+        if (!wielder) controller.animate(a, [{ transform: "none" }, { transform: "scale(1.04)", offset: .3 }, { transform: "none" }], { duration: 480 });
       } else if (!t) {
         // Zone, soin ou soutien : la carte se lève sur place
         controller.animate(a, [{ transform: "none" }, { transform: "translateY(-6%) scale(1.1)", offset: 0.45 }, { transform: "none" }], { duration: 700, easing: "ease-in-out" });

@@ -20,7 +20,7 @@ ${examples.map(([style, weapon, name, image]) => `<article><h3>${name} · ${styl
 <p>Même contrôleur que le lecteur de combat · impact à 480 ms · aucune règle de combat exécutée.</p><script>${controller}
 const entries=[...document.querySelectorAll('.scene')].map(root=>({root,controller:new CombatVfx(root)}));
 const status=document.getElementById('status');let speed=1;
-function draw(paused=false,at=0){for(const {root,controller} of entries){controller.clear();controller.setPlayback(speed,!paused);const a=root.querySelector('.source'),b=root.querySelector('.target');controller.play({style:root.dataset.style,weapon:root.dataset.weapon,from:{x:a.offsetLeft+35,y:75},to:{x:b.offsetLeft+35,y:75},impactAt:480,targetCard:b,intensity:Number(document.getElementById('intensity').value)});if(paused)root.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=at})}status.textContent=paused?at+' ms':'Lecture';}
+function draw(paused=false,at=0){for(const {root,controller} of entries){controller.clear();controller.setPlayback(speed,!paused);const a=root.querySelector('.source'),b=root.querySelector('.target');controller.play({style:root.dataset.style,weapon:root.dataset.weapon,from:{x:a.offsetLeft+35,y:75},to:{x:b.offsetLeft+35,y:75},impactAt:480,targetCard:b,actorCard:root.dataset.style==='slash'?a:null,intensity:Number(document.getElementById('intensity').value)});if(paused)root.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=at})}status.textContent=paused?at+' ms':'Lecture';}
 document.getElementById('play').onclick=()=>draw();
 document.getElementById('pause').onclick=()=>entries.forEach(e=>e.controller.setPlayback(speed,false));
 document.getElementById('stop').onclick=()=>{entries.forEach(e=>e.controller.clear());status.textContent='Interrompu'};
@@ -36,7 +36,7 @@ async function check(){
   await wait(60);assert(Math.abs(frozen.currentTime-time)<1,'Pause');
   for(const speed of [1,2,4]){
     entries.forEach(e=>e.controller.clear());draw();entries.forEach(e=>e.controller.setPlayback(speed,true));
-    await wait(1100/speed+80);
+    await wait(1300/speed+150);
     assert(entries.every(e=>!e.root.querySelector('.bt-cel-vfx')&&!e.root.getAnimations({subtree:true}).length),'Fin x'+speed);
   }
   for(let i=0;i<30;i++){draw();entries.forEach(e=>e.controller.clear())}
