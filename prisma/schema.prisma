@@ -259,6 +259,8 @@ model Card {
   inExpedition    Boolean          @default(false)
   /// Éveil, 0 à 5 étoiles (docs/specs/combat.md) : suit l'exemplaire quand il change de main
   stars           Int              @default(0)
+  /// Arme forgée pour cet exemplaire ; suit la carte lors des échanges.
+  weaponKey       String?
   expeditionCards ExpeditionCard[]
   teamSlots       BattleTeamSlot[]
   tradeItems      TradeItem[]

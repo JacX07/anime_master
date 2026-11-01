@@ -9,7 +9,7 @@ import { prisma } from "./db";
 /** Un exemplaire peut être consommé comme doublon : ni verrouillé, ni en vente, ni en expédition, ni dans une équipe, ni dans un échange en attente. */
 export const duplicateWhere = (userId: string, characterId: number, exceptCardId: string): Prisma.CardWhereInput => ({
   ownerId: userId, characterId, id: { not: exceptCardId },
-  locked: false, inAuction: false, inExpedition: false,
+  locked: false, inAuction: false, inExpedition: false, weaponKey: null,
   teamSlots: { none: {} },
   tradeItems: { none: { trade: { status: "PENDING" } } },
 });

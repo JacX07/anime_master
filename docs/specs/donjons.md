@@ -100,3 +100,9 @@ Quatre emplacements *(confirmé le 2026-11-01)*. Le système suit celui des **re
 - `Battle.mode` : ajouter `DUNGEON` et `WORLD_BOSS`.
 - Définitions (donjons, sets, armes, boss) dans le code, comme les univers.
 - Moteur : `BattleCard` reçoit ses artefacts et son arme ; la vitesse dépend de la décision n° 2 ci-dessus.
+
+### Forge disponible (2026-11-01)
+
+La page `/forge` fabrique et équipe directement une arme générique du type de la carte, à 5★. Une seule arme par exemplaire ; elle suit la carte dans les échanges et ne peut pas être détachée. Une carte armée ne sert pas de doublon d'éveil. Les cartes en enchère, expédition ou échange en attente sont exclues de la forge.
+
+Recette provisoire tant que les donjons et le boss mondial ne sont pas disponibles : **20 ressources de boss final de l'histoire**, tous univers confondus (consommées dans l'ordre des univers), et **50 cœurs de brèche**. Le débit et l'équipement sont atomiques. Bonus : +10 % ATK, DEF et PV ; renfort +10 % ATK pour le type du porteur, ou esquive 15 % pour MYSTERE.

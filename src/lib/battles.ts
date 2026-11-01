@@ -19,6 +19,8 @@ import {
 import { bossOfWeek, DAILY_FULL_HEARTS, DIFFICULTIES, parseRaidKey, RAID_BOSS_BONUS, RAID_PREFIX, RAID_RESOURCE, raidHearts, type RaidBoss, type RaidDifficulty } from "./raid";
 import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./tower";
 
+import { weaponDef } from "./weapons";
+
 export class BattleError extends Error {}
 
 /** Un combat manuel resté ouvert plus longtemps est abandonné (compté comme perdu). */
@@ -43,9 +45,9 @@ const CHARACTER_SELECT = {
 } as const;
 type CharacterRow = Prisma.CharacterGetPayload<{ select: typeof CHARACTER_SELECT }>;
 
-const toBattleCard = (c: CharacterRow, stars = 0): BattleCard => ({
+const toBattleCard = (c: CharacterRow, stars = 0, weaponKey: string | null = null): BattleCard => ({
   characterId: c.id, rarity: c.rarity, type: c.type, attack: c.attack, defense: c.defense, power: c.power,
-  franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId, stars, weapon: null,
+  franchiseId: c.mainMedia?.franchiseId ?? c.mainMediaId, stars, weapon: stars === 5 ? weaponDef(weaponKey ?? "")?.weapon ?? null : null,
 });
 
 // ── Histoire : ennemis et butin ─────────────────────────────────────────────
@@ -383,7 +385,7 @@ export async function getTeam(userId: string, kind: TeamKind) {
       id: true,
       slots: {
         orderBy: { position: "asc" },
-        select: { position: true, card: { select: { id: true, ownerId: true, stars: true, finish: true, character: { select: { ...CHARACTER_SELECT, name: true, imageUrl: true } } } } },
+        select: { position: true, card: { select: { id: true, ownerId: true, stars: true, weaponKey: true, finish: true, character: { select: { ...CHARACTER_SELECT, name: true, imageUrl: true } } } } },
       },
     },
   });
@@ -493,7 +495,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (manual && (story || floor || raid)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
-  const mine = slots.map((s) => toBattleCard(s!.character, s!.stars));
+  const mine = slots.map((s) => toBattleCard(s!.character, s!.stars, s!.weaponKey));
   const teams: BattleTeams = { A: mine, B: await opponentCards(opponent) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
