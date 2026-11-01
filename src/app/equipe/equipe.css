@@ -117,3 +117,5 @@
 .eq-statistics :is(th, td) { padding: .7rem .4rem; text-align: right; border-bottom: 1px solid #344763; }
 .eq-statistics th:first-child { text-align: left; }
 .eq-statistics td:last-child { color: #85e7e1; font-weight: 600; }
+
+.gear-item .substat-upgrades { font-weight: 700; color: #85e7e1; white-space: nowrap; }

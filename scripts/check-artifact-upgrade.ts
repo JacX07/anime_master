@@ -1,10 +1,18 @@
 import assert from "node:assert/strict";
-import { artifactSubStats } from "../src/lib/dungeons";
+import { artifactSubstatUpgrades } from "../src/lib/artifact-display";
+import { artifactSubStats, ARTIFACT_SUBSTAT_BASE } from "../src/lib/dungeons";
 import { prisma } from "../src/lib/db";
 import { upgradeArtifact } from "../src/lib/upgrade-artifact";
 import { artifactUpgradeCost, upgradedSubStats } from "../src/lib/artifact-upgrade";
 
 async function main() {
+  for (const [stat, base] of Object.entries(ARTIFACT_SUBSTAT_BASE)) {
+    for (const quality of [0.8, 0.9, 1]) {
+      for (let upgrades = 0; upgrades <= 4; upgrades++) {
+        assert.equal(artifactSubstatUpgrades({ stat, value: base * quality * 2 ** upgrades }), upgrades);
+      }
+    }
+  }
   for (const rarity of ["N", "R", "SR", "SSR", "UR"] as const) {
     let stats = artifactSubStats("CASQUE", rarity, 42, "attack");
     const initial = stats.length;

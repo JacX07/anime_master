@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { equipArtifactAction } from "@/app/battle-actions";
 import { upgradeArtifactAction } from "@/app/artifact-actions";
 import { ARTIFACT_SLOTS, SLOT_NAMES } from "@/lib/dungeons";
-import { artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
+import { artifactSubstatUpgrades, artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
 import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost, upgradedMainValue } from "@/lib/artifact-upgrade";
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
@@ -66,8 +66,8 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
           return <article key={item.key} className="gear-item" data-rarity={artifact.rarity}>
             <div className="gear-item-art">{item.image ? <Image src={item.image} width={96} height={96} alt="" /> : <SlotIcon slot={slot} />}<span>+{artifact.level}</span></div>
             <p className="gear-rarity">{artifactRarity(artifact.rarity).label}</p><h4>{item.name}</h4>
-            <p className="gear-main-stat">{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</p>
-            <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}>{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}</li>)}</ul>
+            <p className="gear-main-stat"><strong>{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</strong></p>
+            <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}>{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</li>)}</ul>
             <p className="gear-owner">{worn ? `Équipé sur ${card.name}` : artifact.equippedCard ? `Porté par ${artifact.equippedCard.character.name}` : "Disponible"}</p>
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
             {!max && <p className="gear-preview">Au niveau +{artifact.level + 1} : {artifactStatValue(artifact.mainStat, upgradedMainValue(artifact.mainValue, artifact.level))} {artifactStatLabel(artifact.mainStat)}</p>}

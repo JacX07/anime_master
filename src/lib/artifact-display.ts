@@ -1,3 +1,4 @@
+import { ARTIFACT_SUBSTAT_BASE } from "./dungeons";
 import type { Rarity } from "../generated/prisma/enums";
 const labels: Record<string, string> = {
   magicSkill: "Compétence magique", hp: "PV", attack: "ATK", defense: "DEF", flatHp: "PV", flatAttack: "ATK", flatDefense: "DEF",
@@ -25,3 +26,9 @@ export const ONE_PIECE_ARTIFACT_NAMES: Record<string, string> = {
   GANTS: "Mitaines du Thousand Sunny",
   BOTTES: "Bottes de Grand Line",
 };
+
+/** Les tirages valent 80–100 % de la base ; chaque amélioration double cette valeur. */
+export function artifactSubstatUpgrades(sub: { stat: string; value: number }) {
+  const base = ARTIFACT_SUBSTAT_BASE[sub.stat];
+  return base && sub.value > 0 ? Math.max(0, Math.ceil(Math.log2(sub.value / base) - 1e-8)) : 0;
+}

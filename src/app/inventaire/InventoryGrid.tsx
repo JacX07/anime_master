@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { ResourceArt } from "@/components/ResourceArt";
 import { INVENTORY_CATEGORIES, filterInventory, type InventoryCategory, type InventoryItem } from "@/lib/inventory";
 import { UNIVERSES } from "@/lib/story";
-import { artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
+import { artifactSubstatUpgrades, artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
 import { equipArtifactAction } from "@/app/battle-actions";
 
 const number = new Intl.NumberFormat("fr-FR");
@@ -55,13 +55,13 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
         </div> : <div className="inventory-empty"><h3>{category === "Consommables" ? "Aucun consommable pour le moment" : "Aucun objet à afficher"}</h3><p>{query || universe ? "Essaie un autre nom ou un autre univers." : "Tes prochains butins apparaîtront ici. Tu peux aussi afficher les objets non possédés."}</p><Link href="/histoire">Explorer l’histoire</Link></div>}
         <p className="inventory-hint">Sélectionne une case pour voir sa provenance et ses utilisations.</p>
       </div>
-      <aside className="inventory-detail" id="inventory-detail" aria-label="Détails de l’objet">
+      <aside className="inventory-detail" style={selected?.artifact ? { borderColor: artifactRarity(selected.artifact.rarity).color } : undefined} id="inventory-detail" aria-label="Détails de l’objet">
         {selected ? <><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={128} /></div>
-          <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}</p><h3>{selected.name}</h3>
+          <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}{selected.artifact && <> · <span style={{ color: artifactRarity(selected.artifact.rarity).color }}>{artifactRarity(selected.artifact.rarity).label}</span></>}</p><h3>{selected.name}</h3>
           <p className="inventory-description">{selected.description}</p>
           {selected.equippedBy && <p className="inventory-equipped-owner">✓ Équipé sur <b>{selected.equippedBy.name}</b></p>}
           <dl><div><dt>{selected.artifact ? "Rareté" : "En stock"}</dt><dd>{selected.artifact ? artifactRarity(selected.artifact.rarity).label : number.format(selected.quantity)}</dd></div><div><dt>Provenance</dt><dd>{selected.source}</dd></div>
-            {selected.artifact && <><div><dt>Niveau</dt><dd>{selected.artifact.level}</dd></div><div><dt>{artifactStatLabel(selected.artifact.mainStat)}</dt><dd>{artifactStatValue(selected.artifact.mainStat, selected.artifact.mainValue)}</dd></div>{selected.artifact.subStats.map((stat, index) => <div key={`${stat.stat}-${index}`}><dt>{artifactStatLabel(stat.stat)}</dt><dd>{artifactStatValue(stat.stat, stat.value)}</dd></div>)}</>}
+            {selected.artifact && <><div><dt>Niveau</dt><dd>{selected.artifact.level}</dd></div><div className="inventory-main-stat"><dt><strong>{artifactStatLabel(selected.artifact.mainStat)}</strong></dt><dd><strong>{artifactStatValue(selected.artifact.mainStat, selected.artifact.mainValue)}</strong></dd></div>{selected.artifact.subStats.map((stat, index) => <div key={`${stat.stat}-${index}`}><dt>{artifactStatLabel(stat.stat)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</dt><dd>{artifactStatValue(stat.stat, stat.value)}</dd></div>)}</>}
           </dl>
           {selected.artifact && <label className="inventory-equip">Carte équipée<select disabled={pending} value={selected.artifact.equippedCard?.id ?? ""} onChange={(event) => {
             const cardId = event.target.value || null;

@@ -42,16 +42,17 @@ export const artifactMainStat = (slot: ArtifactSlot, rarity: Rarity, seed: numbe
   const stat = stats[Math.floor(randomFor(seed ^ 0xa271)() * stats.length)];
   return { stat, value: options[stat] };
 };
+export const ARTIFACT_SUBSTAT_BASE: Record<string, number> = { magicSkill: 0.025, hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05 };
 export type ArtifactSubStat = { stat: string; value: number };
 export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: number, mainStat = artifactMainStat(slot, rarity, seed).stat, count = [0, 1, 2, 3, 3][RARITIES.indexOf(rarity)]): ArtifactSubStat[] => {
   const random = randomFor(seed);
   const choices = ["magicSkill", "hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage"].filter((stat) => stat !== mainStat);
-  const max: Record<string, number> = { magicSkill: 0.025, hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05, dodge: 0.025 };
+
   const result: ArtifactSubStat[] = [];
   while (result.length < count && choices.length) {
     const stat = choices.splice(Math.floor(random() * choices.length), 1)[0];
     const quality = [0.8, 0.9, 1][Math.floor(random() * 3)];
-    result.push({ stat, value: Math.round(max[stat] * quality * 10000) / 10000 });
+    result.push({ stat, value: Math.round(ARTIFACT_SUBSTAT_BASE[stat] * quality * 10000) / 10000 });
   }
   return result;
 };
