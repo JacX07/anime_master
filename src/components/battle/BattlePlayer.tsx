@@ -221,11 +221,12 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       if (visual !== "melee") {
         const from = center(a);
         const intensity = ev.spell === "ultimate" ? 1.35 : ev.spell === "base" ? 1 : 1.15;
+        const weapon = attackWeapon(rp.info[ev.actor].characterId);
         for (const hit of targets) {
           const target = el(hit.target);
-          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon: attackWeapon(rp.info[ev.actor].characterId), dodge: hit.dodge });
+          if (target) controller.play({ style: visual, from, to: center(target), impactAt: hit.at, intensity, weapon, dodge: hit.dodge, targetCard: target.querySelector<HTMLElement>(".bt-card") });
         }
-        if (!targets.length) controller.play({ style: visual, from, to: { x: from.x + 70, y: from.y }, impactAt: 480, intensity, weapon: attackWeapon(rp.info[ev.actor].characterId), support: true });
+        if (!targets.length) controller.play({ style: visual, from, to: { x: from.x + 70, y: from.y }, impactAt: 480, intensity, weapon, support: true });
         controller.animate(a, [{ transform: "none" }, { transform: "scale(1.04)", offset: .3 }, { transform: "none" }], { duration: 480 });
       } else if (!t) {
         // Zone, soin ou soutien : la carte se lève sur place

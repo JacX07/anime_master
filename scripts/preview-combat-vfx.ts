@@ -7,7 +7,8 @@ const controller = ts.transpileModule(readFileSync("src/components/battle/combat
   compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext },
 }).outputText.replace("export class CombatVfx", "class CombatVfx").replace(/export \{\};?/, "");
 const examples = [
-  ["slash", "katana", "Zoro", "b62-S7oAeA9WInjV.png"],
+  ["slash", "katana", "Tanjirou", "b126071-BTNEc1nRIv68.png"],
+  ["slash", "iai", "Zoro", "b62-S7oAeA9WInjV.png"],
   ["slash", "greatsword", "Guts", "b422-XTaiTuvRohsV.png"],
   ["magic", "katana", "Frieren", "b176754-PCnpqIOkjhFk.png"],
   ["gun", "katana", "Revy", "b458-tlKqPcuR287U.png"],
@@ -15,11 +16,11 @@ const examples = [
 const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FX anime cel</title><style>
 *{box-sizing:border-box}body{margin:0;font:14px system-ui;color:var(--foreground,#e3eaf7)}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}button,select{font:inherit;background:var(--secondary,#253043);color:var(--foreground,#e3eaf7);border:1px solid var(--border,#57657b);padding:8px;border-radius:6px}label,output,p{font-size:12px;color:var(--muted-foreground,#9faec4)}article{padding:14px;background:var(--card,#131d2b);border:1px solid var(--border,#344055);border-radius:var(--radius,10px);margin-bottom:12px}h3{margin:0 0 10px;font-size:14px}.scene{position:relative;height:150px;background:#141d2b;overflow:hidden;border-radius:8px}.card{position:absolute;top:20px;width:70px;height:110px;border:1px solid #8296b4;border-radius:6px;background:#27344b;overflow:hidden;box-shadow:0 4px 10px #0005}.card img{width:100%;height:88px;object-fit:cover}.card small{display:block;text-align:center;font-size:10px;color:#eff3fa}.source{left:6%}.target{right:6%}.target img{filter:saturate(.6)}.card:after{content:"";position:absolute;bottom:0;left:4px;right:4px;height:2px;background:#89c9a3}input{width:140px}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #b9b4ff;outline-offset:2px}
 </style></head><body><div class="toolbar"><button id="play">Jouer</button><button id="pause">Pause</button><button id="stop">Interrompre</button><button id="check">Vérifier</button><label>Vitesse <select id="speed"><option>1</option><option>2</option><option>4</option></select></label><label>Intensité <select id="intensity"><option value="1">Base</option><option value="1.15">Sort</option><option value="1.35">Ultime</option></select></label><label>Inspection <input id="time" type="range" min="0" max="850" value="500"></label><output id="status">500 ms</output></div>
-${examples.map(([style, weapon, name, image]) => `<article><h3>${name} · ${style === "slash" ? weapon === "greatsword" ? "Lame massive" : "Katana" : style === "magic" ? "Magie" : "Tir"}</h3><div class="scene" data-style="${style}" data-weapon="${weapon}"><div class="card source"><img src="https://s4.anilist.co/file/anilistcdn/character/large/${image}" alt=""><small>${name}</small></div><div class="card target"><img src="https://s4.anilist.co/file/anilistcdn/character/large/b422-XTaiTuvRohsV.png" alt=""><small>Cible</small></div></div></article>`).join("")}
+${examples.map(([style, weapon, name, image]) => `<article><h3>${name} · ${style === "slash" ? weapon === "greatsword" ? "Lame massive" : weapon === "iai" ? "Iaï" : "Katana" : style === "magic" ? "Magie" : "Tir"}</h3><div class="scene" data-style="${style}" data-weapon="${weapon}"><div class="card source"><img src="https://s4.anilist.co/file/anilistcdn/character/large/${image}" alt=""><small>${name}</small></div><div class="card target"><img src="https://s4.anilist.co/file/anilistcdn/character/large/b422-XTaiTuvRohsV.png" alt=""><small>Cible</small></div></div></article>`).join("")}
 <p>Même contrôleur que le lecteur de combat · impact à 480 ms · aucune règle de combat exécutée.</p><script>${controller}
 const entries=[...document.querySelectorAll('.scene')].map(root=>({root,controller:new CombatVfx(root)}));
 const status=document.getElementById('status');let speed=1;
-function draw(paused=false,at=0){for(const {root,controller} of entries){controller.clear();controller.setPlayback(speed,!paused);const a=root.querySelector('.source'),b=root.querySelector('.target');controller.play({style:root.dataset.style,weapon:root.dataset.weapon,from:{x:a.offsetLeft+35,y:75},to:{x:b.offsetLeft+35,y:75},impactAt:480,intensity:Number(document.getElementById('intensity').value)});if(paused)root.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=at})}status.textContent=paused?at+' ms':'Lecture';}
+function draw(paused=false,at=0){for(const {root,controller} of entries){controller.clear();controller.setPlayback(speed,!paused);const a=root.querySelector('.source'),b=root.querySelector('.target');controller.play({style:root.dataset.style,weapon:root.dataset.weapon,from:{x:a.offsetLeft+35,y:75},to:{x:b.offsetLeft+35,y:75},impactAt:480,targetCard:b,intensity:Number(document.getElementById('intensity').value)});if(paused)root.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=at})}status.textContent=paused?at+' ms':'Lecture';}
 document.getElementById('play').onclick=()=>draw();
 document.getElementById('pause').onclick=()=>entries.forEach(e=>e.controller.setPlayback(speed,false));
 document.getElementById('stop').onclick=()=>{entries.forEach(e=>e.controller.clear());status.textContent='Interrompu'};
@@ -35,7 +36,7 @@ async function check(){
   await wait(60);assert(Math.abs(frozen.currentTime-time)<1,'Pause');
   for(const speed of [1,2,4]){
     entries.forEach(e=>e.controller.clear());draw();entries.forEach(e=>e.controller.setPlayback(speed,true));
-    await wait(900/speed+80);
+    await wait(1100/speed+80);
     assert(entries.every(e=>!e.root.querySelector('.bt-cel-vfx')&&!e.root.getAnimations({subtree:true}).length),'Fin x'+speed);
   }
   for(let i=0;i<30;i++){draw();entries.forEach(e=>e.controller.clear())}
@@ -48,7 +49,7 @@ async function check(){
 }
 document.getElementById('check').onclick=()=>{status.textContent='Vérification…';check().catch(e=>status.textContent=e.message)};
 window.vfxPreview={entries,draw,check};
-addEventListener('pagehide',()=>entries.forEach(e=>e.controller.clear()),{once:true});draw(true,500);
+addEventListener('pagehide',()=>entries.forEach(e=>e.controller.clear()),{once:true});draw(true,Number(location.hash.slice(1))||420);
 </script></body></html>`;
 writeFileSync("public/mockups/combat-vfx.html", html);
 console.log("public/mockups/combat-vfx.html");

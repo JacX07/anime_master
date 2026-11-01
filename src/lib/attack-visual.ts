@@ -240,11 +240,16 @@ export const ATTACK_VISUALS: Record<number, AttackVisual> = {
   284157: "gun", // Lucy
 };
 
+export type AttackWeapon = "katana" | "greatsword" | "iai";
+
+/** Iaï swordsmen: Zoro (UR) and Kenpachi (SR, outside the basic-attack roster). */
+const IAI = new Set([62, 909]);
+
 /** Unknown IDs keep the existing melee fallback. */
 export function attackVisual(id: number): AttackVisual {
-  return ATTACK_VISUALS[id] ?? "melee";
+  return ATTACK_VISUALS[id] ?? (IAI.has(id) ? "slash" : "melee");
 }
 
-export function attackWeapon(id: number): "katana" | "greatsword" {
-  return id === 422 ? "greatsword" : "katana";
+export function attackWeapon(id: number): AttackWeapon {
+  return id === 422 ? "greatsword" : IAI.has(id) ? "iai" : "katana";
 }

@@ -19,7 +19,10 @@ assert.deepEqual(Object.keys(ATTACK_VISUALS).sort(), Object.keys(BASIC_ATTACK_RO
 assert.equal(attackVisual(305), "melee");
 assert.equal(attackVisual(12), "melee");
 assert.equal(attackWeapon(422), "greatsword");
-assert.equal(attackWeapon(62), "katana");
+assert.equal(attackWeapon(62), "iai");
+assert.equal(attackWeapon(909), "iai");
+assert.equal(attackVisual(909), "slash");
+assert.equal(attackWeapon(5), "katana");
 
 function seeded(seed: number): Random {
   let a = seed >>> 0;
