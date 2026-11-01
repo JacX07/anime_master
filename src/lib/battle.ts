@@ -36,6 +36,8 @@ export interface BattleCard {
   defense: number;
   /** Stat Puissance (popularité) : décide quelle équipe commence. */
   power: number;
+  /** Vitesse de combat ; 100 par défaut. */
+  speed?: number;
   franchiseId: number | null;
   /** Éveil, 0 à 5 étoiles (0 par défaut) */
   stars?: number;
@@ -144,6 +146,8 @@ export interface BattleOptions {
   spells?: boolean;
   /** Force le premier camp (simulation uniquement ; le jeu réel choisit selon Puissance). */
   startingSide?: Side | null;
+  /** Active l'ordonnanceur à jauge (désactivé pour préserver les combats existants). */
+  gauge?: boolean;
 }
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
@@ -227,6 +231,8 @@ interface Unit {
   id: UnitId;
   card: BattleCard;
   side: Side;
+  speed: number;
+  gauge: number;
   atk: number;
   def: number;
   maxHp: number;
@@ -290,6 +296,8 @@ export interface BattleState {
   /** Prochain emplacement du tour : position × 2 + rang dans order */
   slot: number;
   roundOpen: boolean;
+  gaugeTicks: number;
+  gaugeActor: UnitId | null;
   log: BattleEvent[];
   result: BattleResult | null;
 }
@@ -329,7 +337,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
     const rawTertiary = opts.spells && !card.noTertiary ? card.tertiary ?? TERTIARY_SPELLS[card.characterId] ?? null : null;
     return {
       id: `${side}${i + 1}` as UnitId,
-      card, side, maxHp, hp: maxHp, shield: 0,
+      card, side, speed: Math.max(1, card.speed ?? 100), gauge: 0, maxHp, hp: maxHp, shield: 0,
       atk: card.attack * (1 + bonus[i] + aura[i]),
       def: card.defense * (1 + bonus[i]),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
@@ -361,12 +369,12 @@ const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.h
 const stunTargets = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
-  const opts = { passive: true, franchise: true, combos: true, spells: true, ...options, startingSide: options.startingSide ?? null };
+  const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, ...options, startingSide: options.startingSide ?? null };
   const teams: Record<Side, Unit[]> = { A: makeUnits(a, "A", opts), B: makeUnits(b, "B", opts) };
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
-    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, log: [], result: null,
+    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, log: [], result: null,
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
@@ -396,6 +404,63 @@ function nextSlot(st: BattleState) {
     u.shield -= lost;
     st.log.push({ kind: "shield", source: null, target: u.id, amount: -lost, shield: u.shield });
   }
+}
+
+function removeSecondShield(st: BattleState) {
+  for (const u of st.teams[st.order[1]]) {
+    const lost = Math.min(u.shield, u.maxHp * BATTLE.secondShield);
+    if (u.hp <= 0 || lost <= 0) continue;
+    u.shield -= lost;
+    st.log.push({ kind: "shield", source: null, target: u.id, amount: -lost, shield: u.shield });
+  }
+}
+
+const GAUGE_THRESHOLD = 10_000;
+const GAUGE_TICKS_PER_ROUND = 100;
+
+function gaugeActor(st: BattleState): Unit | null {
+  while (!st.result) {
+    if (!alive(st, "A").length || !alive(st, "B").length) {
+      finish(st, false);
+      return null;
+    }
+    if (st.gaugeActor) return unit(st, st.gaugeActor);
+    const ready = [...st.teams.A, ...st.teams.B].filter((u) => u.hp > 0 && u.gauge >= GAUGE_THRESHOLD);
+    if (ready.length) {
+      const slotOf = (u: Unit) => (Number(u.id.slice(1)) - 1) * 2 + st.order.indexOf(u.side);
+      ready.sort((a, b) => b.gauge - a.gauge || slotOf(a) - slotOf(b));
+      const u = ready[0];
+      u.gauge -= GAUGE_THRESHOLD;
+      st.gaugeActor = u.id;
+      if (hasFx(u, "stun")) {
+        st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
+        advanceCooldowns(u);
+        finishUnitTurn(st, u);
+        st.gaugeActor = null;
+        continue;
+      }
+      return u;
+    }
+    const living = [...alive(st, "A"), ...alive(st, "B")];
+    const ticks = Math.min(...living.map((u) => Math.ceil((GAUGE_THRESHOLD - u.gauge) / u.speed)));
+    for (const u of [...st.teams.A, ...st.teams.B]) if (u.hp > 0) u.gauge += ticks * u.speed;
+    const nextTick = st.gaugeTicks + ticks;
+    while (Math.floor(nextTick / GAUGE_TICKS_PER_ROUND) > st.round) {
+      if (st.round >= BATTLE.maxRounds) {
+        finish(st, true);
+        return null;
+      }
+      if (st.round === 1) removeSecondShield(st);
+      st.round++;
+      st.log.push({ kind: "round", round: st.round });
+    }
+    st.gaugeTicks = nextTick;
+    if (st.round >= BATTLE.maxRounds && st.gaugeTicks >= BATTLE.maxRounds * GAUGE_TICKS_PER_ROUND && ![...st.teams.A, ...st.teams.B].some((u) => u.hp > 0 && u.gauge >= GAUGE_THRESHOLD)) {
+      finish(st, true);
+      return null;
+    }
+  }
+  return null;
 }
 
 function advanceCooldowns(u: Unit) {
@@ -436,6 +501,10 @@ function finishUnitTurn(st: BattleState, u: Unit) {
 
 /** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV ou étourdies et ouvre les tours. */
 export function currentActor(st: BattleState): UnitView | null {
+  if (st.opts.gauge) {
+    const u = gaugeActor(st);
+    return u ? view(u) : null;
+  }
   while (!st.result) {
     if (!alive(st, "A").length || !alive(st, "B").length) {
       finish(st, false);
@@ -813,7 +882,8 @@ export function applyAction(st: BattleState, action: Action) {
   }
   finishUnitTurn(st, u);
 
-  nextSlot(st);
+  if (st.opts.gauge) st.gaugeActor = null;
+  else nextSlot(st);
   currentActor(st);
 }
 

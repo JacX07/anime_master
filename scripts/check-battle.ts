@@ -136,6 +136,31 @@ for (let i = 0; i < 300; i++) {
 }
 check("Pas à pas avec autoAction = battle()", autoSame);
 
+// 3b. Ordonnanceur à jauge : parité à vitesse égale et fréquence supérieure à vitesse élevée.
+let gaugeParity = true;
+let gaugeParityDetail = "";
+for (let i = 0; i < 100; i++) {
+  const a = team().map((c) => ({ ...c, speed: 100 }));
+  const b = team().map((c) => ({ ...c, speed: 100 }));
+  const legacy = battle(a, b, seeded(i));
+  const gauge = battle(a, b, seeded(i), { gauge: true });
+  if (JSON.stringify(legacy.log) !== JSON.stringify(gauge.log)) {
+    gaugeParity = false;
+    const at = legacy.log.findIndex((e, j) => JSON.stringify(e) !== JSON.stringify(gauge.log[j]));
+    gaugeParityDetail ||= `seed ${i}, index ${at}: ${JSON.stringify(legacy.log[at])} / ${JSON.stringify(gauge.log[at])}`;
+  }
+}
+check("Jauge à vitesse 100 : journal identique à l'ordonnanceur historique (100 combats)", gaugeParity, gaugeParityDetail);
+const speedProbe = (speed: number) => {
+  const a = [card({ speed, attack: 100, defense: 90000, power: 9 }), ...Array.from({ length: 3 }, () => card({ attack: 100, defense: 90000 }))];
+  const b = Array.from({ length: 4 }, () => card({ attack: 100, defense: 90000 }));
+  const s = createBattle(a, b, seeded(44), { gauge: true });
+  let steps = 0;
+  while (s.round < 10 && currentActor(s) && steps++ < 500) applyAction(s, autoAction(s));
+  return s.log.filter((e) => e.kind === "action" && e.actor === "A1").length;
+};
+check("À 200 de vitesse, une carte agit plus souvent qu'à 100", speedProbe(200) > speedProbe(100), `${speedProbe(200)} contre ${speedProbe(100)} actions`);
+
 // 4. Formule de dégâts, sans critique ni variation (aléa fixé à 0,5).
 const atk = card({ type: "COMBAT", attack: 3000, defense: 1000, power: 2, franchiseId: 1 });
 const def = card({ type: "MYSTERE", attack: 2000, defense: 1500, power: 1, franchiseId: 2 });
