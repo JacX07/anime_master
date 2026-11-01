@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ResourceArt } from "@/components/ResourceArt";
 import { INVENTORY_CATEGORIES, filterInventory, type InventoryCategory, type InventoryItem } from "@/lib/inventory";
 import { UNIVERSES } from "@/lib/story";
+import { artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
+import { RARITY_NAMES } from "@/lib/labels";
+import { equipArtifactAction } from "@/app/battle-actions";
 
 const number = new Intl.NumberFormat("fr-FR");
 function ItemIcon({ item, size = 64 }: { item: InventoryItem; size?: number }) {
   const fallback = <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true" className="inventory-icon">
     {item.icon === "heart" ? <><path d="M32 54 9 29l7-16 13 5 3 8 5-8 13-5 5 16Z" fill="#b58af5" stroke="#e7d4ff" strokeWidth="1.5" /><path d="m16 13 11 19 5 22 5-22 13-19M9 29l18 3 5-6 5 6 18-3" fill="none" stroke="#eee0ff" /></> : item.icon === "ore" ? <><path d="m8 43 8-24 16-9 21 17 4 21-22 9Z" fill="#a0b0c7" stroke="#e1e9f5" /><path d="m16 19 16 8 21 0-18 18-27-2m24-33v17l3 18v12" fill="none" stroke="#576e91" strokeWidth="2" /><path d="m37 18 10 8-9 8-4-9" fill="#f5d79d" /></> : item.icon === "weapon" ? <><path d="m44 6 13 1-1 13-28 27-10-10Z" fill="#d3e9f6" stroke="#effaff" /><path d="m49 13-26 29" stroke="#79aac7" strokeWidth="3" /><path d="m12 33 23 23 5-5-23-23Z" fill="#dfbd78" /><path d="m9 56 14-15 6 6-14 15Z" fill="#8a6abd" stroke="#dbc9f7" /></> : <><path d="m32 5 17 15-6 29-11 10-17-16 4-24Z" fill="#73c8ed" stroke="#c9f1ff" /><path d="m32 5-5 21 5 33 11-10-3-25Z" fill="#c8efff" /><path d="m19 19 8 7 13-2 9-4M15 43l12-17" fill="none" stroke="#398dbb" /></>}
   </svg>;
-  return item.resource ? <ResourceArt key={item.resource} resource={item.resource} size={size} fallback={fallback} /> : fallback;
+  return item.image ? <Image src={item.image} width={size} height={size} alt="" aria-hidden="true" /> : item.resource ? <ResourceArt key={item.resource} resource={item.resource} size={size} fallback={fallback} /> : fallback;
 }
 
-export function InventoryGrid({ items }: { items: InventoryItem[] }) {
+export function InventoryGrid({ items, cards }: { items: InventoryItem[]; cards: { id: string; serial: number; character: { name: string } }[] }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState("");
   const [category, setCategory] = useState<InventoryCategory>("Tout");
   const [query, setQuery] = useState("");
   const [universe, setUniverse] = useState("");
@@ -49,7 +57,23 @@ export function InventoryGrid({ items }: { items: InventoryItem[] }) {
         {selected ? <><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={128} /></div>
           <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}</p><h3>{selected.name}</h3>
           <p className="inventory-description">{selected.description}</p>
-          <dl><div><dt>En stock</dt><dd>{number.format(selected.quantity)}</dd></div><div><dt>Provenance</dt><dd>{selected.source}</dd></div></dl>
+          <dl><div><dt>{selected.artifact ? "Rareté" : "En stock"}</dt><dd>{selected.artifact ? RARITY_NAMES[selected.artifact.rarity] : number.format(selected.quantity)}</dd></div><div><dt>Provenance</dt><dd>{selected.source}</dd></div>
+            {selected.artifact && <><div><dt>Niveau</dt><dd>{selected.artifact.level}</dd></div><div><dt>{artifactStatLabel(selected.artifact.mainStat)}</dt><dd>{artifactStatValue(selected.artifact.mainStat, selected.artifact.mainValue)}</dd></div>{selected.artifact.subStats.map((stat, index) => <div key={`${stat.stat}-${index}`}><dt>{artifactStatLabel(stat.stat)}</dt><dd>{artifactStatValue(stat.stat, stat.value)}</dd></div>)}</>}
+          </dl>
+          {selected.artifact && <label className="inventory-equip">Carte équipée<select disabled={pending} value={selected.artifact.equippedCard?.id ?? ""} onChange={(event) => {
+            const cardId = event.target.value || null;
+            setError("");
+            startTransition(async () => {
+              try {
+                const result = await equipArtifactAction(selected.artifact!.id, cardId);
+                if (!result.ok) setError(result.error);
+                else router.refresh();
+              } catch {
+                setError("L’opération a échoué, réessaie.");
+              }
+            });
+          }}><option value="">Aucune</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.character.name} #{card.serial}</option>)}</select></label>}
+          {error && <p role="alert" className="hs-error">{error}</p>}
           <div className="inventory-actions">{selected.links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}</div>
         </> : <div className="inventory-detail-placeholder"><span aria-hidden="true">◇</span><p>Sélectionne un objet pour découvrir ses détails.</p></div>}
       </aside>

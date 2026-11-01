@@ -37,6 +37,8 @@
 .inventory-art[data-tone="gold"] { background: radial-gradient(ellipse, #aa824844, transparent 70%); }
 .inventory-art img { margin: 0 !important; }
 .inventory-art > img, .inventory-art > svg { max-width: 100%; object-fit: contain; filter: drop-shadow(0 8px 12px #0005); }
+.inventory-equip { display: grid; gap: .45rem; margin-top: 1rem; color: var(--inv-muted); font-size: .72rem; }
+.inventory-equip select { width: 100%; min-width: 0; color: var(--inv-ink); background: #101a2d; border: 1px solid var(--inv-line); border-radius: .5rem; padding: .7rem .6rem; font: inherit; }
 .inventory-category { color: var(--inv-mint); font-size: .7rem; margin: .5rem 0; }
 .inventory-detail h3 { margin: 0; font-size: 1.15rem; line-height: 1.4; letter-spacing: -.035em; }
 .inventory-description { color: var(--inv-muted); font-size: .75rem; line-height: 1.8; margin: 1rem 0; }

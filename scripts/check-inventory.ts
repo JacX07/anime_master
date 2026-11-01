@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { filterInventory, inventoryResources } from "../src/lib/inventory";
+import { filterInventory, inventoryResources, type InventoryItem } from "../src/lib/inventory";
 import { COMMON_RESOURCE, UNIVERSES } from "../src/lib/story";
 import { RAID_RESOURCE } from "../src/lib/raid";
 
@@ -16,4 +16,15 @@ assert.equal(filterInventory(items, "Consommables", "", "", true, "name").length
 assert.equal(items.find((item) => item.key === "future-material")?.quantity, 3);
 assert.equal(items.find((item) => item.key === COMMON_RESOURCE)?.links[0].href, "/eveil");
 assert.equal(items.find((item) => item.key === universe.weaponResource)?.links[0].href, "/forge");
+const artifact: InventoryItem = {
+  ...items[0]!, key: "artifact:helmet-1", name: "Casque des profondeurs", quantity: 1, categories: ["Équipement"], universe: "one-piece",
+  source: "Donjon One Piece", description: "Casque du set marin.", icon: "artifact", tone: "gold", image: "/images/artifacts/one-piece-helmet.webp", links: [],
+  artifact: { id: "helmet-1", slot: "CASQUE", rarity: "UR", mainStat: "defense", mainValue: 0.16, subStats: [{ stat: "flatAttack", value: 653 }], level: 5, equippedCard: null },
+};
+const withArtifact = [...items, artifact];
+assert.deepEqual(filterInventory(withArtifact, "Équipement", "", "", false, "name").map((item) => item.key), [artifact.key]);
+assert.deepEqual(filterInventory(withArtifact, "Tout", "Casque", "", false, "name").map((item) => item.key), [artifact.key]);
+assert.deepEqual(filterInventory(withArtifact, "Tout", "ATK", "", false, "name").map((item) => item.key), [artifact.key]);
+assert.deepEqual(filterInventory(withArtifact, "Tout", "16 %", "", false, "name").map((item) => item.key), [artifact.key]);
+assert.equal(filterInventory(withArtifact, "Tout", "Ultra Rare", "", false, "name").length, 1);
 console.log("Inventaire conforme : catégories partagées, recherche sans accents, univers, tri, stocks vides et ressources futures.");

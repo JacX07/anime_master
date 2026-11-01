@@ -7,8 +7,7 @@ import { weaponDef } from "@/lib/weapons";
 import { InventoryGrid } from "./InventoryGrid";
 import "./inventory-grid.css";
 import { getArtifactInventory } from "@/lib/battles";
-import { ArtifactArmory } from "./ArtifactArmory";
-import "../donjons/donjons.css";
+import { SLOT_NAMES, type ArtifactSlot } from "@/lib/dungeons";
 
 export const metadata: Metadata = { title: "Inventaire — Anime Masters", robots: { index: false } };
 
@@ -18,21 +17,15 @@ export default function InventoryPage() {
       <p className="vt-sub">Tes trouvailles, tes matériaux et tes prochaines évolutions.</p>
     </header>
     <Suspense fallback={<p className="vt-muted">Ouverture de l’inventaire…</p>}><Items /></Suspense>
-    <Suspense fallback={<p className="vt-muted">Chargement des artefacts…</p>}><Artifacts /></Suspense>
   </div></main>;
-}
-
-async function Artifacts() {
-  const user = await requireUser();
-  const { artifacts, cards } = await getArtifactInventory(user.id);
-  return <ArtifactArmory artifacts={artifacts.map((a) => ({ id: a.id, slot: a.slot, rarity: a.rarity, mainStat: a.mainStat, mainValue: a.mainValue, subStats: a.subStats as { stat: string; value: number }[], level: a.level, equippedCard: a.equippedCard }))} cards={cards} />;
 }
 
 async function Items() {
   const user = await requireUser();
-  const [stock, armed] = await Promise.all([
+  const [stock, armed, artifactInventory] = await Promise.all([
     prisma.resourceStock.findMany({ where: { userId: user.id } }),
     prisma.card.findMany({ where: { ownerId: user.id, weaponKey: { not: null } }, select: { id: true, serial: true, weaponKey: true, character: { select: { name: true } } } }),
+    getArtifactInventory(user.id),
   ]);
   const equipment: InventoryItem[] = armed.flatMap((card) => {
     const weapon = weaponDef(card.weaponKey!);
@@ -42,5 +35,15 @@ async function Items() {
       icon: "weapon", tone: "gold", links: [{ href: "/forge", label: "Voir à la forge" }],
     }] : [];
   });
-  return <InventoryGrid items={[...inventoryResources(stock), ...equipment]} />;
+  const artifacts: InventoryItem[] = artifactInventory.artifacts.map((artifact) => {
+    const slot = SLOT_NAMES[artifact.slot as ArtifactSlot] ?? artifact.slot;
+    const file = ({ CASQUE: "helmet", PLASTRON: "breastplate", GANTS: "gauntlets", BOTTES: "boots" } as const)[artifact.slot as ArtifactSlot];
+    return {
+      key: `artifact:${artifact.id}`, name: `${slot} des profondeurs`, quantity: 1, categories: ["Équipement"], universe: "one-piece",
+      source: "Donjon One Piece", description: `Artefact ${slot.toLocaleLowerCase("fr")} du set marin. Niveau ${artifact.level}. ${artifact.equippedCard ? `Équipé sur ${artifact.equippedCard.character.name}.` : "À équiper sur une carte."}`,
+      icon: "artifact", tone: "gold", image: `/images/artifacts/one-piece-${file ?? "helmet"}.webp`, links: [{ href: "/donjons", label: "Donjon One Piece" }],
+      artifact: { id: artifact.id, slot: artifact.slot, rarity: artifact.rarity, mainStat: artifact.mainStat, mainValue: artifact.mainValue, subStats: artifact.subStats as { stat: string; value: number }[], level: artifact.level, equippedCard: artifact.equippedCard },
+    };
+  });
+  return <InventoryGrid items={[...inventoryResources(stock), ...equipment, ...artifacts]} cards={artifactInventory.cards} />;
 }

@@ -1,5 +1,8 @@
 import { COMMON_RESOURCE, RESOURCE_NAMES, UNIVERSES } from "./story";
 import { RAID_RESOURCE } from "./raid";
+import type { Rarity } from "@/generated/prisma/enums";
+import { artifactStatLabel, artifactStatValue } from "./artifact-display";
+import { RARITY_NAMES } from "./labels";
 
 export const INVENTORY_CATEGORIES = ["Tout", "Éveil", "Forge", "Équipement", "Consommables"] as const;
 export type InventoryCategory = typeof INVENTORY_CATEGORIES[number];
@@ -12,9 +15,20 @@ export type InventoryItem = {
   universe: string;
   source: string;
   description: string;
-  icon: "crystal" | "heart" | "ore" | "weapon";
+  icon: "crystal" | "heart" | "ore" | "weapon" | "artifact";
   tone: "blue" | "violet" | "gold";
   links: { href: string; label: string }[];
+  image?: string;
+  artifact?: {
+    id: string;
+    slot: string;
+    rarity: Rarity;
+    mainStat: string;
+    mainValue: number;
+    subStats: { stat: string; value: number }[];
+    level: number;
+    equippedCard: { id: string; character: { name: string } } | null;
+  };
 };
 
 export function inventoryResources(stock: { key: string; quantity: number }[]): InventoryItem[] {
@@ -41,9 +55,11 @@ export function inventoryResources(stock: { key: string; quantity: number }[]): 
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr").replace(/œ/g, "oe");
 export function filterInventory(items: InventoryItem[], category: InventoryCategory, query: string, universe: string, showEmpty: boolean, sort: string) {
   const search = normalize(query.trim());
-  return items.filter((item) => (showEmpty || item.quantity > 0)
+  return items.filter((item) => {
+    const artifactSearch = item.artifact ? [RARITY_NAMES[item.artifact.rarity], item.artifact.rarity, `niveau ${item.artifact.level}`, artifactStatLabel(item.artifact.mainStat), artifactStatValue(item.artifact.mainStat, item.artifact.mainValue), ...item.artifact.subStats.flatMap((stat) => [artifactStatLabel(stat.stat), artifactStatValue(stat.stat, stat.value)])].join(" ") : "";
+    return (showEmpty || item.quantity > 0)
     && (category === "Tout" || item.categories.includes(category))
     && (!universe || item.universe === universe)
-    && normalize(`${item.name} ${item.source}`).includes(search))
-    .sort((a, b) => (sort === "quantity" ? b.quantity - a.quantity : 0) || a.name.localeCompare(b.name, "fr") || a.key.localeCompare(b.key));
+    && normalize(`${item.name} ${item.source} ${item.description} ${artifactSearch}`).includes(search);
+  }).sort((a, b) => (sort === "quantity" ? b.quantity - a.quantity : 0) || a.name.localeCompare(b.name, "fr") || a.key.localeCompare(b.key));
 }
