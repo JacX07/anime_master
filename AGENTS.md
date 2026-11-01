@@ -14,6 +14,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Push right after each commit (`git push`), so the remote stays in sync.
 - Keep commit messages short and descriptive. Don't commit secrets (`.env`) or the local database (`data/`).
 
+## Vérification sur le site
+
+- Pour chaque fonctionnalité développée, vérifier dans le navigateur sur le site en cours d’exécution que le parcours utilisateur fonctionne réellement et que les changements sont visibles. Les tests automatisés, le typecheck et le lint ne suffisent pas.
+- Vérifier avant le commit et le push, puis confirmer après le push que le site testé utilise bien la version poussée. Corriger les problèmes constatés et refaire le parcours avant d’annoncer la fonctionnalité terminée.
+- Tester les interactions concernées et les états pertinents (succès, erreur, persistance après rechargement), sur les vues et tailles d’écran affectées.
+- Si l’accès au site, l’authentification ou le déploiement bloque cette vérification, indiquer précisément ce qui n’a pas été vérifié. Ne jamais présenter une fonctionnalité comme validée sur le site sans l’avoir testée.
+- Cette exigence s’applique aussi aux sous-agents : l’inclure dans leurs consignes et leur demander les parcours testés et les résultats.
+
 ## Session handoff
 
 - At a completed task boundary, when the conversation is getting long, or when the user is switching topics, offer a concise handoff for a fresh session.
