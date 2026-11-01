@@ -1,5 +1,6 @@
 "use client";
 
+import { artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { equipArtifactAction } from "@/app/battle-actions";
@@ -9,7 +10,6 @@ import type { Rarity } from "@/generated/prisma/enums";
 
 type Artifact = { id: string; slot: string; rarity: Rarity; mainStat: string; mainValue: number; subStats: { stat: string; value: number }[]; level: number; equippedCard: { id: string; character: { name: string } } | null };
 type Card = { id: string; serial: number; character: { name: string } };
-const statName: Record<string, string> = { hp: "PV %", attack: "ATK %", defense: "DEF %", flatHp: "PV", flatAttack: "ATK", flatDefense: "DEF", crit: "Chance de critique", critDamage: "Dégâts critiques", speed: "Vitesse", dodge: "Esquive" };
 export function ArtifactArmory({ artifacts, cards }: { artifacts: Artifact[]; cards: Card[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -18,8 +18,8 @@ export function ArtifactArmory({ artifacts, cards }: { artifacts: Artifact[]; ca
   return <section className="dg-armory"><header><div><h2>Artefacts</h2><p>Équipe chaque emplacement sur une carte. Les bonus s’appliquent à tous les combats.</p></div><b>{artifacts.length} pièce{artifacts.length > 1 ? "s" : ""}</b></header>
     <div className="dg-armory-grid">{artifacts.map((a) => {
       const label = SLOT_NAMES[a.slot as ArtifactSlot] ?? a.slot;
-      const value = ["crit", "critDamage"].includes(a.mainStat) || a.mainStat === "hp" || a.mainStat === "attack" || a.mainStat === "defense" ? `${Math.round(a.mainValue * 100)} %` : `+${a.mainValue}`;
-      return <article key={a.id} className="dg-artifact" data-rarity={a.rarity}><small>{RARITY_NAMES[a.rarity]} · niveau {a.level}</small><h3>{label}</h3><p>{statName[a.mainStat] ?? a.mainStat} <b>{value}</b></p>{a.subStats.map((s, i) => <small className="dg-substat" key={i}>{statName[s.stat] ?? s.stat} · {s.value < 1 ? `${Math.round(s.value * 100)} %` : `+${s.value}`}</small>)}
+      const value = artifactStatValue(a.mainStat, a.mainValue);
+      return <article key={a.id} className="dg-artifact" data-rarity={a.rarity}><small>{RARITY_NAMES[a.rarity]} · niveau {a.level}</small><h3>{label}</h3><p>{artifactStatLabel(a.mainStat)} <b>{value}</b></p>{a.subStats.map((s, i) => <small className="dg-substat" key={i}>{artifactStatLabel(s.stat)} · {artifactStatValue(s.stat, s.value)}</small>)}
         <label>Carte équipée<select disabled={pending} value={a.equippedCard?.id ?? ""} onChange={(e) => { const cardId = e.target.value || null; setError(""); start(async () => { const result = await equipArtifactAction(a.id, cardId); if (!result.ok) setError(result.error); else router.refresh(); }); }}><option value="">Aucune</option>{cards.map((c) => <option key={c.id} value={c.id}>{c.character.name} #{c.serial}</option>)}</select></label>
         {a.equippedCard && <span className="dg-worn">Sur {a.equippedCard.character.name}</span>}
       </article>;

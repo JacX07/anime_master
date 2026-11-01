@@ -47,3 +47,42 @@
 .dg-worn { color: #d4bd7f; font-size: .82rem; }
 .dg-substat { color: #a9bad3; }
 .dg-armory a { color: #e7ce8a; }
+
+/* Keep the next fight ahead of optional drop-rate details. */
+.dg-rules summary { cursor: pointer; font-weight: 600; color: #e7ce8a; }
+.dg-rules[open] summary { margin-bottom: .8rem; }
+.dungeon-page .hs-cards { list-style: none; padding: 0; margin: 0; }
+.dungeon-page .hs-team { padding: 1rem 0; }
+.dg-level-info h3 { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.dg-level-info h3 small { margin: 0; padding: .15rem .45rem; border: 1px solid #56708e; border-radius: .3rem; font-size: .75rem; }
+.dg-level-info h3 small[data-rarity="UR"] { color: #ffafc5; border-color: #ac4565; }
+.dg-level-info h3 small[data-rarity="SSR"] { color: #f3cf81; border-color: #b58d3d; }
+.dg-level-info h3 small[data-rarity="SR"] { color: #cab7ff; border-color: #8260bd; }
+.dg-level[data-locked] { opacity: 1; background: #101a2b; border-style: dashed; }
+.dg-level[data-locked] .dg-level-no { color: #a3b3ca; }
+.dg-lock { display: block; color: #c1cde0; font-size: .8rem; margin: .4rem 0; }
+.dg-level-actions button { min-height: 44px; }
+.dg-level-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.dg-visual > div { max-width: calc(100% - 10rem); }
+.dg-visual img { right: 0; bottom: 0; height: 100%; max-height: none; width: 11rem; object-fit: cover; mask-image: linear-gradient(90deg, transparent, black 35%); }
+.dg-sigil { display: none; }
+.dg-armory-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); }
+.dg-artifact { min-width: 0; }
+.dg-artifact select { min-width: 0; max-width: 100%; }
+@media (max-width: 700px) {
+  .dungeon-page.vt-inner { padding-inline: 1rem; gap: .8rem; }
+  .dg-hero { margin: .5rem 0; gap: .65rem; }
+  .dg-visual { min-height: 12rem; padding: 1rem; }
+  .dg-visual > div { max-width: calc(100% - 4rem); }
+  .dg-visual img { width: 7rem; opacity: .3; }
+  .dg-visual h2 { font-size: 1.65rem; }
+  .dg-summary { padding: 1rem; }
+  .dg-summary strong { font-size: 1.8rem; }
+  .dungeon-page .hs-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; gap: .4rem; }
+  .dungeon-page .hs-card { width: auto; min-width: 0; font-size: .65rem; }
+  .dungeon-page .hs-card img { width: 100%; }
+  .dg-level { padding: .8rem; gap: .6rem; }
+  .dg-level-actions { grid-column: 1 / -1; }
+  .dg-level-actions button { flex: 1; }
+  .dg-armory > header { flex-wrap: wrap; }
+}

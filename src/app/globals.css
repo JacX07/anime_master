@@ -3125,3 +3125,17 @@ body.scene-night {
   color: transparent;
   filter: drop-shadow(0 0 2px color-mix(in srgb, var(--rt) 60%, transparent));
 }
+
+/* Let navigation and account controls wrap instead of widening the page. */
+@media (max-width: 1500px) {
+  .site-header-in { height: auto; min-height: 60px; flex-wrap: wrap; gap: .5rem 1rem; padding-block: .6rem; }
+  .site-res { margin-left: auto; }
+}
+@media (max-width: 700px) {
+  .site-header-in { gap: .4rem .6rem; }
+  .site-header-in > .brand { flex-shrink: 0; }
+  .site-header-in > .site-res { max-width: calc(100% - 3rem); overflow-x: auto; flex-shrink: 1; }
+  .site-nav { order: 3; width: 100%; min-width: 0; justify-content: space-between; }
+  .site-nav .site-link { padding-inline: .5rem; }
+  .site-nav .site-link .i { width: 20px; height: 20px; }
+}
