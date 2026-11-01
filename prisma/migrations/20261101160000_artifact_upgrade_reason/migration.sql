@@ -1,0 +1,1 @@
+-- SQLite stores LedgerReason as TEXT; ARTIFACT_UPGRADE requires no table change.

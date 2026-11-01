@@ -351,6 +351,7 @@ model SpecialCrystalLedger {
 // ---------- Étape 3 : économie ----------
 
 enum LedgerReason {
+  ARTIFACT_UPGRADE
   QUICK_SELL
   DAILY
   PACK_BUY
