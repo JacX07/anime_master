@@ -1,0 +1,49 @@
+import { COMMON_RESOURCE, RESOURCE_NAMES, UNIVERSES } from "./story";
+import { RAID_RESOURCE } from "./raid";
+
+export const INVENTORY_CATEGORIES = ["Tout", "Éveil", "Forge", "Équipement", "Consommables"] as const;
+export type InventoryCategory = typeof INVENTORY_CATEGORIES[number];
+export type InventoryItem = {
+  key: string;
+  resource?: string;
+  name: string;
+  quantity: number;
+  categories: InventoryCategory[];
+  universe: string;
+  source: string;
+  description: string;
+  icon: "crystal" | "heart" | "ore" | "weapon";
+  tone: "blue" | "violet" | "gold";
+  links: { href: string; label: string }[];
+};
+
+export function inventoryResources(stock: { key: string; quantity: number }[]): InventoryItem[] {
+  const quantities = new Map(stock.map((row) => [row.key, row.quantity]));
+  const keys = new Set([COMMON_RESOURCE, RAID_RESOURCE, ...UNIVERSES.flatMap((u) => [u.resource, u.weaponResource]), ...quantities.keys()]);
+  return [...keys].map((key) => {
+    const universe = UNIVERSES.find((u) => u.resource === key || u.weaponResource === key);
+    const heart = key === RAID_RESOURCE;
+    const forge = universe?.weaponResource === key;
+    const awakening = key === COMMON_RESOURCE || universe?.resource === key;
+    return {
+      key, resource: key, name: RESOURCE_NAMES[key] ?? key, quantity: quantities.get(key) ?? 0,
+      categories: heart ? ["Éveil", "Forge"] : forge ? ["Forge"] : awakening ? ["Éveil"] : [],
+      universe: universe?.key ?? "common",
+      source: heart ? "Raid hebdomadaire" : universe ? `${universe.name} · ${forge ? "boss final de l’histoire" : "combats de l’histoire"}` : key === COMMON_RESOURCE ? "Combats de l’histoire, tous univers" : "Récompenses en jeu",
+      description: heart ? "Éveille tes SSR et UR aux étoiles 4 et 5, ou fabrique une arme légendaire." : forge ? "Matériau de fabrication d’une arme légendaire. Les ressources de boss finaux de tous les univers peuvent être combinées à la forge." : awakening ? universe ? `Ressource d’éveil des cartes de ${universe.name}. À combiner avec les fragments de signature pour les trois premières étoiles.` : "Ressource commune pour les trois premières étoiles de tes cartes. Les cartes d’un univers utilisent aussi la ressource de leur histoire." : "Une ressource conservée dans ton inventaire.",
+      icon: heart ? "heart" : forge ? "ore" : "crystal",
+      tone: heart ? "violet" : forge ? "gold" : "blue",
+      links: heart ? [{ href: "/eveil", label: "Éveiller une carte" }, { href: "/forge", label: "Aller à la forge" }] : forge ? [{ href: "/forge", label: "Aller à la forge" }] : awakening ? [{ href: "/eveil", label: "Éveiller une carte" }] : [],
+    };
+  });
+}
+
+const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr").replace(/œ/g, "oe");
+export function filterInventory(items: InventoryItem[], category: InventoryCategory, query: string, universe: string, showEmpty: boolean, sort: string) {
+  const search = normalize(query.trim());
+  return items.filter((item) => (showEmpty || item.quantity > 0)
+    && (category === "Tout" || item.categories.includes(category))
+    && (!universe || item.universe === universe)
+    && normalize(`${item.name} ${item.source}`).includes(search))
+    .sort((a, b) => (sort === "quantity" ? b.quantity - a.quantity : 0) || a.name.localeCompare(b.name, "fr") || a.key.localeCompare(b.key));
+}
