@@ -1,0 +1,75 @@
+{
+  "sources": [
+    {
+      "author": "Kenney",
+      "pack": "Impact Sounds",
+      "url": "https://kenney.nl/assets/impact-sounds",
+      "license": "CC0-1.0"
+    },
+    {
+      "author": "Kenney",
+      "pack": "RPG Audio",
+      "url": "https://kenney.nl/assets/rpg-audio",
+      "license": "CC0-1.0"
+    }
+  ],
+  "files": [
+    "impact-sounds/impactBell_heavy_002.ogg",
+    "impact-sounds/impactGlass_light_002.ogg",
+    "impact-sounds/impactMetal_light_002.ogg",
+    "impact-sounds/impactMining_000.ogg",
+    "impact-sounds/impactMining_001.ogg",
+    "impact-sounds/impactMining_002.ogg",
+    "impact-sounds/impactMining_003.ogg",
+    "impact-sounds/impactMining_004.ogg",
+    "impact-sounds/impactPlate_heavy_001.ogg",
+    "impact-sounds/impactPlate_heavy_003.ogg",
+    "impact-sounds/impactPunch_heavy_000.ogg",
+    "impact-sounds/impactPunch_heavy_001.ogg",
+    "impact-sounds/impactPunch_heavy_002.ogg",
+    "impact-sounds/impactPunch_heavy_003.ogg",
+    "impact-sounds/impactPunch_heavy_004.ogg",
+    "impact-sounds/impactPunch_medium_001.ogg",
+    "impact-sounds/impactSoft_heavy_000.ogg",
+    "impact-sounds/impactSoft_heavy_001.ogg",
+    "impact-sounds/impactSoft_heavy_003.ogg",
+    "impact-sounds/impactWood_heavy_002.ogg",
+    "rpg-audio/chop.ogg",
+    "rpg-audio/drawKnife2.ogg",
+    "rpg-audio/knifeSlice.ogg",
+    "rpg-audio/knifeSlice2.ogg"
+  ],
+  "processing": "Prises enregistrées découpées, transposées, filtrées, superposées en stéréo, saturation douce. Aucun oscillateur, aucune réverbération ajoutée.",
+  "outputs": [
+    {
+      "file": "slash-a.ogg",
+      "duration": 0.32,
+      "peak_dbfs": -2.32
+    },
+    {
+      "file": "slash-b.ogg",
+      "duration": 0.34,
+      "peak_dbfs": -2.1
+    },
+    {
+      "file": "sort-a.ogg",
+      "duration": 0.75,
+      "peak_dbfs": -1.01
+    },
+    {
+      "file": "sort-b.ogg",
+      "duration": 0.8,
+      "peak_dbfs": -1.21
+    },
+    {
+      "file": "critique-a.ogg",
+      "duration": 1.1,
+      "peak_dbfs": -1.28
+    },
+    {
+      "file": "critique-b.ogg",
+      "duration": 1.15,
+      "peak_dbfs": -0.85
+    }
+  ]
+}
