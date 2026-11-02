@@ -54,7 +54,7 @@
 
 /* Liste d'objets : s'ouvre au clic sur une case, par-dessus carte et stats */
 .eq-character-dialog .gear-compatible {
-  position: absolute; z-index: 2; top: 1.4rem; bottom: 1.4rem; left: calc(1.4rem + 12rem + 1.4rem); right: 1.4rem;
+  position: absolute; z-index: 10; top: 1.4rem; bottom: 1.4rem; left: calc(1.4rem + 12rem + 1.4rem); right: 1.4rem;
   display: grid; grid-template-rows: auto minmax(0, 1fr); gap: .8rem; padding: 1.1rem 1.3rem; overflow: hidden;
   background: #050707; box-shadow: 0 0 0 1px #d5bb7f66, 0 20px 60px #000; border-radius: 8px;
 }
@@ -100,12 +100,14 @@
 .mq-app-shell .artifact-tile:has(.artifact-tile-owner) .artifact-tile-level { right: auto; left: 6px; }
 
 .eq-character-dialog .cd:has(.gear-compatible) .cd-close { visibility: hidden; }
-.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card { width: 4.5rem; }
-.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card img { height: 6rem; }
-.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card figcaption { font-size: .6rem; }
+.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card { width: 3.2rem; }
+.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card img { height: 4.2rem; }
+.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card figcaption { padding: .2rem; }
+.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card b { font-size: .55rem; line-height: 1.2; }
+.mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card figcaption span { display: none; }
 .eq-character-dialog .cd-awaken { display: grid; gap: .4rem; justify-items: center; text-align: center; }
 .eq-character-dialog .cd-awaken small { color: #a8ad9f; font-size: .72rem; line-height: 1.4; }
-.eq-character-dialog .cd-stars { position: static; display: inline-flex; gap: .2rem; font-size: 1.3rem; text-shadow: none; }
+.eq-character-dialog .cd-stars { position: static; z-index: auto; display: inline-flex; gap: .2rem; font-size: 1.3rem; text-shadow: none; }
 .eq-character-dialog .eq-sets { margin-top: .6rem; border-top: 1px solid #1d2220; padding-top: .6rem; }
 .eq-character-dialog .eq-sets h3 { margin: 0 0 .4rem; font: 500 .95rem/1.2 var(--font-cinzel), serif; }
 .eq-character-dialog .eq-sets ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; }
