@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type CSSProperties } from "react";
 import { startBattleAction } from "@/app/battle-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
 import { RARITY_NAMES } from "@/lib/labels";
-import { floorRarities, towerKey } from "@/lib/tower";
+import { floorRarities, towerKey, towerRyo } from "@/lib/tower";
 import type { Rarity } from "@/generated/prisma/enums";
 import "../histoire/histoire.css";
 import "./tour.css";
@@ -17,6 +17,9 @@ interface Props {
   maxPossible: number;
   team: ({ name: string; imageUrl: string; rarity: Rarity } | null)[];
 }
+
+/** Premier étage où les ennemis montent d'un cran de rareté (tous les 30 étages, voir lib/tower.ts) */
+const nextTier = (floor: number) => Math.floor((floor - 1) / 30) * 30 + 31;
 
 /** Compte à rebours avant l'étage suivant ; « Annuler » coupe l'enchaînement. */
 function Countdown({ seconds, onDone, onCancel }: { seconds: number; onDone: () => void; onCancel: () => void }) {
@@ -121,48 +124,90 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
   }
 
   const rarities = floorRarities(floor);
+  const top = rarities[rarities.length - 1];
+  const tierMarks = [1, 2, 3, 4].map((k) => ((k * 30) / maxPossible) * 100);
+  const GUARDS = ["Gardien du seuil", "Veilleur de pierre", "Sentinelle voilée", "Champion déchu"];
   return (
-    <>
-      <section className="hs-team" aria-label="Équipe d’attaque">
-        <h2 className="hs-h">Ton équipe d’attaque</h2>
-        {ready ? (
-          <ul className="hs-cards">
-            {team.map((c, i) => (
-              <li key={i} className={`hs-card hs-r-${c!.rarity}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={c!.imageUrl} alt="" referrerPolicy="no-referrer" />
-                <span>{c!.name}</span>
-                <small>{RARITY_NAMES[c!.rarity]}</small>
+    <div className="tw">
+      <section className="tw-hero" aria-label="La Tour">
+        {/* eslint-disable @next/next/no-img-element */}
+        <img className="tw-scene" src="/tower/scene.svg" alt="" aria-hidden width={700} height={680} />
+        <div className="tw-rays" aria-hidden />
+        <div className="tw-rays tw-rays-b" aria-hidden />
+        <img className="tw-fog tw-fog-hi" src="/tower/fog-high.svg" alt="" aria-hidden />
+        <img className="tw-fog tw-fog-hi2" src="/tower/fog-high2.svg" alt="" aria-hidden />
+        <img className="tw-fog tw-fog-lo" src="/tower/fog-low.svg" alt="" aria-hidden />
+        <img className="tw-fog tw-fog-lo2" src="/tower/fog-low2.svg" alt="" aria-hidden />
+        {/* eslint-enable @next/next/no-img-element */}
+        <div className="tw-pollen" aria-hidden>
+          {Array.from({ length: 8 }, (_, i) => <i key={i} style={{ "--i": i } as CSSProperties} />)}
+        </div>
+        <header className="tw-title">
+          <p className="tw-loc">La Tour</p>
+          <h1>Étage {floor}</h1>
+          <div className="tw-orn" aria-hidden><i /><b /><i /></div>
+          <p className="tw-sub">Palier {RARITY_NAMES[top]}</p>
+        </header>
+        <div className="tw-boss" role="progressbar" aria-label="Ascension" aria-valuemin={0} aria-valuemax={maxPossible} aria-valuenow={maxFloor}>
+          <div className="tw-boss-lab"><span>L’ascension</span><small>{maxFloor} / {maxPossible}</small></div>
+          <div className="tw-bar">
+            <div className="tw-fill" style={{ width: `${(maxFloor / maxPossible) * 100}%` }} />
+            {tierMarks.map((m) => <span key={m} className="tw-tick" style={{ left: `${m}%` }} />)}
+          </div>
+        </div>
+      </section>
+
+      <div className="tw-panel">
+        <section className="tw-col" aria-label="Gardiens de l’étage">
+          <h2 className="tw-h">Gardiens de l’étage</h2>
+          <ul className="tw-foes">
+            {rarities.map((r, i) => (
+              <li key={i} className="tw-foe" style={{ "--c": `var(--rarity-${r})` } as CSSProperties}>
+                <span className="tw-sq" aria-hidden />
+                <span><b>{GUARDS[i]}</b><small>Inconnu jusqu’au combat</small></span>
+                <span className="tw-rar">{RARITY_NAMES[r]}</span>
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="vt-muted">Il te faut une équipe de 4 cartes pour combattre.</p>
-        )}
-        <Link href="/equipe" className="bt-btn">{ready ? "Modifier mon équipe" : "Composer mon équipe"}</Link>
-      </section>
+        </section>
 
-      <section className="tw-floor" aria-label="Étage">
-        <h2 className="hs-h">Étage {floor} <small>(record : {maxFloor || "aucun"} / {maxPossible})</small></h2>
-        <p className="vt-muted">Ennemis : {rarities.map((r) => RARITY_NAMES[r]).join(" · ")}</p>
-        <div className="hs-actions">
-          <button type="button" className="bt-btn" disabled={!ready || pending} onClick={() => run(floor)}>
-            {floor <= maxFloor ? "Rejouer cet étage" : "Combattre"}
-          </button>
-          <label className="tw-pick">
-            Étage
-            <input
-              type="number"
-              min={1}
-              max={next}
-              value={floor}
-              onChange={(e) => setFloor(Math.max(1, Math.min(next, Math.floor(Number(e.target.value)) || 1)))}
-            />
-          </label>
-          {floor !== next && <button type="button" className="bt-btn" onClick={() => setFloor(next)}>Aller à l&apos;étage {next}</button>}
-        </div>
-        {error && <p className="hs-error" role="alert">{error}</p>}
-      </section>
-    </>
+        <section className="tw-col" aria-label="Ascension">
+          <h2 className="tw-h">Ascension</h2>
+          <div className="tw-menu">
+            <button type="button" className="bt-btn tw-go" disabled={!ready || pending} onClick={() => run(floor)}>
+              {floor <= maxFloor ? `Rejouer l’étage ${floor}` : `Affronter l’étage ${floor}`}
+            </button>
+            <label className="tw-pick">
+              Aller à l’étage
+              <input
+                type="number"
+                min={1}
+                max={next}
+                value={floor}
+                onChange={(e) => setFloor(Math.max(1, Math.min(next, Math.floor(Number(e.target.value)) || 1)))}
+              />
+              <span>1 – {next}</span>
+            </label>
+            {floor !== next && <button type="button" className="bt-btn" onClick={() => setFloor(next)}>Aller à l&apos;étage {next}</button>}
+            <Link href="/equipe" className="bt-btn">{ready ? "Modifier l’équipe" : "Composer mon équipe"}</Link>
+            <a href="#classement" className="bt-btn">Classement</a>
+          </div>
+          {ready ? (
+            <ul className="tw-team" aria-label="Équipe d’attaque">
+              {team.map((c, i) => (
+                <li key={i} className="tw-mate" style={{ "--c": `var(--rarity-${c!.rarity})` } as CSSProperties} title={`${c!.name} — ${RARITY_NAMES[c!.rarity]}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c!.imageUrl} alt={c!.name} referrerPolicy="no-referrer" />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="vt-muted">Il te faut une équipe de 4 cartes pour combattre.</p>
+          )}
+          <p className="tw-hint">Prochain palier de rareté : <b>étage {nextTier(floor)}</b>. Récompense du premier passage : <b>{towerRyo(floor)} Ryō</b>.</p>
+          {error && <p className="hs-error" role="alert">{error}</p>}
+        </section>
+      </div>
+    </div>
   );
 }

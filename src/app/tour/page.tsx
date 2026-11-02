@@ -29,18 +29,15 @@ async function Tower() {
   const [maxFloor, team, top] = await Promise.all([getTowerFloor(user.id), getAttackTeam(user.id), towerLeaderboard(10)]);
   return (
     <div className="vt-inner">
-      <header className="pg-head">
-        <h1 className="vt-title">La Tour</h1>
-        <p className="vt-sub">
-          Le méta-univers qui relie tous les autres : à chaque étage, 4 personnages tirés au hasard, les mêmes pour tout le monde. Plus tu montes, plus ils sont rares et forts. Une défaite ne coûte rien. Ton équipe vient de la page <Link href="/equipe">Équipe</Link>.
-        </p>
-      </header>
       <TowerBoard
         maxFloor={maxFloor}
         maxPossible={MAX_FLOOR}
         team={team.map((c) => (c ? { name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null))}
       />
-      <section aria-label="Classement de la Tour" className="tw-top">
+      <p className="vt-sub tw-intro">
+        Le méta-univers qui relie tous les autres : à chaque étage, 4 personnages tirés au hasard, les mêmes pour tout le monde. Plus tu montes, plus ils sont rares et forts. Une défaite ne coûte rien. Ton équipe vient de la page <Link href="/equipe">Équipe</Link>.
+      </p>
+      <section id="classement" aria-label="Classement de la Tour" className="tw-top">
         <h2 className="hs-h">Les plus hauts étages</h2>
         {top.length === 0 ? (
           <p className="vt-muted">Personne n&apos;est encore monté. À toi de commencer.</p>
