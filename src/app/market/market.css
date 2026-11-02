@@ -1,0 +1,41 @@
+.mq-market { gap: 1.35rem; }
+.mq-market-head { padding-bottom: 1.1rem; border-bottom: 1px solid #343936; }
+.mq-market-head .vt-title { margin: .25rem 0 .5rem; }
+.mq-kicker { color: #a68e5d; font-size: .68rem; font-weight: 700; letter-spacing: .24em; }
+.mq-market-head .vt-sub { max-width: 48rem; }
+.mq-market-tabs { display: flex; gap: 1.25rem; border-bottom: 1px solid #303632; }
+.mq-market-tabs a { padding: .7rem .2rem; color: #858a85; border-bottom: 2px solid transparent; text-decoration: none; }
+.mq-market-tabs a[aria-current="page"] { color: #e9e5dc; border-color: #c4a76d; }
+.mq-market-tabs a:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+.mq-market .market-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; padding: .85rem; border: 1px solid #303632; border-radius: .45rem; background: #111514; }
+.mq-market .market-filters :is(input, select) { min-width: 0; width: 100%; height: 2.65rem; padding: 0 .75rem; border: 1px solid #343936; border-radius: .25rem; background: #191e1b; color: #e3dfd4; font: inherit; font-size: .8rem; }
+.mq-market .market-filters input::placeholder { color: #777d78; }
+.mq-market .market-filters :is(input, select):focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.mq-market .market-filters .vt-btn { min-height: 2.65rem; }
+.mq-market-count { margin: -.2rem 0 -.65rem; color: #a68e5d; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+.mq-market .auction-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
+.mq-market .auction-grid > li { min-width: 0; }
+.mq-market .auction-card { height: 100%; min-height: 8.5rem; padding: .6rem; gap: .8rem; align-items: center; border-radius: .4rem; background: linear-gradient(145deg, #202522, #141817 72%); }
+.mq-market .auction-card:hover { border-color: #796b4e; transform: translateY(-2px); }
+.mq-market .auction-card img { width: 5.1rem; height: 6.7rem; object-fit: cover; border-radius: .2rem; }
+.mq-market .auction-card > div { gap: .4rem; min-width: 0; }
+.mq-market .auction-name { font-family: var(--font-cinzel), Georgia, serif; }
+.mq-market .auction-price { color: #d1b473; }
+.mq-auction-detail-page > a:first-child { align-self: flex-start; text-decoration: none; }
+.mq-market .auction-detail { align-items: start; gap: clamp(1.5rem, 5vw, 4rem); }
+.mq-market .auction-detail > img { width: min(100%, 22rem); aspect-ratio: 3 / 4; height: auto; object-fit: cover; border: 1px solid #4b4637; border-radius: .4rem; }
+.mq-market .auction-info { min-width: 0; }
+.mq-market .auction-big { color: #d1b473; font: 600 1.25rem var(--font-cinzel), Georgia, serif; }
+.mq-market .auction-info > p { margin: .8rem 0; }
+.mq-market .bid-list li { border-color: #303632; background: #111514; }
+@media (max-width: 950px) {
+  .mq-market .auction-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mq-market .market-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .mq-market .market-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: .65rem; }
+  .mq-market .market-filters .vt-btn { grid-column: 1 / -1; }
+  .mq-market .auction-grid { grid-template-columns: 1fr; }
+  .mq-market .auction-detail { grid-template-columns: 1fr; }
+  .mq-market .auction-detail > img { width: min(100%, 18rem); margin-inline: auto; }
+}

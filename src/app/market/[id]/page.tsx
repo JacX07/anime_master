@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { io } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Money, RarityGem } from "@/components/icons";
@@ -9,6 +10,7 @@ import { FINISH_NAMES, RARITY_NAMES } from "@/lib/labels";
 import { getSessionUser } from "@/lib/session";
 import { Countdown } from "../Countdown";
 import { BidPanel } from "./BidPanel";
+import "../market.css";
 
 export const metadata: Metadata = { title: "Enchère — Anime Masters" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "medium" });
@@ -25,13 +27,14 @@ export default function AuctionPage({ params }: PageProps<"/market/[id]">) {
 }
 
 async function Auction({ params }: { params: PageProps<"/market/[id]">["params"] }) {
+  await io();
   const { id } = await params;
   const [a, user] = await Promise.all([getAuction(id), getSessionUser()]);
   if (!a) notFound();
   const ch = a.card.character;
   const active = a.status === "ACTIVE";
   return (
-    <div className="vt-inner">
+    <div className="vt-inner mq-market mq-auction-detail-page">
       <Link href="/market" className="vt-muted">← Bourse des brèches</Link>
       <div className="auction-detail">
         {/* eslint-disable-next-line @next/next/no-img-element */}

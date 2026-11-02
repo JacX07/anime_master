@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { io } from "next/cache";
 import { Suspense } from "react";
 import { Money, RarityGem } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { listAuctions, type MarketFilters } from "@/lib/auctions";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { Countdown } from "./Countdown";
+import "./market.css";
 
 export const metadata: Metadata = { title: "Bourse des brèches — Anime Masters" };
 
@@ -49,16 +51,22 @@ export default function MarketPage({ searchParams }: PageProps<"/market">) {
 }
 
 async function Market({ searchParams }: { searchParams: PageProps<"/market">["searchParams"] }) {
+  await io();
   const sp = await searchParams;
   const f = parse(sp);
   const list = await listAuctions(f);
   const v = (k: string) => one(sp[k]);
   return (
-    <div className="vt-inner">
-      <header>
-        <h1 className="vt-title">Bourse des brèches</h1>
+    <div className="vt-inner mq-market">
+      <header className="mq-market-head">
+        <p className="mq-kicker">COMPTOIR DES MONDES</p>
+        <h1 className="vt-title">Marché</h1>
         <p className="vt-sub">Les enchères en cours. Pour vendre une carte, ouvre sa fiche depuis l&apos;album.</p>
       </header>
+      <nav className="mq-market-tabs" aria-label="Marché">
+        <Link href="/market" aria-current="page">Marché global</Link>
+        <Link href="/trades">Échange direct</Link>
+      </nav>
       <form action="/market" className="market-filters">
         <input type="search" name="q" defaultValue={v("q")} placeholder="Personnage" aria-label="Personnage" />
         <input type="search" name="series" defaultValue={v("series")} placeholder="Série" aria-label="Série" />
@@ -81,7 +89,7 @@ async function Market({ searchParams }: { searchParams: PageProps<"/market">["se
         </select>
         <button type="submit" className="vt-btn">Filtrer</button>
       </form>
-      <p className="vt-count">{list.length} enchère{list.length > 1 ? "s" : ""}</p>
+      <p className="vt-count mq-market-count">{list.length} enchère{list.length > 1 ? "s" : ""}</p>
       {list.length === 0 ? (
         <p className="vt-empty">Aucune enchère ne correspond.</p>
       ) : (
