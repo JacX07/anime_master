@@ -28,7 +28,7 @@ function SlotIcon({ slot }: { slot: Slot }) {
 }
 
 export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card: { id: string; name: string; weaponKey: string | null; stars: number } }) {
-  const [slot, setSlot] = useState<Slot>("CASQUE");
+  const [slot, setSlot] = useState<Slot | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const detailRef = useRef<HTMLElement>(null);
   const detailId = useId();
@@ -37,7 +37,7 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
   const router = useRouter();
   const weapon = weaponDef(card.weaponKey ?? "");
   const artifacts = inventory.items.filter((item) => item.artifact);
-  const visible = artifacts.filter((item) => item.artifact!.slot === slot);
+  const visible = slot && slot !== "ARME" ? artifacts.filter((item) => item.artifact!.slot === slot) : [];
   const selected = visible.find((item) => item.key === selectedKey);
   function closeDetails() {
     document.getElementById(`${detailId}-${selectedKey}`)?.focus();
@@ -53,22 +53,21 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
       } catch { setMessage("L’opération a échoué, réessaie."); }
     });
   }
-  return <section className="gear-panel" aria-label={`Équipement de ${card.name}`}>
-    <header className="gear-heading"><h2>Équipement</h2><span>{inventory.balance.toLocaleString("fr-FR")} Ryō</span></header>
+  return <section className="cd-gear" aria-label={`Équipement de ${card.name}`}>
     <div className="gear-slots" role="group" aria-label="Choisir un emplacement d’équipement">
       {(["ARME", ...ARTIFACT_SLOTS] as Slot[]).map((key) => {
         const worn = artifacts.find((item) => item.artifact!.slot === key && item.artifact!.equippedCard?.id === card.id);
-        return <button type="button" key={key} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(key); setSelectedKey(null); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
+        return <button type="button" key={key} data-rarity={worn?.artifact!.rarity} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(slot === key ? null : key); setSelectedKey(null); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
           {worn?.image ? <Image src={worn.image} width={64} height={64} alt="" /> : <SlotIcon slot={key} />}
-          <strong>{key === "ARME" ? "Arme" : SLOT_NAMES[key]}</strong>
-          <small>{key === "ARME" ? weapon ? "Équipée" : "Vide" : worn ? `+${worn.artifact!.level}` : "Vide"}</small>
+          <span><strong>{key === "ARME" ? "Arme" : SLOT_NAMES[key]}</strong>
+          <small>{key === "ARME" ? weapon ? "Équipée" : "Vide" : worn ? `+${worn.artifact!.level}` : "Vide"}</small></span>
         </button>;
       })}
     </div>
-    <div className="gear-compatible" id="gear-compatible">
-      <h3>{slot === "ARME" ? "Arme du personnage" : `${SLOT_NAMES[slot]} · objets compatibles (${visible.length})`}</h3>
+    <p className="cd-gear-balance">{inventory.balance.toLocaleString("fr-FR")} Ryō</p>
+    {slot && <div className="gear-compatible" id="gear-compatible" onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); if (selected) closeDetails(); else setSlot(null); } }}>
+      <header className="gear-picker-head"><h3>{slot === "ARME" ? "Arme du personnage" : `${SLOT_NAMES[slot]} · objets compatibles (${visible.length})`}</h3><button type="button" className="gear-close" onClick={() => { setSlot(null); setSelectedKey(null); setMessage(""); }}>Fermer la liste</button></header>
       {slot === "ARME" ? <div className="gear-weapon"><SlotIcon slot="ARME" /><h4>{weapon?.name ?? "Aucune arme forgée"}</h4><p>{weapon ? weapon.passive : "Les armes légendaires se forgent sur une carte à 5 étoiles et restent liées à cet exemplaire."}</p><Link href={card.stars === 5 ? "/forge" : "/eveil"}>{weapon ? "Voir à la forge" : card.stars === 5 ? "Forger une arme" : "Éveiller cette carte à 5★"}</Link></div> : <>
-        <p className="gear-help">Sélectionne un artefact pour voir sa fiche et l’équiper.</p>
         <div className="gear-workspace">
           <div className="artifact-tile-grid" role="group" aria-label="Artefacts compatibles">{visible.map((item) => <ArtifactTile key={item.key} item={item} selected={selectedKey === item.key} controls={detailId} onSelect={() => {
             setSelectedKey(item.key); setMessage("");
@@ -97,9 +96,9 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
           </aside>
         </div>
         {!visible.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
-        <p className="gear-help">Amélioration garantie jusqu’à +16 : +5 % de la valeur initiale de la stat principale par niveau. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ; si les quatre sont déjà présentes, une sous-stat aléatoire est doublée.</p>
+        <p className="gear-help">+5 % de la stat principale par niveau jusqu’à +16. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ou doublée.</p>
       </>}
-    </div>
-    {message && <p className="gear-message" role="status">{message}</p>}
+      {message && <p className="gear-message" role="status">{message}</p>}
+    </div>}
   </section>;
 }

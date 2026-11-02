@@ -19,6 +19,7 @@ import type { getPlayerInventory } from "@/lib/player-inventory";
 import { TypeIcon } from "@/components/icons";
 import "@/components/battle/battle.css";
 import "./equipe.css";
+import "./character.css";
 
 export interface TeamCard {
   id: string;
@@ -146,7 +147,7 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
 /** Fenêtre d’un personnage : portrait, inventaire ciblé, sorts et composition de l’équipe. */
 export function CardDialog({ editable = true, card, slot, full, onClose, onToggle, inventory, team }: { editable?: boolean; team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const [tab, setTab] = useState("inventory");
+  const [tab, setTab] = useState("stats");
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -156,34 +157,30 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
   return (
     <dialog ref={ref} className="eq-dialog eq-character-dialog" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()} aria-label={card ? `Personnage et inventaire de ${card.name}` : undefined}>
       {card && (
-        <div className="eq-dlg">
-          <figure className="eq-dlg-art" data-rarity={card.rarity}>
+        <div className="cd">
+          <button type="button" className="cd-close bt-btn" onClick={onClose}>Fermer</button>
+          <EquipmentPanel inventory={inventory} card={card} />
+          <figure className="cd-hero" data-rarity={card.rarity}>
+            <figcaption className="cd-title">
+              <b>{card.name}</b>
+              <span>{card.series}</span>
+            </figcaption>
             <div className="eq-art">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
               <RarityTag rarity={card.rarity} />
             </div>
-            <figcaption>
-              <b>{card.name}</b>
-              <small>{card.series}</small>
-              <small><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name} · {RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</small>
-              <small>ATK {num.format(card.attack)} · DEF {num.format(card.defense)} · VIT {num.format(card.speed)}</small>
-            </figcaption>
+            <p className="cd-meta"><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name} · {RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</p>
+            {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
+              {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
+            </button>}
           </figure>
-          <div className="eq-dlg-spells">
+          <div className="cd-side">
             <div className="eq-character-tabs" role="group" aria-label="Détails du personnage">
-              <button type="button" className="bt-btn" aria-pressed={tab === "inventory"} onClick={() => setTab("inventory")}>Équipement</button>
-              <button type="button" className="bt-btn" aria-pressed={tab === "spells"} onClick={() => setTab("spells")}>Sorts</button>
               <button type="button" className="bt-btn" aria-pressed={tab === "stats"} onClick={() => setTab("stats")}>Statistiques</button>
-              <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
+              <button type="button" className="bt-btn" aria-pressed={tab === "spells"} onClick={() => setTab("spells")}>Sorts</button>
             </div>
-            {tab === "inventory" ? <EquipmentPanel inventory={inventory} card={card} /> : tab === "stats" ? <StatisticsPanel card={card} team={team} inventory={inventory} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
-            <div className="eq-dlg-btns">
-              {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
-                {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
-              </button>}
-              <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
-            </div>
+            {tab === "stats" ? <StatisticsPanel card={card} team={team} inventory={inventory} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
           </div>
         </div>
       )}
