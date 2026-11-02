@@ -105,6 +105,7 @@ export interface AnimeProgress {
 
 /** Un album de monde : progression et puissance possédée. */
 export interface WorldBand extends AnimeProgress {
+  representative: { id: number; name: string; imageUrl: string; power: number } | null;
   /** Puissance de toutes les cartes que le joueur possède dans ce monde (somme sur chaque exemplaire) */
   power: number;
 }
@@ -198,11 +199,23 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     const pages = Math.max(1, Math.ceil(known.length / WORLDS_PER_PAGE));
     const page = Math.min(f.page, pages);
     const slice = known.slice((page - 1) * WORLDS_PER_PAGE, page * WORLDS_PER_PAGE);
+    const strongestIds = slice.map((a) => (idsOf.get(a.key) ?? []).reduce<number | null>((best, id) => {
+      const candidate = rank.get(id);
+      if (!owned.has(id) || !candidate) return best;
+      const previous = best === null ? null : rank.get(best);
+      return !previous || candidate.power > previous.power || (candidate.power === previous.power && id < previous.id) ? id : best;
+    }, null));
+    const representatives = await prisma.character.findMany({
+      where: { id: { in: strongestIds.filter((id): id is number => id !== null) } },
+      select: { id: true, name: true, imageUrl: true, power: true },
+    });
+    const representativeById = new Map(representatives.map((c) => [c.id, c]));
     return {
       entries: [],
       worlds: {
-        bands: slice.map((a) => ({
+        bands: slice.map((a, i) => ({
           ...a,
+          representative: representativeById.get(strongestIds[i] ?? -1) ?? null,
           power: powerOf(a.key),
         })),
         unknown: listed.length + blocks.length - known.length,

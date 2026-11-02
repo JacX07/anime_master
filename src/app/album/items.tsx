@@ -7,11 +7,15 @@ import { albumHref } from "./AlbumFilters";
 const num = new Intl.NumberFormat("fr-FR");
 const pct = (a: number, b: number) => (b ? Math.floor((a / b) * 1000) / 10 : 0);
 
-/** Album d’un monde : progression réelle, sans portraits ni éventail au survol. */
+/** Album d’un monde : progression réelle et portrait du personnage possédé le plus puissant. */
 export function World({ world, filters }: { world: WorldBand; filters: Filters }) {
   const p = pct(world.owned, world.total);
   return (
     <Link href={albumHref(filters, { anime: world.key, page: 1 })} className="wd-tile" aria-label={`${world.title} : ${world.owned} cartes sur ${world.total}`}>
+      {world.representative && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="wd-representative" src={world.representative.imageUrl} alt="" title={`${world.representative.name} · puissance ${num.format(world.representative.power)}`} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+      )}
       <span className="wd-index" aria-hidden="true" />
       <div className="wd-meta">
         <span className="wd-kicker">Collection</span>
