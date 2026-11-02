@@ -1,5 +1,19 @@
 # Vérifications complètes
 
+## GitHub Actions
+
+Le workflow `.github/workflows/ci.yml` lance le job **Checks** sur les pushes de `main` et `production`, et sur les pull requests vers ces branches. `migration/postgres` est aussi activée temporairement pour valider la CI avant toute fusion.
+Un nouveau run annule les anciens runs du même workflow pour la même branche (`concurrency`, `cancel-in-progress: true`). Push et pull request d'une même branche partagent le groupe pour éviter deux vérifications concurrentes du même changement.
+
+Le runner Ubuntu 24.04 installe Node depuis `.nvmrc` (24), restaure le cache de téléchargement npm, puis lance `npm ci` (qui génère Prisma via `postinstall`). Un service Postgres 17 temporaire, vérifié par `pg_isready`, fournit le serveur de test. `npm run check` applique les migrations et charge le catalogue dans sa propre base jetable : ces opérations ne sont pas dupliquées dans le YAML.
+
+Limites : installation 180 secondes, suite 300 secondes, job complet 10 minutes. Les délais par check restent ceux du lanceur. Un run annulé ne conserve pas d'artefact ; un run en échec conserve les journaux `check-logs-*` pendant trois jours. Les résultats et codes de chaque étape apparaissent aussi dans le journal GitHub du job.
+Les actions sont épinglées par SHA ; le token du workflow a seulement `contents: read`. Aucune clé Supabase, aucun secret Vercel et aucun déploiement ne font partie de ce workflow. La protection de `production` par le statut **Checks** reste une configuration GitHub distincte.
+
+Références : [annulation des runs concurrents](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency), [service Postgres](https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers).
+
+Validation préalable au premier push : `actionlint` 1.7.12 accepte le workflow ; `npm ci --no-audit --no-fund` réussit sous Node 24 avec dotenv neutralisé et sans URL applicative ; la commande CI limitée à 300 secondes réussit localement, 50/50 étapes, avec ses journaux dans le dossier temporaire prévu pour les artefacts. Le service local de cette vérification était Postgres 18 ; le service Postgres 17 du YAML est vérifié par le run GitHub après push.
+
 ## Lancer la suite
 
 ```sh

@@ -3066,9 +3066,9 @@
     "semantic_hash": ""
   },
   "docs/deploiement.md": {
-    "mtime": 1793647844.479641,
-    "seen": 1793647887.6829839,
-    "ast_hash": "26d280d60f2d974d2376cd35ac12be71",
+    "mtime": 1793648360.5357144,
+    "seen": 1793648378.4470959,
+    "ast_hash": "13d1b42bf7ab0cf5977dc6f4c6bd44ff",
     "semantic_hash": ""
   },
   "docs/specs/aventure.md": {
@@ -3102,9 +3102,9 @@
     "semantic_hash": ""
   },
   "journal.md": {
-    "mtime": 1793647716.18761,
-    "seen": 1793647887.683383,
-    "ast_hash": "3528d3bb4a427c29f872b2c274d9e6d9",
+    "mtime": 1793648309.2157006,
+    "seen": 1793648378.4475727,
+    "ast_hash": "26ddf210fb19a11a932e6bff6c5899d0",
     "semantic_hash": ""
   },
   "public/audio/battle/LICENSE-impact-sounds.txt": {
@@ -4146,9 +4146,9 @@
     "semantic_hash": ""
   },
   "scripts/fixtures/catalogue.json": {
-    "mtime": 1793647594.3235977,
-    "seen": 1793647887.6739433,
-    "ast_hash": "34d63dec490af0d39471d278001f860b",
+    "mtime": 1793648065.9844058,
+    "seen": 1793648378.4365497,
+    "ast_hash": "8fbfad62ddf6b04400ecf62c965aecf5",
     "semantic_hash": ""
   },
   "scripts/run-checks.ts": {
@@ -4164,9 +4164,15 @@
     "semantic_hash": ""
   },
   "docs/checks.md": {
-    "mtime": 1793647844.479641,
-    "seen": 1793647887.6829824,
-    "ast_hash": "ada43ac6519f21736d93a507d8a4b71c",
+    "mtime": 1793648360.5357144,
+    "seen": 1793648378.4470947,
+    "ast_hash": "1bba3d67c25d7fdec0557e25e010d371",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1793648426.1557345,
+    "seen": 1793648472.7922537,
+    "ast_hash": "835f66efd56e41b3982b140da79ab732",
     "semantic_hash": ""
   }
 }

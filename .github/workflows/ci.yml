@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, production, migration/postgres]
+  pull_request:
+    branches: [main, production]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CHECK_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Installer Node 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Installer les dépendances et générer Prisma
+        timeout-minutes: 4
+        run: timeout --kill-after=5s 180s npm ci --no-audit --no-fund
+
+      # Le lanceur migre et charge le catalogue dans sa propre base jetable.
+      - name: Lint, TypeScript, migrations, données de test et checks
+        timeout-minutes: 6
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: timeout --kill-after=5s 300s npm run check
+
+      - name: Conserver les journaux en cas d'échec
+        if: ${{ failure() && !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: check-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/anime-check-*/
+          if-no-files-found: ignore
+          retention-days: 3

@@ -64,7 +64,7 @@ Implémentée sur `migration/postgres` : lint, types de routes, TypeScript, puis
 ### Étape 3 — Données de test et CI GitHub Actions
 
 - Catalogue fixe versionné de 368 personnages pour que les checks ne dépendent pas d'AniList (plus de 100 de chaque genre requis par les bannières existantes).
-- `.github/workflows/ci.yml` : Node 24 (`.nvmrc`), Postgres de test (service du workflow), `npm ci`, chargement des données, `npm run check`.
+- `.github/workflows/ci.yml` implémenté sur `migration/postgres` : Node 24 (`.nvmrc`), service Postgres 17, `npm ci`, puis migrations et chargement des données via `npm run check`. Annulation des anciens runs de la même branche, cache npm, délais et journaux d'échec limités à trois jours. Voir [checks.md](checks.md).
 - Protection de la branche `production` : CI verte obligatoire.
 - Ensuite, proposer (avec permission) une règle dans `AGENTS.md` : lancer `npm run check` avant de pousser.
 

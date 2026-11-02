@@ -1,5 +1,21 @@
 # Journal des agents
 
+## 2026-11-02 — Décision de dépôt privé non encore appliquée
+
+- Symptôme : pendant la configuration CI, la lecture sans authentification de l'API GitHub renvoie `private: false`, `visibility: public` pour `JacX07/anime_master`.
+- Cause : la décision de rendre le dépôt privé est documentée, mais le réglage GitHub est encore public.
+- Suite : utilisateur informé ; visibilité laissée inchangée pendant la tâche CI. Vérifier le forfait et les protections avant le passage en privé.
+- Occurrences : 1.
+- Statut : ouvert.
+
+## 2026-11-02 — Contexte runner dans les variables du workflow GitHub
+
+- Symptôme : actionlint refuse `runner.temp` dans `jobs.check.env`.
+- Cause : le contexte `runner` est disponible dans les variables d'une étape, pas dans celles du job.
+- Correctif : définir `TMPDIR` sur l'étape `npm run check`, conserver le même chemin pour l'artefact des journaux.
+- Occurrences : 1.
+- Statut : corrigé avant le premier push du workflow.
+
 ## 2026-11-02 — Périmètre du lint global et catalogue des checks
 
 - Symptôme : le lint global parcourt PixiJS minifié et un script local dans `data/` ; il signale aussi l'initialisation des préférences audio après hydratation. Les checks de bannières exigent plus de 100 personnages de chaque genre.
