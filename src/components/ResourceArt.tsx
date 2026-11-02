@@ -1,24 +1,24 @@
 "use client";
-
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+// One request shared by resources mounting together; refresh on subsequent mounts.
+let pending: Promise<Record<string, string>> | null = null;
+function resourceSources() {
+  return pending ??= fetch("/api/illustrations/resources", { signal: AbortSignal.timeout(5000) })
+    .then(async (response) => {
+      if (!response.ok) throw new Error("Illustrations indisponibles");
+      return await response.json() as Record<string, string>;
+    }).finally(() => { pending = null; });
+}
 export function ResourceArt({ resource, size = 36, fallback = null }: { resource: string; size?: number; fallback?: ReactNode }) {
-  // 0 : illustration personnalisée, 1 : visuel temporaire de public/items, 2 : repli.
-  const [step, setStep] = useState(0);
-  const image = useRef<HTMLImageElement>(null);
-  const triedFallback = useRef(false);
+  const [sources, setSources] = useState<Record<string, string>>({});
+  const [failed, setFailed] = useState<string | null>(null);
   useEffect(() => {
-    if (step === 0 && image.current?.complete && image.current.naturalWidth === 0) {
-      triedFallback.current = true;
-      setStep(1);
-    }
-  }, [resource, step]);
-  if (step > 1) return fallback;
-  const src = step === 0 ? `/api/illustrations/resource-${resource}` : `/items/${resource}.svg`;
+    let active = true;
+    resourceSources().then((value) => { if (active) setSources(value); }).catch(() => { /* Keep the supplied fallback. */ });
+    return () => { active = false; };
+  }, [resource]);
+  const src = sources[resource];
+  if (!src || failed === src) return fallback;
   // eslint-disable-next-line @next/next/no-img-element
-  return <img key={src} ref={image} src={src} alt="" width={size} height={size} loading="lazy" onError={() => {
-    if (step === 0 && !triedFallback.current) {
-      triedFallback.current = true;
-      setStep(1);
-    } else if (step === 1) setStep(2);
-  }} style={{ width: size, height: size, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 8 }} />;
+  return <img key={src} src={src} alt="" width={size} height={size} loading="lazy" onError={() => setFailed(src)} style={{ width: size, height: size, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 8 }} />;
 }
