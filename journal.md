@@ -224,4 +224,23 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Gravité : moyenne, défense anti-bruteforce absente sur le chemin du formulaire ; aucune prise de compte démontrée.
 - Suite : ajouter une limitation atomique partagée aux chemins auth, puis tester par HTTP et Server Actions. Un compteur mémoire par instance ne couvre pas une flotte Vercel.
 - Occurrences : 1.
-- Statut : ouvert ; pas de correctif validé pour ce point.
+- Correctif : hook Better Auth commun HTTP/direct, compteurs PostgreSQL atomiques et expirants (10 par identité/minute, 300 global/minute), sans confiance dans un en-tête IP client. Table privée avec RLS. Erreurs internes masquées.
+- Validation : vingt appels concurrents sur deux instances, dix refus normaux puis dix 429 ; HTTP et direct partagent les compteurs ; expiration/plafond global conformes. Navigateur : onzième tentative bloquée, connexion valide d’un autre compte réussie. TypeScript et lint ciblé réussis.
+- Statut : corrigé sur base jetable ; migration à appliquer par l’humain sur les environnements distants avant utilisation du nouveau code.
+
+## 2026-11-03 — Audit : artefacts CodeQL et surveillance Next
+
+- Symptôme : pendant l'analyse, Turbopack attend sans cesse que les fichiers cessent de changer ; requêtes navigateur retardées.
+- Cause : les journaux et bases CodeQL sont générés dans un répertoire non ignoré du worktree.
+- Correctif : exclure static_analysis_codeql_*/ de Git et de la surveillance habituelle ; conserver les résultats locaux hors commits.
+- Occurrences : 1.
+- Statut : corrigé ; éviter les analyses lourdes pendant les parcours navigateur.
+
+## 2026-11-03 — Audit : dates du limiteur et horloge PostgreSQL
+
+- Symptôme : le test du plafond global autorise une tentative après injection d'une date d'expiration depuis Prisma.
+- Cause : mélange de timestamp sans fuseau, de session Europe/Paris et de dates UTC dans les fixtures ; le compteur applicatif doit dépendre uniquement de l'horloge SQL.
+- Correctif : colonne timestamptz, calculs atomiques par clock_timestamp ; tests d'expiration et plafond avec cette même horloge.
+- Validation : deux instances, vingt requêtes concurrentes, normalisation, chemins HTTP/direct et expiration réussis sur base locale jetable.
+- Occurrences : 1.
+- Statut : corrigé. Prisma a refusé migrate reset ; ancienne base conservée, nouvelle base vide créée pour tester la migration corrigée sans réinitialisation.

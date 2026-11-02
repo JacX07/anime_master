@@ -898,3 +898,12 @@ model AdventureRecord {
   createdAt DateTime @default(now())
   @@id([userId, key])
 }
+
+/// Compteurs partagés entre les instances et les deux chemins d'authentification.
+model AuthThrottle {
+  key       String   @id
+  count     Int
+  expiresAt DateTime @db.Timestamptz(3)
+
+  @@index([expiresAt])
+}

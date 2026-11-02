@@ -12,6 +12,8 @@ export interface AuthFormState {
 }
 
 const ERRORS: Record<string, string> = {
+  AUTH_RATE_LIMITED: "Trop de tentatives. Réessaie dans une minute.",
+  AUTH_TEMPORARILY_UNAVAILABLE: "Authentification temporairement indisponible.",
   USER_ALREADY_EXISTS: "Un compte existe déjà avec cet email.",
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Un compte existe déjà avec cet email.",
   USERNAME_IS_ALREADY_TAKEN: "Ce pseudo est déjà pris.",
@@ -29,7 +31,7 @@ function describe(err: unknown): string {
     const code = (err.body as { code?: string } | undefined)?.code;
     if (code && ERRORS[code]) return ERRORS[code];
   }
-  console.error("Erreur d'authentification :", err);
+  console.error("Erreur d'authentification (détails masqués).");
   return "Une erreur est survenue, réessaie.";
 }
 

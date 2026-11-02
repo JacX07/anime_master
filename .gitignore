@@ -54,3 +54,6 @@ graphify-out/cache/ast/
 /public/vendor/
 
 /src/generated/prisma-sqlite
+
+# Analyses CodeQL locales (bases, sources extraites et SARIF)
+/static_analysis_codeql_*/
