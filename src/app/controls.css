@@ -104,3 +104,23 @@
     &::before, &::after { transition: none; }
   }
 }
+
+/* Onglet sélectionné : la lueur vacille comme une bougie (irrégulier, ~3 s). */
+.mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before,
+.mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before { animation: tab-candle 2.9s linear infinite; }
+.mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after,
+.mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after { animation: tab-candle-line 2.9s linear infinite; }
+@keyframes tab-candle {
+  0% { opacity: .95; transform: scaleY(1); } 8% { opacity: .7; transform: scaleY(.94); } 15% { opacity: 1; transform: scaleY(1.04); }
+  27% { opacity: .78; transform: scaleY(.97); } 38% { opacity: .98; transform: scaleY(1.02); } 52% { opacity: .72; transform: scaleY(.93); }
+  61% { opacity: 1; transform: scaleY(1.05); } 74% { opacity: .82; transform: scaleY(.98); } 86% { opacity: .96; transform: scaleY(1.01); } 100% { opacity: .95; transform: scaleY(1); }
+}
+@keyframes tab-candle-line {
+  0% { box-shadow: 0 0 10px #c4a76d88; } 8% { box-shadow: 0 0 5px #c4a76d44; } 15% { box-shadow: 0 0 15px 1px #c4a76dbb; }
+  27% { box-shadow: 0 0 7px #c4a76d55; } 38% { box-shadow: 0 0 12px #c4a76d99; } 52% { box-shadow: 0 0 5px #c4a76d44; }
+  61% { box-shadow: 0 0 16px 1px #c4a76dcc; } 74% { box-shadow: 0 0 8px #c4a76d66; } 100% { box-shadow: 0 0 10px #c4a76d88; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before, .mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after,
+  .mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before, .mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after { animation: none; }
+}
