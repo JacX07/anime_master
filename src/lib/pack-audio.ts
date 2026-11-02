@@ -117,54 +117,75 @@ class PackAudio {
   uiOn = true;
   private lastHover = 0;
 
-  /** Survol : tic aigu très léger. */
+  /** Choc sourd : sinus dont la hauteur chute vite (pierre, bois lourd). */
+  private thud(at: number, from: number, to: number, dur: number, level: number) {
+    const ctx = this.ctx!;
+    const o = ctx.createOscillator();
+    o.frequency.setValueAtTime(from, at);
+    o.frequency.exponentialRampToValueAtTime(to, at + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(level, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    o.connect(g).connect(this.master);
+    o.start(at);
+    o.stop(at + dur + 0.03);
+  }
+
+  /** Cloche de fer : partiels inharmoniques qui s'éteignent vite. */
+  private iron(at: number, base: number, dur: number, level: number) {
+    [1, 2.76, 5.4, 8.9].forEach((m, i) => this.tone(at, base * m, dur / (1 + i * 0.7), level / (1 + i * 1.3)));
+  }
+
+  /** Survol : frottement de pierre très bref et étouffé. */
   uiHover() {
     const now = performance.now();
     if (now - this.lastHover < 70) return;
     this.lastHover = now;
-    this.ui((_, t) => this.tone(t, 1500 + Math.random() * 120, 0.05, 0.035));
+    this.ui((_, t) => this.swish(t, 0.07, 500, 900, 0.1));
   }
-  /** Clic ordinaire : « tok » mat. */
+  /** Clic : coup de pierre sourd avec un fond de fer. */
   uiClick() {
     this.ui((_, t) => {
-      this.tone(t, 520, 0.07, 0.1, "triangle");
-      this.tone(t, 260, 0.09, 0.08, "sine");
+      this.thud(t, 150, 55, 0.16, 0.5);
+      this.swish(t, 0.06, 1200, 400, 0.35);
+      this.iron(t, 140, 0.25, 0.05);
     });
   }
-  /** Action principale : deux notes qui montent. */
+  /** Action principale : cloche grave, comme un glas court. */
   uiConfirm() {
     this.ui((_, t) => {
-      this.tone(t, midi(76), 0.16, 0.12, "triangle");
-      this.tone(t + 0.07, midi(83), 0.3, 0.13, "triangle");
-      this.tone(t + 0.07, midi(95), 0.25, 0.04);
+      this.thud(t, 110, 45, 0.25, 0.5);
+      this.iron(t + 0.02, 196, 1.1, 0.16);
+      this.swish(t, 0.1, 900, 300, 0.25);
     });
   }
-  /** Sélection d'un onglet, d'un choix, d'une case : petit « clic-tic » ascendant. */
+  /** Sélection : deux coups de loquet de fer. */
   uiSelect() {
     this.ui((_, t) => {
-      this.tone(t, midi(72), 0.07, 0.09, "triangle");
-      this.tone(t + 0.05, midi(79), 0.12, 0.1, "triangle");
+      this.thud(t, 220, 90, 0.08, 0.35);
+      this.iron(t, 330, 0.12, 0.06);
+      this.thud(t + 0.06, 170, 70, 0.1, 0.4);
     });
   }
-  /** Changement de page : souffle doux. */
+  /** Changement de page : lourde porte qui glisse. */
   uiNav() {
     this.ui((_, t) => {
-      this.swish(t, 0.2, 700, 2600, 0.22);
-      this.tone(t, 330, 0.08, 0.07, "triangle");
+      this.swish(t, 0.3, 250, 800, 0.3);
+      this.thud(t + 0.02, 90, 45, 0.2, 0.35);
     });
   }
-  /** Bouton désactivé : note sourde descendante. */
+  /** Refus : grondement sourd. */
   uiDenied() {
     this.ui((_, t) => {
-      this.tone(t, 190, 0.12, 0.14, "square");
-      this.tone(t + 0.07, 140, 0.16, 0.12, "square");
+      this.thud(t, 85, 40, 0.3, 0.55);
+      this.tone(t, 70, 0.25, 0.12, "sawtooth");
     });
   }
 
   setUi(on: boolean) {
     this.uiOn = on;
     try { localStorage.setItem(STORE_UI, on ? "on" : "off"); } catch { /* stockage indisponible */ }
-    if (on) this.ui((_, t) => this.tone(t, midi(84), 0.15, 0.12, "triangle"));
+    if (on) this.ui((_, t) => this.iron(t, 262, 0.6, 0.12));
   }
   get uiWanted(): boolean {
     try { return localStorage.getItem(STORE_UI) !== "off"; } catch { return true; }
