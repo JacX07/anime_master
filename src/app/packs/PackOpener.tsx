@@ -50,6 +50,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const [current, setCurrent] = useState(0);
   const [summary, setSummary] = useState(false);
   const [cut, setCut] = useState(0);
+  const packButton = useRef<HTMLButtonElement>(null);
   const gesture = useRef<number | null>(null);
   const opening = useRef(false);
   const burstKey = useRef(0);
@@ -91,6 +92,19 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         setError("Connexion interrompue. Recharge la page pour vérifier tes cartes avant de réessayer.");
       } finally { opening.current = false; }
     });
+  }
+
+  function returnToBooster() {
+    setPack(null);
+    setRevealed([]);
+    setCurrent(0);
+    setSummary(false);
+    setBurst(null);
+    setDetail(null);
+    setError(null);
+    setCut(0);
+    suppressClick.current = false;
+    requestAnimationFrame(() => packButton.current?.focus());
   }
 
   function buy(count: number) {
@@ -206,13 +220,11 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
         <section className="pk-stage" data-summary={summary} aria-label="Ouverture">
           {!pack && (
-            <button type="button" className="pk-pack" disabled={!canOpen} aria-label={`Ouvrir le booster de ${lot} cartes`}
+            <button ref={packButton} type="button" className="pk-pack" disabled={!canOpen} aria-label={`Ouvrir le booster de ${lot} cartes`}
               onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } open(); }}
-              data-art={banner?.featured ? "" : undefined}>
-              {banner?.featured && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="pk-pack-art" src={banner.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
-              )}
+              data-art="" data-standard={!banner?.featured}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="pk-pack-art" src={banner?.featured?.imageUrl ?? "/images/boosters/standard.png"} alt="" referrerPolicy="no-referrer" />
               <span className="pk-cut" style={{ "--cut": cut } as React.CSSProperties}
                 onPointerDown={(e) => { if (!canOpen) return; gesture.current = e.clientX; e.currentTarget.setPointerCapture(e.pointerId); }}
                 onPointerMove={(e) => { if (gesture.current === null) return; setCut(Math.min(1, Math.abs(e.clientX - gesture.current) / (e.currentTarget.clientWidth * 0.7))); }}
@@ -237,6 +249,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
           {pack && (
             <div className="pk-cards" data-best={best}>
+              <button type="button" className="pk-return ui-button" onClick={returnToBooster}>Revenir au booster</button>
               {rare && waitingReveal && (
                 <p className="pk-hint" data-rarity={best} role="status">
                   <RarityGem rarity={best!} /> {rareCount > 1 ? `${rareCount} cartes SSR ou mieux` : `Une carte ${best === "UR" ? "UR" : "SSR ou mieux"}`} dans ce paquet
