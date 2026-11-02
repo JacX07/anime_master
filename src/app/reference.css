@@ -18,3 +18,8 @@
   .mq-app-shell .mq-page-heading h1,
   .mq-app-shell .vt-title { font-size: 34px; }
 }
+
+/* Static decorative layers avoid continuous repainting of large filters. */
+.mq-ambient-fx, .mq-ambient-fx *, .mq-ambient-fx::before, .mq-ambient-fx::after,
+.mq-page-mythology *, .mq-page-mythology *::before, .mq-page-mythology *::after { animation: none !important; }
+.mq-lore-system { filter: none; }
