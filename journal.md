@@ -215,3 +215,13 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Contournement : revue ciblée manuelle ; installer CodeQL avant de compléter la couverture statique.
 - Occurrences : 1.
 - Statut : ouvert.
+
+## 2026-11-03 — Audit : limiteur HTTP contourné par les Server Actions auth
+
+- Symptôme : cinq appels directs signInEmail refusés en 401 sans 429, alors que le handler HTTP retourne 401,401,401,429,429 avec les mêmes règles.
+- Cause : signIn et signUp appellent auth.api directement ; le limiteur est exécuté dans router.onRequest, pas dans toAuthEndpoints/dispatch.
+- Reproduction : scripts/audit-auth-rate-limit.mjs, instance Better Auth en mémoire, aucune base ni service externe ; limiteur explicitement activé.
+- Gravité : moyenne, défense anti-bruteforce absente sur le chemin du formulaire ; aucune prise de compte démontrée.
+- Suite : ajouter une limitation atomique partagée aux chemins auth, puis tester par HTTP et Server Actions. Un compteur mémoire par instance ne couvre pas une flotte Vercel.
+- Occurrences : 1.
+- Statut : ouvert ; pas de correctif validé pour ce point.
