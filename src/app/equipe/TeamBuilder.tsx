@@ -27,6 +27,7 @@ export interface TeamCard {
   imageUrl: string;
   rarity: Rarity;
   type: CardType;
+  power: number;
   attack: number;
   defense: number;
   speed: number;
@@ -143,7 +144,7 @@ function SpellList({ card }: { card: TeamCard }) {
 
 
 /** Fenêtre d’un personnage : portrait, inventaire ciblé, sorts et composition de l’équipe. */
-function CardDialog({ card, slot, full, onClose, onToggle, inventory, team }: { team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
+export function CardDialog({ editable = true, card, slot, full, onClose, onToggle, inventory, team }: { editable?: boolean; team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [tab, setTab] = useState("inventory");
   useEffect(() => {
@@ -178,9 +179,9 @@ function CardDialog({ card, slot, full, onClose, onToggle, inventory, team }: { 
             </div>
             {tab === "inventory" ? <EquipmentPanel inventory={inventory} card={card} /> : tab === "stats" ? <StatisticsPanel card={card} team={team} inventory={inventory} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
             <div className="eq-dlg-btns">
-              <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
+              {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
                 {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
-              </button>
+              </button>}
               <button type="button" className="bt-btn" onClick={onClose}>Fermer</button>
             </div>
           </div>

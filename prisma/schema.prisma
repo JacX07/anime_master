@@ -177,6 +177,7 @@ model User {
   duelSlots           DuelSlot[]
   duelDefenses        DuelDefense[]
   battleTeams         BattleTeam[]
+  squads              Squad[]
   battles             Battle[]
   storyProgress       StoryProgress[]
   storyStars          StoryStageStar[]
@@ -672,6 +673,17 @@ model BattleTeam {
   slots  BattleTeamSlot[]
 
   @@unique([userId, kind])
+}
+
+/// Named squad presets; active attack/defense teams remain in BattleTeam.
+model Squad {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name    String
+  cardIds Json
+
+  @@index([userId])
 }
 
 /// Une carte vendue disparaît de l'équipe ; une carte échangée est ignorée (et retirée) à la lecture.

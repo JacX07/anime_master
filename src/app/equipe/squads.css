@@ -1,0 +1,43 @@
+.mq-app-shell .squads-manager[class] { min-width: 0; }
+.mq-app-shell .squads-manager[class] .squads-tools { display: flex; justify-content: flex-end; margin: -12px 0 20px; }
+.mq-app-shell .squads-manager[class] .squads-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; }
+.mq-app-shell .squads-manager[class] .squads-list { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.mq-app-shell .squads-manager[class] .squad-summary { display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: 12px; justify-content: start; padding: 20px 16px; text-align: left; color: #ddd9d0; background: #141817; min-height: 86px; }
+.mq-app-shell .squads-manager[class] .squad-summary[aria-pressed="true"] { background: #25271f; color: #e9e5dc; }
+.mq-app-shell .squads-manager[class] .squad-summary > span { color: #a99568; font: 500 22px var(--font-cinzel), serif; }
+.mq-app-shell .squads-manager[class] .squad-summary b { display: block; font: 500 13px var(--font-dm), sans-serif; overflow-wrap: anywhere; }
+.mq-app-shell .squads-manager[class] .squad-summary small { display: block; margin-top: 8px; color: #858a85; font-size: 10px; }
+.mq-app-shell .squads-manager[class] .squad-stage { min-width: 0; padding: 24px; background: #121615c9; }
+.mq-app-shell .squads-manager[class] .squad-stage-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 30px; }
+.mq-app-shell .squads-manager[class] .squad-stage-head h2 { margin: 0; font: 500 16px var(--font-cinzel), serif; overflow-wrap: anywhere; }
+.mq-app-shell .squads-manager[class] .squad-stage-head > span { color: #858a85; font-size: 10px; }
+.mq-app-shell .squads-manager[class] .squad-stage-head b { color: #c4a76d; margin-left: 8px; }
+.mq-app-shell .squads-manager[class] .squad-members { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 28px 0; }
+.mq-app-shell .squads-manager[class] .squad-member { min-width: 0; text-align: center; }
+.mq-app-shell .squads-manager[class] .squad-member > small { display: block; margin-top: 14px; color: #a99568; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
+.mq-app-shell .squads-manager[class] .squad-card { display: block; width: 100%; padding: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
+.mq-app-shell .squads-manager[class] .squad-card:disabled { opacity: .35; cursor: not-allowed; }
+.mq-app-shell .squads-manager[class] .squad-empty { aspect-ratio: 5 / 7; display: grid; place-items: center; padding: 16px; background: #191d1b; color: #a9aaa2; font-size: 12px; text-align: center; }
+.mq-app-shell .squads-manager[class] .squad-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.mq-app-shell .squads-manager[class] .squad-modal { position: fixed; inset: 50% auto auto 50%; transform: translate(-50%, -50%); margin: 0; width: min(1180px, calc(100vw - 32px)); max-height: 86dvh; overflow: auto; padding: 28px; background: #151a18; color: #e9e5dc; box-shadow: 0 24px 90px #0009; }
+.mq-app-shell .squads-manager[class] .squad-modal::backdrop { background: #000c; }
+.mq-app-shell .squads-manager[class] .squad-create { width: min(420px, calc(100vw - 32px)); }
+.mq-app-shell .squads-manager[class] .squad-create label, .mq-app-shell .squads-manager[class] .squad-name { display: grid; gap: 8px; margin: 16px 0; font-size: 12px; }
+.mq-app-shell .squads-manager[class] :is(input, select) { min-width: 0; max-width: 100%; padding: 12px; color: #e9e5dc; background: #222824; font: 400 13px var(--font-dm), sans-serif; }
+.mq-app-shell .squads-manager[class] .squad-picker-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mq-app-shell .squads-manager[class] .squad-picker-head h2, .mq-app-shell .squads-manager[class] .squad-create h2 { font: 500 22px var(--font-cinzel), serif; }
+.mq-app-shell .squads-manager[class] .squad-picker-filters { display: grid; grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.mq-app-shell .squads-manager[class] .squad-picker-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; margin: 20px 0; }
+.mq-app-shell .squads-manager[class] :is(button, input, select):focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+@media (max-width: 980px) {
+  .mq-app-shell .squads-manager[class] .squads-layout { grid-template-columns: minmax(0, 1fr); }
+  .mq-app-shell .squads-manager[class] .squads-list { flex-direction: row; overflow-x: auto; }
+  .mq-app-shell .squads-manager[class] .squad-summary { min-width: 220px; }
+  .mq-app-shell .squads-manager[class] .squad-picker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .mq-app-shell .squads-manager[class] .squad-stage, .mq-app-shell .squads-manager[class] .squad-modal { padding: 16px; }
+  .mq-app-shell .squads-manager[class] .squad-members, .mq-app-shell .squads-manager[class] .squad-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mq-app-shell .squads-manager[class] .squad-picker-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mq-app-shell .squads-manager[class] .squad-picker-filters input { grid-column: 1 / -1; }
+}

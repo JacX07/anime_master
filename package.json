@@ -32,6 +32,7 @@
     "check:banners": "tsx scripts/check-banners.ts",
     "check:expeditions": "tsx scripts/check-expeditions.ts",
     "check:battle": "tsx scripts/check-battle.ts",
+    "check:squads": "tsx scripts/check-squads.ts",
     "check:replay": "tsx scripts/check-replay.ts",
     "check:battles": "tsx scripts/check-battles.ts",
     "check:story": "tsx scripts/check-story.ts",
