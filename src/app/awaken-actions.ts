@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { awakenCard } from "@/lib/awaken";
+import { awakenCard, duplicateWhere } from "@/lib/awaken";
+import { awakenCost, canAwaken, needsDuplicate, universeOfFranchise } from "@/lib/awakening";
+import { prisma } from "@/lib/db";
+import { RESOURCE_NAMES } from "@/lib/story";
 import { BattleError } from "@/lib/battles";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -19,4 +22,20 @@ export async function awakenCardAction(cardId: string): Promise<ActionResult<{ s
     console.error("Échec de l'éveil :", err);
     return { ok: false, error: "L'opération a échoué, réessaie." };
   }
+}
+
+export type AwakenInfo = { maxed: boolean; cost: { key: string; name: string; quantity: number; have: number }[]; duplicate: number | null };
+
+/** Coût du prochain éveil d'une carte, pour la fiche du personnage. */
+export async function awakenInfoAction(cardId: string): Promise<AwakenInfo | null> {
+  const user = await getSessionUser();
+  if (!user) return null;
+  const card = await prisma.card.findUnique({ where: { id: String(cardId) }, select: { ownerId: true, characterId: true, stars: true, character: { select: { rarity: true, mainMediaId: true, mainMedia: { select: { franchiseId: true } } } } } });
+  if (!card || card.ownerId !== user.id) return null;
+  const to = card.stars + 1;
+  if (!canAwaken(card.character.rarity, to)) return { maxed: true, cost: [], duplicate: null };
+  const cost = awakenCost(card.character.rarity, to, universeOfFranchise(card.character.mainMedia?.franchiseId ?? card.character.mainMediaId));
+  const stock = await prisma.resourceStock.findMany({ where: { userId: user.id, key: { in: cost.map((c) => c.key) } } });
+  const duplicate = needsDuplicate(to) ? await prisma.card.count({ where: duplicateWhere(user.id, card.characterId, String(cardId)) }) : null;
+  return { maxed: false, duplicate, cost: cost.map((c) => ({ key: c.key, name: RESOURCE_NAMES[c.key] ?? c.key, quantity: c.quantity, have: stock.find((s) => s.key === c.key)?.quantity ?? 0 })) };
 }

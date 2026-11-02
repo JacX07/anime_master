@@ -15,6 +15,7 @@ import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/li
 import { isMagicalSpell } from "@/lib/magic-skill";
 import { StatisticsPanel } from "./StatisticsPanel";
 import { EquipmentPanel } from "./EquipmentPanel";
+import { awakenCardAction, awakenInfoAction, type AwakenInfo } from "@/app/awaken-actions";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { TypeIcon } from "@/components/icons";
 import "@/components/battle/battle.css";
@@ -144,6 +145,24 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
 }
 
 
+function Awakening({ card }: { card: TeamCard }) {
+  const router = useRouter();
+  const [info, setInfo] = useState<AwakenInfo | null>(null);
+  const [msg, setMsg] = useState("");
+  const [pending, start] = useTransition();
+  useEffect(() => { let live = true; awakenInfoAction(card.id).then((r) => { if (live) setInfo(r); }); return () => { live = false; }; }, [card.id, card.stars]);
+  const ok = !!info && !info.maxed && info.cost.every((c) => c.have >= c.quantity) && (info.duplicate === null || info.duplicate > 0);
+  return <div className="cd-awaken">
+    <span className="card-stars cd-stars" role="img" aria-label={`${card.stars} étoiles sur 5`}>{[1, 2, 3, 4, 5].map((n) => <i key={n} data-on={n <= card.stars || undefined}>★</i>)}</span>
+    {info && !info.maxed && <>
+      <small>{info.cost.map((c) => `${c.quantity} ${c.name} (${c.have})`).join(" · ")}{info.duplicate !== null ? ` · 1 doublon (${info.duplicate} libre${info.duplicate > 1 ? "s" : ""})` : ""}</small>
+      <button type="button" className="bt-btn" disabled={!ok || pending} onClick={() => start(async () => { const r = await awakenCardAction(card.id); setMsg(r.ok ? "" : r.error); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
+    </>}
+    {info?.maxed && <small>{card.stars >= 5 ? "Éveil maximal" : "Éveil maximal pour cette rareté"}</small>}
+    {msg && <small role="alert">{msg}</small>}
+  </div>;
+}
+
 /** Fenêtre d’un personnage : portrait, inventaire ciblé, sorts et composition de l’équipe. */
 export function CardDialog({ editable = true, card, slot, full, onClose, onToggle, inventory, team }: { editable?: boolean; team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -170,7 +189,8 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
               <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
               <RarityTag rarity={card.rarity} />
             </div>
-            <p className="cd-meta"><span className="cd-rarity">{RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</span><span><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name}</span></p>
+            <p className="cd-meta"><span className="cd-rarity">{RARITY_NAMES[card.rarity]}</span><span><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name}</span></p>
+            <Awakening card={card} />
             {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
               {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
             </button>}
@@ -180,7 +200,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
               <button type="button" className="bt-btn" aria-pressed={tab === "stats"} onClick={() => setTab("stats")}>Statistiques</button>
               <button type="button" className="bt-btn" aria-pressed={tab === "spells"} onClick={() => setTab("spells")}>Sorts</button>
             </div>
-            {tab === "stats" ? <StatisticsPanel card={card} team={team} inventory={inventory} /> : <><h2 className="eq-h">Sorts</h2><SpellList card={card} /></>}
+            {tab === "stats" ? <StatisticsPanel card={card} team={team} inventory={inventory} /> : <div><h2 className="eq-h">Sorts</h2><SpellList card={card} /></div>}
           </div>
         </div>
       )}

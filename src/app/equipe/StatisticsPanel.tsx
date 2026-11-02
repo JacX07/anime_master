@@ -6,6 +6,7 @@ import { weaponDef } from "@/lib/weapons";
 import type { TeamCard } from "./TeamBuilder";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { Icon } from "@/components/icons";
+import { DUNGEONS } from "@/lib/dungeons";
 
 const STAT_ICONS: Record<string, string> = { Puissance: "puissance", PV: "hp", "Compétence magique": "magie", ATK: "atk", DEF: "def", Vitesse: "speed", "Chance de critique": "eveil", "Dégâts critiques": "puissance", Esquive: "speed" };
 
@@ -32,8 +33,21 @@ export function StatisticsPanel({ card, team, inventory }: { card: TeamCard; tea
     ["Dégâts critiques", percent(BATTLE.critDamage), percent(BATTLE.critDamage + gear.critDamage)],
     ["Esquive", "0 %", percent(clamp(unit.dodge + gear.dodge))],
   ];
+  const owned = inventory.items.flatMap((item) => item.artifact ? [item.artifact] : []);
+  const sets = DUNGEONS.flatMap((d) => {
+    const mine = owned.filter((a) => a.setKey === d.key);
+    if (!mine.length) return [];
+    const worn = mine.filter((a) => a.equippedCard?.id === card.id).length;
+    const tiers = d.bonus.split(/\s+(?=4 pièces)/);
+    const next = worn < 2 ? 2 : worn < 4 ? 4 : 0;
+    return [{ key: d.key, name: d.universe, worn, slots: new Set(mine.map((a) => a.slot)).size, tiers, next }];
+  });
   return <section className="eq-statistics"><h2 className="eq-h">Statistiques détaillées</h2><details><summary>Comment c’est calculé</summary><p>Valeurs au début du combat, avec l’éveil, l’arme, les artefacts, les sets et les synergies de l’équipe affichée. La puissance valorise l’ATK, les PV, la DEF, les critiques, l’esquive et les stats spéciales. La vitesse contribue au score et multiplie sa valeur totale. Les effets temporaires des sorts ne sont pas inclus. Compétence magique augmente les dégâts des seuls sorts marqués magiques.</p></details>
     <table><thead><tr><th scope="col">Statistique</th><th scope="col">Base</th><th scope="col">En combat</th></tr></thead><tbody>{rows.map(([label, base, total]) => <tr key={label}><th scope="row"><Icon name={STAT_ICONS[label]} /> {label}</th><td>{base}</td><td>{total}</td></tr>)}</tbody></table>
+    {sets.length > 0 && <div className="eq-sets"><h3>Bonus de set</h3><ul>{sets.map((set) => <li key={set.key} data-active={set.worn >= 2 || undefined}>
+      <b>{set.name}</b> <span>{set.worn}/4 portés · {set.slots}/4 emplacements possédés{set.next ? ` · encore ${set.next - set.worn} pour le bonus ${set.next} pièces` : " · set complet"}</span>
+      {set.tiers.map((tier, i) => <p key={i} data-on={(i === 0 ? set.worn >= 2 && set.worn < 4 : set.worn >= 4) || undefined}>{tier}</p>)}
+    </li>)}</ul></div>}
     {!team.some((member) => member.id === card.id) && <p>Cette carte n’est pas dans l’équipe affichée : calcul individuel, sans synergie d’équipe.</p>}
     <small>L’esquive de l’arme s’applique aux sorts affiliés ; celle des artefacts s’applique aux coups esquivables.</small>
   </section>;
