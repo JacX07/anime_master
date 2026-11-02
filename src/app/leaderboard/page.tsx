@@ -6,6 +6,7 @@ import { SceneBody } from "@/components/SceneBody";
 import { eloLeaderboard } from "@/lib/duels";
 import { collectionLeaderboard } from "@/lib/leaderboard";
 import { getSessionUser } from "@/lib/session";
+import "./leaderboard.css";
 
 export const metadata: Metadata = { title: "Classement — Anime Masters" };
 const num = new Intl.NumberFormat("fr-FR");
@@ -61,8 +62,8 @@ async function Leaderboard({
     </li>
   );
   return (
-    <div className="vt-inner">
-      <header className="pg-head">
+    <div className="vt-inner mq-leaderboard">
+      <header className="pg-head mq-board-head">
         <h1 className="vt-title">Classement</h1>
       </header>
       <div className="pg-tabs">
