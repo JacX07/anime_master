@@ -59,11 +59,11 @@ Chaque étape est testée avant la suivante.
 
 ### Étape 2 — `npm run check`
 
-Une commande : lint, typecheck, puis tous les `scripts/check-*.ts` (y compris les 10 sans entrée dans `package.json`), avec résumé des échecs. Base jetable, jamais la base dev ni prod.
+Implémentée sur `migration/postgres` : lint, types de routes, TypeScript, puis découverte et exécution de tous les `scripts/check-*.ts`, avec délais et résumé des échecs. Une base Postgres jetable est créée et supprimée pour chaque lancement. Voir [checks.md](checks.md) pour la connexion de test et les journaux.
 
 ### Étape 3 — Données de test et CI GitHub Actions
 
-- Petit jeu de données fixe (~100 personnages) versionné, pour que les checks ne dépendent pas d'AniList.
+- Catalogue fixe versionné de 368 personnages pour que les checks ne dépendent pas d'AniList (plus de 100 de chaque genre requis par les bannières existantes).
 - `.github/workflows/ci.yml` : Node 24 (`.nvmrc`), Postgres de test (service du workflow), `npm ci`, chargement des données, `npm run check`.
 - Protection de la branche `production` : CI verte obligatoire.
 - Ensuite, proposer (avec permission) une règle dans `AGENTS.md` : lancer `npm run check` avant de pousser.

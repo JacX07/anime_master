@@ -11,7 +11,9 @@ async function main() {
   assert(process.env.NODE_ENV !== "production", "Check réservé aux tests");
   assert(process.env.DATABASE_URL, "DATABASE_URL de test obligatoire");
   const admin = client(process.env.DATABASE_URL);
-  const names = [0, 1].map(() => `content_test_${randomUUID().replaceAll("-", "")}`);
+  const prefix = process.env.CHECK_RUN_PREFIX;
+  assert(!prefix || /^am_check_[a-f0-9]{32}$/.test(prefix), "Préfixe de test invalide");
+  const names = [0, 1].map(() => prefix ? `${prefix}_sync_${randomUUID().replaceAll("-", "").slice(0, 8)}` : `content_test_${randomUUID().replaceAll("-", "")}`);
   const clients = names.map((name) => {
     const url = new URL(process.env.DATABASE_URL!); url.pathname = `/${name}`;
     return client(url.toString());

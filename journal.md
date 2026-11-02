@@ -1,5 +1,14 @@
 # Journal des agents
 
+## 2026-11-02 — Périmètre du lint global et catalogue des checks
+
+- Symptôme : le lint global parcourt PixiJS minifié et un script local dans `data/` ; il signale aussi l'initialisation des préférences audio après hydratation. Les checks de bannières exigent plus de 100 personnages de chaque genre.
+- Cause : ESLint n'utilise pas les exclusions Git ; la règle React ne distingue pas cette lecture initiale de localStorage d'un état dérivé inutile. Un catalogue d'une centaine de personnages ne couvre pas les assertions existantes.
+- Correctif : exclure les répertoires générés, outils tiers et données locales ; documenter une exception limitée à la lecture des préférences après hydratation, sans changer le comportement. Versionner un catalogue fixe de 368 personnages pour la suite isolée.
+- Occurrences : 1.
+- Validation : première suite globale limitée à 60 s interrompue avec code 124 ; le lanceur a arrêté le check en cours et supprimé ses bases. Avec 60 s par étape et une borne globale de 3 300 s, les 50 étapes (dont 45 checks) passent. Ne pas confondre le délai d'un check et la somme des délais de la suite.
+- Statut : corrigé sur `migration/postgres`.
+
 Bugs et manques de contexte rencontrés une fois. Voir la section « Journal et promotion en règle » de `AGENTS.md`.
 Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences, statut (ouvert / promu en règle).
 

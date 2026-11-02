@@ -14,6 +14,7 @@ export function AmbientSound() {
   const [ui, setUi] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Préférences localStorage relues après hydratation pour garder le HTML serveur stable.
     setMusic(packAudio.ambienceWanted);
     setUi(packAudio.uiWanted);
     packAudio.uiOn = packAudio.uiWanted;
