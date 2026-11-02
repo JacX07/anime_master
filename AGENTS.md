@@ -49,6 +49,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Keep it under 10 lines: goal, decisions, current task/status, changed files and Git state, next step, and unresolved questions.
 - Do not repeat the conversation history or claim to create/switch sessions. The user starts the fresh session and can provide the handoff.
 
+## Journal et promotion en règle
+
+- Quand un agent découvre quelque chose d’utile aux autres agents (contexte manquant, piège, comportement inattendu) ou rencontre un bug, l’ajouter d’abord dans `journal.md` à la racine : date, symptôme, cause, correctif ou contournement.
+- Avant d’ajouter une entrée, relire `journal.md` : si le même problème ou manque de contexte y figure déjà, compléter l’entrée existante (nombre d’occurrences, dates) au lieu d’en créer une nouvelle.
+- Quand un problème revient de façon récurrente (au moins 2 à 3 occurrences), proposer de le transformer en règle dans `AGENTS.md`.
+- Ne jamais ajouter ou modifier une règle dans `AGENTS.md` sans la permission explicite de l’utilisateur : lui montrer la règle proposée et l’entrée du journal correspondante, attendre sa validation, puis marquer l’entrée comme « promue en règle ».
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
