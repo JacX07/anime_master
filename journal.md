@@ -170,3 +170,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Validation : navigateur connecté et invité, largeurs 320, 390, 768, 1024 et 1280 px ; liens du compte dans l’écran, ouverture de Jouer, navigation vers Squads, fermeture automatique et clavier. TypeScript et lint ciblé réussis.
 - Occurrences : 1.
 - Statut : corrigé sur migration/postgres.
+
+## 2026-11-02 — Désactivation Vercel des branches avec barre oblique
+
+- Contexte : seuls les pushes humains sur production doivent déclencher un déploiement Git automatique.
+- Piège : git.deploymentEnabled utilise minimatch ; une étoile seule ne couvre pas tous les noms contenant /, tels que migration/postgres. Une règle true l’emporte si plusieurs règles correspondent.
+- Correctif : vercel.json avec **: false et production: true. Ce fichier doit être présent dans chaque branche concernée ; il ne modifie pas globalement les réglages du projet Vercel.
+- Occurrences : 1.
+- Statut : configuration préparée sur migration/postgres, vérification du comportement Vercel distant non accessible depuis la session.

@@ -41,7 +41,7 @@ agents ──push──▶ main ──▶ CI (lint, typecheck, check-*)         
 
 D'après https://vercel.com/docs/limits (à revérifier au moment de s'inscrire) : 100 déploiements par jour (chaque push sur une branche en crée un), 1 build à la fois, 45 min de build maximum, usage personnel et non commercial.
 
-Les agents poussent après chaque petite modification : on désactive donc le déploiement automatique de `main` (`vercel.json` : `git.deploymentEnabled` à `false` pour `main`), seule `production` déploie. Une preview en ligne, si besoin, se lance à la demande avec `vercel deploy`. Seuls les déploiements réels de la prod consomment le quota.
+Les agents poussent après chaque petite modification : `vercel.json` désactive les déploiements Git automatiques de toutes les branches (`git.deploymentEnabled` : `"**": false`), avec une exception `"production": true`. Le double astérisque couvre aussi les noms comme `migration/postgres`. Ce fichier doit être intégré à `main` et présent dans les branches concernées ; une branche sans ce fichier conserve le comportement Vercel par défaut. Dans Vercel, régler aussi Settings → Environments → Production → Branch Tracking sur `production`. Une preview en ligne, si besoin, se lance à la demande avec `vercel deploy`. Seuls les déploiements réels de la prod consomment le quota.
 
 ## 5. Les étapes
 
