@@ -1,0 +1,48 @@
+/* Shared text controls: open surface, gold underline, no rectangular frame.
+   Image/card selectors retain their own visual selection states. */
+.mq-app-shell[class] :is(button:not(:has(img, svg)):not(:where(.inventory-slot, .eq-slot-main, .art-tile, .pk-banner, .bt-spell, .avatar)), .ui-button, .pk-open, .pk-ghost, .pk-buy button, .gear-equip, .gear-upgrade, .art-reset, .bt-exit, .bt-play, .mq-play-button, .mq-play-heading button, .daily-bonus, .vt-btn, .bt-btn, .site-cta, .vt-chip, .mq-sell-button, .mq-deck-button, .mq-header-cta, .mq-header-link, .inventory-actions a, .inventory-empty a, .inventory-equip-target, .inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .quest-more) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  min-height: 44px;
+  padding: .8rem 1rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #b4b5ad;
+  font: 500 .875rem/1.4 var(--font-dm), sans-serif;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"]) {
+    border-bottom-color: #c4a76d;
+    background: transparent;
+    color: #e9e5dc;
+  }
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    border-bottom-color: #c4a76d;
+    background: transparent;
+    color: #e9e5dc;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #c4a76d;
+    outline-offset: 3px;
+  }
+
+  &:is(:disabled, [aria-disabled="true"]) {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+}
+
+.mq-app-shell[class] :is(.eq-tab, .mq-play-button)::before,
+.mq-app-shell[class] .eq-tab::after,
+.mq-app-shell[class] .mq-play-button > i { display: none; }
+.mq-app-shell[class] .mq-play-button { clip-path: none; }

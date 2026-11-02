@@ -33,9 +33,8 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const visible = filterInventory(items, category, query, universe, showEmpty, sort);
   const selected = visible.find((item) => item.key === selectedKey) ?? visible[0];
-  const slots = Math.max(40, Math.ceil(visible.length / 10) * 10);
   return <section className="inventory" aria-label="Objets et matériaux">
-    <div className="inventory-heading"><div><h2>Objets & matériaux</h2><p>Tout ce qu’il te faut pour progresser.</p></div><span className="inventory-stock">◇ {number.format(balance)} Ryō</span></div>
+    <div className="inventory-heading"><span className="inventory-stock">◇ {number.format(balance)} Ryō</span></div>
     <div className="inventory-tabs" role="group" aria-label="Catégorie d’objet">
       {INVENTORY_CATEGORIES.map((tab) => <button key={tab} type="button" aria-pressed={category === tab} onClick={() => setCategory(tab)}>{tab}</button>)}
     </div>
@@ -51,9 +50,8 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
           {visible.map((item) => <button type="button" key={item.key} className="inventory-slot" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls="inventory-detail" aria-label={`${item.name}, ${number.format(item.quantity)} en stock${item.equippedBy ? `, équipé sur ${item.equippedBy.name}` : ""}`} title={`${item.name}${item.equippedBy ? ` · Équipé sur ${item.equippedBy.name}` : ` · ${number.format(item.quantity)}`}`} onClick={() => setSelectedKey(item.key)}>
             <ItemIcon item={item} size={48} /><span className="inventory-item-name">{item.name}</span>{item.equippedBy && <span className="inventory-equipped-badge" title={`Équipé sur ${item.equippedBy.name}`}>✓ {item.equippedBy.name}</span>}<span className="inventory-quantity">×{number.format(item.quantity)}</span>
           </button>)}
-          {Array.from({ length: slots - visible.length }, (_, i) => <span key={`empty-${i}`} className="inventory-slot inventory-slot-empty" aria-hidden="true" />)}
         </div> : <div className="inventory-empty"><h3>{category === "Consommables" ? "Aucun consommable pour le moment" : "Aucun objet à afficher"}</h3><p>{query || universe ? "Essaie un autre nom ou un autre univers." : "Tes prochains butins apparaîtront ici. Tu peux aussi afficher les objets non possédés."}</p><Link href="/histoire">Explorer l’histoire</Link></div>}
-        <p className="inventory-hint">Sélectionne une case pour voir sa provenance et ses utilisations.</p>
+        <p className="inventory-hint">Sélectionne un objet pour voir sa provenance et ses utilisations.</p>
       </div>
       <aside className="inventory-detail" style={selected?.artifact ? { borderColor: artifactRarity(selected.artifact.rarity).color } : undefined} id="inventory-detail" aria-label="Détails de l’objet">
         {selected ? <><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={128} /></div>

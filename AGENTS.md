@@ -23,6 +23,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Browser scripts must also set navigation and interaction deadlines (15 seconds each), close their browser in `finally`, and use a process timeout for the whole suite. Avoid waiting for `networkidle` on the development server; wait for the relevant visible UI instead.
 - Keep server startup checks bounded (15 seconds). A persistent development server is the only intentional long-running process; redirect its output to a log and probe it separately with `curl --connect-timeout 2 --max-time 5`.
 
+## Style des boutons
+
+- Tous les boutons d’action textuels et onglets suivent `src/app/controls.css` : fond transparent, aucun encadré rectangulaire, soulignement doré au survol ou pour l’état actif, focus clavier visible et état désactivé distinct.
+- Réutiliser les classes partagées existantes ou `ui-button` pour les nouveaux boutons et liens d’action. Ne pas recréer de boutons pleins ou encadrés dans une feuille locale.
+- Les cartes et objets sélectionnables conservent leur présentation visuelle de contenu ; les champs de saisie restent identifiables comme champs.
+
 ## Vérification sur le site
 
 - Pour chaque fonctionnalité développée, vérifier dans le navigateur sur le site en cours d’exécution que le parcours utilisateur fonctionne réellement et que les changements sont visibles. Les tests automatisés, le typecheck et le lint ne suffisent pas.
