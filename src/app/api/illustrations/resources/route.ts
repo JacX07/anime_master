@@ -1,6 +1,7 @@
 import { access, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { ART_DIR, readArt, validArtKey } from "@/lib/art-files";
+import { publishedResources } from "@/lib/published-art";
 async function files(directory: string) {
   try { return await readdir(directory); }
   catch (error) {
@@ -9,10 +10,11 @@ async function files(directory: string) {
   }
 }
 export async function GET() {
-  const sources: Record<string, string> = {};
+  const sources: Record<string, string> = publishedResources();
+  if (process.env.NODE_ENV === "production") return Response.json(sources, { headers: { "Cache-Control": "no-store" } });
   const [items, custom] = await Promise.all([files(join(process.cwd(), "public", "items")), files(ART_DIR)]);
   for (const file of items) {
-    if (/^[a-z0-9]+(?:-[a-z0-9]+)*\.svg$/.test(file)) sources[file.slice(0, -4)] = `/items/${file}`;
+    if (/^[a-z0-9]+(?:-[a-z0-9]+)*\.svg$/.test(file)) sources[file.slice(0, -4)] ??= `/items/${file}`;
   }
   await Promise.all(custom.filter((file) => file.startsWith("resource-") && file.endsWith(".json")).map(async (file) => {
     const key = file.slice(0, -5);

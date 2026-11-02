@@ -10,6 +10,7 @@ import { Editor, type ArtItem } from "./Editor";
 
 export const metadata = { title: "Illustrations — Anime Masters", robots: { index: false } };
 export default function IllustrationsPage() {
+  if (process.env.NODE_ENV !== "development") notFound();
   return <main className="vt art-page"><div className="vt-inner">
     <header className="art-page-heading"><h1 className="vt-title">Illustrations</h1><p className="vt-sub">Donne à chaque carte son illustration. Sélectionne un élément, puis importe ton image.</p></header>
     <Suspense fallback={<p>Chargement des illustrations…</p>}><Catalog /></Suspense>

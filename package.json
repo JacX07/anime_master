@@ -65,7 +65,8 @@
     "check:content-sync": "tsx scripts/check-content-sync.ts",
     "check": "tsx scripts/run-checks.ts",
     "production:publish": "tsx scripts/publish-production.ts",
-    "check:publication": "tsx scripts/check-publication.ts"
+    "check:publication": "tsx scripts/check-publication.ts",
+    "art:export": "tsx scripts/export-illustrations.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

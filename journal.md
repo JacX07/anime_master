@@ -156,14 +156,17 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Contournement local : copie sans écrasement des 74 fichiers (environ 9 Mo) depuis anime_master/data/illustrations vers le worktree Postgres ; stockage persistant encore à traiter avant Vercel.
 - Occurrences : 1.
 - Validation : après copie locale, les images du booster chargent dans le navigateur. Le problème Vercel reste ouvert.
-- Statut : contourné en local, ouvert pour Vercel.
+- Correctif Vercel : export validé des images vers public/illustrations avec noms SHA-256 et manifeste versionné ; redirection des anciennes URLs, ressources sans lecture de data en production, éditeur et écritures bloqués hors développement.
+- Piège de vérification : un refus notFound dans le contenu suspendu peut envoyer d’abord une réponse HTTP 200 et le squelette de l’éditeur ; placer le refus de production au début de la page.
+- Validation : 37 images exportées (63 références avec les SVG), tests des signatures/empreintes et du rejeu de l’export, refus des chemins invalides. Build de production réussi ; ancienne URL redirigée (307) vers un fichier image 200 et cache immutable ; catalogue de 39 ressources disponible pendant le retrait temporaire du dossier local (rétabli ensuite). Navigateur : images chargées, page éditeur 404, POST et DELETE 403 avec session connectée.
+- Statut : corrigé sur migration/postgres ; déploiement Vercel non effectué.
 
 ## 2026-11-02 — Navigation débordante sur mobile
 
 - Symptôme : test navigateur Supabase dev à 390 × 844 ; la navigation principale dépasse la largeur et le bouton JOUER est hors écran.
 - Contexte : écran /combat ; contenu principal lisible mais barre supérieure non adaptée à cette largeur.
 - Cause : les styles imposaient une navigation de 760 à 850 px dans une barre mobile, avec logo et compte fixes.
-- Correctif : navigation partagée repliable sous 980 px, liens secondaires visibles au toucher, fermeture après choix ou avec Échap et retour du focus au bouton. Styles regroupés dans reference.css ; barre desktop conservée.
-- Validation : navigateur connecté et invité, largeurs 320, 390, 768 et 1280 px ; liens du compte dans l’écran, ouverture de Jouer, navigation vers Squads, fermeture automatique et clavier. TypeScript et lint ciblé réussis.
+- Correctif : navigation partagée repliable sous 1 100 px, liens secondaires visibles au toucher, fermeture après choix ou avec Échap et retour du focus au bouton. Styles regroupés dans reference.css ; barre desktop conservée.
+- Validation : navigateur connecté et invité, largeurs 320, 390, 768, 1024 et 1280 px ; liens du compte dans l’écran, ouverture de Jouer, navigation vers Squads, fermeture automatique et clavier. TypeScript et lint ciblé réussis.
 - Occurrences : 1.
 - Statut : corrigé sur migration/postgres.

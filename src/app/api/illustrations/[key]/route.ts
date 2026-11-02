@@ -3,14 +3,21 @@ import { join } from "node:path";
 import { ART_DIR, imageMime, readArt, saveArt, validArtKey } from "@/lib/art-files";
 import { canEditArt } from "@/lib/art-editor";
 import { prisma } from "@/lib/db";
+import { publishedArtUrl } from "@/lib/published-art";
 
 type Context = { params: Promise<{ key: string }> };
+
+function publishedImage(key: string) {
+  const url = publishedArtUrl(key);
+  return url ? new Response(null, { status: 307, headers: { Location: url, "Cache-Control": "no-store" } }) : new Response(null, { status: 404 });
+}
 
 export async function GET(_request: Request, { params }: Context) {
   const { key } = await params;
   if (!validArtKey(key)) return new Response(null, { status: 404 });
+  if (process.env.NODE_ENV === "production") return publishedImage(key);
   const record = await readArt(key);
-  if (!record) return new Response(null, { status: 404 });
+  if (!record) return publishedImage(key);
   const bytes = await readFile(join(ART_DIR, record.file));
   return new Response(new Uint8Array(bytes), { headers: {
     "Content-Type": record.mime, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",

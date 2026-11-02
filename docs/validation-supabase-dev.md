@@ -19,3 +19,9 @@ Application locale : `anime_master-postgres`, branche `migration/postgres`, code
 ## Limites
 
 Le compte de test et ses cinq cartes restent dans dev pour rejouer les vérifications. Aucun compte réel ou donnée prod n’a été modifié. Pas de test sur une adresse publique Vercel, ni de test de charge, de restauration ou de retour arrière. Combat manuel complet, PvP, donjons et autres modes non couverts par ce parcours. Aucun lancement de `production:publish`.
+
+## Correctifs après ce parcours
+
+- Navigation repliable jusqu’à 1 100 px : vérifiée avec et sans session à 320, 390, 768, 1 024 et 1 280 px. Ouverture de Jouer, navigation vers Squads et fermeture avec Échap ; retour du focus au bouton du menu.
+- Illustrations : 37 images versionnées, manifeste comprenant aussi les ressources SVG. Build de production testé localement sur la même base dev : les anciennes URLs redirigent vers les images publiques, même sans data/illustrations. L’éditeur répond HTTP 404 et les deux méthodes d’écriture HTTP 403. Les tests d’export contrôlent signatures, empreintes, chemins invalides et rejeu.
+- Vérifications complémentaires : TypeScript, lint ciblé et build de production réussis. Aucun déploiement Vercel ni accès à la base prod ; les limites concernant les autres modes de jeu restent valables.

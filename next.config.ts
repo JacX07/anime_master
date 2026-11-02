@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   experimental: { agentUpgrade: "security" },
   // PixiJS copié par scripts/vendor-pixi.mjs : le chemin porte la version, le contenu ne change jamais
   async headers() {
-    return [{ source: "/vendor/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }];
+    return ["/vendor/:path*", "/illustrations/:file"].map((source) => ({ source, headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }));
   },
   turbopack: {
     rules: {
