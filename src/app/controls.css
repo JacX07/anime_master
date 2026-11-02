@@ -124,3 +124,45 @@
   .mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before, .mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after,
   .mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before, .mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip):is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after { animation: none; }
 }
+
+/* Barre du haut : même « lueur montante » et même vacillement de bougie que les onglets. */
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)) {
+  position: relative;
+  isolation: isolate;
+  transition: color .22s ease;
+}
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button))::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 58px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px) scaleY(.6);
+  transform-origin: bottom;
+  background: linear-gradient(0deg, #c4a76d38, #c4a76d00 90%);
+  transition: opacity .28s ease, transform .34s cubic-bezier(.22, .8, .35, 1);
+}
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button))::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: #c4a76d;
+  box-shadow: 0 0 10px #c4a76d66;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform .34s cubic-bezier(.22, .8, .35, 1);
+}
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):hover { color: #e9e5dc; }
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):hover::before { opacity: .55; transform: none; }
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):hover::after { transform: scaleX(.4); }
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"]) { color: #d5bb7f; }
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"])::before { opacity: 1; transform: none; animation: tab-candle 2.9s linear infinite; }
+.mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"])::after { transform: scaleX(1); animation: tab-candle-line 2.9s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"])::before, .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"])::after { animation: none; }
+}
