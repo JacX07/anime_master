@@ -35,7 +35,7 @@
 .pk-rates p { margin-top: 0.4rem; line-height: 1.5; }
 
 /* Scène centrale */
-.pk-stage { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; min-height: 34rem; padding: 2rem 1.25rem; border: 1px solid var(--border); border-radius: 7px; background: radial-gradient(circle at 50% 22%, #1f2418, #101312 58%, #0b0e0f); }
+.pk-stage { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; min-height: 34rem; padding: 2rem 1.25rem; border: 1px solid var(--border); border-radius: 7px; background: radial-gradient(circle at 50% 22%, #1f2418, #101312 58%, #0b0e0f); }
 .pk-pack { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 12rem; height: 16.5rem; margin-top: 1.5rem; padding: 1.2rem 0.8rem; overflow: hidden; border: 1px solid var(--gold-dim); border-radius: 9px; background: linear-gradient(160deg, #2b281d, #14130f 60%); box-shadow: 0 28px 60px #000a, 0 0 50px -12px var(--gold); }
 .pk-pack-shine { position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, #ffffff14 48%, transparent 60%); }
 .pk-pack-logo { display: grid; place-items: center; width: 4rem; height: 4.5rem; margin-top: 1rem; border: 1px solid var(--gold); background: #171b1a; color: var(--gold-light); font-family: var(--font-display); font-size: 1.9rem; clip-path: polygon(50% 0, 100% 18%, 92% 83%, 50% 100%, 8% 83%, 0 18%); }
@@ -46,12 +46,18 @@
 .pk-pity { color: var(--gold-light); font-family: var(--font-display); font-size: 1.1rem; }
 .pk-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; width: 100%; max-width: 62rem; }
 .pk-grid[data-lot="10"] { gap: 0.8rem; max-width: 56rem; }
-.pk-grid .flip { cursor: pointer; animation: pk-deal 0.5s cubic-bezier(.2,.8,.3,1) both; animation-delay: calc(0.25s + var(--i, 0) * 0.09s); }
+.pk-grid .flip { cursor: pointer; animation: pk-deal 0.5s cubic-bezier(.2,.8,.3,1) backwards; animation-delay: calc(0.25s + var(--i, 0) * 0.09s); }
 .pk-grid .flip[data-revealed="true"]:hover .flip-inner { transform: rotateY(180deg) translateY(-4px); }
 .pk-grid .flip:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 8px; }
 /* Le halo va sur .flip : un filtre sur .flip-inner aplatit la 3D et la carte ne se retournait plus */
-.pk-grid .flip[data-revealed="true"][data-rarity="SSR"] { filter: drop-shadow(0 0 14px var(--rarity-SSR)); }
-.pk-grid .flip[data-revealed="true"][data-rarity="UR"] { filter: drop-shadow(0 0 18px var(--rarity-UR)); }
+.pk-grid .flip[data-revealed="true"][data-rarity="SSR"] .flip-front { border-radius: 0.6rem; box-shadow: 0 0 26px 6px var(--rarity-SSR), 0 0 60px 8px #f59e0b66; }
+.pk-grid .flip[data-revealed="true"][data-rarity="UR"] .flip-front { border-radius: 0.6rem; box-shadow: 0 0 30px 8px var(--rarity-UR), 0 0 70px 12px #ff3b4a66; }
+.pk-grid .flip[data-revealed="true"][data-rarity="SSR"], .pk-grid .flip[data-revealed="true"][data-rarity="UR"] { animation: pk-pop 0.9s 0.25s cubic-bezier(.2,1.4,.4,1) both; z-index: 2; }
+/* Bordures de rareté épaisses dans la salle des invocations */
+.mq-app-shell .pk-grid .card[data-rarity], .mq-app-shell .pk-detail .card[data-rarity] { border: 3px solid var(--rarity) !important; }
+.mq-app-shell .pk-grid .card[data-rarity="SR"], .mq-app-shell .pk-detail .card[data-rarity="SR"] { border-width: 4px !important; }
+.mq-app-shell .pk-grid .card[data-rarity="SSR"], .mq-app-shell .pk-grid .card[data-rarity="UR"], .mq-app-shell .pk-detail .card[data-rarity="SSR"], .mq-app-shell .pk-detail .card[data-rarity="UR"] { border-width: 5px !important; }
+.mq-app-shell .pk-grid .card[data-rarity="UR"], .mq-app-shell .pk-detail .card[data-rarity="UR"] { border-color: var(--rarity-UR) !important; background: var(--panel); }
 .card-back span { display: grid; place-items: center; height: 100%; color: #d5bb7f99; font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.2em; }
 
 .pk-controls { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; margin-top: auto; text-align: center; }
@@ -135,12 +141,22 @@
 @keyframes pk-shine { 0%, 100% { transform: translateX(-30%); opacity: 0.6; } 50% { transform: translateX(30%); opacity: 1; } }
 @keyframes pk-glow { 50% { box-shadow: 0 0 0 1px #0008, 0 6px 40px 0 #f1d98aff, inset 0 1px 0 #fff6; } }
 @keyframes pk-sweep { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
-@keyframes pk-pulse { 50% { opacity: 0.7; filter: brightness(1.25); } }
+@keyframes pk-pulse { 50% { opacity: 0.65; } }
+@keyframes pk-pop { 0% { scale: 1; } 40% { scale: 1.16; } 100% { scale: 1; } }
+@keyframes pk-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes pk-spin { to { transform: rotate(1turn); } }
 @media (max-width: 700px) {
   .pk-grid, .pk-grid[data-lot="10"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pk-detail-in { grid-template-columns: 1fr; }
   .pk-detail-stats { grid-template-columns: repeat(2, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pk-pack, .pk-pack-shine, .pk-hint, .pk-grid .flip, .pk-grid .flip[data-hint] .card-back, .mq-app-shell[class] button.pk-open.pk-open, .mq-app-shell[class] button.pk-open.pk-open::after { animation: none; }
+  .pk-pack, .pk-pack-shine, .pk-hint, .pk-grid .flip, .pk-burst, .pk-burst::before, .pk-grid .flip[data-hint] .card-back, .mq-app-shell[class] button.pk-open.pk-open, .mq-app-shell[class] button.pk-open.pk-open::after { animation: none; }
 }
+
+/* Éclat plein scène quand un SSR ou un UR apparaît */
+.pk-burst { position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; animation: pk-flash 1.8s ease-out forwards; background: radial-gradient(circle at 50% 45%, #fff9 0%, color-mix(in srgb, var(--c) 55%, transparent) 28%, transparent 62%); }
+.pk-burst::before { content: ""; position: absolute; left: 50%; top: 45%; width: 220%; aspect-ratio: 1; translate: -50% -50%; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--c) 70%, transparent) 0 6deg, transparent 6deg 18deg); -webkit-mask-image: radial-gradient(circle, #000, transparent 55%); mask-image: radial-gradient(circle, #000, transparent 55%); animation: pk-spin 6s linear infinite; }
+.pk-burst[data-rarity="SSR"] { --c: #f59e0b; }
+.pk-burst[data-rarity="UR"] { --c: #ff3b4a; }
+.pk-burst > b { position: absolute; left: 50%; top: 45%; translate: -50% -50%; font-family: var(--font-display); font-size: clamp(3rem, 9vw, 6rem); letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 30px var(--c), 0 0 70px var(--c); }

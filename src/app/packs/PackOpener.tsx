@@ -48,6 +48,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const [lot, setLot] = useState<LotSize>(5);
   const [pack, setPack] = useState<OpenedPack | null>(null);
   const [revealed, setRevealed] = useState<boolean[]>([]);
+  const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number } | null>(null);
   const [detail, setDetail] = useState<OpenedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -94,7 +95,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
   function reveal(i: number) {
     if (!pack || revealed[i]) return;
-    packAudio.flip(pack.cards[i].rarity);
+    const rarity = pack.cards[i].rarity;
+    packAudio.flip(rarity);
+    if (rarity === "SSR" || rarity === "UR") setBurst({ rarity, key: Date.now() });
     setRevealed((r) => r.map((v, j) => v || j === i));
   }
   function revealAll() {
@@ -102,6 +105,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     pack.cards.forEach((c, i) => {
       if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
     });
+    if (rare) setBurst({ rarity: best as "SSR" | "UR", key: Date.now() });
     setRevealed((r) => r.map(() => true));
   }
   const best = pack ? ORDER.find((x) => pack.cards.some((c) => c.rarity === x)) : undefined;
@@ -179,6 +183,8 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               <strong>{lot} CARTES</strong>
             </div>
           )}
+
+          {burst && <div key={burst.key} className="pk-burst" data-rarity={burst.rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && setBurst(null)}><b>{burst.rarity}</b></div>}
 
           {pack && (
             <div className="pk-cards" data-best={best}>

@@ -87,13 +87,19 @@ class PackAudio {
     const t = ctx.currentTime;
     this.swish(t, 0.14, 2200, 6500, 0.45);
     this.tone(t + 0.07, 190 * (0.95 + Math.random() * 0.1), 0.08, 0.14, "triangle");
-    if (rarity === "SSR") [76, 81, 84].forEach((n, i) => this.tone(t + 0.1 + i * 0.09, midi(n), 0.9, 0.12));
+    if (rarity === "SSR") {
+      this.swish(t, 0.7, 300, 7000, 0.7);
+      this.tone(t + 0.1, midi(40), 1.4, 0.35, "triangle");
+      [72, 76, 79, 84].forEach((n, i) => this.tone(t + 0.35 + i * 0.1, midi(n), 1.6, 0.2));
+    }
     if (rarity === "UR") {
-      [72, 76, 79, 84, 88].forEach((n, i) => {
-        this.tone(t + 0.08 + i * 0.08, midi(n), 1.6, 0.13);
-        this.tone(t + 0.08 + i * 0.08, midi(n + 12), 1.2, 0.05);
+      this.swish(t, 1, 200, 9000, 0.9);
+      this.tone(t + 0.1, midi(34), 2.4, 0.5, "triangle");
+      this.tone(t + 0.1, midi(46), 2, 0.25, "sawtooth");
+      [72, 76, 79, 84, 88, 91].forEach((n, i) => {
+        this.tone(t + 0.5 + i * 0.09, midi(n), 2.4, 0.22);
+        this.tone(t + 0.5 + i * 0.09, midi(n + 12), 1.8, 0.1);
       });
-      this.tone(t, midi(36), 1.8, 0.2, "triangle");
     }
   }
 
