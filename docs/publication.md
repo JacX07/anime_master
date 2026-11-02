@@ -25,7 +25,7 @@ Sans jeton, l'API reste utilisable tant que le dépôt est public, dans les limi
 
 [GitHub réserve la protection des branches privées aux forfaits payants](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches). Pour un dépôt personnel privé, GitHub Pro permettrait d'imposer `Checks`, d'exiger la mise à jour avec la branche cible et d'appliquer la règle aux administrateurs.
 
-Sur GitHub Free privé, **un push direct ou une fusion depuis GitHub contourne cette commande**. Tous les agents doivent donc passer par elle pour publier. Ce n'est pas une protection serveur équivalente à GitHub Pro.
+Sur GitHub Free privé, **un push direct ou une fusion depuis GitHub contourne cette commande**. La publication est réservée à l’utilisateur humain. Les agents ne doivent exécuter ni cette commande (même en aperçu), ni une fusion ou un push vers `production` par un autre moyen ; voir `AGENTS.md`. Ce n'est pas une protection serveur équivalente à GitHub Pro.
 
 ## Périmètre et vérification
 

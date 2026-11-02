@@ -14,6 +14,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Push right after each commit (`git push`), so the remote stays in sync.
 - Keep commit messages short and descriptive. Don't commit secrets (`.env`) or the local database (`data/`).
 
+## Publication réservée à l’utilisateur
+
+- Les agents ne doivent jamais exécuter `npm run production:publish`, même en aperçu ou avec `--apply`, ni appeler directement le script ou un équivalent pour contourner cette interdiction.
+- Les agents ne doivent ni fusionner vers `production`, ni pousser vers cette branche, ni la créer ou la modifier sur le dépôt distant, via Git, GitHub ou une API.
+- La publication vers `production` est réservée à l’utilisateur humain. L’obligation de commit et de push ne permet pas de déroger à cette interdiction : utiliser une branche de travail hors `production`.
+
 ## Command timeouts and resource limits
 
 - Toujours lancer Next, les scripts `check:*`/`tsx` et les builds avec Node 24 (`nvm use 24`, ou le binaire `~/.nvm/versions/node/v24.21.0/bin/node`). Sous Node 20, `better_sqlite3` plante (`ERR_DLOPEN_FAILED`, « Module did not self-register »). Vérifier `node -v` avant de démarrer un serveur.

@@ -128,7 +128,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Limite : un push direct contourne ce contrôle local. GitHub Pro permettrait une protection côté serveur. La visibilité du dépôt reste inchangée.
 - Occurrences : 1.
 - Validation : check dédié réussi (CI rouge/absente/ignorée, erreur API, branches mobiles, aperçu sans écriture, push sur dépôt Git jetable, divergence). TypeScript et lint réussis. Aperçu réel refusé pour main@d72a203 sans CI. Aucun push vers production ni test du site déployé ; hébergement non configuré.
-- Statut : implémenté sur migration/postgres.
+- Décision utilisateur : publication réservée à l’humain ; commande interdite aux agents même en aperçu, ainsi que toute fusion ou tout push vers production.
+- Statut : implémenté sur migration/postgres ; restriction des agents promue en règle dans AGENTS.md le 2026-11-02, sur demande explicite de l’utilisateur.
 
 ## 2026-11-02 — Scripts tsx CommonJS
 
