@@ -58,3 +58,34 @@
 .ambient-toggle[aria-pressed="true"] { color: #e9e5dc; border-bottom-color: #c4a76d; }
 .ambient-toggle:hover { color: #e9e5dc; border-bottom-color: #c4a76d; }
 .ambient-toggle:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+
+/* Artefacts : niveau discret, statistiques illustrées et carte du porteur. */
+.mq-app-shell .gear-item-art { min-height: 38px; background: none; }
+.mq-app-shell .gear-item-art > :is(img, svg) { width: 64px; height: 64px; }
+.mq-app-shell :is(.gear-item-art > span, .artifact-level) {
+  display: inline-grid; place-items: center; min-width: 54px; min-height: 38px;
+  padding: 5px 10px; border-radius: 5px; background: rgb(0 0 0 / 15%); color: #fff; font-size: 19px; font-weight: 700;
+}
+.mq-app-shell .gear-item-art > span { top: 0; bottom: auto; right: 0; }
+.mq-app-shell .gear-item { gap: 12px; padding: 20px; border-radius: 16px; }
+.mq-app-shell .gear-item h4 { font: 500 17px/1.4 var(--font-cinzel), serif; }
+.mq-app-shell .gear-item-body { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: 1; }
+.mq-app-shell .gear-main-stat, .mq-app-shell .gear-item li { display: flex; align-items: center; gap: 7px; }
+.mq-app-shell .gear-main-stat { font-size: 14px; }
+.mq-app-shell .gear-item ul { display: grid; gap: 6px; list-style: none; padding: 0; margin-top: 14px; font-size: 12px; }
+.mq-app-shell :is(.gear-main-stat, .gear-item li, .inventory-detail dt) > .i { width: 21px; height: 21px; flex-shrink: 0; color: #d5bb7f; }
+.mq-app-shell .gear-item-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.mq-app-shell .gear-item-actions > button { min-width: 125px; }
+.mq-app-shell .artifact-owner-card { flex-shrink: 0; width: 94px; margin: 0; overflow: hidden; border: 1px solid var(--rarity-UR) !important; border-radius: 7px; background: #101412; }
+.mq-app-shell .artifact-owner-card[data-rarity="N"] { border-color: var(--rarity-N) !important; }
+.mq-app-shell .artifact-owner-card[data-rarity="R"] { border-color: var(--rarity-R) !important; }
+.mq-app-shell .artifact-owner-card[data-rarity="SR"] { border-color: var(--rarity-SR) !important; }
+.mq-app-shell .artifact-owner-card[data-rarity="SSR"] { border-color: var(--rarity-SSR) !important; }
+.mq-app-shell .artifact-owner-card img { display: block; width: 100%; height: 126px; object-fit: cover; }
+.mq-app-shell .artifact-owner-card figcaption { padding: 8px; text-align: center; }
+.mq-app-shell .artifact-owner-card b { display: block; font: 500 14px/1.4 var(--font-cinzel), serif; color: #e9e5dc; }
+.mq-app-shell .artifact-owner-card figcaption span { display: block; margin-top: 4px; font-size: 10px; color: #d5bb7f; }
+.mq-app-shell .inventory-detail dt:has(.i) { display: flex; align-items: center; gap: 7px; }
+@media (max-width: 700px) { .mq-app-shell .gear-item-grid { grid-template-columns: 1fr; } }
+
+@media (max-width: 550px) { .mq-app-shell .gear-item-actions > button { min-width: 105px; padding-inline: 15px; } }

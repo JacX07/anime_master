@@ -7,11 +7,12 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ArtifactOwner } from "@/components/ArtifactOwner";
 import { ResourceArt } from "@/components/ResourceArt";
 import { Icon } from "@/components/icons";
 import { INVENTORY_CATEGORIES, filterInventory, type InventoryCategory, type InventoryItem } from "@/lib/inventory";
 import { UNIVERSES } from "@/lib/story";
-import { artifactSubstatUpgrades, artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
+import { artifactSubstatUpgrades, artifactRarity, artifactStatIcon, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
 import { equipArtifactAction } from "@/app/battle-actions";
 import { PageHeading } from "@/components/mq/PageHeading";
 
@@ -56,10 +57,10 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
       {selected && <aside className="inventory-detail" style={selected.artifact ? { borderColor: artifactRarity(selected.artifact.rarity).color } : undefined} id="inventory-detail" aria-label="Détails de l’objet">
         {selected ? <><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={128} /></div>
           <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}{selected.artifact && <> · <span style={{ color: artifactRarity(selected.artifact.rarity).color }}>{artifactRarity(selected.artifact.rarity).label}</span></>}</p><h3>{selected.name}</h3>
-          <p className="inventory-description">{selected.description}</p>
-          {selected.equippedBy && <p className="inventory-equipped-owner">✓ Équipé sur <b>{selected.equippedBy.name}</b></p>}
+          {!selected.artifact && <p className="inventory-description">{selected.description}</p>}
+          {selected.artifact?.equippedCard ? <ArtifactOwner character={selected.artifact.equippedCard.character} /> : selected.equippedBy && <p className="inventory-equipped-owner">✓ Équipé sur <b>{selected.equippedBy.name}</b></p>}
           <dl><div><dt>{selected.artifact ? "Rareté" : "En stock"}</dt><dd>{selected.artifact ? artifactRarity(selected.artifact.rarity).label : number.format(selected.quantity)}</dd></div><div><dt>Provenance</dt><dd>{selected.source}</dd></div>
-            {selected.artifact && <><div><dt>Niveau</dt><dd>{selected.artifact.level}</dd></div><div className="inventory-main-stat"><dt><strong>{artifactStatLabel(selected.artifact.mainStat)}</strong></dt><dd><strong>{artifactStatValue(selected.artifact.mainStat, selected.artifact.mainValue)}</strong></dd></div>{selected.artifact.subStats.map((stat, index) => <div key={`${stat.stat}-${index}`}><dt>{artifactStatLabel(stat.stat)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</dt><dd>{artifactStatValue(stat.stat, stat.value)}</dd></div>)}</>}
+            {selected.artifact && <><div><dt>Niveau</dt><dd><span className="artifact-level">+{selected.artifact.level}</span></dd></div><div className="inventory-main-stat"><dt><Icon name={artifactStatIcon(selected.artifact.mainStat)} /><strong>{artifactStatLabel(selected.artifact.mainStat)}</strong></dt><dd><strong>{artifactStatValue(selected.artifact.mainStat, selected.artifact.mainValue)}</strong></dd></div>{selected.artifact.subStats.map((stat, index) => <div key={`${stat.stat}-${index}`}><dt><Icon name={artifactStatIcon(stat.stat)} />{artifactStatLabel(stat.stat)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</dt><dd>{artifactStatValue(stat.stat, stat.value)}</dd></div>)}</>}
           </dl>
           {selected.artifact && <label className="inventory-equip">Carte équipée<select disabled={pending} value={selected.artifact.equippedCard?.id ?? ""} onChange={(event) => {
             const cardId = event.target.value || null;
@@ -80,9 +81,10 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
               try {
                 const result = await upgradeArtifactAction(selected.artifact!.id, selected.artifact!.level);
                 if (!result.ok) setError(result.error);
+                else router.refresh();
               } catch { setError("L’amélioration a échoué, réessaie."); }
             });
-          }}>{selected.artifact.level >= ARTIFACT_MAX_LEVEL ? "Niveau maximum +16" : `Améliorer · ${artifactUpgradeCost(selected.artifact.rarity, selected.artifact.level).toLocaleString("fr-FR")} Ryō`}</button>}
+          }}>{selected.artifact.level >= ARTIFACT_MAX_LEVEL ? "Niveau maximum +16" : "Améliorer"}</button>}
           {error && <p role="alert" className="hs-error">{error}</p>}
           <div className="inventory-actions">{selected.links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}</div>
         </> : <div className="inventory-detail-placeholder"><span aria-hidden="true">◇</span><p>Sélectionne un objet pour découvrir ses détails.</p></div>}

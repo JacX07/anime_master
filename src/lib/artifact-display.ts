@@ -32,3 +32,5 @@ export function artifactSubstatUpgrades(sub: { stat: string; value: number }) {
   const base = ARTIFACT_SUBSTAT_BASE[sub.stat];
   return base && sub.value > 0 ? Math.max(0, Math.ceil(Math.log2(sub.value / base) - 1e-8)) : 0;
 }
+
+export const artifactStatIcon = (stat: string) => ({ speed: "speed", crit: "eveil", critDamage: "eveil", defense: "def", flatDefense: "def", hp: "hp", flatHp: "hp", attack: "atk", flatAttack: "atk", magicSkill: "magie", dodge: "aventure" }[stat] ?? "puissance");

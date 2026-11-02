@@ -490,7 +490,7 @@ export async function getDungeonState(userId: string) {
 
 export async function getArtifactInventory(userId: string) {
   const [artifacts, cards] = await Promise.all([
-    prisma.artifact.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, include: { equippedCard: { select: { id: true, character: { select: { name: true } } } } } }),
+    prisma.artifact.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, include: { equippedCard: { select: { id: true, character: { select: { name: true, imageUrl: true, rarity: true } } } } } }),
     prisma.card.findMany({ where: { ownerId: userId }, orderBy: [{ character: { rarity: "desc" } }, { serial: "desc" }], select: { id: true, serial: true, character: { select: { name: true } } } }),
   ]);
   return { artifacts, cards };

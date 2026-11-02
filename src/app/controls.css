@@ -150,3 +150,37 @@
 .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):hover::after { transform: scaleX(.5); }
 .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"]) { color: #d5bb7f; }
 .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"])::after { transform: scaleX(1); }
+
+/* Actions validées : silhouette de Jouer, or translucide uni, sans icône. */
+.mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]), .site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a, .inventory-empty a, .quest-more, .forge-form button) {
+  position: relative;
+  isolation: isolate;
+  min-height: 44px;
+  padding: 9px 22px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #edd49a;
+  font: 600 12px/1.5 var(--font-cinzel), serif;
+  letter-spacing: .05em;
+  filter: drop-shadow(0 4px 3px #0008);
+  transition: transform .18s ease;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    background: rgb(205 170 99 / 21%);
+    pointer-events: none;
+  }
+  &:hover:not(:disabled):not([aria-disabled="true"]) { background: none; color: #f5dfac; transform: translateY(-2px); }
+  &:hover:not(:disabled):not([aria-disabled="true"])::before { background: rgb(205 170 99 / 29%); }
+  &:active:not(:disabled) { transform: translateY(1px); }
+  &:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+  &:is(:disabled, [aria-disabled="true"]) { opacity: .4; filter: none; }
+  & > .i { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .vt-btn, .bt-btn) { transition: none; transform: none; }
+}

@@ -29,7 +29,7 @@ export type InventoryItem = {
     mainValue: number;
     subStats: { stat: string; value: number }[];
     level: number;
-    equippedCard: { id: string; character: { name: string } } | null;
+    equippedCard: { id: string; character: { name: string; imageUrl: string; rarity: Rarity } } | null;
   };
 };
 

@@ -1,13 +1,15 @@
 "use client";
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { Icon } from "@/components/icons";
+import { ArtifactOwner } from "@/components/ArtifactOwner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { equipArtifactAction } from "@/app/battle-actions";
 import { upgradeArtifactAction } from "@/app/artifact-actions";
 import { ARTIFACT_SLOTS, SLOT_NAMES } from "@/lib/dungeons";
-import { artifactSubstatUpgrades, artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
-import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost, upgradedMainValue } from "@/lib/artifact-upgrade";
+import { artifactSubstatUpgrades, artifactRarity, artifactStatIcon, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
+import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost } from "@/lib/artifact-upgrade";
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 
@@ -66,12 +68,12 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
           return <article key={item.key} className="gear-item" data-rarity={artifact.rarity}>
             <div className="gear-item-art">{item.image ? <Image src={item.image} width={96} height={96} alt="" /> : <SlotIcon slot={slot} />}<span>+{artifact.level}</span></div>
             <p className="gear-rarity">{artifactRarity(artifact.rarity).label}</p><h4>{item.name}</h4>
-            <p className="gear-main-stat"><strong>{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</strong></p>
-            <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}>{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</li>)}</ul>
-            <p className="gear-owner">{worn ? `Équipé sur ${card.name}` : artifact.equippedCard ? `Porté par ${artifact.equippedCard.character.name}` : "Disponible"}</p>
+            <div className="gear-item-body"><div><p className="gear-main-stat"><Icon name={artifactStatIcon(artifact.mainStat)} /><strong>{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</strong></p>
+            <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}><Icon name={artifactStatIcon(stat.stat)} />{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</li>)}</ul>
+            </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
+            <div className="gear-item-actions">
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
-            {!max && <p className="gear-preview">Au niveau +{artifact.level + 1} : {artifactStatValue(artifact.mainStat, upgradedMainValue(artifact.mainValue, artifact.level))} {artifactStatLabel(artifact.mainStat)}</p>}
-            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button>
+            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : "Améliorer"}</button></div>
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
           </article>;
         })}</div>
