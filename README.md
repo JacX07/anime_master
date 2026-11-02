@@ -24,6 +24,19 @@ npm run db:migrate     # crée la base SQLite locale (data/app.db)
 
 ## Dev ou prod
 
+### Lancer le serveur de dev
+
+```bash
+nvm use 24
+npm run dev            # http://localhost:3000, Ctrl+C pour arrêter
+```
+
+Si une page plante avec une erreur `better_sqlite3` (le shell est resté sur Node 20) :
+
+```bash
+~/.nvm/versions/node/v24.21.0/bin/node node_modules/next/dist/bin/next dev
+```
+
 - **Dev** (`npm run dev`, port 3000) : compile chaque page à la demande et recompile à chaque modification (hot reload). Lent, gourmand en CPU, erreurs détaillées. Sert pendant qu'on code. L'arrêter quand on ne s'en sert pas (`Ctrl+C`, ou `pkill -f "next dev"; pkill -f next-server`).
 - **Prod** (`npm run build` puis `npx next start`) : tout est compilé et optimisé une fois (build ≈ 3 min), ensuite c'est rapide et léger. Le code modifié n'apparaît qu'après un nouveau build. Sert à tester l'expérience joueur.
 
