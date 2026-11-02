@@ -351,5 +351,29 @@
       ],
       "final": true
     }
+  },
+  "126635": {
+    "ultimate": {
+      "name": "Megumi Fushiguro — Déchaînement : Coup de Nue",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.5,
+          "zone": true
+        },
+        {
+          "k": "shield",
+          "pct": 0.2,
+          "to": "team"
+        },
+        {
+          "k": "immune",
+          "turns": 3,
+          "to": "self"
+        }
+      ],
+      "final": true
+    }
   }
 }
