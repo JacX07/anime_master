@@ -230,7 +230,7 @@ class PackAudio {
     feedback.gain.value = 0.45;
     const damp = ctx.createBiquadFilter();
     damp.type = "lowpass";
-    damp.frequency.value = 2200;
+    damp.frequency.value = 1600;
     echo.connect(this.ambience);
     echo.connect(delay);
     delay.connect(damp);
@@ -248,8 +248,8 @@ class PackAudio {
     }
     this.ambience.gain.cancelScheduledValues(ctx.currentTime);
     this.ambience.gain.setTargetAtTime(1, ctx.currentTime, 0.8);
-    // Notes pincées éparses (gamme pentatonique de do), espacées de 1,4 à 3,8 s au hasard
-    const scale = [72, 74, 76, 79, 81, 84];
+    // Notes pincées éparses (gamme pentatonique de do, sol4 à sol5), espacées de 1,4 à 3,8 s au hasard
+    const scale = [67, 69, 72, 74, 76, 79];
     const pluck = (freq: number, dur: number, level: number, type: OscillatorType) => {
       const at = ctx.currentTime;
       const o = ctx.createOscillator();
@@ -267,7 +267,7 @@ class PackAudio {
     const next = () => {
       const f = midi(scale[Math.floor(Math.random() * scale.length)]);
       pluck(f, 1.6, 0.09, "triangle");
-      pluck(f * 2, 0.6, 0.025, "sine");
+      pluck(f * 2, 0.6, 0.015, "sine");
       timer = window.setTimeout(next, 1400 + Math.random() * 2400);
     };
     timer = window.setTimeout(next, 500);
