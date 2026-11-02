@@ -162,7 +162,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 
 - Symptôme : test navigateur Supabase dev à 390 × 844 ; la navigation principale dépasse la largeur et le bouton JOUER est hors écran.
 - Contexte : écran /combat ; contenu principal lisible mais barre supérieure non adaptée à cette largeur.
-- Cause : à isoler dans les styles de navigation ; pas de modification de mise en page pendant la vérification de connexion Supabase.
-- Correctif : à traiter avant validation mobile de la bêta.
+- Cause : les styles imposaient une navigation de 760 à 850 px dans une barre mobile, avec logo et compte fixes.
+- Correctif : navigation partagée repliable sous 980 px, liens secondaires visibles au toucher, fermeture après choix ou avec Échap et retour du focus au bouton. Styles regroupés dans reference.css ; barre desktop conservée.
+- Validation : navigateur connecté et invité, largeurs 320, 390, 768 et 1280 px ; liens du compte dans l’écran, ouverture de Jouer, navigation vers Squads, fermeture automatique et clavier. TypeScript et lint ciblé réussis.
 - Occurrences : 1.
-- Statut : ouvert.
+- Statut : corrigé sur migration/postgres.

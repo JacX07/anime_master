@@ -12,6 +12,7 @@ import { DailyBonus } from "../DailyBonus";
 import { NotificationBell } from "../NotificationBell";
 import { NavItem } from "./NavItem";
 import { PlayMenu } from "./PlayMenu";
+import { Navigation } from "./Navigation";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -26,6 +27,7 @@ export function SiteHeader() {
           <small>CARD GAME</small>
         </span>
       </Link>
+      <Navigation>
       <nav className="mq-game-nav" aria-label="Navigation principale">
         <div className="mq-nav-side mq-nav-left">
           <NavItem href="/" exact>Accueil</NavItem>
@@ -52,6 +54,7 @@ export function SiteHeader() {
           <NavItem href="/leaderboard">Classement</NavItem>
         </div>
       </nav>
+      </Navigation>
       <div className="mq-header-actions">
         <div className="mq-season-mark">
           <small>SAISON I</small>

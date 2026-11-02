@@ -138,3 +138,38 @@
   .mq-app-shell .gear-detail .artifact-owner-card img { height: 99px; }
   .mq-app-shell .inventory-workspace[data-selected="true"] { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Navigation compacte : tous les liens restent accessibles sans défilement horizontal. */
+.mq-navigation, .mq-navigation-content { display: contents; }
+.mq-app-shell[class] .mq-navigation-toggle[class] { display: none; }
+@media (max-width: 980px) {
+  .mq-app-shell .mq-topbar { overflow: visible; height: 76px; gap: 12px; }
+  .mq-app-shell .mq-brand, .mq-app-shell .mq-header-actions { position: static; background: none; }
+  .mq-app-shell .mq-header-actions { margin-left: auto; gap: 8px; }
+  .mq-app-shell .mq-navigation { display: block; }
+  .mq-app-shell[class] .mq-navigation-toggle[class] { position: relative; display: flex; align-items: center; min-width: 0; min-height: 44px; font: 400 13px/1.5 var(--font-dm), sans-serif; padding: 8px; cursor: pointer; list-style: none; }
+  .mq-navigation-toggle:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+  .mq-app-shell .mq-navigation-content { display: none; position: absolute; inset: 100% 0 auto; max-height: calc(100dvh - 76px); overflow-y: auto; padding: 16px; background: #101514; box-shadow: 0 14px 24px #0006; }
+  .mq-app-shell .mq-navigation[data-open="true"] .mq-navigation-content { display: block; }
+  .mq-app-shell .mq-game-nav { min-width: 0; width: 100%; margin: 0; grid-template-columns: minmax(0, 1fr); gap: 12px !important; }
+  .mq-app-shell .mq-nav-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 4px 12px; }
+  .mq-app-shell .mq-game-nav .mq-nav-side > :is(a, button),
+  .mq-app-shell .mq-game-nav .mq-nav-dropdown > :is(a, button) { min-height: 44px; height: auto; justify-content: flex-start; font-size: 13px; }
+  .mq-app-shell .mq-game-nav .mq-dropdown-panel { position: static; width: auto; padding: 0 8px; opacity: 1; visibility: visible; transform: none; box-shadow: none; background: none; backdrop-filter: none; }
+  .mq-app-shell .mq-game-nav .mq-dropdown-panel a { min-height: 44px; align-items: center; font-size: 12px; }
+  .mq-app-shell .mq-game-nav .mq-play-button { width: 100%; min-height: 44px; }
+  .mq-app-shell .mq-header-cta { padding-inline: 8px; }
+  .mq-app-shell .mq-header-link { font-size: 12px; }
+  .mq-app-shell .mq-player .mq-avatar { width: 44px; height: 44px; }
+  .mq-app-shell .mq-play-overlay { inset-block-start: 76px; }
+}
+
+.mq-app-shell[class] .mq-navigation-toggle::before { display: none; }
+.mq-app-shell[class] .mq-navigation-toggle::after { content: ""; position: absolute; inset: auto 8px 0; height: 2px; background: #c4a76d; transform: scaleX(0); }
+.mq-app-shell[class] .mq-navigation-toggle:is(:hover, [aria-expanded="true"])::after { transform: scaleX(1); }
+
+@media (max-width: 500px) {
+  .mq-app-shell[class] .mq-header-actions > :is(.mq-header-link, .mq-header-cta) { padding: 8px 4px; min-height: 44px; font-size: 11px; }
+}
+
+.mq-app-shell[class] .mq-navigation-toggle[class] { position: relative; min-width: 0; padding: 8px; font: 400 13px/1.5 var(--font-dm), sans-serif; }
