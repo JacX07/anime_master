@@ -16,6 +16,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Command timeouts and resource limits
 
+- Toujours lancer Next, les scripts `check:*`/`tsx` et les builds avec Node 24 (`nvm use 24`, ou le binaire `~/.nvm/versions/node/v24.21.0/bin/node`). Sous Node 20, `better_sqlite3` plante (`ERR_DLOPEN_FAILED`, « Module did not self-register »). Vérifier `node -v` avant de démarrer un serveur.
+
 - `yield_time_ms` only controls when tool output is returned; it is not a process timeout.
 - Wrap diagnostic commands in `timeout --kill-after=2s 15s`, checks and browser test scripts in `timeout --kill-after=5s 60s`, and builds in `timeout --kill-after=5s 180s`. Report exit code 124 (deadline) or 137 (forced kill); do not retry unchanged indefinitely.
 - `npm run build` enforces the build deadline itself. This project uses GNU `timeout` in its Linux/WSL development environment.
