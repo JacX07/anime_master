@@ -26,10 +26,10 @@ async function Cards() {
   const units = stock.filter((s) => WEAPON_RESOURCE_KEYS.includes(s.key)).reduce((n, s) => n + s.quantity, 0);
   const hearts = stock.find((s) => s.key === RAID_RESOURCE)?.quantity ?? 0;
   return <><p>Stock : {units} ressources de boss final · {hearts} cœurs de brèche.</p>
-    {!cards.length && <p>Aucune carte 5★. Passe par l’éveil pour préparer ta première arme.</p>}
+    {!cards.length && <p className="identity-panel">Aucune carte 5★. Passe par l’éveil pour préparer ta première arme.</p>}
     {cards.map((card) => {
       const def = WEAPONS.find((w) => w.type === card.character.type)!;
-      return <article key={card.id} style={{ marginBlock: "1.5rem" }}>
+      return <article className="forge-card" key={card.id} style={{ marginBlock: "1.5rem" }}>
         <h2>{card.character.name} · #{card.serial}</h2>
         <p><ResourceArt resource={def.key} size={56} />{def.name} · {def.passive}</p>
         {card.weaponKey ? <p>Arme équipée</p> : <ForgeForm cardId={card.id} disabled={card.inAuction || card.inExpedition || units < WEAPON_RECIPE.weaponUnits || hearts < WEAPON_RECIPE.hearts} />}

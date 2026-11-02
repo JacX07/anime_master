@@ -10,6 +10,7 @@ import "./globals.css";
 import "./maquette.css";
 import "./controls.css";
 import "./reference.css";
+import "./identity.css";
 
 // Les deux polices du jeu (direction « Citadelle sombre ») : Cinzel pour le logo, les titres et les gros chiffres, DM Sans pour l'interface
 const cinzel = Cinzel({ variable: "--font-cinzel", weight: ["500", "600", "700"], subsets: ["latin"] });

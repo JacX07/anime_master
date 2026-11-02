@@ -1,0 +1,176 @@
+/* Identité « filets cassants » : 1 px, angles ouverts et or intermittent.
+   Décors uniquement : les cadres de rareté et les surfaces de jeu gardent leurs couleurs.
+   Fonds CSS plutôt que bordures : reference.css retire les bordures globalement. */
+.mq-app-shell {
+  --identity-gold: #c4a76d;
+  --identity-dim: #655331;
+  --identity-line: linear-gradient(90deg, #655331, #c4a76d 36%, #6c5b39 74%, transparent);
+  --identity-upright: linear-gradient(0deg, transparent, #6e5c39 35%, #b99e61);
+  --identity-corners:
+    var(--identity-line) left 11px top / 45px 1px no-repeat,
+    linear-gradient(135deg, transparent 44%, #b69a61 47% 54%, transparent 57%) left top / 11px 11px no-repeat,
+    var(--identity-upright) left top 11px / 1px 23px no-repeat,
+    linear-gradient(#8d7547, #8d7547) left 4px top 42px / 1px 8px no-repeat,
+    var(--identity-line) right 12px bottom / 30px 1px no-repeat,
+    linear-gradient(135deg, transparent 44%, #a58a55 47% 54%, transparent 57%) right bottom / 12px 12px no-repeat,
+    var(--identity-upright) right bottom 12px / 1px 15px no-repeat;
+}
+
+.mq-app-shell[class] .mq-page :is(.mq-achievements-panel, .mq-summon-panel, .mq-booster-stage,
+.pk-stage, .pk-panel, .pk-detail,
+.squad-summary, .squad-stage, .squad-modal,
+.mq-inventory-item, .inventory-detail, .inv-item, .inventory-empty,
+.album-toolbar, .mq-detail-panel, .mq-profile-stats, .pf-edit,
+.ach-grid > li, .pf-ach > li,
+.market-filters, .auction-card, .auction-detail, .trade-card, .trade-new,
+.quest-identity, .quest-next, .quest-recommendations > a, .quest-modes > a, .quest-list > li,
+.rank-list, .notif-list > li,
+.rd-boss, .rd-diff,
+.dg-summary, .dg-rules, .dg-owned, .dg-armory, .dg-level,
+.hs-map, .hs-team, .hs-result,
+.exp-breaches > button, .exp-open > li, .exp-lock,
+.forge-card, .identity-panel):not(dialog) {
+  position: relative;
+}
+.mq-app-shell[class] .mq-page :is(.mq-achievements-panel, .mq-summon-panel, .mq-booster-stage,
+.pk-stage, .pk-panel, .pk-detail,
+.squad-summary, .squad-stage, .squad-modal,
+.mq-inventory-item, .inventory-detail, .inv-item, .inventory-empty,
+.album-toolbar, .mq-detail-panel, .mq-profile-stats, .pf-edit,
+.ach-grid > li, .pf-ach > li,
+.market-filters, .auction-card, .auction-detail, .trade-card, .trade-new,
+.quest-identity, .quest-next, .quest-recommendations > a, .quest-modes > a, .quest-list > li,
+.rank-list, .notif-list > li,
+.rd-boss, .rd-diff,
+.dg-summary, .dg-rules, .dg-owned, .dg-armory, .dg-level,
+.hs-map, .hs-team, .hs-result,
+.exp-breaches > button, .exp-open > li, .exp-lock,
+.forge-card, .identity-panel)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  z-index: 2;
+  border-radius: 3px;
+  background: var(--identity-corners);
+  opacity: .7;
+  transform: none;
+  pointer-events: none;
+}
+
+/* Alternance des coins pour éviter un quadrillage répétitif. */
+.mq-app-shell[class] .mq-page :is(.squad-summary:nth-child(even), .mq-inventory-item:nth-child(even), .quest-modes > a:nth-child(even), .dg-level:nth-child(even)) {
+  --identity-corners:
+    var(--identity-line) right 10px top / 28px 1px no-repeat,
+    linear-gradient(45deg, transparent 44%, #9e8553 47% 54%, transparent 57%) right top / 10px 10px no-repeat,
+    var(--identity-upright) right top 10px / 1px 19px no-repeat,
+    var(--identity-line) left 10px bottom / 24px 1px no-repeat,
+    linear-gradient(45deg, transparent 44%, #887244 47% 54%, transparent 57%) left bottom / 10px 10px no-repeat;
+}
+.mq-app-shell[class] .mq-page :is(.pk-stage, .squad-stage, .inventory-detail, .dg-summary, .forge-card, .identity-panel) {
+  --identity-corners:
+    var(--identity-line) left 13px top / 76px 1px no-repeat,
+    linear-gradient(135deg, transparent 44%, #c4a76d 47% 54%, transparent 57%) left top / 13px 13px no-repeat,
+    var(--identity-upright) left top 13px / 1px 32px no-repeat,
+    linear-gradient(#8d7547, #8d7547) left 4px top 54px / 1px 9px no-repeat,
+    var(--identity-line) right 14px bottom / 56px 1px no-repeat,
+    linear-gradient(135deg, transparent 44%, #a58a55 47% 54%, transparent 57%) right bottom / 14px 14px no-repeat,
+    var(--identity-upright) right bottom 14px / 1px 26px no-repeat;
+}
+.mq-app-shell[class] .mq-page :is(.squad-summary, .mq-inventory-item, .inv-item, .auction-card, .dg-level, .quest-list > li)::after { opacity: .4; }
+.mq-app-shell[class] .mq-page :is(.squad-summary[aria-pressed="true"], .mq-inventory-item[aria-pressed="true"], .notif-list > li.unread)::after { opacity: 1; }
+.mq-app-shell[class] .mq-page :is(.squad-summary:hover, .mq-inventory-item:hover, .auction-card:hover)::after { opacity: .85; }
+
+/* Les bannières gardent leur illustration ; l'or marque le choix. */
+.mq-app-shell[class] .mq-page .pk-banner { position: relative; }
+.mq-app-shell[class] .mq-page .pk-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    var(--identity-line) left 10px top / 50px 1px no-repeat,
+    linear-gradient(135deg, transparent 44%, #c4a76d 47% 54%, transparent 57%) left top / 10px 10px no-repeat,
+    var(--identity-upright) left top 10px / 1px 20px no-repeat,
+    var(--identity-line) right 9px bottom / 22px 1px no-repeat,
+    linear-gradient(135deg, transparent 44%, #a58a55 47% 54%, transparent 57%) right bottom / 9px 9px no-repeat;
+  opacity: .25;
+  pointer-events: none;
+}
+.mq-app-shell[class] .mq-page .pk-banner:is(:hover, [data-active="true"])::after { opacity: 1; }
+
+/* Actions : fond existant, coins fins cassants, pas d'ombre ajoutée. */
+.mq-app-shell[class] .mq-page :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target,
+.pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]),
+.site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a,
+.inventory-empty a, .quest-more, .forge-form button) { border-radius: 3px; filter: none; }
+.mq-app-shell[class] .mq-page :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target,
+.pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]),
+.site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a,
+.inventory-empty a, .quest-more, .forge-form button)::before { border-radius: 3px; box-shadow: none; }
+.mq-app-shell[class] .mq-page :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target,
+.pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]),
+.site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a,
+.inventory-empty a, .quest-more, .forge-form button)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: auto;
+  height: auto;
+  border-radius: 3px;
+  background:
+    var(--identity-line) left 7px top / 65% 1px no-repeat,
+    linear-gradient(135deg, transparent 43%, #c2a369 47% 54%, transparent 58%) left top / 7px 7px no-repeat,
+    linear-gradient(#927c4e, #927c4e) left top 7px / 1px 8px no-repeat,
+    var(--identity-line) right 7px bottom / 22px 1px no-repeat,
+    linear-gradient(135deg, transparent 43%, #a48a55 47% 54%, transparent 58%) right bottom / 7px 7px no-repeat;
+  opacity: .75;
+  transform: none;
+  animation: none;
+  pointer-events: none;
+}
+.mq-app-shell[class] .mq-page :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target,
+.pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]),
+.site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a,
+.inventory-empty a, .quest-more, .forge-form button):hover:not(:disabled)::after { opacity: 1; }
+.mq-app-shell[class] .mq-page :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target,
+.pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]),
+.site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a,
+.inventory-empty a, .quest-more, .forge-form button):is(:disabled, [aria-disabled="true"])::after { opacity: .35; }
+
+/* Champ, tableau et titre : un filet discret, pas un cadre complet. */
+.mq-app-shell[class] .mq-page :is(.inventory-search, .vt-search, .market-filters input, .squad-name input, .squad-create input) {
+  background-image: linear-gradient(90deg, #8e794c, #51452f 35%, transparent 75%);
+  background-size: 100% 1px;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+}
+.mq-app-shell[class] .mq-page :is(.rank-list li, .notif-list li, .cost-row) {
+  background-image: linear-gradient(90deg, #7d693e44, #443b2822 45%, transparent);
+  background-size: 100% 1px;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+}
+.mq-app-shell .mq-page-heading::after {
+  width: 110px;
+  height: 1px;
+  background: var(--identity-line);
+  box-shadow: none;
+}
+/* Le repère de squad précédent laisse la place aux coins partagés. */
+.mq-app-shell .squads-manager[class] .squad-summary::before { content: none; }
+.mq-app-shell[class] .mq-page .forge-card, .mq-app-shell[class] .mq-page .identity-panel { padding: 22px; background-color: #121615; border-radius: 4px; }
+
+/* Les pages plus anciennes utilisent pg-head plutôt que PageHeading. */
+.mq-app-shell .mq-page .pg-head { position: relative; padding-bottom: 18px; }
+.mq-app-shell .mq-page .pg-head::after {
+  content: "";
+  position: absolute;
+  inset: auto auto 0 0;
+  width: 110px;
+  height: 1px;
+  background: var(--identity-line);
+  pointer-events: none;
+}
