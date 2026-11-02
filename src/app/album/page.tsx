@@ -13,6 +13,7 @@ import { AlbumFilters, albumHref } from "./AlbumFilters";
 import { InfiniteList } from "./InfiniteList";
 import { CardItem, World } from "./items";
 import { DuplicateSale } from "./DuplicateSale";
+import "./album.css";
 
 export const metadata: Metadata = { title: "Album — Anime Masters" };
 
@@ -22,7 +23,7 @@ const pct = (a: number, b: number) => (b ? Math.floor((a / b) * 1000) / 10 : 0);
 // Album « vitrine » : même nuit que l'accueil, cartes qui se soulèvent au survol, résumé dans une barre d'état en bas.
 export default function AlbumPage({ searchParams }: PageProps<"/album">) {
   return (
-    <main className="vt">
+    <main className="vt album-page">
       <SceneBody night scroll />
       <Suspense fallback={<p className="vt-inner text-muted">Chargement…</p>}>
         <Album searchParams={searchParams} />
@@ -44,16 +45,23 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
 
   return (
     <>
-      <div className="vt-inner">
-        <header>
-          <h1 className="vt-title">Album</h1>
-          <p className="vt-sub">
-            {num.format(progress.owned)} personnages sur {num.format(progress.total)}
-          </p>
-          <Link href="/album/ur" className="vt-chip mt-3">Galerie UR</Link>
+      <div className="vt-inner album-inner">
+        <header className="mq-page-heading mq-standard-heading album-heading">
+          <div>
+            <p className="mq-eyebrow">Archives des invocateurs</p>
+            <h1 className="mq-collection-title">Ma collection</h1>
+            <p>Toutes tes cartes, leur progression et tes exemplaires.</p>
+          </div>
+          <div className="mq-collection-count">
+            <b>{num.format(progress.owned)}</b>
+            <span>cartes possédées<br />sur {num.format(progress.total)}</span>
+          </div>
         </header>
 
-        <AlbumFilters filters={filters} sortable={album.worlds !== null} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
+        <div className="album-toolbar">
+          <AlbumFilters filters={filters} sortable={album.worlds !== null} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
+          <Link href="/album/ur" className="album-ur-link">Galerie UR</Link>
+        </div>
 
         {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
         <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />

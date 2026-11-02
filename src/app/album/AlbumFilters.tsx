@@ -46,7 +46,7 @@ function Chip({ href, active, children, color, title }: { href: string; active: 
 /** Filtres de l'album : des pastilles qu'on active et désactive d'un clic, la recherche reste un champ simple. */
 export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; anime: AnimeOptions; sortable?: boolean }) {
   return (
-    <div className="vt-filters">
+    <div className="vt-filters album-filters">
       <div className="vt-row">
         <form action="/album" className="vt-search" role="search">
           {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
