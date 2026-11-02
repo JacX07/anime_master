@@ -64,6 +64,20 @@ Problème : les checks ont besoin de personnages en base. L'import AniList compl
 
 Règle à proposer ensuite dans `AGENTS.md` (avec permission) : lancer `npm run check` avant chaque push et ne pas laisser la CI rouge.
 
+### Étape 3 bis — Contenu reproductible depuis le repo
+
+Problème : une partie du contenu du jeu vit dans la base (personnages, séries, sorts modifiés) et n'existe que dans `data/app.db` sur le PC de dev. La prod ne doit pas dépendre de ce fichier.
+
+Principe : la prod est la seule source de vérité des **données joueurs** ; le **contenu** va du repo vers la prod, en ajout ou mise à jour, jamais en suppression.
+
+- Structure : migrations Prisma (`migrate deploy`).
+- Personnages et séries : scripts d'import rejouables (ajout ou mise à jour), lancés par le déploiement. Pour ne pas dépendre d'AniList à chaque déploiement, exporter le contenu dans un fichier versionné (ex. `content/characters.json`) et l'importer en prod.
+- Corrections ponctuelles (rareté, stats d'un personnage) : migration de données dans le repo, pas d'édition à la main dans une base.
+- Sorts modifiés (`SpellOverride`) : à exporter en fichier versionné, le Spell Builder étant un outil de dev.
+- Bannières : déjà créées par le code (`ensureBanners`).
+
+En attendant, `npm run play:sync` applique ce principe localement (copie `app.db` → `play.db` sans toucher aux joueurs).
+
 ### Étape 4 — Le VPS
 
 Guide pas à pas à écrire dans ce fichier au moment de l'étape. Contenu prévu :

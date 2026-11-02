@@ -55,7 +55,24 @@ Le dev écrit dans `.next/dev` et le build dans `.next` : le dev (port 3000) et 
 Limites dans le même dossier :
 - Le build est partagé : un `npm run build` lancé par un agent remplace la version en cours de jeu. Ne pas builder pendant qu'un `next dev` tourne (voir `AGENTS.md`).
 - Le build inclut les modifications non commitées présentes dans le dossier au moment du build.
-- Après une migration, l'appliquer aussi à `play.db` : `DATABASE_URL="file:./data/play.db" npx prisma migrate deploy`.
+- Pour mettre `play.db` à jour : `npm run play:sync` (voir ci-dessous).
+
+### Synchroniser `play.db` avec la base de dev
+
+```bash
+npm run play:sync
+npm run build
+DATABASE_URL="file:./data/play.db" npx next start -p 3001
+```
+
+`play:sync` :
+1. sauvegarde `play.db` dans `data/backups/` ;
+2. applique les migrations manquantes (`prisma migrate deploy`) ;
+3. ajoute ou met à jour le contenu venant de `app.db` : personnages, séries, liens personnage–série, sorts modifiés. **Aucune suppression.**
+
+Jamais copiés : les données joueurs (comptes, cartes, progression…), le compteur de tirages `pullCount` et les bannières (le code les crée lui-même dans chaque base ; `app.db` contient des bannières de test).
+
+Restaurer en cas de problème : arrêter le serveur de jeu, puis `cp data/backups/play-<date>.db data/play.db`.
 
 Pour jouer sans interférence pendant que les agents codent et buildent, utiliser un git worktree séparé (son propre `.next`, son `.env` et sa base).
 
