@@ -152,8 +152,8 @@ Ici « puissance » désigne seulement le total ATK + DEF qui sert à répartir 
 **1 bis. Puissance (stat affichée, `Character.power`)**
 Score de statistiques, sans facteur direct de favoris. Les favoris continuent de déterminer les stats de base et la rareté.
 Les références de normalisation sont 1 000 ATK, 1 000 DEF, 5 600 PV et 100 vitesse.
-Poids : ATK 40 %, PV 25 %, DEF 20 %, vitesse 15 %. Le score est multiplié par 1 000 puis par √(vitesse / 100).
-L’attaque est pondérée par les dégâts critiques moyens et les bonus de dégâts applicables. Compétence magique : demi-poids si le kit contient un sort magique ; saignement : quart de poids. L’esquive (plafond 60 %) augmente la partie défensive. Précision : jusqu’à 5 % du score de référence ; jauge : 10 % pour 100 points.
+Coefficients (et non parts en pourcentage) : ATK 0,5 ; PV 0,4 ; DEF 0,4 ; vitesse 0,6. Le score est multiplié par 2 000 puis par vitesse / 100. La vitesse compte donc dans le socle et amplifie tout le score.
+L’attaque est pondérée par `1 + 2 × chanceCritique × (multiplicateurCritique − 1)` et les bonus de dégâts applicables. Le facteur 2 valorise ensemble la chance et les dégâts critiques. Compétence magique : demi-poids si le kit contient un sort magique ; saignement : quart de poids. L’esquive (plafond 60 %) augmente la partie défensive. Précision : jusqu’à 5 % du score de référence ; jauge : 10 % pour 100 points.
 Ces coefficients sont une estimation lisible des stats, pas une prédiction du taux de victoire ou de la valeur des sorts.
 Les cartes du catalogue utilisent les stats de base. Dans Équipe et les nouveaux combats, le calcul utilise les stats initiales du moteur avec éveil, arme, artefacts, sets et synergies. Les anciens combats gardent leur copie enregistrée.
 Recalcul de la base : `npx tsx scripts/recompute-power.ts`, sans réimport ni modification des autres stats.

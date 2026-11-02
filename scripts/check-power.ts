@@ -6,6 +6,11 @@ import type { BattleCard } from "../src/lib/battle";
 
 const stats = { attack: 1000, defense: 1000, hp: 5600, speed: 100 };
 const base = computePower(stats);
+assert.equal(base, 3950, "Nouvelle échelle renforcée");
+assert.equal(computePower({ attack: 4600, defense: 3347, speed: 110 }), 13713, "Livaï de base");
+assert(computePower({ ...stats, speed: 110 }) - base > computePower({ ...stats, attack: 1100 }) - base);
+assert(computePower({ ...stats, crit: .25 }) - base >= 100, "Chance critique valorisée");
+assert(computePower({ ...stats, critDamage: 2 }) - base >= 150, "Dégâts critiques valorisés");
 for (const stat of ["attack", "defense", "hp", "speed"] as const) {
   assert(computePower({ ...stats, [stat]: stats[stat] * 1.1 }) > base, stat);
 }

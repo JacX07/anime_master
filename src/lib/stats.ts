@@ -199,10 +199,10 @@ export function computeStats(
   return { attack, defense: power - attack };
 }
 
-/** Pondération des stats normalisées : ATK 40 %, PV 25 %, DEF 20 %, vitesse 15 %.
+/** Coefficients des stats normalisées : ATK 0,5, PV 0,4, DEF 0,4, vitesse 0,6.
  * Références : 1 000 ATK/DEF, 5 600 PV et 100 vitesse. Aucun facteur de popularité.
  */
-export const POWER_WEIGHTS = { attack: 0.4, hp: 0.25, defense: 0.2, speed: 0.15 } as const;
+export const POWER_WEIGHTS = { attack: 0.5, hp: 0.4, defense: 0.4, speed: 0.6 } as const;
 
 export function computePower(stats: {
   attack: number; defense: number; hp?: number; speed?: number;
@@ -212,7 +212,7 @@ export function computePower(stats: {
 }): number {
   const positive = (n: number) => Number.isFinite(n) ? Math.max(0, n) : 0;
   const crit = Math.min(1, positive(stats.crit ?? 0.15));
-  const critical = 1 + crit * Math.max(0, (stats.critDamage ?? 1.5) - 1);
+  const critical = 1 + 2 * crit * Math.max(0, (stats.critDamage ?? 1.5) - 1);
   const damage = 1 + positive(stats.damageBonus ?? 0) + positive(stats.magicSkill ?? 0) * 0.5
     + positive(stats.bleedBonus ?? 0) * 0.25;
   const offense = positive(stats.attack) / 1000 * POWER_WEIGHTS.attack * critical * damage;
@@ -222,6 +222,6 @@ export function computePower(stats: {
   const speed = positive(stats.speed ?? 100) / 100;
   const utility = Math.min(1, positive(stats.precision ?? 0)) * 0.05
     + positive(stats.gaugePerSpell ?? 0) / 100 * 0.1;
-  return Math.round(1000 * (offense + survival + speed * POWER_WEIGHTS.speed + utility)
-    * Math.pow(speed, 0.5));
+  return Math.round(2000 * (offense + survival + speed * POWER_WEIGHTS.speed + utility)
+    * speed);
 }
