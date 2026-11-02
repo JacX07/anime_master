@@ -255,3 +255,60 @@
   .pk-banners { grid-template-columns: 1fr; }
   .pk-stage[data-summary="true"] .pk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Sachet aluminium : bords pincés, soudures striées et plis de la feuille imprimée. */
+.pk-pack[data-art] {
+  isolation: isolate;
+  border: 0;
+  border-radius: 2px;
+  background: #809ca0;
+  clip-path: polygon(0% .65%, 2% 0%, 4% .65%, 6% 0%, 8% .65%, 10% 0%, 12% .65%, 14% 0%, 16% .65%, 18% 0%, 20% .65%, 22% 0%, 24% .65%, 26% 0%, 28% .65%, 30% 0%, 32% .65%, 34% 0%, 36% .65%, 38% 0%, 40% .65%, 42% 0%, 44% .65%, 46% 0%, 48% .65%, 50% 0%, 52% .65%, 54% 0%, 56% .65%, 58% 0%, 60% .65%, 62% 0%, 64% .65%, 66% 0%, 68% .65%, 70% 0%, 72% .65%, 74% 0%, 76% .65%, 78% 0%, 80% .65%, 82% 0%, 84% .65%, 86% 0%, 88% .65%, 90% 0%, 92% .65%, 94% 0%, 96% .65%, 98% 0%, 100% .65%, 98.5% 12%, 100% 48%, 98.5% 88%, 100% 99.35%, 98% 100%, 96% 99.35%, 94% 100%, 92% 99.35%, 90% 100%, 88% 99.35%, 86% 100%, 84% 99.35%, 82% 100%, 80% 99.35%, 78% 100%, 76% 99.35%, 74% 100%, 72% 99.35%, 70% 100%, 68% 99.35%, 66% 100%, 64% 99.35%, 62% 100%, 60% 99.35%, 58% 100%, 56% 99.35%, 54% 100%, 52% 99.35%, 50% 100%, 48% 99.35%, 46% 100%, 44% 99.35%, 42% 100%, 40% 99.35%, 38% 100%, 36% 99.35%, 34% 100%, 32% 99.35%, 30% 100%, 28% 99.35%, 26% 100%, 24% 99.35%, 22% 100%, 20% 99.35%, 18% 100%, 16% 99.35%, 14% 100%, 12% 99.35%, 10% 100%, 8% 99.35%, 6% 100%, 4% 99.35%, 2% 100%, 0% 99.35%, 1.5% 88%, 0 48%, 1.5% 12%);
+  box-shadow: 0 18px 32px #0009;
+}
+.pk-pack[data-art] .pk-pack-art {
+  inset: 16px 3px 17px;
+  width: calc(100% - 6px);
+  height: calc(100% - 33px);
+}
+.pk-pack[data-art] .pk-pack-foil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #071719b3, #e6ffff80 1.5%, #07171999 3%, #ffffff59 5%, transparent 10%, transparent 88%, #0005 94%, #eaffffa6 97%, #071719b3),
+    linear-gradient(174deg, transparent 9%, #fff6 10%, #07171980 10.6%, transparent 12%),
+    linear-gradient(18deg, transparent 12%, #0005 14%, #ffffff73 14.8%, transparent 17%),
+    linear-gradient(111deg, transparent 25%, #0003 36%, #fff5 39%, transparent 44%, #ffffff14 66%, #0003 73%, #fff6 75%, transparent 78%),
+    linear-gradient(91deg, transparent 40%, #ffffff24 51%, transparent 69%);
+}
+.pk-pack[data-art] .pk-pack-seal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, #07171980 0 1px, #edffff73 1px 2px, transparent 2px 4px),
+    linear-gradient(#d1e5e4, #5b7678 24%, #b2ccca 50%, #466265 73%, #aec4c2);
+  box-shadow: 0 1px 2px #0008;
+}
+.pk-pack[data-art] .pk-pack-seal-top { top: 0; }
+.pk-pack[data-art] .pk-pack-seal-bottom { bottom: 0; transform: rotate(180deg); }
+.pk-pack[data-art] .pk-pack-shine {
+  inset: 18px 4px;
+  z-index: 3;
+  background: linear-gradient(108deg, transparent 24%, #fff0 35%, #ffffff45 47%, #fff0 58%, transparent 70%);
+  opacity: .65;
+}
+.pk-pack[data-art] .pk-cut { background: transparent; }
+.pk-pack[data-art] .pk-cut > span {
+  width: max-content;
+  max-width: 100%;
+  margin: 20px auto 0;
+  padding: 3px 8px;
+  background: #0b0e0fcc;
+  font-size: 9px;
+}
+.pk-pack[data-art]:focus-visible { outline-offset: -6px; }

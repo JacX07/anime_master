@@ -237,7 +237,10 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 }}
                 onPointerCancel={() => { gesture.current = null; setCut(0); }}
               ><span>Glisser pour découper</span><i className="pk-cut-start" aria-hidden="true" /><i className="pk-cut-end" aria-hidden="true" /></span>
-              <span className="pk-pack-shine" />
+              <span className="pk-pack-foil" aria-hidden="true" />
+              <span className="pk-pack-seal pk-pack-seal-top" aria-hidden="true" />
+              <span className="pk-pack-seal pk-pack-seal-bottom" aria-hidden="true" />
+              <span className="pk-pack-shine" aria-hidden="true" />
               <span className="pk-pack-logo">A</span>
               <small>{banner ? banner.name.toUpperCase() : "ANIME MASTERS"}</small>
               <strong>{lot} CARTES</strong>
