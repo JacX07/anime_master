@@ -64,7 +64,7 @@
 .mq-app-shell .gear-item-art > :is(img, svg) { width: 64px; height: 64px; }
 .mq-app-shell :is(.gear-item-art > span, .artifact-level) {
   display: inline-grid; place-items: center; min-width: 54px; min-height: 38px;
-  padding: 5px 10px; border-radius: 5px; background: rgb(0 0 0 / 15%); color: #fff; font-size: 19px; font-weight: 700;
+  padding: 5px 10px; border-radius: 5px; background: rgb(0 0 0 / 7%); color: #fff; font-size: 19px; font-weight: 700;
 }
 .mq-app-shell .gear-item-art > span { top: 0; bottom: auto; right: 0; }
 .mq-app-shell .gear-item { gap: 12px; padding: 20px; border-radius: 16px; }

@@ -171,11 +171,11 @@
     inset: 0;
     z-index: -1;
     clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
-    background: rgb(205 170 99 / 21%);
+    background: rgb(205 170 99 / 12%);
     pointer-events: none;
   }
   &:hover:not(:disabled):not([aria-disabled="true"]) { background: none; color: #f5dfac; transform: translateY(-2px); }
-  &:hover:not(:disabled):not([aria-disabled="true"])::before { background: rgb(205 170 99 / 29%); }
+  &:hover:not(:disabled):not([aria-disabled="true"])::before { background: rgb(205 170 99 / 20%); }
   &:active:not(:disabled) { transform: translateY(1px); }
   &:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
   &:is(:disabled, [aria-disabled="true"]) { opacity: .4; filter: none; }
