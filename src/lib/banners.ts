@@ -137,7 +137,12 @@ export interface BannerInfo {
   endsAt: string | null;
   /** Personnages disponibles par rareté (panneau « Taux ») */
   pool: RarityCounts;
+  /** Personnage mis en avant sur le paquet (Waifu : Emilia, Husbando : Dio Brando) */
+  featured: { name: string; imageUrl: string } | null;
 }
+
+/** Visage de chaque bannière permanente */
+const FEATURED_IDS: Record<string, number> = { waifu: 88572, husbando: 4004 };
 
 /**
  * Bannières proposées au joueur : les permanentes, les événements en cours, et celles de bienvenue tant qu'il lui reste
@@ -156,6 +161,7 @@ export async function listBanners(user: { welcomeDraws: number; welcomeBannerId:
   });
   const order = { WELCOME: 0, NORMAL: 1, SPECIAL: 2 } as const;
   const rank = (c: string) => { const i = (CATEGORIES as readonly string[]).indexOf(c); return i < 0 ? 99 : i; };
+  const faces = await prisma.character.findMany({ where: { id: { in: Object.values(FEATURED_IDS) } }, select: { id: true, name: true, imageUrl: true } });
   const infos = await Promise.all(rows.map(async (b) => ({
     id: b.id,
     name: b.name,
@@ -166,6 +172,7 @@ export async function listBanners(user: { welcomeDraws: number; welcomeBannerId:
     weightPercent: Math.round(b.weight * 100),
     endsAt: b.endsAt?.toISOString() ?? null,
     pool: await poolCounts(b.weight > 0 ? b.id : null),
+    featured: faces.find((f) => f.id === FEATURED_IDS[b.category]) ?? null,
   })));
   return infos.sort((a, b) => order[a.costKind] - order[b.costKind] || rank(a.category) - rank(b.category));
 }

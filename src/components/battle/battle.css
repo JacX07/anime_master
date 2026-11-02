@@ -978,10 +978,10 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-layout-with-order .bt-spell-list { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: start; }
 .bt-layout-with-order .bt-spell { font-size: .72rem; }
 .bt-layout-with-order .bt-spell b { display: block; margin: 0 0 .3rem; font-size: .8rem; }
-.bt-layout-with-order .bt-spell[data-ultimate] { grid-column: 1 / -1; min-height: 6rem; padding: .8rem .9rem .8rem 6.8rem; border: 1px solid #bd9750; background: #382d204d; opacity: 1; }
+.bt-layout-with-order .bt-spell[data-ultimate] { grid-column: 1 / -1; min-height: 6rem; padding: .8rem .9rem; display: grid; grid-template-columns: 5rem minmax(0, 1fr); align-items: center; gap: .9rem; border: 1px solid #bd9750; background: #382d204d; opacity: 1; }
 .bt-layout-with-order .bt-spell[data-ultimate] b { font-size: 1rem; color: #ffe29a; }
-.bt-ultimate-charge { position: absolute; left: .65rem; top: 50%; transform: translateY(-50%); width: 5rem; height: 5rem; color: #ffd166; }
-.bt-ultimate-charge svg { width: 100%; height: 100%; transform: rotate(-90deg); fill: none; stroke-width: 4; }
+.bt-ultimate-charge { position: relative; display: block; width: 5rem; height: 5rem; color: #ffd166; isolation: isolate; }
+.bt-ultimate-charge svg { display: block; width: 5rem; height: 5rem; transform: rotate(-90deg); fill: none; stroke-width: 4; }
 .bt-charge-track { stroke: #ffd16622; }
 .bt-charge-fill { stroke: currentColor; transition: stroke-dasharray 350ms ease-out; stroke-linecap: round; }
 .bt-ultimate-charge > span { position: absolute; inset: 0; display: grid; place-items: center; font-size: .9rem; font-weight: 700; }
@@ -992,3 +992,5 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 @keyframes bt-queue-enter { from { opacity: .3; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @media(max-width: 69.999rem) { .bt-layout-with-order { overflow-y: auto; grid-template-rows: auto auto; } .bt-layout-with-order > .bt-spells { max-height: none; overflow: visible; } .bt-turn-order ol { gap: .35rem; } .bt-turn-order .bt-turn-name { font-size: .5rem; } }
 @media(prefers-reduced-motion: reduce) { .bt-charge-fill { transition: none; } .bt-turn-order li { animation: none; } }
+
+.bt-spell-copy { min-width: 0; }

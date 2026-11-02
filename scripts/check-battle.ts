@@ -139,6 +139,8 @@ check("Pas à pas avec autoAction = battle()", autoSame);
 
 // 3b. Ordonnanceur à jauge : parité à vitesse égale et fréquence supérieure à vitesse élevée.
 check("Vitesse lore connue et valeur de repli", speedOf(1) === 104 && speedOf(-1) === BASE_SPEED && BASE_SPEED === 100);
+// Les prévisions peuvent s'arrêter plus tôt à la limite de tours ; seule la résolution doit être identique.
+const resolvedLog = (value: unknown) => JSON.stringify(value, (key, entry) => key === "turnOrder" ? undefined : entry);
 let gaugeParity = true;
 let gaugeParityDetail = "";
 for (let i = 0; i < 100; i++) {
@@ -146,9 +148,9 @@ for (let i = 0; i < 100; i++) {
   const b = team().map((c) => ({ ...c, speed: 100 }));
   const legacy = battle(a, b, seeded(i));
   const gauge = battle(a, b, seeded(i), { gauge: true });
-  if (JSON.stringify(legacy.log) !== JSON.stringify(gauge.log)) {
+  if (resolvedLog(legacy.log) !== resolvedLog(gauge.log)) {
     gaugeParity = false;
-    const at = legacy.log.findIndex((e, j) => JSON.stringify(e) !== JSON.stringify(gauge.log[j]));
+    const at = legacy.log.findIndex((e, j) => resolvedLog(e) !== resolvedLog(gauge.log[j]));
     gaugeParityDetail ||= `seed ${i}, index ${at}: ${JSON.stringify(legacy.log[at])} / ${JSON.stringify(gauge.log[at])}`;
   }
 }

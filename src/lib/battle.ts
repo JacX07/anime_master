@@ -196,7 +196,7 @@ export type BattleEvent =
   | { kind: "start"; first: Side; units: UnitView[] }
   | { kind: "round"; round: number }
   /** Une carte agit ; target = null pour la zone d'Aventure. name personnalise le sort spécial ou l'attaque de base. */
-  | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string }
+  | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string; turnOrder?: UnitId[] }
   | { kind: "skip"; actor: UnitId; reason: "stun" }
   | { kind: "ultimateGauge"; target: UnitId; amount: number; current: number; max: number }
   | {
@@ -784,7 +784,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   const { rng, opts, log } = st;
   if (!reaction && action.spell !== "base" && hasFx(u, "seal")) {
     // Sceau (Kurapika) : lancer un sort scellé est fatal
-    log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target });
+    log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, turnOrder: timeline(st, 8) });
     u.hp = 0;
     u.shield = 0;
     log.push({ kind: "ko", target: u.id });
@@ -935,7 +935,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   const basic = action.spell === "base" && !u.card.noBasicAttack ? u.card.basicAttack ?? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
   const activeSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
   const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : activeSpell?.name;
-  log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}) });
+  log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}), ...(!reaction ? { turnOrder: timeline(st, 8) } : {}) });
   const target = action.target ? unit(st, action.target) : null;
   if (action.spell === "ultimate" && !reaction) {
     const spent = u.ultimateGauge;

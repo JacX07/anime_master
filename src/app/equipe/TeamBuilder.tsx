@@ -92,7 +92,7 @@ function LeaveDialog({ open, canSave, pending, onSave, onLeave, onStay }: { open
   );
 }
 
-function SpellList({ card }: { card: TeamCard }) {
+export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rarity" | "type"> }) {
   const info = SPELL_INFO[card.type];
   const slots = card.rarity === "SSR" || card.rarity === "UR";
   const basic = basicAttackOf(card.characterId, card.rarity, card.type);

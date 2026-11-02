@@ -137,6 +137,7 @@ export function SpellsPanel({
                 <svg viewBox="0 0 64 64" aria-hidden="true"><circle className="bt-charge-track" cx="32" cy="32" r="27" /><circle className="bt-charge-fill" cx="32" cy="32" r="27" pathLength="100" strokeDasharray={`${charge} 100`} /></svg>
                 <span>{charge >= 100 ? "Prêt" : `${Math.round(charge)}%`}</span>
               </span>}
+              <div className="bt-spell-copy">
               <b>{s.title}</b>
               <em>{s.target}</em>
               <p>{s.text}</p>
@@ -147,6 +148,7 @@ export function SpellsPanel({
                 </span>
               )}
               <span id={`bt-spell-detail-${unit.id}-${s.key}`} hidden>{s.tooltip}</span>
+              </div>
             </>
           );
           return choose ? (

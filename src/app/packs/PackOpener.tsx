@@ -8,10 +8,11 @@ import type { Rarity } from "@/generated/prisma/enums";
 import type { BannerInfo, RarityCounts } from "@/lib/banners";
 import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { CRYSTAL_BUY_SIZES } from "@/lib/economy";
-import type { OpenedPack, PlayerPackState } from "@/lib/packs";
+import type { OpenedCard, OpenedPack, PlayerPackState } from "@/lib/packs";
 import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY, type LotSize } from "@/lib/pull";
 import { buyCrystalsAction, devGrantCrystalsAction, openPackAction } from "./actions";
-import { BulkSummary } from "./BulkSummary";
+import { CardDetail } from "./CardDetail";
+import { packAudio } from "./pack-audio";
 import "./packs.css";
 
 const ORDER: Rarity[] = ["UR", "SSR", "SR", "R", "N"];
@@ -47,10 +48,26 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const [lot, setLot] = useState<LotSize>(5);
   const [pack, setPack] = useState<OpenedPack | null>(null);
   const [revealed, setRevealed] = useState<boolean[]>([]);
-  const [bulk, setBulk] = useState<OpenedPack | null>(null);
+  const [detail, setDetail] = useState<OpenedCard | null>(null);
+  const [ambience, setAmbience] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const { available, msLeft } = useLiveStock(state);
+
+  useEffect(() => {
+    setAmbience(packAudio.ambienceWanted);
+    return () => packAudio.dispose();
+  }, []);
+
+  /** Les navigateurs exigent un geste avant tout son : l'ambiance démarre au premier clic dans la salle. */
+  function wake() {
+    if (ambience) packAudio.startAmbience();
+  }
+  function toggleAmbience() {
+    const next = !ambience;
+    setAmbience(next);
+    packAudio.setAmbience(next);
+  }
 
   const banner = banners.find((b) => b.id === bannerId) ?? null;
   const kind = banner?.costKind ?? "NORMAL";
@@ -68,13 +85,10 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
       const r = await openPackAction(lot, bannerId);
       if (!r.ok) return setError(r.error);
       setState(r.pack.state);
-      if (r.pack.lotSize === 5) {
-        setPack(r.pack);
-        setRevealed(r.pack.cards.map(() => false));
-      } else {
-        setPack(null);
-        setBulk(r.pack);
-      }
+      setPack(r.pack);
+      setRevealed(r.pack.cards.map(() => false));
+      packAudio.open();
+      r.pack.cards.forEach((_, i) => packAudio.deal(0.25 + i * 0.09));
     });
   }
 
@@ -94,11 +108,24 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     });
   }
 
-  const reveal = (i: number) => setRevealed((r) => r.map((v, j) => v || j === i));
+  function reveal(i: number) {
+    if (!pack || revealed[i]) return;
+    packAudio.flip(pack.cards[i].rarity);
+    setRevealed((r) => r.map((v, j) => v || j === i));
+  }
+  function revealAll() {
+    if (!pack) return;
+    pack.cards.forEach((c, i) => {
+      if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
+    });
+    setRevealed((r) => r.map(() => true));
+  }
   const best = pack ? ORDER.find((x) => pack.cards.some((c) => c.rarity === x)) : undefined;
+  const rare = best === "SSR" || best === "UR";
+  const rareCount = pack ? pack.cards.filter((c) => c.rarity === "SSR" || c.rarity === "UR").length : 0;
 
   return (
-    <div className="pk">
+    <div className="pk" onPointerDown={wake}>
       <header className="pk-head">
         <div>
           <p className="eyebrow">Salle des invocations</p>
@@ -123,6 +150,10 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
             </button>
             {banners.map((b) => (
               <button type="button" role="radio" aria-checked={bannerId === b.id} key={b.id} className="pk-banner" data-active={bannerId === b.id} data-kind={b.costKind} onClick={() => setBannerId(b.id)}>
+                {b.featured && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="pk-banner-face" src={b.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
+                )}
                 <small>{b.costKind === "SPECIAL" ? "Événement" : b.costKind === "WELCOME" ? "Bienvenue" : b.categoryLabel}</small>
                 <b>{b.name}</b>
                 <span>{b.description}</span>
@@ -153,7 +184,11 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
         <section className="pk-stage" aria-label="Ouverture">
           {!pack && (
-            <div className="pk-pack" aria-hidden="true">
+            <div className="pk-pack" aria-hidden="true" data-art={banner?.featured ? "" : undefined}>
+              {banner?.featured && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="pk-pack-art" src={banner.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
+              )}
               <span className="pk-pack-shine" />
               <span className="pk-pack-logo">A</span>
               <small>{banner ? banner.name.toUpperCase() : "ANIME MASTERS"}</small>
@@ -163,10 +198,15 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
           {pack && (
             <div className="pk-cards" data-best={best}>
+              {rare && waitingReveal && (
+                <p className="pk-hint" data-rarity={best} role="status">
+                  <RarityGem rarity={best!} /> {rareCount > 1 ? `${rareCount} cartes SSR ou mieux` : `Une carte ${best === "UR" ? "UR" : "SSR ou mieux"}`} dans ce paquet
+                </p>
+              )}
               {pack.pity !== "NONE" && <p className="pk-pity">Garantie {pack.pity} déclenchée !</p>}
-              <div className="pk-grid">
+              <div className="pk-grid" data-lot={pack.lotSize}>
                 {pack.cards.map((card, i) => (
-                  <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} onClick={() => reveal(i)} role="button" tabIndex={revealed[i] ? -1 : 0} aria-label={revealed[i] ? card.name : `Retourner la carte ${i + 1}`} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && reveal(i)}>
+                  <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} data-hint={!revealed[i] && (card.rarity === "SSR" || card.rarity === "UR") ? card.rarity : undefined} style={{ "--i": i } as React.CSSProperties} onClick={() => (revealed[i] ? setDetail(card) : reveal(i))} role="button" tabIndex={0} aria-label={revealed[i] ? `${card.name} : voir les stats et les sorts` : `Retourner la carte ${i + 1}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (revealed[i]) setDetail(card); else reveal(i); } }}>
                     <div className="flip-inner">
                       <div className="flip-face card-back"><span>AM</span></div>
                       <div className="flip-face flip-front" aria-hidden={!revealed[i]}><CharacterCard {...card} characterId={card.characterId} /></div>
@@ -175,12 +215,17 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 ))}
               </div>
               {waitingReveal ? (
-                <button type="button" className="pk-ghost" onClick={() => setRevealed((r) => r.map(() => true))}>Tout révéler</button>
+                <button type="button" className="pk-ghost" onClick={revealAll}>Tout révéler</button>
               ) : (
                 <Link href="/album" className="pk-ghost">Voir l&apos;album</Link>
               )}
+              {!waitingReveal && <p className="pk-note">Clique sur une carte pour voir ses stats et ses sorts.</p>}
             </div>
           )}
+
+          <button type="button" className="pk-sound" aria-pressed={ambience} onClick={toggleAmbience} title="Ambiance sonore">
+            {ambience ? "♪ Ambiance activée" : "♪ Ambiance coupée"}
+          </button>
 
           <div className="pk-controls">
             <div className="pk-lots" role="radiogroup" aria-label="Taille du lot">
@@ -188,8 +233,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} onClick={() => setLot(n)}>×{n}</button>
               ))}
             </div>
-            <button type="button" className="pk-open" onClick={open} disabled={!canOpen}>
-              {pending ? "Ouverture…" : `Ouvrir ${lot} cartes · ${lot} ${lot > 1 ? unitPlural : unit}`}
+            <button type="button" className="pk-open" onClick={open} disabled={!canOpen} data-lot={lot}>
+              <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>
+              {!pending && <span className="pk-open-cost">{lot} {lot > 1 ? unitPlural : unit}</span>}
             </button>
             {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
             {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}
@@ -221,7 +267,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         </aside>
       </div>
 
-      {bulk && <BulkSummary bulk={bulk} onClose={() => setBulk(null)} />}
+      {detail && <CardDetail card={detail} onClose={() => setDetail(null)} />}
     </div>
   );
 }
