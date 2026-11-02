@@ -1,9 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
+import type { Status } from "@/lib/battle";
 import icons from "../../public/icons/icons.json";
 
-// Jeu d'icônes maison (public/icons/icons.json, partagé avec la scène 3D) : grille de 24 px, trait de 1,6 px, extrémités arrondies.
-// Le trait suit la couleur du texte ; le petit détail (`.a` en trait, `.f` en aplat) porte la couleur d'accent `--acc`.
+// Direction C : emblèmes héraldiques sur grille de 48 px, traits non redimensionnés
+// et aplats. Le sprite partagé garde les identifiants utilisés dans tout le jeu.
 
 type Shape = { tag: string; attrs: Record<string, string> };
 const sprite = icons as unknown as Record<string, { viewBox: string; shapes: Shape[] }>;
@@ -38,22 +39,38 @@ export type IconName = string;
 
 export function Icon({ name, className = "", style, title }: { name: IconName; className?: string; style?: CSSProperties; title?: string }) {
   return (
-    <svg className={`i ${className}`} style={style} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
+    <svg className={`i ${className}`} viewBox={sprite[name]?.viewBox} style={style} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
       <use href={`#am-${name}`} />
     </svg>
   );
 }
 
-const TYPE_ACCENT: Record<CardType, string> = { COMBAT: "#ff6b5e", MYSTERE: "#b48cff", MAGIE: "#5fb8ff", COEUR: "#ff7fb0", AVENTURE: "#4fd6a0" };
+const TYPE_ACCENT: Record<CardType, string> = { COMBAT: "#c4776e", MYSTERE: "#b2a0cc", MAGIE: "#8ab3c6", COEUR: "#c4989e", AVENTURE: "#93b79b" };
 
 export function TypeIcon({ type, className = "", title }: { type: CardType; className?: string; title?: string }) {
-  return <Icon name={`t-${type.toLowerCase()}`} className={className} title={title} style={{ "--acc": TYPE_ACCENT[type] } as CSSProperties} />;
+  return <Icon name={`t-${type.toLowerCase()}`} className={className} title={title} style={{ color: TYPE_ACCENT[type], "--acc": TYPE_ACCENT[type] } as CSSProperties} />;
 }
 
-/** Cristal de rareté : il gagne des facettes, un anneau puis un halo de N à UR. */
+const STATUS_ICONS: Record<Status, string> = {
+  exposed: "mystere", weaken: "banner-down", elan: "banner-up",
+  atkUp: "atk", atkDown: "atk", defUp: "def", defDown: "broken-shield",
+  critUp: "eveil", critDown: "eveil", dodgeUp: "speed", dodgeDown: "speed",
+  speedUp: "speed", speedDown: "speed", silence: "silence", stun: "etourdi",
+  immune: "immune", earth: "aventure", swept: "wave", broken: "broken-shield",
+  vulnerable: "banner-down", bleed: "sang", poison: "poison", taunt: "squads",
+  counter: "ultime", seal: "chain", controlled: "chain", bloodlust: "coeur",
+  zombie: "revive", reduce: "def", regen: "hp", burn: "brulure", wet: "wave",
+  ignoreDef: "broken-shield",
+};
+
+export function StatusIcon({ status }: { status: Status }) {
+  return <Icon name={STATUS_ICONS[status]} />;
+}
+
+/** Emblèmes de rareté C : rivet, gemmes, étoile et couronne, couleurs conservées. */
 export function RarityGem({ rarity, className = "" }: { rarity: Rarity; className?: string }) {
   return (
-    <svg className={`gem ${className}`} style={{ color: `var(--rarity-${rarity})` }} role="img" aria-label={rarity}>
+    <svg className={`gem ${className}`} viewBox={sprite[`r-${rarity}`]?.viewBox} style={{ color: `var(--rarity-${rarity})` }} role="img" aria-label={rarity}>
       <use href={`#am-r-${rarity}`} />
     </svg>
   );

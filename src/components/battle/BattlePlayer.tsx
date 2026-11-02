@@ -11,7 +11,7 @@ import { attackVisual, attackWeapon } from "@/lib/attack-visual";
 import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
 import { PERSISTENT_STATUSES, STATUS_FX } from "./status-vfx";
-import { TypeIcon } from "../icons";
+import { StatusIcon, TypeIcon } from "../icons";
 import { TurnOrder } from "./TurnOrder";
 import { replayTurnOrder } from "@/lib/battle-report";
 import { BattleReport } from "./BattleReport";
@@ -549,7 +549,7 @@ function Unit({
           .concat(st.fx as never[])
           .map((k: Status) => (
             <li key={k} data-state={k} data-bad={STATUS_INFO[k].bad || undefined} tabIndex={0} aria-label={`${STATUS_INFO[k].label} : ${STATUS_INFO[k].help}`} onClick={(e) => e.stopPropagation()}>
-              {STATUS_INFO[k].glyph}
+              <StatusIcon status={k} />
               <span className="bt-tip" role="tooltip">
                 <b>{STATUS_INFO[k].label}</b>
                 {STATUS_INFO[k].help}
