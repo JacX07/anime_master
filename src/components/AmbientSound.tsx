@@ -66,6 +66,15 @@ export function AmbientSound() {
     const arrows = (e: KeyboardEvent) => {
       if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"].includes(e.key)) tick(e);
     };
+    // Ouverture : appui souris sur la liste, ou Espace / Entrée / Alt+↓ / F4 au clavier
+    const open = (e: Event) => {
+      if (!(e.target instanceof HTMLSelectElement) || e.target.disabled) return;
+      if (e instanceof KeyboardEvent && !(e.key === " " || e.key === "Enter" || e.key === "F4" || (e.altKey && e.key === "ArrowDown"))) return;
+      if (e instanceof MouseEvent && e.button !== 0) return;
+      packAudio.uiOpen();
+    };
+    document.addEventListener("mousedown", open, true);
+    document.addEventListener("keydown", open, true);
     document.addEventListener("keydown", arrows, true);
     document.addEventListener("change", tick, true);
     const unlock = () => packAudio.unlock();
@@ -78,6 +87,8 @@ export function AmbientSound() {
       window.removeEventListener("keydown", unlock);
       document.removeEventListener("pointerover", over, true);
       document.removeEventListener("click", click, true);
+      document.removeEventListener("mousedown", open, true);
+      document.removeEventListener("keydown", open, true);
       document.removeEventListener("keydown", arrows, true);
       document.removeEventListener("change", tick, true);
     };

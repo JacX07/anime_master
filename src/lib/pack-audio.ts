@@ -150,8 +150,15 @@ class PackAudio {
     if (now - this.lastTick < 30) return;
     this.lastTick = now;
     this.ui((_, t) => {
-      this.swish(t, 0.03, 2200, 2200, 0.15);
-      this.tone(t, 900, 0.025, 0.04, "triangle");
+      this.swish(t, 0.04, 2200, 2200, 0.4);
+      this.tone(t, 900, 0.04, 0.15, "triangle");
+    });
+  }
+  /** Ouverture d'une liste déroulante : petit coup de bois creux suivi d'un souffle qui monte. */
+  uiOpen() {
+    this.ui((_, t) => {
+      this.thud(t, 320, 140, 0.09, 0.35);
+      this.swish(t, 0.1, 900, 2400, 0.25);
     });
   }
   /** Clic : coup de pierre sourd avec un fond de fer. */
