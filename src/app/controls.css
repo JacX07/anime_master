@@ -1,19 +1,19 @@
 /* Shared text controls: open surface, gold underline, no rectangular frame.
    Image/card selectors retain their own visual selection states. */
-.mq-app-shell[class] :is(button:not(:has(img, svg)):not(:where(.inventory-slot, .eq-slot-main, .art-tile, .pk-banner, .bt-spell, .avatar)), .ui-button, .pk-open, .pk-ghost, .pk-buy button, .gear-equip, .gear-upgrade, .art-reset, .bt-exit, .bt-play, .mq-play-button, .mq-play-heading button, .daily-bonus, .vt-btn, .bt-btn, .site-cta, .vt-chip, .mq-sell-button, .mq-deck-button, .mq-header-cta, .mq-header-link, .inventory-actions a, .inventory-empty a, .inventory-equip-target, .inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .quest-more) {
+.mq-app-shell[class] :is(button:not(:has(img, svg)):not(:where(.inventory-slot, .eq-slot-main, .art-tile, .pk-banner, .bt-spell, .avatar, .mq-play-button)), .ui-button, .pk-open, .pk-ghost, .pk-buy button, .gear-equip, .gear-upgrade, .art-reset, .bt-exit, .bt-play, .mq-play-heading button, .daily-bonus, .vt-btn, .bt-btn, .site-cta, .vt-chip, .mq-sell-button, .mq-deck-button, .mq-header-cta, .mq-header-link, .inventory-actions a, .inventory-empty a, .inventory-equip-target, .inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .quest-more) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: .45rem;
-  min-height: 44px;
-  padding: .8rem 1rem;
+  min-height: 0;
+  padding: 11px 15px 13px;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  color: #b4b5ad;
-  font: 500 .875rem/1.4 var(--font-dm), sans-serif;
+  color: #717772;
+  font: 400 11px/1.5 var(--font-dm), sans-serif;
   letter-spacing: normal;
   text-transform: none;
   text-decoration: none;
@@ -42,7 +42,14 @@
   }
 }
 
-.mq-app-shell[class] :is(.eq-tab, .mq-play-button)::before,
-.mq-app-shell[class] .eq-tab::after,
-.mq-app-shell[class] .mq-play-button > i { display: none; }
-.mq-app-shell[class] .mq-play-button { clip-path: none; }
+/* .section-tabs in the source: 11px regular, 92px minimum, inset gold line. */
+.mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) {
+  position: relative; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; border-bottom: 1px solid #292e2b;
+}
+.mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a) {
+  position: relative; min-width: 92px; border: 0; padding: 11px 15px 13px; font: 400 11px/1.5 var(--font-dm), sans-serif; color: #717772;
+  &:is(:hover, [aria-pressed="true"], [aria-current="page"]) { color: #e0ddd5; border: 0; }
+  &:is([aria-pressed="true"], [aria-current="page"])::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: #c0a468; }
+}
+.mq-app-shell[class] .eq-tab::before,
+.mq-app-shell[class] .eq-tab::after { display: none; }

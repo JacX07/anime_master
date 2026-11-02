@@ -8,6 +8,7 @@ import { listAuctions, type MarketFilters } from "@/lib/auctions";
 import { FINISH_NAMES, RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { Countdown } from "./Countdown";
 import "./market.css";
+import { PageHeading } from "@/components/mq/PageHeading";
 
 export const metadata: Metadata = { title: "Bourse des brèches — Anime Masters" };
 
@@ -58,12 +59,8 @@ async function Market({ searchParams }: { searchParams: PageProps<"/market">["se
   const v = (k: string) => one(sp[k]);
   return (
     <div className="vt-inner mq-market">
-      <header className="mq-market-head">
-        <p className="mq-kicker">COMPTOIR DES MONDES</p>
-        <h1 className="vt-title">Marché</h1>
-        <p className="vt-sub">Les enchères en cours. Pour vendre une carte, ouvre sa fiche depuis l&apos;album.</p>
-      </header>
-      <nav className="mq-market-tabs" aria-label="Marché">
+      <PageHeading eyebrow="COMPTOIR DES MONDES" title="Marché" description="Les enchères en cours. Pour vendre une carte, ouvre sa fiche depuis l’album." />
+      <nav className="mq-market-tabs mq-section-tabs" aria-label="Marché">
         <Link href="/market" aria-current="page">Marché global</Link>
         <Link href="/trades">Échange direct</Link>
       </nav>

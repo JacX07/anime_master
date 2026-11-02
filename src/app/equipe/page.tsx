@@ -6,6 +6,7 @@ import { getTeam } from "@/lib/battles";
 import { requireUser } from "@/lib/session";
 import { speedOf } from "@/lib/speed";
 import { TeamBuilder } from "./TeamBuilder";
+import { PageHeading } from "@/components/mq/PageHeading";
 
 export const metadata: Metadata = { title: "Équipe — Anime Masters", robots: { index: false } };
 
@@ -13,12 +14,7 @@ export default function TeamPage() {
   return (
     <main className="vt">
       <div className="vt-inner">
-        <header className="pg-head">
-          <h1 className="vt-title">Squads</h1>
-          <p className="vt-sub">
-            Compose tes escouades d&apos;attaque et de défense avec tes cartes. Tes cartes ne sont jamais bloquées.
-          </p>
-        </header>
+        <PageHeading eyebrow="FORMATION DES SQUADS" title="Squads" description="Compose tes escouades d’attaque et de défense avec tes cartes. Tes cartes ne sont jamais bloquées." />
         <Suspense fallback={<p className="vt-muted">Chargement…</p>}>
           <Builder />
         </Suspense>

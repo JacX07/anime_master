@@ -54,7 +54,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 500 !important;
+  font-weight: 500;
   letter-spacing: 0.01em;
 }
 /* Sur-titre doré au-dessus d'un titre de page */

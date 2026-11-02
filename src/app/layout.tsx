@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/mq/SiteHeader";
 import "./globals.css";
 import "./maquette.css";
 import "./controls.css";
+import "./reference.css";
 
 // Les deux polices du jeu (direction « Citadelle sombre ») : Cinzel pour le logo, les titres et les gros chiffres, DM Sans pour l'interface
 const cinzel = Cinzel({ variable: "--font-cinzel", weight: ["500", "600", "700"], subsets: ["latin"] });
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${cinzel.variable} ${dmSans.variable} h-full antialiased`}>
+    <html lang="fr" className={`${cinzel.variable} ${dmSans.variable} h-full`}>
       <body className="flex min-h-full flex-col font-sans">
         <IconSprite />
         <Suspense fallback={<p className="vt-inner vt-muted">Chargement…</p>}>

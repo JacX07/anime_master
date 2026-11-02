@@ -1,0 +1,20 @@
+/* Adaptation des règles de MaquetteDeJeuTCG/src/index.css (bded8aa).
+   Même échelle typographique et mêmes marges, sans modifier les données du jeu. */
+.mq-app-shell { font-family: var(--font-dm), sans-serif; font-weight: 400; font-synthesis: none; }
+.mq-page > .vt { background: transparent; }
+.mq-app-shell .vt-inner { max-width: 1530px; padding: 48px 4.3vw 70px; gap: 18px; }
+.mq-app-shell .mq-page-heading { align-items: center; gap: 18px; margin-bottom: 34px; }
+.mq-app-shell .mq-page-heading h1,
+.mq-app-shell .vt-title { margin: 0; font: 500 clamp(34px, 4vw, 52px)/1.05 var(--font-cinzel), serif; letter-spacing: -.025em; text-transform: none; }
+.mq-app-shell .mq-page-heading p { margin-top: 12px; color: #777d78; font-size: 13px; line-height: 1.5; }
+.mq-app-shell .inventory-page .vt-inner { gap: 0; }
+.mq-app-shell .mq-page-heading::after { bottom: -17px; width: 70px; height: 1px; background: linear-gradient(90deg, #b69b61, transparent); }
+.mq-app-shell .vt-sub { font-size: 13px; line-height: 1.5; }
+@media (max-width: 700px) {
+  .mq-app-shell .vt-inner { padding: 28px 16px 45px; }
+  .mq-app-shell .mq-page-heading { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 500px) {
+  .mq-app-shell .mq-page-heading h1,
+  .mq-app-shell .vt-title { font-size: 34px; }
+}

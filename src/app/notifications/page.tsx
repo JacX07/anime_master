@@ -6,6 +6,7 @@ import { listNotifications, type NotificationType } from "@/lib/notifications";
 import { requireUser } from "@/lib/session";
 import { MarkRead } from "./MarkRead";
 import "./notifications.css";
+import { PageHeading } from "@/components/mq/PageHeading";
 
 export const metadata: Metadata = { title: "Notifications — Anime Masters" };
 
@@ -50,9 +51,7 @@ async function Notifications() {
   const list = await listNotifications(user.id);
   return (
     <div className="vt-inner mq-notifications">
-      <header className="pg-head mq-notif-head">
-        <h1 className="vt-title">Notifications</h1>
-      </header>
+      <PageHeading title="Notifications" />
       {list.some((n) => !n.read) && <MarkRead />}
       {list.length === 0 ? (
         <p className="vt-empty">Rien pour l&apos;instant.</p>

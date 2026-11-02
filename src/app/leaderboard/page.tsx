@@ -7,6 +7,7 @@ import { eloLeaderboard } from "@/lib/duels";
 import { collectionLeaderboard } from "@/lib/leaderboard";
 import { getSessionUser } from "@/lib/session";
 import "./leaderboard.css";
+import { PageHeading } from "@/components/mq/PageHeading";
 
 export const metadata: Metadata = { title: "Classement — Anime Masters" };
 const num = new Intl.NumberFormat("fr-FR");
@@ -63,9 +64,7 @@ async function Leaderboard({
   );
   return (
     <div className="vt-inner mq-leaderboard">
-      <header className="pg-head mq-board-head">
-        <h1 className="vt-title">Classement</h1>
-      </header>
+      <PageHeading eyebrow="PANTHÉON DES INVOCATEURS" title="Classement" />
       <div className="pg-tabs">
         <nav aria-label="Classement">
           {TABS.map(([k, label]) => (

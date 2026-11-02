@@ -25,6 +25,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Style des boutons
 
+- Référence visuelle : `JacX07/MaquetteDeJeuTCG`, `src/index.css` et `src/App.tsx`. Reprendre ses composants et mesures plutôt que réinterpréter la maquette : Cinzel 500 pour les titres (`clamp(34px, 4vw, 52px)/1.05`, approche `-.025em`) et DM Sans 400, 11px pour les onglets. Les adaptations communes vivent dans `src/app/reference.css` et `src/components/mq/PageHeading.tsx`.
+
 - Tous les boutons d’action textuels et onglets suivent `src/app/controls.css` : fond transparent, aucun encadré rectangulaire, soulignement doré au survol ou pour l’état actif, focus clavier visible et état désactivé distinct.
 - Réutiliser les classes partagées existantes ou `ui-button` pour les nouveaux boutons et liens d’action. Ne pas recréer de boutons pleins ou encadrés dans une feuille locale.
 - Les cartes et objets sélectionnables conservent leur présentation visuelle de contenu ; les champs de saisie restent identifiables comme champs.
