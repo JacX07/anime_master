@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Inventaire — Anime Masters", robot
 export default function InventoryPage() {
   return <main className="vt inventory-page"><div className="vt-inner">
     <header className="pg-head"><h1 className="inventory-title">Inventaire</h1>
-      <p className="vt-sub">Tes trouvailles, tes matériaux et tes prochaines évolutions.</p>
+      <p className="vt-sub">Gère tes ressources, équipements et objets précieux.</p>
     </header>
     <Suspense fallback={<p className="vt-muted">Ouverture de l’inventaire…</p>}><Items /></Suspense>
   </div></main>;
