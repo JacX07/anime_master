@@ -1,7 +1,8 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/icons";
+import { ArtifactTile } from "@/components/ArtifactTile";
 import { ArtifactOwner } from "@/components/ArtifactOwner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,12 +29,20 @@ function SlotIcon({ slot }: { slot: Slot }) {
 
 export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card: { id: string; name: string; weaponKey: string | null; stars: number } }) {
   const [slot, setSlot] = useState<Slot>("CASQUE");
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const detailRef = useRef<HTMLElement>(null);
+  const detailId = useId();
   const [pending, start] = useTransition();
   const [message, setMessage] = useState("");
   const router = useRouter();
   const weapon = weaponDef(card.weaponKey ?? "");
   const artifacts = inventory.items.filter((item) => item.artifact);
   const visible = artifacts.filter((item) => item.artifact!.slot === slot);
+  const selected = visible.find((item) => item.key === selectedKey);
+  function closeDetails() {
+    document.getElementById(`${detailId}-${selectedKey}`)?.focus();
+    setSelectedKey(null); setMessage("");
+  }
   function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string, refresh = true) {
     setMessage("");
     start(async () => {
@@ -49,7 +58,7 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
     <div className="gear-slots" role="group" aria-label="Choisir un emplacement d’équipement">
       {(["ARME", ...ARTIFACT_SLOTS] as Slot[]).map((key) => {
         const worn = artifacts.find((item) => item.artifact!.slot === key && item.artifact!.equippedCard?.id === card.id);
-        return <button type="button" key={key} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(key); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
+        return <button type="button" key={key} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(key); setSelectedKey(null); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
           {worn?.image ? <Image src={worn.image} width={64} height={64} alt="" /> : <SlotIcon slot={key} />}
           <strong>{key === "ARME" ? "Arme" : SLOT_NAMES[key]}</strong>
           <small>{key === "ARME" ? weapon ? "Équipée" : "Vide" : worn ? `+${worn.artifact!.level}` : "Vide"}</small>
@@ -59,15 +68,23 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
     <div className="gear-compatible" id="gear-compatible">
       <h3>{slot === "ARME" ? "Arme du personnage" : `${SLOT_NAMES[slot]} · objets compatibles (${visible.length})`}</h3>
       {slot === "ARME" ? <div className="gear-weapon"><SlotIcon slot="ARME" /><h4>{weapon?.name ?? "Aucune arme forgée"}</h4><p>{weapon ? weapon.passive : "Les armes légendaires se forgent sur une carte à 5 étoiles et restent liées à cet exemplaire."}</p><Link href={card.stars === 5 ? "/forge" : "/eveil"}>{weapon ? "Voir à la forge" : card.stars === 5 ? "Forger une arme" : "Éveiller cette carte à 5★"}</Link></div> : <>
-        <p className="gear-help">Équipe un objet directement ci-dessous. Un objet du même emplacement remplace celui déjà porté.</p>
-        <div className="gear-item-grid">{visible.map((item) => {
+        <p className="gear-help">Sélectionne un artefact pour voir sa fiche et l’équiper.</p>
+        <div className="gear-workspace">
+          <div className="artifact-tile-grid" role="group" aria-label="Artefacts compatibles">{visible.map((item) => <ArtifactTile key={item.key} item={item} selected={selectedKey === item.key} controls={detailId} onSelect={() => {
+            setSelectedKey(item.key); setMessage("");
+            if (window.matchMedia("(max-width: 700px)").matches) requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
+          }} />)}</div>
+          <aside ref={detailRef} className="gear-detail" id={detailId} aria-label="Fiche de l’artefact" onKeyDown={(event) => { if (event.key === "Escape" && selected) { event.preventDefault(); event.stopPropagation(); closeDetails(); } }}>
+          {selected ? (() => {
+          const item = selected;
           const artifact = item.artifact!;
           const worn = artifact.equippedCard?.id === card.id;
           const max = artifact.level >= ARTIFACT_MAX_LEVEL;
           const cost = artifactUpgradeCost(artifact.rarity, artifact.level);
           return <article key={item.key} className="gear-item" data-rarity={artifact.rarity}>
-            <div className="gear-item-art">{item.image ? <Image src={item.image} width={96} height={96} alt="" /> : <SlotIcon slot={slot} />}<span>+{artifact.level}</span></div>
-            <p className="gear-rarity">{artifactRarity(artifact.rarity).label}</p><h4>{item.name}</h4>
+            <header className="gear-detail-heading"><p className="gear-rarity">{artifactRarity(artifact.rarity).label}</p><button type="button" className="gear-close" onClick={closeDetails}>Fermer</button></header>
+            <h4>{item.name}</h4>
+            <div className="gear-item-art">{item.image ? <Image src={item.image} width={170} height={170} alt={item.name} /> : <SlotIcon slot={slot} />}<span>+{artifact.level}</span></div>
             <div className="gear-item-body"><div><p className="gear-main-stat"><Icon name={artifactStatIcon(artifact.mainStat)} /><strong>{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</strong></p>
             <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}><Icon name={artifactStatIcon(stat.stat)} />{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</li>)}</ul>
             </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
@@ -76,7 +93,9 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
             <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : "Améliorer"}</button></div>
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
           </article>;
-        })}</div>
+        })() : <p className="gear-detail-placeholder">Sélectionne un artefact pour afficher sa fiche.</p>}
+          </aside>
+        </div>
         {!visible.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
         <p className="gear-help">Amélioration garantie jusqu’à +16 : +5 % de la valeur initiale de la stat principale par niveau. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ; si les quatre sont déjà présentes, une sous-stat aléatoire est doublée.</p>
       </>}

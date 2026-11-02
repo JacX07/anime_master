@@ -89,3 +89,52 @@
 @media (max-width: 700px) { .mq-app-shell .gear-item-grid { grid-template-columns: 1fr; } }
 
 @media (max-width: 550px) { .mq-app-shell .gear-item-actions > button { min-width: 105px; padding-inline: 15px; } }
+
+/* Artefacts : grille compacte et fiche à droite, maquette validée. */
+.mq-app-shell .artifact-tile {
+  --artifact-color: #36433c;
+  position: relative; display: grid; place-items: center; width: 96px; height: 96px;
+  min-width: 0; min-height: 0; padding: 12px; border-radius: 5px;
+  background: color-mix(in srgb, var(--artifact-color) 18%, #0a0e0d);
+  box-shadow: inset 0 0 0 4px var(--artifact-color); cursor: pointer;
+}
+.mq-app-shell .artifact-tile[data-rarity="R"] { --artifact-color: #245b3b; }
+.mq-app-shell .artifact-tile[data-rarity="SR"] { --artifact-color: #49245f; }
+.mq-app-shell .artifact-tile:is([data-rarity="SSR"], [data-rarity="UR"]) { --artifact-color: #78501f; }
+.mq-app-shell .artifact-tile[aria-pressed="true"] { background: color-mix(in srgb, var(--artifact-color) 25%, #0a0e0d); box-shadow: inset 0 0 0 5px var(--artifact-color); }
+.mq-app-shell .artifact-tile:hover { background: color-mix(in srgb, var(--artifact-color) 28%, #0a0e0d); }
+.mq-app-shell .artifact-tile:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 4px; }
+.mq-app-shell .artifact-tile > :is(img, svg) { width: 100%; height: 100%; object-fit: contain; filter: saturate(.65) brightness(.82); }
+.mq-app-shell .artifact-tile-level { position: absolute; right: 8px; bottom: 8px; padding: 3px 5px; border-radius: 4px; background: #00000012; color: #fff; font: 700 13px/1.4 var(--font-dm), sans-serif; }
+.mq-app-shell .gear-workspace { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); gap: 24px; align-items: start; background: #080b0c; padding: 20px; border-radius: 5px; }
+.mq-app-shell .artifact-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, 96px); gap: 12px; align-content: start; }
+.mq-app-shell .gear-detail { min-width: 0; scroll-margin-top: 20px; }
+.mq-app-shell .gear-detail .gear-item { background: #101514; border-radius: 5px; padding: 22px; gap: 18px; }
+.mq-app-shell .gear-detail-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mq-app-shell .gear-detail .gear-item h4 { font: 500 22px/1.3 var(--font-cinzel), serif; color: #e0dacc; }
+.mq-app-shell .gear-close { min-height: 44px; padding: 7px 0 7px 12px; }
+.mq-app-shell .gear-detail .gear-item-art { background: #090e0e; min-height: 170px; border-radius: 3px; }
+.mq-app-shell .gear-detail .gear-item-art > :is(img, svg) { width: 170px; height: 170px; filter: saturate(.75) brightness(.9); }
+.mq-app-shell .gear-detail .gear-item-art > span { top: 10px; right: 10px; }
+.mq-app-shell .gear-detail .gear-item-body { flex: none; }
+.mq-app-shell .gear-detail .gear-item-actions { margin-top: 6px; }
+.mq-app-shell .gear-detail .gear-item-actions > button { flex: 1; min-width: 0; }
+.mq-app-shell .gear-detail-placeholder { display: grid; place-items: center; min-height: 360px; padding: 24px; margin: 0; background: #101514; color: #92998f; font-size: 14px; text-align: center; border-radius: 5px; }
+.mq-app-shell .inventory-grid:has(.artifact-tile):not(:has(.mq-inventory-item)) { grid-template-columns: repeat(auto-fill, 96px); gap: 12px; }
+.mq-app-shell .inventory-workspace[data-selected="true"] { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); }
+.mq-app-shell .inventory-detail[data-artifact="true"] { background: #101514; border-radius: 5px; padding: 22px; min-width: 0; }
+.mq-app-shell .inventory-detail-close { display: block; margin-left: auto; }
+.mq-app-shell .inventory-detail[data-artifact="true"] .inventory-art { position: relative; background: #090e0e; border-radius: 3px; }
+.mq-app-shell .inventory-detail[data-artifact="true"] .inventory-art > .artifact-level { position: absolute; top: 10px; right: 10px; }
+@media (max-width: 1100px) { .mq-app-shell .gear-workspace { grid-template-columns: 96px minmax(0, 1fr); gap: 18px; padding: 16px; } }
+@media (max-width: 700px) {
+  .mq-app-shell .gear-workspace { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+  .mq-app-shell .artifact-tile-grid { grid-template-columns: repeat(auto-fill, 88px); gap: 10px; }
+  .mq-app-shell .artifact-tile-grid .artifact-tile { width: 88px; height: 88px; }
+  .mq-app-shell .gear-detail .gear-item { padding: 16px; }
+  .mq-app-shell .gear-detail .gear-item h4 { font-size: 19px; }
+  .mq-app-shell .gear-detail .gear-item-body { gap: 10px; }
+  .mq-app-shell .gear-detail .artifact-owner-card { width: 74px; }
+  .mq-app-shell .gear-detail .artifact-owner-card img { height: 99px; }
+  .mq-app-shell .inventory-workspace[data-selected="true"] { grid-template-columns: minmax(0, 1fr); }
+}
