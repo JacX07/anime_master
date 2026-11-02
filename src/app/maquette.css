@@ -29,8 +29,8 @@
   clip-path: polygon(50% 0, 100% 18%, 92% 83%, 50% 100%, 8% 83%, 0 18%);
   background: #171b1a;
 }
-.mq-brand b { display: block; font: 600 17px/1.1 var(--font-cinzel), serif; letter-spacing: .18em; }
-.mq-brand small { display: block; margin-top: 4px; color: #767b76; font-size: 7px; letter-spacing: .28em; }
+.mq-brand b { display: block; font: 600 19px/1.1 var(--font-cinzel), serif; letter-spacing: .18em; }
+.mq-brand small { display: block; margin-top: 5px; color: #767b76; font-size: 8px; letter-spacing: .28em; }
 
 .mq-topbar nav { align-self: stretch; display: flex; gap: 34px; }
 .mq-topbar nav :is(button, a) { color: #858a85; background: none; border: 0; font-size: 13px; position: relative; }
@@ -184,7 +184,7 @@
 
 /* Game shell navigation */
 .mq-topbar {
-  height: 82px;
+  height: 96px;
   padding: 0 2.2vw;
 }
 .mq-brand { min-width: 178px; background: none; border: 0; text-align: left; }
@@ -276,7 +276,7 @@
 
 .mq-play-overlay {
   position: fixed;
-  inset: 82px 0 0;
+  inset: 96px 0 0;
   z-index: 18;
   padding: 28px 4vw 60px;
   overflow-y: auto;
@@ -655,7 +655,7 @@
 .mq-app-shell::before {
   content: '';
   position: fixed;
-  inset: 82px 0 0;
+  inset: 96px 0 0;
   z-index: -1;
   pointer-events: none;
   background:
@@ -1054,7 +1054,7 @@
 /* World-building layer */
 .mq-ambient-fx {
   position: fixed;
-  inset: 82px 0 0;
+  inset: 96px 0 0;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
@@ -1734,7 +1734,7 @@
 /* Page-specific mythologies */
 .mq-page-mythology {
   position: fixed;
-  inset: 82px 0 0;
+  inset: 96px 0 0;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
@@ -2445,3 +2445,20 @@
 .mq-play-root { min-height: 0; display: block; background: none; }
 .mq-play-root::before { display: none; }
 .mq-account-panel .daily-bonus { margin: 4px; justify-content: center; }
+
+/* Joueur dans la barre : avatar plus grand, pseudo et titre équipé */
+.mq-player { display: flex; align-items: center; gap: 12px; }
+.mq-player .mq-avatar { width: 54px; height: 54px; font-size: 15px; }
+.mq-player-text { min-width: 0; max-width: 170px; }
+.mq-player-text b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 15px/1.1 var(--font-cinzel), serif; color: #e9e5dc; }
+.mq-player-text small { display: block; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c1a56b; font: 700 9px/1 var(--font-dm), sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+.mq-player:hover .mq-avatar { box-shadow: 0 0 0 2px #c1a66855, 0 0 20px #c1a66833; }
+.mq-player .mq-avatar { display: grid; place-items: center; flex-shrink: 0; }
+.mq-player-text b { text-transform: none; letter-spacing: .02em; }
+/* Écrans moyens : on ne garde que l'avatar à droite et on serre un peu la navigation pour que JOUER ne soit jamais chevauché */
+@media (max-width: 1499px) {
+  .mq-season-mark, .mq-player-text { display: none; }
+  .mq-player .mq-avatar { width: 50px; height: 50px; }
+  .mq-app-shell .mq-game-nav .mq-nav-side > :is(a, button), .mq-app-shell .mq-game-nav .mq-nav-dropdown > :is(a, button) { padding-inline: 8px; letter-spacing: .08em; }
+}
+@media (max-width: 1499px) { .mq-brand > span:last-child { display: none; } .mq-brand { min-width: 46px; } }

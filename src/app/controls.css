@@ -128,7 +128,7 @@
 /* Barre du haut (entrées plus importantes que les onglets) : capitales espacées en Cinzel, trait doré épais qui s'ouvre, halo vers le haut. */
 .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)) {
   position: relative;
-  font: 600 10px/1 var(--font-cinzel), Georgia, serif;
+  font: 600 clamp(10.5px, .9vw, 11.5px)/1 var(--font-cinzel), Georgia, serif;
   letter-spacing: .12em;
   text-transform: uppercase;
   transition: color .22s ease;
