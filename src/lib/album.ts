@@ -103,16 +103,13 @@ export interface AnimeProgress {
   members?: { title: string; owned: number; total: number }[];
 }
 
-/** Un « monde » de la vue par défaut : un anime avec sa progression et un aperçu de ses cartes */
+/** Un album de monde : progression et puissance possédée. */
 export interface WorldBand extends AnimeProgress {
-  /** Cartes en aperçu, la vedette (la plus rare possédée) en premier */
-  preview: AlbumEntry[];
   /** Puissance de toutes les cartes que le joueur possède dans ce monde (somme sur chaque exemplaire) */
   power: number;
 }
 
 export const WORLDS_PER_PAGE = 12;
-const WORLD_PREVIEW = 4;
 
 export interface AlbumPage {
   entries: AlbumEntry[];
@@ -179,11 +176,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   const selected = [...listed, ...blocks].find((a) => a.key === f.anime) ?? null;
 
   const rank = new Map(all.map((c) => [c.id, c]));
-  const order = (a: number, b: number) => {
-    const ca = rank.get(a)!;
-    const cb = rank.get(b)!;
-    return RARITY_ORDER.indexOf(ca.rarity) - RARITY_ORDER.indexOf(cb.rarity) || cb.favourites - ca.favourites || a - b;
-  };
+
 
   if (!selected && !f.q && !f.rarity && !f.type && f.owned === "all") {
     const idsOf = new Map<string, number[]>();
@@ -205,21 +198,11 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
     const pages = Math.max(1, Math.ceil(known.length / WORLDS_PER_PAGE));
     const page = Math.min(f.page, pages);
     const slice = known.slice((page - 1) * WORLDS_PER_PAGE, page * WORLDS_PER_PAGE);
-    // Aperçu : d'abord les cartes possédées (les plus rares en tête, la vedette), puis les manquantes
-    const previews = slice.map((a) => {
-      const ids = [...(idsOf.get(a.key) ?? [])].sort(order);
-      const mine = ids.filter((id) => owned.has(id));
-      const rest = ids.filter((id) => !owned.has(id));
-      return [...mine, ...rest].slice(0, WORLD_PREVIEW);
-    });
-    const entries = await loadEntries([...new Set(previews.flat())], owned);
-    const entryById = new Map(entries.map((e) => [e.id, e]));
     return {
       entries: [],
       worlds: {
-        bands: slice.map((a, i) => ({
+        bands: slice.map((a) => ({
           ...a,
-          preview: previews[i].map((id) => entryById.get(id)!),
           power: powerOf(a.key),
         })),
         unknown: listed.length + blocks.length - known.length,

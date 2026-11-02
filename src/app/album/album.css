@@ -316,3 +316,21 @@
     display: none;
   }
 }
+
+/* Album covers, using the reference's muted palette and typography. */
+.album-page .wd-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; counter-reset: world-album; }
+.album-page .wd-tile { counter-increment: world-album; min-width: 0; min-height: 330px; padding: 26px; gap: 28px; overflow: hidden; border-radius: 8px; background: radial-gradient(circle at 70% 20%, #a1854920, transparent 40%), linear-gradient(145deg, #242a26, #121615); color: #e3dfd5; text-decoration: none; transition: background-color .15s ease; }
+.album-page .wd-tile:hover { background: radial-gradient(circle at 70% 20%, #a1854933, transparent 40%), linear-gradient(145deg, #29302a, #151a17); }
+.album-page .wd-tile:focus-visible { outline: 2px solid #c4a76d; outline-offset: 4px; }
+.album-page .wd-index { color: #6c716c; font: 500 46px/1 var(--font-cinzel), serif; }
+.album-page .wd-index::before { content: counter(world-album, decimal-leading-zero); }
+.album-page .wd-meta { position: relative; z-index: 1; margin-top: auto; width: 100%; }
+.album-page .wd-kicker { color: #a68e5d; font-size: 8px; letter-spacing: .15em; text-transform: uppercase; }
+.album-page .wd-tile h2 { max-width: none; margin: 8px 0 12px; color: #e3dfd5; font: 500 22px/1.25 var(--font-cinzel), serif; letter-spacing: -.025em; text-transform: none; overflow-wrap: anywhere; hyphens: none; }
+.album-page .wd-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; }
+.album-page .wd-summary p { margin: 0; color: #92988f; font: 400 11px/1.5 var(--font-dm), sans-serif; }
+.album-page .wd-power { color: #a99568; font: 400 11px/1.5 var(--font-dm), sans-serif; }
+.album-page .wd-bar { display: block; height: 3px; margin-top: 16px; background: #303531; }
+.album-page .wd-bar i { background: #bca166; }
+@media (max-width: 1100px) { .album-page .wd-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .album-page .wd-list { grid-template-columns: minmax(0, 1fr); } .album-page .wd-tile { min-height: 290px; } }

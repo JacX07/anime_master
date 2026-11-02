@@ -7,49 +7,20 @@ import { albumHref } from "./AlbumFilters";
 const num = new Intl.NumberFormat("fr-FR");
 const pct = (a: number, b: number) => (b ? Math.floor((a / b) * 1000) / 10 : 0);
 
-/** Teinte propre à chaque monde, dérivée de son nom (stable d'une visite à l'autre) */
-function worldHue(title: string) {
-  let h = 0;
-  for (const c of title) h = (h * 31 + c.charCodeAt(0)) % 360;
-  return h;
-}
-
-/** Une tuile par monde : nom en grand, carte vedette inclinée, progression et puissance */
+/** Album d’un monde : progression réelle, sans portraits ni éventail au survol. */
 export function World({ world, filters }: { world: WorldBand; filters: Filters }) {
   const p = pct(world.owned, world.total);
-  const star = world.preview[0];
   return (
-    <Link
-      href={albumHref(filters, { anime: world.key, page: 1 })}
-      className="wd-tile"
-      style={{ "--w": `hsl(${worldHue(world.title)} 85% 62%)` } as React.CSSProperties}
-      aria-label={`${world.title} : ${world.owned} cartes sur ${world.total}`}
-    >
-      <h2>{world.title}</h2>
-      {star && (
-        <div className="wd-star" style={{ "--rar": `var(--rarity-${star.rarity})` } as React.CSSProperties}>
-          <CharacterCard {...star} characterId={star.id} finish={star.owned?.best} count={star.owned?.count} stars={star.owned?.stars} missing={!star.owned} />
+    <Link href={albumHref(filters, { anime: world.key, page: 1 })} className="wd-tile" aria-label={`${world.title} : ${world.owned} cartes sur ${world.total}`}>
+      <span className="wd-index" aria-hidden="true" />
+      <div className="wd-meta">
+        <span className="wd-kicker">Collection</span>
+        <h2>{world.title}</h2>
+        <div className="wd-summary">
+          <p>{num.format(world.owned)} / {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</p>
+          <span className="wd-power" title="Puissance possédée dans ce monde"><Stat icon="puissance">{num.format(world.power)}</Stat></span>
         </div>
-      )}
-      {/* Au survol : quelques personnages du monde se déploient en éventail au-dessus de la tuile, la plus rare à droite et au premier plan */}
-      <div className="wd-fan" aria-hidden>
-        {[...world.preview].reverse().map((e) => (
-          <div key={e.id}>
-            <CharacterCard {...e} characterId={e.id} finish={e.owned?.best} count={undefined} missing={!e.owned} />
-          </div>
-        ))}
-      </div>
-      <div className="wd-foot">
-        <b className="wd-count">{num.format(world.owned)}</b>
-        <span>sur {num.format(world.total)} cartes{world.owned === world.total && " · complet"}</span>
-        <span className="wd-bar" role="img" aria-label={`${p} % de complétion`}>
-          <i style={{ width: `${p}%` }} />
-        </span>
-        <span className="wd-power" title="Puissance du monde">
-          <Stat icon="puissance" accent="currentColor">
-            {num.format(world.power)}
-          </Stat>
-        </span>
+        <span className="wd-bar" role="img" aria-label={`${p} % de complétion`}><i style={{ width: `${p}%` }} /></span>
       </div>
     </Link>
   );
