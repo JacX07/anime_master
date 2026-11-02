@@ -1,4 +1,4 @@
-.grid {
+.ur-gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(10.5rem, 100%), 1fr));
   gap: 2rem 1.5rem;
@@ -6,7 +6,7 @@
   list-style: none;
 }
 
-.card {
+.ur-gallery-card {
   display: block;
   width: 100%;
   padding: 0;
@@ -17,14 +17,14 @@
   cursor: zoom-in;
 }
 
-.card:focus-visible,
-.control:focus-visible,
-.detail:focus-visible {
+.ur-gallery-card:focus-visible,
+.ur-gallery-control:focus-visible,
+.ur-gallery-detail:focus-visible {
   outline: 2px solid var(--rarity-UR);
   outline-offset: 5px;
 }
 
-.viewer {
+.ur-gallery-viewer {
   width: min(46rem, calc(100% - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
   margin: auto;
@@ -36,35 +36,35 @@
   color: var(--foreground);
 }
 
-.viewer::backdrop {
+.ur-gallery-viewer::backdrop {
   background: #0b0e0fed;
 }
 
-.content {
+.ur-gallery-content {
   display: grid;
   gap: 1rem;
   padding: 1.25rem;
 }
 
-.header,
-.controls {
+.ur-gallery-header,
+.ur-gallery-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.header h2 {
+.ur-gallery-header h2 {
   font-size: 1.1rem;
   overflow-wrap: anywhere;
 }
 
-.header p {
+.ur-gallery-header p {
   margin-top: 0.3rem;
   font-size: 0.85rem;
 }
 
-.art {
+.ur-gallery-art {
   display: block;
   width: 100%;
   height: min(60dvh, 38rem);
@@ -72,7 +72,7 @@
   background: #0b0e0f;
 }
 
-.control {
+.ur-gallery-control {
   min-height: 2.75rem;
   padding: 0.5rem 0.8rem;
   border: 1px solid #313632;
@@ -82,26 +82,26 @@
   cursor: pointer;
 }
 
-.control:disabled {
+.ur-gallery-control:disabled {
   opacity: 0.4;
   cursor: default;
 }
 
-.detail {
+.ur-gallery-detail {
   justify-self: center;
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
 
-.hint {
+.ur-gallery-hint {
   color: var(--muted);
   font-size: 0.75rem;
   text-align: center;
 }
 
 @media (max-width: 420px) {
-  .content { padding: 0.75rem; }
-  .header, .controls { gap: 0.5rem; }
-  .control { padding-inline: 0.55rem; }
-  .hint { display: none; }
+  .ur-gallery-content { padding: 0.75rem; }
+  .ur-gallery-header, .ur-gallery-controls { gap: 0.5rem; }
+  .ur-gallery-control { padding-inline: 0.55rem; }
+  .ur-gallery-hint { display: none; }
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { CharacterCard, type CharacterCardProps } from "@/components/CharacterCard";
-import styles from "./gallery.module.css";
+import "./gallery.css";
 
 type GalleryCharacter = CharacterCardProps & { id: number };
 
@@ -18,12 +18,12 @@ export function URGallery({ characters }: { characters: GalleryCharacter[] }) {
   return (
     <>
       <p className="vt-count">{characters.length} illustration{characters.length > 1 ? "s" : ""} UR</p>
-      <ul className={styles.grid}>
+      <ul className="ur-gallery-grid">
         {characters.map((item, position) => (
           <li key={item.id}>
             <button
               type="button"
-              className={styles.card}
+              className="ur-gallery-card"
               aria-label={`Agrandir l’illustration de ${item.name}`}
               aria-haspopup="dialog"
               onClick={() => {
@@ -39,7 +39,7 @@ export function URGallery({ characters }: { characters: GalleryCharacter[] }) {
 
       <dialog
         ref={dialog}
-        className={styles.viewer}
+        className="ur-gallery-viewer"
         aria-labelledby="ur-illustration-title"
         onClick={(event) => {
           if (event.target === event.currentTarget) dialog.current?.close();
@@ -51,24 +51,24 @@ export function URGallery({ characters }: { characters: GalleryCharacter[] }) {
           }
         }}
       >
-        <div className={styles.content}>
-          <header className={styles.header}>
+        <div className="ur-gallery-content">
+          <header className="ur-gallery-header">
             <div aria-live="polite">
               <h2 id="ur-illustration-title">{character.name}</h2>
               {character.series && <p className="vt-muted">{character.series}</p>}
             </div>
-            <button type="button" className={styles.control} onClick={() => dialog.current?.close()}>Fermer</button>
+            <button type="button" className="ur-gallery-control" onClick={() => dialog.current?.close()}>Fermer</button>
           </header>
           {/* Illustration servie directement par le CDN AniList, sans recadrage. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img key={character.id} className={styles.art} src={character.imageUrl} alt={`Illustration de ${character.name}`} referrerPolicy="no-referrer" />
-          <nav className={styles.controls} aria-label="Parcourir les illustrations UR">
-            <button type="button" className={styles.control} disabled={index === 0} onClick={() => move(-1)}>Précédente</button>
+          <img key={character.id} className="ur-gallery-art" src={character.imageUrl} alt={`Illustration de ${character.name}`} referrerPolicy="no-referrer" />
+          <nav className="ur-gallery-controls" aria-label="Parcourir les illustrations UR">
+            <button type="button" className="ur-gallery-control" disabled={index === 0} onClick={() => move(-1)}>Précédente</button>
             <span aria-live="polite">{index + 1} / {characters.length}</span>
-            <button type="button" className={styles.control} disabled={index === characters.length - 1} onClick={() => move(1)}>Suivante</button>
+            <button type="button" className="ur-gallery-control" disabled={index === characters.length - 1} onClick={() => move(1)}>Suivante</button>
           </nav>
-          <Link href={`/character/${character.id}`} className={styles.detail}>Voir la fiche du personnage</Link>
-          <p className={styles.hint}>Flèches pour parcourir · Échap pour fermer</p>
+          <Link href={`/character/${character.id}`} className="ur-gallery-detail">Voir la fiche du personnage</Link>
+          <p className="ur-gallery-hint">Flèches pour parcourir · Échap pour fermer</p>
         </div>
       </dialog>
     </>
