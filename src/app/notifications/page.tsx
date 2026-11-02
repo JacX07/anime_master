@@ -5,6 +5,7 @@ import { SceneBody } from "@/components/SceneBody";
 import { listNotifications, type NotificationType } from "@/lib/notifications";
 import { requireUser } from "@/lib/session";
 import { MarkRead } from "./MarkRead";
+import "./notifications.css";
 
 export const metadata: Metadata = { title: "Notifications — Anime Masters" };
 
@@ -48,8 +49,8 @@ async function Notifications() {
   const user = await requireUser();
   const list = await listNotifications(user.id);
   return (
-    <div className="vt-inner">
-      <header className="pg-head">
+    <div className="vt-inner mq-notifications">
+      <header className="pg-head mq-notif-head">
         <h1 className="vt-title">Notifications</h1>
       </header>
       {list.some((n) => !n.read) && <MarkRead />}
