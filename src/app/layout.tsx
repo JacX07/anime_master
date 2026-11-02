@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, DM_Sans } from "next/font/google";
 import { Suspense } from "react";
+import { AmbientSound } from "@/components/AmbientSound";
 import { IconSprite } from "@/components/icons";
 import { AppShell } from "@/components/mq/AppShell";
 import { SiteHeader } from "@/components/mq/SiteHeader";
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="fr" className={`${cinzel.variable} ${dmSans.variable} h-full`}>
       <body className="flex min-h-full flex-col font-sans">
         <IconSprite />
+        <AmbientSound />
         <Suspense fallback={<p className="vt-inner vt-muted">Chargement…</p>}>
           <AppShell header={<SiteHeader />}>
             {children}

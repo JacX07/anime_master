@@ -147,6 +147,11 @@ class PackAudio {
     };
   }
 
+  /** Coupe l'ambiance sans changer la préférence (combat en cours, changement de page). */
+  pauseAmbience() {
+    this.stopAmbience?.();
+  }
+
   setAmbience(on: boolean) {
     if (on) {
       this.startAmbience();
@@ -155,6 +160,11 @@ class PackAudio {
     }
     else this.stopAmbience?.();
     try { localStorage.setItem(STORE, on ? "on" : "off"); } catch { /* stockage indisponible */ }
+  }
+
+  /** Un contexte audio existe : l'utilisateur a déjà interagi avec la page. */
+  get unlocked(): boolean {
+    return this.ctx !== null;
   }
 
   get ambienceWanted(): boolean {

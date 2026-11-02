@@ -49,8 +49,9 @@
 .pk-grid .flip { cursor: pointer; animation: pk-deal 0.5s cubic-bezier(.2,.8,.3,1) both; animation-delay: calc(0.25s + var(--i, 0) * 0.09s); }
 .pk-grid .flip[data-revealed="true"]:hover .flip-inner { transform: rotateY(180deg) translateY(-4px); }
 .pk-grid .flip:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 8px; }
-.pk-grid .flip[data-revealed="true"][data-rarity="SSR"] .flip-inner, .pk-grid .flip[data-revealed="true"][data-rarity="UR"] .flip-inner { filter: drop-shadow(0 0 14px var(--rarity-SSR)); }
-.pk-grid .flip[data-revealed="true"][data-rarity="UR"] .flip-inner { filter: drop-shadow(0 0 18px var(--rarity-UR)); }
+/* Le halo va sur .flip : un filtre sur .flip-inner aplatit la 3D et la carte ne se retournait plus */
+.pk-grid .flip[data-revealed="true"][data-rarity="SSR"] { filter: drop-shadow(0 0 14px var(--rarity-SSR)); }
+.pk-grid .flip[data-revealed="true"][data-rarity="UR"] { filter: drop-shadow(0 0 18px var(--rarity-UR)); }
 .card-back span { display: grid; place-items: center; height: 100%; color: #d5bb7f99; font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.2em; }
 
 .pk-controls { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; margin-top: auto; text-align: center; }
@@ -113,10 +114,6 @@
 .pk-grid .flip[data-hint] .card-back { box-shadow: 0 0 16px 2px var(--rarity-SSR), inset 0 0 14px -2px var(--rarity-SSR); animation: pk-pulse 1.4s ease-in-out infinite; }
 .pk-grid .flip[data-hint="UR"] .card-back { box-shadow: 0 0 20px 3px var(--rarity-UR), inset 0 0 16px -2px var(--rarity-UR); }
 
-/* Ambiance */
-.pk-stage { position: relative; }
-.pk-sound { position: absolute; top: 0.8rem; right: 0.8rem; }
-.mq-app-shell[class] button.pk-sound { font-size: 11px; padding: 6px 10px 8px; color: #8c918b; }
 
 /* Fiche d'une carte tirée */
 .pk-detail { margin: auto; width: min(60rem, 94vw); max-height: 90vh; padding: 0; overflow: auto; border: 1px solid var(--gold-dim); border-radius: 10px; background: #0b0e0f; color: #e9e5dc; }

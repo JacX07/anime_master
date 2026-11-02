@@ -12,7 +12,7 @@ import type { OpenedCard, OpenedPack, PlayerPackState } from "@/lib/packs";
 import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY, type LotSize } from "@/lib/pull";
 import { buyCrystalsAction, devGrantCrystalsAction, openPackAction } from "./actions";
 import { CardDetail } from "./CardDetail";
-import { packAudio } from "./pack-audio";
+import { packAudio } from "@/lib/pack-audio";
 import "./packs.css";
 
 const ORDER: Rarity[] = ["UR", "SSR", "SR", "R", "N"];
@@ -49,25 +49,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const [pack, setPack] = useState<OpenedPack | null>(null);
   const [revealed, setRevealed] = useState<boolean[]>([]);
   const [detail, setDetail] = useState<OpenedCard | null>(null);
-  const [ambience, setAmbience] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const { available, msLeft } = useLiveStock(state);
-
-  useEffect(() => {
-    setAmbience(packAudio.ambienceWanted);
-    return () => packAudio.dispose();
-  }, []);
-
-  /** Les navigateurs exigent un geste avant tout son : l'ambiance démarre au premier clic dans la salle. */
-  function wake() {
-    if (ambience) packAudio.startAmbience();
-  }
-  function toggleAmbience() {
-    const next = !ambience;
-    setAmbience(next);
-    packAudio.setAmbience(next);
-  }
 
   const banner = banners.find((b) => b.id === bannerId) ?? null;
   const kind = banner?.costKind ?? "NORMAL";
@@ -125,7 +109,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const rareCount = pack ? pack.cards.filter((c) => c.rarity === "SSR" || c.rarity === "UR").length : 0;
 
   return (
-    <div className="pk" onPointerDown={wake}>
+    <div className="pk">
       <header className="pk-head">
         <div>
           <p className="eyebrow">Salle des invocations</p>
@@ -222,10 +206,6 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               {!waitingReveal && <p className="pk-note">Clique sur une carte pour voir ses stats et ses sorts.</p>}
             </div>
           )}
-
-          <button type="button" className="pk-sound" aria-pressed={ambience} onClick={toggleAmbience} title="Ambiance sonore">
-            {ambience ? "♪ Ambiance activée" : "♪ Ambiance coupée"}
-          </button>
 
           <div className="pk-controls">
             <div className="pk-lots" role="radiogroup" aria-label="Taille du lot">

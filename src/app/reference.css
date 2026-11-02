@@ -28,3 +28,9 @@
 .mq-app-shell, .mq-app-shell *, .mq-app-shell *::before, .mq-app-shell *::after { border-style: none !important; }
 .mq-app-shell .card-deco { display: none; }
 .mq-app-shell .card { border: 1px solid var(--rarity) !important; }
+
+/* Bouton d'ambiance sonore : discret, en bas à droite de toutes les pages */
+.mq-app-shell ~ .ambient-toggle, .ambient-toggle { position: fixed; right: 14px; bottom: 14px; z-index: 40; padding: 6px 10px; border: 0; border-bottom: 2px solid transparent; background: #0b0e0fcc; color: #8c918b; font: 400 11px/1.5 var(--font-dm), sans-serif; cursor: pointer; }
+.ambient-toggle[aria-pressed="true"] { color: #e9e5dc; border-bottom-color: #c4a76d; }
+.ambient-toggle:hover { color: #e9e5dc; border-bottom-color: #c4a76d; }
+.ambient-toggle:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
