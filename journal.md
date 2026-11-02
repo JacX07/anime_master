@@ -138,3 +138,13 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : encapsuler le check dans main async et utiliser require.main === module pour le point d'entrée de publication importable.
 - Occurrences : 1.
 - Statut : corrigé pendant le développement.
+
+## 2026-11-02 — Connexions Supabase dans deux worktrees
+
+- Symptôme : les modifications utilisateur du .env ne sont pas prises en compte par les commandes de migration ; puis Supabase renvoie 28P01.
+- Cause : fichier modifié dans anime_master alors que la migration s’exécute depuis anime_master-postgres ; identifiants de connexion corrigés ensuite par l’utilisateur.
+- Correctif : recopier uniquement DATABASE_URL et DIRECT_URL entre les fichiers locaux, sans afficher les secrets ni remplacer les autres variables. Connexions vérifiées en lecture seule après correction.
+- Validation dev : migration 20261102160000_init_postgres appliquée à la cible dev indiquée par l’utilisateur ; import depuis data/app.db SQLite en lecture seule : 3 411 Media, 4 717 Character, 14 934 CharacterMedia et 1 SpellOverride. Aperçu annulé avant application ; second import appliqué : zéro écriture dans les quatre tables. User, Session et Card restent à zéro.
+- Limites : aucun import prod, aucune publication, aucun parcours navigateur vérifié pendant cette opération. Les anciens fichiers SQLite sont conservés.
+- Occurrences : 1.
+- Statut : contourné ; configuration locale non versionnée.
