@@ -150,11 +150,13 @@ puissance = min + t × (max − min)
 Ici « puissance » désigne seulement le total ATK + DEF qui sert à répartir les stats ; la stat affichée « Puissance » est différente (voir 1 bis).
 
 **1 bis. Puissance (stat affichée, `Character.power`)**
-Stat à part, **indépendante d'ATK et DEF** (qui restent équilibrées et servent aux duels). Elle exprime la popularité, avec une forte progression :
-```
-power = 100 × (favoris / favorisMin)^1,35      // favorisMin = le personnage le moins aimé de la base
-```
-Chaque doublement de favoris la multiplie par ~2,5. Avec les données actuelles (229 à 39 213 favoris) : N ≈ 100–520, R ≈ 520–2 300, SR ≈ 2 300–9 100, SSR ≈ 9 100–30 000, UR ≈ 30 000–104 000. La rareté suit les favoris, donc ces plages ne se chevauchent pas. Elle est affichée en grand sur les cartes ; ATK et DEF le sont discrètement.
+Score de statistiques, sans facteur direct de favoris. Les favoris continuent de déterminer les stats de base et la rareté.
+Les références de normalisation sont 1 000 ATK, 1 000 DEF, 5 600 PV et 100 vitesse.
+Poids : ATK 40 %, PV 25 %, DEF 20 %, vitesse 15 %. Le score est multiplié par 1 000 puis par √(vitesse / 100).
+L’attaque est pondérée par les dégâts critiques moyens et les bonus de dégâts applicables. Compétence magique : demi-poids si le kit contient un sort magique ; saignement : quart de poids. L’esquive (plafond 60 %) augmente la partie défensive. Précision : jusqu’à 5 % du score de référence ; jauge : 10 % pour 100 points.
+Ces coefficients sont une estimation lisible des stats, pas une prédiction du taux de victoire ou de la valeur des sorts.
+Les cartes du catalogue utilisent les stats de base. Dans Équipe et les nouveaux combats, le calcul utilise les stats initiales du moteur avec éveil, arme, artefacts, sets et synergies. Les anciens combats gardent leur copie enregistrée.
+Recalcul de la base : `npx tsx scripts/recompute-power.ts`, sans réimport ni modification des autres stats.
 
 **2. Répartition ATK / DEF**
 | Rôle dans la série principale | Part ATK | Part DEF |
@@ -166,7 +168,7 @@ Chaque doublement de favoris la multiplie par ~2,5. Avec les données actuelles 
 - La variation porte sur la répartition, pas sur la puissance totale : les plages des raretés restent disjointes.
 - `ATK = round(puissance × partATK, 10)`, `DEF = puissance − ATK`.
 
-**Exemple :** Gojo, UR, MAIN, le plus favori de sa rareté → total ATK + DEF 8 000 → ATK ≈ 4 800 / DEF ≈ 3 200 (± variation) ; sa stat Puissance, elle, est d'environ 100 000.
+**Exemple :** Gojo, UR, MAIN, le plus favori de sa rareté → total ATK + DEF 8 000 → ATK ≈ 4 800 / DEF ≈ 3 200 (± variation) ; sa Puissance dépend de ces stats et de sa vitesse.
 
 **Contraintes :** calcul déterministe (même entrée = même résultat d'un import à l'autre), recalculé à chaque import.
 

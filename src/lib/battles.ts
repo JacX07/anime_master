@@ -1,3 +1,4 @@
+import { combatPowers } from "./combat-power";
 import { sumArtifactStats } from "./artifact-stats";
 import { adventureLock } from "./adventure-state";
 // Combats 4 contre 4 côté serveur (docs/specs/combat.md §10) : équipe d'attaque enregistrée, lancement, mode manuel, abandon.
@@ -458,11 +459,13 @@ export const getAttackTeam = (userId: string) => getTeam(userId, "ATTACK");
 
 async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnType<typeof getAttackTeam>>[number]>[]) {
   const artifacts = await prisma.artifact.findMany({ where: { userId, equippedCardId: { in: slots.map((s) => s.id) } } });
-  return slots.map((card) => {
+  const fitted = slots.map((card) => {
     const worn = artifacts.filter((a) => a.equippedCardId === card.id && a.setKey === DUNGEON_KEY);
     const stats = sumArtifactStats(worn);
     return { ...card, artifactStats: stats };
   });
+  const powers = combatPowers(fitted.map((c) => ({ ...toBattleCard(c.character, c.stars, c.weaponKey), artifactStats: c.artifactStats })));
+  return fitted.map((c, index) => ({ ...c, character: { ...c.character, power: powers[index] } }));
 }
 
 export async function equipArtifact(userId: string, artifactId: string, cardId: string | null) {

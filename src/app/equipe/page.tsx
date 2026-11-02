@@ -1,3 +1,4 @@
+import { teamPowers } from "@/lib/team-power";
 import { getPlayerInventory } from "@/lib/player-inventory";
 import type { Metadata } from "next";
 import { Suspense } from "react";
@@ -44,17 +45,21 @@ async function Builder() {
     getPlayerInventory(user.id),
     prisma.squad.findMany({ where: { userId: user.id }, orderBy: { id: "asc" } }),
   ]);
+  const ownPowers = cards.map((c) => teamPowers([{
+    ...c, ...c.character, id: c.id, characterId: c.character.id,
+    speed: speedOf(c.character.id), franchiseId: c.character.mainMedia?.franchiseId ?? c.character.mainMediaId,
+  }], inventory.items)[0]);
   return (
     <SquadManager
       inventory={inventory}
-      cards={cards.map((c) => ({
+      cards={cards.map((c, index) => ({
         id: c.id,
         characterId: c.character.id,
         name: c.character.name,
         imageUrl: c.character.imageUrl,
         rarity: c.character.rarity,
         type: c.character.type,
-        power: c.character.power,
+        power: ownPowers[index],
         attack: c.character.attack,
         defense: c.character.defense,
         speed: speedOf(c.character.id),

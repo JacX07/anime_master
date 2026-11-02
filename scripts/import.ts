@@ -1,3 +1,4 @@
+import { speedOf } from "../src/lib/speed";
 // Import des personnages AniList dans la base locale (SPEC, étape 1).
 // Usage : npm run import            (5 000 personnages, ~100 pages)
 //         npm run import -- --pages 2   (test rapide)
@@ -146,7 +147,6 @@ async function recompute() {
   const rarities = assignRarities(all);
   const withRarity = all.map((c) => ({ ...c, rarity: rarities.get(c.id)! }));
   const bounds = favouriteBounds(withRarity);
-  const minFavourites = Math.min(...all.map((c) => c.favourites));
 
   const updates = withRarity.map((c) => {
     const genres = Array.isArray(c.mainMedia?.genres) ? (c.mainMedia.genres as string[]) : [];
@@ -155,7 +155,7 @@ async function recompute() {
       { id: c.id, favourites: c.favourites, rarity: c.rarity, role: c.mainRole },
       bounds,
     );
-    return { id: c.id, data: { rarity: c.rarity, type: assignType(genres, tags), attack, defense, power: computePower(c.favourites, minFavourites) } };
+    return { id: c.id, data: { rarity: c.rarity, type: assignType(genres, tags), attack, defense, power: computePower({ attack, defense, speed: speedOf(c.id) }) } };
   });
 
   await inBatches(updates, (batch) =>

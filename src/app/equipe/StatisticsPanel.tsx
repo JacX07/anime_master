@@ -1,4 +1,5 @@
 "use client";
+import { combatPowers } from "@/lib/combat-power";
 import { BATTLE, createBattle, type BattleCard } from "@/lib/battle";
 import { sumArtifactStats } from "@/lib/artifact-stats";
 import { weaponDef } from "@/lib/weapons";
@@ -6,7 +7,7 @@ import type { TeamCard } from "./TeamBuilder";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { Icon } from "@/components/icons";
 
-const STAT_ICONS: Record<string, string> = { PV: "hp", "Compétence magique": "magie", ATK: "atk", DEF: "def", Vitesse: "speed", "Chance de critique": "eveil", "Dégâts critiques": "puissance", Esquive: "speed" };
+const STAT_ICONS: Record<string, string> = { Puissance: "puissance", PV: "hp", "Compétence magique": "magie", ATK: "atk", DEF: "def", Vitesse: "speed", "Chance de critique": "eveil", "Dégâts critiques": "puissance", Esquive: "speed" };
 
 export function StatisticsPanel({ card, team, inventory }: { card: TeamCard; team: TeamCard[]; inventory: Awaited<ReturnType<typeof getPlayerInventory>> }) {
   const context = team.some((member) => member.id === card.id) ? team : [card];
@@ -21,6 +22,7 @@ export function StatisticsPanel({ card, team, inventory }: { card: TeamCard; tea
   const percent = (n: number) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(n * 100)} %`;
   const number = (n: number) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(n);
   const rows = [
+    ["Puissance", number(combatPowers([{ ...battleCards[index], stars: 0, weapon: null, artifactStats: undefined }])[0]), number(combatPowers(battleCards)[index])],
     ["PV", number(BATTLE.hp(card.attack, card.defense)), number(unit.maxHp)],
     ["Compétence magique", "0 %", percent(gear.magicSkill ?? 0)],
     ["ATK", number(card.attack), number(unit.atk)],
@@ -30,7 +32,7 @@ export function StatisticsPanel({ card, team, inventory }: { card: TeamCard; tea
     ["Dégâts critiques", percent(BATTLE.critDamage), percent(BATTLE.critDamage + gear.critDamage)],
     ["Esquive", "0 %", percent(clamp(unit.dodge + gear.dodge))],
   ];
-  return <section className="eq-statistics"><h2 className="eq-h">Statistiques de {card.name}</h2><p>Valeurs au début du combat, avec l’éveil, l’arme, les artefacts, les sets et les synergies de l’équipe affichée. Les effets temporaires des sorts ne sont pas inclus. Compétence magique augmente les dégâts des seuls sorts marqués magiques.</p>
+  return <section className="eq-statistics"><h2 className="eq-h">Statistiques de {card.name}</h2><p>Valeurs au début du combat, avec l’éveil, l’arme, les artefacts, les sets et les synergies de l’équipe affichée. Puissance pondérée : ATK 40 %, PV 25 %, DEF 20 %, vitesse 15 %, puis bonus de critique, esquive et stats spéciales. La vitesse amplifie aussi le score. Les effets temporaires des sorts ne sont pas inclus. Compétence magique augmente les dégâts des seuls sorts marqués magiques.</p>
     <table><thead><tr><th scope="col">Statistique</th><th scope="col">Base</th><th scope="col">En combat</th></tr></thead><tbody>{rows.map(([label, base, total]) => <tr key={label}><th scope="row"><Icon name={STAT_ICONS[label]} /> {label}</th><td>{base}</td><td>{total}</td></tr>)}</tbody></table>
     {!team.some((member) => member.id === card.id) && <p>Cette carte n’est pas dans l’équipe affichée : calcul individuel, sans synergie d’équipe.</p>}
     <small>L’esquive de l’arme s’applique aux sorts affiliés ; celle des artefacts s’applique aux coups esquivables.</small>

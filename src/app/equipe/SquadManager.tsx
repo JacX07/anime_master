@@ -1,4 +1,5 @@
 "use client";
+import { teamPowers } from "@/lib/team-power";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { PageHeading } from "@/components/mq/PageHeading";
 import { CharacterCard } from "@/components/CharacterCard";
@@ -42,7 +43,10 @@ export function SquadManager({ cards, presets, saved, inventory }: {
   const byId = useMemo(() => new Map(cards.map((card) => [card.id, card])), [cards]);
   // Sold, traded or auctioned cards are shown as empty slots, never silently replaced.
   const slots = draft.map((id) => id && byId.has(id) ? id : null);
-  const members = slots.map((id) => id ? byId.get(id)! : null);
+  const selectedCards = slots.flatMap((id) => id ? [byId.get(id)!] : []);
+  const powers = teamPowers(selectedCards, inventory.items);
+  const powerById = new Map(selectedCards.map((card, index) => [card.id, powers[index]]));
+  const members = slots.map((id) => id ? { ...byId.get(id)!, power: powerById.get(id)! } : null);
   const full = slots.every(Boolean);
   const dirty = editing && (!same(draft, current.slots) || name !== current.name);
   const filtered = useMemo(() => cards.filter((c) => (!rarity || c.rarity === rarity) && (!type || c.type === type) && `${c.name} ${c.series ?? ""}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), [cards, rarity, type, query]);

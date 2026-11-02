@@ -199,15 +199,29 @@ export function computeStats(
   return { attack, defense: power - attack };
 }
 
-/**
- * Puissance : stat à part, indépendante d'ATK et DEF (qui servent aux duels). Loi de puissance des favoris, pour que les
- * personnages populaires écrasent les autres : chaque doublement de favoris la multiplie par 2^POWER_EXPONENT (≈ 2,5).
- * Le moins aimé de la base vaut POWER_BASE ; avec les données actuelles (229 à 39 000 favoris), le plus aimé ≈ 100 000.
- * La rareté suit les favoris : plus de puissance = rareté au moins égale, les plages ne se chevauchent pas.
+/** Pondération des stats normalisées : ATK 40 %, PV 25 %, DEF 20 %, vitesse 15 %.
+ * Références : 1 000 ATK/DEF, 5 600 PV et 100 vitesse. Aucun facteur de popularité.
  */
-export const POWER_BASE = 100;
-export const POWER_EXPONENT = 1.35;
+export const POWER_WEIGHTS = { attack: 0.4, hp: 0.25, defense: 0.2, speed: 0.15 } as const;
 
-export function computePower(favourites: number, minFavourites: number): number {
-  return Math.round(POWER_BASE * Math.pow(Math.max(1, favourites) / Math.max(1, minFavourites), POWER_EXPONENT));
+export function computePower(stats: {
+  attack: number; defense: number; hp?: number; speed?: number;
+  crit?: number; critDamage?: number; dodge?: number;
+  damageBonus?: number; magicSkill?: number; precision?: number;
+  gaugePerSpell?: number; bleedBonus?: number;
+}): number {
+  const positive = (n: number) => Number.isFinite(n) ? Math.max(0, n) : 0;
+  const crit = Math.min(1, positive(stats.crit ?? 0.15));
+  const critical = 1 + crit * Math.max(0, (stats.critDamage ?? 1.5) - 1);
+  const damage = 1 + positive(stats.damageBonus ?? 0) + positive(stats.magicSkill ?? 0) * 0.5
+    + positive(stats.bleedBonus ?? 0) * 0.25;
+  const offense = positive(stats.attack) / 1000 * POWER_WEIGHTS.attack * critical * damage;
+  const dodge = Math.min(0.6, positive(stats.dodge ?? 0));
+  const survival = (positive(stats.hp ?? 2.8 * (stats.attack + stats.defense)) / 5600 * POWER_WEIGHTS.hp
+    + positive(stats.defense) / 1000 * POWER_WEIGHTS.defense) * (1 + dodge);
+  const speed = positive(stats.speed ?? 100) / 100;
+  const utility = Math.min(1, positive(stats.precision ?? 0)) * 0.05
+    + positive(stats.gaugePerSpell ?? 0) / 100 * 0.1;
+  return Math.round(1000 * (offense + survival + speed * POWER_WEIGHTS.speed + utility)
+    * Math.pow(speed, 0.5));
 }
