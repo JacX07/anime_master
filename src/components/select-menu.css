@@ -1,0 +1,8 @@
+/* Menu des listes déroulantes (remplace la fenêtre native) : sans bordure, sélection par le fond et la couleur. */
+.sm-menu { position: fixed; z-index: 9999; margin: 0; padding: 4px; list-style: none; overflow-y: auto; max-height: 320px; background: #14181a; border-radius: 8px; box-shadow: 0 12px 32px rgb(0 0 0 / 0.55); scrollbar-width: thin; font: 400 13px var(--font-dm), sans-serif; color: #d9d4c7; }
+.sm-opt, .sm-group { height: 36px; flex: none; }
+.sm-opt { display: flex; align-items: center; padding: 0 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sm-opt[data-active] { background: rgb(212 175 106 / 0.12); color: #d4af6a; }
+.sm-opt[aria-selected="true"] { color: #d4af6a; font-weight: 500; }
+.sm-opt[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.sm-group { display: flex; align-items: flex-end; padding: 0 12px 4px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8576; }
