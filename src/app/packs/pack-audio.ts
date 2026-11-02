@@ -19,9 +19,9 @@ class PackAudio {
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctor();
     this.master = ctx.createGain();
-    this.master.gain.value = 0.7;
+    this.master.gain.value = 1.4;
     const limiter = ctx.createDynamicsCompressor();
-    limiter.threshold.value = -14;
+    limiter.threshold.value = -8;
     this.master.connect(limiter).connect(ctx.destination);
     this.ambience = ctx.createGain();
     this.ambience.gain.value = 0;
@@ -47,12 +47,12 @@ class PackAudio {
     src.loop = true;
     const filter = ctx.createBiquadFilter();
     filter.type = "bandpass";
-    filter.Q.value = 1.4;
+    filter.Q.value = 0.6;
     filter.frequency.setValueAtTime(from, at);
     filter.frequency.exponentialRampToValueAtTime(to, at + dur);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, at);
-    g.gain.exponentialRampToValueAtTime(level, at + dur * 0.35);
+    g.gain.exponentialRampToValueAtTime(level * 3, at + dur * 0.35);
     g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
     src.connect(filter).connect(g).connect(this.master);
     src.start(at, Math.random() * 0.5);
@@ -66,7 +66,7 @@ class PackAudio {
     o.frequency.value = freq;
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, at);
-    g.gain.exponentialRampToValueAtTime(level, at + 0.012);
+    g.gain.exponentialRampToValueAtTime(level * 2.2, at + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
     o.connect(g).connect(this.master);
     o.start(at);
@@ -112,7 +112,7 @@ class PackAudio {
     const nodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
     const lp = ctx.createBiquadFilter();
     lp.type = "lowpass";
-    lp.frequency.value = 520;
+    lp.frequency.value = 700;
     lp.connect(this.ambience);
     const lfo = ctx.createOscillator();
     lfo.frequency.value = 0.07;
@@ -127,17 +127,17 @@ class PackAudio {
       o.frequency.value = midi(note);
       o.detune.value = detune;
       const g = ctx.createGain();
-      g.gain.value = note < 50 ? 0.1 : 0.045;
+      g.gain.value = note < 50 ? 0.22 : 0.1;
       o.connect(g).connect(lp);
       o.start();
       nodes.push(o);
     }
     this.ambience.gain.cancelScheduledValues(ctx.currentTime);
-    this.ambience.gain.setTargetAtTime(0.5, ctx.currentTime, 1.2);
+    this.ambience.gain.setTargetAtTime(1, ctx.currentTime, 0.8);
     const scale = [69, 72, 76, 79, 81];
     const bell = window.setInterval(() => {
       const at = ctx.currentTime + 0.05;
-      this.tone(at, midi(scale[Math.floor(Math.random() * scale.length)]), 3.2, 0.03);
+      this.tone(at, midi(scale[Math.floor(Math.random() * scale.length)]), 3.2, 0.08);
     }, 6500);
     this.stopAmbience = () => {
       window.clearInterval(bell);
@@ -148,7 +148,11 @@ class PackAudio {
   }
 
   setAmbience(on: boolean) {
-    if (on) this.startAmbience();
+    if (on) {
+      this.startAmbience();
+      const ctx = this.ready();
+      this.tone(ctx.currentTime, midi(81), 0.5, 0.15); // bip de contrôle : tu entends ça, le son marche
+    }
     else this.stopAmbience?.();
     try { localStorage.setItem(STORE, on ? "on" : "off"); } catch { /* stockage indisponible */ }
   }
