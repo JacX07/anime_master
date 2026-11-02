@@ -30,10 +30,9 @@ export function SiteHeader() {
         <div className="mq-nav-side mq-nav-left">
           <NavItem href="/" exact>Accueil</NavItem>
           <div className="mq-nav-dropdown">
-            <NavItem href="/album" match={["/packs", "/wishlist", "/character"]}>Collection <span>⌄</span></NavItem>
+            <NavItem href="/album" match={["/wishlist", "/character"]}>Collection <span>⌄</span></NavItem>
             <div className="mq-dropdown-panel">
               <Link href="/album">Album</Link>
-              <Link href="/packs">Paquets</Link>
               <Link href="/wishlist">Souhaits</Link>
             </div>
           </div>

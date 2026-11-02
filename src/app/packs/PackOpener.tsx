@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Money, RarityGem } from "@/components/icons";
 import type { Rarity } from "@/generated/prisma/enums";
@@ -47,6 +47,13 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const [bannerId, setBannerId] = useState<string | null>(null);
   const [lot, setLot] = useState<LotSize>(5);
   const [pack, setPack] = useState<OpenedPack | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [summary, setSummary] = useState(false);
+  const [cut, setCut] = useState(0);
+  const gesture = useRef<number | null>(null);
+  const opening = useRef(false);
+  const burstKey = useRef(0);
+  const suppressClick = useRef(false);
   const [revealed, setRevealed] = useState<boolean[]>([]);
   const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number } | null>(null);
   const [detail, setDetail] = useState<OpenedCard | null>(null);
@@ -62,18 +69,27 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const pool = banner?.pool ?? standardPool;
   const locked = banner?.costKind === "WELCOME" && state.welcomeBannerId !== null && state.welcomeBannerId !== banner.id;
   const waitingReveal = pack !== null && !revealed.every(Boolean);
-  const canOpen = !pending && !locked && wallet >= lot && !waitingReveal;
+  const canOpen = !pending && !locked && wallet >= lot && (!pack || summary);
 
   function open() {
+    if (!canOpen || opening.current) return;
+    opening.current = true;
     setError(null);
     startTransition(async () => {
-      const r = await openPackAction(lot, bannerId);
-      if (!r.ok) return setError(r.error);
-      setState(r.pack.state);
-      setPack(r.pack);
-      setRevealed(r.pack.cards.map(() => false));
-      packAudio.open();
-      r.pack.cards.forEach((_, i) => packAudio.deal(0.25 + i * 0.09));
+      try {
+        const r = await openPackAction(lot, bannerId);
+        if (!r.ok) return setError(r.error);
+        setState(r.pack.state);
+        setPack(r.pack);
+        setCurrent(0);
+        setSummary(false);
+        setCut(0);
+        setRevealed(r.pack.cards.map(() => false));
+        packAudio.open();
+        packAudio.deal(0.1);
+      } catch {
+        setError("Connexion interrompue. Recharge la page pour vérifier tes cartes avant de réessayer.");
+      } finally { opening.current = false; }
     });
   }
 
@@ -97,7 +113,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     if (!pack || revealed[i]) return;
     const rarity = pack.cards[i].rarity;
     packAudio.flip(rarity);
-    if (rarity === "SSR" || rarity === "UR") setBurst({ rarity, key: Date.now() });
+    if (rarity === "SSR" || rarity === "UR") setBurst({ rarity, key: ++burstKey.current });
     setRevealed((r) => r.map((v, j) => v || j === i));
   }
   function revealAll() {
@@ -105,8 +121,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     pack.cards.forEach((c, i) => {
       if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
     });
-    if (rare) setBurst({ rarity: best as "SSR" | "UR", key: Date.now() });
+    if (rare) setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current });
     setRevealed((r) => r.map(() => true));
+    setSummary(true);
   }
   const best = pack ? ORDER.find((x) => pack.cards.some((c) => c.rarity === x)) : undefined;
   const rare = best === "SSR" || best === "UR";
@@ -117,7 +134,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
       <header className="pk-head">
         <div>
           <p className="eyebrow">Salle des invocations</p>
-          <h1 className="vt-title">Paquets</h1>
+          <h2 className="vt-title">Ouvrir un booster</h2>
         </div>
         <dl className="pk-wallet">
           <div><dt>Cristaux</dt><dd>{available}<span> / {MAX_CRYSTALS}</span></dd><small>{msLeft === null ? "Stock plein" : `Prochain dans ${formatDuration(msLeft)}`}</small></div>
@@ -131,13 +148,13 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         <section className="pk-panel" aria-label="Bannières">
           <h2>Bannière</h2>
           <div className="pk-banners" role="radiogroup" aria-label="Choisir une bannière">
-            <button type="button" role="radio" aria-checked={bannerId === null} className="pk-banner" data-active={bannerId === null} onClick={() => setBannerId(null)}>
+            <button disabled={pending || waitingReveal} type="button" role="radio" aria-checked={bannerId === null} className="pk-banner" data-active={bannerId === null} onClick={() => setBannerId(null)}>
               <small>Permanent</small>
               <b>Paquet standard</b>
               <span>Tout le catalogue, au prix de 1 cristal par carte.</span>
             </button>
             {banners.map((b) => (
-              <button type="button" role="radio" aria-checked={bannerId === b.id} key={b.id} className="pk-banner" data-active={bannerId === b.id} data-kind={b.costKind} onClick={() => setBannerId(b.id)}>
+              <button disabled={pending || waitingReveal} type="button" role="radio" aria-checked={bannerId === b.id} key={b.id} className="pk-banner" data-active={bannerId === b.id} data-kind={b.costKind} onClick={() => setBannerId(b.id)}>
                 {b.featured && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className="pk-banner-face" src={b.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
@@ -171,18 +188,33 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         </section>
 
         <section className="pk-stage" aria-label="Ouverture">
-          {!pack && (
-            <div className="pk-pack" aria-hidden="true" data-art={banner?.featured ? "" : undefined}>
+          {(!pack || summary) && (
+            <button type="button" className="pk-pack" disabled={!canOpen} aria-label={`Ouvrir le booster de ${lot} cartes`}
+              onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } open(); }}
+              data-art={banner?.featured ? "" : undefined}>
               {banner?.featured && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img className="pk-pack-art" src={banner.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
               )}
+              <span className="pk-cut" style={{ "--cut": cut } as React.CSSProperties}
+                onPointerDown={(e) => { if (!canOpen) return; gesture.current = e.clientX; e.currentTarget.setPointerCapture(e.pointerId); }}
+                onPointerMove={(e) => { if (gesture.current === null) return; setCut(Math.min(1, Math.abs(e.clientX - gesture.current) / (e.currentTarget.clientWidth * 0.7))); }}
+                onPointerUp={(e) => {
+                  if (gesture.current === null) return;
+                  const distance = Math.abs(e.clientX - gesture.current);
+                  gesture.current = null; setCut(0);
+                  if (distance > 12) { suppressClick.current = true; }
+                  if (distance >= e.currentTarget.clientWidth * 0.7) open();
+                }}
+                onPointerCancel={() => { gesture.current = null; setCut(0); }}
+              ><span>Glisser pour découper</span><i className="pk-cut-start" aria-hidden="true" /><i className="pk-cut-end" aria-hidden="true" /></span>
               <span className="pk-pack-shine" />
               <span className="pk-pack-logo">A</span>
               <small>{banner ? banner.name.toUpperCase() : "ANIME MASTERS"}</small>
               <strong>{lot} CARTES</strong>
-            </div>
+            </button>
           )}
+          {(!pack || summary) && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
 
           {burst && <div key={burst.key} className="pk-burst" data-rarity={burst.rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && setBurst(null)}><b>{burst.rarity}</b></div>}
 
@@ -194,9 +226,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 </p>
               )}
               {pack.pity !== "NONE" && <p className="pk-pity">Garantie {pack.pity} déclenchée !</p>}
-              <div className="pk-grid" data-lot={pack.lotSize}>
-                {pack.cards.map((card, i) => (
-                  <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} data-hint={!revealed[i] && (card.rarity === "SSR" || card.rarity === "UR") ? card.rarity : undefined} style={{ "--i": i } as React.CSSProperties} onClick={() => (revealed[i] ? setDetail(card) : reveal(i))} role="button" tabIndex={0} aria-label={revealed[i] ? `${card.name} : voir les stats et les sorts` : `Retourner la carte ${i + 1}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (revealed[i]) setDetail(card); else reveal(i); } }}>
+              <div className={summary ? "pk-grid" : "pk-stack"} data-lot={pack.lotSize}>
+                {pack.cards.map((card, i) => (summary || i === current) && (
+                  <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} data-hint={!revealed[i] && (card.rarity === "SSR" || card.rarity === "UR") ? card.rarity : undefined} style={{ "--i": i } as React.CSSProperties} onClick={() => { if (summary) setDetail(card); else if (!revealed[i]) reveal(i); else if (current + 1 < pack.cards.length) setCurrent(current + 1); else setSummary(true); }} role="button" tabIndex={0} aria-label={revealed[i] ? (summary ? `${card.name} : voir les stats et les sorts` : "Carte suivante") : `Retourner la carte ${i + 1}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } }}>
                     <div className="flip-inner">
                       <div className="flip-face card-back"><span>AM</span></div>
                       <div className="flip-face flip-front" aria-hidden={!revealed[i]}><CharacterCard {...card} characterId={card.characterId} /></div>
@@ -204,22 +236,23 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                   </div>
                 ))}
               </div>
+              {!summary && <p className="pk-note" role="status">Carte {current + 1} / {pack.cards.length} · {revealed[current] ? "Clique pour continuer" : "Clique pour retourner"}</p>}
               {waitingReveal ? (
                 <button type="button" className="pk-ghost" onClick={revealAll}>Tout révéler</button>
               ) : (
                 <Link href="/album" className="pk-ghost">Voir l&apos;album</Link>
               )}
-              {!waitingReveal && <p className="pk-note">Clique sur une carte pour voir ses stats et ses sorts.</p>}
+              {summary && <p className="pk-note">Clique sur une carte pour voir ses stats et ses sorts.</p>}
             </div>
           )}
 
           <div className="pk-controls">
             <div className="pk-lots" role="radiogroup" aria-label="Taille du lot">
               {LOT_SIZES.map((n) => (
-                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} onClick={() => setLot(n)}>×{n}</button>
+                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} disabled={pending || waitingReveal} onClick={() => setLot(n)}>×{n}</button>
               ))}
             </div>
-            <button type="button" className="pk-open" onClick={open} disabled={!canOpen} data-lot={lot}>
+            <button type="button" className="pk-open ui-button" onClick={open} disabled={!canOpen} data-lot={lot}>
               <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>
               {!pending && <span className="pk-open-cost">{lot} {lot > 1 ? unitPlural : unit}</span>}
             </button>

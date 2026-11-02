@@ -1,21 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { ACHIEVEMENTS, listAchievements } from "@/lib/achievements";
+import { PackOpener } from "./packs/PackOpener";
+import { poolCounts } from "@/lib/banners";
+import { readyCount } from "@/lib/expeditions";
 import { listBanners } from "@/lib/banners";
-import { MAX_CRYSTALS, WELCOME_CRYSTALS, WELCOME_DRAWS } from "@/lib/crystal-stock";
+import { WELCOME_CRYSTALS, WELCOME_DRAWS } from "@/lib/crystal-stock";
 import { getSessionUser } from "@/lib/session";
 import { getPlayerSummary } from "@/lib/summary";
-
-/** « 2j 14h », « 5h 12min » ou « Permanent » pour une bannière sans fin. */
-function remaining(endsAt: string | null) {
-  if (!endsAt) return "Permanent";
-  const ms = new Date(endsAt).getTime() - Date.now();
-  if (ms <= 0) return "Terminé";
-  const h = Math.floor(ms / 3_600_000);
-  return h >= 24 ? `${Math.floor(h / 24)}j ${h % 24}h` : `${h}h ${Math.floor((ms % 3_600_000) / 60_000)}min`;
-}
-
-const THEME: Record<string, string> = { waifu: "fire", husbando: "void", general: "nature", event: "fire" };
 
 /** Progression d'un succès à seuil (personnages différents) ; les autres sont tout ou rien. */
 function progress(key: string, unique: number) {
@@ -95,7 +87,7 @@ async function Content() {
   const user = await getSessionUser();
   if (!user) return <Home_ guest />;
   const s = await getPlayerSummary(user.id);
-  const [achievements, banners] = await Promise.all([listAchievements(user.id), listBanners(s.packs)]);
+  const [achievements, banners, standardPool, ready] = await Promise.all([listAchievements(user.id), listBanners(s.packs), poolCounts(), readyCount(user.id)]);
   const done = achievements.filter((a) => a.unlockedAt).length;
   const todo = achievements
     .filter((a) => !a.unlockedAt)
@@ -111,7 +103,8 @@ async function Content() {
         <h1>La Faille vous appelle.</h1>
         <p>{available > 0 ? "Un nouveau booster vous attend. Quelle légende renferme-t-il ?" : "Le prochain cristal arrive bientôt. La Faille patiente."}</p>
       </section>
-      <div className="mq-home-layout">
+      <PackOpener initialState={s.packs} banners={banners} standardPool={standardPool} expeditionsReady={ready} />
+      <div>
         <aside className="mq-achievements-panel">
           <div className="mq-panel-heading"><div><small>PROGRESSION</small><h2>Succès</h2></div><span>{done}/{achievements.length}</span></div>
           {todo.map((a) => (
@@ -120,29 +113,6 @@ async function Content() {
           <Link href="/achievements" className="mq-text-link">Voir tous les succès →</Link>
         </aside>
 
-        <section className="mq-booster-stage">
-          <Landscape />
-          <div className="mq-booster-copy">
-            <span>{available > 0 ? "BOOSTER DISPONIBLE" : "PROCHAIN CRISTAL BIENTÔT"}</span>
-            <h2>Invocation</h2>
-            <p>{available} / {MAX_CRYSTALS} cristaux</p>
-            <Link href="/packs">Ouvrir le booster</Link>
-          </div>
-        </section>
-
-        <aside className="mq-summon-panel">
-          <div className="mq-panel-heading"><div><small>PORTAILS ACTIFS</small><h2>Invocations</h2></div><span>{banners.length}</span></div>
-          {banners.slice(0, 4).map((b) => (
-            <Link href="/packs" className={`mq-summon-banner mq-${b.costKind === "SPECIAL" ? "fire" : (THEME[b.category] ?? "nature")}`} key={b.id}>
-              <div>
-                <small>{b.costKind === "SPECIAL" ? "INVOCATION ÉVÉNEMENT" : b.costKind === "WELCOME" ? "BIENVENUE" : b.categoryLabel.toUpperCase()}</small>
-                <h3>{b.name}</h3>
-                <p>{remaining(b.endsAt)}</p>
-              </div>
-              <span>›</span>
-            </Link>
-          ))}
-        </aside>
       </div>
     </div>
   );

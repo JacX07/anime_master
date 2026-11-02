@@ -95,17 +95,6 @@
 .pk-pack { animation: pk-float 5s ease-in-out infinite; }
 .pk-pack-shine { animation: pk-shine 4.5s ease-in-out infinite; }
 
-/* Bouton d'ouverture : le point focal de la scène */
-.mq-app-shell[class] button.pk-open.pk-open { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; min-width: 17rem; padding: 0.95rem 2.6rem 0.9rem; overflow: hidden; border: 1px solid #f1d98a; border-bottom: 1px solid #f1d98a; border-radius: 6px; background: linear-gradient(#e6c982, #b8964f 55%, #9a7a3c); color: #14110a; font-family: var(--font-display); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; box-shadow: 0 0 0 1px #0008, 0 6px 26px -4px #d5bb7fcc, inset 0 1px 0 #fff6; transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease; animation: pk-glow 2.6s ease-in-out infinite; }
-.mq-app-shell[class] button.pk-open.pk-open::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 38%, #fff7 50%, transparent 62%); transform: translateX(-120%); animation: pk-sweep 3.4s ease-in-out infinite; pointer-events: none; }
-.pk-open-main { font-size: 1.15rem; line-height: 1.2; }
-.pk-open-cost { font-family: var(--font-dm), sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; opacity: 0.8; }
-.mq-app-shell[class] button.pk-open.pk-open[data-lot="10"] { min-width: 19rem; }
-.mq-app-shell[class] button.pk-open.pk-open:hover:not(:disabled) { border-bottom: 1px solid #f1d98a; background: linear-gradient(#f0d794, #c6a15a 55%, #a88544); color: #14110a; filter: brightness(1.08); transform: translateY(-3px) scale(1.03); box-shadow: 0 0 0 1px #0008, 0 10px 38px -2px #f1d98aee, inset 0 1px 0 #fff8; }
-.mq-app-shell[class] button.pk-open.pk-open:active:not(:disabled) { transform: translateY(0) scale(0.99); }
-.mq-app-shell[class] button.pk-open.pk-open:disabled { opacity: 0.5; animation: none; filter: saturate(0.4); box-shadow: none; }
-.mq-app-shell[class] button.pk-open.pk-open:disabled::after { display: none; }
-
 /* Lots ×5 / ×10 : plus lisibles */
 .pk-lots button { font-size: 0.95rem; }
 
@@ -156,3 +145,34 @@
 .pk-burst[data-rarity="SSR"] { --c: #f59e0b; }
 .pk-burst[data-rarity="UR"] { --c: #ff3b4a; }
 .pk-burst > b { position: absolute; left: 50%; top: 45%; translate: -50% -50%; font-family: var(--font-display); font-size: clamp(3rem, 9vw, 6rem); letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 30px var(--c), 0 0 70px var(--c); }
+
+
+/* Le booster est un objet à manipuler ; les actions gardent les contrôles communs. */
+.pk-pack { cursor: pointer; color: var(--foreground); font: inherit; animation: none; padding-top: 3rem; }
+.pk-pack:disabled { cursor: not-allowed; opacity: .5; }
+.pk-pack:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; }
+.pk-pack-shine, .pk-pack-art { pointer-events: none; }
+.pk-cut { position: absolute; inset: 0 0 auto; height: 2.6rem; z-index: 4 !important; touch-action: none; cursor: ew-resize; background: #b99a5550; }
+.pk-cut::after { content: ""; position: absolute; inset: auto 0 0; height: 2px; background: var(--gold-light); transform: scaleX(var(--cut, 0)); transform-origin: left; }
+.pk-cut span { transform: translateY(calc(var(--cut, 0) * -9px)) rotate(calc(var(--cut, 0) * -5deg)); display: block; padding-top: .8rem; font-size: .65rem; color: var(--gold-light); letter-spacing: .08em; }
+.pk-stack { width: min(15rem, 65vw); perspective: 1200px; margin: .75rem auto; }
+.pk-stack .flip { width: 100%; }
+.pk-stack .flip:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; }
+.pk-stack .flip-inner { transition: transform 450ms cubic-bezier(.22,1,.36,1); }
+.pk-stack .flip-front { overflow: hidden; }
+.pk-stage { background: var(--panel); }
+.pk-head .vt-title { font: 500 clamp(34px, 4vw, 52px)/1.05 var(--font-display); letter-spacing: -.025em; }
+@media (prefers-reduced-motion: reduce) {
+  .pk-stack .flip-inner, .pk-banner-face { transition: none; }
+}
+
+.pk { padding: 0 0 2rem; }
+.pk-head { margin-bottom: 1rem; }
+.pk-main { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) minmax(0, 13rem); }
+.pk-open-main, .pk-open-cost { display: block; }
+.pk-banners { max-height: 34rem; overflow-y: auto; }
+@media (max-width: 1100px) { .pk-main { grid-template-columns: 1fr; } }
+
+.pk-cut-start, .pk-cut-end { position: absolute; top: 0; bottom: 0; width: 12px; }
+.pk-cut-start { left: 0; }
+.pk-cut-end { right: 0; }
