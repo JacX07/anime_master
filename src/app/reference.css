@@ -24,10 +24,33 @@
 .mq-page-mythology *, .mq-page-mythology *::before, .mq-page-mythology *::after { animation: none !important; }
 .mq-lore-system { filter: none; }
 
-/* No interface borders; cards keep a simple rarity outline. Keep keyboard focus. */
+/* Interface sans bordures ; les cartes possédées portent le cadre en fer forgé. */
 .mq-app-shell, .mq-app-shell *, .mq-app-shell *::before, .mq-app-shell *::after { border-style: none !important; }
-.mq-app-shell .card-deco { display: none; }
+
 .mq-app-shell .card { border: 1px solid var(--rarity) !important; }
+.mq-app-shell .card[data-rarity]:not([data-missing]) {
+  --frame-light: color-mix(in srgb, var(--rarity) 35%, white);
+  --frame-low: color-mix(in srgb, var(--rarity) 45%, #101010);
+  --frame-dark: color-mix(in srgb, var(--rarity) 18%, #10090c);
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--frame-dark);
+  overflow: visible;
+}
+.mq-app-shell .card-deco { display: block; }
+.mq-app-shell .card:not([data-missing]) .card-art {
+  inset: 2.3cqw;
+  width: calc(100% - 4.6cqw);
+  height: calc(100% - 4.6cqw);
+  border-radius: 1px;
+}
+.mq-app-shell .card:not([data-missing]) .card-info {
+  inset: auto 3.6cqw 3.6cqw;
+  padding: 16cqw 4cqw 3cqw;
+  border-radius: 0;
+}
+.mq-app-shell .card:not([data-missing]) .card-gem { top: 8cqw; left: 8cqw; }
+.mq-app-shell .card:not([data-missing]) .card-kind { top: 8cqw; right: 8cqw; }
 
 /* Bouton d'ambiance sonore : discret, en bas à droite de toutes les pages */
 .ambient-bar { position: fixed; right: 14px; bottom: 14px; z-index: 40; display: flex; gap: 4px; }
