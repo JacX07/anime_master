@@ -14,9 +14,9 @@ export default function TeamPage() {
     <main className="vt">
       <div className="vt-inner">
         <header className="pg-head">
-          <h1 className="vt-title">Équipe</h1>
+          <h1 className="vt-title">Squads</h1>
           <p className="vt-sub">
-            Compose tes équipes de 4 cartes. L&apos;équipe d&apos;attaque sert partout (histoire, Tour, test) ; l&apos;équipe de défense attend l&apos;arène PvP. Tes cartes ne sont jamais bloquées.
+            Compose tes escouades d&apos;attaque et de défense avec tes cartes. Tes cartes ne sont jamais bloquées.
           </p>
         </header>
         <Suspense fallback={<p className="vt-muted">Chargement…</p>}>

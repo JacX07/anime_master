@@ -119,3 +119,39 @@
 .eq-statistics td:last-child { color: #c4a76d; font-weight: 600; }
 
 .gear-item .substat-upgrades { font-weight: 700; color: #c4a76d; white-space: nowrap; }
+
+/* Tactical squad layout, adapted to the existing attack and defense teams. */
+.eq-layout { grid-template-columns: minmax(0, 1fr) 16rem; gap: 1.2rem; }
+.eq { display: grid; grid-template-columns: minmax(12rem, .72fr) minmax(0, 2fr); gap: 1rem; }
+.eq-tabs { display: grid; align-content: start; gap: .55rem; }
+.eq-tab { min-height: 5rem; position: relative; padding: 1rem 1rem 1rem 3.5rem; border-color: #303532; border-radius: 5px; background: #141817; font-size: .88rem; font-weight: 600; }
+.eq-tab::before { content: ""; position: absolute; top: 1rem; left: 1rem; width: 1.7rem; height: 1.7rem; border: 1px solid #7e7358; transform: rotate(45deg); }
+.eq-tab::after { position: absolute; top: 1.37rem; left: 1.56rem; color: #a99568; font: 500 .7rem/1 var(--font-cinzel), serif; }
+.eq-tab:first-child::after { content: "I"; }
+.eq-tab:last-child::after { content: "II"; }
+.eq-tab[aria-pressed="true"] { border-color: #907d53; background: #1c201c; }
+.eq-tab small { margin-top: .3rem; font-size: .7rem; line-height: 1.4; }
+.eq-slots { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; align-content: start; margin: 0; padding: 1rem; border: 1px solid #333834; border-radius: 7px; background: radial-gradient(circle at 50% 35%, #83704424, transparent 45%), #121615; }
+.eq-slot { gap: .6rem; padding: .45rem; border-radius: 5px; background: #191d1b; }
+.eq-slot-main { min-height: 0; gap: .35rem; padding-bottom: .3rem; }
+.eq-art { border-radius: 4px; background: #111514; }
+.eq-name { font-size: .8rem; }
+.eq-slot-main small { font-size: .68rem; }
+.eq-pos { top: .35rem; left: .35rem; min-width: 1.6rem; height: 1.6rem; border-radius: 2px; background: #111612dd; color: #d2c6a2; }
+.eq-slot-btns { flex-direction: column; gap: .35rem; }
+.eq-slot-btns .bt-btn { min-height: 2.25rem; }
+.eq-slot[data-selected] { border-color: #c0a464; box-shadow: inset 0 0 0 1px #c0a46455; }
+.eq-actions, .eq-preview, .eq-pick { grid-column: 1 / -1; }
+.eq-actions { align-self: start; }
+.eq-pick { min-width: 0; }
+.eq-legend { background: #141817; border-radius: 5px; }
+.eq :is(button, input, select):focus-visible { outline-color: #c0a464; }
+@media (max-width: 60rem) {
+  .eq { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+}
+@media (max-width: 45rem) {
+  .eq-layout, .eq { grid-template-columns: minmax(0, 1fr); }
+  .eq-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eq-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: .7rem; }
+  .eq-legend { position: static; }
+}
