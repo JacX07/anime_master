@@ -222,7 +222,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           {!pack && (
             <button ref={packButton} type="button" className="pk-pack" disabled={!canOpen} aria-label={`Ouvrir le booster de ${lot} cartes`}
               onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } open(); }}
-              data-art="" data-standard={!banner?.featured}>
+              data-art="" data-standard={!banner?.featured} data-category={banner?.category}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="pk-pack-art" src={banner?.featured?.imageUrl ?? "/images/boosters/standard.png"} alt="" referrerPolicy="no-referrer" />
               <span className="pk-cut" style={{ "--cut": cut } as React.CSSProperties}

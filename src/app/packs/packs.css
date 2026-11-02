@@ -327,19 +327,12 @@
 .pk-pack[data-standard="false"] .pk-pack-shine { opacity: .12; animation: none; }
 
 
-/* Le nombre reste lisible au-dessus des reflets et des zones claires du dessin. */
-.pk-pack[data-art][data-standard] > strong {
-  position: absolute;
-  inset: auto auto 25px 50%;
-  transform: translateX(-50%);
-  z-index: 4;
-  width: max-content;
-  padding: 6px 12px;
-  background: #0b0e0f;
-  color: #fff;
-  font-size: 13px;
-  line-height: 1.2;
-  letter-spacing: .14em;
+/* Le portrait clair de Dio demande une inscription noire, sans cartouche. */
+.pk-pack[data-art][data-category="husbando"] > strong {
+  color: #000;
+  background: transparent;
+  padding: 0;
   text-shadow: none;
+  z-index: 4;
   pointer-events: none;
 }
