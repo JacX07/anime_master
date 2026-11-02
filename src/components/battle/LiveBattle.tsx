@@ -39,7 +39,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
   const apply = (next: BattleView) => {
     setError(null);
     setLog((l) => [...l, ...next.log]);
-    setView((v) => ({ ...v, status: next.status, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
+    setView((v) => ({ ...v, steps: next.steps, status: next.status, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
   };
 
   const send = (call: () => ReturnType<typeof playAutoAction>) => {
@@ -59,8 +59,8 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
     });
   };
 
-  const play = (spell: Spell, target: UnitId | null) => send(() => playActionAction(view.id, { spell, target }));
-  const autoStep = () => send(() => playAutoAction(view.id));
+  const play = (spell: Spell, target: UnitId | null) => send(() => playActionAction(view.id, { spell, target }, view.steps));
+  const autoStep = () => send(() => playAutoAction(view.id, view.steps));
 
   const abandon = (then?: () => void) =>
     start(async () => {

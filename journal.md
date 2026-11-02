@@ -51,7 +51,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : des consommateurs sont déjà commités tandis que leurs dépendances font partie des changements non commités d'autres agents dans le worktree principal.
 - Contournement : ne pas incorporer ces changements à la migration Postgres ; distinguer les erreurs de base des régressions de migration. Générer les types de routes avec `next typegen` dans un worktree neuf.
 - Occurrences : 1.
-- Statut : ouvert, dépend de la finalisation des autres travaux.
+- Résolution : reprise autorisée par l’utilisateur des ajouts combat/donjons présents dans le worktree principal, sans modifier celui-ci.
+- Statut : corrigé sur migration/postgres ; TypeScript et build de production passent.
 
 ## 2026-11-02 — SQL brut non recensé par le plan Postgres
 
@@ -76,3 +77,19 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : attribuer les numéros des fixtures via pullCount ; remplacer l'upsert vide par createMany avec skipDuplicates avant l'amélioration conditionnelle des étoiles.
 - Occurrences : 1.
 - Statut : corrigé sur la branche de migration.
+
+## 2026-11-02 — Statuts VFX incomplets et scénario Makima non déterministe
+
+- Symptôme : check-combat-vfx échoue dès counter ; check-kits ne voit aucun cas d'exécution du dernier ennemi contrôlé.
+- Cause : dix statuts moteur n'ont pas de correspondance dans STATUS_FX ; le scénario Makima repose sur trente combats automatiques sans garantir que l'ultime soit prêt avant la mort de l'unique ennemi.
+- Correctif : réutiliser les effets existants pour les dix statuts ; créer une situation déterministe avec jauge chargée puis vérifier contrôle, K.-O. et victoire dans cet ordre.
+- Occurrences : 1.
+- Statut : corrigé et checks dédiés réussis.
+
+## 2026-11-02 — Double clic manuel après une première écriture
+
+- Symptôme : check-battles observe parfois deux actions acceptées et un journal incomplet.
+- Cause : le verrou compare le compteur lu par chaque requête ; la seconde peut lire la ligne après la première écriture et être prise pour une nouvelle action.
+- Correctif : transmettre le compteur affiché dans BattleView et le vérifier avant le rejeu puis à l'écriture. Les Server Actions exigent un compteur entier positif ou nul.
+- Occurrences : 1 (intermittent).
+- Statut : corrigé et checks dédiés réussis.

@@ -24,7 +24,7 @@ export type Pop =
   | { id: number; unit: UnitId; kind: "heal"; amount: number }
   | { id: number; unit: UnitId; kind: "shield"; amount: number }
   | { id: number; unit: UnitId; kind: "status"; status: Status; on: boolean }
-  | { id: number; unit: UnitId; kind: "poison"; amount: number; burn?: boolean }
+  | { id: number; unit: UnitId; kind: "poison"; amount: number; burn?: boolean; bleed?: boolean }
   | { id: number; unit: UnitId; kind: "revive" }
   | { id: number; unit: UnitId; kind: "resist" }
   /** Effet visuel d'un sort sur sa cible : `fx` est le type du lanceur, ou "base" pour le sort de base */
@@ -74,6 +74,11 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   silence: { label: "Silence", glyph: "✕", help: "Ne peut lancer que son sort de base.", bad: true },
   stun: { label: "Étourdi", glyph: "✹", help: "Ne peut pas agir pendant l'étourdissement ; les effets durables continuent.", bad: true },
   immune: { label: "Immunisé", glyph: "◈", help: "Aucun nouveau malus ne peut la toucher.", bad: false },
+  earth: { label: "Terre", glyph: "◆", help: "Un sort de feu brisera sa défense.", bad: true },
+  swept: { label: "Balayé", glyph: "≈", help: "Un sort d’eau appliquera Affaiblissement.", bad: true },
+  broken: { label: "Brisé", glyph: "⛨", help: "DEF −40 % (−20 % sur les boss), pendant 2 actions.", bad: true },
+  vulnerable: { label: "Affaiblissement", glyph: "▼", help: "Subit 25 % de dégâts supplémentaires pendant 2 actions.", bad: true },
+  bleed: { label: "Saignement", glyph: "♦", help: "Perd 2 % de ses PV actuels par cumul (5 maximum), à chaque action. Un soin ou une purge l’efface.", bad: true },
   poison: { label: "Poison", glyph: "☠", help: "Perd des PV à la fin de chacun de ses tours.", bad: true },
   taunt: { label: "Provocation", glyph: "⚑", help: "Les ennemis ne peuvent viser que cette carte avec leurs attaques à cible unique.", bad: false },
   counter: { label: "Domaine du monarque", glyph: "☾", help: "Quand cette carte est frappée et survit, une ombre sort de ses pieds et riposte.", bad: false },
@@ -196,7 +201,7 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "poison":
       patch(ev.target, { hp: ev.hp });
-      pop({ unit: ev.target, kind: "poison", amount: ev.amount, ...(ev.burn ? { burn: true } : {}) });
+      pop({ unit: ev.target, kind: "poison", amount: ev.amount, ...(ev.burn ? { burn: true } : {}), ...(ev.bleed ? { bleed: true } : {}) });
       break;
     case "revive":
       patch(ev.target, { hp: ev.hp, shield: 0, ko: false });

@@ -24,7 +24,7 @@ import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./
 
 import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
-import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEON_PREFIX, DUNGEON_RESOURCE, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
+import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, SET_KEYS, DUNGEON_PREFIX, dungeonOf, dungeonOfKey, type Dungeon, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
 import type { CharacterSpell } from "./spells";
 
 export class BattleError extends Error {}
@@ -191,37 +191,39 @@ async function raidEnemies(boss: RaidBoss, difficulty: RaidDifficulty): Promise<
   return [...minions.map((c) => mk(c, difficulty.scale, false)), mk(leader, difficulty.scale * RAID_BOSS_BONUS, true)];
 }
 
-const dungeonMechanic = (level: number): CharacterSpell | undefined => level < 4 ? undefined : level < 7
-  ? { name: "Carapace abyssale", target: null, effects: [{ k: "damage", mult: 0.28, zone: true }, { k: "shield", pct: 0.12, to: "self" }] }
+const dungeonMechanic = (level: number, dungeon: Dungeon): CharacterSpell | undefined => level < 4 ? undefined : level < 7
+  ? { name: dungeon.mechanics[0], target: null, effects: [{ k: "damage", mult: 0.28, zone: true }, { k: "shield", pct: 0.12, to: "self" }] }
   : level < 10
-    ? { name: "Vague écrasante", target: null, effects: [{ k: "damage", mult: 0.48, zone: true }, { k: "mod", stat: "atk", amount: -0.12, turns: 2, to: "foes" }] }
-    : { name: "Marée noire", target: null, effects: [{ k: "damage", mult: 0.65, zone: true }, { k: "mod", stat: "def", amount: 0.2, turns: 2, to: "team" }] };
+    ? { name: dungeon.mechanics[1], target: null, effects: [{ k: "damage", mult: 0.48, zone: true }, { k: "mod", stat: "atk", amount: -0.12, turns: 2, to: "foes" }] }
+    : { name: dungeon.mechanics[2], target: null, effects: [{ k: "damage", mult: 0.65, zone: true }, { k: "mod", stat: "def", amount: 0.2, turns: 2, to: "team" }] };
 
-async function dungeonEnemies(level: number): Promise<BattleCard[]> {
-  const rows = await prisma.character.findMany({ where: { disabled: false, mainMedia: { franchiseId: { in: [21] } } }, orderBy: [{ favourites: "desc" }, { id: "asc" }], select: CHARACTER_SELECT });
-  if (rows.length < 4) throw new BattleError("Le donjon One Piece est indisponible : il manque des personnages.");
-  const boss = rows.find((c) => c.rarity === "UR") ?? rows.find((c) => c.rarity === "SSR") ?? rows[0];
+async function dungeonEnemies(level: number, dungeon: Dungeon): Promise<BattleCard[]> {
+  const rows = await prisma.character.findMany({ where: { disabled: false, mainMedia: { franchiseId: dungeon.franchiseId } }, orderBy: [{ favourites: "desc" }, { id: "asc" }], select: CHARACTER_SELECT });
+  if (rows.length < 4) throw new BattleError(`Le donjon ${dungeon.universe} est indisponible : il manque des personnages.`);
+  const boss = rows.find((c) => c.id === dungeon.bossId);
+  if (!boss) throw new BattleError(`Le gardien de ${dungeon.universe} est indisponible.`);
   const minions = rows.filter((c) => c.id !== boss.id).slice(0, 3);
   const means = await meanStats();
   const scale = 0.72 + (level - 1) * 0.115;
   const minionRarity = levelReward(level).rarity;
   return [...minions.map((c) => ({ ...toBattleCard(c), franchiseId: null, attack: Math.round(means[minionRarity].attack * scale), defense: Math.round(means[minionRarity].defense * scale), rarity: minionRarity })), {
-    ...toBattleCard(boss), franchiseId: null, attack: Math.round(means[boss.rarity].attack * scale * 1.7), defense: Math.round(means[boss.rarity].defense * scale * 1.7), boss: true, speed: 100 + level * 2, spell: dungeonMechanic(level),
+    ...toBattleCard(boss), ...(dungeon.key !== DUNGEON_KEY ? { rarity: "UR" as const } : {}), franchiseId: null, attack: Math.round(means[dungeon.key === DUNGEON_KEY ? boss.rarity : "UR"].attack * scale * 1.7), defense: Math.round(means[dungeon.key === DUNGEON_KEY ? boss.rarity : "UR"].defense * scale * 1.7), boss: true, speed: 100 + level * 2, spell: dungeonMechanic(level, dungeon),
   }];
 }
 
 async function settleDungeon(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number): Promise<Loot> {
   const level = parseDungeonKey(opponent)!;
-  await tx.dungeonProgress.createMany({ data: [{ userId, dungeon: DUNGEON_KEY }], skipDuplicates: true });
-  await tx.dungeonProgress.updateMany({ where: { userId, dungeon: DUNGEON_KEY, maxLevel: { lt: level } }, data: { maxLevel: level } });
+  const dungeon = dungeonOfKey(opponent)!;
+  await tx.dungeonProgress.createMany({ data: [{ userId, dungeon: dungeon.key }], skipDuplicates: true });
+  await tx.dungeonProgress.updateMany({ where: { userId, dungeon: dungeon.key, maxLevel: { lt: level } }, data: { maxLevel: level } });
   const slot = artifactSlot(seed);
   const rarity = levelReward(level).rarity;
   const main = artifactMainStat(slot, rarity, seed ^ 0x4d3c2b1a);
   const subStats = artifactSubStats(slot, rarity, seed ^ 0x7f4a7c15, main.stat);
-  await tx.artifact.create({ data: { userId, setKey: DUNGEON_KEY, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
+  await tx.artifact.create({ data: { userId, setKey: dungeon.key, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
   const material = levelReward(level).resource;
-  if (material) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: DUNGEON_RESOURCE } }, create: { userId, key: DUNGEON_RESOURCE, quantity: material }, update: { quantity: { increment: material } } });
-  return { ryo: 0, crystals: 0, resources: material ? { [DUNGEON_RESOURCE]: material } : {}, artifact: { slot, rarity, mainStat: main.stat, mainValue: main.value, subStats } };
+  if (material) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: dungeon.resource } }, create: { userId, key: dungeon.resource, quantity: material }, update: { quantity: { increment: material } } });
+  return { ryo: 0, crystals: 0, resources: material ? { [dungeon.resource]: material } : {}, artifact: { slot, rarity, mainStat: main.stat, mainValue: main.value, subStats } };
 }
 
 /** Difficultés ouvertes pour ce joueur : le Normal après le tutoriel, puis chaque niveau en battant le précédent (sur n'importe quel boss). */
@@ -376,7 +378,7 @@ async function opponentCards(key: string): Promise<BattleCard[]> {
   const floor = parseTower(key);
   if (floor) return towerEnemies(floor);
   const dungeon = parseDungeonKey(key);
-  if (dungeon) return dungeonEnemies(dungeon);
+  if (dungeon) return dungeonEnemies(dungeon, dungeonOfKey(key)!);
   const def = PVM_OPPONENTS[key];
   if (!def) throw new BattleError("Adversaire inconnu.");
   const cards: BattleCard[] = [];
@@ -458,7 +460,7 @@ export const getAttackTeam = (userId: string) => getTeam(userId, "ATTACK");
 async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnType<typeof getAttackTeam>>[number]>[]) {
   const artifacts = await prisma.artifact.findMany({ where: { userId, equippedCardId: { in: slots.map((s) => s.id) } } });
   const fitted = slots.map((card) => {
-    const worn = artifacts.filter((a) => a.equippedCardId === card.id && a.setKey === DUNGEON_KEY);
+    const worn = artifacts.filter((a) => a.equippedCardId === card.id && SET_KEYS.includes(a.setKey));
     const stats = sumArtifactStats(worn);
     return { ...card, artifactStats: stats };
   });
@@ -477,10 +479,11 @@ export async function equipArtifact(userId: string, artifactId: string, cardId: 
   });
 }
 
-export async function getDungeonState(userId: string) {
+export async function getDungeonState(userId: string, setKey = DUNGEON_KEY) {
+  if (!dungeonOf(setKey)) throw new BattleError("Donjon inconnu.");
   const [progress, artifacts, team] = await Promise.all([
-    prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: DUNGEON_KEY } } }),
-    prisma.artifact.findMany({ where: { userId }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], include: { equippedCard: { select: { character: { select: { name: true } } } } } }),
+    prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: setKey } } }),
+    prisma.artifact.findMany({ where: { userId, setKey }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], include: { equippedCard: { select: { character: { select: { name: true } } } } } }),
     getAttackTeam(userId),
   ]);
   return { maxLevel: progress?.maxLevel ?? 0, artifacts, team };
@@ -508,6 +511,8 @@ export interface BattleTeams {
 /** Ce que le navigateur reçoit : le journal (complet ou depuis le dernier envoi) et, en manuel, les choix possibles. */
 export interface BattleView {
   id: string;
+  /** Version du choix affiché, refusée si une autre requête a déjà joué. */
+  steps: number;
   mode: BattleMode;
   opponent: string;
   manual: boolean;
@@ -555,7 +560,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
   const log = st ? st.log : ((row.log ?? []) as unknown as BattleEvent[]);
   const running = row.status === "RUNNING" && st && !st.result;
   return {
-    id: row.id, mode: row.mode, opponent: row.opponent, manual: row.manual, status: st?.result ? "DONE" : row.status,
+    id: row.id, steps: row.steps, mode: row.mode, opponent: row.opponent, manual: row.manual, status: st?.result ? "DONE" : row.status,
     winner: (st?.result ? st.result.winner : (row.winner as Side | null)) ?? null,
     loot: (row.loot as unknown as Loot | null) ?? null,
     storyStars: row.storyStars,
@@ -606,7 +611,8 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");
   if (story) await checkStoryAccess(userId, story.universe, story.level);
   if (dungeonLevel) {
-    const progress = await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: DUNGEON_KEY } }, select: { maxLevel: true } });
+    const dungeon = dungeonOfKey(opponent)!;
+    const progress = await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: dungeon.key } }, select: { maxLevel: true } });
     if (dungeonLevel > (progress?.maxLevel ?? 0) + 1) throw new BattleError("Difficulté verrouillée : gagne la précédente.");
   }
   const raid = parseRaid(opponent);
@@ -653,13 +659,14 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
 const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
-export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date()): Promise<BattleView> {
+export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number): Promise<BattleView> {
   // action = null : la stratégie automatique joue à la place du joueur (bouton Auto) ; elle est enregistrée comme un choix du joueur
   if (action && (!isSpell(action.spell) || (action.target !== null && typeof action.target !== "string"))) throw new BattleError("Action invalide.");
   await sweepBattles(now);
   const row = await prisma.battle.findFirst({ where: { id: battleId, userId, manual: true } });
   if (!row) throw new BattleError("Combat introuvable.");
   if (row.status !== "RUNNING") throw new BattleError("Ce combat est terminé.");
+  if (expectedSteps !== undefined && (!Number.isSafeInteger(expectedSteps) || expectedSteps < 0 || row.steps !== expectedSteps)) throw new BattleError("Action déjà jouée, recharge le combat.");
   const teams = row.teams as unknown as BattleTeams;
   const actions = row.actions as unknown as Action[];
   const st = replay(teams, row.seed, actions);
@@ -698,7 +705,7 @@ export async function playAction(userId: string, battleId: string, action: Actio
       await tx.battle.update({ where: { id: row.id }, data: { storyStars: 0 } });
     }
     });
-  return toView({ ...row, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
+  return toView({ ...row, steps: row.steps + 1, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */

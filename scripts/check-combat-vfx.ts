@@ -47,5 +47,5 @@ for (const [key, info] of Object.entries(STATUS_INFO)) {
   assert.equal(fx.bad, info.bad, `bonus/malus incohérent : ${key}`);
 }
 for (const key of PERSISTENT_STATUSES) assert.ok(STATUS_FX[key].ambient, `boucle manquante : ${key}`);
-console.log("✓ effets de statut : 19 statuts, 6 persistants");
+console.log(`✓ effets de statut : ${Object.keys(STATUS_INFO).length} statuts, ${PERSISTENT_STATUSES.length} persistants`);
 console.log("✓ combat VFX : cibles, frontières d'action, délais et styles (236 personnages)");

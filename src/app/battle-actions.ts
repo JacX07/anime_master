@@ -42,12 +42,14 @@ export async function getStoryProgressAction() {
 export async function getBattleAction(battleId: string) {
   return run(async (id) => ({ battle: await getBattle(id, String(battleId)) }));
 }
-export async function playActionAction(battleId: string, action: Action) {
-  return run(async (id) => ({ battle: await playAction(id, String(battleId), action) }));
+export async function playActionAction(battleId: string, action: Action, steps: number) {
+  if (!Number.isSafeInteger(steps) || steps < 0) return { ok: false as const, error: "Version du combat invalide." };
+  return run(async (id) => ({ battle: await playAction(id, String(battleId), action, new Date(), steps) }));
 }
 /** La stratégie automatique joue l'action du joueur (bouton Auto) */
-export async function playAutoAction(battleId: string) {
-  return run(async (id) => ({ battle: await playAction(id, String(battleId), null) }));
+export async function playAutoAction(battleId: string, steps: number) {
+  if (!Number.isSafeInteger(steps) || steps < 0) return { ok: false as const, error: "Version du combat invalide." };
+  return run(async (id) => ({ battle: await playAction(id, String(battleId), null, new Date(), steps) }));
 }
 export async function abandonBattleAction(battleId: string) {
   return run(async (id) => (await abandonBattle(id, String(battleId)), {}));

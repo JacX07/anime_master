@@ -8,6 +8,8 @@ import { isMagicalSpell, magicSkillMultiplier } from "./magic-skill";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 
 import { effectElement, ELEMENT_RIDER } from "./attack-element";
+import { BLADE_USERS } from "./blade-users";
+import { damageKind } from "./damage-kind";
 import { BOSS_SKILLS } from "./boss-skills";
 import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
 import { isSoloBuff, spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
@@ -47,7 +49,12 @@ export interface BattleCard {
   /** Arme légendaire, équipable à 5 étoiles seulement */
   weapon?: Weapon | null;
   /** Bonus d'artefacts et de set, calculés côté serveur avant la copie du combat. */
-  artifactStats?: { magicSkill?: number; attack: number; defense: number; hp: number; speed: number; crit: number; critDamage: number; dodge: number; flatAttack: number; flatDefense: number; flatHp: number };
+  artifactStats?: {
+    attack: number; defense: number; hp: number; speed: number; crit: number; critDamage: number; dodge: number; flatAttack: number; flatDefense: number; flatHp: number;
+    /** Bonus de set (absents des combats enregistrés avant eux) : vitesse %, dégâts physiques / magiques, jauge par sort, saignement, précision */
+    magicSkill?: number;
+    speedPct?: number; physDamage?: number; magicDamage?: number; gaugePerSpell?: number; bleedBonus?: number; precision?: number;
+  };
   /** Boss d'histoire ou de raid : résiste au silence */
   boss?: boolean;
   /** Retire le sort de personnage de cette carte (simulations d'équilibre) */
@@ -123,7 +130,8 @@ export const BATTLE = {
   /** Plafond de la réduction de dégâts subis */
   reduceCap: 0.7,
   critCap: 1,
-  dodgeCap: 1,
+  /** Plafond de l'esquive totale (cartes, sorts et sets) */
+  dodgeCap: 0.6,
   /** Durée d'Affaibli et d'Élan, en actions de la carte qui les porte */
   statusTurns: 2,
   /** En automatique, Cœur ne lance son sort que si un allié est sous cette part de ses PV */
@@ -161,7 +169,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -223,7 +231,7 @@ export type BattleEvent =
   | { kind: "shield"; source: UnitId | null; target: UnitId; amount: number; shield: number }
   | { kind: "status"; target: UnitId; status: Status; on: boolean }
   /** Perte de PV du poison, à la fin de l'action du porteur */
-  | { kind: "poison"; source?: UnitId; target: UnitId; amount: number; hp: number; burn?: boolean }
+  | { kind: "poison"; source?: UnitId; target: UnitId; amount: number; hp: number; burn?: boolean; bleed?: boolean }
   /** Une carte morte revient au combat */
   | { kind: "revive"; source: UnitId; target: UnitId; hp: number; zombie?: boolean }
   /** Un malus est refusé (immunité, ou boss contre le silence) */
@@ -292,8 +300,9 @@ interface Fx {
   /** Actions du porteur restantes ; `fresh` : posé pendant l'action en cours, ne compte pas encore */
   turns: number;
   fresh: boolean;
+  stacks?: number;
 }
-const MALUS = new Set<string>(["seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
+const MALUS = new Set<string>(["earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -360,7 +369,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>
     const rawTertiary = opts.spells && !card.noTertiary ? card.tertiary ?? TERTIARY_SPELLS[card.characterId] ?? null : null;
     return {
       id: `${side}${i + 1}` as UnitId,
-      card, side, speed: Math.max(1, (card.speed ?? 100) + (card.artifactStats?.speed ?? 0)), gauge: 0, maxHp, hp: maxHp, shield: 0,
+      card, side, speed: Math.max(1, ((card.speed ?? 100) + (card.artifactStats?.speed ?? 0)) * (1 + (card.artifactStats?.speedPct ?? 0))), gauge: 0, maxHp, hp: maxHp, shield: 0,
       atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
       def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
@@ -559,6 +568,12 @@ function advanceCooldowns(u: Unit) {
   if (u.tIn > 0) u.tIn--;
 }
 
+function clearBleed(st: BattleState, u: Unit) {
+  if (!hasFx(u, "bleed")) return;
+  u.fx = u.fx.filter((f) => f.key !== "bleed");
+  st.log.push({ kind: "status", target: u.id, status: "bleed", on: false });
+}
+
 function finishUnitTurn(st: BattleState, u: Unit) {
   u.continuingTurn = false;
   for (const status of ["elan", "weaken"] as const) {
@@ -566,22 +581,25 @@ function finishUnitTurn(st: BattleState, u: Unit) {
     if (--u[status] === 0) st.log.push({ kind: "status", target: u.id, status, on: false });
   }
   for (const effect of [...u.fx]) {
+    if (!u.fx.includes(effect)) continue;
     if (effect.key === "ignoreDef") continue;
     if (effect.fresh) {
       effect.fresh = false;
       continue;
     }
-    if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn")) {
-      const amount = Math.min(u.hp, u.maxHp * effect.amount);
+    if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn" || effect.key === "bleed")) {
+      const amount = Math.min(u.hp, (effect.key === "bleed" ? Math.ceil(u.hp * effect.amount) : u.maxHp * effect.amount));
       u.hp -= amount;
-      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}) });
+      st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}), ...(effect.key === "bleed" ? { bleed: true } : {}) });
       if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
     }
     if (u.hp > 0 && effect.key === "regen") {
+      if (effect.amount > 0) clearBleed(st, u);
       const before = u.hp;
       u.hp = Math.min(u.maxHp, u.hp + u.maxHp * effect.amount);
       if (u.hp > before) st.log.push({ kind: "heal", source: effect.source ?? u.id, target: u.id, amount: u.hp - before, hp: u.hp });
     }
+    if (effect.key === "bleed") continue;
     if (--effect.turns <= 0) {
       u.fx = u.fx.filter((fx) => fx !== effect);
       st.log.push({ kind: "status", target: u.id, status: effect.key, on: false });
@@ -813,7 +831,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     }
     ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef);
     // Esquive : arme (sorts affiliés seulement) ou effet d'un sort ; un coup qui traverse ne s'esquive pas
-    const dodge = pierce ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + (t.card.artifactStats?.dodge ?? 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
+    const dodge = pierce || u.card.artifactStats?.precision ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + (t.card.artifactStats?.dodge ?? 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
     if (dodge > 0 && rng() < dodge) {
       log.push({ kind: "dodge", source: u.id, target: t.id });
       return 0;
@@ -824,12 +842,14 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     if (opts.combos && u.shield >= u.maxHp * BATTLE.comboShieldThreshold) atk *= 1.15;
     const aff = affinity(u.card.type, t.card.type);
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
-    const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
-    if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + fxSum(u, "crit"), 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0);
+    dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0);
+    const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
+    if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
     // Réduction des dégâts subis (sorts de tank), plafonnée
+    dmg *= 1 + fxKeySum(t, "vulnerable");
     dmg *= 1 - clamp(fxKeySum(t, "reduce"), 0, BATTLE.reduceCap);
     const absorbed = pierce ? 0 : Math.min(t.shield, dmg);
     t.shield -= absorbed;
@@ -847,12 +867,14 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       const back = Math.min(t.maxHp - t.hp, (dmg - absorbed) * lust);
       if (lust > 0 && back > 0) {
         t.hp += back;
+        clearBleed(st, t);
         log.push({ kind: "heal", source: t.id, target: t.id, amount: back, hp: t.hp });
       }
     }
     return dmg;
   };
   const heal = (t: Unit, amount: number) => {
+    if (t.hp > 0 && amount > 0) clearBleed(st, t);
     const before = t.hp;
     t.hp = Math.min(t.maxHp, t.hp + amount);
     if (t.hp > before) log.push({ kind: "heal", source: u.id, target: t.id, amount: t.hp - before, hp: t.hp });
@@ -902,9 +924,21 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     const r = ELEMENT_RIDER;
     if (!element) return;
     const hitFoes = [...struck].filter((t) => t.hp > 0 && t.side !== u.side);
+    const consumed = new Set<Unit>();
+    if (opts.combos) for (const t of hitFoes) {
+      if (hasFx(t, "immune")) continue;
+      const earthFire = element === "terre" ? "burn" : element === "feu" ? "earth" : null;
+      const airWater = element === "air" ? "wet" : element === "eau" ? "swept" : null;
+      const mark = t.fx.find((f) => f.key === (earthFire ?? airWater));
+      const result = earthFire ? "broken" : "vulnerable";
+      if (!mark || hasFx(t, result)) continue;
+      dropFx(t, mark);
+      addFx(t, result, earthFire ? (t.card.boss ? -0.2 : -0.4) : 0.25, 2, earthFire ? "def" : undefined);
+      consumed.add(t);
+    }
     switch (element) {
       case "eau": {
-        for (const t of hitFoes) addFx(t, "wet", 0, r.wetTurns);
+        for (const t of hitFoes) if (!consumed.has(t)) addFx(t, "wet", 0, r.wetTurns);
         const allies = alive(st, u.side);
         const others = allies.filter((a) => a !== u);
         const pool = others.length ? others : allies;
@@ -920,13 +954,17 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         }
         break;
       case "terre":
-        for (const t of hitFoes) addFx(t, "speedDown", r.slow, r.slowTurns, "speed");
+        for (const t of hitFoes) {
+          addFx(t, "speedDown", r.slow, r.slowTurns, "speed");
+          if (!consumed.has(t)) addFx(t, "earth", 0, r.slowTurns);
+        }
         break;
       case "feu":
         // Une zone brûle moins fort chaque cible (calibrage : sinon +12 pp pour Mustang et Megumin)
-        for (const t of hitFoes) addFx(t, "burn", hitFoes.length > 1 ? r.burnPct * r.burnZoneScale : r.burnPct, r.burnTurns);
+        for (const t of hitFoes) if (!consumed.has(t)) addFx(t, "burn", hitFoes.length > 1 ? r.burnPct * r.burnZoneScale : r.burnPct, r.burnTurns);
         break;
       case "air":
+        for (const t of hitFoes) if (!consumed.has(t)) addFx(t, "swept", 0, r.dodgeTurns);
         addFx(u, "dodgeUp", r.dodge, r.dodgeTurns, "dodge");
         break;
     }
@@ -1126,6 +1164,15 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       for (const x of allies) setStatus(x, "elan", BATTLE.statusTurns);
     }
   }
+  if (BLADE_USERS.has(u.card.characterId)) {
+    for (const t of struck) {
+      if (t.side === u.side || t.hp <= 0 || hasFx(t, "immune")) continue;
+      const stacks = Math.min(5, (t.fx.find((f) => f.key === "bleed")?.stacks ?? 0) + 1);
+      addFx(t, "bleed", stacks * 0.02 * (1 + (u.card.artifactStats?.bleedBonus ?? 0)), Infinity);
+      const bleed = t.fx.find((f) => f.key === "bleed");
+      if (bleed) Object.assign(bleed, { stacks, amount: stacks * 0.02 * (1 + (u.card.artifactStats?.bleedBonus ?? 0)) });
+    }
+  }
   // Domaine du monarque : l'ombre de chaque carte frappée riposte à l'attaquant s'il est encore debout
   for (const owner of shadows) {
     if (owner.hp <= 0 || u.hp <= 0) continue;
@@ -1146,7 +1193,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   // Un sort actif (même sans dégât : buff, soin, debuff) charge la jauge comme une attaque qui touche
   if ((landedHit || activeSpell) && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {
     const old = u.ultimateGauge;
-    u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : BATTLE.ultimateGaugePerHit));
+    u.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + (action.spell === "base" ? BATTLE.ultimateGaugeBase : u.card.artifactStats?.gaugePerSpell || BATTLE.ultimateGaugePerHit));
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
   if (reaction) return;

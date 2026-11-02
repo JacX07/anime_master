@@ -201,7 +201,7 @@ check("Éveil : cooldown secondaire −1 dès 3★, tertiaire −1 dès 5★ (SS
   const [a, b, c] = [0, 3, 5].map(at);
   return a.specialCd === 5 && b.specialCd === 4 && c.specialCd === 4 && a.tertiaryCd === 7 && b.tertiaryCd === 7 && c.tertiaryCd === 6;
 })());
-// Esquive : avec 100 % d'esquive, aucun sort affilié ne touche la carte.
+// Esquive : même une arme à 100 % reste plafonnée à 60 %.
 const dodger = { ...card({ type: "COEUR", attack: 1000, defense: 3000, power: 0, franchiseId: 30 }), stars: 5, weapon: { stat: 0, passive: { kind: "dodge" as const, chance: 1 } } };
 let dodges = 0, hitsByAffinity = 0;
 for (const seed of [3, 4, 5, 6, 7, 8]) {
@@ -210,7 +210,7 @@ for (const seed of [3, 4, 5, 6, 7, 8]) {
   dodges += sd.log.filter((e) => e.kind === "dodge").length;
   hitsByAffinity += sd.log.filter((e, i) => e.kind === "damage" && e.target.startsWith("B") && (() => { for (let j = i; j >= 0; j--) { const x = sd.log[j]; if (x.kind === "action") return x.spell === "affinity"; } return false; })()).length;
 }
-check("Arme « esquive » : les sorts affiliés adverses sont esquivés", hitsByAffinity === 0 && dodges > 0, `${dodges} esquive(s) sur 6 combats`);
+check("Arme « esquive » : esquive plafonnée des sorts affiliés", hitsByAffinity > 0 && dodges > 0, `${dodges} esquive(s) sur 6 combats`);
 
 console.log(failures ? `\n${failures} échec(s)` : "\nTout est bon.");
 process.exit(failures ? 1 : 0);

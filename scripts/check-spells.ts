@@ -215,7 +215,7 @@ check("Catalogues runtime : 236 personnages dans les trois emplacements", Object
   };
   check("Critique : +85 points sur la base de 15 % atteint 100 %", evs(attempt(0.85, 0, 0.999), "damage")[0]?.crit === true);
   check("Critique : un malus ne descend pas sous 0 %", evs(attempt(-2, 0, 0), "damage")[0]?.crit === false);
-  check("Esquive : 100 % permet d'esquiver un coup ordinaire", evs(attempt(0, 1, 0.999), "dodge").length === 1);
+  check("Esquive : plafond de 60 %", evs(attempt(0, 1, 0.599), "dodge").length === 1 && evs(attempt(0, 1, 0.6), "damage").length === 1);
   check("Esquive : un malus ne descend pas sous 0 %", evs(attempt(0, -2, 0), "damage").length === 1);
 }
 

@@ -67,11 +67,13 @@ async function main() {
     const pieces: BattleEvent[] = [...manual.log];
     // Double clic : deux fois le même choix en même temps, un seul passe
     const first: Action = { spell: "base", target: view.choices[0].targets[0] };
-    const both = await Promise.allSettled([playAction(uid, manual.id, first), playAction(uid, manual.id, first)]);
+    const both = await Promise.allSettled([playAction(uid, manual.id, first, new Date(), view.steps), playAction(uid, manual.id, first, new Date(), view.steps)]);
     const passed = both.filter((r) => r.status === "fulfilled");
     check("Manuel : double clic joué une seule fois", passed.length === 1, `${passed.length} passé(s)`);
     view = (passed[0] as PromiseFulfilledResult<typeof view>).value;
     pieces.push(...view.log);
+    check("Manuel : compteur incrémenté une seule fois", view.steps === manual.steps + 1);
+    check("Manuel : requête obsolète même arrivée plus tard refusée", await rejects(playAction(uid, manual.id, first, new Date(), manual.steps)));
     let guard = 0;
     while (view.status === "RUNNING" && guard++ < 500) {
       const c = view.choices[Math.floor(Math.random() * view.choices.length)];

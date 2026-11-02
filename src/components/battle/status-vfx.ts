@@ -72,3 +72,10 @@ export const PERSISTENT_STATUSES: Status[] = ["stun", "silence", "poison", "burn
 export const STATUS_FX = {} as Record<Status, { apply: string; ambient: string; bad: boolean }>;
 const KEYS: Record<string, Status[]> = {"Élan · ATK +": ["elan", "atkUp"], "DEF + · Dégâts réduits": ["defUp", "reduce"], "Critique +": ["critUp"], "Esquive +": ["dodgeUp"], "Vitesse +": ["speedUp"], "Immunisé": ["immune"], "Régénération": ["regen"], "Provocation": ["taunt"], "Ignore DEF": ["ignoreDef"], "Affaibli · ATK −": ["weaken", "atkDown"], "DEF −": ["defDown"], "Critique −": ["critDown"], "Esquive −": ["dodgeDown"], "Vitesse −": ["speedDown"], "Silence": ["silence"], "Étourdi": ["stun"], "Poison": ["poison"], "Brûlure": ["burn"], "Trempé": ["wet"], "Exposé": ["exposed"]};
 for (const fx of FX) for (const key of KEYS[fx.name]) STATUS_FX[key] = { apply: fx.st === "burn" ? BURN_APPLY : fx.ap, ambient: fx.st === "burn" ? BURN_AURA : fx.am, bad: !fx.b };
+
+// Les statuts supplémentaires réutilisent les effets et leur cycle de vie existants.
+const STATUS_ALIASES: Partial<Record<Status, Status>> = {
+  counter: "defUp", zombie: "regen", bloodlust: "regen", seal: "silence", controlled: "silence",
+  earth: "speedDown", swept: "wet", broken: "defDown", vulnerable: "exposed", bleed: "poison",
+};
+for (const [key, source] of Object.entries(STATUS_ALIASES)) STATUS_FX[key as Status] = STATUS_FX[source];

@@ -215,7 +215,7 @@ export function History({
       case "status":
         return `${name(e.target)} ${e.on ? "reçoit" : "perd"} : ${STATUS_INFO[e.status].label}`;
       case "poison":
-        return `−${num.format(Math.round(e.amount))} PV de ${e.burn ? "brûlure" : "poison"} pour ${name(e.target)}`;
+        return `−${num.format(Math.round(e.amount))} PV de ${e.bleed ? "saignement" : e.burn ? "brûlure" : "poison"} pour ${name(e.target)}`;
       case "revive":
         return `${name(e.target)} revient au combat`;
       case "resist":

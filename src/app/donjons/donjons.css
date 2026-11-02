@@ -86,3 +86,5 @@
   .dg-level-actions button { flex: 1; }
   .dg-armory > header { flex-wrap: wrap; }
 }
+
+.dg-universes { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }

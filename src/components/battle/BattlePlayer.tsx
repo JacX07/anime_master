@@ -12,9 +12,9 @@ import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
 import { PERSISTENT_STATUSES, STATUS_FX } from "./status-vfx";
 import { StatusIcon, TypeIcon } from "../icons";
+import { BattleReport } from "./BattleReport";
 import { TurnOrder } from "./TurnOrder";
 import { replayTurnOrder } from "@/lib/battle-report";
-import { BattleReport } from "./BattleReport";
 import { History, SpellsPanel } from "./BattlePanels";
 import "./battle.css";
 import { BattleAudio } from "./sound";
@@ -634,7 +634,7 @@ function PopView({ pop }: { pop: Pop }) {
       return (
         <span className="bt-num" data-kind="damage" style={style}>
           {num.format(Math.round(pop.amount))}
-          <small>{pop.burn ? "Brûlure" : "Poison"}</small>
+          <small>{pop.bleed ? "Saignement" : pop.burn ? "Brûlure" : "Poison"}</small>
         </span>
       );
     case "revive":

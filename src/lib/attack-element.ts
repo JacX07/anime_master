@@ -62,6 +62,6 @@ export function describeElement(element: AttackElement): string {
     case "foudre": return "Foudre : étourdit une cible trempée (son prochain tour).";
     case "terre": return `Terre : vitesse −${pct(r.slow)} pour les cibles touchées, ${r.slowTurns} actions.`;
     case "feu": return `Feu : brûlure de ${pct(r.burnPct)} des PV max par action pour la cible touchée (moitié en zone), ${r.burnTurns} actions.`;
-    case "air": return `Air : esquive +${Math.round(r.dodge * 100)} points pour le lanceur, ${r.dodgeTurns} actions.`;
+    case "air": return `Air : esquive +${Math.round(r.dodge * 100)} points pour le lanceur ; cibles touchées balayées, ${r.dodgeTurns} actions.`;
   }
 }

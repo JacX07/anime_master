@@ -1,6 +1,6 @@
 # Migration Postgres — 2026-11-02
 
-Branche : `migration/postgres`, base : `d72a203`. Aucun changement appliqué aux bases SQLite existantes ni à Supabase. Ne pas fusionner dans `production` tant que les contrôles globaux et parcours navigateur ne passent pas.
+Branche : `migration/postgres`, base : `d72a203`. Aucun changement appliqué aux bases SQLite existantes ni à Supabase. Les contrôles et parcours ci-dessous sont validés localement ; aucune publication Supabase/Vercel ni fusion de branche n’a été faite.
 
 ## Changements
 
@@ -20,14 +20,23 @@ Sous Node 24.21.0, Postgres local jetable, catalogue copié en lecture seule dep
 - ESLint ciblé sur tous les fichiers TypeScript modifiés et `git diff --check` : OK.
 - `prisma migrate deploy` deux fois : migration appliquée puis aucune migration en attente.
 - `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code` : aucune différence.
-- Tous les 40 fichiers `scripts/check-*.ts` présents dans le commit de base ont été exécutés. Après correctifs et relances : 38 passent ; deux échouent dans du code de combat inchangé (`check-combat-vfx` : effet counter absent ; `check-kits` : cas Makima, zéro exécution du dernier survivant).
-- Les checks de concurrence quêtes/duels/histoire et les checks combats, équipement, armes, donjons, raids et tour passent sur Postgres.
-- TypeScript après `next typegen` : échec sur les incohérences déjà présentes dans d72a203 (export DUNGEONS, statuts earth et statistiques de combat). Aucun de ces fichiers n'est modifié par la migration.
-- Navigateur réel : formulaire d'inscription soumis, redirection vers `/packs`, puis échec de compilation de l'accueil causé par l'import DUNGEONS manquant. Parcours joueur complet, connexion/reconnexion et persistance visuelle non validés. Build non lancé car cette erreur de source et les erreurs TypeScript bloquent déjà la compilation.
+- Les 43 fichiers `scripts/check-*.ts` (40 existants et trois repris des ajouts combat/donjons) ont été exécutés sur Postgres. Le seul échec de la première passe complète, double clic manuel intermittent, a été corrigé puis son check relancé avec succès. Les 43 checks ont désormais chacun un résultat réussi sur cette branche.
+- TypeScript : OK après intégration des dépendances manquantes.
+- Build de production Node 24 : OK.
+- Navigateur sur le build de production, localhost:3012 : inscription, session après rechargement, ouverture/révélation de cinq cartes, contrôle de leur persistance en base, connexion refusée pour mauvais mot de passe puis réussie.
+- Équipe : fiche personnage avec statistiques détaillées et bonus de set visible.
+- Donjons : navigation entre cinq univers, dix difficultés par univers, victoire automatique Naruto, butin et progression persistés après rechargement, progression indépendante One Piece. Navigation des cinq univers et sélection après rechargement vérifiées à 390 px ; aucune erreur JavaScript. Ouverture et abandon d’un combat manuel vérifiés depuis le navigateur. Onglets alignés sur les classes partagées `pg-tabs` après inspection visuelle.
+- VFX en navigateur à 390 px : dix statuts complétés par réutilisation des effets existants, pause et vitesse ×4, nettoyage après fin naturelle et 50 déclenchements interrompus, démontage du canvas et mouvement réduit vérifiés. Retour à zéro overlay et zéro animation après nettoyage. Échantillon local de 60 frames : médiane 16,6 ms, p95 17,6 ms ; mesure headless ponctuelle, pas une garantie sur téléphone réel.
+
+## Correctifs complémentaires autorisés
+
+- Reprise des ajouts combat/donjons présents dans le dossier principal, sans modification de celui-ci : cinq donjons et leurs sets, statistiques d’artefacts, saignement et combinaisons élémentaires. Les contrôles serveur et la création concurrente des progressions restent compatibles Postgres.
+- Tous les statuts déclarés ont une animation d’application ; aucune nouvelle dépendance VFX.
+- Le scénario Makima charge explicitement l’ultime puis vérifie contrôle, K.-O. et victoire : le moteur exécutait déjà le dernier ennemi contrôlé.
+- Le navigateur transmet le numéro d’action du combat. Une requête obsolète, même arrivée après la précédente écriture, est refusée ; check de concurrence et de requête retardée ajouté.
 
 ## Suite
 
-1. Finaliser les travaux combat/donjons puis intégrer leur version commitée dans la branche de migration.
-2. Relancer typecheck, les deux checks de combat restants et les parcours navigateur ; faire un build.
-3. Préparer séparément le transfert rejouable du contenu SQLite vers Postgres et la synchronisation dev vers prod sans données joueurs ni suppressions.
-4. Configurer Supabase et Vercel seulement après ces validations.
+1. Préparer séparément le transfert rejouable du contenu SQLite vers Postgres et la synchronisation dev vers prod sans données joueurs ni suppressions.
+2. Configurer la CI, Supabase et Vercel selon le plan de déploiement.
+3. Ne publier la production qu’à la demande de l’utilisateur.

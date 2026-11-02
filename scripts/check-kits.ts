@@ -109,14 +109,18 @@ async function main() {
   }
   check("Makima : l'ennemi volé attaque son propre camp", stolenSeen > 0 && friendly > 0, `${stolenSeen} vols, ${friendly} coups contre son camp`);
   check("Makima : le contrôle prend fin", back > 0, `${back} fins`);
-  // Exécution : 1 seul ennemi à voler
-  let exec1 = 0;
-  for (let s = 1; s <= 30; s++) {
-    const log = battle([card(IDS.makima), card(FOES[4]), card(FOES[5]), card(FOES[6])], [card(13)], seededRandom(s), { gauge: true }).log;
-    const win = log.find((e) => e.kind === "end") as Extract<BattleEvent, { kind: "end" }>;
-    if (log.some((e) => e.kind === "status" && e.status === "controlled" && e.on) && win.winner === "A") exec1++;
+  // Exécution : atteindre explicitement l'ultime avant de contrôler le dernier ennemi.
+  // Une bataille automatique contre un seul ennemi peut le tuer avant que la jauge soit chargée.
+  {
+    const st = createBattle([card(IDS.makima, { speed: 1000 })], [card(13)], seededRandom(1), { gauge: true, startingSide: "A" });
+    check("Makima : agit avant le dernier ennemi", currentActor(st)?.id === "A1");
+    st.teams.A[0].ultimateGauge = 100;
+    applyAction(st, { spell: "ultimate", target: "B1" });
+    const controlled = st.log.findIndex((e) => e.kind === "status" && e.target === "B1" && e.status === "controlled" && e.on);
+    const executed = st.log.findIndex((e) => e.kind === "ko" && e.target === "B1");
+    const end = st.log.find((e) => e.kind === "end");
+    check("Makima : le dernier survivant volé est exécuté (victoire)", controlled >= 0 && executed > controlled && end?.kind === "end" && end.winner === "A" && st.teams.B[0].hp === 0);
   }
-  check("Makima : le dernier survivant volé est exécuté (victoire)", exec1 > 0, `${exec1} cas`);
   void executed;
 
   // Okabe : les recharges de l'équipe sont remises à zéro

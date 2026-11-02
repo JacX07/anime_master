@@ -1,6 +1,6 @@
 # Plan de mise en production : Vercel + Supabase
 
-Statut : **migration Postgres préparée sur `migration/postgres`**, hébergement et Supabase non configurés. Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
+Statut : **migration Postgres et dépendances combat/donjons validées localement sur `migration/postgres`**, hébergement et Supabase non configurés. Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
 
 Contexte : un seul développeur humain, plusieurs agents qui poussent sur `main` en continu, fangame gratuit, bêta à lancer vite avec des amis. Base actuelle : SQLite (`data/app.db`, 25 Mo).
 
