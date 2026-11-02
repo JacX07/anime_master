@@ -14,6 +14,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Push right after each commit (`git push`), so the remote stays in sync.
 - Keep commit messages short and descriptive. Don't commit secrets (`.env`) or the local database (`data/`).
 
+## Command timeouts and resource limits
+
+- `yield_time_ms` only controls when tool output is returned; it is not a process timeout.
+- Wrap diagnostic commands in `timeout --kill-after=2s 15s`, checks and browser test scripts in `timeout --kill-after=5s 60s`, and builds in `timeout --kill-after=5s 180s`. Report exit code 124 (deadline) or 137 (forced kill); do not retry unchanged indefinitely.
+- `npm run build` enforces the build deadline itself. This project uses GNU `timeout` in its Linux/WSL development environment.
+- Run builds, typechecks, and browser suites sequentially. Stop the development server before a production build, then restart it for browser verification. Never run `next build` alongside `next dev` or multiple browser suites.
+- Browser scripts must also set navigation and interaction deadlines (15 seconds each), close their browser in `finally`, and use a process timeout for the whole suite. Avoid waiting for `networkidle` on the development server; wait for the relevant visible UI instead.
+- Keep server startup checks bounded (15 seconds). A persistent development server is the only intentional long-running process; redirect its output to a log and probe it separately with `curl --connect-timeout 2 --max-time 5`.
+
 ## Vérification sur le site
 
 - Pour chaque fonctionnalité développée, vérifier dans le navigateur sur le site en cours d’exécution que le parcours utilisateur fonctionne réellement et que les changements sont visibles. Les tests automatisés, le typecheck et le lint ne suffisent pas.

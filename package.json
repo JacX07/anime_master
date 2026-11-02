@@ -7,7 +7,7 @@
     "predev": "npm run db:generate && npm run vendor:pixi",
     "prebuild": "npm run vendor:pixi",
     "dev": "next dev",
-    "build": "next build",
+    "build": "timeout --signal=TERM --kill-after=5s 180s next build",
     "start": "next start",
     "lint": "eslint",
     "import": "tsx scripts/import.ts",
