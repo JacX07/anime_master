@@ -22,4 +22,28 @@ npm run db:migrate     # crée la base SQLite locale (data/app.db)
 | `npm run db:studio` | Ouvre Prisma Studio sur http://localhost:5555 pour consulter la base |
 | `npm run dev` | Lance le site en local sur http://localhost:3000 (inscription, paquets) |
 
+## Dev ou prod
+
+- **Dev** (`npm run dev`, port 3000) : compile chaque page à la demande et recompile à chaque modification (hot reload). Lent, gourmand en CPU, erreurs détaillées. Sert pendant qu'on code. L'arrêter quand on ne s'en sert pas (`Ctrl+C`, ou `pkill -f "next dev"; pkill -f next-server`).
+- **Prod** (`npm run build` puis `npx next start`) : tout est compilé et optimisé une fois (build ≈ 3 min), ensuite c'est rapide et léger. Le code modifié n'apparaît qu'après un nouveau build. Sert à tester l'expérience joueur.
+
+### Jouer sur une version de prod pendant que les agents codent
+
+Depuis le repo, avec une base à part pour ne pas mélanger sa progression avec les tests des agents :
+
+```bash
+cp data/app.db data/play.db                 # une seule fois
+npm run build
+DATABASE_URL="file:./data/play.db" npx next start -p 3001
+```
+
+Le dev écrit dans `.next/dev` et le build dans `.next` : le dev (port 3000) et la prod (port 3001) peuvent tourner en même temps.
+
+Limites dans le même dossier :
+- Le build est partagé : un `npm run build` lancé par un agent remplace la version en cours de jeu. Ne pas builder pendant qu'un `next dev` tourne (voir `AGENTS.md`).
+- Le build inclut les modifications non commitées présentes dans le dossier au moment du build.
+- Après une migration, l'appliquer aussi à `play.db` : `DATABASE_URL="file:./data/play.db" npx prisma migrate deploy`.
+
+Pour jouer sans interférence pendant que les agents codent et buildent, utiliser un git worktree séparé (son propre `.next`, son `.env` et sa base).
+
 Données : [AniList](https://anilist.co).
