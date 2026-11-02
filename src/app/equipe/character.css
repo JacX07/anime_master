@@ -113,3 +113,7 @@
 .eq-character-dialog .eq-sets li > span { color: #8f968c; font-size: .72rem; }
 .eq-character-dialog .eq-sets p { margin: .15rem 0 0; font-size: .75rem; line-height: 1.4; color: #6f766d; }
 .eq-character-dialog .eq-sets p[data-on] { color: #d5bb7f; }
+.eq-character-dialog .cd-costs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem .9rem; }
+.eq-character-dialog .cd-costs li { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; color: #d9d4c6; }
+.eq-character-dialog .cd-costs img { border-radius: 3px; object-fit: cover; }
+.eq-character-dialog .cd-costs [data-short] span { color: #ff6b6b; }

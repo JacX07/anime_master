@@ -14,6 +14,7 @@ import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { isMagicalSpell } from "@/lib/magic-skill";
 import { StatisticsPanel } from "./StatisticsPanel";
+import { ResourceArt } from "@/components/ResourceArt";
 import { EquipmentPanel } from "./EquipmentPanel";
 import { awakenCardAction, awakenInfoAction, type AwakenInfo } from "@/app/awaken-actions";
 import type { getPlayerInventory } from "@/lib/player-inventory";
@@ -155,7 +156,10 @@ function Awakening({ card }: { card: TeamCard }) {
   return <div className="cd-awaken">
     <span className="card-stars cd-stars" role="img" aria-label={`${card.stars} étoiles sur 5`}>{[1, 2, 3, 4, 5].map((n) => <i key={n} data-on={n <= card.stars || undefined}>★</i>)}</span>
     {info && !info.maxed && <>
-      <small>{info.cost.map((c) => `${c.quantity} ${c.name} (${c.have})`).join(" · ")}{info.duplicate !== null ? ` · 1 doublon (${info.duplicate} libre${info.duplicate > 1 ? "s" : ""})` : ""}</small>
+      <ul className="cd-costs" aria-label="Coût de l’éveil">
+        {info.cost.map((c) => <li key={c.key} data-short={c.have < c.quantity || undefined} title={c.name}><ResourceArt resource={c.key} size={26} /><span>{c.have}/{c.quantity}</span></li>)}
+        {info.duplicate !== null && <li data-short={info.duplicate < 1 || undefined} title="Doublon libre consommé">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={card.imageUrl} alt="" referrerPolicy="no-referrer" width={22} height={30} /><span>{Math.min(info.duplicate, 1)}/1</span></li>}
+      </ul>
       <button type="button" className="bt-btn" disabled={!ok || pending} onClick={() => start(async () => { const r = await awakenCardAction(card.id); setMsg(r.ok ? "" : r.error); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
     </>}
     {info?.maxed && <small>{card.stars >= 5 ? "Éveil maximal" : "Éveil maximal pour cette rareté"}</small>}
