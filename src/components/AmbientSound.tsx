@@ -59,6 +59,15 @@ export function AmbientSound() {
       if (el.matches("a[href]")) return packAudio.uiNav();
       packAudio.uiClick();
     };
+    // Listes déroulantes natives : un tic à chaque option franchie au clavier ou validée (le survol du menu ouvert n'émet aucun évènement)
+    const tick = (e: Event) => {
+      if (e.target instanceof HTMLSelectElement && !e.target.disabled) packAudio.uiTick();
+    };
+    const arrows = (e: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"].includes(e.key)) tick(e);
+    };
+    document.addEventListener("keydown", arrows, true);
+    document.addEventListener("change", tick, true);
     const unlock = () => packAudio.unlock();
     window.addEventListener("pointerdown", unlock, { once: true });
     window.addEventListener("keydown", unlock, { once: true });
@@ -69,6 +78,8 @@ export function AmbientSound() {
       window.removeEventListener("keydown", unlock);
       document.removeEventListener("pointerover", over, true);
       document.removeEventListener("click", click, true);
+      document.removeEventListener("keydown", arrows, true);
+      document.removeEventListener("change", tick, true);
     };
   }, []);
 

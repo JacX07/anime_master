@@ -116,6 +116,7 @@ class PackAudio {
   }
   uiOn = true;
   private lastHover = 0;
+  private lastTick = 0;
 
   /** Choc sourd : sinus dont la hauteur chute vite (pierre, bois lourd). */
   private thud(at: number, from: number, to: number, dur: number, level: number) {
@@ -142,6 +143,16 @@ class PackAudio {
     if (now - this.lastHover < 70) return;
     this.lastHover = now;
     this.ui((_, t) => this.swish(t, 0.07, 500, 900, 0.1));
+  }
+  /** Défilement d'une liste déroulante : tic de bois sec (bruit aigu + claquement bref). */
+  uiTick() {
+    const now = performance.now();
+    if (now - this.lastTick < 30) return;
+    this.lastTick = now;
+    this.ui((_, t) => {
+      this.swish(t, 0.03, 2200, 2200, 0.15);
+      this.tone(t, 900, 0.025, 0.04, "triangle");
+    });
   }
   /** Clic : coup de pierre sourd avec un fond de fer. */
   uiClick() {
