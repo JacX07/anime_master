@@ -312,3 +312,16 @@
   font-size: 9px;
 }
 .pk-pack[data-art]:focus-visible { outline-offset: -6px; }
+
+
+/* Les portraits restent nets et entièrement cadrés sous les effets du sachet. */
+.pk-pack[data-standard="false"] { background: #121b19; }
+.pk-pack[data-standard="false"] .pk-pack-art {
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+  filter: none;
+}
+.pk-pack[data-standard="false"]::before { background: none; }
+.pk-pack[data-standard="false"] .pk-pack-foil { opacity: .3; }
+.pk-pack[data-standard="false"] .pk-pack-shine { opacity: .12; animation: none; }
