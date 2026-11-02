@@ -11,7 +11,7 @@ async function main() {
     const opening = await prisma.packOpening.create({ data: { userId: uid, lotSize: 5, pityTriggered: "NONE" } });
     const chars = await prisma.character.findMany({ where: { rarity: "SSR", disabled: false }, take: 4 });
     const cards = [];
-    for (const ch of chars) cards.push(await prisma.card.create({ data: { ownerId: uid, characterId: ch.id, serial: Date.now(), finish: "NORMAL", rarityAtPull: "SSR", packOpeningId: opening.id, stars: 5 } }));
+    for (const ch of chars) cards.push(await prisma.card.create({ data: { ownerId: uid, characterId: ch.id, serial: (await prisma.character.update({ where: { id: ch.id }, data: { pullCount: { increment: 1 } } })).pullCount, finish: "NORMAL", rarityAtPull: "SSR", packOpeningId: opening.id, stars: 5 } }));
     const card = cards[0];
     await assert.rejects(forgeWeapon("foreign", card.id));
     await assert.rejects(forgeWeapon(uid, card.id));

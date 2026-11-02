@@ -31,7 +31,7 @@ async function main() {
     const opening = await prisma.packOpening.create({ data: { userId: id, lotSize: 5, pityTriggered: "NONE" } });
     const characters = await prisma.character.findMany({ where: { disabled: false, rarity: "SSR" }, take: 4, orderBy: { id: "asc" } });
     const cards = [];
-    for (const character of characters) cards.push(await prisma.card.create({ data: { ownerId: id, characterId: character.id, serial: Date.now(), rarityAtPull: "SSR", finish: "NORMAL", packOpeningId: opening.id } }));
+    for (const character of characters) cards.push(await prisma.card.create({ data: { ownerId: id, characterId: character.id, serial: (await prisma.character.update({ where: { id: character.id }, data: { pullCount: { increment: 1 } } })).pullCount, rarityAtPull: "SSR", finish: "NORMAL", packOpeningId: opening.id } }));
     await setAttackTeam(id, cards.map((c) => c.id));
     await prisma.$transaction([prisma.user.update({ where: { id }, data: { balance: 10000 } }), prisma.currencyLedger.create({ data: { userId: id, reason: "DAILY", amount: 10000 } })]);
     const artifact = await prisma.artifact.create({ data: { userId: id, setKey: "one-piece", slot: "CASQUE", rarity: "SSR", mainStat: "attack", mainValue: .1 } });

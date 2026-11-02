@@ -52,3 +52,5 @@ graphify-out/cache/ast/
 
 # copie locale de PixiJS (scripts/vendor-pixi.mjs)
 /public/vendor/
+
+/src/generated/prisma-sqlite

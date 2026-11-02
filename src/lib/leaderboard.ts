@@ -21,18 +21,18 @@ interface Raw {
 /** Score de chaque joueur, calculé en une requête (même formule que `collectionValue`). */
 async function scores(): Promise<Raw[]> {
   return prisma.$queryRaw<Raw[]>`
-    SELECT g.ownerId AS userId,
+    SELECT g."ownerId" AS "userId",
            SUM(CASE ch.rarity WHEN 'N' THEN 1 WHEN 'R' THEN 3 WHEN 'SR' THEN 10 WHEN 'SSR' THEN 40 WHEN 'UR' THEN 200 ELSE 0 END
                * (1.0 + 0.5 * g.holo + 1.0 * g.gold)) AS score,
            COUNT(*) AS uniq
     FROM (
-      SELECT ownerId, characterId,
+      SELECT "ownerId", "characterId",
              MAX(CASE WHEN finish = 'HOLO' THEN 1 ELSE 0 END) AS holo,
              MAX(CASE WHEN finish = 'GOLD' THEN 1 ELSE 0 END) AS gold
-      FROM Card GROUP BY ownerId, characterId
+      FROM "Card" GROUP BY "ownerId", "characterId"
     ) g
-    JOIN Character ch ON ch.id = g.characterId
-    GROUP BY g.ownerId`;
+    JOIN "Character" ch ON ch.id = g."characterId"
+    GROUP BY g."ownerId"`;
 }
 
 export async function collectionLeaderboard(me: string | null, top = 100) {

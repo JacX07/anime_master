@@ -28,6 +28,8 @@ async function loadAdventure(userId: string) {
   if (dungeon.length || battles.some((b) => b.mode === "DUNGEON")) legacy.add("dungeon");
   if (raid.length || battles.some((b) => b.mode === "RAID")) legacy.add("raid");
   const records = await prisma.$transaction(async (tx) => {
+    // Postgres : sérialise les décisions concurrentes pour ce joueur.
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
     const saved = await tx.adventureRecord.findMany({ where: { userId } });
     const known = new Set(saved.map((r) => r.key));
     const fresh = [...quests.filter((q) => q.done).map((q) => ({ key: q.key, xp: q.xp })), ...[...legacy].map((key) => ({ key: `access:${key}`, xp: 0 }))].filter((q) => !known.has(q.key));

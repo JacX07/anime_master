@@ -1,23 +1,25 @@
-// Exécuter sous Node 24 ; base SQLite temporaire, indépendante des données locales.
+// Exécuter sous Node 24 ; schéma Postgres temporaire, indépendant des données locales.
+import "dotenv/config";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { createRequire } from "node:module";
-const Database = createRequire(import.meta.url)("better-sqlite3");
+import { randomUUID } from "node:crypto";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../src/generated/prisma/client";
 import { builderEntries } from "../src/lib/builder-catalog";
 import { readSlotDrafts } from "../src/lib/builder-slots";
 
 async function main() {
-  const dir = mkdtempSync(join(tmpdir(), "builder-slots-"));
-  const file = join(dir, "test.db");
-  const sqlite = new Database(file);
-  sqlite.exec('CREATE TABLE SpellOverride (characterId INTEGER PRIMARY KEY, spell JSONB NOT NULL, status TEXT NOT NULL DEFAULT \'ready\', wish TEXT, updatedAt DATETIME NOT NULL)');
-  sqlite.close();
-  process.env.DATABASE_URL = `file:${file}`;
-  const { writeSlotDraft } = await import("../src/lib/builder-drafts");
-  const { prisma } = await import("../src/lib/db");
+  if (process.env.NODE_ENV === "production") throw new Error("Check réservé au développement et aux tests");
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("DATABASE_URL manquant");
+  const schema = `builder_test_${randomUUID().replaceAll("-", "")}`;
+  const admin = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }, { schema }) });
+  await admin.$executeRawUnsafe(`CREATE SCHEMA "${schema}"`);
+  const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+  globalForPrisma.prisma = prisma;
   try {
+    await admin.$executeRawUnsafe(`CREATE TABLE "${schema}"."SpellOverride" ("characterId" INTEGER PRIMARY KEY, spell JSONB NOT NULL, status TEXT NOT NULL DEFAULT 'ready', wish TEXT, "updatedAt" TIMESTAMP(3) NOT NULL)`);
+    const { writeSlotDraft } = await import("../src/lib/builder-drafts");
     const entries = builderEntries(13, "SSR", "COMBAT");
     // Ancien format : sauvegarder un autre emplacement conserve le secondaire.
     await prisma.spellOverride.create({ data: { characterId: 13, spell: entries[1].original as object } });
@@ -30,10 +32,15 @@ async function main() {
     assert.deepEqual(Object.keys(readSlotDrafts(row.spell)).sort(), ["base", "secondary", "ultimate"]);
     for (const slot of ["base", "secondary", "ultimate"] as const) await writeSlotDraft(13, slot, null);
     assert.equal(await prisma.spellOverride.count(), 0);
-    console.log("Sauvegarde et remise à zéro indépendantes des quatre emplacements OK (base SQLite temporaire).");
+    console.log("Sauvegarde et remise à zéro indépendantes des quatre emplacements OK (schéma Postgres temporaire).");
   } finally {
     await prisma.$disconnect();
-    rmSync(dir, { recursive: true, force: true });
+    delete globalForPrisma.prisma;
+    try {
+      await admin.$executeRawUnsafe(`DROP SCHEMA "${schema}" CASCADE`);
+    } finally {
+      await admin.$disconnect();
+    }
   }
 }
 main().catch((e) => { console.error(e); process.exitCode = 1; });

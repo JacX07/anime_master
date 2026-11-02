@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 // Vérification des duels (SPEC étape 4, §1 à §5) : combats calculés à la main, puis duels complets sur la vraie base
 // avec des joueurs jetables (défi, acceptation, quiz, chrono, résolution, Elo, récompenses, limites, forfait, expiration).
 // Usage : npm run check:duels   (Node 24)
@@ -150,7 +151,7 @@ async function main() {
     const qs = await prisma.duelQuestion.findMany({ where: { duelId: d1 } });
     const err = (def: string) => [1, 2, 3].map((p) => qs.filter((q) => q.defenderId === def && q.slotPosition === p && q.answerIndex !== q.correctIndex).length);
     const recomputed = resolveCombat(slots.filter((s) => s.userId === A), slots.filter((s) => s.userId === B), err(B), err(A));
-    check("Le combat stocké (replay) est exactement le combat recalculé", JSON.stringify(recomputed) === JSON.stringify(res));
+    check("Le combat stocké (replay) est exactement le combat recalculé", isDeepStrictEqual(recomputed, res));
     check("Erreurs de A : 2 (une tardive, une sans réponse) sur sa première carte adverse", JSON.stringify(err(A)) === "[2,0,0]", JSON.stringify(err(A)));
     check("Elo : +16 / −16 à 1000 contre 1000", (await elo(A)) === 1016 && (await elo(B)) === 984 && done.eloChangeChallenger === 16 && done.eloChangeOpponent === -16);
     check("Récompenses : 30 au gagnant, 10 au perdant", (await duelPay(A, d1)) === 30 && (await duelPay(B, d1)) === 10, `${await duelPay(A, d1)} / ${await duelPay(B, d1)}`);

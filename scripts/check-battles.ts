@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 // Vérification des combats côté serveur sur la vraie base (docs/specs/combat.md §10) : équipe d'attaque, combat automatique,
 // mode manuel (choix refusés, double clic, journal par morceaux), abandon, balayage à 24 h, carte cédée, vente groupée.
 // Joueurs jetables, supprimés à la fin.
@@ -14,7 +15,7 @@ function check(label: string, ok: boolean, detail = "") {
   console.log(`${ok ? "✓" : "✗"} ${label}${detail ? ` — ${detail}` : ""}`);
 }
 const rejects = (p: Promise<unknown>) => p.then(() => false, (e) => e instanceof BattleError);
-const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+const same = isDeepStrictEqual;
 
 async function main() {
   const stamp = Date.now(), uid = `btl-${stamp}`, other = `btl-${stamp}-b`;

@@ -1,0 +1,900 @@
+// Schéma Anime Masters — voir SPEC.md.
+// Doit rester compatible SQLite (local) et PostgreSQL (production, étape 6).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma-sqlite"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Rarity {
+  N
+  R
+  SR
+  SSR
+  UR
+}
+
+enum CardType {
+  COMBAT
+  MYSTERE
+  MAGIE
+  COEUR
+  AVENTURE
+}
+
+enum CharacterRole {
+  MAIN
+  SUPPORTING
+  BACKGROUND
+}
+
+enum Finish {
+  NORMAL
+  HOLO
+  GOLD
+}
+
+enum PityTrigger {
+  NONE
+  SSR
+  UR
+}
+
+/// Un personnage AniList (étape 1).
+model Character {
+  /// id AniList
+  id             Int                 @id
+  name           String
+  nameNative     String?
+  /// URL de l'image sur le CDN AniList (on ne stocke pas le fichier)
+  imageUrl       String
+  descriptionRaw String?
+  description    String?
+  gender         String?
+  age            String?
+  birthMonth     Int?
+  birthDay       Int?
+  favourites     Int
+  rarity         Rarity
+  type           CardType
+  attack         Int
+  defense        Int
+  /// Puissance : stat à part (popularité), indépendante d'ATK/DEF
+  power          Int                 @default(0)
+  /// Série principale (sert au type et au rôle)
+  mainMediaId    Int?
+  mainMedia      Media?              @relation("MainMedia", fields: [mainMediaId], references: [id])
+  mainRole       CharacterRole
+  /// Nombre d'exemplaires tirés (numéros d'exemplaire, étape 2)
+  pullCount      Int                 @default(0)
+  /// Retrait à la demande d'un ayant droit (étape 6)
+  disabled       Boolean             @default(false)
+  wishedBy       WishlistItem[]
+  media          CharacterMedia[]
+  cards          Card[]
+  banners        BannerCharacter[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  showcased      ShowcaseCharacter[]
+
+  @@index([rarity])
+  @@index([type])
+  @@index([favourites])
+}
+
+/// Une série animée AniList.
+model Media {
+  id             Int              @id
+  titleRomaji    String
+  titleEnglish   String?
+  titleNative    String?
+  format         String?
+  year           Int?
+  coverUrl       String?
+  popularity     Int
+  /// Liste des genres AniList (tableau JSON)
+  genres         Json
+  /// Tags AniList [{ name, rank }] (tableau JSON, sert au type)
+  tags           Json?
+  studio         String?
+  /// Franchise (saisons, films, spin-offs reliés par AniList) : identifiant de la série la plus populaire du groupe (npm run import:franchises)
+  franchiseId    Int?
+  characters     CharacterMedia[]
+  mainCharacters Character[]      @relation("MainMedia")
+  updatedAt      DateTime         @updatedAt
+
+  @@index([franchiseId])
+}
+
+model CharacterMedia {
+  characterId Int
+  mediaId     Int
+  role        CharacterRole
+  character   Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  media       Media         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([characterId, mediaId])
+  @@index([mediaId])
+}
+
+// ---------- Étape 2 : comptes, paquets, cartes ----------
+
+/// Joueur. Les champs d'authentification sont gérés par Better Auth.
+model User {
+  id                  String                 @id
+  name                String
+  /// Pseudo unique (plugin username de Better Auth, stocké en minuscules)
+  username            String                 @unique
+  email               String                 @unique
+  emailVerified       Boolean                @default(false)
+  image               String?
+  /// Cristaux en stock au moment de `crystalsUpdatedAt` (1 cristal = 1 carte ; recharge calculée à la lecture, SPEC étape 4 bis §1)
+  crystals            Int                    @default(30)
+  crystalsUpdatedAt   DateTime               @default(now())
+  /// Compteurs de pity, en cartes (SPEC étape 4 bis §4)
+  cardsSinceSSR       Int                    @default(0)
+  cardsSinceUR        Int                    @default(0)
+  /// Cristaux spéciaux (bannières spéciales ; ni achetables ni échangeables) — journal : SpecialCrystalLedger
+  specialCrystals     Int                    @default(0)
+  /// Tirages de bienvenue restants (bannière de catégorie choisie à la première utilisation, SPEC étape 4 bis §8)
+  welcomeDraws        Int                    @default(20)
+  welcomeBannerId     String?
+  /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
+  expeditionsDone     Int                    @default(0)
+  expeditions         Expedition[]
+  specialLedger       SpecialCrystalLedger[]
+  /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
+  balance             Int                    @default(0)
+  lastDailyBonusAt    DateTime?
+  /// Cristaux achetés pendant la journée `crystalsBoughtDate` (remise à zéro à minuit, heure du serveur)
+  crystalsBoughtToday Int                    @default(0)
+  crystalsBoughtDate  DateTime?
+  ledger              CurrencyLedger[]
+  tradesSent          Trade[]                @relation("TradeFrom")
+  tradesReceived      Trade[]                @relation("TradeTo")
+  notifications       Notification[]
+  auctionsSold        Auction[]              @relation("AuctionSeller")
+  auctionsLeading     Auction[]              @relation("AuctionLeader")
+  bids                Bid[]
+  wishlist            WishlistItem[]
+  adventureRecords    AdventureRecord[]
+  achievements        UserAchievement[]
+  /// Titre équipé : clé du succès dont il vient (affiché à côté du pseudo)
+  title               String?
+  /// Vitrine du profil : personnages épinglés (6 au plus), ignorés s'ils ne sont plus possédés
+  showcase            ShowcaseCharacter[]
+  /// Classement Duel (étape 4)
+  elo                 Int                    @default(1000)
+  /// Duels lancés pendant la journée `duelsStartedDate`
+  duelsStartedToday   Int                    @default(0)
+  duelsStartedDate    DateTime?
+  duelsSent           Duel[]                 @relation("DuelChallenger")
+  duelsReceived       Duel[]                 @relation("DuelOpponent")
+  duelSlots           DuelSlot[]
+  duelDefenses        DuelDefense[]
+  battleTeams         BattleTeam[]
+  squads              Squad[]
+  battles             Battle[]
+  storyProgress       StoryProgress[]
+  storyStars          StoryStageStar[]
+  storyStarClaims     StoryStarClaim[]
+  towerProgress       TowerProgress?
+  resources           ResourceStock[]
+  dailyGains          DailyGain[]
+  raidBests           RaidBest[]
+  sessions            Session[]
+  accounts            Account[]
+  cards               Card[]
+  artifacts           Artifact[]
+  dungeonProgress     DungeonProgress[]
+  packOpenings        PackOpening[]
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+/// Un exemplaire possédé par un joueur.
+model Card {
+  id              String           @id @default(cuid())
+  ownerId         String
+  owner           User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  characterId     Int
+  character       Character        @relation(fields: [characterId], references: [id])
+  finish          Finish
+  /// n-ième exemplaire de ce personnage tiré sur le site
+  serial          Int
+  /// Rareté au moment du tirage (historique uniquement : la carte affiche la rareté actuelle)
+  rarityAtPull    Rarity
+  packOpeningId   String
+  packOpening     PackOpening      @relation(fields: [packOpeningId], references: [id], onDelete: Cascade)
+  obtainedAt      DateTime         @default(now())
+  /// Cadenas : une carte verrouillée ne peut être ni vendue, ni échangée, ni mise aux enchères
+  locked          Boolean          @default(false)
+  /// Tag « À échanger » : la fiche du personnage liste les joueurs qui le proposent
+  forTrade        Boolean          @default(false)
+  /// Bloquée pendant une enchère (étape 3, enchères)
+  inAuction       Boolean          @default(false)
+  /// Bloquée pendant une expédition (étape 4 ter)
+  inExpedition    Boolean          @default(false)
+  /// Éveil, 0 à 5 étoiles (docs/specs/combat.md) : suit l'exemplaire quand il change de main
+  stars           Int              @default(0)
+  /// Arme forgée pour cet exemplaire ; suit la carte lors des échanges.
+  weaponKey       String?
+  artifacts      Artifact[]
+  expeditionCards ExpeditionCard[]
+  teamSlots       BattleTeamSlot[]
+  tradeItems      TradeItem[]
+  auctions        Auction[]
+
+  @@unique([characterId, serial])
+  @@index([ownerId, characterId])
+}
+
+/// Historique des ouvertures de paquets.
+model PackOpening {
+  id            String      @id @default(cuid())
+  /// Nombre de cartes du lot (5 ou 10)
+  lotSize       Int         @default(5)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pityTriggered PityTrigger
+  /// Bannière utilisée (null = tirage standard)
+  bannerId      String?
+  banner        Banner?     @relation(fields: [bannerId], references: [id])
+  cards         Card[]
+  openedAt      DateTime    @default(now())
+
+  @@index([userId, openedAt])
+}
+
+/// Coût d'une bannière : cristaux normaux, spéciaux, ou tirages de bienvenue
+enum BannerCost {
+  NORMAL
+  SPECIAL
+  WELCOME
+}
+
+/// Bannière : elle ne change jamais les taux de rareté, seulement le personnage tiré (SPEC étape 4 bis §5).
+model Banner {
+  id          String            @id @default(cuid())
+  /// Clé stable (ex. `cat-shonen-2026-W41`, `welcome-isekai`) pour recréer sans doublon
+  key         String            @unique
+  name        String
+  description String
+  /// sport | shonen | isekai | waifu | husbando
+  category    String
+  costKind    BannerCost        @default(NORMAL)
+  /// Part des cartes issues de la bannière (le reste vient du pool complet)
+  weight      Float             @default(0.5)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  characters  BannerCharacter[]
+  openings    PackOpening[]
+  createdAt   DateTime          @default(now())
+
+  @@index([costKind, startsAt, endsAt])
+}
+
+model BannerCharacter {
+  bannerId    String
+  characterId Int
+  banner      Banner    @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@id([bannerId, characterId])
+  @@index([characterId])
+}
+
+enum SpecialCrystalReason {
+  ACHIEVEMENT
+  EXPEDITION
+  BANNER_SPEND
+}
+
+/// Journal des cristaux spéciaux (la somme par joueur égale `User.specialCrystals`).
+model SpecialCrystalLedger {
+  id        String               @id @default(cuid())
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  reason    SpecialCrystalReason
+  refId     String?
+  createdAt DateTime             @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ---------- Étape 3 : économie ----------
+
+enum LedgerReason {
+  ARTIFACT_UPGRADE
+  QUICK_SELL
+  DAILY
+  PACK_BUY
+  CRYSTAL_BUY
+  BID_HOLD
+  BID_REFUND
+  AUCTION_SALE
+  AUCTION_FEE
+  TRADE_IN
+  TRADE_OUT
+  DUEL_REWARD
+  ACHIEVEMENT
+  EXPEDITION
+  STORY
+  TOWER
+}
+
+/// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).
+model CurrencyLedger {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Positif = gain, négatif = dépense
+  amount    Int
+  reason    LedgerReason
+  /// Objet concerné (carte vendue, enchère, échange…)
+  refId     String?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, createdAt])
+}
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
+  CANCELLED
+  EXPIRED
+  INVALID
+}
+
+enum TradeSide {
+  FROM
+  TO
+}
+
+/// Offre d'échange : `from` donne ses cartes + Ryō (côté FROM) contre les cartes + Ryō de `to` (côté TO).
+model Trade {
+  id           String      @id @default(cuid())
+  fromId       String
+  from         User        @relation("TradeFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId         String
+  to           User        @relation("TradeTo", fields: [toId], references: [id], onDelete: Cascade)
+  fromCurrency Int         @default(0)
+  toCurrency   Int         @default(0)
+  status       TradeStatus @default(PENDING)
+  items        TradeItem[]
+  createdAt    DateTime    @default(now())
+  expiresAt    DateTime
+  resolvedAt   DateTime?
+
+  @@index([fromId, status])
+  @@index([toId, status])
+}
+
+model TradeItem {
+  tradeId String
+  trade   Trade     @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  cardId  String
+  card    Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  side    TradeSide
+
+  @@id([tradeId, cardId])
+}
+
+/// Notification dans le site (cloche).
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  /// Données propres au type (JSON sérialisé)
+  payload   Json
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+enum AuctionStatus {
+  ACTIVE
+  SOLD
+  UNSOLD
+  CANCELLED
+}
+
+model Auction {
+  id              String        @id @default(cuid())
+  sellerId        String
+  seller          User          @relation("AuctionSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  cardId          String
+  card            Card          @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  startPrice      Int
+  buyNowPrice     Int?
+  currentBid      Int?
+  currentBidderId String?
+  currentBidder   User?         @relation("AuctionLeader", fields: [currentBidderId], references: [id])
+  endsAt          DateTime
+  status          AuctionStatus @default(ACTIVE)
+  /// Prix final (enchère vendue)
+  finalPrice      Int?
+  bids            Bid[]
+  createdAt       DateTime      @default(now())
+  closedAt        DateTime?
+
+  @@index([status, endsAt])
+  @@index([sellerId, status])
+  @@index([cardId])
+}
+
+model Bid {
+  id        String   @id @default(cuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidderId  String
+  bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  amount    Int
+  createdAt DateTime @default(now())
+
+  @@index([auctionId, createdAt])
+}
+
+/// Liste de souhaits : un personnage, avec ou sans finition précise (étape 3).
+model WishlistItem {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  /// null = n'importe quelle finition
+  finish      Finish?
+  createdAt   DateTime  @default(now())
+
+  @@index([characterId])
+  @@index([userId])
+}
+
+/// Succès débloqués (étape 4) : une seule fois par joueur et par clé.
+model ShowcaseCharacter {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  position    Int
+
+  @@id([userId, characterId])
+}
+
+model UserAchievement {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key        String
+  unlockedAt DateTime @default(now())
+
+  @@id([userId, key])
+}
+
+// ---------- Étape 4 : duels ----------
+
+enum DuelStatus {
+  PENDING
+  ACCEPTED
+  DONE
+  DECLINED
+  EXPIRED
+  FORFEIT
+}
+
+/// Duel asynchrone (SPEC étape 4, §1) : équipes choisies à l'avance, quiz joués chacun de son côté, combat calculé par le serveur.
+model Duel {
+  id                  String         @id @default(cuid())
+  challengerId        String
+  challenger          User           @relation("DuelChallenger", fields: [challengerId], references: [id], onDelete: Cascade)
+  opponentId          String
+  opponent            User           @relation("DuelOpponent", fields: [opponentId], references: [id], onDelete: Cascade)
+  status              DuelStatus     @default(PENDING)
+  createdAt           DateTime       @default(now())
+  acceptDeadline      DateTime
+  playDeadline        DateTime?
+  resolvedAt          DateTime?
+  /// null si nul (ou duel sans résultat)
+  winnerId            String?
+  /// Combat calculé, rejoué tel quel (JSON)
+  result              Json?
+  eloChangeChallenger Int?
+  eloChangeOpponent   Int?
+  rewarded            Boolean        @default(false)
+  slots               DuelSlot[]
+  defenses            DuelDefense[]
+  questions           DuelQuestion[]
+
+  @@index([challengerId, status])
+  @@index([opponentId, status])
+  @@index([status, acceptDeadline])
+  @@index([status, playDeadline])
+}
+
+/// Carte d'une équipe, avec instantané des stats au moment du choix (la carte reste libre).
+model DuelSlot {
+  duelId      String
+  duel        Duel     @relation(fields: [duelId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 1 à 3 (ordre d'attaque)
+  position    Int
+  cardId      String
+  characterId Int
+  type        CardType
+  attack      Int
+  defense     Int
+
+  @@id([duelId, userId, position])
+}
+
+/// Session de défense d'un joueur (quiz sur les 3 cartes adverses).
+model DuelDefense {
+  duelId     String
+  duel       Duel      @relation(fields: [duelId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@id([duelId, userId])
+}
+
+/// Question du quiz : la bonne réponse ne quitte le serveur qu'après la réponse du joueur.
+model DuelQuestion {
+  id           String    @id @default(cuid())
+  duelId       String
+  duel         Duel      @relation(fields: [duelId], references: [id], onDelete: Cascade)
+  defenderId   String
+  /// Position de la carte adverse (1 à 3)
+  slotPosition Int
+  /// 0 à 3
+  index        Int
+  kind         String
+  prompt       Json
+  choices      Json
+  correctIndex Int
+  servedAt     DateTime?
+  answeredAt   DateTime?
+  /// null = pas de réponse à temps (erreur)
+  answerIndex  Int?
+
+  @@unique([duelId, defenderId, slotPosition, index])
+}
+
+// ---------- Étape 4 ter : expéditions ----------
+
+enum ExpeditionStatus {
+  RUNNING
+  CLAIMED
+}
+
+/// Une équipe envoyée explorer une brèche. Le résultat se calcule à la récupération, à partir de `seed` (tirée au lancement).
+model Expedition {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Brèche (définie dans le code, src/lib/expeditions.ts)
+  breachId   String
+  startedAt  DateTime         @default(now())
+  endsAt     DateTime
+  seed       Int
+  status     ExpeditionStatus @default(RUNNING)
+  /// FAIL / SUCCESS / TRIUMPH, une fois récupérée
+  outcome    String?
+  ryo        Int              @default(0)
+  crystals   Int              @default(0)
+  special    Int              @default(0)
+  claimedAt  DateTime?
+  /// Notification « terminée » envoyée
+  notifiedAt DateTime?
+  cards      ExpeditionCard[]
+
+  @@index([userId, status])
+  @@index([status, endsAt])
+}
+
+model ExpeditionCard {
+  id           String     @id @default(cuid())
+  expeditionId String
+  expedition   Expedition @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  cardId       String
+  card         Card       @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  characterId  Int
+  type         CardType
+  /// Puissance au lancement (instantané)
+  power        Int
+}
+
+// Combat 4 contre 4 (docs/specs/combat.md §10)
+
+enum TeamKind {
+  ATTACK
+  DEFENSE
+}
+
+/// Équipe enregistrée : une d'attaque, une de défense (arène) par joueur. Les cartes ne sont pas bloquées.
+model BattleTeam {
+  id     String           @id @default(cuid())
+  userId String
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind   TeamKind
+  slots  BattleTeamSlot[]
+
+  @@unique([userId, kind])
+}
+
+/// Named squad presets; active attack/defense teams remain in BattleTeam.
+model Squad {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name    String
+  cardIds Json
+
+  @@index([userId])
+}
+
+/// Une carte vendue disparaît de l'équipe ; une carte échangée est ignorée (et retirée) à la lecture.
+model BattleTeamSlot {
+  teamId   String
+  team     BattleTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  /// 1 à 4
+  position Int
+  cardId   String
+  card     Card       @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, position])
+  @@unique([teamId, cardId])
+}
+
+enum BattleMode {
+  TEST
+  STORY
+  RAID
+  TOWER
+  DUNGEON
+  ARENA
+}
+
+enum BattleStatus {
+  RUNNING
+  DONE
+  ABANDONED
+}
+
+/// Un combat. Manuel : l'état se recalcule à chaque action depuis teams + seed + actions (rien n'est gardé en mémoire).
+model Battle {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode      BattleMode
+  /// Ennemi PvM (clé définie dans le code) ou identifiant du joueur adverse
+  opponent  String
+  manual    Boolean
+  seed      Int
+  /// Copie des cartes au début du combat : { A: BattleCard[], B: BattleCard[] }
+  teams     Json
+  /// Choix du joueur dans l'ordre (mode manuel) : Action[]
+  actions   Json         @default("[]")
+  /// Nombre d'actions enregistrées : sert de verrou (deux clics simultanés ne jouent pas deux fois)
+  steps     Int          @default(0)
+  status    BattleStatus @default(RUNNING)
+  /// "A", "B", ou null pour un nul (rempli à la fin)
+  winner    String?
+  /// Journal complet, enregistré à la fin pour le replay
+  log       Json?
+  /// Butin versé à la fin (histoire, raid) : { ryo, crystals, resources: { clé: quantité } }
+  loot      Json?
+  /// Meilleur score obtenu à la fin d'un combat d'histoire.
+  storyStars Int?
+  createdAt DateTime     @default(now())
+  endedAt   DateTime?
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+// ---------- PvM : histoire (docs/specs/pvm.md) ----------
+
+/// Plus haut combat gagné (1 à 15) dans un univers ; les univers sont définis dans le code.
+model StoryProgress {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  universe String
+  maxLevel Int    @default(0)
+
+  @@id([userId, universe])
+}
+
+/// Meilleur nombre d'étoiles par combat d'histoire (0 à 3).
+model StoryStageStar {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  universe String
+  level    Int
+  stars    Int    @default(0)
+
+  @@id([userId, universe, level])
+}
+
+/// Palier de récompense d'étoiles réclamé (un par joueur, univers et palier).
+model StoryStarClaim {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  universe  String
+  tier      Int
+  claimedAt DateTime @default(now())
+
+  @@id([userId, universe, tier])
+}
+
+/// Plus haut étage de la Tour gagné (0 = aucun) ; classement par étage atteint.
+model TowerProgress {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  maxFloor  Int      @default(0)
+  /// Date du dernier nouvel étage : départage les égalités du classement
+  reachedAt DateTime @default(now())
+
+  @@index([maxFloor])
+}
+
+/// Ressources PvM du joueur (éveil, armes, cœurs de brèche…), une ligne par clé.
+model ResourceStock {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key      String
+  quantity Int    @default(0)
+
+  @@id([userId, key])
+}
+
+/// Meilleur résultat d'un joueur contre un boss de raid à une difficulté (docs/specs/pvm.md, « Raid »).
+model RaidBest {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  boss       String
+  difficulty String
+  /// Plus grande part des PV du boss retirée (0 à 1)
+  bestShare  Float    @default(0)
+  won        Boolean  @default(false)
+  updatedAt  DateTime @default(now())
+
+  @@id([userId, boss, difficulty])
+}
+
+/// Unités déjà versées au taux plein dans la journée, par source (`STORY` ou `RAID`) : sert au plafond doux.
+model DailyGain {
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day    DateTime
+  source String
+  units  Int      @default(0)
+
+  @@id([userId, day, source])
+}
+
+/// Progression gagnée dans un donjon défini dans le code.
+model DungeonProgress {
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dungeon  String
+  maxLevel Int    @default(0)
+  nextSlot Int    @default(0)
+
+  @@id([userId, dungeon])
+}
+
+/// Artefact lié au compte ; il peut être déplacé librement entre ses cartes.
+model Artifact {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  setKey          String
+  slot            String
+  rarity          Rarity
+  level           Int      @default(0)
+  mainStat        String
+  mainValue       Float
+  subStats        Json     @default("[]")
+  equippedCardId  String?
+  equippedCard    Card?    @relation(fields: [equippedCardId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, equippedCardId, slot])
+  @@index([userId, setKey, slot])
+}
+
+/// Sort de personnage édité dans le Spell Builder (/builder, dev seulement). Le jeu lit spells.ts ; ceci sert à l'éditeur et à la simulation.
+model SpellOverride {
+  characterId Int      @id
+  /// CharacterSpell sérialisé
+  spell       Json
+  /// "ready" (composé d'effets existants) ou "pending" (mécanique à implémenter)
+  status      String   @default("ready")
+  /// Description libre de la mécanique demandée (statut pending)
+  wish        String?
+  updatedAt   DateTime @updatedAt
+}
+
+/// Demande de nouvelle mécanique de sort, implémentée par un agent Claude Code sur une branche (Spell Builder, dev seulement).
+model MechanicJob {
+  id          String   @id @default(cuid())
+  characterId Int
+  /// Description du sort voulu, en français
+  wish        String
+  /// queued | running | review (prête à valider) | failed | merged | discarded
+  status      String   @default("queued")
+  branch      String?
+  attempts    Int      @default(0)
+  /// Résumé de l'agent, garde-fous, fichiers touchés, simulation
+  report      String?
+  /// Brouillon du sort écrit par l'agent (CharacterSpell JSON)
+  draft       Json?
+  /// Journal d'exécution
+  log         String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Objectifs d’Arpenteur validés une seule fois ; XP et récompenses restent acquises.
+model AdventureRecord {
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key String
+  xp Int @default(0)
+  createdAt DateTime @default(now())
+  @@id([userId, key])
+}

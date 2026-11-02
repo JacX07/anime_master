@@ -1,5 +1,5 @@
 // Schéma Anime Masters — voir SPEC.md.
-// Doit rester compatible SQLite (local) et PostgreSQL (production, étape 6).
+// PostgreSQL (dev et production). Ancien schéma SQLite conservé dans prisma/sqlite/.
 
 generator client {
   provider = "prisma-client"
@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 enum Rarity {

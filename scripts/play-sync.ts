@@ -36,7 +36,7 @@ async function main() {
 
   // 2. Migrations (seulement celles qui manquent)
   console.log("… prisma migrate deploy sur play.db");
-  execFileSync("npx", ["prisma", "migrate", "deploy"], {
+  execFileSync("npx", ["prisma", "migrate", "deploy", "--config", "prisma.sqlite.config.ts"], {
     cwd: ROOT, stdio: "inherit", env: { ...process.env, DATABASE_URL: `file:${PLAY}` },
   });
 
@@ -72,7 +72,7 @@ async function main() {
   });
   sync();
   db.close();
-  console.log("Terminé. Rebuild (npm run build) puis relancer le serveur de jeu pour prendre le nouveau code.");
+  console.log("Terminé. Bases SQLite synchronisées pour le serveur historique. Le transfert vers Postgres utilise un outil distinct.");
 }
 
 main().catch((e) => { console.error("✗", e instanceof Error ? e.message : e); process.exit(1); });

@@ -15,7 +15,7 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "play:sync": "tsx scripts/play-sync.ts",
-    "db:studio": "prisma studio --port 5555 --url \"file://$PWD/data/app.db\"",
+    "db:studio": "prisma studio --port 5555",
     "postinstall": "prisma generate",
     "simulate": "tsx scripts/simulate-crystals.ts",
     "simulate:battle": "tsx scripts/simulate-battle.ts",
@@ -59,10 +59,11 @@
     "calibrate:archetypes": "tsx scripts/calibrate-archetypes.ts",
     "check:tower": "tsx scripts/check-tower.ts",
     "simulate:tower": "tsx scripts/simulate-tower.ts",
-    "check:dungeon": "tsx scripts/check-dungeon.ts"
+    "check:dungeon": "tsx scripts/check-dungeon.ts",
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.10.0",
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "better-auth": "^1.7.7",
     "dotenv": "^18.0.6",
@@ -74,9 +75,11 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "better-sqlite3": "^12.11.1",
     "eslint": "^9",
     "eslint-config-next": "^16.4.3",
     "prisma": "^7.10.0",

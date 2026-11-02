@@ -8,8 +8,8 @@ Jeu de cartes à collectionner de personnages d'anime. Spécifications complète
 ## Installation
 ```bash
 npm install            # installe les dépendances et génère le client Prisma
-cp .env.example .env    # puis renseigner BETTER_AUTH_SECRET
-npm run db:migrate     # crée la base SQLite locale (data/app.db)
+cp .env.example .env    # renseigner DATABASE_URL (Postgres) et BETTER_AUTH_SECRET
+npm run db:migrate     # applique le schéma à une base Postgres de développement vide
 ```
 
 ## Commandes
@@ -29,51 +29,29 @@ nvm use 24
 npm run dev            # http://localhost:3000, Ctrl+C pour arrêter
 ```
 
-Si une page plante avec une erreur `better_sqlite3` (le shell est resté sur Node 20) :
+L'application utilise désormais **Postgres**, en local comme sur Supabase. `DATABASE_URL` sert au jeu ; `DIRECT_URL`, facultatif, sert aux migrations (connexion directe ou pooler session, jamais pooler transaction).
 
-```bash
-~/.nvm/versions/node/v24.21.0/bin/node node_modules/next/dist/bin/next dev
-```
+Les bases `data/app.db` et `data/play.db` ne sont ni converties ni modifiées automatiquement. Leur transfert de contenu vers Postgres est une étape distincte.
 
 ## Dev ou prod
 
 - **Dev** (`npm run dev`, port 3000) : compile chaque page à la demande et recompile à chaque modification (hot reload). Lent, gourmand en CPU, erreurs détaillées. Sert pendant qu'on code. L'arrêter quand on ne s'en sert pas (`Ctrl+C`, ou `pkill -f "next dev"; pkill -f next-server`).
 - **Prod** (`npm run build` puis `npx next start`) : tout est compilé et optimisé une fois (build ≈ 3 min), ensuite c'est rapide et léger. Le code modifié n'apparaît qu'après un nouveau build. Sert à tester l'expérience joueur.
 
-### Jouer sur une version de prod pendant que les agents codent
+### Version de jeu séparée
 
-Depuis le repo, avec une base à part pour ne pas mélanger sa progression avec les tests des agents :
+Utiliser un worktree, un `.env` et une base Postgres dédiés. Appliquer les migrations avec `npm run db:deploy`, puis lancer `npm run build` et `npm start -- -p 3001`. Ne jamais utiliser les données joueurs pour les checks.
 
-```bash
-cp data/app.db data/play.db                 # une seule fois
-npm run build
-DATABASE_URL="file:./data/play.db" npx next start -p 3001
-```
+### Anciennes bases SQLite
 
-Le dev écrit dans `.next/dev` et le build dans `.next` : le dev (port 3000) et la prod (port 3001) peuvent tourner en même temps.
+Le schéma et les migrations historiques sont archivés dans `prisma/sqlite/`. `npm run play:sync` reste réservé à la synchronisation SQLite `app.db` vers `play.db` (sauvegarde, migrations historiques, contenu sans suppression). Il ne synchronise pas Postgres.
 
-Limites dans le même dossier :
-- Le build est partagé : un `npm run build` lancé par un agent remplace la version en cours de jeu. Ne pas builder pendant qu'un `next dev` tourne (voir `AGENTS.md`).
-- Le build inclut les modifications non commitées présentes dans le dossier au moment du build.
-- Pour mettre `play.db` à jour : `npm run play:sync` (voir ci-dessous).
-
-### Synchroniser `play.db` avec la base de dev
+Pour appliquer seulement les migrations SQLite :
 
 ```bash
-npm run play:sync
-npm run build
-DATABASE_URL="file:./data/play.db" npx next start -p 3001
+DATABASE_URL="file:./data/play.db" npx prisma migrate deploy --config prisma.sqlite.config.ts
 ```
 
-`play:sync` :
-1. sauvegarde `play.db` dans `data/backups/` ;
-2. applique les migrations manquantes (`prisma migrate deploy`) ;
-3. ajoute ou met à jour le contenu venant de `app.db` : personnages, séries, liens personnage–série, sorts modifiés. **Aucune suppression.**
-
-Jamais copiés : les données joueurs (comptes, cartes, progression…), le compteur de tirages `pullCount` et les bannières (le code les crée lui-même dans chaque base ; `app.db` contient des bannières de test).
-
-Restaurer en cas de problème : arrêter le serveur de jeu, puis `cp data/backups/play-<date>.db data/play.db`.
-
-Pour jouer sans interférence pendant que les agents codent et buildent, utiliser un git worktree séparé (son propre `.next`, son `.env` et sa base).
+Ne pas exécuter `prisma generate` avec cette configuration pour lancer le jeu : le client applicatif utilise Postgres.
 
 Données : [AniList](https://anilist.co).

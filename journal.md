@@ -28,3 +28,51 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Occurrences : 1.
 - Résultat : le contrôle TypeScript relancé seul après fermeture de l’onglet et fin de graphify a réussi (code 0).
 - Statut : contourné.
+
+## 2026-11-02 — Historique SQLite lors du passage à Postgres
+
+- Symptôme : les migrations SQLite et `play:sync` ne peuvent pas utiliser le provider Postgres.
+- Cause : les migrations SQL sont propres au moteur ; Better Auth possède aussi son propre réglage de provider.
+- Correctif : archiver le schéma et les migrations dans `prisma/sqlite/`, réserver `prisma.sqlite.config.ts` aux anciennes bases, créer une migration initiale Postgres et passer Better Auth à `postgresql`.
+- Occurrences : 1.
+- Statut : corrigé sur la branche de migration ; import du contenu SQLite vers Postgres encore distinct.
+
+## 2026-11-02 — Port du Postgres jetable
+
+- Symptôme : Prisma échoue avec P1001 sur le port 55432 après un démarrage manuel via pg_ctl.
+- Cause : pg_ctl reprend le port par défaut 5432 sans les options utilisées par embedded-postgres.
+- Correctif : démarrer explicitement avec `-o '-p 55432 -h 127.0.0.1'`.
+- Occurrences : 1.
+- Statut : corrigé.
+
+## 2026-11-02 — Branche main incomplète pour les contrôles globaux
+
+- Symptôme : le typecheck d'un worktree propre créé depuis d72a203 échoue sur DUNGEONS, les statuts earth et les champs de statistiques de combat.
+- Cause : des consommateurs sont déjà commités tandis que leurs dépendances font partie des changements non commités d'autres agents dans le worktree principal.
+- Contournement : ne pas incorporer ces changements à la migration Postgres ; distinguer les erreurs de base des régressions de migration. Générer les types de routes avec `next typegen` dans un worktree neuf.
+- Occurrences : 1.
+- Statut : ouvert, dépend de la finalisation des autres travaux.
+
+## 2026-11-02 — SQL brut non recensé par le plan Postgres
+
+- Symptôme : le check des succès échoue avec `relation "card" does not exist` sur Postgres.
+- Cause : contrairement au plan, `src/lib/leaderboard.ts` utilise du SQL brut sans guillemets sur les noms camelCase/PascalCase ; Postgres les convertit en minuscules. Le script historique migrate-artifact-substats possède le même défaut.
+- Correctif : citer les noms de tables, colonnes et alias concernés dans les deux requêtes.
+- Occurrences : 1.
+- Statut : corrigé sur la branche de migration.
+
+## 2026-11-02 — Concurrence et JSONB sur Postgres
+
+- Symptôme : deux lectures d'Arpenteur créent le même objectif ; deux défis dépassent le quota journalier lors du changement de date ; les comparaisons de replay par JSON.stringify échouent.
+- Cause : Postgres autorise les transactions concurrentes que SQLite sérialisait ; JSONB ne conserve pas l'ordre des propriétés.
+- Correctif : verrouiller la ligne du joueur avant les lectures/écritures de ces deux transactions ; comparer structurellement les objets JSON dans les checks de replay.
+- Occurrences : 1.
+- Statut : corrigé sur la branche de migration, checks dédiés relancés.
+
+## 2026-11-02 — Entiers des fixtures et upsert concurrent
+
+- Symptôme : les checks équipement/armes dépassent la plage INTEGER ; le check histoire crée deux fois StoryStageStar.
+- Cause : les fixtures utilisent Date.now() comme numéro de carte (SQLite acceptait 64 bits) ; un upsert avec update vide peut être émulé par Prisma et entrer en concurrence.
+- Correctif : attribuer les numéros des fixtures via pullCount ; remplacer l'upsert vide par createMany avec skipDuplicates avant l'amélioration conditionnelle des étoiles.
+- Occurrences : 1.
+- Statut : corrigé sur la branche de migration.

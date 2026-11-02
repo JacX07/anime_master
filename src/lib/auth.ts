@@ -12,7 +12,7 @@ export const USERNAME_MAX = 20;
 export const PASSWORD_MIN = 8;
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "sqlite" }),
+  database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: { enabled: true, minPasswordLength: PASSWORD_MIN, autoSignIn: true },
   plugins: [
     username({ minUsernameLength: USERNAME_MIN, maxUsernameLength: USERNAME_MAX, displayUsername: false }),

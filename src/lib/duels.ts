@@ -61,6 +61,8 @@ export async function createDuel(challengerId: string, opponentUsername: string,
   const slots = await teamSnapshot(challengerId, cardIds);
 
   return prisma.$transaction(async (tx) => {
+    // Postgres : sérialise les décisions concurrentes pour ce joueur.
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${challengerId} FOR UPDATE`;
     const me = await tx.user.findUniqueOrThrow({ where: { id: challengerId }, select: { username: true, duelsStartedToday: true, duelsStartedDate: true } });
     const today = startOfDay(now);
     const sameDay = me.duelsStartedDate !== null && me.duelsStartedDate >= today;

@@ -1,6 +1,6 @@
 # Plan de mise en production : Vercel + Supabase
 
-Statut : **plan à valider**, rien n'est encore en place. Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
+Statut : **migration Postgres préparée sur `migration/postgres`**, hébergement et Supabase non configurés. Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
 
 Contexte : un seul développeur humain, plusieurs agents qui poussent sur `main` en continu, fangame gratuit, bêta à lancer vite avec des amis. Base actuelle : SQLite (`data/app.db`, 25 Mo).
 
@@ -49,8 +49,9 @@ Chaque étape est testée avant la suivante.
 
 ### Étape 1 — Migration SQLite vers Postgres (branche dédiée)
 
-- Provider Prisma `postgresql`, adaptateur `@prisma/adapter-pg` dans `src/lib/db.ts`. Aucune requête SQL brute dans `src/` (seulement `scripts/check-builder-storage.ts` et `scripts/play-sync.ts`).
-- Nouvelle migration de départ Postgres (les 33 actuelles sont pour SQLite).
+- Provider Prisma `postgresql`, adaptateur `@prisma/adapter-pg` dans `src/lib/db.ts`, Better Auth `postgresql`. SQL brut : vérifier aussi `src/lib/leaderboard.ts` et les scripts historiques.
+- Nouvelle migration de départ Postgres ; historique SQLite conservé dans `prisma/sqlite/`. `prisma.sqlite.config.ts` reste réservé aux anciennes bases.
+- `DATABASE_URL` pour le runtime ; `DIRECT_URL` facultatif pour les migrations (connexion directe ou pooler session).
 - Connexion via le pooler Supabase (port 6543, mode transaction) : indispensable sur Vercel, chaque requête peut ouvrir sa connexion.
 - Relancer les 43 `check-*` sur Postgres et corriger ce qui casse.
 - Adapter ou remplacer `play:sync` et les scripts d'import.
@@ -115,7 +116,7 @@ Chiffres tirés de blogs tiers, **à vérifier** sur supabase.com/pricing et ver
 
 ## 8. Questions ouvertes
 
-- Repo GitHub public ou privé ?
-- Nom de domaine, ou adresse `*.vercel.app` pour la bêta ?
+- Repo GitHub **privé** (décidé le 2026-11-02).
+- Adresse **`*.vercel.app`** pour la bêta (décidé le 2026-11-02).
 - Illustrations : dans le repo ou Supabase Storage ?
-- Les amis de la bêta repartent-ils de zéro à la sortie officielle ?
+- **Remise à zéro des joueurs à la sortie officielle**, avec sauvegarde préalable de la bêta (décidé le 2026-11-02).

@@ -123,11 +123,11 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
 async function settleStory(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, stars: number, now: Date): Promise<Loot> {
   const { universe, level } = parseStory(opponent)!;
   if (stars > 0) {
-    await tx.storyStageStar.upsert({ where: { userId_universe_level: { userId, universe: universe.key, level } }, create: { userId, universe: universe.key, level, stars }, update: {} });
+    await tx.storyStageStar.createMany({ data: [{ userId, universe: universe.key, level, stars }], skipDuplicates: true });
     await tx.storyStageStar.updateMany({ where: { userId, universe: universe.key, level, stars: { lt: stars } }, data: { stars } });
   }
   // Premier passage : le `updateMany` conditionnel désigne un seul gagnant, même avec deux combats simultanés
-  await tx.storyProgress.upsert({ where: { userId_universe: { userId, universe: universe.key } }, create: { userId, universe: universe.key }, update: {} });
+  await tx.storyProgress.createMany({ data: [{ userId, universe: universe.key }], skipDuplicates: true });
   const first = (await tx.storyProgress.updateMany({ where: { userId, universe: universe.key, maxLevel: { lt: level } }, data: { maxLevel: level } })).count === 1;
   const day = startOfDay(now);
   const daily = await tx.dailyGain.findUnique({ where: { userId_day_source: { userId, day, source: "STORY" } } });
@@ -212,8 +212,7 @@ async function dungeonEnemies(level: number): Promise<BattleCard[]> {
 
 async function settleDungeon(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number): Promise<Loot> {
   const level = parseDungeonKey(opponent)!;
-  const progressId = { userId_dungeon: { userId, dungeon: DUNGEON_KEY } };
-  await tx.dungeonProgress.upsert({ where: progressId, create: { userId, dungeon: DUNGEON_KEY }, update: {} });
+  await tx.dungeonProgress.createMany({ data: [{ userId, dungeon: DUNGEON_KEY }], skipDuplicates: true });
   await tx.dungeonProgress.updateMany({ where: { userId, dungeon: DUNGEON_KEY, maxLevel: { lt: level } }, data: { maxLevel: level } });
   const slot = artifactSlot(seed);
   const rarity = levelReward(level).rarity;
@@ -257,8 +256,7 @@ async function settleRaid(tx: Prisma.TransactionClient, userId: string, opponent
       update: { units: { increment: full } },
     });
   }
-  const id = { userId_boss_difficulty: { userId, boss: boss.key, difficulty: difficulty.key } };
-  await tx.raidBest.upsert({ where: id, create: { userId, boss: boss.key, difficulty: difficulty.key }, update: {} });
+  await tx.raidBest.createMany({ data: [{ userId, boss: boss.key, difficulty: difficulty.key }], skipDuplicates: true });
   await tx.raidBest.updateMany({ where: { userId, boss: boss.key, difficulty: difficulty.key, bestShare: { lt: share } }, data: { bestShare: share, updatedAt: now } });
   if (won) await tx.raidBest.updateMany({ where: { userId, boss: boss.key, difficulty: difficulty.key, won: false }, data: { won: true, updatedAt: now } });
   if (hearts) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: RAID_RESOURCE } }, create: { userId, key: RAID_RESOURCE, quantity: hearts }, update: { quantity: { increment: hearts } } });
@@ -324,7 +322,7 @@ async function towerEnemies(floor: number): Promise<BattleCard[]> {
 /** Récompense d'une victoire, versée avec la fin du combat : Ryō au premier passage de l'étage seulement. */
 async function settleTower(tx: Prisma.TransactionClient, userId: string, opponent: string, now: Date): Promise<Loot> {
   const floor = parseTower(opponent)!;
-  await tx.towerProgress.upsert({ where: { userId }, create: { userId }, update: {} });
+  await tx.towerProgress.createMany({ data: [{ userId }], skipDuplicates: true });
   const first = (await tx.towerProgress.updateMany({ where: { userId, maxFloor: { lt: floor } }, data: { maxFloor: floor, reachedAt: now } })).count === 1;
   const ryo = first ? towerRyo(floor) : 0;
   if (ryo) {
