@@ -87,16 +87,17 @@ async function Account() {
           <span className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`}>{user.username.slice(0, 2).toUpperCase()}</span>
           <span className="mq-player-text">
             <b>{user.username}</b>
-            <small>{title ?? `Arpenteur niv. ${adventure.level}`}</small>
+            {title && <small>{title}</small>}
+            <small>Arpenteur niv. {adventure.level}</small>
+            <small>Puissance {num.format(packs.collectionPower)}</small>
           </span>
         </Link>
         <form action={signOut} className="mq-dropdown-panel mq-account-panel">
           {wallet.canClaimBonus && <DailyBonus />}
-          <p className="mq-account-name">{user.username}<small>{title ? `${title} · ` : ""}Arpenteur niv. {adventure.level}</small></p>
+          <p className="mq-account-name">{user.username}<small>{title ? `${title} · ` : ""}Arpenteur niv. {adventure.level}</small><small>Puissance {num.format(packs.collectionPower)}</small></p>
           <dl>
             <div><dt>Ryō</dt><dd>{num.format(wallet.balance)}</dd></div>
             <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
-            <div><dt>Puissance</dt><dd>{num.format(packs.collectionPower)}</dd></div>
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
           <button type="submit">Se déconnecter</button>
