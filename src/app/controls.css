@@ -151,14 +151,14 @@
 .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"]) { color: #d5bb7f; }
 .mq-app-shell[class] .mq-game-nav :is(.mq-nav-side > :is(a, button), .mq-nav-side > .mq-nav-dropdown > :is(a, button)):is(.mq-active, [aria-current="page"])::after { transform: scaleX(1); }
 
-/* Actions validées : silhouette de Jouer, or translucide uni, sans icône. */
+/* Actions validées : or translucide uni, angles arrondis, sans icône. */
 .mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .pk-ghost, .pk-buy button, .daily-bonus, .vt-btn, .bt-btn:not([aria-pressed]), .site-cta, .mq-sell-button, .mq-deck-button, .inventory-actions a, .inventory-empty a, .quest-more, .forge-form button) {
   position: relative;
   isolation: isolate;
   min-height: 44px;
   padding: 9px 22px;
   border: 0;
-  border-radius: 0;
+  border-radius: 7px;
   background: none;
   color: #edd49a;
   font: 600 12px/1.5 var(--font-cinzel), serif;
@@ -170,7 +170,7 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    border-radius: inherit;
     background: rgb(205 170 99 / 12%);
     pointer-events: none;
   }

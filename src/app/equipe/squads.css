@@ -2,7 +2,9 @@
 .mq-app-shell .squads-manager[class] .squads-tools { display: flex; justify-content: flex-end; margin: -12px 0 20px; }
 .mq-app-shell .squads-manager[class] .squads-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; }
 .mq-app-shell .squads-manager[class] .squads-list { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
-.mq-app-shell .squads-manager[class] .squad-summary { display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: 12px; justify-content: start; padding: 20px 16px; text-align: left; color: #ddd9d0; background: #141817; min-height: 86px; }
+.mq-app-shell .squads-manager[class] .squad-summary { position: relative; border-radius: 7px; display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: 12px; justify-content: start; padding: 20px 16px; text-align: left; color: #ddd9d0; background: #141817; min-height: 86px; }
+.mq-app-shell .squads-manager[class] .squad-summary::before { content: ""; position: absolute; top: 12px; left: 12px; width: 12px; height: 12px; color: #a9956866; background: linear-gradient(currentColor, currentColor) left top / 12px 1px no-repeat, linear-gradient(currentColor, currentColor) left top / 1px 12px no-repeat; pointer-events: none; }
+.mq-app-shell .squads-manager[class] .squad-summary[aria-pressed="true"]::before { color: #c4a76d; }
 .mq-app-shell .squads-manager[class] .squad-summary[aria-pressed="true"] { background: #25271f; color: #e9e5dc; }
 .mq-app-shell .squads-manager[class] .squad-summary > span { color: #a99568; font: 500 22px var(--font-cinzel), serif; }
 .mq-app-shell .squads-manager[class] .squad-summary b { display: block; font: 500 13px var(--font-dm), sans-serif; overflow-wrap: anywhere; }
