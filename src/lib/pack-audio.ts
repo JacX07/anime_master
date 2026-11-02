@@ -217,44 +217,68 @@ class PackAudio {
     this.swish(t, 0.35, 400, 5000, 0.4);
   }
 
-  /** Nappe lente (la mineure, deux voix désaccordées) et cloche espacée ; coupée en fondu. */
+  /** Harpe de cristal : notes pincées éparses avec écho sur une nappe discrète ; coupée en fondu. */
   startAmbience() {
     if (this.stopAmbience) return;
     const ctx = this.ready();
     const nodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
-    const lp = ctx.createBiquadFilter();
-    lp.type = "lowpass";
-    lp.frequency.value = 700;
-    lp.connect(this.ambience);
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.07;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 180;
-    lfo.connect(lfoGain).connect(lp.frequency);
-    lfo.start();
-    nodes.push(lfo);
-    for (const [note, detune] of [[45, -6], [45, 7], [52, 0], [57, -4], [60, 5]] as const) {
+    // Écho : un retard rebouclé et filtré, qui fait traîner chaque note pincée.
+    const echo = ctx.createGain();
+    const delay = ctx.createDelay(2);
+    delay.delayTime.value = 0.42;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.45;
+    const damp = ctx.createBiquadFilter();
+    damp.type = "lowpass";
+    damp.frequency.value = 2200;
+    echo.connect(this.ambience);
+    echo.connect(delay);
+    delay.connect(damp);
+    damp.connect(feedback).connect(delay);
+    damp.connect(this.ambience);
+    // Nappe presque inaudible (quinte), pour que le silence entre les notes reste habité
+    for (const [freq, level] of [[220, 0.035], [330.4, 0.025]] as const) {
       const o = ctx.createOscillator();
-      o.type = "triangle";
-      o.frequency.value = midi(note);
-      o.detune.value = detune;
+      o.frequency.value = freq;
       const g = ctx.createGain();
-      g.gain.value = note < 50 ? 0.22 : 0.1;
-      o.connect(g).connect(lp);
+      g.gain.value = level;
+      o.connect(g).connect(this.ambience);
       o.start();
       nodes.push(o);
     }
     this.ambience.gain.cancelScheduledValues(ctx.currentTime);
     this.ambience.gain.setTargetAtTime(1, ctx.currentTime, 0.8);
-    const scale = [69, 72, 76, 79, 81];
-    const bell = window.setInterval(() => {
-      const at = ctx.currentTime + 0.05;
-      this.tone(at, midi(scale[Math.floor(Math.random() * scale.length)]), 3.2, 0.08);
-    }, 6500);
+    // Notes pincées éparses (gamme pentatonique de do), espacées de 1,4 à 3,8 s au hasard
+    const scale = [72, 74, 76, 79, 81, 84];
+    const pluck = (freq: number, dur: number, level: number, type: OscillatorType) => {
+      const at = ctx.currentTime;
+      const o = ctx.createOscillator();
+      o.type = type;
+      o.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(level, at + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + 0.004 + dur);
+      o.connect(g).connect(echo);
+      o.start(at);
+      o.stop(at + dur + 0.1);
+    };
+    let timer = 0;
+    const next = () => {
+      const f = midi(scale[Math.floor(Math.random() * scale.length)]);
+      pluck(f, 1.6, 0.09, "triangle");
+      pluck(f * 2, 0.6, 0.025, "sine");
+      timer = window.setTimeout(next, 1400 + Math.random() * 2400);
+    };
+    timer = window.setTimeout(next, 500);
     this.stopAmbience = () => {
-      window.clearInterval(bell);
+      window.clearTimeout(timer);
       this.ambience.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
-      window.setTimeout(() => nodes.forEach((n) => { try { n.stop(); } catch { /* déjà arrêté */ } }), 2000);
+      window.setTimeout(() => {
+        nodes.forEach((n) => { try { n.stop(); } catch { /* déjà arrêté */ } });
+        echo.disconnect();
+        damp.disconnect();
+      }, 2000);
       this.stopAmbience = null;
     };
   }
