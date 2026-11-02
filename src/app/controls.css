@@ -184,3 +184,11 @@
 @media (prefers-reduced-motion: reduce) {
   .mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .vt-btn, .bt-btn) { transition: none; transform: none; }
 }
+
+/* Relief du bouton d’ouverture, sans modifier son fond translucide. */
+.mq-app-shell[class] .pk-open.ui-button {
+  &::before { box-shadow: inset 0 1px 0 #f0d9a326, inset 0 -3px 3px -1px #0009; }
+  &:not(:disabled) { filter: drop-shadow(0 2px 1px #0009) drop-shadow(0 8px 5px #000a); }
+  &:hover:not(:disabled) { filter: drop-shadow(0 3px 2px #0009) drop-shadow(0 11px 7px #000a); }
+  &:active:not(:disabled) { filter: drop-shadow(0 2px 2px #0009); }
+}
