@@ -1,6 +1,6 @@
 # Plan de mise en production : Vercel + Supabase
 
-Statut : **migration Postgres et dépendances combat/donjons validées localement sur `migration/postgres`**, hébergement et Supabase non configurés. Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
+Statut : **migration Postgres et dépendances combat/donjons validées localement sur `migration/postgres`**, bases Supabase dev et prod chargées ; publication Vercel non effectuée. Voir [preparation-prod.md](preparation-prod.md). Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
 
 Contexte : un seul développeur humain, plusieurs agents qui poussent sur `main` en continu, fangame gratuit, bêta à lancer vite avec des amis. Base actuelle : SQLite (`data/app.db`, 25 Mo).
 
@@ -69,6 +69,8 @@ Implémentée sur `migration/postgres` : lint, types de routes, TypeScript, puis
 - Ensuite, proposer (avec permission) une règle dans `AGENTS.md` : lancer `npm run check` avant de pousser.
 
 ### Étape 4 — Deux projets Supabase
+
+Bases dev et prod initialisées et catalogue chargé le 2026-11-03 ; sauvegarde ponctuelle restaurée en test, permissions publiques fermées. Copie externe et sauvegardes régulières encore à organiser. Voir [preparation-prod.md](preparation-prod.md).
 
 - `anime-dev` et `anime-prod` (le plan gratuit permet 2 projets actifs).
 - Clés et URLs dans un coffre à part, jamais dans le repo. Variables d'environnement Vercel, une valeur par environnement.

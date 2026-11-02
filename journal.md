@@ -178,3 +178,22 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : vercel.json avec **: false et production: true. Ce fichier doit être présent dans chaque branche concernée ; il ne modifie pas globalement les réglages du projet Vercel.
 - Occurrences : 1.
 - Statut : configuration préparée sur migration/postgres, vérification du comportement Vercel distant non accessible depuis la session.
+
+## 2026-11-03 — Outils de sauvegarde PostgreSQL absents
+
+- Symptôme : pg_dump et pg_restore sont absents ; le paquet binaire embedded-postgres contient uniquement postgres, initdb et pg_ctl.
+- Cause : les binaires nécessaires aux tests embarqués ne couvrent pas les outils clients de sauvegarde.
+- Contournement : récupérer les paquets clients PostgreSQL officiels dans un dossier temporaire, sans modifier les dépendances du projet ; utiliser le serveur embarqué pour vérifier une restauration locale.
+- Occurrences : 1.
+- Complément : avec --ignore-scripts, exécuter le script hydrate-symlinks.js du paquet embarqué avant de lancer son serveur (liens libpq/ICU manquants sinon).
+- Validation : clients officiels 17.11 extraits sans installation globale ; sauvegardes initiale et catalogue restaurées sur un serveur local 17.11 jetable, arrêté et supprimé après les contrôles.
+- Statut : contourné ; sauvegardes privées conservées dans data/backups, hors Git.
+
+## 2026-11-03 — Droits API Supabase hérités sur les tables Prisma
+
+- Symptôme : après la migration initiale, User, Account, Session et Card ont RLS désactivé et les rôles anon/authenticated possèdent SELECT.
+- Cause : les privilèges par défaut Supabase s’appliquent aux tables Prisma créées dans public ; l’application utilise Better Auth et Prisma, pas l’API de données Supabase.
+- Correctif : migration complémentaire activant RLS sans politique publique et révoquant les droits des rôles API Supabase présents, y compris les privilèges par défaut du rôle de migration. Les rôles propriétaires utilisés par Prisma conservent leur accès.
+- Occurrences : 1.
+- Validation : migration appliquée sur dev et prod ; check-database-access réussit sur les deux, lecture Prisma conservée et aucun privilège direct pour les rôles API. Rejeu de synchronisation après protection : zéro écriture. Reconnexion navigateur dev et équipe conservée après migration. Sauvegarde du catalogue restaurée en local avec RLS préservé et comptes/cartes toujours à zéro.
+- Statut : corrigé avant ouverture ; publication du site toujours réservée à l’utilisateur.
