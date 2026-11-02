@@ -197,3 +197,21 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Occurrences : 1.
 - Validation : migration appliquée sur dev et prod ; check-database-access réussit sur les deux, lecture Prisma conservée et aucun privilège direct pour les rôles API. Rejeu de synchronisation après protection : zéro écriture. Reconnexion navigateur dev et équipe conservée après migration. Sauvegarde du catalogue restaurée en local avec RLS préservé et comptes/cartes toujours à zéro.
 - Statut : corrigé avant ouverture ; publication du site toujours réservée à l’utilisateur.
+
+## 2026-11-03 — Audit : clôture cron ouverte sans secret
+
+- Symptôme : POST /api/auctions/close retourne 200 sans authentification lorsque CRON_SECRET manque ; reproduit par appel du handler avec clôture simulée (aucune base contactée).
+- Cause : contrôle conditionné à la présence du secret (fail-open).
+- Correctif : refuser aussi les configurations sans secret ; check-cron-access couvre secret absent, incorrect et valide.
+- Gravité : moyenne, déclenchement non autorisé d'un traitement global ; aucun vol démontré, seules les enchères échues sont clôturées.
+- Occurrences : 1.
+- Validation : régression 200 avant / 403 après ; secret invalide refusé et secret valide accepté avec dépendance simulée. Lint ciblé et TypeScript réussis. Navigateur local privé : POST sans autorisation 403. Aucune clôture réelle.
+- Statut : corrigé localement.
+
+## 2026-11-03 — Audit : CodeQL indisponible
+
+- Symptôme : command -v codeql ne trouve aucun exécutable.
+- Cause : CLI absente du PATH ; compétence lue, analyse CodeQL non exécutée. Ne pas interpréter cette absence comme zéro alerte.
+- Contournement : revue ciblée manuelle ; installer CodeQL avant de compléter la couverture statique.
+- Occurrences : 1.
+- Statut : ouvert.
