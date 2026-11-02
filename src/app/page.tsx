@@ -2,9 +2,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ACHIEVEMENTS, listAchievements } from "@/lib/achievements";
 import { PackOpener } from "./packs/PackOpener";
-import { poolCounts } from "@/lib/banners";
+import { listBanners, poolCounts } from "@/lib/banners";
 import { readyCount } from "@/lib/expeditions";
-import { listBanners } from "@/lib/banners";
 import { WELCOME_CRYSTALS, WELCOME_DRAWS } from "@/lib/crystal-stock";
 import { getSessionUser } from "@/lib/session";
 import { getPlayerSummary } from "@/lib/summary";
@@ -97,14 +96,14 @@ async function Content() {
   const available = s.packs.available;
 
   return (
-    <div className="mq-home-page">
+    <div className="mq-home-page mq-home-compact">
       <section className="mq-home-intro">
         <p className="mq-eyebrow">BIENVENUE, {user.username.toUpperCase()}</p>
         <h1>La Faille vous appelle.</h1>
         <p>{available > 0 ? "Un nouveau booster vous attend. Quelle légende renferme-t-il ?" : "Le prochain cristal arrive bientôt. La Faille patiente."}</p>
       </section>
-      <PackOpener initialState={s.packs} banners={banners} standardPool={standardPool} expeditionsReady={ready} />
-      <div>
+      <PackOpener initialState={s.packs} banners={banners} standardPool={standardPool} expeditionsReady={ready}
+        achievements={
         <aside className="mq-achievements-panel">
           <div className="mq-panel-heading"><div><small>PROGRESSION</small><h2>Succès</h2></div><span>{done}/{achievements.length}</span></div>
           {todo.map((a) => (
@@ -112,8 +111,8 @@ async function Content() {
           ))}
           <Link href="/achievements" className="mq-text-link">Voir tous les succès →</Link>
         </aside>
-
-      </div>
+        }
+      />
     </div>
   );
 }

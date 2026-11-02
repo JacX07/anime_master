@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Money, RarityGem } from "@/components/icons";
 import type { Rarity } from "@/generated/prisma/enums";
@@ -42,7 +42,7 @@ function formatDuration(ms: number) {
 }
 
 /** Ouverture de paquets en 2D (direction « Citadelle sombre ») : choix de la bannière et du lot, tirage côté serveur, cartes retournées une à une. */
-export function PackOpener({ initialState, banners = [], standardPool = {}, expeditionsReady = 0 }: { initialState: PlayerPackState; banners?: BannerInfo[]; standardPool?: RarityCounts; expeditionsReady?: number }) {
+export function PackOpener({ initialState, banners = [], standardPool = {}, expeditionsReady = 0, achievements }: { achievements?: ReactNode; initialState: PlayerPackState; banners?: BannerInfo[]; standardPool?: RarityCounts; expeditionsReady?: number }) {
   const [state, setState] = useState(initialState);
   const [bannerId, setBannerId] = useState<string | null>(null);
   const [lot, setLot] = useState<LotSize>(5);
@@ -132,20 +132,37 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   return (
     <div className="pk">
       <header className="pk-head">
-        <div>
-          <p className="eyebrow">Salle des invocations</p>
-          <h2 className="vt-title">Ouvrir un booster</h2>
-        </div>
         <dl className="pk-wallet">
           <div><dt>Cristaux</dt><dd>{available}<span> / {MAX_CRYSTALS}</span></dd><small>{msLeft === null ? "Stock plein" : `Prochain dans ${formatDuration(msLeft)}`}</small></div>
           {state.specialCrystals > 0 && <div><dt>Spéciaux</dt><dd>{state.specialCrystals}</dd></div>}
           {state.welcomeDraws > 0 && <div><dt>Bienvenue</dt><dd>{state.welcomeDraws}</dd></div>}
           <div><dt>Ryō</dt><dd><Money n={state.balance} /></dd></div>
         </dl>
+        <aside className="pk-shop" aria-label="Boutique">
+          <p className="pk-note">{state.crystalPrice} Ryō le cristal · {state.crystalsLeft} encore achetables aujourd&apos;hui.</p>
+          <div className="pk-buy">
+            {CRYSTAL_BUY_SIZES.map((n) => (
+              <button key={n} type="button" disabled={pending || state.crystalsLeft < n || state.balance < n * state.crystalPrice} onClick={() => buy(n)}>
+                <b>+{n}</b>
+                <Money n={n * state.crystalPrice} />
+              </button>
+            ))}
+          </div>
+          {expeditionsReady > 0 && (
+            <Link href="/expeditions" className="pk-expe">
+              <b>{expeditionsReady} expédition{expeditionsReady > 1 ? "s" : ""} terminée{expeditionsReady > 1 ? "s" : ""}</b>
+              <small>Récupérer les butins →</small>
+            </Link>
+          )}
+          {process.env.NODE_ENV !== "production" && (
+            <button type="button" className="pk-ghost" onClick={devGrant} disabled={pending}>Test : +50 cristaux</button>
+          )}
+        </aside>
       </header>
 
       <div className="pk-main">
-        <section className="pk-panel" aria-label="Bannières">
+        {achievements}
+        <section className="pk-panel pk-banner-panel" aria-label="Bannières">
           <h2>Bannière</h2>
           <div className="pk-banners" role="radiogroup" aria-label="Choisir une bannière">
             <button disabled={pending || waitingReveal} type="button" role="radio" aria-checked={bannerId === null} className="pk-banner" data-active={bannerId === null} onClick={() => setBannerId(null)}>
@@ -154,7 +171,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               <span>Tout le catalogue, au prix de 1 cristal par carte.</span>
             </button>
             {banners.map((b) => (
-              <button disabled={pending || waitingReveal} type="button" role="radio" aria-checked={bannerId === b.id} key={b.id} className="pk-banner" data-active={bannerId === b.id} data-kind={b.costKind} onClick={() => setBannerId(b.id)}>
+              <button disabled={pending || waitingReveal} type="button" role="radio" aria-checked={bannerId === b.id} key={b.id} className="pk-banner" title={b.description} data-active={bannerId === b.id} data-kind={b.costKind} onClick={() => setBannerId(b.id)}>
                 {b.featured && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className="pk-banner-face" src={b.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
@@ -187,8 +204,8 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           </details>
         </section>
 
-        <section className="pk-stage" aria-label="Ouverture">
-          {(!pack || summary) && (
+        <section className="pk-stage" data-summary={summary} aria-label="Ouverture">
+          {!pack && (
             <button type="button" className="pk-pack" disabled={!canOpen} aria-label={`Ouvrir le booster de ${lot} cartes`}
               onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } open(); }}
               data-art={banner?.featured ? "" : undefined}>
@@ -214,7 +231,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               <strong>{lot} CARTES</strong>
             </button>
           )}
-          {(!pack || summary) && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
+          {!pack && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
 
           {burst && <div key={burst.key} className="pk-burst" data-rarity={burst.rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && setBurst(null)}><b>{burst.rarity}</b></div>}
 
@@ -263,27 +280,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           </div>
         </section>
 
-        <aside className="pk-panel" aria-label="Boutique">
-          <h2>Cristaux</h2>
-          <p className="pk-note">{state.crystalPrice} Ryō le cristal · {state.crystalsLeft} encore achetables aujourd&apos;hui.</p>
-          <div className="pk-buy">
-            {CRYSTAL_BUY_SIZES.map((n) => (
-              <button key={n} type="button" disabled={pending || state.crystalsLeft < n || state.balance < n * state.crystalPrice} onClick={() => buy(n)}>
-                <b>+{n}</b>
-                <Money n={n * state.crystalPrice} />
-              </button>
-            ))}
-          </div>
-          {expeditionsReady > 0 && (
-            <Link href="/expeditions" className="pk-expe">
-              <b>{expeditionsReady} expédition{expeditionsReady > 1 ? "s" : ""} terminée{expeditionsReady > 1 ? "s" : ""}</b>
-              <small>Récupérer les butins →</small>
-            </Link>
-          )}
-          {process.env.NODE_ENV !== "production" && (
-            <button type="button" className="pk-ghost" onClick={devGrant} disabled={pending}>Test : +50 cristaux</button>
-          )}
-        </aside>
+
       </div>
 
       {detail && <CardDetail card={detail} onClose={() => setDetail(null)} />}
