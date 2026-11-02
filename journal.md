@@ -148,3 +148,21 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Limites : aucun import prod, aucune publication, aucun parcours navigateur vérifié pendant cette opération. Les anciens fichiers SQLite sont conservés.
 - Occurrences : 1.
 - Statut : contourné ; configuration locale non versionnée.
+
+## 2026-11-02 — Illustrations locales après import du catalogue Supabase
+
+- Symptôme : pendant le test navigateur dev, /api/illustrations/character-88572 renvoie 404 après l’import du catalogue.
+- Cause : content:sync copie les URLs des illustrations mais pas les fichiers data/illustrations ; le worktree Postgres ne possède pas ces fichiers locaux.
+- Contournement local : copie sans écrasement des 74 fichiers (environ 9 Mo) depuis anime_master/data/illustrations vers le worktree Postgres ; stockage persistant encore à traiter avant Vercel.
+- Occurrences : 1.
+- Validation : après copie locale, les images du booster chargent dans le navigateur. Le problème Vercel reste ouvert.
+- Statut : contourné en local, ouvert pour Vercel.
+
+## 2026-11-02 — Navigation débordante sur mobile
+
+- Symptôme : test navigateur Supabase dev à 390 × 844 ; la navigation principale dépasse la largeur et le bouton JOUER est hors écran.
+- Contexte : écran /combat ; contenu principal lisible mais barre supérieure non adaptée à cette largeur.
+- Cause : à isoler dans les styles de navigation ; pas de modification de mise en page pendant la vérification de connexion Supabase.
+- Correctif : à traiter avant validation mobile de la bêta.
+- Occurrences : 1.
+- Statut : ouvert.
