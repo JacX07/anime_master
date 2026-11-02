@@ -5,6 +5,7 @@ import type { Rarity } from "@/generated/prisma/enums";
 
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
 const STORE = "am-packs-ambience";
+const STORE_UI = "am-ui-sfx";
 
 class PackAudio {
   private ctx: AudioContext | null = null;
@@ -101,6 +102,72 @@ class PackAudio {
         this.tone(t + 0.5 + i * 0.09, midi(n + 12), 1.8, 0.1);
       });
     }
+  }
+
+  // ---- Sons d'interface : courts et discrets, pour que chaque geste ait un retour ----
+  private ui(fn: (ctx: AudioContext, t: number) => void) {
+    if (!this.ctx || !this.uiOn) return; // pas de contexte avant un premier geste
+    if (this.ctx.state === "suspended") void this.ctx.resume();
+    fn(this.ctx, this.ctx.currentTime);
+  }
+  /** Crée le contexte audio (à appeler pendant un geste de l'utilisateur). */
+  unlock() {
+    this.ready();
+  }
+  uiOn = true;
+  private lastHover = 0;
+
+  /** Survol : tic aigu très léger. */
+  uiHover() {
+    const now = performance.now();
+    if (now - this.lastHover < 70) return;
+    this.lastHover = now;
+    this.ui((_, t) => this.tone(t, 1500 + Math.random() * 120, 0.05, 0.035));
+  }
+  /** Clic ordinaire : « tok » mat. */
+  uiClick() {
+    this.ui((_, t) => {
+      this.tone(t, 520, 0.07, 0.1, "triangle");
+      this.tone(t, 260, 0.09, 0.08, "sine");
+    });
+  }
+  /** Action principale : deux notes qui montent. */
+  uiConfirm() {
+    this.ui((_, t) => {
+      this.tone(t, midi(76), 0.16, 0.12, "triangle");
+      this.tone(t + 0.07, midi(83), 0.3, 0.13, "triangle");
+      this.tone(t + 0.07, midi(95), 0.25, 0.04);
+    });
+  }
+  /** Sélection d'un onglet, d'un choix, d'une case : petit « clic-tic » ascendant. */
+  uiSelect() {
+    this.ui((_, t) => {
+      this.tone(t, midi(72), 0.07, 0.09, "triangle");
+      this.tone(t + 0.05, midi(79), 0.12, 0.1, "triangle");
+    });
+  }
+  /** Changement de page : souffle doux. */
+  uiNav() {
+    this.ui((_, t) => {
+      this.swish(t, 0.2, 700, 2600, 0.22);
+      this.tone(t, 330, 0.08, 0.07, "triangle");
+    });
+  }
+  /** Bouton désactivé : note sourde descendante. */
+  uiDenied() {
+    this.ui((_, t) => {
+      this.tone(t, 190, 0.12, 0.14, "square");
+      this.tone(t + 0.07, 140, 0.16, 0.12, "square");
+    });
+  }
+
+  setUi(on: boolean) {
+    this.uiOn = on;
+    try { localStorage.setItem(STORE_UI, on ? "on" : "off"); } catch { /* stockage indisponible */ }
+    if (on) this.ui((_, t) => this.tone(t, midi(84), 0.15, 0.12, "triangle"));
+  }
+  get uiWanted(): boolean {
+    try { return localStorage.getItem(STORE_UI) !== "off"; } catch { return true; }
   }
 
   /** Clic d'ouverture : petit coup grave et souffle montant. */
