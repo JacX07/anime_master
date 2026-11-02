@@ -57,7 +57,7 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
     <div className="gear-slots" role="group" aria-label="Choisir un emplacement d’équipement">
       {(["ARME", ...ARTIFACT_SLOTS] as Slot[]).map((key) => {
         const worn = artifacts.find((item) => item.artifact!.slot === key && item.artifact!.equippedCard?.id === card.id);
-        return <button type="button" key={key} data-rarity={worn?.artifact!.rarity} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(slot === key ? null : key); setSelectedKey(null); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
+        return <button type="button" key={key} data-rarity={worn?.artifact!.rarity} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(slot === key ? null : key); setSelectedKey(slot === key ? null : worn?.key ?? null); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
           {worn?.image ? <Image src={worn.image} width={64} height={64} alt="" /> : <SlotIcon slot={key} />}
           <span><strong>{key === "ARME" ? "Arme" : SLOT_NAMES[key]}</strong>
           <small>{key === "ARME" ? weapon ? "Équipée" : "Vide" : worn ? `+${worn.artifact!.level}` : "Vide"}</small></span>

@@ -170,7 +170,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
               <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
               <RarityTag rarity={card.rarity} />
             </div>
-            <p className="cd-meta"><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name} · {RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</p>
+            <p className="cd-meta"><span className="cd-rarity">{RARITY_NAMES[card.rarity]}{card.stars > 0 ? ` · ${card.stars}★` : ""}</span><span><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name}</span></p>
             {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
               {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
             </button>}
