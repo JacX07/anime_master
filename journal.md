@@ -119,3 +119,21 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : transmettre le compteur affiché dans BattleView et le vérifier avant le rejeu puis à l'écriture. Les Server Actions exigent un compteur entier positif ou nul.
 - Occurrences : 1 (intermittent).
 - Statut : corrigé et checks dédiés réussis.
+
+## 2026-11-02 — Publication et protection du dépôt privé
+
+- Symptôme : GitHub Free ne permet pas les protections de branches d'un dépôt privé personnel ; `gh` n'est pas installé dans l'environnement local.
+- Cause : limitation du forfait, distincte de la CI ; l'authentification Git SSH ne donne pas accès à l'API privée.
+- Contournement : commande Node de publication utilisant l'API Actions (jeton Actions en lecture pour un dépôt privé) et Git SSH pour le push. Aperçu par défaut, CI du SHA exact de main exigée et publication en avance rapide seulement.
+- Limite : un push direct contourne ce contrôle local. GitHub Pro permettrait une protection côté serveur. La visibilité du dépôt reste inchangée.
+- Occurrences : 1.
+- Validation : check dédié réussi (CI rouge/absente/ignorée, erreur API, branches mobiles, aperçu sans écriture, push sur dépôt Git jetable, divergence). TypeScript et lint réussis. Aperçu réel refusé pour main@d72a203 sans CI. Aucun push vers production ni test du site déployé ; hébergement non configuré.
+- Statut : implémenté sur migration/postgres.
+
+## 2026-11-02 — Scripts tsx CommonJS
+
+- Symptôme : un nouveau check avec await au niveau module échoue à la transformation (« Top-level await ... cjs output format »).
+- Cause : le package n'est pas déclaré ESM ; tsx exécute les scripts TypeScript en CommonJS.
+- Correctif : encapsuler le check dans main async et utiliser require.main === module pour le point d'entrée de publication importable.
+- Occurrences : 1.
+- Statut : corrigé pendant le développement.

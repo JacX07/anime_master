@@ -34,7 +34,7 @@ agents ──push──▶ main ──▶ CI (lint, typecheck, check-*)         
 
 - Deux branches permanentes seulement : `main` (agents) et `production` (amis). Pas de branche par release.
 - Une release = fusion de `main` dans `production` + un tag + une entrée de changelog.
-- La branche `production` est protégée : fusion acceptée seulement si la CI est verte.
+- La commande `npm run production:publish` exige la CI verte du commit exact de `main` avant de mettre `production` à jour en avance rapide. Le contrôle est local, pas une protection GitHub (voir [publication.md](publication.md)).
 - Retour arrière du code : « Instant Rollback » dans Vercel (un clic). Il ne ramène pas la base : les migrations doivent rester compatibles avec l'ancien code.
 
 ## 4. Limites Vercel (plan Hobby)
@@ -65,7 +65,7 @@ Implémentée sur `migration/postgres` : lint, types de routes, TypeScript, puis
 
 - Catalogue fixe versionné de 368 personnages pour que les checks ne dépendent pas d'AniList (plus de 100 de chaque genre requis par les bannières existantes).
 - `.github/workflows/ci.yml` implémenté sur `migration/postgres` : Node 24 (`.nvmrc`), service Postgres 17, `npm ci`, puis migrations et chargement des données via `npm run check`. Annulation des anciens runs de la même branche, cache npm, délais et journaux d'échec limités à trois jours. Voir [checks.md](checks.md).
-- Protection de la branche `production` : CI verte obligatoire.
+- Publication contrôlée vers `production` : `npm run production:publish` (aperçu), puis `-- --apply` sur instruction humaine. Un dépôt privé personnel exige GitHub Pro pour une protection serveur ; sur Free, un push direct contourne le script.
 - Ensuite, proposer (avec permission) une règle dans `AGENTS.md` : lancer `npm run check` avant de pousser.
 
 ### Étape 4 — Deux projets Supabase
