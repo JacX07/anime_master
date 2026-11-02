@@ -1,130 +1,121 @@
-# Plan de mise en production et CI/CD
+# Plan de mise en production : Vercel + Supabase
 
-Statut : **plan à valider**, rien n'est encore en place. Rédigé le 2026-11-02.
+Statut : **plan à valider**, rien n'est encore en place. Réécrit le 2026-11-02 (remplace le plan VPS, resté dans l'historique Git).
 
-Contexte : un seul développeur humain, plusieurs agents qui poussent sur `main` en continu, base SQLite (`data/app.db`), fangame gratuit (aucun revenu, donc on vise le coût minimum).
+Contexte : un seul développeur humain, plusieurs agents qui poussent sur `main` en continu, fangame gratuit, bêta à lancer vite avec des amis. Base actuelle : SQLite (`data/app.db`, 25 Mo).
 
-## 1. Vocabulaire
+## 1. Décisions prises
 
-- **CI (intégration continue)** : à chaque push, une machine GitHub installe le projet et lance les vérifications. Question posée : *le code est-il sain ?* Résultat : coche verte ou croix rouge sur le commit, mail en cas d'échec.
-- **CD (déploiement continu)** : quand on le décide, le code vérifié est envoyé sur le serveur de prod. Question posée : *le code est-il en ligne ?*
-- **Workflow GitHub Actions** : un fichier YAML dans `.github/workflows/` qui décrit quand et quoi exécuter.
-- **Secret GitHub** : valeur sensible (clé SSH, mot de passe) stockée dans les réglages du repo, injectée dans les workflows, jamais écrite dans le code.
-- **Migration** : modification du schéma de la base (Prisma). `migrate dev` sert en local et peut réinitialiser la base ; `migrate deploy` applique seulement les migrations en attente et sert en prod.
+- Hébergement du site : **Vercel**. Base de données : **Supabase (Postgres)**. Fichiers (illustrations) : dans le repo ou Supabase Storage.
+- **Deux environnements** : *dev* (les agents modifient tout le temps) et *prod* (stable, les amis jouent dessus). Chacun a sa propre base Supabase.
+- **La prod ne change que quand l'humain publie.**
+- **Pas de preview Vercel automatique** : les tests se font en local (`npm run dev`, base dev). Une preview en ligne se déclenche à la demande seulement (voir §4).
+- Plan gratuit partout pour la bêta.
 
-## 2. Le circuit cible
+## 2. Vocabulaire
+
+- **CI (intégration continue)** : à chaque push, une machine GitHub lance les vérifications (lint, typecheck, `check-*`). Coche verte ou croix rouge sur le commit.
+- **CD (déploiement continu)** : envoi du code vérifié en ligne.
+- **Workflow GitHub Actions** : fichier YAML dans `.github/workflows/`.
+- **Migration** : modification du schéma de la base (Prisma). `migrate dev` en local seulement ; `migrate deploy` en prod (applique les migrations en attente, ne réinitialise jamais).
+- **Tag** : étiquette de version posée sur un commit (`v0.3.0`).
+
+## 3. Le circuit
 
 ```
-agents ──push──▶ main ──▶ CI : install, lint, typecheck, checks   (automatique, à chaque push)
-                                   │ ✓
-                                   ▼
-                toi : « je publie »  (tag vX.Y ou bouton « Run workflow »)
-                                   │
-                                   ▼
-          CD : SSH sur le VPS → sauvegarde base → git checkout du tag
-               → npm ci → prisma migrate deploy → build → redémarrage
+agents ──push──▶ main ──▶ CI (lint, typecheck, check-*)            automatique, à chaque push
+                  │            (dev local : npm run dev, base Supabase « dev »)
+                  │
+       toi : « je publie »  =  fusion main → production + tag vX.Y.Z
+                  │                 (refusée si la CI n'est pas verte)
+                  ▼
+   production ──▶ Vercel « Production » ──▶ base Supabase « prod »
 ```
 
-Principes :
+- Deux branches permanentes seulement : `main` (agents) et `production` (amis). Pas de branche par release.
+- Une release = fusion de `main` dans `production` + un tag + une entrée de changelog.
+- La branche `production` est protégée : fusion acceptée seulement si la CI est verte.
+- Retour arrière du code : « Instant Rollback » dans Vercel (un clic). Il ne ramène pas la base : les migrations doivent rester compatibles avec l'ancien code.
 
-- `main` reste la branche de développement. Les agents continuent comme aujourd'hui.
-- **La prod ne change que sur décision humaine** (tag ou bouton). Pas de déploiement automatique à chaque push : avec plusieurs agents, la prod serait instable.
-- On ne publie qu'un commit dont la CI est verte.
-- Retour arrière = redéployer le tag précédent (et restaurer la sauvegarde si une migration a cassé la base).
+## 4. Limites Vercel (plan Hobby)
 
-## 3. Les étapes
+D'après https://vercel.com/docs/limits (à revérifier au moment de s'inscrire) : 100 déploiements par jour (chaque push sur une branche en crée un), 1 build à la fois, 45 min de build maximum, usage personnel et non commercial.
 
-Chaque étape est utilisable seule. On valide et on teste une étape avant de passer à la suivante.
+Les agents poussent après chaque petite modification : on désactive donc le déploiement automatique de `main` (`vercel.json` : `git.deploymentEnabled` à `false` pour `main`), seule `production` déploie. Une preview en ligne, si besoin, se lance à la demande avec `vercel deploy`. Seuls les déploiements réels de la prod consomment le quota.
 
-### Étape 1 — `npm run check` en local
+## 5. Les étapes
 
-But : une seule commande qui dit si le projet est sain.
+Chaque étape est testée avant la suivante.
 
-- Ajouter un script `typecheck` (`tsc --noEmit`).
-- Ajouter un script `check` qui enchaîne : lint, typecheck, puis tous les `scripts/check-*.ts` (y compris les 10 qui n'ont pas d'entrée dans `package.json`), et affiche un résumé des échecs à la fin.
-- Les checks tournent sur **une copie temporaire de la base** (`DATABASE_URL` pointé vers un fichier jetable), jamais sur `data/app.db`.
-- Chaque check reste borné par un timeout (voir `AGENTS.md`).
+### Étape 1 — Migration SQLite vers Postgres (branche dédiée)
 
-À décider : quels checks sont trop lents ou dépendent de données absentes ; les marquer plutôt que les ignorer silencieusement.
+- Provider Prisma `postgresql`, adaptateur `@prisma/adapter-pg` dans `src/lib/db.ts`. Aucune requête SQL brute dans `src/` (seulement `scripts/check-builder-storage.ts` et `scripts/play-sync.ts`).
+- Nouvelle migration de départ Postgres (les 33 actuelles sont pour SQLite).
+- Connexion via le pooler Supabase (port 6543, mode transaction) : indispensable sur Vercel, chaque requête peut ouvrir sa connexion.
+- Relancer les 43 `check-*` sur Postgres et corriger ce qui casse.
+- Adapter ou remplacer `play:sync` et les scripts d'import.
+- Vérification dans le navigateur des parcours principaux (règle d'`AGENTS.md`).
 
-### Étape 2 — Données de test versionnées
+### Étape 2 — `npm run check`
 
-Problème : les checks ont besoin de personnages en base. L'import AniList complet prend ~6 min et dépend d'une API externe : inutilisable en CI.
+Une commande : lint, typecheck, puis tous les `scripts/check-*.ts` (y compris les 10 sans entrée dans `package.json`), avec résumé des échecs. Base jetable, jamais la base dev ni prod.
 
-- Créer un petit jeu de données fixe (~100 personnages, franchises, illustrations minimales ou placeholders) versionné dans le repo, par exemple `fixtures/`.
-- Un script `db:seed-test` crée une base vide, applique les migrations (`migrate deploy`) et charge ces données.
-- `npm run check` utilise cette base, en local comme en CI : mêmes résultats partout.
+### Étape 3 — Données de test et CI GitHub Actions
 
-### Étape 3 — CI GitHub Actions
+- Petit jeu de données fixe (~100 personnages) versionné, pour que les checks ne dépendent pas d'AniList.
+- `.github/workflows/ci.yml` : Node 24 (`.nvmrc`), Postgres de test (service du workflow), `npm ci`, chargement des données, `npm run check`.
+- Protection de la branche `production` : CI verte obligatoire.
+- Ensuite, proposer (avec permission) une règle dans `AGENTS.md` : lancer `npm run check` avant de pousser.
 
-- Fichier `.github/workflows/ci.yml`, déclenché à chaque push et pull request.
-- Étapes : Node 24 (lu depuis `.nvmrc`), `npm ci` avec cache, `db:seed-test`, `npm run check`.
-- Résultat visible sur chaque commit dans GitHub. Activer les notifications mail d'échec.
-- Gratuit pour un repo public ; quota mensuel gratuit pour un repo privé (largement suffisant ici).
+### Étape 4 — Deux projets Supabase
 
-Règle à proposer ensuite dans `AGENTS.md` (avec permission) : lancer `npm run check` avant chaque push et ne pas laisser la CI rouge.
+- `anime-dev` et `anime-prod` (le plan gratuit permet 2 projets actifs).
+- Clés et URLs dans un coffre à part, jamais dans le repo. Variables d'environnement Vercel, une valeur par environnement.
+- Contenu envoyé dans chaque base : personnages, séries, sorts modifiés, par des scripts rejouables (ajout ou mise à jour, jamais de suppression). La prod démarre **sans aucun compte** ; les données joueurs de la prod ne sont jamais écrasées.
 
-### Étape 3 bis — Contenu reproductible depuis le repo
+### Étape 5 — Vercel
 
-Problème : une partie du contenu du jeu vit dans la base (personnages, séries, sorts modifiés) et n'existe que dans `data/app.db` sur le PC de dev. La prod ne doit pas dépendre de ce fichier.
+- Branche de production = `production`. Déploiement auto désactivé pour `main` (§4).
+- `BETTER_AUTH_SECRET` et `BETTER_AUTH_URL` propres à la prod.
+- Illustrations : dans le repo (9 Mo aujourd'hui) ou Supabase Storage. Le disque de Vercel est en lecture seule : les outils de dev qui écrivent sur disque (Spell Builder, mécaniques) restent en local.
+- Migrations de la prod : `prisma migrate deploy` lancé **avant** chaque publication (à la main au début, puis par un workflow GitHub).
 
-Principe : la prod est la seule source de vérité des **données joueurs** ; le **contenu** va du repo vers la prod, en ajout ou mise à jour, jamais en suppression.
+### Étape 6 — Première publication, à la main
 
-- Structure : migrations Prisma (`migrate deploy`).
-- Personnages et séries : scripts d'import rejouables (ajout ou mise à jour), lancés par le déploiement. Pour ne pas dépendre d'AniList à chaque déploiement, exporter le contenu dans un fichier versionné (ex. `content/characters.json`) et l'importer en prod.
-- Corrections ponctuelles (rareté, stats d'un personnage) : migration de données dans le repo, pas d'édition à la main dans une base.
-- Sorts modifiés (`SpellOverride`) : à exporter en fichier versionné, le Spell Builder étant un outil de dev.
-- Bannières : déjà créées par le code (`ensureBanners`).
+Fusion `main` → `production`, tag `v0.1.0`, vérification du site en ligne (inscription, ouverture de paquet, combat, persistance après rechargement), puis ouverture à quelques amis.
 
-En attendant, `npm run play:sync` applique ce principe localement (copie `app.db` → `play.db` sans toucher aux joueurs).
+### Étape 7 — Notes de mise à jour
 
-### Étape 4 — Le VPS
+- `CHANGELOG.md` à la racine, écrit à chaque release en langage joueur (un agent le prépare depuis les commits depuis le dernier tag, l'humain relit).
+- GitHub Release créée depuis le tag, avec le même texte.
+- Option : page « Nouveautés » dans le jeu qui affiche ce fichier.
 
-Guide pas à pas à écrire dans ce fichier au moment de l'étape. Contenu prévu :
+### Étape 8 — Plus tard
 
-- Choix : Hetzner, OVH ou Scaleway, 2–4 vCPU, 4–8 Go RAM, ~5–10 €/mois. Préférer un hébergeur qui prévient avant de couper en cas de plainte (DMCA), le contenu étant de l'anime.
-- Sécurité de base : utilisateur non-root, connexion SSH par clé uniquement, pare-feu (ports 22, 80, 443), mises à jour automatiques de sécurité.
-- Node 24 via nvm ou paquet officiel ; **une seule version de Node** sur la machine (évite le bug `better_sqlite3`, voir `journal.md`).
-- **Caddy** devant Next : HTTPS automatique avec le nom de domaine.
-- **pm2** (ou systemd) : relance Next s'il plante et au redémarrage du VPS.
-- **Litestream** : réplique `app.db` en continu vers un stockage objet (Cloudflare R2 ou Backblaze B2). Tester une restauration au moins une fois.
-- `.env` de prod créé à la main sur le serveur, avec ses propres secrets (`BETTER_AUTH_SECRET` différent du local).
-- Données non versionnées à transférer une fois : base initiale et `data/illustrations` (le dossier `data/` est ignoré par Git).
-- Optionnel : Cloudflare devant le domaine (cache des images, protection).
+Test de charge avant d'inviter plus de monde, alerte si le site tombe (UptimeRobot ou équivalent), Playwright sur 3–4 parcours clés, domaine personnalisé, sauvegardes régulières de la base prod.
 
-### Étape 5 — CD (déploiement)
+## 6. Capacité attendue et limites du plan gratuit
 
-- Script `scripts/deploy.sh` sur le serveur, lisible et rejouable à la main :
-  1. sauvegarde horodatée de `app.db` ;
-  2. `git fetch` puis `git checkout <tag>` ;
-  3. `npm ci` ;
-  4. `npx prisma migrate deploy` ;
-  5. `npm run build` ;
-  6. `pm2 reload` ;
-  7. vérification : `curl` sur la page d'accueil, sinon message d'erreur clair.
-- Workflow `.github/workflows/deploy.yml`, déclenché par un tag `v*` ou manuellement (`workflow_dispatch`). Il se connecte en SSH (clé dans les secrets GitHub) et lance `deploy.sh`.
-- Le workflow refuse de déployer si la CI du commit n'est pas verte.
-- Premier déploiement fait à la main, en suivant le script, pour comprendre chaque étape.
+Chiffres tirés de blogs tiers, **à vérifier** sur supabase.com/pricing et vercel.com/pricing.
 
-### Étape 6 — Plus tard
+- Supabase gratuit : 500 Mo de base (la base actuelle fait 25 Mo), 50 000 utilisateurs actifs par mois, 5 Go de trafic, 2 projets actifs.
+- **Pause automatique du projet Supabase après 1 semaine sans activité** : à surveiller pour la prod.
+- Connexions : le pooler est le vrai goulot. Estimation (non mesurée) : 20 à 50 joueurs actifs en même temps, quelques centaines à quelques milliers de comptes.
+- Au-delà : Supabase Pro (25 $/mois) et/ou Vercel Pro.
 
-- **Playwright** : 3–4 parcours rejoués automatiquement (inscription, ouverture de paquet, combat, échange).
-- **Docker Compose** quand le serveur temps réel (chat, ranked, PvP) arrivera : Next + serveur WebSocket + Caddy + Litestream décrits dans un seul fichier.
-- **Environnement de staging** (copie de la prod sur le même VPS, autre port et autre base) si les mises en prod deviennent risquées.
-- Supervision : alerte si le site ne répond plus (UptimeRobot ou équivalent, gratuit).
+## 7. Règles de prod à retenir
 
-## 4. Règles de prod à retenir
+- `prisma migrate deploy` en prod, jamais `migrate dev` ni `db push`.
+- Sauvegarde de la base prod avant une migration.
+- Migrations compatibles avec la version précédente du code (retour arrière possible).
+- Ne jamais committer `.env` ni `data/`. Secrets uniquement dans Vercel, Supabase et GitHub.
+- On ne publie qu'un commit avec une CI verte.
+- Une sauvegarde jamais restaurée n'est pas une sauvegarde : tester une restauration.
+- Contenu d'anime et d'images : une demande de retrait (DMCA) est possible une fois en ligne ; rester prêt à désactiver un personnage (champ `disabled`).
 
-- Toujours `prisma migrate deploy` en prod, **jamais** `migrate dev` ni `db push`.
-- Toujours une sauvegarde de la base avant une migration.
-- Ne jamais committer `.env` ni `data/`.
-- Les secrets vivent dans le `.env` du serveur et dans les secrets GitHub, nulle part ailleurs.
-- On ne publie qu'un commit avec une CI verte, via un tag.
-- Une restauration de sauvegarde non testée n'est pas une sauvegarde.
+## 8. Questions ouvertes
 
-## 5. Questions ouvertes
-
-- Repo GitHub public ou privé (impacte le quota CI gratuit et la visibilité du code) ?
-- Nom de domaine ?
-- Hébergeur du VPS ?
-- Les comptes et collections du dev doivent-ils être repris en prod, ou la prod démarre-t-elle vide (seulement les personnages) ?
+- Repo GitHub public ou privé ?
+- Nom de domaine, ou adresse `*.vercel.app` pour la bêta ?
+- Illustrations : dans le repo ou Supabase Storage ?
+- Les amis de la bêta repartent-ils de zéro à la sortie officielle ?
