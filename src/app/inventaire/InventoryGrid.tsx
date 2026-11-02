@@ -12,6 +12,7 @@ import { INVENTORY_CATEGORIES, filterInventory, type InventoryCategory, type Inv
 import { UNIVERSES } from "@/lib/story";
 import { artifactSubstatUpgrades, artifactRarity, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
 import { equipArtifactAction } from "@/app/battle-actions";
+import { PageHeading } from "@/components/mq/PageHeading";
 
 const number = new Intl.NumberFormat("fr-FR");
 function ItemIcon({ item, size = 64 }: { item: InventoryItem; size?: number }) {
@@ -32,10 +33,10 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
   const [showEmpty, setShowEmpty] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const visible = filterInventory(items, category, query, universe, showEmpty, sort);
-  const selected = visible.find((item) => item.key === selectedKey) ?? visible[0];
-  return <section className="inventory" aria-label="Objets et matériaux">
-    <div className="inventory-heading"><span className="inventory-stock">◇ {number.format(balance)} Ryō</span></div>
-    <div className="inventory-tabs" role="group" aria-label="Catégorie d’objet">
+  const selected = visible.find((item) => item.key === selectedKey);
+  return <><PageHeading eyebrow="RÉSERVES DE LA CITADELLE" title="Inventaire" description="Gérez vos ressources, équipements et objets précieux."><div className="mq-currency"><span>◇ {number.format(balance)} Ryō</span></div></PageHeading>
+  <section className="inventory" aria-label="Objets et matériaux">
+    <div className="inventory-tabs mq-section-tabs" role="group" aria-label="Catégorie d’objet">
       {INVENTORY_CATEGORIES.map((tab) => <button key={tab} type="button" aria-pressed={category === tab} onClick={() => setCategory(tab)}>{tab}</button>)}
     </div>
     <div className="inventory-toolbar">
@@ -44,16 +45,16 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
       <label><span className="sr-only">Trier les objets</span><select value={sort} onChange={(e) => setSort(e.target.value)}><option value="quantity">Quantité décroissante</option><option value="name">Nom de A à Z</option></select></label>
     </div>
     <div className="inventory-options"><p role="status">{visible.length} objet{visible.length > 1 ? "s" : ""} affiché{visible.length > 1 ? "s" : ""}</p><label><input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />Afficher les non possédés</label></div>
-    <div className="inventory-workspace">
+    <div className="inventory-workspace" data-selected={Boolean(selected)}>
       <div>
-        {visible.length ? <div className="inventory-grid" role="group" aria-label="Choisir un objet">
-          {visible.map((item) => <button type="button" key={item.key} className="inventory-slot" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls="inventory-detail" aria-label={`${item.name}, ${number.format(item.quantity)} en stock${item.equippedBy ? `, équipé sur ${item.equippedBy.name}` : ""}`} title={`${item.name}${item.equippedBy ? ` · Équipé sur ${item.equippedBy.name}` : ` · ${number.format(item.quantity)}`}`} onClick={() => setSelectedKey(item.key)}>
-            <ItemIcon item={item} size={48} /><span className="inventory-item-name">{item.name}</span>{item.equippedBy && <span className="inventory-equipped-badge" title={`Équipé sur ${item.equippedBy.name}`}>✓ {item.equippedBy.name}</span>}<span className="inventory-quantity">×{number.format(item.quantity)}</span>
+        {visible.length ? <div className="inventory-grid mq-inventory-grid" role="group" aria-label="Choisir un objet">
+          {visible.map((item) => <button type="button" key={item.key} className="inventory-slot mq-inventory-item" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls={selected ? "inventory-detail" : undefined} aria-label={`${item.name}, ${number.format(item.quantity)} en stock${item.equippedBy ? `, équipé sur ${item.equippedBy.name}` : ""}`} title={`${item.name}${item.equippedBy ? ` · Équipé sur ${item.equippedBy.name}` : ` · ${number.format(item.quantity)}`}`} onClick={() => setSelectedKey(item.key)}>
+            <span className={`mq-item-gem mq-gem-${["gold", "blue", "gray", "green", "violet"].indexOf(item.tone) % 5}`}><ItemIcon item={item} size={36} /></span><div className="inventory-item-copy"><h3>{item.name}</h3><p>{item.categories.join(" / ") || "Ressource"}</p></div>{item.equippedBy && <span className="inventory-equipped-badge" title={`Équipé sur ${item.equippedBy.name}`}>✓ {item.equippedBy.name}</span>}<b className="inventory-quantity">×{number.format(item.quantity)}</b>
           </button>)}
         </div> : <div className="inventory-empty"><h3>{category === "Consommables" ? "Aucun consommable pour le moment" : "Aucun objet à afficher"}</h3><p>{query || universe ? "Essaie un autre nom ou un autre univers." : "Tes prochains butins apparaîtront ici. Tu peux aussi afficher les objets non possédés."}</p><Link href="/histoire">Explorer l’histoire</Link></div>}
         <p className="inventory-hint">Sélectionne un objet pour voir sa provenance et ses utilisations.</p>
       </div>
-      <aside className="inventory-detail" style={selected?.artifact ? { borderColor: artifactRarity(selected.artifact.rarity).color } : undefined} id="inventory-detail" aria-label="Détails de l’objet">
+      {selected && <aside className="inventory-detail" style={selected.artifact ? { borderColor: artifactRarity(selected.artifact.rarity).color } : undefined} id="inventory-detail" aria-label="Détails de l’objet">
         {selected ? <><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={128} /></div>
           <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}{selected.artifact && <> · <span style={{ color: artifactRarity(selected.artifact.rarity).color }}>{artifactRarity(selected.artifact.rarity).label}</span></>}</p><h3>{selected.name}</h3>
           <p className="inventory-description">{selected.description}</p>
@@ -86,7 +87,7 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
           {error && <p role="alert" className="hs-error">{error}</p>}
           <div className="inventory-actions">{selected.links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}</div>
         </> : <div className="inventory-detail-placeholder"><span aria-hidden="true">◇</span><p>Sélectionne un objet pour découvrir ses détails.</p></div>}
-      </aside>
+      </aside>}
     </div>
-  </section>;
+  </section></>;
 }
