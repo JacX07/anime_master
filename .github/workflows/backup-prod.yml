@@ -1,0 +1,60 @@
+name: Sauvegarde prod
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: "true"
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      PROD_DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      RETENTION_DAYS: "30"
+    steps:
+      - name: Installer pg_dump 17
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-client-17
+
+      - name: Dump + chiffrement
+        run: |
+          set -euo pipefail
+          F="anime-prod-$(date -u +%Y%m%dT%H%M%SZ).dump.gpg"
+          /usr/lib/postgresql/17/bin/pg_dump "$PROD_DATABASE_URL" \
+            --format=custom --no-owner --no-privileges \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 \
+                  --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" -o "$F"
+          test "$(stat -c %s "$F")" -gt 1000
+          echo "FILE=$F" >> "$GITHUB_ENV"
+
+      - name: Envoi vers R2
+        run: |
+          aws s3 cp "$FILE" "s3://$R2_BUCKET/daily/$FILE" --endpoint-url "$R2_ENDPOINT"
+
+      - name: Purger les sauvegardes anciennes
+        run: |
+          set -euo pipefail
+          CUT=$(date -u -d "-$RETENTION_DAYS days" +%Y-%m-%dT%H:%M:%SZ)
+          aws s3api list-objects-v2 --bucket "$R2_BUCKET" --prefix daily/ \
+            --endpoint-url "$R2_ENDPOINT" \
+            --query "Contents[?LastModified<'$CUT'].Key" --output text \
+            | tr '\t' '\n' | grep -v -E '^(None)?$' \
+            | while read -r K; do
+                echo "suppression $K"
+                aws s3 rm "s3://$R2_BUCKET/$K" --endpoint-url "$R2_ENDPOINT"
+              done || true
