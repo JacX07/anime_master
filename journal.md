@@ -35,7 +35,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : les migrations SQL sont propres au moteur ; Better Auth possède aussi son propre réglage de provider.
 - Correctif : archiver le schéma et les migrations dans `prisma/sqlite/`, réserver `prisma.sqlite.config.ts` aux anciennes bases, créer une migration initiale Postgres et passer Better Auth à `postgresql`.
 - Occurrences : 1.
-- Statut : corrigé sur la branche de migration ; import du contenu SQLite vers Postgres encore distinct.
+- Complément du 2026-11-02 : `content:sync` transfère les quatre tables de contenu en transaction, avec aperçu annulé par défaut. Exclure `pullCount` des insertions comme des mises à jour évite d'importer les compteurs SQLite et de casser les numéros des cartes existantes ; préserver aussi `createdAt` à la mise à jour. Les bannières de test et travaux d'agents restent exclus.
+- Statut : corrigé sur la branche de migration ; transfert du contenu distinct de `play:sync`, réservé aux anciennes bases SQLite.
 
 ## 2026-11-02 — Port du Postgres jetable
 

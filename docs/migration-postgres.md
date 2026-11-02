@@ -37,6 +37,14 @@ Sous Node 24.21.0, Postgres local jetable, catalogue copié en lecture seule dep
 
 ## Suite
 
-1. Préparer séparément le transfert rejouable du contenu SQLite vers Postgres et la synchronisation dev vers prod sans données joueurs ni suppressions.
+1. Transfert rejouable et synchronisation disponibles via `npm run content:sync` : voir [synchronisation-contenu.md](synchronisation-contenu.md). Validation locale distincte de toute application Supabase.
 2. Configurer la CI, Supabase et Vercel selon le plan de déploiement.
 3. Ne publier la production qu’à la demande de l’utilisateur.
+
+## Transfert de contenu — validation locale du 2026-11-02
+
+- `content:sync` : aperçu annulé puis application depuis une copie SQLite en lecture seule vers une nouvelle base Postgres locale. 3 411 séries, 4 717 personnages, 14 934 relations et un override. Deuxième application : zéro écriture dans les quatre tables.
+- `check:content-sync` : deux bases jetables, conversion JSON/dates/booléens, source Postgres en lecture seule, aucun joueur dev copié, compteurs source exclus, compteurs et dates de création cible préservés, cartes et joueurs cible identiques, aucune suppression, annulation intégrale sur erreur de référence. Réussi sous Node 24.
+- TypeScript et ESLint ciblé : réussis. Graphify mis à jour (AST).
+- Navigateur sur le build de production local déjà validé, branché sur cette nouvelle base : inscription, tirage de cinq cartes, rechargement, mauvais mot de passe puis connexion réussie. Nouvelle synchronisation après le tirage : zéro écriture ; album avec cinq cartes et session persistante après rechargement à 1 440 px et 390 px.
+- Aucun code applicatif modifié ; build et suite complète précédents non relancés pour ces outils administratifs. Aucun transfert Supabase ni déploiement Vercel effectué.
