@@ -7,6 +7,7 @@ import { SceneBody } from "@/components/SceneBody";
 import { getProfile, pinnable, SHOWCASE_MAX } from "@/lib/profile";
 import { requireUser } from "@/lib/session";
 import { ProfileEditor } from "./ProfileEditor";
+import "./profile.css";
 
 const num = new Intl.NumberFormat("fr-FR");
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
@@ -34,8 +35,8 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
   const done = profile.achievements.filter((a) => a.unlockedAt);
   const pins = mine ? await pinnable(profile.id) : [];
   return (
-    <div className="vt-inner">
-      <header className="pf-head">
+    <div className="vt-inner mq-profile">
+      <header className="pf-head mq-profile-hero">
         <div className="pf-avatar" aria-hidden>
           {profile.username.slice(0, 1).toUpperCase()}
         </div>
@@ -46,7 +47,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
         </div>
       </header>
 
-      <ul className="pf-stats" aria-label="Statistiques">
+      <ul className="pf-stats mq-profile-stats" aria-label="Statistiques">
         <li>
           <b>{num.format(profile.unique)}</b>
           <span>personnages</span>
