@@ -49,7 +49,58 @@
 .mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a) {
   position: relative; min-width: 92px; border: 0; padding: 11px 15px 13px; font: 400 11px/1.5 var(--font-dm), sans-serif; color: #717772;
   &:is(:hover, [aria-pressed="true"], [aria-current="page"]) { color: #e0ddd5; border: 0; }
-  &:is([aria-pressed="true"], [aria-current="page"])::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: #c0a468; }
 }
 .mq-app-shell[class] .eq-tab::before,
 .mq-app-shell[class] .eq-tab::after { display: none; }
+
+/* Onglets et filtres à plat : « lueur montante » (le trait doré s'ouvre depuis le centre, un dégradé monte au-dessus). */
+.mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a),
+.mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip) {
+  position: relative;
+  isolation: isolate;
+  border-bottom: 0 !important;
+  transition: color .22s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px) scaleY(.6);
+    transform-origin: bottom;
+    background: linear-gradient(0deg, #c4a76d38, #c4a76d00 85%);
+    transition: opacity .28s ease, transform .34s cubic-bezier(.22, .8, .35, 1);
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: #c4a76d;
+    box-shadow: 0 0 10px #c4a76d66;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform .34s cubic-bezier(.22, .8, .35, 1);
+  }
+  &:hover:not(:disabled):not([aria-disabled="true"]) { color: #e9e5dc; }
+  &:hover:not(:disabled):not([aria-disabled="true"])::before { opacity: .55; transform: none; }
+  &:hover:not(:disabled):not([aria-disabled="true"])::after { transform: scaleX(.4); }
+  &:is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"]) {
+    color: #d5bb7f;
+    animation: tab-settle .4s cubic-bezier(.22, .8, .35, 1);
+  }
+  &:is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::before { opacity: 1; transform: none; }
+  &:is([aria-pressed="true"], [aria-current="page"], [aria-expanded="true"], [data-active="true"])::after { transform: scaleX(1); }
+}
+@keyframes tab-settle { from { transform: translateY(3px); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .mq-app-shell[class] :is(.mq-section-tabs, .inventory-tabs, .quest-filters, .mq-market-tabs, .pg-tabs nav) > :is(button, a),
+  .mq-app-shell[class] :is(.inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .vt-chip) {
+    animation: none !important;
+    &::before, &::after { transition: none; }
+  }
+}
