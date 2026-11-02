@@ -97,3 +97,19 @@ Définis dans le code, vérifiés après chaque événement pertinent (tirage, d
 | `duel_win_1` / `10` / `50` | Gagner N duels | 30 / 150 / 500 |
 | `first_auction_sale` | Première vente aux enchères | 30 |
 | `first_trade` | Premier échange accepté | 30 |
+
+### Succès et titres de puissance
+
+La puissance de collection du profil (somme des puissances de base, doublons compris) débloque ces paliers. L’équipement et les synergies d’une squad ne comptent pas ici. Chaque succès, titre et récompense est acquis définitivement ; une vente ne le retire pas. Les vérifications utilisent les événements de gain existants et la protection transactionnelle contre les doublons.
+
+| Puissance | Titre | Ryō |
+|---|---|---|
+| 100 000 | Aura naissante | 100 |
+| 500 000 | Force montante | 250 |
+| 1 000 000 | Puissance déchaînée | 500 |
+| 5 000 000 | Briseur de limites | 1 000 |
+| 10 000 000 | Colosse | 2 000 |
+| 50 000 000 | Souverain de puissance | 5 000 |
+| 100 000 000 | Force de la nature | 10 000 |
+
+Les titres sont affichés dans Succès et équipables depuis le profil. Après déploiement ou recalcul de puissance, lancer `npx tsx scripts/sync-power-achievements.ts` pour attribuer les succès déjà atteints aux comptes existants. Le script réutilise la vérification normale des succès et ne crédite jamais deux fois une récompense.

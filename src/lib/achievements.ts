@@ -14,9 +14,18 @@ export interface AchievementDef {
   title: string;
   /** Cristaux spéciaux offerts (≈ 100 au total sur la vie d'un compte, SPEC étape 4 bis §6) */
   special?: number;
+  /** Seuil de puissance de collection, doublons compris. */
+  powerRequired?: number;
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
+  { key: "power_100k", label: "L’éveil de la puissance", title: "Aura naissante", description: "Atteindre 100 000 de puissance de collection (doublons compris).", powerRequired: 100_000, reward: 100 },
+  { key: "power_500k", label: "Une force qui compte", title: "Force montante", description: "Atteindre 500 000 de puissance de collection (doublons compris).", powerRequired: 500_000, reward: 250 },
+  { key: "power_1m", label: "Le cap du million", title: "Puissance déchaînée", description: "Atteindre 1 000 000 de puissance de collection (doublons compris).", powerRequired: 1_000_000, reward: 500 },
+  { key: "power_5m", label: "Au-delà des limites", title: "Briseur de limites", description: "Atteindre 5 000 000 de puissance de collection (doublons compris).", powerRequired: 5_000_000, reward: 1000 },
+  { key: "power_10m", label: "Force colossale", title: "Colosse", description: "Atteindre 10 000 000 de puissance de collection (doublons compris).", powerRequired: 10_000_000, reward: 2000 },
+  { key: "power_50m", label: "Domination absolue", title: "Souverain de puissance", description: "Atteindre 50 000 000 de puissance de collection (doublons compris).", powerRequired: 50_000_000, reward: 5000 },
+  { key: "power_100m", label: "Une puissance mythique", title: "Force de la nature", description: "Atteindre 100 000 000 de puissance de collection (doublons compris).", powerRequired: 100_000_000, reward: 10000 },
   { key: "first_pack", label: "Premier paquet", title: "Recrue", description: "Ouvrir ton premier paquet.", reward: 20 },
   { key: "first_ssr", label: "Éclat doré", title: "Étoile montante", description: "Obtenir une première carte SSR.", reward: 50, special: 5 },
   { key: "first_ur", label: "Rouge légendaire", title: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200, special: 10 },
@@ -44,6 +53,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 
 /** État du joueur dont dépendent les succès. */
 export interface AchievementFacts {
+  collectionPower: number;
   openings: number;
   hasSSR: boolean;
   hasUR: boolean;
@@ -86,13 +96,13 @@ export function earned(f: AchievementFacts): string[] {
     expeditions_20: f.expeditions >= 20,
     first_triumph: f.triumphs >= 1,
   };
-  return ACHIEVEMENTS.filter((a) => ok[a.key]).map((a) => a.key);
+  return ACHIEVEMENTS.filter((a) => a.powerRequired !== undefined ? f.collectionPower >= a.powerRequired : ok[a.key]).map((a) => a.key);
 }
 
 async function gather(userId: string): Promise<AchievementFacts> {
   const [openings, owned, auctionSales, trades, duelWins, expeditions, triumphs] = await Promise.all([
     prisma.packOpening.count({ where: { userId } }),
-    prisma.card.findMany({ where: { ownerId: userId }, select: { characterId: true, finish: true, rarityAtPull: true, character: { select: { rarity: true, type: true } } } }),
+    prisma.card.findMany({ where: { ownerId: userId }, select: { characterId: true, finish: true, rarityAtPull: true, character: { select: { rarity: true, type: true, power: true } } } }),
     prisma.auction.count({ where: { sellerId: userId, status: "SOLD" } }),
     prisma.trade.count({ where: { status: "ACCEPTED", OR: [{ fromId: userId }, { toId: userId }] } }),
     prisma.duel.count({ where: { winnerId: userId, status: { in: ["DONE", "FORFEIT"] } } }),
@@ -105,6 +115,7 @@ async function gather(userId: string): Promise<AchievementFacts> {
   const anime = await loadAnimeIndex();
   const completedAnime = anime.listed.filter((a) => a.characterIds.every((id) => ids.has(id))).length;
   return {
+    collectionPower: owned.reduce((total, card) => total + card.character.power, 0),
     openings,
     hasSSR: rarities.has("SSR"),
     hasUR: rarities.has("UR"),

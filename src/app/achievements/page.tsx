@@ -56,6 +56,7 @@ async function Achievements({ searchParams }: { searchParams: PageProps<"/achiev
           <li key={a.key} data-done={a.unlockedAt !== null}>
             <b>{a.label}</b>
             <span className="vt-muted">{a.description}</span>
+            <span className="vt-muted">Titre : {a.title}</span>
             <span className="ach-foot">
               <Money n={a.reward} />
               {a.special ? <span className="vt-muted">+{a.special} cristaux spéciaux</span> : null}

@@ -2,7 +2,8 @@
 // Usage : npm run check:achievements   (Node 24)
 
 import { prisma } from "../src/lib/db";
-import { ACHIEVEMENTS, checkAchievements, earned } from "../src/lib/achievements";
+import { ACHIEVEMENTS, checkAchievements, earned, titleOf } from "../src/lib/achievements";
+import { getCollectionPower } from "../src/lib/collection";
 import { collectionValue } from "../src/lib/economy";
 import { collectionLeaderboard } from "../src/lib/leaderboard";
 
@@ -27,11 +28,15 @@ async function main() {
 
   try {
     // --- Règles pures
-    const none = { openings: 0, hasSSR: false, hasUR: false, hasHolo: false, hasGold: false, unique: 0, completedAnime: 0, types: 0, auctionSales: 0, trades: 0, duelWins: 0, expeditions: 0, triumphs: 0 };
+    const none = { collectionPower: 0, openings: 0, hasSSR: false, hasUR: false, hasHolo: false, hasGold: false, unique: 0, completedAnime: 0, types: 0, auctionSales: 0, trades: 0, duelWins: 0, expeditions: 0, triumphs: 0 };
     check("Rien de fait : aucun succès", earned(none).length === 0);
     check("99 uniques : pas unique_100 ; 100 : oui", !earned({ ...none, unique: 99 }).includes("unique_100") && earned({ ...none, unique: 100 }).includes("unique_100"));
     check("2 500 uniques débloque les 4 paliers", ["unique_100", "unique_500", "unique_1000", "unique_2500"].every((k) => earned({ ...none, unique: 2500 }).includes(k)));
-    check("Il y a un succès par clé de la spec (22)", ACHIEVEMENTS.length === 22 && new Set(ACHIEVEMENTS.map((a) => a.key)).size === 22);
+    check("Chaque succès possède une clé unique", new Set(ACHIEVEMENTS.map((a) => a.key)).size === ACHIEVEMENTS.length);
+    for (const a of ACHIEVEMENTS.filter((a) => a.powerRequired !== undefined)) {
+      check(a.key + " : seuil exact", !earned({ ...none, collectionPower: a.powerRequired! - 1 }).includes(a.key) && earned({ ...none, collectionPower: a.powerRequired! }).includes(a.key));
+    }
+    check("100 millions débloquent les 7 paliers de puissance", earned({ ...none, collectionPower: 100_000_000 }).filter((key) => key.startsWith("power_")).length === 7);
 
     // --- Valeur de collection
     check("Valeur : UR = 200, UR Holo = 300, UR Holo + Gold = 500, N Gold = 2", collectionValue("UR", false, false) === 200 && collectionValue("UR", true, false) === 300 && collectionValue("UR", true, true) === 500 && collectionValue("N", false, true) === 2);
@@ -64,6 +69,16 @@ async function main() {
     await give(n.id, "HOLO");
     check("Normale + Holo du même personnage : 1 × 1,5 → 1 (arrondi bas du total 461,5)", (await collectionLeaderboard(tag)).me?.score === 461);
     check("Le classement est trié par score décroissant", (await collectionLeaderboard(null)).top.every((r, i, a) => i === 0 || a[i - 1].score >= r.score));
+    // Puissance : doublons, titre, récompense unique et conservation après vente.
+    while (await getCollectionPower(tag) < 100_000) await give(ur.id, "NORMAL");
+    const beforePowerReward = await bal();
+    const powerUnlocks = (await Promise.all([checkAchievements(tag), checkAchievements(tag)])).flat().filter((a) => a.key.startsWith("power_"));
+    check("Doublons : premier palier de puissance débloqué une seule fois", powerUnlocks.map((a) => a.key).join() === "power_100k");
+    check("Puissance : récompense créditée une seule fois", await bal() === beforePowerReward + 100);
+    check("Titre associé au palier", titleOf("power_100k") === "Aura naissante");
+    await prisma.card.deleteMany({ where: { ownerId: tag } });
+    check("Perte de puissance : le succès reste acquis", (await checkAchievements(tag)).length === 0 && (await keys()).includes("power_100k"));
+
   } finally {
     for (const [characterId, count] of pullBefore) await prisma.character.update({ where: { id: characterId }, data: { pullCount: count } });
     await prisma.user.delete({ where: { id: tag } });
