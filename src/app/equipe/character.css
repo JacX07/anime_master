@@ -96,8 +96,7 @@
 .eq-character-dialog .cd-meta { flex-wrap: wrap; }
 .eq-character-dialog .cd-rarity { padding: .2rem .7rem; border-radius: 999px; font-weight: 700; color: #050707; background: var(--rarity); }
 .eq-character-dialog .cd-hero .eq-rarity { transform: scale(1.35); transform-origin: top right; }
-.mq-app-shell .artifact-tile-owner { position: absolute; right: 4px; bottom: 4px; width: 1.5rem; height: 2rem; object-fit: cover; object-position: top; border-radius: 3px; box-shadow: 0 0 0 1px #d5bb7f99; }
-.mq-app-shell .artifact-tile:has(.artifact-tile-owner) .artifact-tile-level { right: auto; left: 6px; }
+.mq-app-shell .artifact-tile > img.artifact-tile-owner { position: absolute; left: 4px; bottom: 4px; right: auto; width: 1.8rem; height: 2.4rem; object-fit: cover; object-position: top; border-radius: 3px; box-shadow: 0 0 0 1px #d5bb7fbb, 0 2px 4px #000; filter: none; }
 
 .eq-character-dialog .cd:has(.gear-compatible) .cd-close { visibility: hidden; }
 .mq-app-shell .eq-character-dialog .gear-detail .artifact-owner-card { width: 3.2rem; }
