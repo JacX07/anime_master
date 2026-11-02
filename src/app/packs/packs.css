@@ -325,3 +325,21 @@
 .pk-pack[data-standard="false"]::before { background: none; }
 .pk-pack[data-standard="false"] .pk-pack-foil { opacity: .3; }
 .pk-pack[data-standard="false"] .pk-pack-shine { opacity: .12; animation: none; }
+
+
+/* Le nombre reste lisible au-dessus des reflets et des zones claires du dessin. */
+.pk-pack[data-art][data-standard] > strong {
+  position: absolute;
+  inset: auto auto 25px 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: max-content;
+  padding: 6px 12px;
+  background: #0b0e0f;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: .14em;
+  text-shadow: none;
+  pointer-events: none;
+}
