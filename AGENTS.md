@@ -25,7 +25,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Style des boutons
 
-- Direction temporaire : supprimer toutes les bordures de l’interface et les cadres décoratifs des cartes via `src/app/reference.css`. Conserver un focus clavier visible et distinguer les sélections par leur fond ou leur texte.
+- Direction temporaire : supprimer les bordures de l’interface et masquer les cadres décoratifs détaillés des cartes via `src/app/reference.css`. Les cartes gardent une simple bordure colorée selon leur rareté. Conserver un focus clavier visible et distinguer les sélections par leur fond ou leur texte.
 
 - Référence visuelle : `JacX07/MaquetteDeJeuTCG`, `src/index.css` et `src/App.tsx`. Reprendre ses composants et mesures plutôt que réinterpréter la maquette : Cinzel 500 pour les titres (`clamp(34px, 4vw, 52px)/1.05`, approche `-.025em`) et DM Sans 400, 11px pour les onglets. Les adaptations communes vivent dans `src/app/reference.css` et `src/components/mq/PageHeading.tsx`.
 

@@ -24,6 +24,7 @@
 .mq-page-mythology *, .mq-page-mythology *::before, .mq-page-mythology *::after { animation: none !important; }
 .mq-lore-system { filter: none; }
 
-/* Temporary direction: no interface or decorative card borders. Keep keyboard focus. */
+/* No interface borders; cards keep a simple rarity outline. Keep keyboard focus. */
 .mq-app-shell, .mq-app-shell *, .mq-app-shell *::before, .mq-app-shell *::after { border-style: none !important; }
 .mq-app-shell .card-deco { display: none; }
+.mq-app-shell .card { border: 1px solid var(--rarity) !important; }
