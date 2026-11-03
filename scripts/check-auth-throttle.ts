@@ -26,7 +26,11 @@ async function main() {
       VALUES ('global', 300, clock_timestamp() + interval '1 minute')
       ON CONFLICT ("key") DO UPDATE SET "count" = 300, "expiresAt" = clock_timestamp() + interval '1 minute'`;
     assert.equal(await attempt(a, "another@example.invalid"), 429, "global");
-    console.log("Limiteur : deux instances, 20 requêtes concurrentes, casse, HTTP/direct, expiration et plafond global conformes.");
+    const offline = betterAuth({ ...options, hooks: { before: authThrottle({
+      $queryRaw: async () => { throw new Error("simulated unavailable database"); },
+    } as unknown as typeof prisma) } });
+    assert.equal(await attempt(offline, "offline@example.invalid"), 503);
+    console.log("Limiteur : deux instances, 20 requêtes concurrentes, casse, HTTP/direct, expiration, plafond global et échec fermé conformes.");
   } finally { await prisma.authThrottle.deleteMany(); await prisma.$disconnect(); }
 }
 main().catch((error) => { console.error(error instanceof assert.AssertionError ? error.message : `Échec du contrôle du limiteur : ${error.name} (${error.code ?? "sans code"}).`); process.exitCode = 1; });

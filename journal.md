@@ -212,9 +212,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 
 - Symptôme : command -v codeql ne trouve aucun exécutable.
 - Cause : CLI absente du PATH ; compétence lue, analyse CodeQL non exécutée. Ne pas interpréter cette absence comme zéro alerte.
-- Contournement : revue ciblée manuelle ; installer CodeQL avant de compléter la couverture statique.
+- Résolution : CLI officielle 2.27.4 installée dans le dossier local ignoré ; packs JavaScript officiels téléchargés ; qualité de base validée, suite explicite de 224 requêtes et modèles complémentaires exécutés.
+- Incidents : premier essai arrêté en 137 ; second en 99 (mémoire Java insuffisante). Réussite avec Next arrêté, un thread et 3 Go. Diagnostics complémentaires interrompus en 124 ou verrou de cache : exécuter les requêtes sur une même base séquentiellement.
 - Occurrences : 1.
-- Statut : ouvert.
+- Statut : résolu pour la suite statique ; détails et triage dans le rapport d’audit.
 
 ## 2026-11-03 — Audit : limiteur HTTP contourné par les Server Actions auth
 
@@ -244,3 +245,31 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Validation : deux instances, vingt requêtes concurrentes, normalisation, chemins HTTP/direct et expiration réussis sur base locale jetable.
 - Occurrences : 1.
 - Statut : corrigé. Prisma a refusé migrate reset ; ancienne base conservée, nouvelle base vide créée pour tester la migration corrigée sans réinitialisation.
+
+## 2026-11-03 — Audit : manifeste des Server Actions en développement
+
+- Symptôme : les sondes d'une action existante répondent 409 « Failed to find Server Action ».
+- Cause : le test lisait .next/server (ancien build), tandis que Next 16 dev écrit .next/dev/server ; l'action doit aussi être appelée sur un worker qui l'importe.
+- Correctif : lire le manifeste dev et appeler /character/[id] pour toggleLockAction ; ne lire ni afficher la clé de chiffrement du manifeste.
+- Validation : action étrangère refusée, action propriétaire acceptée, origine hostile refusée ; changements vérifiés en base.
+- Occurrences : 1.
+- Statut : corrigé dans le script de pentest local.
+
+
+## 2026-11-03 — Audit : évaluation des privilèges PostgreSQL sur les catalogues
+
+- Symptôme : has_sequence_privilege signale qu’un objet pg_toast n’est pas une séquence, malgré le filtre relkind.
+- Cause : l’optimiseur peut réordonner les évaluations de conditions ; le filtre WHERE seul ne protège pas l’appel de fonction sur un autre type d’objet.
+- Correctif : CASE gardant l’appel has_sequence_privilege ; check étendu aux tables partitionnées, vues, colonnes, droits PUBLIC/hérités, séquences, routines et rôles BYPASSRLS.
+- Validation : expositions artificielles détectées puis protection restaurée sur base jetable (y compris vue et héritage de rôle).
+- Occurrences : 1.
+- Statut : corrigé.
+
+## 2026-11-03 — Audit : mises à jour transitives et alertes de développement
+
+- Symptôme : npm audit signale initialement 5 dépendances à gravité haute et 17 modérées.
+- Correctif : npm audit fix sans force, scripts d’installation désactivés, puis génération Prisma et vérifications. Lockfile actualisé dans les plages compatibles (Prisma CLI 7.10.1, deepmerge-ts, fast-uri, mysql2, zod).
+- Validation : npm audit --omit=dev ne signale aucune vulnérabilité ; suite globale 54/54 réussie sur base jetable.
+- Limite : 16 alertes modérées minimatch de l’outillage restent sans mise à jour compatible. Les consommateurs utilisent l’ancienne API ; ne pas imposer minimatch 11 ou rétrograder ESLint avec --force. Aucun motif glob de joueur n’alimente ces outils ; périmètre et risque résiduel décrits dans le rapport.
+- Occurrences : 1.
+- Statut : dépendances d’exécution corrigées ; alertes de développement documentées.
