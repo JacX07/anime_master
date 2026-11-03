@@ -183,10 +183,11 @@
     "author": "Composition originale Anima Clash — synthèse procédurale",
     "sources": [],
     "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
-    "durationSeconds": 2.5,
+    "durationSeconds": 1.15,
     "sampleRate": 32000,
     "channels": 2,
-    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+    "processing": "Variante Mort B validée : souffle d’énergie qui s’éteint, petit appui grave, sans chœur ni mélodie. Synthèse procédurale, états aléatoires fixes, filtrage, enveloppes et normalisation.",
+    "title": "Mort — Extinction"
   },
   "victory.ogg": {
     "author": "Composition originale Anima Clash — synthèse procédurale",

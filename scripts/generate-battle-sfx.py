@@ -105,17 +105,27 @@ finish("coup", "Coup — Chair et cuir",mix,"Élan de tissu, choc mat de corps e
 # Le projectile dispose de sa recette dédiée ; les autres sons gardent leurs états aléatoires.
 runpy.run_path(str(Path(__file__).with_name("generate-projectile-sfx.py")), init_globals={"OUTPUT_PATH": OUT/"sort.ogg"})
 
-RNG.bit_generator.state = {'bit_generator': 'PCG64', 'state': {'state': 68721041702277405604954540917063347623, 'inc': 200944967220690722716855230028434796397}, 'has_uint32': 0, 'uinteger': 0}
-mix = np.zeros((int(2.5*SR),2))
-put(mix,drum(.9),.02,.5)
-put(mix,texture(1.2,850,3,.03),.03,.7)
-t = np.arange(int(1.7*SR))/SR
-fall = np.sin(2*np.pi*(90*t + 160*.3*(1-np.exp(-t/.3))))*np.exp(-t*2.7)
-put(mix,fall,.03,.25)
-put(mix,voice(38,2.25,"choir"),.04,.18)
-put(mix,texture(1.8,330,2,.05),.38,.35)
-finish("mort", "Mort — Le dernier souffle",mix,"Effondrement mat, souffle qui retombe et résonance funèbre ; sans cri enregistré.",.23)
-
+# Mort B « Extinction » : état de bruit exact de l'échantillon approuvé.
+RNG.bit_generator.state = {'bit_generator': 'PCG64', 'state': {'state': 88272393101869967444863336969494741027, 'inc': 285578219228853784493334196899464413779}, 'has_uint32': 0, 'uinteger': 0}
+mix = np.zeros((int(1.15*SR),2))
+t = np.arange(SR)/SR
+bright_air = filt(RNG.normal(0,1,SR),[500,3500],"bandpass")
+low_air = filt(RNG.normal(0,1,SR),500)
+air = (bright_air*np.exp(-t*8)+low_air*(1-np.exp(-t*8))*np.exp(-t*5))*np.minimum(t/.018,1)
+put(mix,air,.02,.65)
+t = np.arange(int(.5*SR))/SR
+phase = 2*np.pi*(61*t+60*.016*(1-np.exp(-t/.016)))
+body = (np.sin(phase)*np.exp(-t*11)+.16*np.sin(phase*1.53)*np.exp(-t*20))*np.minimum(t/.003,1)
+put(mix,body,.04,.22)
+put(mix,air,.07,.08,.3)
+mix = np.tanh(mix*1.1)
+mix *= 10**(-3/20)/np.max(np.abs(mix))
+mix[-int(.08*SR):] *= np.linspace(1,0,int(.08*SR))[:,None]
+assert np.isfinite(mix).all() and np.max(np.abs(mix))<.72
+sf.write(OUT/"mort.ogg",mix,SR,format="OGG",subtype="VORBIS")
+decoded,sr = sf.read(OUT/"mort.ogg",always_2d=True)
+assert sr==SR and decoded.shape==mix.shape and np.isfinite(decoded).all()
+assert np.max(np.abs(decoded))<.9
 
 
 def bright(note, duration, kind="horn"):
