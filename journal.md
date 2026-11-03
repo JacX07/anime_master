@@ -273,3 +273,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Limite : 16 alertes modérées minimatch de l’outillage restent sans mise à jour compatible. Les consommateurs utilisent l’ancienne API ; ne pas imposer minimatch 11 ou rétrograder ESLint avec --force. Aucun motif glob de joueur n’alimente ces outils ; périmètre et risque résiduel décrits dans le rapport.
 - Occurrences : 1.
 - Statut : dépendances d’exécution corrigées ; alertes de développement documentées.
+
+## 2026-11-03 — Audit : validation finale locale
+
+- Validation : 54/54 étapes de la suite globale ; build de production sous Node 24 réussi. Pentest à deux joueurs réussi sur Next dev puis sur le build local en mode production. Tests navigateur desktop/mobile : inscription/session, déconnexion, limite à la onzième tentative, persistance après rechargement. CodeQL officiel+Community : 245 requêtes, qualité d'extraction validée, modèles supplémentaires, sources/sinks inventoriés ; triage dans docs/audit-securite-2026-11-03.md. Gitleaks : zéro alerte sur l'historique des sources avec exclusions explicites.
+- Environnement : après redémarrage, /tmp a disparu ; résultats persistants conservés, outils réinstallés dans data/audit-tools, dernière base jetable PostgreSQL 14.24. pg_ctl nécessite -k /tmp en utilisateur non privilégié (socket /var/run/postgresql inaccessible).
+- Limites : aucune migration distante ni publication pendant cet audit. Migration AuthThrottle indispensable avant utilisation distante du code ; 16 alertes modérées minimatch de développement documentées, zéro alerte npm sur les dépendances d'exécution. Pas de test de charge ou de garantie de sécurité absolue.
+- Statut : audit ciblé et correctifs applicatifs validés localement ; publication réservée à l'utilisateur.

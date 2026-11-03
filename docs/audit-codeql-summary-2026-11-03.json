@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-03",
+  "cli": "2.27.4",
+  "packs": {
+    "codeql/javascript-queries": "2.5.0",
+    "githubsecuritylab/codeql-javascript-queries": "0.9.0"
+  },
+  "queryCount": 245,
+  "rawResultCount": 428,
+  "byRule": {
+    "js/use-before-declaration": 1,
+    "js/untrusted-data-to-external-api-more-sources": 3,
+    "js/xss-more-sources": 4,
+    "js/log-injection-more-sources": 1,
+    "githubsecuritylab/audit/code-injection": 19,
+    "githubsecuritylab/audit/using-eval": 19,
+    "githubsecuritylab/audit/command-injection": 2,
+    "githubsecuritylab/audit/sql-injection": 1,
+    "githubsecuritylab/audit/reflected-xss": 1,
+    "js/debugging/sources": 84,
+    "js/debugging/sinks": 293
+  },
+  "triage": "See audit-securite-2026-11-03.md; raw SARIF kept locally, no alerts silently discarded."
+}

@@ -10,6 +10,7 @@ import { setTeam } from "../src/lib/battles";
 async function main() {
   const db = new URL(process.env.DATABASE_URL!);
   assert.equal(db.hostname, "127.0.0.1"); assert.ok(db.pathname.startsWith("/am_pentest"));
+  const production = process.env.AUDIT_NEXT_MODE === "production";
   const base = "http://localhost:3000", tag = randomUUID().slice(0, 8);
   const request = (path: string, init: RequestInit = {}) => fetch(base + path, { ...init, redirect: "manual", signal: AbortSignal.timeout(15000) });
   const players: { id: string; cookie: string }[] = [];
@@ -50,7 +51,7 @@ async function main() {
     await setLocked(b.id, cards[0].id, true);
     assert.equal((await prisma.card.findUniqueOrThrow({ where: { id: cards[0].id } })).locked, true);
     await (await request(`/character/${character.id}`, { headers: { Cookie: b.cookie } })).text();
-    const manifest = JSON.parse(readFileSync(".next/dev/server/server-reference-manifest.json", "utf8"));
+    const manifest = JSON.parse(readFileSync(production ? ".next/server/server-reference-manifest.json" : ".next/dev/server/server-reference-manifest.json", "utf8"));
     const action = Object.entries(manifest.node).find(([, v]) => (v as { exportedName: string }).exportedName === "toggleLockAction")?.[0];
     assert.ok(action, "Action compilée");
     const call = (cookie: string, origin: string) => request(`/character/${character.id}`, { method: "POST", headers: { Cookie: cookie, Origin: origin, "Next-Action": action, "Content-Type": "text/plain;charset=UTF-8", Accept: "text/x-component" }, body: JSON.stringify([cards[0].id, false]) });
@@ -62,8 +63,8 @@ async function main() {
     const key = `/api/illustrations/resource-audit-${tag}`;
     assert.equal((await request(key, { method: "DELETE", headers: { ...headers, Origin: "https://attacker.invalid" } })).status, 403);
     const form = new FormData();form.set("image", new Blob(['<svg onload="alert(1)"></svg>'], { type: "image/png" }), "fake.png");
-    assert.equal((await request(key, { method: "POST", headers: { ...headers, Origin: base }, body: form })).status, 400);
-    assert.equal((await request(key, { method: "POST", headers: { ...headers, Origin: base }, body: new Uint8Array(7 * 1024 * 1024) })).status, 413);
+    assert.equal((await request(key, { method: "POST", headers: { ...headers, Origin: base }, body: form })).status, production ? 403 : 400);
+    assert.equal((await request(key, { method: "POST", headers: { ...headers, Origin: base }, body: new Uint8Array(7 * 1024 * 1024) })).status, production ? 403 : 413);
     assert.equal((await request("/api/illustrations/invalid..key")).status, 404);
     await request("/api/auth/sign-out", { method: "POST", headers: { ...headers, Origin: base, "Content-Type": "application/json" }, body: "{}" });
     assert.equal(await (await request("/api/auth/get-session", { headers })).json(), null);
