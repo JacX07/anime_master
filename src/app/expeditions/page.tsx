@@ -55,7 +55,7 @@ async function Expeditions() {
           endsAt: e.endsAt.toISOString(),
           team: e.cards.map((c) => ({ name: c.card.character.name, imageUrl: c.card.character.imageUrl, rarity: c.card.character.rarity })),
         }))}
-        history={state.history.map((e) => ({ id: e.id, breachId: e.breachId, outcome: e.outcome, ryo: e.ryo, crystals: e.crystals, special: e.special, claimedAt: toIso(e.claimedAt) }))}
+        history={state.history.map((e) => ({ id: e.id, breachId: e.breachId, outcome: e.outcome, ryo: e.ryo, crystals: e.crystals, claimedAt: toIso(e.claimedAt) }))}
       />
     </div>
   );

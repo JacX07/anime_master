@@ -62,8 +62,6 @@ export interface PlayerPackState {
   balance: number;
   crystalPrice: number;
   crystalsLeft: number;
-  /** Cristaux spéciaux (bannières spéciales) */
-  specialCrystals: number;
   /** Tirages de bienvenue restants et bannière choisie (null tant que le joueur n'a pas choisi) */
   welcomeDraws: number;
   welcomeBannerId: string | null;
@@ -87,7 +85,6 @@ const USER_PACK_FIELDS = {
   balance: true,
   crystalsBoughtToday: true,
   crystalsBoughtDate: true,
-  specialCrystals: true,
   welcomeDraws: true,
   welcomeBannerId: true,
   welcomeBoosterClaimedAt: true,
@@ -105,7 +102,6 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     balance: user.balance,
     crystalPrice: CRYSTAL_PRICE,
     crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
-    specialCrystals: user.specialCrystals,
     welcomeDraws: user.welcomeDraws,
     welcomeBannerId: user.welcomeBannerId,
     welcomeBoosterAvailable: user.welcomeBoosterClaimedAt === null,
@@ -134,13 +130,10 @@ async function openLot(userId: string, size: LotSize, rng: Random, bannerId: str
     const banner = bannerId ? await tx.banner.findUnique({ where: { id: bannerId }, select: { id: true, key: true, costKind: true, weight: true, startsAt: true, endsAt: true } }) : null;
     if (bannerId && (!banner || !isBannerOpen(banner, now))) throw new BannerError("Cette bannière n'est plus disponible.");
 
-    // Ce que le lot coûte : cristaux normaux, cristaux spéciaux ou tirages de bienvenue. Le pity, lui, est commun à tout.
+    // Ce que le lot coûte : cristaux normaux ou tirages de bienvenue. Le pity, lui, est commun à tout.
     let payment: Prisma.UserUpdateManyMutationInput = {};
     if (welcomeBooster) {
       payment = { welcomeBoosterClaimedAt: now };
-    } else if (banner?.costKind === "SPECIAL") {
-      if (user.specialCrystals < size) throw new BannerError(`Il te faut ${size} cristaux spéciaux pour cette bannière.`);
-      payment = { specialCrystals: user.specialCrystals - size };
     } else if (banner?.costKind === "WELCOME") {
       if (user.welcomeBannerId && user.welcomeBannerId !== banner.id) throw new BannerError("Tu as déjà choisi ta bannière de bienvenue.");
       if (!user.welcomeBannerId && !WELCOME_KEYS.includes(banner.key)) throw new BannerError("Cette bannière de bienvenue n'est plus proposée.");
@@ -194,9 +187,6 @@ async function openLot(userId: string, size: LotSize, rng: Random, bannerId: str
     );
 
     const opening = await tx.packOpening.create({ data: { userId, pityTriggered: roll.pity, lotSize: size, bannerId: banner?.id ?? null }, select: { id: true } });
-    if (banner?.costKind === "SPECIAL") {
-      await tx.specialCrystalLedger.create({ data: { userId, amount: -size, reason: "BANNER_SPEND", refId: opening.id } });
-    }
 
     const cards: OpenedCard[] = [];
     for (const [i, card] of roll.cards.entries()) {
@@ -258,7 +248,6 @@ async function openLot(userId: string, size: LotSize, rng: Random, bannerId: str
         balance: user.balance,
         crystalPrice: CRYSTAL_PRICE,
         crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
-        specialCrystals: (payment.specialCrystals as number | undefined) ?? user.specialCrystals,
         welcomeDraws: (payment.welcomeDraws as number | undefined) ?? user.welcomeDraws,
         welcomeBannerId: (payment.welcomeBannerId as string | undefined) ?? user.welcomeBannerId,
         welcomeBoosterAvailable: user.welcomeBoosterClaimedAt === null && !welcomeBooster,

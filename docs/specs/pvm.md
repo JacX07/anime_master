@@ -13,7 +13,7 @@ Une ressource, une source : chaque mode a un rôle propre.
 | Histoire | Découverte des univers ; ressource d'éveil courante (étoiles 1 à 3) |
 | Raid | La ressource rare de l'éveil (étoiles 4 et 5), seule source |
 | Tour multiverselle | Maîtrise et **classement**, sans gain de puissance |
-| Expéditions | Cristaux spéciaux |
+| Expéditions | Ryō et cristaux normaux |
 
 ### Mode histoire
 Détaillé dans la section « Mode histoire » ci-dessous.
@@ -235,7 +235,7 @@ Donner une utilité de jeu aux cartes en dehors des duels : envoyer une équipe 
 - **Mode idle seul** pour l'instant : on envoie, on revient plus tard. Pas de boss ni de combat interactif (idée repoussée : boss de brèche en quiz, réutilisant `duel-quiz.ts`).
 - **3 durées**, thèmes de brèche, **1 emplacement au début, 3 après quelques succès**.
 - **Gratuit** : aucun coût d'entrée ; les emplacements sont le seul frein.
-- Récompenses **qui augmentent avec la puissance de l'équipe** (§3) : **Ryō (plus faible que la vente rapide, pour ne pas concurrencer le marché)**, un peu de cristaux normaux, et des **cristaux spéciaux qui tombent de temps en temps**, sans boss. Plafond de 10 cristaux spéciaux par semaine (déjà décidé, Étape 4 bis §6).
+- Récompenses **qui augmentent avec la puissance de l'équipe** (§3) : **Ryō (plus faible que la vente rapide, pour ne pas concurrencer le marché)**, un peu de cristaux normaux, (les cristaux spéciaux ont été supprimés le 2026-11-03), sans boss.
 - **Échec sans pénalité** : aucune blessure ni temps de repos ; les cartes reviennent, le butin est réduit.
 - **Capture d'un personnage précis** : « on verra » (hors périmètre).
 
@@ -275,31 +275,30 @@ ratio = score(équipe) / seuil de la brèche
 **Bonus de puissance** *(validé : plus l'équipe est puissante, plus les ressources rares sont probables)* : pour une réussite ou un triomphe, on pose `m = clamp(ratio, 1, 3)`.
 - **Ryō** : × `1 + 0,25 × (m − 1)` (jusqu'à ×1,5).
 - **Cristaux normaux** : la quantité de base, plus 1 cristal supplémentaire avec une probabilité de `(m − 1) / 2`.
-- **Cristal spécial** : probabilité de base × `m` (jusqu'à ×3), toujours dans le plafond de 10 par semaine.
 - Une équipe très au-dessus du seuil ne rapporte donc pas des quantités illimitées : les multiplicateurs sont bornés, et les plafonds quotidiens et hebdomadaires restent valables.
 
 *(Coefficients à équilibrer par simulation.)*
 
 ### 4. Récompenses *(à équilibrer)*
-| Brèche | Ryō (réussite) | Cristaux normaux | Chance de cristal spécial |
-|---|---|---|---|
-| Faille (1 h) | 10 | 0 | 0 % |
-| Brèche (6 h) | 60 | 1 | 5 % |
-| Gouffre (24 h) | 250 | 3 | 20 % |
+| Brèche | Ryō (réussite) | Cristaux normaux |
+|---|---|---|
+| Faille (1 h) | 10 | 0 |
+| Brèche (6 h) | 60 | 1 |
+| Gouffre (24 h) | 250 | 3 |
 
 - Repères : le bonus quotidien rapporte 50 Ryō, une UR se vend 200 Ryō. Un joueur à 3 emplacements ne doit pas dépasser environ **600 Ryō par jour** d'expéditions.
 - Cristaux normaux gagnés par expédition : plafond **10 par jour**.
-- Cristal spécial : 1 par tirage réussi, **plafond de 10 par semaine** (semaine commençant le lundi, heure du serveur).
+- Les cristaux spéciaux (chance de 5 % / 20 %, plafond de 10 par semaine) ont été supprimés le 2026-11-03.
 - Journal : nouvelles raisons `EXPEDITION` (Ryō) ; les cristaux ont leur propre journal (Étape 4 bis).
 
 ### 5. Déroulement
 1. `/expeditions` : choix d'une brèche, de 1 à 3 cartes, lancement. Le résultat n'est pas affiché.
 2. À la fin du temps, l'expédition passe à « terminée » (balayage paresseux à chaque consultation, comme `sweepDuels`, et `POST /api/expeditions/close` pour la production). Une notification `EXPEDITION_DONE` est envoyée.
 3. Le joueur **récupère le butin** par un bouton ; le résultat s'affiche alors (échec / réussite / triomphe, gains). Une expédition non récupérée reste en attente : elle occupe l'emplacement mais ne perd rien.
-4. Le passage « terminée » → « récupérée » est un **passage conditionnel** (une seule récupération, même en cas de double clic) et crédite Ryō, cristaux et cristal spécial dans la même transaction, avec le journal.
+4. Le passage « terminée » → « récupérée » est un **passage conditionnel** (une seule récupération, même en cas de double clic) et crédite Ryō et cristaux dans la même transaction, avec le journal.
 
 ### 6. Succès liés
-Nouveaux succès *(à définir et équilibrer)* : première expédition, 5 et 20 expéditions terminées (qui débloquent les emplacements 2 et 3), premier triomphe, premier cristal spécial.
+Nouveaux succès *(à définir et équilibrer)* : première expédition, 5 et 20 expéditions terminées (qui débloquent les emplacements 2 et 3), premier triomphe.
 
 ### 7. Modèle de données (ajouts)
 - **Expedition** : `id`, `userId`, `breachId`, `startedAt`, `endsAt`, `seed`, `status` (RUNNING / DONE / CLAIMED), `outcome` (FAIL / SUCCESS / TRIUMPH, une fois calculé), `rewards` (JSON), `claimedAt`.
@@ -321,7 +320,7 @@ Nouveaux succès *(à définir et équilibrer)* : première expédition, 5 et 20
 ### 9. Critères pour dire que l'étape 4 ter est finie
 - [ ] Une carte en expédition ne peut ni être vendue, ni échangée, ni mise aux enchères, ni envoyée dans une autre expédition.
 - [ ] Le résultat est identique quel que soit le nombre de rechargements (seed enregistrée) ; récupérer deux fois ne paie qu'une fois.
-- [ ] Le plafond de 10 cristaux spéciaux par semaine et de 10 cristaux normaux par jour est respecté, même avec des récupérations simultanées.
+- [ ] Le plafond de 10 cristaux normaux par jour est respecté, même avec des récupérations simultanées.
 - [ ] Un joueur à 3 emplacements reste sous ~600 Ryō par jour (vérifié par simulation).
 - [ ] L'échec rend les cartes sans pénalité et paie 25 % des Ryō.
 
@@ -380,7 +379,7 @@ Uniquement au **premier passage** d'un étage :
 |---|---|
 | Normal | `10 + étage / 5` Ryō |
 | Tous les 10 | 5 cristaux et la **carte du boss du jalon** (une fois) |
-| Tous les 50 | 1 cristal spécial (dans le plafond hebdomadaire de 10) et un titre |
+| Tous les 50 | un titre (le cristal spécial a été supprimé le 2026-11-03) |
 
 - Avec 3 tentatives par jour, finir les 500 étages prend au moins environ 170 jours. Le total de Ryō reste sous environ 20 000, étalé sur des mois.
 - La carte offerte au premier passage d'un jalon vient du lore de la capture ; au plus 50 cartes par joueur, à vie.

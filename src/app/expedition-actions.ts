@@ -25,6 +25,6 @@ export async function startExpeditionAction(breachId: string, cardIds: string[])
 export async function claimExpeditionAction(expeditionId: string) {
   return run(async (id) => {
     const r = await claimExpedition(id, String(expeditionId));
-    return { outcome: r.outcome, ryo: r.ryo, crystals: r.crystals, special: r.special, breach: r.breach.name };
+    return { outcome: r.outcome, ryo: r.ryo, crystals: r.crystals, breach: r.breach.name };
   });
 }

@@ -80,7 +80,7 @@ Qui, quand, quelle action, quelle cible, motif, valeurs avant et après. Non mod
 
 ## 5. Actions (écriture)
 Toutes : admin requis, confirmation, motif, écriture dans `AdminAudit`.
-- **Joueur** : ajuster Ryō / cristaux / cristaux spéciaux (via le journal comptable existant, jamais en modifiant directement le solde), offrir ou retirer une carte, rembourser un tirage, réinitialiser un compteur de pity, bannir / débannir, changer le rôle.
+- **Joueur** : ajuster Ryō / cristaux (via le journal comptable existant, jamais en modifiant directement le solde), offrir ou retirer une carte, rembourser un tirage, réinitialiser un compteur de pity, bannir / débannir, changer le rôle.
 - **Contenu** : créer, activer ou désactiver une bannière et ses dates ; envoyer une notification à tous ou à un joueur ; (plus tard) sorts surchargés (`SpellOverride`).
 - **Lecture seule** par défaut : les actions viennent après les stats.
 
@@ -97,7 +97,7 @@ Toutes : admin requis, confirmation, motif, écriture dans `AdminAudit`.
 5. **Contenu** : bannières, notifications.
 
 ## 7 bis. Écarts du lot 4
-- Fait : liste (recherche, tri, pagination), fiche, ajustement Ryō / cristaux / cristaux spéciaux, pity, offrir / retirer une carte, bannir / débannir, changer un rôle, journal d'audit (admin : tout ; modérateur : ses actions). Motif obligatoire, confirmation en deux temps, limite de 30 actions par minute.
+- Fait : liste (recherche, tri, pagination), fiche, ajustement Ryō / cristaux, pity, offrir / retirer une carte, bannir / débannir, changer un rôle, journal d'audit (admin : tout ; modérateur : ses actions). Motif obligatoire, confirmation en deux temps, limite de 30 actions par minute.
 - Non fait : « rembourser un tirage » (= retirer les cartes + rendre les cristaux, faisable à la main) ; notes internes sur la fiche ; notifications (lot 5).
 - Ban : les sessions sont supprimées et aucune session ne peut être recréée ; le cache de session en cookie (5 min) peut laisser un joueur déjà connecté actif jusqu'à 5 minutes.
 - Une carte offerte est rattachée à un tirage vide (`lotSize = 0`) ignoré par les statistiques.

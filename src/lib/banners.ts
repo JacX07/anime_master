@@ -1,7 +1,7 @@
 // Bannières (SPEC étape 4 bis §5, §6, §8 ; refonte du 2026-10-17) : elles ne changent jamais les taux de rareté ni le pity,
 // seulement le personnage tiré.
 // - Permanentes, en cristaux normaux : Générale (tout le catalogue : c'est le tirage standard), Waifu, Husbando.
-// - Spéciales temporaires, en cristaux spéciaux : un anime ou un groupe d'animes (src/lib/banner-events.ts).
+// - Événements temporaires, en cristaux normaux : un anime ou un groupe d'animes (src/lib/banner-events.ts).
 // - Bienvenue : 20 tirages à jouer sur Générale, Waifu ou Husbando (choix verrouillé au premier tirage).
 // Tout est créé à la demande (aucune tâche planifiée).
 
@@ -60,7 +60,7 @@ interface BannerSpec {
   name: string;
   description: string;
   category: Category;
-  costKind: "NORMAL" | "SPECIAL" | "WELCOME";
+  costKind: "NORMAL" | "WELCOME";
   /** 0 : catalogue complet (Générale) ; 1 : seulement les personnages de la bannière */
   weight: number;
   startsAt: Date | null;
@@ -113,7 +113,7 @@ export async function ensureBanners(now = new Date()) {
   for (const e of BANNER_EVENTS) {
     const startsAt = new Date(e.startsAt), endsAt = new Date(e.endsAt);
     if (!(startsAt <= now && endsAt > now)) continue;
-    await ensureBanner({ key: e.key, name: e.name, description: e.description, category: "event", costKind: "SPECIAL", weight: BANNER_WEIGHT, startsAt, endsAt, characterIds: () => mediaCharacterIds(e.mediaIds) });
+    await ensureBanner({ key: e.key, name: e.name, description: e.description, category: "event", costKind: "NORMAL", weight: BANNER_WEIGHT, startsAt, endsAt, characterIds: () => mediaCharacterIds(e.mediaIds) });
   }
 }
 
@@ -131,7 +131,7 @@ export interface BannerInfo {
   description: string;
   category: string;
   categoryLabel: string;
-  costKind: "NORMAL" | "SPECIAL" | "WELCOME";
+  costKind: "NORMAL" | "WELCOME";
   /** Pourcentage de cartes issues de la bannière (0 : catalogue complet) */
   weightPercent: number;
   endsAt: string | null;
@@ -154,12 +154,12 @@ export async function listBanners(user: { welcomeDraws: number; welcomeBannerId:
     where: {
       OR: [
         { key: { in: PERMANENT_KEYS } },
-        { costKind: "SPECIAL", key: { startsWith: "event-" }, startsAt: { lte: now }, endsAt: { gt: now } },
+        { category: "event", key: { startsWith: "event-" }, startsAt: { lte: now }, endsAt: { gt: now } },
         ...(user.welcomeDraws > 0 ? [user.welcomeBannerId ? { id: user.welcomeBannerId } : { key: { in: WELCOME_KEYS } }] : []),
       ],
     },
   });
-  const order = { WELCOME: 0, NORMAL: 1, SPECIAL: 2 } as const;
+  const order = { WELCOME: 0, NORMAL: 1 } as const;
   const rank = (c: string) => { const i = (CATEGORIES as readonly string[]).indexOf(c); return i < 0 ? 99 : i; };
   const faces = await prisma.character.findMany({ where: { id: { in: Object.values(FEATURED_IDS) } }, select: { id: true, name: true, imageUrl: true } });
   const infos = await Promise.all(rows.map(async (b) => ({

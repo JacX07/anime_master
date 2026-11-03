@@ -152,7 +152,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 
 ## Étape 4 bis — Cristaux et bannières (refonte du tirage)
 
-> **Statut : phase 1 (cristaux, lots), phase 2 (bannières, cristaux spéciaux, cadeau de bienvenue) et phase 3 (expéditions) codées les 2026-10-12 et 2026-10-13.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
+> **Statut : phase 1 (cristaux, lots), phase 2 (bannières, cadeau de bienvenue) et phase 3 (expéditions) codées les 2026-10-12 et 2026-10-13.** Elle remplace le stock de paquets (Étape 2 §3, §4), l'achat de paquets (Étape 3 §2) et l'ouverture groupée ×5 / ×10 actuelle. Les règles sont issues d'une discussion, d'un conseil (5 avis + relecture croisée) et de `npm run simulate:crystals` (variante C).
 
 ### Objectif
 Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 cristal = 1 carte tirée**. Cela permet des récompenses de toute taille, des tirages ×5 et ×10, et des **bannières** pour viser des catégories de personnages. Les cristaux sont aussi l'énergie du lore (la machine-araignée en consomme pour capturer).
@@ -163,13 +163,12 @@ Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 
 - Achat avec des Ryō : **25 cristaux par jour maximum**.
 - **Pity compté en cartes**, un seul compteur : SSR ou mieux garanti à la **75ᵉ** carte sans SSR, UR garanti à la **500ᵉ** carte sans UR (soit exactement l'actuel, 15 et 100 paquets de 5).
 - **Le ×10 améliore la 10ᵉ carte**, de façon dégressive : le gain relatif est plus fort sur SR que sur SSR, plus fort que sur UR (variante C, ci-dessous).
-- **Bannières** de catégories (sport, shonen, isekai, waifu, husbando) et de personnages ciblés, avec des **cristaux spéciaux** obtenus par **succès** ou **expéditions** (les expéditions avec boss restent à explorer).
+- **Bannières** de catégories (sport, shonen, isekai, waifu, husbando) et de personnages ciblés, payées en cristaux normaux (les cristaux spéciaux ont été supprimés le 2026-11-03).
 
 ### Validé le 2026-10-12 (propositions du conseil, acceptées)
 - Prix : **20 Ryō par cristal** (500 Ryō/jour au maximum, comme aujourd'hui).
 - Bannière : la rareté est tirée avec les taux normaux, puis **50 %** des cartes viennent de la catégorie mise en avant et 50 % du pool complet.
 - Cadeau de bienvenue : **50 cartes** en tout, dont **20 tirages sur une bannière de catégorie au choix du joueur**, à usage unique.
-- Cristaux spéciaux : environ 100 sur la vie d'un compte via les succès, puis 10 par semaine au plus via les expéditions.
 - Le nom du marché des enchères (§9) reste à décider avec la direction du lore.
 
 ---
@@ -227,32 +226,30 @@ Le ×5 reste équivalent à aujourd'hui, le ×10 est meilleur : il est donc l'un
 - Affichage : « SSR garanti dans X cartes », « UR garanti dans Y cartes ».
 
 ### 5. Bannières (refonte décidée le 2026-10-17)
-- Une **bannière** = un nom, une description (lore), une **liste de personnages**, des dates d'ouverture et de fermeture éventuelles, un coût en cristaux (normaux ou spéciaux).
+- Une **bannière** = un nom, une description (lore), une **liste de personnages**, des dates d'ouverture et de fermeture éventuelles, un coût en cristaux normaux (ou en tirages de bienvenue).
 - **Bannières permanentes**, en cristaux normaux : **Générale** (tout le catalogue : c'est le tirage standard), **Waifu** (personnages féminins) et **Husbando** (personnages masculins), à partir du champ `gender` d'AniList.
-- **Bannières spéciales temporaires**, en **cristaux spéciaux** uniquement : un anime ou un groupe d'animes, avec des dates. Elles sont définies dans `src/lib/banner-events.ts` (identifiants AniList des séries) ; aucune pour l'instant.
+- **Bannières d'événement temporaires**, en **cristaux normaux** (depuis le 2026-11-03) : un anime ou un groupe d'animes, avec des dates. Elles sont définies dans `src/lib/banner-events.ts` (identifiants AniList des séries) ; aucune pour l'instant.
 - **Une bannière ne change jamais les taux de rareté** ni le pity. La rareté est tirée comme d'habitude, puis le personnage est pris **parmi ceux de la bannière** à cette rareté (100 %) ; s'il n'y en a aucun de cette rareté, on prend le catalogue complet.
 - Les lots ×5 et ×10 fonctionnent de la même manière sur une bannière (mêmes règles de lot, mêmes garanties).
 - **Taux affichés** : un bouton « Taux » au bout du bandeau des bannières ouvre un panneau avec les taux par rareté, le nombre de personnages disponibles par rareté dans la bannière choisie, les garanties (bloc de 5, 10ᵉ carte du ×10, pity) et les taux de finition. Les valeurs viennent directement de `src/lib/pull.ts`.
 - Abandonné : la rotation hebdomadaire Sport / Shonen / Isekai et la bannière « Élus » (les anciennes encore ouvertes sont fermées automatiquement).
 
-### 6. Cristaux spéciaux
-- Ressource séparée (`User.specialCrystals`), utilisable seulement sur les bannières qui en demandent. **Ni achetable, ni vendable, ni échangeable.**
-- Sources : d'abord les **succès** (stock total limité, environ 100 sur la vie d'un compte), puis les **expéditions** 10 par semaine au plus.
-- Usage (2026-10-17) : réservés aux **bannières spéciales temporaires** d'anime ou de groupes d'animes.
-- Règle de garde-fou : toutes les sources spéciales réunies restent **sous 5 % des cartes créées par jour** par les cristaux normaux.
-- Journal dédié : table `SpecialCrystalLedger` (`userId`, `amount`, `reason`, `refId`).
+### 6. Cristaux spéciaux — supprimés (décision du 2026-11-03)
+- La mécanique est retirée : plus de `User.specialCrystals`, plus de table `SpecialCrystalLedger`, plus de cristal spécial en récompense (succès, expéditions, donjons) ni dans l'admin.
+- Migration `20261103070000_remove_special_crystals` : les cristaux spéciaux déjà possédés sont **convertis en cristaux normaux** (1 pour 1), les bannières d'événement passent en cristaux normaux, puis la colonne et la table sont supprimées.
+- Les **succès** donnent désormais des cristaux normaux selon leur difficulté (voir `economie.md`).
 
 ### 5 bis. Réalisation des bannières (codé, refonte du 2026-10-17)
 - Bannières permanentes `perm-waifu` et `perm-husbando` (part 100 %) ; la Générale est le tirage sans bannière.
 - Bienvenue : `welcome-general` (catalogue complet), `welcome-waifu`, `welcome-husbando`. Le choix est **verrouillé au premier tirage** ; un joueur qui avait déjà choisi une ancienne bannière de bienvenue (Sport, Shonen, Isekai) la garde jusqu'à la fin de ses tirages, un nouveau joueur ne peut plus la prendre.
-- Événements : créés à la première lecture pendant leurs dates, clé `event-…`, payés en cristaux spéciaux (×5 = 5, ×10 = 10).
-- Coût d'un lot : cristaux normaux, cristaux spéciaux ou tirages de bienvenue. Le pity est commun à tout.
+- Événements : créés à la première lecture pendant leurs dates, clé `event-…`, payés en cristaux normaux (×5 = 5, ×10 = 10).
+- Coût d'un lot : cristaux normaux ou tirages de bienvenue. Le pity est commun à tout.
 - Cadeau de bienvenue : 30 cristaux + 20 tirages de bienvenue ; il n'y a pas encore de conversion automatique en cristaux si le joueur ne s'en sert pas.
-- Succès : 11 succès donnent des cristaux spéciaux, **100 au total** (journal `SpecialCrystalLedger`).
+- Succès : récompensés en cristaux normaux selon la difficulté (`economie.md`).
 - Vérification : `npm run check:banners`.
 
 ### 7. Expéditions (à explorer, hors périmètre de cette étape)
-Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencent le résultat ; un boss à la fin rapporte des cristaux spéciaux. Cette étape ne code que les **hooks** : les cristaux spéciaux existent et les succès en donnent. Les expéditions auront leur propre spec.
+Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencent le résultat ; un boss à la fin rapporte des cristaux normaux. Cette étape ne code que les **hooks** : les succès en donnent. Les expéditions auront leur propre spec.
 
 ### 8. Cadeau de bienvenue
 - Remplace les 10 paquets : **50 cartes** en tout.
@@ -270,12 +267,12 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 ### 8 bis. Calendrier quotidien de bienvenue
 - Calendrier d'un cadeau par jour pendant **30 jours** à compter de l'inscription ; les 7 premiers jours forment le palier de bienvenue d'une semaine.
 - Une seule case peut être réclamée par jour, côté serveur. Une case manquée ne peut pas être réclamée rétroactivement.
-- Les récompenses peuvent inclure des Ryō, des cristaux normaux et des cristaux spéciaux. Le contenu et les quantités restent à équilibrer ; les cristaux spéciaux sont comptés dans le budget de sources du §6.
+- Les récompenses peuvent inclure des Ryō, et des cristaux normaux. Le contenu et les quantités restent à équilibrer.
 - Les succès de connexion (`login_streak_7`, `login_streak_30`) sont distincts des cadeaux quotidiens et se débloquent une fois après 7 puis 30 jours consécutifs.
 - **À préciser** : reprise du calendrier après une journée manquée, contenu et quantités des 30 cases, et si le calendrier recommence après le jour 30.
 
 ### 9. Vocabulaire et clarté (« marché noir » renommé « Bourse des brèches », décidé le 2026-10-12)
-- Chaque terme (cristal, cristal spécial, bannière, pity, Ryō) est défini à l'écran à sa première apparition.
+- Chaque terme (cristal, bannière, pity, Ryō) est défini à l'écran à sa première apparition.
 - Les enchères s'appellent « Bourse des brèches » dans l'interface (adresses `/market` inchangées).
 
 ### 10. Modèle de données (changements)
@@ -296,7 +293,7 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - [ ] Un ×5 coûte 5 cristaux, un ×10 en coûte 10, jamais plus que le stock, même avec des ouvertures simultanées.
 - [ ] La simulation du code de production confirme : ×5 ≈ actuel (à 2 % près), ×10 = +16 / +9 / +5 % de SR / SSR / UR, SSR au plus tard à la 75ᵉ carte, UR à la 500ᵉ.
 - [ ] Une bannière ne modifie ni les taux de rareté ni le pity ; un seul compteur de pity.
-- [ ] Les cristaux (normaux et spéciaux) sont inscrits dans un journal et ne sont ni vendables ni échangeables.
+- [ ] Les cristaux sont inscrits dans un journal et ne sont ni vendables ni échangeables.
 - [ ] Achat limité à 25 cristaux par jour, solde de Ryō toujours égal à la somme du journal.
 - [ ] Le cadeau de bienvenue donne 50 cartes, pas plus.
 - [ ] Le calendrier de bienvenue propose une récompense quotidienne pendant 30 jours et reconnaît les paliers de connexion de 7 et 30 jours.

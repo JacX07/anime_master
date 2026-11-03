@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/admin";
-import { AdminError, adjustCrystals, adjustRyo, adjustSpecialCrystals, banUser, changeRole, giveCard, removeCard, resetPity, unbanUser, type Role } from "@/lib/admin-actions";
+import { AdminError, adjustCrystals, adjustRyo, banUser, changeRole, giveCard, removeCard, resetPity, unbanUser, type Role } from "@/lib/admin-actions";
 import { searchCharacters } from "@/lib/admin-players";
 import { prisma } from "@/lib/db";
 
@@ -21,7 +21,6 @@ export async function staffAction(_prev: StaffState, fd: FormData): Promise<Staf
     switch (op) {
       case "ryo": await adjustRyo(staff, targetId, n, reason); break;
       case "crystals": await adjustCrystals(staff, targetId, n, reason); break;
-      case "special": await adjustSpecialCrystals(staff, targetId, n, reason); break;
       case "pity": await resetPity(staff, targetId, reason); break;
       case "ban": await banUser(staff, targetId, reason); break;
       case "unban": await unbanUser(staff, targetId, reason); break;

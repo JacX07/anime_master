@@ -32,7 +32,7 @@ async function Player({ params }: { params: PageProps<"/admin/joueurs/[id]">["pa
       {u.bannedAt && <p className="adm-down" role="status">Compte banni le {date.format(u.bannedAt)} : {u.banReason}</p>}
       <div className="adm-kpis">
         <Kpi label="Ryō" value={fmt.format(u.balance)} />
-        <Kpi label="Cristaux" value={fmt.format(u.crystals)} hint={`${fmt.format(u.specialCrystals)} spéciaux`} />
+        <Kpi label="Cristaux" value={fmt.format(u.crystals)} />
         <Kpi label="Cartes" value={fmt.format(Object.values(s.byRarity).reduce((a, b) => a + b, 0))} hint={RARITIES.map((r) => `${r} ${s.byRarity[r] ?? 0}`).join(" · ")} />
         <Kpi label="Paquets" value={fmt.format(s.packs)} hint={`pity SSR ${u.cardsSinceSSR} · UR ${u.cardsSinceUR}`} />
         <Kpi label="Combats" value={fmt.format(s.battles)} hint={`${s.achievements} succès`} />
@@ -45,7 +45,6 @@ async function Player({ params }: { params: PageProps<"/admin/joueurs/[id]">["pa
           {admin && <>
             <StaffForm op="ryo" target={u.id} title="Ajuster les Ryō" fields={[{ name: "amount", label: "Montant (négatif pour retirer)", type: "number" }]} submit="Ajuster" />
             <StaffForm op="crystals" target={u.id} title="Ajuster les cristaux" fields={[{ name: "amount", label: "Quantité (négatif pour retirer)", type: "number" }]} submit="Ajuster" />
-            <StaffForm op="special" target={u.id} title="Ajuster les cristaux spéciaux" fields={[{ name: "amount", label: "Quantité (négatif pour retirer)", type: "number" }]} submit="Ajuster" />
             <StaffForm op="pity" target={u.id} title="Réinitialiser le compteur de pity" submit="Réinitialiser" />
             <StaffForm op="give" target={u.id} title="Offrir une carte" fields={[{ name: "character", label: "Nom exact du personnage" }]} submit="Offrir" />
             {s.cards.length > 0 && <StaffForm op="remove" target={u.id} title="Retirer une carte" fields={[{ name: "card", label: "Carte", type: "select", options: s.cards.map((c) => ({ value: c.id, label: `${c.character.name} #${c.serial} (${c.character.rarity}${c.finish === "NORMAL" ? "" : ` ${c.finish}`})` })) }]} submit="Retirer" danger />}

@@ -52,8 +52,8 @@ async function main() {
     check("Récupérer deux fois : rien de plus", (await claimPeriodicQuest(tag, "daily_expedition", now)).claimed === false);
     const doubled = await Promise.all([claimPeriodicQuest(tag, "daily_wins", now), claimPeriodicQuest(tag, "daily_wins", now)]);
     check("Double clic sur une quête : une seule récupération", doubled.filter((c) => c.claimed).length === 1, `${doubled.map((c) => c.claimed)}`);
-    const u = await prisma.user.findUniqueOrThrow({ where: { id: tag }, select: { crystals: true, specialCrystals: true, balance: true } });
-    check("Cristaux : 50 + 2 + 2 = 54, sans cristal spécial ni Ryō", u.crystals === 54 && u.specialCrystals === 0 && u.balance === 0, `${u.crystals} cristaux, ${u.balance} Ryō`);
+    const u = await prisma.user.findUniqueOrThrow({ where: { id: tag }, select: { crystals: true, balance: true } });
+    check("Cristaux : 50 + 2 + 2 = 54, sans Ryō", u.crystals === 54 && u.balance === 0, `${u.crystals} cristaux, ${u.balance} Ryō`);
     q = Object.fromEntries((await getPeriodicQuests(tag, now)).map((x) => [x.key, x]));
     check("Liste : quête récupérée affichée comme telle", q.daily_wins.claimed === true && q.daily_wins.claimable === false && q.daily_expedition.claimed === true);
 

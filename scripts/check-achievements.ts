@@ -25,7 +25,7 @@ async function main() {
     await prisma.card.create({ data: { ownerId: tag, characterId, finish, serial: c.pullCount, rarityAtPull: c.rarity, packOpeningId: opening.id } });
   }
   const bal = async () => (await prisma.user.findUniqueOrThrow({ where: { id: tag }, select: { balance: true } })).balance;
-  const user = () => prisma.user.findUniqueOrThrow({ where: { id: tag }, select: { crystals: true, specialCrystals: true } });
+  const user = () => prisma.user.findUniqueOrThrow({ where: { id: tag }, select: { crystals: true } });
   const keys = async () => (await prisma.userAchievement.findMany({ where: { userId: tag }, select: { key: true } })).map((k) => k.key).sort();
 
   try {
@@ -58,7 +58,7 @@ async function main() {
     const firstClaims = await Promise.all([claimAchievement(tag, "first_pack"), claimAchievement(tag, "first_pack")]);
     check("Double récupération : une seule fois (+20 Ryō)", firstClaims.filter((c) => c.claimed).length === 1 && (await bal()) === 20, `${firstClaims.map((c) => c.claimed)} ${await bal()}`);
     check("Récupérer encore : rien de plus", !(await claimAchievement(tag, "first_pack")).claimed && (await bal()) === 20);
-    check("Palier facile : +5 cristaux normaux, aucun cristal spécial", (await user()).crystals >= crystalsBefore + 5 && (await user()).specialCrystals === 0, `${crystalsBefore} → ${(await user()).crystals}`);
+    check("Palier facile : +5 cristaux normaux", (await user()).crystals >= crystalsBefore + 5, `${crystalsBefore} → ${(await user()).crystals}`);
     check("Liste : récupéré après réclamation", (await listAchievements(tag)).find((a) => a.key === "first_pack")?.claimed === true);
 
     await give(ur.id, "GOLD"); await give(ssr.id, "HOLO");

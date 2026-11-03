@@ -64,9 +64,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
   const banner = banners.find((b) => b.id === bannerId) ?? null;
   const kind = banner?.costKind ?? "NORMAL";
-  const wallet = kind === "SPECIAL" ? state.specialCrystals : kind === "WELCOME" ? state.welcomeDraws : available;
-  const unit = kind === "SPECIAL" ? "cristal spécial" : kind === "WELCOME" ? "tirage de bienvenue" : "cristal";
-  const unitPlural = kind === "SPECIAL" ? "cristaux spéciaux" : kind === "WELCOME" ? "tirages de bienvenue" : "cristaux";
+  const wallet = kind === "WELCOME" ? state.welcomeDraws : available;
+  const unit = kind === "WELCOME" ? "tirage de bienvenue" : "cristal";
+  const unitPlural = kind === "WELCOME" ? "tirages de bienvenue" : "cristaux";
   const pool = banner?.pool ?? standardPool;
   const locked = banner?.costKind === "WELCOME" && state.welcomeBannerId !== null && state.welcomeBannerId !== banner.id;
   const waitingReveal = pack !== null && !revealed.every(Boolean);
@@ -148,7 +148,6 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
       <header className="pk-head">
         <dl className="pk-wallet">
           <div><dt>Cristaux</dt><dd>{available}<span> / {MAX_CRYSTALS}</span></dd><small>{msLeft === null ? "Stock plein" : `Prochain dans ${formatDuration(msLeft)}`}</small></div>
-          {state.specialCrystals > 0 && <div><dt>Spéciaux</dt><dd>{state.specialCrystals}</dd></div>}
           {state.welcomeDraws > 0 && <div><dt>Bienvenue</dt><dd>{state.welcomeDraws}</dd></div>}
           <div><dt>Ryō</dt><dd><Money n={state.balance} /></dd></div>
         </dl>
@@ -190,7 +189,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className="pk-banner-face" src={b.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
                 )}
-                <small>{b.costKind === "SPECIAL" ? "Événement" : b.costKind === "WELCOME" ? "Bienvenue" : b.categoryLabel}</small>
+                <small>{b.category === "event" ? "Événement" : b.costKind === "WELCOME" ? "Bienvenue" : b.categoryLabel}</small>
                 <b>{b.name}</b>
                 <span>{b.description}</span>
                 <em>{b.weightPercent > 0 ? `${b.weightPercent} % de cartes de la bannière` : "Catalogue complet"}</em>

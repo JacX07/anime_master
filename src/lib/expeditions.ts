@@ -8,9 +8,8 @@ import { checkAchievementsSafe } from "./achievements";
 import { afterGain } from "./crystal-stock";
 import { prisma } from "./db";
 import { startOfDay } from "./economy";
-import { weekBounds } from "./banners";
 import { notify } from "./notifications";
-import { breachById, DAILY_CRYSTAL_CAP, DAILY_RYO_CAP, HOUR, MAX_TEAM, resolve, SLOTS, slotsFor, WEEKLY_SPECIAL_CAP } from "./expedition-rules";
+import { breachById, DAILY_CRYSTAL_CAP, DAILY_RYO_CAP, HOUR, MAX_TEAM, resolve, SLOTS, slotsFor } from "./expedition-rules";
 
 export class ExpeditionError extends Error {}
 
@@ -69,29 +68,24 @@ export async function claimExpedition(userId: string, expeditionId: string, now 
     if (taken.count !== 1) throw new ExpeditionError("Butin déjà récupéré.");
 
     const loot = resolve(breach, exp.cards, exp.seed);
-    // Plafonds : Ryō et cristaux par jour, cristaux spéciaux par semaine (ce qui est déjà récupéré compte)
-    const day = startOfDay(now), week = weekBounds(now).start;
-    const [today, thisWeek] = await Promise.all([
-      tx.expedition.aggregate({ where: { userId, status: "CLAIMED", claimedAt: { gte: day }, id: { not: exp.id } }, _sum: { ryo: true, crystals: true } }),
-      tx.expedition.aggregate({ where: { userId, status: "CLAIMED", claimedAt: { gte: week }, id: { not: exp.id } }, _sum: { special: true } }),
-    ]);
+    // Plafonds : Ryō et cristaux par jour (ce qui est déjà récupéré compte)
+    const day = startOfDay(now);
+    const today = await tx.expedition.aggregate({ where: { userId, status: "CLAIMED", claimedAt: { gte: day }, id: { not: exp.id } }, _sum: { ryo: true, crystals: true } });
     const ryo = Math.max(0, Math.min(loot.ryo, DAILY_RYO_CAP - (today._sum.ryo ?? 0)));
     const crystals = Math.max(0, Math.min(loot.crystals, DAILY_CRYSTAL_CAP - (today._sum.crystals ?? 0)));
-    const special = Math.max(0, Math.min(loot.special, WEEKLY_SPECIAL_CAP - (thisWeek._sum.special ?? 0)));
 
     const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { crystals: true, crystalsUpdatedAt: true } });
     await tx.user.update({
       where: { id: userId },
       data: {
-        balance: { increment: ryo }, expeditionsDone: { increment: 1 }, specialCrystals: { increment: special },
+        balance: { increment: ryo }, expeditionsDone: { increment: 1 },
         ...(crystals > 0 ? afterGain(user.crystals, user.crystalsUpdatedAt, now, crystals) : {}),
       },
     });
     if (ryo > 0) await tx.currencyLedger.create({ data: { userId, amount: ryo, reason: "EXPEDITION", refId: exp.id } });
-    if (special > 0) await tx.specialCrystalLedger.create({ data: { userId, amount: special, reason: "EXPEDITION", refId: exp.id } });
-    await tx.expedition.update({ where: { id: exp.id }, data: { outcome: loot.outcome, ryo, crystals, special } });
+    await tx.expedition.update({ where: { id: exp.id }, data: { outcome: loot.outcome, ryo, crystals } });
     await tx.card.updateMany({ where: { id: { in: exp.cards.map((c) => c.cardId) } }, data: { inExpedition: false } });
-    return { outcome: loot.outcome, ryo, crystals, special, ratio: loot.ratio, breach };
+    return { outcome: loot.outcome, ryo, crystals, ratio: loot.ratio, breach };
   });
   await checkAchievementsSafe(userId);
   return result;

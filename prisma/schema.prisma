@@ -149,8 +149,6 @@ model User {
   /// Compteurs de pity, en cartes (SPEC étape 4 bis §4)
   cardsSinceSSR       Int                    @default(0)
   cardsSinceUR        Int                    @default(0)
-  /// Cristaux spéciaux (bannières spéciales ; ni achetables ni échangeables) — journal : SpecialCrystalLedger
-  specialCrystals     Int                    @default(0)
   /// Tirages de bienvenue restants (bannière de catégorie choisie à la première utilisation, SPEC étape 4 bis §8)
   welcomeDraws        Int                    @default(20)
   welcomeBannerId     String?
@@ -159,7 +157,6 @@ model User {
   /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
   expeditionsDone     Int                    @default(0)
   expeditions         Expedition[]
-  specialLedger       SpecialCrystalLedger[]
   /// Solde en Ryō : toujours égal à la somme de `CurrencyLedger` (étape 3)
   balance             Int                    @default(0)
   lastDailyBonusAt    DateTime?
@@ -307,10 +304,9 @@ model PackOpening {
   @@index([userId, openedAt])
 }
 
-/// Coût d'une bannière : cristaux normaux, spéciaux, ou tirages de bienvenue
+/// Coût d'une bannière : cristaux normaux ou tirages de bienvenue
 enum BannerCost {
   NORMAL
-  SPECIAL
   WELCOME
 }
 
@@ -343,26 +339,6 @@ model BannerCharacter {
 
   @@id([bannerId, characterId])
   @@index([characterId])
-}
-
-enum SpecialCrystalReason {
-  ACHIEVEMENT
-  EXPEDITION
-  BANNER_SPEND
-  ADMIN
-}
-
-/// Journal des cristaux spéciaux (la somme par joueur égale `User.specialCrystals`).
-model SpecialCrystalLedger {
-  id        String               @id @default(cuid())
-  userId    String
-  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount    Int
-  reason    SpecialCrystalReason
-  refId     String?
-  createdAt DateTime             @default(now())
-
-  @@index([userId, createdAt])
 }
 
 // ---------- Étape 3 : économie ----------
@@ -650,7 +626,6 @@ model Expedition {
   outcome    String?
   ryo        Int              @default(0)
   crystals   Int              @default(0)
-  special    Int              @default(0)
   claimedAt  DateTime?
   /// Notification « terminée » envoyée
   notifiedAt DateTime?
