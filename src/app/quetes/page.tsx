@@ -1,16 +1,23 @@
 import { Suspense } from "react";
 import { requireUser } from "@/lib/session";
 import { getAdventure } from "@/lib/adventure-state";
-import { QuestBoard } from "./QuestBoard";
+import { getPeriodicQuests } from "@/lib/periodic-quests";
+import { PVP_AVAILABLE } from "@/lib/feature-flags";
+import { QuestBoard, type PeriodicQuestView } from "./QuestBoard";
 import "./quetes.css";
 import { PageHeading } from "@/components/mq/PageHeading";
 
 export const metadata = { title: "Quêtes — Anime Masters", robots: { index: false } };
 export default function QuestsPage() {
-  return <main className="vt"><div className="vt-inner quest-page"><PageHeading eyebrow="CARNET D’ARPENTEUR" title="Quêtes" description="Ton carnet d’Arpenteur. Traverse les histoires, renforce ton empreinte et ouvre de nouveaux passages." /><Suspense fallback={<p>Ouverture du carnet…</p>}><Journal /></Suspense></div></main>;
+  return <main className="vt"><div className="vt-inner quest-page"><PageHeading eyebrow="CARNET D’ARPENTEUR" title="Quêtes" description="Les quêtes du jour et de la semaine. Chaque quête accomplie rapporte des cristaux." /><Suspense fallback={<p>Ouverture du carnet…</p>}><Journal /></Suspense></div></main>;
 }
 async function Journal() {
   const user = await requireUser();
   const adventure = await getAdventure(user.id);
-  return <QuestBoard state={adventure} />;
+  // Pas de quête impossible à accomplir : expéditions tant qu'elles sont verrouillées, duels tant que l'arène est fermée
+  const expeditions = adventure.modes.find((m) => m.key === "expeditions")?.unlocked ?? false;
+  const quests: PeriodicQuestView[] = (await getPeriodicQuests(user.id))
+    .filter((q) => (expeditions || !q.metric.startsWith("expeditions")) && (PVP_AVAILABLE || q.metric !== "duelWins"))
+    .map(({ key, period, title, description, target, progress, crystals, claimed, claimable }) => ({ key, period, title, description, target, progress, crystals, claimed, claimable }));
+  return <QuestBoard state={adventure} quests={quests} />;
 }

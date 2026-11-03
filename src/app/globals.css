@@ -2805,3 +2805,7 @@ body.scene-night {
   .site-nav .site-link { padding-inline: .5rem; }
   .site-nav .site-link .i { width: 20px; height: 20px; }
 }
+
+/* Succès : récompense prête à récupérer */
+.ach-grid li[data-ready="true"] { background-image: linear-gradient(90deg, #c4a76d21, transparent 65%); }
+.ach-claimed { color: #7fbf8f; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }

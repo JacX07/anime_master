@@ -192,3 +192,14 @@
   &:hover:not(:disabled) { filter: drop-shadow(0 3px 2px #0009) drop-shadow(0 11px 7px #000a); }
   &:active:not(:disabled) { filter: drop-shadow(0 2px 2px #0009); }
 }
+
+/* « Récupérer » : récompense prête (succès, quêtes). Texte doré qui pulse, soulignement lumineux (maquette validée le 2026-11-03) */
+.mq-app-shell[class] button.claim-button[class] { position: relative; background: none; border: 0; padding: .6rem .25rem; color: #c4a76d; font: 600 .72rem var(--font-dm), sans-serif; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+.mq-app-shell[class] button.claim-button[class]::after { content: ""; position: absolute; inset: auto 0 .25rem; height: 2px; background: #c4a76d; box-shadow: 0 0 10px #c4a76d; }
+.mq-app-shell[class] button.claim-button[class]:hover { color: #e3c985; }
+.mq-app-shell[class] button.claim-button[class]:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+.mq-app-shell[class] button.claim-button[class]:disabled { color: #4b4a45; cursor: wait; }
+.mq-app-shell[class] button.claim-button[class]:disabled::after { box-shadow: none; background: #4b4a45; }
+.claim-dot { display: inline-block; width: 7px; height: 7px; margin-right: .5rem; border-radius: 50%; background: currentColor; animation: claim-pulse 1.6s infinite; }
+@keyframes claim-pulse { 50% { transform: scale(1.6); opacity: .4; } }
+@media (prefers-reduced-motion: reduce) { .claim-dot { animation: none; } }
