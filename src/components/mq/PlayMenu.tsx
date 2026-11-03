@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Icon } from "../icons";
 
 /** Les sept destinations de l'écran « Comment voulez-vous jouer ? » (maquette). */
 const MODES = [
@@ -17,7 +18,7 @@ const MODES = [
 ] as const;
 
 /** Bouton central « JOUER » de la barre et son écran de destinations. */
-export function PlayMenu() {
+export function PlayMenu({ locks = {} }: { locks?: Record<string, string> }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const [prev, setPrev] = useState(pathname);
@@ -51,12 +52,12 @@ export function PlayMenu() {
             </div>
             <div className="mq-mode-grid">
               {MODES.map((mode) => (
-                <Link href={mode.href} className={`mq-mode-card mq-mode-${mode.id}`} key={mode.id}>
+                <Link href={mode.href} className={`mq-mode-card mq-mode-${mode.id}${locks[mode.id] ? " mq-mode-locked" : ""}`} key={mode.id} aria-disabled={locks[mode.id] ? true : undefined}>
                   <span className="mq-mode-symbol">{mode.symbol}</span>
                   <small>{mode.tag}</small>
                   <h3>{mode.title}</h3>
                   <p>{mode.description}</p>
-                  <i>Explorer →</i>
+                  {locks[mode.id] ? <i className="mq-mode-lock"><Icon name="lock" />{locks[mode.id]}</i> : <i>Explorer →</i>}
                 </Link>
               ))}
             </div>

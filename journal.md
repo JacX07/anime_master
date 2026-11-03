@@ -345,3 +345,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : chaque session avait son worktree, son `npm install`, son `next dev` et son navigateur headless.
 - Contournement : une seule branche, un seul serveur à la fois, arrêté après chaque vérification.
 - Occurrences : 1.
+
+## 2026-11-03 — En-tête des ressources : navigation et XP masquées aux largeurs intermédiaires
+
+- Symptôme : après ajout des Ryō et de l’XP, les liens de navigation se chevauchent à 1280 px ; l’XP est masquée sous 1500 px.
+- Cause : la navigation complète conserve trop de colonnes et les anciens seuils cachaient le bloc joueur.
+- Correctif : réutiliser le menu compact sous 1500 px, garder ressources et XP visibles et répartir l’en-tête sur deux rangées sur téléphone.
+- Occurrences : 1.
+- Validation : ressources et XP visibles à 1440 et 390 px, aucun débordement horizontal ; menu mobile, verrous et lien Paramètres testés.
