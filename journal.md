@@ -297,3 +297,13 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Non vérifié en local : pas de Postgres de test avec `CREATE DATABASE` (CHECK_DATABASE_URL absent). Le découpeur a été validé sur les 5 migrations ; le check complet reste à confirmer par la CI.
 - Occurrences : 1.
 - Statut : corrigé, à confirmer par la CI.
+
+## 2026-11-03 — Site entier en erreur après publication : migrations non appliquées à la prod
+
+- Symptôme : toutes les pages connectées échouent (« This page couldn't load », « Une erreur est survenue » à l'inscription). Logs Vercel : `Failed to get session` puis `The column User.role does not exist in the current database` (P2022).
+- Cause : `production:publish` a mis en ligne du code qui attendait les migrations `20261103030000_admin_roles` et `20261103040000_game_events`, jamais appliquées à la base prod. Le même piège était déjà arrivé pour `auth_throttle` (inscription en « Authentification temporairement indisponible »).
+- Correctif : `npm run db:deploy` sur la prod, avec `DATABASE_URL` et `DIRECT_URL` fixées ensemble (`prisma.config.ts` lit `DIRECT_URL` en premier et le `.env` local la pointe vers dev). Procédure ajoutée dans `docs/deploiement.md` §10.
+- Piège connexe : le Session pooler Supabase est limité à 15 clients (`EMAXCONNSESSION`) ; le Transaction pooler rend les transactions Prisma interactives inutilisables. Pool réduit à 2 par instance.
+- Occurrences : 2 (auth_throttle, puis admin_roles et game_events). À proposer en règle dans AGENTS.md avec l'accord de l'utilisateur.
+- Statut : correctif de doc fait, migration prod à confirmer.
+

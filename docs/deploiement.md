@@ -81,7 +81,7 @@ Bases dev et prod initialisées et catalogue chargé le 2026-11-03 ; sauvegarde 
 - Branche de production = `production`. Déploiement auto désactivé pour `main` (§4).
 - `BETTER_AUTH_SECRET` et `BETTER_AUTH_URL` propres à la prod.
 - Illustrations : dans le repo (9 Mo aujourd'hui) ou Supabase Storage. Le disque de Vercel est en lecture seule : les outils de dev qui écrivent sur disque (Spell Builder, mécaniques) restent en local.
-- Migrations de la prod : `prisma migrate deploy` lancé **avant** chaque publication (à la main au début, puis par un workflow GitHub).
+- Migrations de la prod : `prisma migrate deploy` lancé **avant** chaque publication (à la main au début, puis par un workflow GitHub). Procédure détaillée en §10.
 
 ### Étape 6 — Première publication, à la main
 
@@ -111,6 +111,7 @@ Chiffres tirés de blogs tiers, **à vérifier** sur supabase.com/pricing et ver
 ## 7. Règles de prod à retenir
 
 - `prisma migrate deploy` en prod, jamais `migrate dev` ni `db push`.
+- **Migrer la prod avant de publier le code**, à chaque publication (§10). Un code publié sans sa migration casse tout le site (incident du 2026-11-03 : `User.role` absente).
 - Sauvegarde de la base prod avant une migration.
 - Migrations compatibles avec la version précédente du code (retour arrière possible).
 - Ne jamais committer `.env` ni `data/`. Secrets uniquement dans Vercel, Supabase et GitHub.
@@ -143,3 +144,34 @@ Chiffres tirés de blogs tiers, **à vérifier** sur supabase.com/pricing et ver
 6. Supprimer `restore.dump` et la base de test ensuite.
 
 À refaire de temps en temps (par exemple chaque mois) pour s'assurer que les sauvegardes restent lisibles.
+
+## 10. Avant chaque publication : migrer la prod
+
+Le code et la base de données sont déployés séparément. `production:publish` ne touche pas à la base : si `main` contient une migration (ajout de colonne ou de table) que la prod n'a pas, **toutes les pages qui lisent la session échouent** (« Failed to get session », « The column … does not exist »).
+
+Incident du 2026-11-03 : le code publié lisait `User.role` (migration `admin_roles`) et utilisait la table des événements (`game_events`), absentes de la base prod. Le site entier était en erreur jusqu'à `db:deploy`.
+
+### Procédure (ordre obligatoire)
+
+1. **Sauvegarde** : Actions → Sauvegarde prod → Run workflow (§9).
+2. **Lister les migrations en attente** : comparer `ls prisma/migrations` avec ce que la prod a déjà appliqué (`npm run db:deploy` les applique toutes, mais n'en applique que les manquantes).
+3. **Migrer la prod** (URL du Session pooler, port 5432, jamais le Transaction pooler) :
+   ```bash
+   cd ~/anime_master-postgres
+   git pull && nvm use 24
+   read -rs -p "URL prod : " U; export DATABASE_URL="$U" DIRECT_URL="$U"; unset U; echo
+   npm run db:deploy
+   unset DATABASE_URL DIRECT_URL
+   ```
+   Fixer **`DATABASE_URL` et `DIRECT_URL` ensemble** : `prisma.config.ts` lit `DIRECT_URL` en premier, et le `.env` local peut la pointer vers la base de dev.
+4. **Publier** : `npm run production:publish`, puis `-- --apply`.
+5. **Vérifier le site en ligne** (connexion, ouverture d'un lot, un combat).
+
+### Règles pour écrire une migration
+
+- Compatible avec l'ancienne version du code (qui tourne encore quelques secondes) : on **ajoute** une colonne ou une table, on ne supprime ni ne renomme dans la même version.
+- Une nouvelle colonne obligatoire a une valeur par défaut.
+
+### Pool de connexions
+
+Le Session pooler de Supabase est limité à 15 clients (`pool_size`). Chaque instance Vercel en garde `DB_POOL_MAX` (2 par défaut en production, voir `src/lib/db.ts`). Le Transaction pooler (port 6543) a été essayé le 2026-11-03 et **rend les transactions interactives de Prisma trop lentes** (ouvertures de lots et combats en échec) : ne pas l'utiliser.
