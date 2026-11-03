@@ -81,7 +81,7 @@ async function Account() {
       </>
     );
   }
-  const [wallet, packs, adventure, title] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id)]);
+  const [wallet, packs, adventure, title, staff] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id)]);
   return (
     <>
       <Suspense fallback={null}>
@@ -105,6 +105,7 @@ async function Account() {
             <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
+          {staff && <Link href="/admin">Administration</Link>}
           <button type="submit">Se déconnecter</button>
         </form>
       </div>
@@ -118,4 +119,10 @@ async function equippedTitle(userId: string): Promise<string | null> {
   if (!u?.title) return null;
   const unlocked = await prisma.userAchievement.findUnique({ where: { userId_key: { userId, key: u.title } }, select: { key: true } });
   return unlocked ? titleOf(u.title) : null;
+}
+
+/** Modérateur ou admin : seul cas où le lien « Administration » apparaît (la page revérifie le rôle). */
+async function isStaff(userId: string): Promise<boolean> {
+  const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+  return !!u && u.role !== "player";
 }

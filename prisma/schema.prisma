@@ -45,6 +45,12 @@ enum PityTrigger {
 }
 
 /// Un personnage AniList (étape 1).
+enum UserRole {
+  player
+  moderator
+  admin
+}
+
 model Character {
   /// id AniList
   id             Int                 @id
@@ -131,6 +137,8 @@ model User {
   username            String                 @unique
   email               String                 @unique
   emailVerified       Boolean                @default(false)
+  /// Rôle d'administration (SPEC admin §2) : jamais modifiable depuis l'interface joueur
+  role                UserRole               @default(player)
   image               String?
   /// Cristaux en stock au moment de `crystalsUpdatedAt` (1 cristal = 1 carte ; recharge calculée à la lecture, SPEC étape 4 bis §1)
   crystals            Int                    @default(30)
@@ -906,4 +914,20 @@ model AuthThrottle {
   expiresAt DateTime @db.Timestamptz(3)
 
   @@index([expiresAt])
+}
+
+/// Journal d'audit des actions d'administration (ajout seul, SPEC admin §4.6)
+model AdminAudit {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  actorId   String?
+  /// Pseudo au moment de l'action (conservé si le compte disparaît)
+  actorName String
+  action    String
+  targetId  String?
+  reason    String?
+  data      Json?
+
+  @@index([createdAt])
+  @@index([actorId])
 }
