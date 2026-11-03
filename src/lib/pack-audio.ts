@@ -1,3 +1,4 @@
+import { suspendWhenHidden } from "./audio-visibility";
 // Sons de la salle des invocations, synthétisés en WebAudio (aucun fichier) :
 // carte qui sort du paquet, carte retournée, carillon pour les SSR et UR, ambiance de salle (nappe lente + cloche rare).
 
@@ -30,6 +31,7 @@ class PackAudio {
     this.noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const d = this.noise.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    suspendWhenHidden(ctx);
     this.ctx = ctx;
     return ctx;
   }

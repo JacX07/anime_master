@@ -1,3 +1,4 @@
+import { suspendWhenHidden } from "@/lib/audio-visibility";
 // Sons du lecteur de combat : synthèse WebAudio et prise de lame enregistrée pour les attaques de base.
 // Deux bus (effets, musique) passent par un master puis un compresseur, pour garder de la marge avant la saturation.
 // Les effets varient un peu à chaque coup (hauteur ±4 %) pour ne pas sonner en boucle, et la musique baisse un instant sous les gros impacts.
@@ -53,6 +54,7 @@ export class BattleAudio {
     this.noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
     const data = this.noise.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    suspendWhenHidden(ctx);
     this.ctx = ctx;
     this.musicEngine = new BattleMusic(ctx, this.music, this.noise);
     void this.loadBlade(ctx);
