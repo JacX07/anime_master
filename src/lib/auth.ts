@@ -26,6 +26,10 @@ export const auth = betterAuth({
   },
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: { enabled: true, minPasswordLength: PASSWORD_MIN, autoSignIn: true },
+  // La session est relue à chaque page et chaque action : sans cache, une rafale de pages (préchargement des
+  // liens du menu) fait des dizaines de lectures en parallèle et sature les 15 clients du Session pooler.
+  // Le cookie signé sert la session 5 minutes sans interroger la base (un changement de rôle met ≤ 5 min à s'appliquer).
+  session: { cookieCache: { enabled: true, maxAge: 5 * 60 } },
   plugins: [
     username({ minUsernameLength: USERNAME_MIN, maxUsernameLength: USERNAME_MAX, displayUsername: false }),
     // Doit rester le dernier plugin : pose les cookies depuis les Server Actions
