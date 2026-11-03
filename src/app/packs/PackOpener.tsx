@@ -263,7 +263,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 {pack.cards.map((card, i) => (summary || i === current) && (
                   <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} data-hint={!revealed[i] && (card.rarity === "SSR" || card.rarity === "UR") ? card.rarity : undefined} style={{ "--i": i } as React.CSSProperties} onClick={() => { if (summary) setDetail(card); else if (!revealed[i]) reveal(i); else if (current + 1 < pack.cards.length) setCurrent(current + 1); else setSummary(true); }} role="button" tabIndex={0} aria-label={revealed[i] ? (summary ? `${card.name} : voir les stats et les sorts` : "Carte suivante") : `Retourner la carte ${i + 1}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } }}>
                     <div className="flip-inner">
-                      <div className="flip-face card-back"><span>AM</span></div>
+                      <div className="flip-face card-back" aria-hidden="true" />
                       <div className="flip-face flip-front" aria-hidden={!revealed[i]}><CharacterCard {...card} characterId={card.characterId} /></div>
                     </div>
                   </div>

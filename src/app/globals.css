@@ -336,9 +336,7 @@ h3 {
   border: 1px solid var(--gold-dim);
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle at 50% 40%, #3a3322 0%, transparent 62%),
-    repeating-linear-gradient(45deg, #111514 0 10px, #171b1a 10px 20px);
+  background: #0b0e0f url("/images/cards/anima-clash-back.webp") center / cover no-repeat;
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
   transition: transform 0.2s;
 }

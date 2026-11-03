@@ -3,6 +3,14 @@
 Bugs et manques de contexte rencontrés une fois. Voir la section « Journal et promotion en règle » de `AGENTS.md`.
 Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences, statut (ouvert / promu en règle).
 
+## 2026-11-03 — Base locale : dossier configuré absent
+
+- Symptôme : l'inscription sur le serveur de développement échoue avec `Cannot open database because the directory does not exist`.
+- Cause : le chemin fourni par la configuration locale `DATABASE_URL` ne correspond pas à un dossier présent dans cette session.
+- Contournement : pour vérifier les dos de cartes sans modifier la configuration ni les comptes existants, créer une sauvegarde SQLite de `data/app.db` dans `/tmp/anima-card-back-test.db` et démarrer Next avec `DATABASE_URL=file:/tmp/anima-card-back-test.db`.
+- Occurrences : 1.
+- Statut : contourné pour la vérification ; configuration locale inchangée.
+
 ## 2026-11-02 — Node du serveur et module SQLite natif
 
 - Symptôme : après redémarrage, les pages authentifiées échouent avec `ERR_DLOPEN_FAILED` ou « Module did not self-register » pour `better_sqlite3.node`.

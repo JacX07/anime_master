@@ -54,7 +54,6 @@
 .pk-grid .flip[data-revealed="true"][data-rarity="UR"] .flip-front { border-radius: 0.6rem; box-shadow: 0 0 30px 8px var(--rarity-UR), 0 0 70px 12px #ff3b4a66; }
 .pk-grid .flip[data-revealed="true"][data-rarity="SSR"], .pk-grid .flip[data-revealed="true"][data-rarity="UR"] { animation: pk-pop 0.9s 0.25s cubic-bezier(.2,1.4,.4,1) both; z-index: 2; }
 /* Cadres de rareté partagés : voir reference.css et CardDeco.tsx. */
-.card-back span { display: grid; place-items: center; height: 100%; color: #d5bb7f99; font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.2em; }
 
 .pk-controls { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; margin-top: auto; text-align: center; }
 .pk-lots { display: flex; gap: 0.4rem; }
