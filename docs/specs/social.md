@@ -81,7 +81,7 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
 ---
 
 ## Succès (venus de l'étape 4 §6)
-Définis dans le code, vérifiés après chaque événement pertinent (tirage, duel terminé, vente aux enchères, échange accepté, cadeau de connexion réclamé, personnage ajouté à la collection). Chaque succès ne se débloque qu'une fois et crédite la récompense prévue ; les Ryō sont inscrits au journal (`reason = ACHIEVEMENT`).
+Définis dans le code, vérifiés après chaque événement pertinent (tirage, duel terminé, vente aux enchères, échange accepté, cadeau de connexion réclamé, personnage ajouté à la collection). Chaque succès ne se débloque qu'une fois. **Le déblocage n'attribue rien** : le joueur récupère la récompense (Ryō et cristaux normaux) par l'action serveur `claimAchievement`, idempotente (une seule récupération, même en cas de double clic). Les Ryō sont inscrits au journal (`reason = ACHIEVEMENT`, `refId` = clé du succès). Un succès payé avant ce changement compte comme déjà récupéré. Les cristaux spéciaux ne sont plus offerts par les succès. Barème des cristaux : [economie.md](economie.md), § « Succès et quêtes périodiques ».
 
 | Clé | Condition | Récompense (Ryō, sauf mention contraire) |
 |---|---|---|
@@ -91,7 +91,7 @@ Définis dans le code, vérifiés après chaque événement pertinent (tirage, d
 | `first_holo` | Obtenir une première Holo | 30 |
 | `first_gold` | Obtenir une première Gold | 300 |
 | `unique_100` / `500` / `1000` / `2500` | Posséder N personnages uniques | 100 / 300 / 800 / 2 000 |
-| `series_complete_1` / `series_complete_5` / `series_complete_10` | Compléter 1 / 5 / 10 anime (tous les personnages présents dans la base ; seuls comptent les anime de l'album, soit au moins 5 personnages) | 150 / 500 / 1 500 *(provisoire, à équilibrer)* ; cristaux spéciaux 3 / 1 / 1 |
+| `series_complete_1` / `series_complete_5` / `series_complete_10` | Compléter 1 / 5 / 10 anime (tous les personnages présents dans la base ; seuls comptent les anime de l'album, soit au moins 5 personnages) | 150 / 500 / 1 500 *(provisoire, à équilibrer)* ; cristaux normaux selon le palier |
 | `all_types` | Posséder au moins un personnage de chaque type | 50 |
 | `login_streak_7` / `login_streak_30` | Réclamer les cadeaux de connexion 7 / 30 jours consécutifs | Ryō / cristaux, à équilibrer |
 | `duel_win_1` / `10` / `50` | Gagner N duels | 30 / 150 / 500 |
@@ -100,7 +100,7 @@ Définis dans le code, vérifiés après chaque événement pertinent (tirage, d
 
 ### Succès et titres de puissance
 
-La puissance de collection du profil (somme des puissances de base, doublons compris) débloque ces paliers. L’équipement et les synergies d’une squad ne comptent pas ici. Chaque succès, titre et récompense est acquis définitivement ; une vente ne le retire pas. Les vérifications utilisent les événements de gain existants et la protection transactionnelle contre les doublons.
+La puissance de collection du profil (somme des puissances de base, doublons compris) débloque ces paliers. L’équipement et les synergies d’une squad ne comptent pas ici. Chaque succès et titre est acquis définitivement ; la récompense se récupère une fois (action `claimAchievement`). Une vente ne retire rien. Les vérifications utilisent les événements de gain existants et la protection transactionnelle contre les doublons.
 
 | Puissance | Titre | Ryō |
 |---|---|---|
@@ -112,4 +112,4 @@ La puissance de collection du profil (somme des puissances de base, doublons com
 | 50 000 000 | Souverain de puissance | 5 000 |
 | 100 000 000 | Force de la nature | 10 000 |
 
-Les titres sont affichés dans Succès et équipables depuis le profil. Après déploiement ou recalcul de puissance, lancer `npx tsx scripts/sync-power-achievements.ts` pour attribuer les succès déjà atteints aux comptes existants. Le script réutilise la vérification normale des succès et ne crédite jamais deux fois une récompense.
+Les titres sont affichés dans Succès et équipables depuis le profil. Après déploiement ou recalcul de puissance, lancer `npx tsx scripts/sync-power-achievements.ts` pour débloquer les succès déjà atteints aux comptes existants. Le script réutilise la vérification normale des succès ; il ne verse aucune récompense, qui se récupère ensuite.

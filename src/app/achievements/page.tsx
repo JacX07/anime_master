@@ -39,7 +39,7 @@ async function Achievements({ searchParams }: { searchParams: PageProps<"/achiev
     <div className="vt-inner">
       <header className="pg-head">
         <h1 className="vt-title">Succès</h1>
-        <p className="vt-sub">{done} sur {list.length} débloqués. Chaque succès rapporte des Ryō, et parfois des cristaux spéciaux, une seule fois.</p>
+        <p className="vt-sub">{done} sur {list.length} débloqués. Chaque succès rapporte des Ryō et des cristaux, une seule fois.</p>
       </header>
       <div className="pg-tabs">
         <nav aria-label="Succès">
@@ -59,7 +59,7 @@ async function Achievements({ searchParams }: { searchParams: PageProps<"/achiev
             <span className="vt-muted">Titre : {a.title}</span>
             <span className="ach-foot">
               <Money n={a.reward} />
-              {a.special ? <span className="vt-muted">+{a.special} cristaux spéciaux</span> : null}
+              <span className="vt-muted">+{a.crystals} cristaux</span>
               {a.unlockedAt && <time className="vt-muted">{dateFmt.format(a.unlockedAt)}</time>}
             </span>
           </li>

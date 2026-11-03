@@ -109,3 +109,29 @@ Dans le site uniquement (cloche, pas d'email) : offre dépassée, enchère gagn�
 - [x] Impossible de gagner une enchère sans les Ryō ; l'enchérisseur dépassé est remboursé immédiatement.
 - [x] L'anti-sniping prolonge l'enchère ; la clôture n'a lieu qu'une seule fois.
 - [x] Les limites (5 paquets achetés par jour, 10 offres, 10 enchères, ancienneté du compte) sont respectées. *(paquets : fait, `npm run check:economy` ; 10 offres et ancienneté du compte : faits, `npm run check:trades` ; 10 enchères : fait, `npm run check:auctions`)*
+
+---
+
+## Succès et quêtes périodiques (cristaux normaux)
+
+Ces récompenses s'ajoutent à l'économie ci-dessus. Les **cristaux normaux** (1 cristal = 1 carte, voir « Étape 4 bis ») sont versés hors plafond de recharge (`afterGain`). Les cristaux spéciaux ne sont plus offerts par les succès ni par les quêtes.
+
+### Succès : déblocage, puis récupération
+- Le déblocage n'attribue rien. La récupération (`claimAchievement`) verse, une seule fois, les Ryō du succès (inchangés) et les cristaux de son palier, dans la même transaction.
+- Anti-double clic : verrou sur le joueur, puis contrôle du journal (`reason = ACHIEVEMENT`, `refId` = clé). Un succès déjà payé avant ce changement est considéré comme récupéré.
+
+| Palier | Cristaux | Succès |
+|---|---|---|
+| Facile | 5 | 100 000 de puissance, premier paquet, première Holo, premier duel, première vente aux enchères, première expédition, premier échange |
+| Moyen | 10 | 500 000 et 1 000 000 de puissance, premier SSR, 100 personnages, anime complet (1), tous les types, 10 duels, 5 expéditions, premier triomphe |
+| Difficile | 25 | 5 000 000 et 10 000 000 de puissance, premier UR, première Gold, 500 et 1 000 personnages, 5 anime complets, 50 duels, 20 expéditions |
+| Légendaire | 50 | 50 000 000 et 100 000 000 de puissance, 2 500 personnages, 10 anime complets |
+
+Total sur un compte qui débloque tout : **550 cristaux** (29 succès). Barème provisoire, à équilibrer.
+
+### Quêtes quotidiennes et hebdomadaires
+- Progression calculée depuis les actions existantes (paquets ouverts, combats gagnés, expéditions, duels), sans compteur séparé. Seules les actions faites pendant la période comptent.
+- Remise à zéro : **quotidiennes à minuit**, **hebdomadaires le lundi à 0 h** (heure du serveur). Une récupération par période et par quête.
+- Récupération manuelle et idempotente (`claimPeriodicQuest`), une fois l'objectif atteint.
+- Récompense : **2 cristaux** par quête quotidienne, **10 cristaux** par quête hebdomadaire. Pas de Ryō : le journal Ryō n'a pas de motif « quête » ; l'ajouter demande un changement de schéma (`LedgerReason`).
+- Pour l'instant, les cristaux de quête et de succès ne sont pas journalisés (comme ceux des combats et des expéditions).

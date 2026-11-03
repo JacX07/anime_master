@@ -23,6 +23,8 @@ L’histoire seule fournit le niveau requis à chacun de ces jalons. Les conditi
 
 L’onglet principal Quêtes (`/quetes`) présente le niveau, la barre d’XP, le lore du rang, le prochain passage, trois objectifs disponibles, les quatre modes et le journal filtrable : À suivre, Histoire, Découverte, Succès, Accomplies. Les objectifs futurs restent consultables. Le niveau est également visible dans le menu utilisateur.
 
+**Évolution (en cours de validation visuelle)** : le carnet n’affiche plus que les **quêtes quotidiennes et hebdomadaires**, avec leur progression, leur remise à zéro et un bouton « Récupérer » quand l’objectif est atteint. Les quêtes d’histoire, de découverte et les succès ne sont plus listés dans ce carnet. Leur XP continue d’être calculée et versée automatiquement : niveau, modes et guide restent inchangés. Règles des quêtes périodiques et barème : [economie.md](economie.md), § « Succès et quêtes périodiques ». Les récompenses se réclament (une fois par période) ; les quêtes périodiques ne donnent pas d’XP.
+
 ## Historique et sûreté
 
 Les objectifs sont reconstitués depuis les progressions existantes et mémorisés dans `AdventureRecord`. Ils ne se perdent pas si une carte est vendue ou un équipement retiré. Une clé unique compte + objectif empêche de gagner deux fois la même XP ou récompense. L’expérience passée et les récompenses de niveau sont attribuées rétroactivement. Un mode déjà pratiqué reste accessible grâce à un enregistrement permanent d’accès ; une ancienne tentative suffit.
