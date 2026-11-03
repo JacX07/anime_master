@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { signOut } from "@/app/auth-actions";
 import { getAdventure } from "@/lib/adventure-state";
@@ -20,12 +21,8 @@ const num = new Intl.NumberFormat("fr-FR");
 export function SiteHeader() {
   return (
     <header className="mq-topbar">
-      <Link href="/" className="mq-brand" aria-label="Anime Masters, accueil">
-        <span className="mq-brand-mark">A</span>
-        <span>
-          <b>ANIME MASTERS</b>
-          <small>CARD GAME</small>
-        </span>
+      <Link href="/" className="mq-brand" aria-label="Anima Clash, accueil">
+        <Image className="mq-brand-logo" src="/images/brand/anima-clash-logo.png" alt="Anima Clash" width={480} height={344} unoptimized />
       </Link>
       <Navigation>
       <nav className="mq-game-nav" aria-label="Navigation principale">

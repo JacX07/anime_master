@@ -138,6 +138,18 @@
   .mq-app-shell .inventory-workspace[data-selected="true"] { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Le logo contient déjà le nom du jeu et reste visible à toutes les largeurs. */
+.mq-app-shell .mq-brand { flex: 0 0 auto; min-width: 0; width: 96px; margin-right: 16px; }
+.mq-app-shell .mq-brand-logo { display: block; width: 100%; height: 66px; object-fit: contain; }
+.mq-app-shell .mq-brand:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .mq-app-shell .mq-brand { width: 76px; margin-right: 0; }
+  .mq-app-shell .mq-brand-logo { height: 56px; }
+}
+@media (max-width: 500px) {
+  .mq-app-shell .mq-brand { width: 66px; }
+}
+
 /* Navigation compacte : tous les liens restent accessibles sans défilement horizontal. */
 .mq-navigation, .mq-navigation-content { display: contents; }
 .mq-app-shell[class] .mq-navigation-toggle[class] { display: none; }
