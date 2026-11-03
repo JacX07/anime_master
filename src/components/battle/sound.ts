@@ -6,7 +6,7 @@ import { suspendWhenHidden } from "@/lib/audio-visibility";
 import type { BattleEvent } from "@/lib/battle";
 import type { CardType } from "@/generated/prisma/enums";
 import type { AttackElement } from "@/lib/attack-element";
-import { BattleMusic } from "./music";
+import { BattleMusic, BattleResultMusic } from "./music";
 
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
 // Même niveau que la maquette validée à 65 % (gain logarithmique).
@@ -16,6 +16,8 @@ const BLADE_LEAD = 0.07;
 // Sons élémentaires (direction A validée, public/audio/battle/elements) : l'impact tombe à 0,48 s dans chaque fichier.
 const ELEMENT_IMPACT = 0.48;
 const ELEMENTS: AttackElement[] = ["feu", "eau", "foudre", "air", "terre"];
+const GENERATED_SFX = ["coup", "critique", "sort", "mort"] as const;
+type GeneratedSfx = typeof GENERATED_SFX[number];
 /** Élément et style visuel de la carte qui agit : les sorts jouent la séquence entière, les coups seulement l'impact. */
 export interface ActorSound { element: AttackElement | null; magic: boolean }
 
@@ -26,6 +28,9 @@ export class BattleAudio {
   private sfx!: GainNode;
   private music!: GainNode;
   private musicEngine: BattleMusic | null = null;
+  private resultMusic: BattleResultMusic | null = null;
+  private generated = new Map<GeneratedSfx, AudioBuffer>();
+  private generatedRequest: AbortController | null = null;
   private noise!: AudioBuffer;
   private blade: AudioBuffer | null = null;
   private bladeRequest: AbortController | null = null;
@@ -57,6 +62,8 @@ export class BattleAudio {
     suspendWhenHidden(ctx);
     this.ctx = ctx;
     this.musicEngine = new BattleMusic(ctx, this.music);
+    this.resultMusic = new BattleResultMusic(ctx, master);
+    void this.loadGenerated(ctx);
     void this.loadBlade(ctx);
     void this.loadElements(ctx);
     return ctx;
@@ -74,6 +81,11 @@ export class BattleAudio {
   dispose() {
     this.stopMusic();
     this.musicEngine?.dispose();
+    this.resultMusic?.dispose();
+    this.resultMusic = null;
+    this.generatedRequest?.abort();
+    this.generatedRequest = null;
+    this.generated.clear();
     this.musicEngine = null;
     this.bladeRequest?.abort();
     this.bladeRequest = null;
@@ -88,6 +100,36 @@ export class BattleAudio {
   }
 
   // ---------- Briques ----------
+
+  private async loadGenerated(ctx: AudioContext) {
+    const request = new AbortController();
+    this.generatedRequest = request;
+    await Promise.all(GENERATED_SFX.map(async (name) => {
+      try {
+        const response = await fetch(`/audio/battle/${name}.ogg`, { signal: request.signal });
+        if (!response.ok) throw new Error(`Son ${name} indisponible (${response.status})`);
+        const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+        if (this.ctx === ctx) this.generated.set(name, buffer);
+      } catch (error) {
+        if (!request.signal.aborted) console.warn("Impossible de charger un son de combat.", error);
+      }
+    }));
+    if (this.generatedRequest === request) this.generatedRequest = null;
+  }
+
+  private sample(t: number, name: GeneratedSfx, volume: number, rate = 1, offset = 0) {
+    const buffer = this.generated.get(name);
+    if (!buffer || !this.ctx) return false;
+    const source = this.ctx.createBufferSource();
+    const gain = this.ctx.createGain();
+    source.buffer = buffer;
+    source.playbackRate.value = rate;
+    gain.gain.value = volume;
+    source.connect(gain).connect(this.sfx);
+    source.onended = () => { source.disconnect(); gain.disconnect(); };
+    source.start(t, offset);
+    return true;
+  }
 
   private async loadBlade(ctx: AudioContext) {
     const request = new AbortController();
@@ -199,6 +241,12 @@ export class BattleAudio {
    * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
    */
   play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special" | "tertiary" | "ultimate"; type: CardType } | null, speed: number, actor: ActorSound = { element: null, magic: false }) {
+    // La musique de résultat respecte Musique, même lorsque les effets sont coupés.
+    if (ev.kind === "end" && ev.winner) {
+      if (ev.winner === "A") this.playVictoryMusic();
+      else this.playDefeatMusic();
+      return;
+    }
     if (!this.sfxOn) return;
     const ctx = this.init();
     if (ctx.state === "suspended") return;
@@ -212,16 +260,21 @@ export class BattleAudio {
       case "action":
         // Un sort élémentaire couvre son lancement et son impact (le premier coup tombe 480 ms de replay plus tard)
         if (actor.element && actor.magic) this.element(t, actor.element, Math.max(0, ELEMENT_IMPACT - ELEMENT_IMPACT / speed), 1);
-        else if (ev.spell !== "base") this.cast(t, cur?.type ?? "COMBAT", k, v);
+        else if (ev.spell !== "base") {
+          // Impact du fichier à 0,58 s, aligné sur les 0,48 s du lecteur, même en accéléré.
+          if (!this.sample(t, "sort", 0.32, 1 / k, 0.58 - 0.48 / speed / k)) this.cast(t, cur?.type ?? "COMBAT", k, v);
+        }
         break;
       case "damage": {
         const chain = prev?.kind === "damage" ? 0.6 : 1;
         const soaked = ev.absorbed >= ev.amount * 0.999;
         const power = (ev.affinity === "strong" ? 1.2 : ev.affinity === "weak" ? 0.7 : 1) * chain;
+        const criticalSample = ev.crit && !soaked && this.sample(t, "critique", 0.42 * power, v / k, 0.045);
+        if (criticalSample) this.duck(t);
         if (actor.element) {
           if (actor.magic) {
             // Le fichier lancé avec l'action porte déjà l'impact : on ne garde que le renfort du critique
-            if (ev.crit) { this.tone(t, "sine", 110, 38, 0.3 * k, 0.4); this.duck(t); }
+            if (ev.crit && !criticalSample) { this.tone(t, "sine", 110, 38, 0.3 * k, 0.4); this.duck(t); }
             break;
           }
           // Coup de mêlée ou de lame : l'impact élémentaire s'ajoute au coup, une fois par action
@@ -229,6 +282,8 @@ export class BattleAudio {
         }
         if (cur?.spell === "base") {
           this.bladeHit(t, speed, v, power * (soaked ? 0.55 : ev.crit ? 1.25 : 1));
+          // Le slash validé reste audible ; le choc de corps lui ajoute du poids.
+          if (!soaked) this.sample(t, "coup", 0.16 * power, v / k, 0.1);
           if (ev.crit) this.duck(t);
           break;
         }
@@ -238,10 +293,12 @@ export class BattleAudio {
           this.hiss(t, "highpass", 5000, 3000, 0.05, 0.1 * chain);
           break;
         }
-        this.tone(t, "sine", 160 * v, 48, 0.18 * k, 0.55 * power);
-        this.hiss(t, "lowpass", ev.affinity === "weak" ? 1200 : 2800, 350, 0.12 * k, 0.45 * power);
+        if (!this.sample(t, "coup", 0.4 * power, v / k, 0.1)) {
+          this.tone(t, "sine", 160 * v, 48, 0.18 * k, 0.55 * power);
+          this.hiss(t, "lowpass", ev.affinity === "weak" ? 1200 : 2800, 350, 0.12 * k, 0.45 * power);
+        }
         if (ev.affinity === "strong") this.tone(t, "triangle", 660 * v, 990, 0.12 * k, 0.1);
-        if (ev.crit) {
+        if (ev.crit && !criticalSample) {
           this.tone(t, "square", 1200 * v, 2600, 0.12 * k, 0.1);
           this.tone(t, "sine", 110, 38, 0.3 * k, 0.5);
           this.hiss(t, "highpass", 6000, 2500, 0.1 * k, 0.2);
@@ -269,8 +326,10 @@ export class BattleAudio {
         else this.tone(t, "sine", 400, 820, 0.14 * k, 0.08);
         break;
       case "ko":
-        this.tone(t, "sawtooth", 280, 45, 0.55 * k, 0.16);
-        this.hiss(t, "lowpass", 700, 80, 0.5 * k, 0.3);
+        if (!this.sample(t, "mort", 0.4, 1 / k, 0.02)) {
+          this.tone(t, "sawtooth", 280, 45, 0.55 * k, 0.16);
+          this.hiss(t, "lowpass", 700, 80, 0.5 * k, 0.3);
+        }
         this.duck(t);
         break;
       case "end":
@@ -313,8 +372,22 @@ export class BattleAudio {
 
   // ---------- Musique ----------
 
+  /** Fin gagnée par le joueur (camp A). Ne dépend pas du réglage Effets. */
+  playVictoryMusic() { this.playResultMusic("victory"); }
+
+  /** Fin perdue par le joueur (camp B gagnant). */
+  playDefeatMusic() { this.playResultMusic("defeat"); }
+
+  private playResultMusic(kind: "victory" | "defeat") {
+    if (!this.musicOn) return;
+    this.init();
+    this.stopMusic();
+    void this.resultMusic?.play(kind);
+  }
+
   /** Lance (ou relance) la boucle de musique avec un fondu d'entrée. */
   startMusic() {
+    this.resultMusic?.stop();
     if (!this.musicOn || this.musicEngine?.playing) return;
     const ctx = this.init();
     this.unlock();
@@ -325,6 +398,7 @@ export class BattleAudio {
 
   /** Arrête la boucle avec un fondu de sortie. */
   stopMusic() {
+    if (!this.musicOn) this.resultMusic?.stop();
     this.musicEngine?.stop();
     if (this.ctx) {
       this.music.gain.cancelScheduledValues(this.ctx.currentTime);

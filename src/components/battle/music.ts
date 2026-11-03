@@ -77,3 +77,58 @@ export class BattleMusic {
     this.gain = gain;
   }
 }
+
+/** Jingles courts, sur un bus indépendant pour survivre à l'arrêt de la boucle de combat. */
+export class BattleResultMusic {
+  private request = new AbortController();
+  private buffers = new Map<"victory" | "defeat", Promise<AudioBuffer | null>>();
+  private source: AudioBufferSourceNode | null = null;
+  private version = 0;
+
+  constructor(private readonly ctx: AudioContext, private readonly output: AudioNode) {
+    for (const kind of ["victory", "defeat"] as const) {
+      this.buffers.set(kind, this.load(kind));
+    }
+  }
+
+  private async load(kind: "victory" | "defeat") {
+    try {
+      const response = await fetch(`/audio/battle/${kind}.ogg`, { signal: this.request.signal });
+      if (!response.ok) throw new Error(`Jingle ${kind} indisponible (${response.status})`);
+      return await this.ctx.decodeAudioData(await response.arrayBuffer());
+    } catch (error) {
+      if (!this.request.signal.aborted) console.warn("Impossible de charger la musique de fin.", error);
+      return null;
+    }
+  }
+
+  async play(kind: "victory" | "defeat") {
+    this.stop();
+    const version = this.version;
+    const buffer = await this.buffers.get(kind);
+    if (!buffer || version !== this.version || this.ctx.state === "closed") return;
+    const source = this.ctx.createBufferSource();
+    const gain = this.ctx.createGain();
+    source.buffer = buffer;
+    gain.gain.value = 0.3;
+    source.connect(gain).connect(this.output);
+    source.onended = () => {
+      source.disconnect(); gain.disconnect();
+      if (this.source === source) this.source = null;
+    };
+    this.source = source;
+    source.start();
+  }
+
+  stop() {
+    this.version++;
+    this.source?.stop();
+    this.source = null;
+  }
+
+  dispose() {
+    this.stop();
+    this.request.abort();
+    this.buffers.clear();
+  }
+}

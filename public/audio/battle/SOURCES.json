@@ -150,5 +150,59 @@
     "channels": 2,
     "processing": "Tambours de peau, luth, cors et chœurs synthétiques. Extraction de la période centrale pour conserver les résonances, normalisation et correction de jonction. Validée en combat le 2026-11-03.",
     "mixGain": 1.5
+  },
+  "coup.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "sources": [],
+    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
+    "durationSeconds": 1.15,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+  },
+  "critique.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "sources": [],
+    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
+    "durationSeconds": 1.5,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+  },
+  "sort.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "sources": [],
+    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
+    "durationSeconds": 2.4,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+  },
+  "mort.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "sources": [],
+    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
+    "durationSeconds": 2.5,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+  },
+  "victory.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "sources": [],
+    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
+    "durationSeconds": 1.85,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+  },
+  "defeat.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "sources": [],
+    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
+    "durationSeconds": 2.15,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
   }
 }
