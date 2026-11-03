@@ -2458,29 +2458,23 @@
 @media (max-width: 1100px) { .mq-play-button::before { inset: -10px -6px; } }
 @media (max-width: 1100px) { .mq-app-shell[class][class] .mq-game-nav .mq-play-button { min-width: 240px; justify-self: center; } }
 
-/* Barre du haut ≥ 1500 px : JOUER centré sur la page (aligné avec le trait doré), 4 onglets de même largeur et à égale distance de chaque côté, compte tout à droite.
-   --x = place réservée à gauche et à droite (la barre est symétrique pour que JOUER soit au milieu de l'écran). */
+/* Barre du haut ≥ 1500 px : disposition d'origine (compte complet : puissance, Ryō, cristaux, niveau), onglets répartis à égale distance, Paramètres dans le menu du profil. */
 @media (min-width: 1500px) {
-  .mq-app-shell[class] .mq-topbar { --x: 165px; --tab-w: 112px; padding-right: 14px; }
-  .mq-app-shell[class] .mq-game-nav {
-    position: absolute; inset: 0 var(--x); margin: 0; pointer-events: none;
-    grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr); gap: 10px !important;
-  }
+  .mq-app-shell[class] .mq-game-nav { grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr); }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-side { justify-content: space-evenly; }
+  .mq-app-shell[class] .mq-header-actions .mq-gear { display: none; }
+}
+/* Barre du haut ≥ 1850 px : assez de place pour que JOUER soit au milieu de l'écran (aligné avec le trait doré) :
+   barre symétrique (--x réservé de chaque côté), 4 onglets de même largeur et à égale distance, compte tout à droite. */
+@media (min-width: 1850px) {
+  .mq-app-shell[class] .mq-topbar { --x: 330px; --tab-w: 112px; padding-right: 14px; }
+  .mq-app-shell[class] .mq-game-nav { position: absolute; inset: 0 var(--x); margin: 0; pointer-events: none; gap: 10px !important; }
   .mq-app-shell[class] .mq-game-nav > * { pointer-events: auto; }
   .mq-app-shell[class] .mq-game-nav::before, .mq-app-shell[class] .mq-game-nav::after { display: none; }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-side { justify-content: space-evenly; }
   .mq-app-shell[class] .mq-game-nav .mq-nav-side > :is(a, .mq-nav-dropdown) { flex: 0 0 var(--tab-w); width: var(--tab-w); }
   .mq-app-shell[class] .mq-game-nav .mq-nav-side > a, .mq-app-shell[class] .mq-game-nav .mq-nav-dropdown > a { width: 100%; padding-inline: 0; justify-content: center; }
   .mq-app-shell[class] .mq-topbar .mq-header-actions { margin-left: auto; }
-  /* Paramètres : dans le menu du profil */
-  .mq-app-shell[class] .mq-header-actions .mq-gear { display: none; }
-  /* Compte compact en dessous de 1800 px (nom et ressources dans le menu du profil), sans « Saison » en dessous de 1900 px */
-  .mq-app-shell[class] .mq-header-actions .mq-player-text { display: none; }
   .mq-season-mark { display: none; }
-}
-@media (min-width: 1800px) {
-  .mq-app-shell[class] .mq-topbar { --x: 330px; }
-  .mq-app-shell[class] .mq-header-actions .mq-player-text { display: block; }
 }
 @media (min-width: 1900px) {
   .mq-app-shell[class] .mq-topbar { --x: 400px; }
