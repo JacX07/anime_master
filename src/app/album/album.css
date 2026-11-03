@@ -338,3 +338,16 @@
 .album-page .wd-representative { position: absolute; inset: 0 0 0 auto; width: 68%; height: 100%; object-fit: cover; object-position: center 22%; opacity: .72; mask-image: linear-gradient(90deg, transparent, #000 35%); pointer-events: none; }
 .album-page .wd-tile::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(0deg, #121615 0%, #121615eb 30%, #12161533 72%, transparent); }
 .album-page .wd-index, .album-page .wd-meta { position: relative; z-index: 2; }
+
+/* Filtres cliquables : pastille vide (inactif) ou pleine (actif), fond au survol, soulignement or (maquette validée le 2026-11-03) */
+.album-filters .vt-chip { position: relative; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; background: #1a201e; transition: background .15s, color .15s; }
+.album-filters .vt-chip::before { content: ""; flex: none; width: 8px; height: 8px; outline: 1.5px solid currentColor; outline-offset: -1.5px; border-radius: 50%; }
+.album-filters .vt-chip[data-active="true"]::before { background: var(--rar, #c4a76d); outline-color: var(--rar, #c4a76d); }
+.album-filters .vt-chip[style*="--rar"] { color: var(--rar); }
+.album-filters .vt-chip:hover { background: #242b29; color: #e9e5dc; }
+.album-filters .vt-chip[data-active="true"] { background: #c4a76d2e; color: #e9e5dc; }
+.album-filters .vt-chip[style*="--rar"][data-active="true"] { color: var(--rar); }
+.album-filters .vt-chip::after { content: ""; position: absolute; inset: auto 12px 0; height: 2px; background: #c4a76d; transform: scaleX(0); transition: transform .2s; }
+.album-filters .vt-chip:hover::after, .album-filters .vt-chip[data-active="true"]::after { transform: scaleX(1); }
+.album-filters .vt-chip:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.album-filters-clear { margin-left: auto; font-size: 11px; }

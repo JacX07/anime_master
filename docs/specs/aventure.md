@@ -12,16 +12,20 @@ Les rangs sont Éveillé (1–10), Traverseur (11–20), Tisseur de liens (21–
 
 ## Passages
 
-- Expéditions : niveau 3 et combat 5 de One Piece remporté.
+- Expéditions : niveau 25 (était 3, décision du 2026-11-03) et combat 5 de One Piece remporté.
 - Donjons : niveau 5 et combat 10 de One Piece remporté.
-- Tour : niveau 8 et One Piece terminé.
-- Raid : niveau 12 et les deux premiers univers terminés.
+- Tour : niveau 20 (était 8, décision du 2026-11-03) et One Piece terminé.
+- Raid : niveau 15 (était 12, décision du 2026-11-03) et les deux premiers univers terminés.
+
+- **Arène PvP et Arène live** : fermées (« pas encore disponible ») tant que `PVP_AVAILABLE` vaut `false` dans `src/lib/feature-flags.ts` ; les pages `/duels` et les actions de duel refusent.
 
 L’histoire seule fournit le niveau requis à chacun de ces jalons. Les conditions s’appliquent côté serveur au lancement. Les combats et expéditions déjà commencés restent terminables. Les pages verrouillées expliquent les conditions et renvoient vers les Quêtes.
 
 ## Carnet
 
-L’onglet principal Quêtes (`/quetes`) présente le niveau, la barre d’XP, le lore du rang, le prochain passage, trois objectifs disponibles, les quatre modes et le journal filtrable : À suivre, Histoire, Découverte, Succès, Accomplies. Les objectifs futurs restent consultables. Le niveau est également visible dans le menu utilisateur.
+La page Quêtes (`/quetes`) présente le niveau, la barre d’XP, le lore du rang et le prochain passage. Elle conserve les **quêtes principales** d’histoire et de découverte dans un journal filtrable : À suivre, Histoire, Découverte et Accomplies. Les objectifs futurs restent consultables, avec leur état verrouillé. Leur XP est versée automatiquement une seule fois ; les objectifs accomplis restent mémorisés. Les succès gardent leur page dédiée.
+
+Les **quêtes quotidiennes et hebdomadaires** s’ajoutent à ce journal, avec leur progression, leur remise à zéro et un bouton « Récupérer » quand l’objectif est atteint. Règles et barème : [economie.md](economie.md), § « Succès et quêtes périodiques ». Les cristaux se réclament une fois par période ; ces quêtes ne donnent pas d’XP.
 
 ## Historique et sûreté
 

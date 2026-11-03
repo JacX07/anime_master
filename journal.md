@@ -339,3 +339,76 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : pour le style projectile magique non élémentaire, attendre le premier événement de dégâts ou d'esquive pour jouer le son à l'impact, une fois par action. Conserver le lancement anticipé des rayons explicitement identifiés et la priorité des éléments.
 - Occurrences : 1.
 - Validation : cas positifs génériques et rayons nommés, exclusions des cibles alliées, soins et debuffs seuls, priorité élémentaire et absence de doublon en zone.
+
+## 2026-11-03 — Inscription locale refusée (« Invalid origin ») sur un autre port que 3012
+
+- Symptôme : `POST /api/auth/sign-up/email` renvoie `INVALID_ORIGIN` quand le serveur de dev tourne sur le port 3100.
+- Cause : `BETTER_AUTH_URL` vaut `http://localhost:3012` dans `.env` ; Better Auth n'accepte que cette origine.
+- Contournement : lancer `next dev -p 3012` pour les vérifications avec connexion (et envoyer `Origin: http://localhost:3012`).
+- Occurrences : 1.
+
+## 2026-11-03 — Sept sessions en parallèle saturent la machine
+
+- Symptôme : load average ≈ 38, mémoire presque pleine, `npm install` de 20 min, première compilation de 10 min, deux sessions en échec (« timed out while registering its MCP tools »).
+- Cause : chaque session avait son worktree, son `npm install`, son `next dev` et son navigateur headless.
+- Contournement : une seule branche, un seul serveur à la fois, arrêté après chaque vérification.
+- Occurrences : 1.
+
+## 2026-11-03 — En-tête des ressources : navigation et XP masquées aux largeurs intermédiaires
+
+- Symptôme : après ajout des Ryō et de l’XP, les liens de navigation se chevauchent à 1280 px ; l’XP est masquée sous 1500 px.
+- Cause : la navigation complète conserve trop de colonnes et les anciens seuils cachaient le bloc joueur.
+- Correctif : réutiliser le menu compact sous 1500 px, garder ressources et XP visibles et répartir l’en-tête sur deux rangées sur téléphone.
+- Occurrences : 1.
+- Validation : ressources et XP visibles à 1440 et 390 px, aucun débordement horizontal ; menu mobile, verrous et lien Paramètres testés.
+
+## 2026-11-03 — Styles des contrôles prioritaires sur les nouveaux composants
+
+- Symptôme : « Récupérer » reste gris et le choix du lot déborde à gauche sur téléphone. Les pastilles des filtres perdent leur contour.
+- Cause : spécificité du sélecteur partagé des boutons, grille d’ouverture à deux colonnes trop large, suppression globale des bordures.
+- Correctif : sélecteurs des récompenses dans le shell, une colonne pour les contrôles sur téléphone, contour des pastilles avec outline.
+- Occurrences : 4 (récompenses/filtres, bouton d’ouverture, actions de préparation histoire, puis emplacements sans carte le 2026-11-03).
+- Validation : doré calculé #c4a76d et fond transparent sur « Récupérer » ; commandes ×5/×10 dans la largeur à 390 px ; contours des pastilles présents. Corrigé.
+
+- Complément : `identity.css` redessinait un encadrement via `::after` et `controls.css` ajoutait un fond via `::before`. L’ouverture reçoit désormais un style textuel partagé, assez spécifique pour neutraliser ces deux couches ; son prix reste dans le sélecteur. Le même style partagé `text-action` est réutilisé pour les actions histoire. Les emplacements vides, sans image ni SVG, étaient aussi capturés par le sélecteur des boutons textuels : affichage horizontal et proportions cassées. Le sélecteur explicite `button.hs-card-choice` dans le shell doit rester prioritaire, y compris sans carte.
+
+## 2026-11-03 — Reprise des quatre visuels validés (feedback Lester)
+
+- Branche : `chantier/feedback-lester`, checkout `anime_master-postgres`. Travail séquentiel, un seul Next dev sur 3012.
+- Vérifications navigateur : Ryō/XP/engrenage, menu compact et verrous ; succès individuel puis tout récupérer (versements et persistance) ; quête quotidienne après trois ouvertures (+2 cristaux, persistance), onglet hebdomadaire et exclusion des quêtes inaccessibles ; booster gratuit ×10 unique sans débit ; deux ×5 faisant avancer le boost ; choix ×10 ; animations SSR et UR (UR déclenchée par une fixture de pity sur le compte jetable uniquement) ; album Tous, filtres SSR+Combat, compteur 1/2, effacement, largeurs 1440/390.
+- Vérifications techniques : typecheck, ESLint ciblé, check-achievements et check-periodic-quests réussis.
+- Suite : refonte des cadres reportée à la demande de l’utilisateur ; conserver les cadres actuels du site. Les propositions dans `docs/maquettes/cadres-personnages.html` sont archivées, non validées et ne doivent pas être intégrées. Carte histoire, combat, sons et social restent à traiter avec maquette préalable. Aucun autre agent à relancer ; ne pas publier en production.
+- Complément du 2026-11-03 : quêtes principales Histoire/Découverte rétablies à la demande de l’utilisateur (XP automatique conservée), en plus des périodiques ; filtres, pagination, état accompli après rechargement et lien Histoire testés à 1280/390 px. Bouton d’ouverture transparent et prix uniquement dans le sélecteur, ouverture ×10 et état désactivé pendant la révélation vérifiés, puis reconfirmés après push. Typecheck et lint ciblé réussis. La maquette des cadres est vérifiée à 728/390 px, simulation des cinq raretés et bascule petit/grand testées.
+
+- Itération des cadres : l’utilisateur demande davantage de noir, nuances, textures légères, reflets et contrastes. Maquette révisée avec grain fixe, métal sombre et éclairage des arêtes ; sprite héraldique et couleurs de rareté conservés. Vérifiée à 728/390 px, cinq raretés et bascule petit/grand. Intégration toujours en attente du choix utilisateur.
+
+- Nouvelle itération des cadres : DA sombre appréciée, rareté jugée trop discrète. Sceau héraldique agrandi, libellé de rareté renforcé et conservé à 120 px, arêtes davantage teintées. Simulation des cinq raretés et absence de chevauchement avec le type vérifiées ; maquette seule, en attente du choix A/B avant intégration.
+
+- Itération suivante : noir encore trop dominant selon l’utilisateur. Cadre et cartouche éclaircis et teintés par la rareté ; sceau plein coloré avec emblème et texte foncés. Nuances, grain et reflets conservés. Vérification HTML 728/390 px, cinq raretés et mode compact sans chevauchement réussie ; intégration en attente de validation.
+
+- Décision finale utilisateur sur les cadres (2026-11-03) : « laisser comme avant », propositions non retenues, sujet reporté. Aucune modification des cadres n’a été intégrée à l’application ; conserver son rendu existant et ne pas reprendre cette refonte sans nouvelle demande.
+
+## 2026-11-03 — Reprise histoire : prévisualisation sans nouveau moteur
+
+- Contexte utile : `storyEnemies(universe, level)` produit déjà les quatre ennemis de façon déterministe avec une graine par univers/combat ; Rob Lucci (10) et Doflamingo (15) sont imposés. Réutiliser cette fonction pour le futur écran VS, sans lancer de combat pour obtenir un aperçu.
+- Carte existante : `StoryMap.tsx`, illustrations `public/story-map/`, `StoryDrops` et `StarRewards` réutilisables. L’équipe quatre cartes est déjà enregistrée via `setAttackTeam`. Le duo existe et doit rester accessible depuis la préparation.
+- Maquette dans `docs/maquettes/histoire-parcours.html` : carte ascendante, paliers et objets sous la carte ; clic sur un jalon ouvrant une préparation quatre contre quatre avec puissances, changement de compagnon, composition conservée, duo et aperçu de transition. Données de personnages et ennemis exportées en lecture seule depuis la base dev ; progression d’exemple et aucun combat réel lancé.
+- Validation : aperçu HTML à 728/390 px, sens du chemin et jalons verrouillés, quatre emplacements par camp, sélection sans doublon, retour carte/préparation conservant l’équipe, duo et réserves, entrée/sortie de transition, absence de débordement. Les animations prennent en compte `prefers-reduced-motion`.
+- Statut : parcours validé par l’utilisateur le 2026-11-03 (« je valide »). Intégration en cours ; les cadres restent inchangés.
+
+- Pour l’intégration des puissances : `Character.power` représente la popularité. Réutiliser le calcul du moteur (`equippedCards` / `combatPowers`, avec équipement, éveil et synergies) pour le total réel ; les valeurs de la maquette sont un échantillon de démonstration.
+
+- Intégration histoire : la transition de départ doit passer à l’état visible avant `startTransition` ; à l’intérieur, React peut différer son affichage jusqu’à la fin de l’action serveur et la rendre imperceptible. État urgent avant l’action, durée minimale 550 ms, sans délai si réduction des animations.
+
+- Intégration du parcours validé terminée sur `chantier/feedback-lester` : carte par acte ascendante, récompenses/objets dessous, préparation avec vrais ennemis et puissances du moteur, choix sans doublon, sauvegarde serveur des remplacements à quatre et brouillon/duo par compte dans le navigateur, transition et retour à la carte.
+- Vérifications avant commit : navigateur 1440/1024/390 px ; remplacement, retour carte/préparation et rechargement ; duo/réserves, composition automatique, lancement réel quatre/duo, transition normale et animations réduites, victoire et progression persistée, abandon, erreur d’une carte devenue indisponible ; récompense d’étoiles réclamée puis persistée, navigation des trois actes, Lucci au combat 10 et Doflamingo au 15, fermeture du sélecteur avec Échap, reprise dans Naruto après One Piece.
+- Contrôles : typecheck et ESLint TypeScript réussis, `check-story-map.ts` et nouveau `check-story-preparation.ts` réussis (aperçu sans écriture, verrous, parité des ennemis et puissances avec le moteur, éveil/artefact, quatre/duo), build complet réussi sous Node 24. `graphify update .` réussi ; ses fichiers déjà modifiés avant reprise restent hors du commit de fonctionnalité.
+- Détail de catalogue pour les tests : les noms en base sont « Lucci Rob » et « Doflamingo Donquixote » ; les noms d’affichage des jalons sont dans `STORY_BOSSES`. Identifier les boss par leur `characterId` dans les assertions de données.
+- Suite : maquette du visuel de combat, puis audio, donjons, social et tutoriel, un lot à la fois. Les cadres restent inchangés. Aucun serveur supplémentaire et aucune publication en production.
+
+## 2026-11-03 — Contraste de la carte histoire signalé par l’utilisateur
+
+- Symptôme : « Grand Line » et les légendes des jalons se perdent sur les nuages blancs. Le jalon courant paraît trop simple.
+- Cause : titre blanc sans protection de contraste locale ; légendes posées directement sur l’image claire.
+- Correctif : ombre sombre localisée derrière le titre, texte ivoire/doré ; jalons héraldiques avec sceau intérieur, épées du sprite, numéro et libellés sur fond sombre. Emplacements vides également corrigés à partir des captures utilisateur.
+- Validation : navigateur à 1440/390 px sur compte neuf sans cartes : titre, cinq jalons, verrous, préparation au clic, quatre emplacements verticaux au ratio des cartes et libellés dessous, sélection vide, fermeture Échap, focus clavier et légende du jalon courant non coupée. Typecheck, ESLint ciblé, contrôle de carte et actualisation Graphify réussis. Build complet non relancé pour cette retouche visuelle.

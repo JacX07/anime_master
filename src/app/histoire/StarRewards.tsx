@@ -34,7 +34,7 @@ export function StarRewards({ universe, onClaim }: { universe: UniverseView; onC
               <strong>{t.stars} ★</strong>
               <span>{loot.ryo} Ryō · {loot.crystals} cristaux</span>
               <span>{Object.entries(loot.resources).map(([k, n]) => <span key={k}><ResourceArt resource={k} /> {n} {RESOURCE_NAMES[k] ?? k} </span>)}</span>
-              <button type="button" className="bt-btn" disabled={!ready || pending} onClick={() => claim(t.tier)}>{done ? "Réclamé ✓" : ready ? "Réclamer" : `Encore ${t.stars - total} ★`}</button>
+              <button type="button" className="bt-btn ui-button text-action" disabled={!ready || pending} onClick={() => claim(t.tier)}>{done ? "Réclamé ✓" : ready ? "Réclamer" : `Encore ${t.stars - total} ★`}</button>
             </li>
           );
         })}

@@ -16,10 +16,10 @@ export const ADVENTURE_RANKS = [
 ];
 export const rankForLevel = (level: number) => ADVENTURE_RANKS[Math.min(4, Math.floor((level - 1) / 10))];
 export const ADVENTURE_MODES = [
-  { key: "expeditions", label: "Expéditions", level: 3, worlds: 0, storyLevel: 5, href: "/expeditions", lore: "Un passage stabilisé permet à tes compagnons de partir en reconnaissance." },
+  { key: "expeditions", label: "Expéditions", level: 25, worlds: 0, storyLevel: 5, href: "/expeditions", lore: "Un passage stabilisé permet à tes compagnons de partir en reconnaissance." },
   { key: "dungeon", label: "Donjons", level: 5, worlds: 0, storyLevel: 10, href: "/donjons", lore: "Une anomalie révèle un sanctuaire où les signatures se cristallisent en artefacts." },
-  { key: "tower", label: "Tour multiverselle", level: 8, worlds: 1, storyLevel: 15, href: "/tour", lore: "La Tour reconnaît ton empreinte et t’invite à affronter les échos des autres mondes." },
-  { key: "raid", label: "Raids", level: 12, worlds: 2, storyLevel: 15, href: "/raid", lore: "Ton empreinte peut désormais approcher les entités nées des brèches instables." },
+  { key: "tower", label: "Tour multiverselle", level: 20, worlds: 1, storyLevel: 15, href: "/tour", lore: "La Tour reconnaît ton empreinte et t’invite à affronter les échos des autres mondes." },
+  { key: "raid", label: "Raids", level: 15, worlds: 2, storyLevel: 15, href: "/raid", lore: "Ton empreinte peut désormais approcher les entités nées des brèches instables." },
 ] as const;
 export type AdventureMode = typeof ADVENTURE_MODES[number]["key"];
 export type Quest = { key: string; title: string; description: string; xp: number; done: boolean; href: string; group: "Histoire" | "Découverte" | "Succès"; available: boolean };

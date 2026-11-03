@@ -23,6 +23,13 @@ export class ConcurrentOpeningError extends Error {
   }
 }
 
+/** Le booster de bienvenue a déjà été récupéré (une seule fois par compte, SPEC collection §8 ter). */
+export class WelcomeBoosterClaimedError extends Error {
+  constructor() {
+    super("Ton booster de bienvenue a déjà été récupéré.");
+  }
+}
+
 export interface OpenedCard {
   cardId: string;
   characterId: number;
@@ -49,17 +56,19 @@ export interface PlayerPackState {
   nextCrystalAt: string | null;
   cardsSinceSSR: number;
   cardsSinceUR: number;
+  /** Cartes tirées depuis la dernière invocation boostée (la 10ᵉ est boostée) */
+  cardsSinceBoost: number;
   /** Puissance totale de la collection (somme de la puissance de chaque carte) */
   collectionPower: number;
   /** Boutique : solde en Ryō, prix d'un cristal et cristaux encore achetables aujourd'hui */
   balance: number;
   crystalPrice: number;
   crystalsLeft: number;
-  /** Cristaux spéciaux (bannières spéciales) */
-  specialCrystals: number;
   /** Tirages de bienvenue restants et bannière choisie (null tant que le joueur n'a pas choisi) */
   welcomeDraws: number;
   welcomeBannerId: string | null;
+  /** Booster de bienvenue ×10 encore à récupérer */
+  welcomeBoosterAvailable: boolean;
 }
 
 export interface OpenedPack {
@@ -75,12 +84,13 @@ const USER_PACK_FIELDS = {
   crystalsUpdatedAt: true,
   cardsSinceSSR: true,
   cardsSinceUR: true,
+  cardsSinceBoost: true,
   balance: true,
   crystalsBoughtToday: true,
   crystalsBoughtDate: true,
-  specialCrystals: true,
   welcomeDraws: true,
   welcomeBannerId: true,
+  welcomeBoosterClaimedAt: true,
 } as const;
 
 export async function getPackState(userId: string, now = new Date()): Promise<PlayerPackState> {
@@ -91,13 +101,14 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     nextCrystalAt: stock.nextCrystalAt?.toISOString() ?? null,
     cardsSinceSSR: user.cardsSinceSSR,
     cardsSinceUR: user.cardsSinceUR,
+    cardsSinceBoost: user.cardsSinceBoost,
     collectionPower: await getCollectionPower(userId),
     balance: user.balance,
     crystalPrice: CRYSTAL_PRICE,
     crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
-    specialCrystals: user.specialCrystals,
     welcomeDraws: user.welcomeDraws,
     welcomeBannerId: user.welcomeBannerId,
+    welcomeBoosterAvailable: user.welcomeBoosterClaimedAt === null,
   };
 }
 
@@ -107,17 +118,26 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
  * est passée entre-temps, aucune ligne ne correspond et la transaction est annulée.
  */
 export async function openPack(userId: string, size: LotSize = 5, rng: Random = secureRandom, bannerId: string | null = null): Promise<OpenedPack> {
+  return openLot(userId, size, rng, bannerId, false);
+}
+
+/** Booster de bienvenue ×10 : gratuit, une seule fois par compte, tout le catalogue, une SSR ou une UR garantie (SPEC collection §8 ter). */
+export async function openWelcomeBooster(userId: string, rng: Random = secureRandom): Promise<OpenedPack> {
+  return openLot(userId, 10, rng, null, true);
+}
+
+async function openLot(userId: string, size: LotSize, rng: Random, bannerId: string | null, welcomeBooster: boolean): Promise<OpenedPack> {
   const opened = await prisma.$transaction(async (tx) => {
     const now = new Date();
     const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
+    if (welcomeBooster && user.welcomeBoosterClaimedAt) throw new WelcomeBoosterClaimedError();
     const banner = bannerId ? await tx.banner.findUnique({ where: { id: bannerId }, select: { id: true, key: true, costKind: true, weight: true, startsAt: true, endsAt: true } }) : null;
     if (bannerId && (!banner || !isBannerOpen(banner, now))) throw new BannerError("Cette bannière n'est plus disponible.");
 
-    // Ce que le lot coûte : cristaux normaux, cristaux spéciaux ou tirages de bienvenue. Le pity, lui, est commun à tout.
+    // Ce que le lot coûte : cristaux normaux ou tirages de bienvenue. Le pity, lui, est commun à tout.
     let payment: Prisma.UserUpdateManyMutationInput = {};
-    if (banner?.costKind === "SPECIAL") {
-      if (user.specialCrystals < size) throw new BannerError(`Il te faut ${size} cristaux spéciaux pour cette bannière.`);
-      payment = { specialCrystals: user.specialCrystals - size };
+    if (welcomeBooster) {
+      payment = { welcomeBoosterClaimedAt: now };
     } else if (banner?.costKind === "WELCOME") {
       if (user.welcomeBannerId && user.welcomeBannerId !== banner.id) throw new BannerError("Tu as déjà choisi ta bannière de bienvenue.");
       if (!user.welcomeBannerId && !WELCOME_KEYS.includes(banner.key)) throw new BannerError("Cette bannière de bienvenue n'est plus proposée.");
@@ -128,7 +148,8 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
       payment = afterSpend(user.crystals, user.crystalsUpdatedAt, now, size);
     }
 
-    const roll = rollLot(user, size, rng);
+    const roll = rollLot(user, size, rng, welcomeBooster);
+    // `...user` inclut `welcomeBoosterClaimedAt` : si le booster vient d'être récupéré par une autre requête, rien ne correspond
     const updated = await tx.user.updateMany({
       where: { id: userId, ...user },
       data: { ...payment, ...roll.next },
@@ -170,9 +191,6 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
     );
 
     const opening = await tx.packOpening.create({ data: { userId, pityTriggered: roll.pity, lotSize: size, bannerId: banner?.id ?? null }, select: { id: true } });
-    if (banner?.costKind === "SPECIAL") {
-      await tx.specialCrystalLedger.create({ data: { userId, amount: -size, reason: "BANNER_SPEND", refId: opening.id } });
-    }
 
     const cards: OpenedCard[] = [];
     for (const [i, card] of roll.cards.entries()) {
@@ -234,16 +252,16 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
         balance: user.balance,
         crystalPrice: CRYSTAL_PRICE,
         crystalsLeft: crystalsLeft(user.crystalsBoughtToday, user.crystalsBoughtDate, now),
-        specialCrystals: (payment.specialCrystals as number | undefined) ?? user.specialCrystals,
         welcomeDraws: (payment.welcomeDraws as number | undefined) ?? user.welcomeDraws,
         welcomeBannerId: (payment.welcomeBannerId as string | undefined) ?? user.welcomeBannerId,
+        welcomeBoosterAvailable: user.welcomeBoosterClaimedAt === null && !welcomeBooster,
       },
     };
   });
   const rarities: Record<string, number> = {};
   for (const c of opened.cards) rarities[c.rarity] = (rarities[c.rarity] ?? 0) + 1;
   await track("pack_open", userId, {
-    lotSize: opened.lotSize, bannerId, pity: opened.pity, rarities,
+    lotSize: opened.lotSize, bannerId, welcomeBooster, pity: opened.pity, rarities,
     newCards: opened.cards.filter((c) => c.isNew).length, finishes: opened.cards.filter((c) => c.finish !== "NORMAL").length,
   });
   return opened;

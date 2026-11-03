@@ -458,15 +458,42 @@ export async function getTeam(userId: string, kind: TeamKind) {
 }
 export const getAttackTeam = (userId: string) => getTeam(userId, "ATTACK");
 
-async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnType<typeof getAttackTeam>>[number]>[]) {
+async function fitCards(userId: string, slots: NonNullable<Awaited<ReturnType<typeof getAttackTeam>>[number]>[]) {
   const artifacts = await prisma.artifact.findMany({ where: { userId, equippedCardId: { in: slots.map((s) => s.id) } } });
-  const fitted = slots.map((card) => {
+  return slots.map((card) => {
     const worn = artifacts.filter((a) => a.equippedCardId === card.id && SET_KEYS.includes(a.setKey));
     const stats = sumArtifactStats(worn);
     return { ...card, artifactStats: stats };
   });
+}
+
+async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnType<typeof getAttackTeam>>[number]>[]) {
+  const fitted = await fitCards(userId, slots);
   const powers = combatPowers(fitted.map((c) => ({ ...toBattleCard(c.character, c.stars, c.weaponKey), artifactStats: c.artifactStats })));
   return fitted.map((c, index) => ({ ...c, character: { ...c.character, power: powers[index] } }));
+}
+
+/** Collection de préparation : mêmes équipements et statistiques que le lancement réel. */
+export async function getStoryRoster(userId: string) {
+  const cards = await prisma.card.findMany({
+    where: { ownerId: userId, inAuction: false },
+    orderBy: [{ character: { power: "desc" } }, { id: "asc" }],
+    select: { id: true, ownerId: true, stars: true, weaponKey: true, finish: true, character: { select: { ...CHARACTER_SELECT, name: true, imageUrl: true } } },
+  });
+  const fitted = await fitCards(userId, cards);
+  return fitted.map((c) => ({ id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, stars: c.stars, finish: c.finish,
+    combat: { ...toBattleCard(c.character, c.stars, c.weaponKey), artifactStats: c.artifactStats },
+  }));
+}
+
+/** Lecture seule : l'aperçu ne crée ni combat ni récompense. */
+export async function getStoryPreview(userId: string, key: string, level: number) {
+  const story = parseStory(storyKey(key, level));
+  if (!story) throw new BattleError("Combat d'histoire inconnu.");
+  await checkStoryAccess(userId, story.universe, story.level);
+  const cards = await storyEnemies(story.universe, story.level);
+  const characters = await prisma.character.findMany({ where: { id: { in: cards.map((c) => c.characterId) } }, select: { id: true, name: true, imageUrl: true } });
+  return cards.map((combat) => ({ ...characters.find((c) => c.id === combat.characterId)!, id: String(combat.characterId), combat }));
 }
 
 export async function equipArtifact(userId: string, artifactId: string, cardId: string | null) {

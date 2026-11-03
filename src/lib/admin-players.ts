@@ -38,7 +38,7 @@ export async function listPlayers(q: string, sort: SortKey, page: number) {
 export async function playerSheet(id: string) {
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, username: true, role: true, bannedAt: true, banReason: true, balance: true, crystals: true, specialCrystals: true, cardsSinceSSR: true, cardsSinceUR: true, createdAt: true, welcomeDraws: true },
+    select: { id: true, username: true, role: true, bannedAt: true, banReason: true, balance: true, crystals: true, cardsSinceSSR: true, cardsSinceUR: true, createdAt: true, welcomeDraws: true },
   });
   if (!user) return null;
   const [lastSeen, packs, battles, achievements, byRarity, cards, ledger, openings, recentBattles, audit] = await Promise.all([

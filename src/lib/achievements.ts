@@ -1,55 +1,64 @@
 // Succès (SPEC étape 4, §6) : définis dans le code, vérifiés après chaque événement. Chacun ne se débloque qu'une fois
-// (clé primaire userId + key) et crédite ses Ryō dans le journal (reason ACHIEVEMENT), dans la même transaction.
+// (clé primaire userId + key). Le déblocage n'attribue rien : la récompense (Ryō + cristaux normaux selon le palier) se
+// récupère une seule fois par `claimAchievement`, dans une transaction verrouillée (docs/specs/economie.md).
 
+import { afterGain } from "./crystal-stock";
 import { loadAnimeIndex } from "./anime";
 import { prisma } from "./db";
 import { track } from "./events";
 import { notify } from "./notifications";
 
+export type Tier = "facile" | "moyen" | "difficile" | "légendaire";
+
+/** Cristaux normaux offerts à la récupération, selon la difficulté (docs/specs/economie.md, « Succès et quêtes périodiques »). */
+export const CRYSTALS_BY_TIER: Record<Tier, number> = { facile: 5, moyen: 10, difficile: 25, légendaire: 50 };
+
 export interface AchievementDef {
   key: string;
   label: string;
   description: string;
+  /** Ryō versés à la récupération */
   reward: number;
+  tier: Tier;
   /** Titre débloqué avec ce succès : on en équipe un seul, affiché à côté du pseudo */
   title: string;
-  /** Cristaux spéciaux offerts (≈ 100 au total sur la vie d'un compte, SPEC étape 4 bis §6) */
-  special?: number;
   /** Seuil de puissance de collection, doublons compris. */
   powerRequired?: number;
 }
 
+export const crystalsOf = (def: AchievementDef) => CRYSTALS_BY_TIER[def.tier];
+
 export const ACHIEVEMENTS: AchievementDef[] = [
-  { key: "power_100k", label: "L’éveil de la puissance", title: "Aura naissante", description: "Atteindre 100 000 de puissance de collection (doublons compris).", powerRequired: 100_000, reward: 100 },
-  { key: "power_500k", label: "Une force qui compte", title: "Force montante", description: "Atteindre 500 000 de puissance de collection (doublons compris).", powerRequired: 500_000, reward: 250 },
-  { key: "power_1m", label: "Le cap du million", title: "Puissance déchaînée", description: "Atteindre 1 000 000 de puissance de collection (doublons compris).", powerRequired: 1_000_000, reward: 500 },
-  { key: "power_5m", label: "Au-delà des limites", title: "Briseur de limites", description: "Atteindre 5 000 000 de puissance de collection (doublons compris).", powerRequired: 5_000_000, reward: 1000 },
-  { key: "power_10m", label: "Force colossale", title: "Colosse", description: "Atteindre 10 000 000 de puissance de collection (doublons compris).", powerRequired: 10_000_000, reward: 2000 },
-  { key: "power_50m", label: "Domination absolue", title: "Souverain de puissance", description: "Atteindre 50 000 000 de puissance de collection (doublons compris).", powerRequired: 50_000_000, reward: 5000 },
-  { key: "power_100m", label: "Une puissance mythique", title: "Force de la nature", description: "Atteindre 100 000 000 de puissance de collection (doublons compris).", powerRequired: 100_000_000, reward: 10000 },
-  { key: "first_pack", label: "Premier paquet", title: "Recrue", description: "Ouvrir ton premier paquet.", reward: 20 },
-  { key: "first_ssr", label: "Éclat doré", title: "Étoile montante", description: "Obtenir une première carte SSR.", reward: 50, special: 5 },
-  { key: "first_ur", label: "Rouge légendaire", title: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200, special: 10 },
-  { key: "first_holo", label: "Reflets", title: "Prisme", description: "Obtenir une première Holo.", reward: 30 },
-  { key: "first_gold", label: "Pur or", title: "Main d'or", description: "Obtenir une première Gold.", reward: 300, special: 10 },
-  { key: "unique_100", label: "Collectionneur", title: "Collectionneur", description: "Posséder 100 personnages différents.", reward: 100, special: 5 },
-  { key: "unique_500", label: "Archiviste", title: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300, special: 10 },
-  { key: "unique_1000", label: "Conservateur", title: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800, special: 15 },
-  { key: "unique_2500", label: "Maître des cartes", title: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000, special: 25 },
+  { key: "power_100k", label: "L’éveil de la puissance", title: "Aura naissante", description: "Atteindre 100 000 de puissance de collection (doublons compris).", powerRequired: 100_000, reward: 100, tier: "facile" },
+  { key: "power_500k", label: "Une force qui compte", title: "Force montante", description: "Atteindre 500 000 de puissance de collection (doublons compris).", powerRequired: 500_000, reward: 250, tier: "moyen" },
+  { key: "power_1m", label: "Le cap du million", title: "Puissance déchaînée", description: "Atteindre 1 000 000 de puissance de collection (doublons compris).", powerRequired: 1_000_000, reward: 500, tier: "moyen" },
+  { key: "power_5m", label: "Au-delà des limites", title: "Briseur de limites", description: "Atteindre 5 000 000 de puissance de collection (doublons compris).", powerRequired: 5_000_000, reward: 1000, tier: "difficile" },
+  { key: "power_10m", label: "Force colossale", title: "Colosse", description: "Atteindre 10 000 000 de puissance de collection (doublons compris).", powerRequired: 10_000_000, reward: 2000, tier: "difficile" },
+  { key: "power_50m", label: "Domination absolue", title: "Souverain de puissance", description: "Atteindre 50 000 000 de puissance de collection (doublons compris).", powerRequired: 50_000_000, reward: 5000, tier: "légendaire" },
+  { key: "power_100m", label: "Une puissance mythique", title: "Force de la nature", description: "Atteindre 100 000 000 de puissance de collection (doublons compris).", powerRequired: 100_000_000, reward: 10000, tier: "légendaire" },
+  { key: "first_pack", label: "Premier paquet", title: "Recrue", description: "Ouvrir ton premier paquet.", reward: 20, tier: "facile" },
+  { key: "first_ssr", label: "Éclat doré", title: "Étoile montante", description: "Obtenir une première carte SSR.", reward: 50, tier: "moyen" },
+  { key: "first_ur", label: "Rouge légendaire", title: "Rouge légendaire", description: "Obtenir une première carte UR.", reward: 200, tier: "difficile" },
+  { key: "first_holo", label: "Reflets", title: "Prisme", description: "Obtenir une première Holo.", reward: 30, tier: "facile" },
+  { key: "first_gold", label: "Pur or", title: "Main d'or", description: "Obtenir une première Gold.", reward: 300, tier: "difficile" },
+  { key: "unique_100", label: "Collectionneur", title: "Collectionneur", description: "Posséder 100 personnages différents.", reward: 100, tier: "moyen" },
+  { key: "unique_500", label: "Archiviste", title: "Archiviste", description: "Posséder 500 personnages différents.", reward: 300, tier: "difficile" },
+  { key: "unique_1000", label: "Conservateur", title: "Conservateur", description: "Posséder 1 000 personnages différents.", reward: 800, tier: "difficile" },
+  { key: "unique_2500", label: "Maître des cartes", title: "Maître des cartes", description: "Posséder 2 500 personnages différents.", reward: 2000, tier: "légendaire" },
   // Récompenses provisoires, à équilibrer (SPEC §6). Seuls comptent les anime listés dans l'album (au moins 5 personnages).
-  { key: "series_complete_1", label: "Anime complet", title: "Fan", description: "Compléter un anime : posséder tous ses personnages (au moins 5).", reward: 150, special: 3 },
-  { key: "series_complete_5", label: "Cinq collections", title: "Otaku", description: "Compléter 5 anime.", reward: 500, special: 1 },
-  { key: "series_complete_10", label: "Bibliothécaire", title: "Sage des anime", description: "Compléter 10 anime.", reward: 1500, special: 1 },
-  { key: "all_types", label: "Tous les types", title: "Polyvalent", description: "Posséder au moins un personnage de chaque type.", reward: 50, special: 5 },
-  { key: "duel_win_1", label: "Premier duel", title: "Rival", description: "Gagner un duel.", reward: 30 },
-  { key: "duel_win_10", label: "Duelliste", title: "Duelliste", description: "Gagner 10 duels.", reward: 150 },
-  { key: "duel_win_50", label: "Champion", title: "Champion", description: "Gagner 50 duels.", reward: 500, special: 5 },
-  { key: "first_auction_sale", label: "Première vente", title: "Marchand", description: "Vendre une carte aux enchères.", reward: 30 },
-  { key: "first_expedition", label: "Première expédition", title: "Éclaireur", description: "Récupérer le butin d'une première expédition.", reward: 20 },
-  { key: "expeditions_5", label: "Explorateur", title: "Explorateur", description: "Récupérer 5 expéditions (débloque un 2ᵉ emplacement).", reward: 100 },
-  { key: "expeditions_20", label: "Chef d'expédition", title: "Chef d'expédition", description: "Récupérer 20 expéditions (débloque un 3ᵉ emplacement).", reward: 300 },
-  { key: "first_triumph", label: "Triomphe", title: "Héros de l'arc", description: "Réussir une expédition en triomphe.", reward: 50 },
-  { key: "first_trade", label: "Premier échange", title: "Négociant", description: "Conclure un échange avec un joueur.", reward: 30, special: 5 },
+  { key: "series_complete_1", label: "Anime complet", title: "Fan", description: "Compléter un anime : posséder tous ses personnages (au moins 5).", reward: 150, tier: "moyen" },
+  { key: "series_complete_5", label: "Cinq collections", title: "Otaku", description: "Compléter 5 anime.", reward: 500, tier: "difficile" },
+  { key: "series_complete_10", label: "Bibliothécaire", title: "Sage des anime", description: "Compléter 10 anime.", reward: 1500, tier: "légendaire" },
+  { key: "all_types", label: "Tous les types", title: "Polyvalent", description: "Posséder au moins un personnage de chaque type.", reward: 50, tier: "moyen" },
+  { key: "duel_win_1", label: "Premier duel", title: "Rival", description: "Gagner un duel.", reward: 30, tier: "facile" },
+  { key: "duel_win_10", label: "Duelliste", title: "Duelliste", description: "Gagner 10 duels.", reward: 150, tier: "moyen" },
+  { key: "duel_win_50", label: "Champion", title: "Champion", description: "Gagner 50 duels.", reward: 500, tier: "difficile" },
+  { key: "first_auction_sale", label: "Première vente", title: "Marchand", description: "Vendre une carte aux enchères.", reward: 30, tier: "facile" },
+  { key: "first_expedition", label: "Première expédition", title: "Éclaireur", description: "Récupérer le butin d'une première expédition.", reward: 20, tier: "facile" },
+  { key: "expeditions_5", label: "Explorateur", title: "Explorateur", description: "Récupérer 5 expéditions (débloque un 2ᵉ emplacement).", reward: 100, tier: "moyen" },
+  { key: "expeditions_20", label: "Chef d'expédition", title: "Chef d'expédition", description: "Récupérer 20 expéditions (débloque un 3ᵉ emplacement).", reward: 300, tier: "difficile" },
+  { key: "first_triumph", label: "Triomphe", title: "Héros de l'arc", description: "Réussir une expédition en triomphe.", reward: 50, tier: "moyen" },
+  { key: "first_trade", label: "Premier échange", title: "Négociant", description: "Conclure un échange avec un joueur.", reward: 30, tier: "facile" },
 ];
 
 /** État du joueur dont dépendent les succès. */
@@ -134,8 +143,9 @@ async function gather(userId: string): Promise<AchievementFacts> {
 }
 
 /**
- * Débloque les succès atteints par ce joueur et renvoie ceux qui viennent de l'être.
- * Chaque déblocage a sa propre transaction : si deux vérifications se croisent, la clé primaire n'en laisse passer qu'une.
+ * Débloque les succès atteints par ce joueur et renvoie ceux qui viennent de l'être. Aucune récompense ici : elle se
+ * récupère ensuite (`claimAchievement`). Chaque déblocage a sa propre transaction : si deux vérifications se croisent,
+ * la clé primaire n'en laisse passer qu'une.
  */
 export async function checkAchievements(userId: string): Promise<AchievementDef[]> {
   const [facts, have] = await Promise.all([gather(userId), prisma.userAchievement.findMany({ where: { userId }, select: { key: true } })]);
@@ -147,13 +157,7 @@ export async function checkAchievements(userId: string): Promise<AchievementDef[
     try {
       await prisma.$transaction(async (tx) => {
         await tx.userAchievement.create({ data: { userId, key } });
-        await tx.user.update({ where: { id: userId }, data: { balance: { increment: def.reward } } });
-        await tx.currencyLedger.create({ data: { userId, amount: def.reward, reason: "ACHIEVEMENT", refId: key } });
-        if (def.special) {
-          await tx.user.update({ where: { id: userId }, data: { specialCrystals: { increment: def.special } } });
-          await tx.specialCrystalLedger.create({ data: { userId, amount: def.special, reason: "ACHIEVEMENT", refId: key } });
-        }
-        await notify(tx, userId, "ACHIEVEMENT", { label: def.label, amount: def.reward, special: def.special ?? 0 });
+        await notify(tx, userId, "ACHIEVEMENT", { label: def.label, amount: def.reward, crystals: crystalsOf(def) });
       });
       unlocked.push(def);
       await track("achievement", userId, { key });
@@ -163,6 +167,31 @@ export async function checkAchievements(userId: string): Promise<AchievementDef[
     }
   }
   return unlocked;
+}
+
+export class AchievementError extends Error {}
+
+/**
+ * Récupère une seule fois la récompense d'un succès débloqué. Le verrou sur le joueur sérialise les demandes simultanées
+ * (double clic) ; le journal (`reason = ACHIEVEMENT`, `refId` = clé) fait foi : un succès déjà payé renvoie `claimed: false`,
+ * y compris ceux payés avant ce changement.
+ */
+export async function claimAchievement(userId: string, key: string, now = new Date()) {
+  const def = ACHIEVEMENTS.find((a) => a.key === key);
+  if (!def) throw new AchievementError("Succès inconnu.");
+  return prisma.$transaction(async (tx) => {
+    // Postgres : sérialise les demandes concurrentes de ce joueur.
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+    const unlocked = await tx.userAchievement.findUnique({ where: { userId_key: { userId, key } }, select: { key: true } });
+    if (!unlocked) throw new AchievementError("Ce succès n’est pas encore débloqué.");
+    const paid = await tx.currencyLedger.findFirst({ where: { userId, reason: "ACHIEVEMENT", refId: key }, select: { id: true } });
+    if (paid) return { claimed: false as const, ryo: 0, crystals: 0 };
+    const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { crystals: true, crystalsUpdatedAt: true } });
+    const crystals = crystalsOf(def);
+    await tx.user.update({ where: { id: userId }, data: { balance: { increment: def.reward }, ...afterGain(user.crystals, user.crystalsUpdatedAt, now, crystals) } });
+    await tx.currencyLedger.create({ data: { userId, amount: def.reward, reason: "ACHIEVEMENT", refId: key } });
+    return { claimed: true as const, ryo: def.reward, crystals };
+  });
 }
 
 /** Vérification sans jamais faire échouer l'action qui l'a provoquée. */
@@ -177,9 +206,13 @@ export async function checkAchievementsSafe(...userIds: string[]) {
 }
 
 export async function listAchievements(userId: string) {
-  const rows = await prisma.userAchievement.findMany({ where: { userId }, select: { key: true, unlockedAt: true } });
+  const [rows, paid] = await Promise.all([
+    prisma.userAchievement.findMany({ where: { userId }, select: { key: true, unlockedAt: true } }),
+    prisma.currencyLedger.findMany({ where: { userId, reason: "ACHIEVEMENT", refId: { in: ACHIEVEMENTS.map((a) => a.key) } }, select: { refId: true } }),
+  ]);
   const at = new Map(rows.map((r) => [r.key, r.unlockedAt]));
-  return ACHIEVEMENTS.map((a) => ({ ...a, unlockedAt: at.get(a.key) ?? null }));
+  const claimed = new Set(paid.map((p) => p.refId));
+  return ACHIEVEMENTS.map((a) => ({ ...a, crystals: crystalsOf(a), unlockedAt: at.get(a.key) ?? null, claimed: claimed.has(a.key) }));
 }
 
 /** Titre associé à une clé de succès (null si la clé est inconnue). */

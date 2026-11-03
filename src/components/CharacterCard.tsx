@@ -15,6 +15,7 @@ export interface CharacterCardProps {
   defense: number;
   /** Puissance : stat de popularité, indépendante d'ATK et DEF */
   power: number;
+  powerTitle?: string;
   series?: string | null;
   finish?: Finish;
   serial?: number;
@@ -39,6 +40,7 @@ export function CharacterCard({
   attack,
   defense,
   power,
+  powerTitle = "Puissance (popularité)",
   series,
   finish = "NORMAL",
   serial,
@@ -77,7 +79,7 @@ export function CharacterCard({
         </div>
         {!missing && (
           <div className="card-stats">
-            <span className="card-power" title="Puissance (popularité)">
+            <span className="card-power" title={powerTitle}>
               <Icon name="puissance" style={{ "--acc": "currentColor" } as React.CSSProperties} />
               {powerFmt.format(power)}
             </span>

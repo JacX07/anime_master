@@ -15,24 +15,22 @@ export interface Breach {
   favored: CardType[];
   ryo: number;
   crystals: number;
-  /** Chance de base d'un cristal spécial (réussite) */
-  special: number;
 }
 
 // Équilibrage validé le 2026-10-17 (simulation par équipes types) : une Faille est à la portée de 3 N une fois sur deux,
 // une Brèche de 1 SR + 2 R, un Gouffre de 1 SSR + 2 SR environ deux fois sur trois. Repères de puissance : R ≈ 1 100, SR ≈ 4 500, SSR ≈ 16 000, UR ≈ 49 000.
 export const BREACHES: Breach[] = [
-  { id: "faille-echo", name: "Lycée Jujutsu de Tokyo", tier: "Faille", hours: 1, threshold: 650, favored: ["MAGIE"], ryo: 10, crystals: 0, special: 0,
+  { id: "faille-echo", name: "Lycée Jujutsu de Tokyo", tier: "Faille", hours: 1, threshold: 650, favored: ["MAGIE"], ryo: 10, crystals: 0,
     lore: "Les élèves du lycée y exorcisent leurs premières malédictions. Une sortie d'entraînement qui peut mal tourner." },
-  { id: "faille-neon", name: "Tenkaichi Budokai", tier: "Faille", hours: 1, threshold: 650, favored: ["COMBAT"], ryo: 10, crystals: 0, special: 0,
+  { id: "faille-neon", name: "Tenkaichi Budokai", tier: "Faille", hours: 1, threshold: 650, favored: ["COMBAT"], ryo: 10, crystals: 0,
     lore: "Le grand tournoi d'arts martiaux : un ring, des poings et un public qui hurle." },
-  { id: "breche-archives", name: "Porte de la Vérité", tier: "Brèche", hours: 6, threshold: 6000, favored: ["MYSTERE", "MAGIE"], ryo: 70, crystals: 1, special: 0.05,
+  { id: "breche-archives", name: "Porte de la Vérité", tier: "Brèche", hours: 6, threshold: 6000, favored: ["MYSTERE", "MAGIE"], ryo: 70, crystals: 1,
     lore: "Un seuil d'où personne ne revient intact. L'échange équivalent se paie toujours." },
-  { id: "breche-horizon", name: "Grand Line", tier: "Brèche", hours: 6, threshold: 6000, favored: ["AVENTURE", "COEUR"], ryo: 70, crystals: 1, special: 0.05,
+  { id: "breche-horizon", name: "Grand Line", tier: "Brèche", hours: 6, threshold: 6000, favored: ["AVENTURE", "COEUR"], ryo: 70, crystals: 1,
     lore: "La route la plus dangereuse de la mer : des îles folles, des rivaux et un trésor au bout." },
-  { id: "gouffre-signal", name: "Royaume des Fourmis-Chimères", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["COMBAT", "AVENTURE"], ryo: 200, crystals: 3, special: 0.2,
+  { id: "gouffre-signal", name: "Royaume des Fourmis-Chimères", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["COMBAT", "AVENTURE"], ryo: 200, crystals: 3,
     lore: "Un royaume de monstres qui évolue à chaque victime. Seuls des chasseurs hors pair en reviennent." },
-  { id: "gouffre-nexus", name: "Sous-sol de Shiganshina", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["MYSTERE", "COEUR"], ryo: 200, crystals: 3, special: 0.2,
+  { id: "gouffre-nexus", name: "Sous-sol de Shiganshina", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["MYSTERE", "COEUR"], ryo: 200, crystals: 3,
     lore: "La cave où dort la vérité sur les Titans. Y entrer, c'est apprendre ce qu'on aurait préféré ignorer." },
 ];
 export const breachById = (id: string) => BREACHES.find((b) => b.id === id);
@@ -46,7 +44,6 @@ export const FAIL_SHARE = 0.25;
 export const LUCK = 0.3;
 export const DAILY_RYO_CAP = 600; // SPEC §4 : ~600 Ryō par jour d'expéditions
 export const DAILY_CRYSTAL_CAP = 10;
-export const WEEKLY_SPECIAL_CAP = 10;
 
 /** Générateur déterministe (mulberry32) : la graine du lancement suffit à rejouer le résultat. */
 export function seeded(seed: number) {
@@ -60,17 +57,16 @@ export function seeded(seed: number) {
   };
 }
 
-export interface Loot { outcome: "FAIL" | "SUCCESS" | "TRIUMPH"; ratio: number; ryo: number; crystals: number; special: number }
+export interface Loot { outcome: "FAIL" | "SUCCESS" | "TRIUMPH"; ratio: number; ryo: number; crystals: number }
 
 /** Résultat brut d'une expédition (avant les plafonds quotidiens et hebdomadaires). Pur : testable sans base. */
 export function resolve(breach: Breach, team: { type: CardType; power: number }[], seed: number): Loot {
   const rand = seeded(seed);
   const score = team.reduce((n, c) => n + c.power * (breach.favored.includes(c.type) ? FAVORED_BONUS : 1) * (1 - LUCK + 2 * LUCK * rand()), 0);
   const ratio = score / breach.threshold;
-  if (ratio < 1) return { outcome: "FAIL", ratio, ryo: Math.round(breach.ryo * FAIL_SHARE), crystals: 0, special: 0 };
+  if (ratio < 1) return { outcome: "FAIL", ratio, ryo: Math.round(breach.ryo * FAIL_SHARE), crystals: 0 };
   const m = Math.min(3, ratio);
   const crystals = breach.crystals + (breach.crystals > 0 && rand() < (m - 1) / 2 ? 1 : 0);
-  const special = rand() < Math.min(1, breach.special * m) ? 1 : 0;
-  return { outcome: ratio >= 1.5 ? "TRIUMPH" : "SUCCESS", ratio, ryo: Math.round(breach.ryo * (1 + 0.25 * (m - 1))), crystals, special };
+  return { outcome: ratio >= 1.5 ? "TRIUMPH" : "SUCCESS", ratio, ryo: Math.round(breach.ryo * (1 + 0.25 * (m - 1))), crystals };
 }
 

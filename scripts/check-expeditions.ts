@@ -2,7 +2,7 @@
 // Usage : npm run check:expeditions   (Node 24)
 
 import { prisma } from "../src/lib/db";
-import { BREACHES, claimExpedition, DAILY_CRYSTAL_CAP, DAILY_RYO_CAP, ExpeditionError, resolve, slotsFor, startExpedition, WEEKLY_SPECIAL_CAP, readyCount, breachById } from "../src/lib/expeditions";
+import { BREACHES, claimExpedition, DAILY_CRYSTAL_CAP, DAILY_RYO_CAP, ExpeditionError, resolve, slotsFor, startExpedition, readyCount, breachById } from "../src/lib/expeditions";
 import { sellCard, SaleError } from "../src/lib/wallet";
 
 let failures = 0;
@@ -17,7 +17,7 @@ async function main() {
   const gouffre = breachById("gouffre-signal")!, faille = breachById("faille-echo")!;
   const strong = [{ type: "COMBAT" as const, power: 40000 }, { type: "AVENTURE" as const, power: 40000 }];
   check("Même graine = même résultat", JSON.stringify(resolve(gouffre, strong, 42)) === JSON.stringify(resolve(gouffre, strong, 42)));
-  check("Équipe faible : échec, 25 % des Ryō, rien d'autre", (() => { const r = resolve(gouffre, [{ type: "COMBAT", power: 100 }], 7); return r.outcome === "FAIL" && r.ryo === Math.round(gouffre.ryo * 0.25) && r.crystals === 0 && r.special === 0; })());
+  check("Équipe faible : échec, 25 % des Ryō, rien d'autre", (() => { const r = resolve(gouffre, [{ type: "COMBAT", power: 100 }], 7); return r.outcome === "FAIL" && r.ryo === Math.round(gouffre.ryo * 0.25) && r.crystals === 0; })());
   check("Équipe très forte : triomphe, Ryō × 1,5 au plus", (() => { const r = resolve(faille, [{ type: "MAGIE", power: 100000 }], 3); return r.outcome === "TRIUMPH" && r.ryo === Math.round(faille.ryo * 1.5); })());
   check("Emplacements : 1 au début, 2 à 5 expéditions, 3 à 20", slotsFor(0) === 1 && slotsFor(4) === 1 && slotsFor(5) === 2 && slotsFor(19) === 2 && slotsFor(20) === 3);
   for (const b of BREACHES) {
@@ -76,11 +76,9 @@ async function main() {
       return claimExpedition(uid, e.id);
     };
     await prisma.user.update({ where: { id: uid }, data: { expeditionsDone: 20 } });
-    let ryo = exp.ryo, crystals = exp.crystals, special = exp.special;
-    for (let i = 0; i < 12; i++) { const r = await big(); ryo += r.ryo; crystals += r.crystals; special += r.special; }
-    check(`Plafonds respectés sur 12 gouffres (Ryō ≤ ${DAILY_RYO_CAP}, cristaux ≤ ${DAILY_CRYSTAL_CAP}, spéciaux ≤ ${WEEKLY_SPECIAL_CAP})`, ryo <= DAILY_RYO_CAP && crystals <= DAILY_CRYSTAL_CAP && special <= WEEKLY_SPECIAL_CAP, `${ryo} Ryō, ${crystals} cristaux, ${special} spéciaux`);
-    const ledgerSpecial = (await prisma.specialCrystalLedger.aggregate({ where: { userId: uid, reason: "EXPEDITION" }, _sum: { amount: true } }))._sum.amount ?? 0;
-    check("Journal des cristaux spéciaux cohérent", ledgerSpecial === special);
+    let ryo = exp.ryo, crystals = exp.crystals;
+    for (let i = 0; i < 12; i++) { const r = await big(); ryo += r.ryo; crystals += r.crystals; }
+    check(`Plafonds respectés sur 12 gouffres (Ryō ≤ ${DAILY_RYO_CAP}, cristaux ≤ ${DAILY_CRYSTAL_CAP})`, ryo <= DAILY_RYO_CAP && crystals <= DAILY_CRYSTAL_CAP, `${ryo} Ryō, ${crystals} cristaux`);
     const ach = (await prisma.userAchievement.findMany({ where: { userId: uid }, select: { key: true } })).map((a) => a.key);
     check("Succès d'expédition débloqués", ["first_expedition", "expeditions_5", "expeditions_20"].every((k) => ach.includes(k)), ach.filter((k) => k.includes("exped")).join(", "));
     void user;

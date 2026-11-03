@@ -23,7 +23,8 @@ export interface AlbumFilters {
   q: string;
   rarity: Rarity | null;
   type: CardType | null;
-  owned: OwnedFilter;
+  /** null : aucun filtre de possession (vue « mondes » par défaut) ; « all » (Tous) : tous les personnages, possédés ou non */
+  owned: OwnedFilter | null;
   /** Clé d'un anime de l'album (identifiant de sa franchise) ou d'un bloc « autres-N » ; vide : tous */
   anime: string;
   sort: WorldSort;
@@ -41,7 +42,7 @@ export function parseAlbumFilters(params: RawParams): AlbumFilters {
     q: one(params.q).trim().slice(0, 80),
     rarity: pick(RARITY_ORDER, one(params.rarity)),
     type: pick(TYPE_ORDER, one(params.type)),
-    owned: pick(OWNED_FILTERS, one(params.owned)) ?? "all",
+    owned: pick(OWNED_FILTERS, one(params.owned)),
     anime: /^(\d{1,9}|autres-\d{1,4})$/.test(one(params.anime)) ? one(params.anime) : "",
     sort: pick(WORLD_SORTS, one(params.sort)) ?? "power",
     page: Number.isFinite(page) && page > 1 ? page : 1,
@@ -179,7 +180,7 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   const rank = new Map(all.map((c) => [c.id, c]));
 
 
-  if (!selected && !f.q && !f.rarity && !f.type && f.owned === "all") {
+  if (!selected && !f.q && !f.rarity && !f.type && f.owned === null) {
     const idsOf = new Map<string, number[]>();
     for (const a of animeIndex.listed) idsOf.set(String(a.key), a.characterIds);
     for (const b of animeIndex.blocks) idsOf.set(b.key, b.animes.flatMap((a) => a.characterIds));

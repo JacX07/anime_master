@@ -14,6 +14,8 @@ import { NotificationBell } from "../NotificationBell";
 import { NavItem } from "./NavItem";
 import { PlayMenu } from "./PlayMenu";
 import { Navigation } from "./Navigation";
+import { Icon } from "../icons";
+import { PVP_AVAILABLE } from "@/lib/feature-flags";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -38,7 +40,9 @@ export function SiteHeader() {
           <NavItem href="/inventaire" match={["/forge", "/eveil"]}>Inventaire</NavItem>
           <NavItem href="/equipe">Squads</NavItem>
         </div>
-        <PlayMenu />
+        <Suspense fallback={<PlayMenu />}>
+          <PlayMenuWithLocks />
+        </Suspense>
         <div className="mq-nav-side mq-nav-right">
           <div className="mq-nav-dropdown">
             <NavItem href="/quetes" match={["/guide"]}>Quêtes <span>⌄</span></NavItem>
@@ -56,15 +60,10 @@ export function SiteHeader() {
           </div>
           <NavItem href="/leaderboard">Classement</NavItem>
           <NavItem href="/achievements">Succès</NavItem>
-          <NavItem href="/parametres">Paramètres</NavItem>
         </div>
       </nav>
       </Navigation>
       <div className="mq-header-actions">
-        <div className="mq-season-mark">
-          <small>SAISON I</small>
-          <span>LA FAILLE</span>
-        </div>
         <Suspense fallback={null}>
           <Account />
         </Suspense>
@@ -85,19 +84,29 @@ async function Account() {
     );
   }
   const [wallet, packs, adventure, title, staff] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id)]);
+  const xpPct = adventure.next === null ? 100 : Math.max(0, Math.min(100, Math.round(((adventure.xp - adventure.floor) / (adventure.next - adventure.floor)) * 100)));
   return (
     <>
       <Suspense fallback={null}>
         <NotificationBell userId={user.id} />
       </Suspense>
+      <Link href="/parametres" className="mq-gear" aria-label="Paramètres" title="Paramètres"><Icon name="parametres" /></Link>
       <div className="mq-nav-dropdown mq-account">
         <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player" aria-label={`Profil de ${user.username}`}>
           <span className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`}>{user.username.slice(0, 2).toUpperCase()}</span>
           <span className="mq-player-text">
             <b>{user.username}</b>
             {title && <small>{title}</small>}
-            <small>Arpenteur niv. {adventure.level}</small>
             <small>Puissance {num.format(packs.collectionPower)}</small>
+            <span className="mq-wallet" aria-label="Ressources">
+              <span className="mq-wallet-ryo"><Icon name="ryo" />{num.format(wallet.balance)}<em>Ryō</em></span>
+              <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" />{packs.available}</span>
+            </span>
+            <span className="mq-xp" role="progressbar" aria-label="Expérience d'Arpenteur" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xpPct}>
+              <em>NIV {adventure.level}</em>
+              <i><b style={{ width: `${xpPct}%` }} /></i>
+              {adventure.next !== null && <small>{num.format(adventure.xp - adventure.floor)} / {num.format(adventure.next - adventure.floor)}</small>}
+            </span>
           </span>
         </Link>
         <form action={signOut} className="mq-dropdown-panel mq-account-panel">
@@ -108,6 +117,7 @@ async function Account() {
             <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
+          <Link href="/parametres">Paramètres</Link>
           {staff && <Link href="/admin">Administration</Link>}
           <button type="submit">Se déconnecter</button>
         </form>
@@ -128,4 +138,20 @@ async function equippedTitle(userId: string): Promise<string | null> {
 async function isStaff(userId: string): Promise<boolean> {
   const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
   return !!u && u.role !== "player";
+}
+
+/** Raison pour laquelle un mode du menu « Jouer » est fermé, par identifiant de carte (absent : ouvert). */
+async function PlayMenuWithLocks() {
+  const user = await getSessionUser();
+  const locks: Record<string, string> = {};
+  if (!PVP_AVAILABLE) { locks.pvp = "Pas encore disponible"; locks.live = "Pas encore disponible"; }
+  if (user) {
+    const adventure = await getAdventure(user.id);
+    const ids = { expeditions: "expeditions", dungeon: "dungeons", raid: "raids", tower: "tower" } as const;
+    for (const mode of adventure.modes) {
+      if (mode.unlocked) continue;
+      locks[ids[mode.key]] = adventure.level < mode.level ? `Niveau ${mode.level} requis` : "Progresse dans l’histoire";
+    }
+  }
+  return <PlayMenu locks={locks} />;
 }

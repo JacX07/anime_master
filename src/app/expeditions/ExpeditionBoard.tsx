@@ -12,7 +12,7 @@ import { TYPE_LABELS } from "@/lib/labels";
 const num = new Intl.NumberFormat("fr-FR");
 interface Card { id: string; name: string; rarity: Rarity; type: CardType; power: number; imageUrl: string }
 interface Open { id: string; breachId: string; endsAt: string; team: { name: string; imageUrl: string; rarity: Rarity }[] }
-interface Past { id: string; breachId: string; outcome: string | null; ryo: number; crystals: number; special: number; claimedAt: string | null }
+interface Past { id: string; breachId: string; outcome: string | null; ryo: number; crystals: number; claimedAt: string | null }
 const OUTCOME = { FAIL: "Échec", SUCCESS: "Réussite", TRIUMPH: "Triomphe" } as const;
 
 function left(ms: number) {
@@ -60,7 +60,7 @@ export function ExpeditionBoard({ slots, done, nextSlotAt, breaches, cards, open
   });
   const claim = (id: string) => start(async () => {
     const r = await claimExpeditionAction(id);
-    if (r.ok) { setReport(`${r.breach} — ${OUTCOME[r.outcome as keyof typeof OUTCOME]} : +${num.format(r.ryo)} Ryō${r.crystals ? `, +${r.crystals} cristal${r.crystals > 1 ? "ux" : ""}` : ""}${r.special ? `, +${r.special} cristal spécial` : ""}.`); setError(null); router.refresh(); } else setError(r.error);
+    if (r.ok) { setReport(`${r.breach} — ${OUTCOME[r.outcome as keyof typeof OUTCOME]} : +${num.format(r.ryo)} Ryō${r.crystals ? `, +${r.crystals} cristal${r.crystals > 1 ? "ux" : ""}` : ""}.`); setError(null); router.refresh(); } else setError(r.error);
   });
 
   return (
@@ -144,7 +144,7 @@ export function ExpeditionBoard({ slots, done, nextSlotAt, breaches, cards, open
           <ul className="exp-history">
             {history.map((h) => (
               <li key={h.id}>
-                <b>{breaches.find((b) => b.id === h.breachId)?.name}</b> — {OUTCOME[h.outcome as keyof typeof OUTCOME] ?? "?"} : +{num.format(h.ryo)} Ryō{h.crystals ? `, +${h.crystals} cristaux` : ""}{h.special ? `, +${h.special} spécial` : ""}
+                <b>{breaches.find((b) => b.id === h.breachId)?.name}</b> — {OUTCOME[h.outcome as keyof typeof OUTCOME] ?? "?"} : +{num.format(h.ryo)} Ryō{h.crystals ? `, +${h.crystals} cristaux` : ""}
               </li>
             ))}
           </ul>

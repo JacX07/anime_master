@@ -36,6 +36,8 @@ export type Random = () => number;
 export interface PityState {
   cardsSinceSSR: number;
   cardsSinceUR: number;
+  /** Cartes tirées depuis la dernière carte boostée (0 à 9) */
+  cardsSinceBoost: number;
 }
 
 export interface PulledCard {
@@ -54,7 +56,7 @@ export interface LotRoll {
 const R_OR_BETTER: Rarity[] = ["R", "SR", "SSR", "UR"];
 const SSR_OR_BETTER: Rarity[] = ["SSR", "UR"];
 
-/** 10ᵉ carte du ×10 : au moins R, avec des gains dégressifs (SR ×3, SSR ×2,5, UR ×2, SPEC étape 4 bis §3). */
+/** 10ᵉ invocation (une sur 10, quel que soit le format du lot) : au moins R, avec des gains dégressifs (SR ×3, SSR ×2,5, UR ×2, SPEC étape 4 bis §3). */
 export const TENTH_CARD_RATES: [Rarity, number][] = [
   ["R", 0.6875],
   ["SR", 0.24],
@@ -85,9 +87,11 @@ const ratesAmong = (rarities: Rarity[]) => RARITY_RATES.filter(([r]) => rarities
  * Tire un lot de 5 ou 10 cartes, carte par carte, avec les garanties de la spec dans cet ordre :
  * 1. pity UR (500ᵉ carte sans UR) ; 2. pity SSR (75ᵉ carte sans SSR ou mieux) ;
  * 3. 5ᵉ carte de chaque bloc de 5 : R ou mieux si les 4 précédentes sont toutes N ;
- * 4. 10ᵉ carte du ×10 : table dégressive, à la place de la règle 3 pour cette carte.
+ * 4. 10ᵉ invocation (compteur persistant `cardsSinceBoost`, valable en ×1, ×5 et ×10) : table dégressive, à la place de la règle 3 pour cette carte.
+ * `guaranteeSSR` (booster de bienvenue, SPEC collection §8 ter) : si aucune carte n'est SSR ou mieux
+ * avant la dernière, la dernière est tirée parmi SSR et UR. Passe après les règles 1 et 2.
  */
-export function rollLot(state: PityState, size: LotSize, rng: Random = secureRandom): LotRoll {
+export function rollLot(state: PityState, size: LotSize, rng: Random = secureRandom, guaranteeSSR = false): LotRoll {
   let sinceSSR = state.cardsSinceSSR;
   let sinceUR = state.cardsSinceUR;
   let pity: PityTrigger = "NONE";
@@ -97,8 +101,9 @@ export function rollLot(state: PityState, size: LotSize, rng: Random = secureRan
     const endOfBlock = (i + 1) % 5 === 0;
     const blockAllN = rarities.slice(i - 4).every((r) => r === "N");
     let table = RARITY_RATES;
-    if (size === 10 && i === 9) table = TENTH_CARD_RATES;
+    if ((state.cardsSinceBoost + i) % 10 === 9) table = TENTH_CARD_RATES;
     else if (endOfBlock && blockAllN) table = ratesAmong(R_OR_BETTER);
+    if (guaranteeSSR && i === size - 1 && !rarities.some((r) => SSR_OR_BETTER.includes(r))) table = ratesAmong(SSR_OR_BETTER);
 
     let rarity: Rarity;
     if (sinceUR >= UR_PITY - 1) {
@@ -119,7 +124,7 @@ export function rollLot(state: PityState, size: LotSize, rng: Random = secureRan
   return {
     cards: rarities.map((rarity) => ({ rarity, finish: weightedPick(FINISH_RATES, rng) })),
     pity,
-    next: { cardsSinceSSR: sinceSSR, cardsSinceUR: sinceUR },
+    next: { cardsSinceSSR: sinceSSR, cardsSinceUR: sinceUR, cardsSinceBoost: (state.cardsSinceBoost + size) % 10 },
   };
 }
 

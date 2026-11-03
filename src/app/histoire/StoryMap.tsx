@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { ResourceArt } from "@/components/ResourceArt";
+import { Icon } from "@/components/icons";
 import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES, STORY_BOSSES } from "@/lib/story";
 import { storyResume } from "@/lib/story-map";
 import type { UniverseView } from "./StoryBoard";
@@ -7,142 +8,59 @@ import { STORY_ART } from "./story-art";
 import { StoryDrops } from "./StoryDrops";
 import { StarRewards } from "./StarRewards";
 
-const points = [[130, 70], [270, 125], [430, 150], [535, 215], [370, 265]];
-const route = "M130 0V70C130 96 212 125 270 125S365 150 430 150 535 175 535 215 440 265 370 265 130 276 130 320";
-const name = (key: string) => RESOURCE_NAMES[key] ?? key;
+const points = [[180, 365], [355, 320], [475, 240], [315, 160], [200, 70]];
+const route = "M180 365C180 345 355 350 355 320S475 280 475 240 315 200 315 160 200 115 200 70";
 
-export function StoryMap({ universes, stock, ready, chosenTeamSize, pending, onFight, onClaim }: {
+export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
   universes: UniverseView[];
   stock: Record<string, number>;
-  ready: boolean;
-  chosenTeamSize: number;
   pending: boolean;
-  onFight: (level: number, universe: UniverseView) => void;
+  onPrepare: (level: number, universe: UniverseView) => void;
   onClaim?: (universe: string, tier: number) => Promise<{ ok: boolean; error?: string }>;
 }) {
   const resume = storyResume(universes);
-  const [selected, setSelected] = useState(resume);
   const [position, setPosition] = useState({ key: resume?.key ?? universes[0]?.key, act: Math.ceil((resume?.level ?? 1) / 5) });
-  const viewport = useRef<HTMLDivElement>(null);
-  const u = universes.find((x) => x.key === selected?.key);
-
-  function centerNode(key: string, level: number) {
-    const root = viewport.current;
-    const target = root?.querySelector<HTMLElement>(`[data-universe="${key}"][data-level="${level}"]`);
-    if (root && target) root.scrollTop += target.getBoundingClientRect().top - root.getBoundingClientRect().top - root.clientHeight / 2;
-  }
-
-  const resumeKey = resume?.key;
-  const resumeLevel = resume?.level;
-  useEffect(() => {
-    if (resumeKey && resumeLevel) centerNode(resumeKey, resumeLevel);
-  }, [resumeKey, resumeLevel]);
-
-  // Le repère suit le défilement sans changer la sélection du combat.
-  useEffect(() => {
-    const root = viewport.current;
-    if (!root) return;
-    let frame = 0;
-    function update() {
-      const line = root!.getBoundingClientRect().top + 100;
-      let current: HTMLElement | undefined;
-      for (const act of root!.querySelectorAll<HTMLElement>("[data-act]")) {
-        if (!current || act.getBoundingClientRect().top <= line) current = act;
-        else break;
-      }
-      if (current) setPosition({ key: current.dataset.key!, act: Number(current.dataset.act) });
-    }
-    function scroll() {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
-    }
-    root.addEventListener("scroll", scroll, { passive: true });
-    scroll();
-    return () => { root.removeEventListener("scroll", scroll); cancelAnimationFrame(frame); };
-  }, []);
-
-  const visible = universes.find((x) => x.key === position.key);
-  const n = selected?.level ?? 1;
-  const open = !!u?.unlocked && n <= u.maxLevel + 1;
-  const accessible = universes.filter((world) => world.unlocked);
-  const totalStars = accessible.reduce((sum, world) => sum + Object.values(world.stars).reduce((n, stars) => n + stars, 0), 0);
-  const maxStars = accessible.reduce((sum, world) => sum + Math.min(LEVELS, world.maxLevel + 1) * 3, 0);
+  const world = universes.find((u) => u.key === position.key) ?? universes[0];
+  if (!world) return null;
+  const { act } = position;
+  const art = STORY_ART[world.key];
+  const level = Math.min(Math.max(world.maxLevel + 1, (act - 1) * 5 + 1), act * 5);
+  const stars = Object.values(world.stars).reduce((sum, n) => sum + n, 0);
+  const open = world.unlocked && level <= world.maxLevel + 1;
   return (
-    <section className="hs-map" aria-label="Parcours du mode histoire">
+    <section className="hs-map hs-map-parcours" aria-label="Parcours du mode histoire">
       <header className="hs-map-toolbar">
-        <p>Un seul chemin à travers les {universes.length} univers.</p>
-        <p className="hs-star-total" aria-label={`Total : ${totalStars} étoile${totalStars === 1 ? "" : "s"} sur ${maxStars} possibles dans les univers débloqués`} title="Chaque combat vaut jusqu’à 3 étoiles.">{totalStars} / {maxStars} étoiles</p>
-        <button className="bt-btn" type="button" onClick={() => {
-          if (resume) { setSelected(resume); centerNode(resume.key, resume.level); }
-        }}>Ma progression</button>
+        <label>Univers <select aria-label="Univers" value={world.key} onChange={(e) => {
+          const u = universes.find((x) => x.key === e.target.value)!;
+          setPosition({ key: u.key, act: Math.ceil(Math.min(u.maxLevel + 1, LEVELS) / 5) });
+        }}>{universes.map((u) => <option key={u.key} value={u.key}>{u.name}{u.unlocked ? "" : " · Verrouillé"}</option>)}</select></label>
+        <div className="hs-actions" role="group" aria-label="Actes">{[1, 2, 3].map((n) => <button key={n} type="button" className="ui-button text-action" aria-pressed={act === n} disabled={!world.unlocked || world.maxLevel < (n - 1) * 5} onClick={() => setPosition({ ...position, act: n })}>Acte {n}</button>)}</div>
+        <button type="button" className="ui-button text-action" onClick={() => resume && setPosition({ key: resume.key, act: Math.ceil(resume.level / 5) })}>Ma progression</button>
       </header>
-      {visible && <StarRewards key={visible.key} universe={visible} onClaim={onClaim} />}
-      <div className="hs-map-viewport" ref={viewport} tabIndex={0} role="region" aria-label="Carte continue, défilement vertical">
-        <nav className="hs-map-tracker" aria-label="Position sur la carte">
-          <span>Univers {visible?.rank ?? 1} · Acte {position.act}</span>
-          <label>
-            <span className="sr-only">Rejoindre un univers</span>
-            <select value={position.key} onChange={(e) => centerNode(e.target.value, 1)}>
-              {universes.map((x) => <option key={x.key} value={x.key}>{x.rank}. {x.name}{!x.unlocked ? " · Verrouillé" : ""}</option>)}
-            </select>
-          </label>
-        </nav>
-        {universes.map((world) => (
-          <section key={world.key} className="hs-map-world" aria-label={`Univers ${world.rank} : ${world.name}`} style={{
-            "--hs-color": STORY_ART[world.key]?.color ?? "#80b4ff",
-            "--hs-art": `url("${STORY_ART[world.key]?.background ?? `/story-map/${world.key}.svg`}")`,
-          } as CSSProperties}>
-            <header className="hs-map-world-head">
-              <small>Univers {world.rank}{world.kind === "collision" ? " · Collision" : ""}{!world.unlocked ? " · Verrouillé" : ""}</small>
-              <h2>{world.name}</h2>
-              <p>{STORY_ART[world.key]?.location}</p>
-            </header>
-            {[1, 2, 3].map((act) => {
-              const art = STORY_ART[world.key]?.acts?.[act];
-              return (
-              <div key={act} className="hs-map-act" data-key={world.key} data-act={act} style={art ? { "--hs-art": `url("${art.background}")` } as CSSProperties : undefined}>
-                <h3>Acte {act}<small>{art?.location ?? (act === 3 ? "Vers le boss final" : act === 2 ? "Au cœur de l’univers" : "Entrée dans l’univers")}</small></h3>
-                <svg className="hs-map-route" viewBox="0 0 720 320" preserveAspectRatio="none" aria-hidden="true">
-                  <path d={route} stroke="#081323" strokeWidth="9" opacity=".8" />
-                  <path d={route} stroke={world.maxLevel >= act * 5 ? "#d5bb7f" : "#a1b7d4"} strokeWidth="2.5" strokeDasharray="3 8" opacity=".7" />
-                </svg>
-                {points.map(([x, y], i) => {
-                  const level = (act - 1) * 5 + i + 1;
-                  const done = level <= world.maxLevel;
-                  const stars = world.stars[level] ?? 0;
-                  const current = world.key === resumeKey && level === resumeLevel;
-                  const unlocked = world.unlocked && level <= world.maxLevel + 1;
-                  return (
-                    <button key={level} type="button" data-universe={world.key} data-level={level}
-                      className={`hs-map-node${done ? " is-done" : ""}${current ? " is-current" : ""}${isBoss(level) ? " is-boss" : ""}${isFinalBoss(level) ? " is-final" : ""}`}
-                      style={{ left: `${x / 720 * 100}%`, top: y }}
-                      aria-current={current ? "step" : undefined}
-                      aria-pressed={selected?.key === world.key && n === level}
-                      aria-label={`${world.name}${STORY_BOSSES[world.key]?.[level] ? ` · ${STORY_BOSSES[world.key][level].name}` : ""}, acte ${act}, ${isFinalBoss(level) ? "boss final" : isBoss(level) ? "boss d’acte" : "combat"} ${level}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}, ${stars} étoile${stars === 1 ? " pleine" : "s pleines"}, ${3 - stars} étoile${3 - stars === 1 ? " vide" : "s vides"}`}
-                      onClick={() => setSelected({ key: world.key, level })}>
-                      {isBoss(level) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }} /> : done ? "✓" : level}
-                      <small>{isFinalBoss(level) ? "Boss final" : isBoss(level) ? "Boss d’acte" : current ? "Vous êtes ici" : `${world.rank}-${level}`}{isBoss(level) && done ? " ✓" : ""}<span className="hs-node-stars" title={`${stars} étoile${stars === 1 ? " pleine" : "s pleines"}, ${3 - stars} étoile${3 - stars === 1 ? " vide" : "s vides"}`}>{"★".repeat(stars)}{"☆".repeat(3 - stars)}</span>{STORY_BOSSES[world.key]?.[level] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][level].name}</span>}</small>
-                    </button>
-                  );
-                })}
-              </div>
-              );
-            })}
-          </section>
-        ))}
-        <footer className="hs-map-end">Le bout du voyage · {universes.length} univers · {universes.length * LEVELS} combats</footer>
+      <div className={`hs-map-scene${world.unlocked ? "" : " is-locked"}`} role="group" aria-label="Carte ascendante : départ en bas, boss en haut" style={{ "--hs-art": `url("${art?.acts?.[act]?.background ?? art?.background ?? `/story-map/${world.key}.svg`}")` } as CSSProperties}>
+        <div className="hs-map-location"><h2>{art?.acts?.[act]?.location ?? art?.location ?? world.name}</h2><p>{world.name} · Acte {act}{world.unlocked ? "" : " · Verrouillé"}</p></div>
+        <svg className="hs-map-route" viewBox="0 0 680 440" preserveAspectRatio="none" aria-hidden="true"><path d={route} stroke="#111b17" strokeWidth="9"/><path d={route} stroke="#a7b9a3" strokeWidth="2" strokeDasharray="3 8"/></svg>
+        {points.map(([x, y], i) => {
+          const n = (act - 1) * 5 + i + 1;
+          const unlocked = world.unlocked && n <= world.maxLevel + 1;
+          const done = n <= world.maxLevel;
+          const current = world.key === resume?.key && n === resume.level;
+          const count = world.stars[n] ?? 0;
+          return <button key={n} type="button" data-universe={world.key} data-level={n} disabled={!unlocked || pending}
+            className={`hs-map-node${done ? " is-done" : ""}${current ? " is-current" : ""}${isBoss(n) ? " is-boss" : ""}${isFinalBoss(n) ? " is-final" : ""}`}
+            style={{ left: `${x / 680 * 100}%`, top: `${y / 440 * 100}%` }} aria-current={current ? "step" : undefined}
+            aria-label={`${world.name}, combat ${n}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}, ${count} étoiles`}
+            onClick={() => onPrepare(n, world)}>
+            <span className="hs-node-face" aria-hidden="true">{isBoss(n) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }}/> : <><Icon name={!unlocked ? "lock" : done ? "valider" : "atk"}/><b>{n}</b></>}</span>
+            <small>{isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}<span className="hs-node-stars">{done ? "★".repeat(count) + "☆".repeat(3 - count) : current ? "Vous êtes ici" : ""}</span>{STORY_BOSSES[world.key]?.[n] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][n].name}</span>}</small>
+          </button>;
+        })}
       </div>
-      {u && selected && <section className="hs-map-selection" aria-live="polite">
-        <div>
-          <small>Univers {u.rank} · Acte {Math.ceil(n / 5)} · Combat {n}</small>
-          <h3>{u.name}{STORY_BOSSES[u.key]?.[n] ? ` · ${STORY_BOSSES[u.key][n].name}` : ""} · {isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}</h3>
-          <p>Ennemis : {u.mixes[n - 1]?.join(" · ")} · ×{u.startScale.toFixed(2).replace(".", ",")} à ×{u.difficulty.toFixed(2).replace(".", ",")} des stats de leur rareté{u.rank === 1 ? " (tutoriel)" : ""}.</p>
-          <StoryDrops universeKey={u.key} level={n} cleared={n <= u.maxLevel} />
-          <p className="hs-map-stock"><ResourceArt resource={u.resource} />{name(u.resource)} : {stock[u.resource] ?? 0} · <ResourceArt resource="fragment-de-signature" />{stock["fragment-de-signature"] ?? 0} fragments · <ResourceArt resource={u.weaponResource} />{name(u.weaponResource)} : {stock[u.weaponResource] ?? 0}</p>
-          <p>{!u.unlocked ? "Termine l’univers précédent pour débloquer celui-ci." : !open ? "Remporte le combat précédent pour débloquer ce jalon." : !ready ? chosenTeamSize === 0 ? "Compose une équipe de 4 cartes pour combattre." : "Choisis exactement deux personnages pour lancer le duo." : n <= u.maxLevel ? "Combat terminé · Rejouable" : "Prochain combat disponible"}</p>
-        </div>
-        <button className="bt-btn" type="button" disabled={!open || !ready || pending} onClick={() => onFight(n, u)}>{!open ? "Verrouillé" : pending ? "Chargement…" : n <= u.maxLevel ? "Rejouer" : "Combattre"}</button>
-      </section>}
+      <div className="hs-map-hint"><p>{stars} / 45 étoiles · {world.maxLevel} combats terminés</p><button type="button" className="ui-button text-action" disabled={!open || pending} onClick={() => onPrepare(level, world)}>{pending ? "Chargement…" : !world.unlocked ? "Univers verrouillé" : `Préparer le combat ${level}`}</button></div>
+      {!world.unlocked && <p className="hs-team-note">Termine l’univers précédent pour débloquer celui-ci.</p>}
+      <StarRewards key={world.key} universe={world} onClaim={onClaim}/>
+      <section className="hs-map-objects" aria-label="Objets de cet univers"><h2>Objets de cet univers</h2><p>Les quantités et bonus de première victoire s’affichent à la préparation.</p><div className="hs-object-list">{[world.resource, "fragment-de-signature", world.weaponResource].map((key) => <div key={key}><ResourceArt resource={key} size={32}/><span>{RESOURCE_NAMES[key] ?? key}<small>{key === world.weaponResource ? "Boss final · garanti" : "50 % par unité d’éveil"} · Stock : {stock[key] ?? 0}</small></span></div>)}</div></section>
+      <details className="hs-map-loot"><summary>Butin du combat {level}</summary><StoryDrops universeKey={world.key} level={level} cleared={level <= world.maxLevel}/></details>
     </section>
   );
 }

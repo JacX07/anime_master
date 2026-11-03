@@ -5,6 +5,7 @@ import { Money } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { listAchievements } from "@/lib/achievements";
 import { requireUser } from "@/lib/session";
+import { ClaimButton } from "./ClaimButton";
 
 export const metadata: Metadata = { title: "Succès — Anime Masters" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
@@ -34,12 +35,14 @@ async function Achievements({ searchParams }: { searchParams: PageProps<"/achiev
   const asked = Array.isArray(raw) ? raw[0] : raw;
   const tab = TABS.some(([k]) => k === asked) ? asked : "tous";
   const shown = list.filter((a) => (tab === "debloques" ? a.unlockedAt : tab === "a-debloquer" ? !a.unlockedAt : true));
+  const toClaim = list.filter((a) => a.unlockedAt && !a.claimed);
   const count = { tous: list.length, "a-debloquer": list.length - done, debloques: done };
   return (
     <div className="vt-inner">
       <header className="pg-head">
         <h1 className="vt-title">Succès</h1>
-        <p className="vt-sub">{done} sur {list.length} débloqués. Chaque succès rapporte des Ryō, et parfois des cristaux spéciaux, une seule fois.</p>
+        <p className="vt-sub">{done} sur {list.length} débloqués. Chaque succès rapporte des Ryō et des cristaux, une seule fois.</p>
+        {toClaim.length > 1 && <ClaimButton keys={toClaim.map((a) => a.key)} label={`Tout récupérer (${toClaim.length})`} />}
       </header>
       <div className="pg-tabs">
         <nav aria-label="Succès">
@@ -53,15 +56,16 @@ async function Achievements({ searchParams }: { searchParams: PageProps<"/achiev
       </div>
       <ul className="ach-grid">
         {shown.map((a) => (
-          <li key={a.key} data-done={a.unlockedAt !== null}>
+          <li key={a.key} data-done={a.unlockedAt !== null} data-ready={!!a.unlockedAt && !a.claimed}>
             <b>{a.label}</b>
             <span className="vt-muted">{a.description}</span>
             <span className="vt-muted">Titre : {a.title}</span>
             <span className="ach-foot">
               <Money n={a.reward} />
-              {a.special ? <span className="vt-muted">+{a.special} cristaux spéciaux</span> : null}
+              <span className="vt-muted">+{a.crystals} cristaux</span>
               {a.unlockedAt && <time className="vt-muted">{dateFmt.format(a.unlockedAt)}</time>}
             </span>
+            {a.unlockedAt && (a.claimed ? <span className="ach-claimed">✓ Récupéré</span> : <ClaimButton keys={[a.key]} />)}
           </li>
         ))}
       </ul>

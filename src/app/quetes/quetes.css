@@ -40,3 +40,24 @@
 .quest-page :is(a, button):focus-visible { outline: 2px solid #c4a76d; outline-offset: 4px; }
 @media(max-width: 900px) { .quest-identity, .quest-next { flex-wrap: wrap; gap: 1.2rem; } .quest-xp { flex: 1 1 15rem; } .quest-modes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media(max-width: 550px) { .quest-recommendations, .quest-modes { grid-template-columns: 1fr; } .quest-list li { flex-wrap: wrap; } .quest-list li > div { flex-basis: 100%; } .quest-identity, .quest-next { padding: 1rem; } }
+
+/* Quêtes quotidiennes et hebdomadaires (maquette validée le 2026-11-03, variante A) */
+.qp-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid #20262a; }
+.qp-tabs { display: flex; gap: 1.2rem; }
+.qp-tabs .ui-button { padding-bottom: .9rem; }
+.qp-tabs .ui-button[data-active="true"]::after { transform: scaleX(1); }
+.qp-badge { margin-left: .5rem; padding: 1px 7px; border-radius: 10px; background: #c4a76d; color: #17130a; font-size: .7rem; font-weight: 600; letter-spacing: 0; }
+.qp-sub { color: #8d887a; font-size: .75rem; margin: .8rem 0; }
+.qp-error { color: #e0856e; font-size: .8rem; }
+.qp-list { list-style: none; margin: 0; padding: 0; }
+.qp-list li { display: flex; align-items: center; gap: 1rem; padding: .85rem .6rem; border-bottom: 1px solid #20262a; }
+.qp-list li[data-ready="true"] { background: linear-gradient(90deg, #c4a76d21, transparent 65%); }
+.qp-meta { flex: 1; min-width: 0; }
+.qp-meta > b { display: block; font-weight: 500; }
+.qp-meta > small { color: #8d887a; }
+.qp-bar { display: block; height: 4px; margin-top: .4rem; background: #252a28; }
+.qp-bar b { display: block; height: 100%; background: #655331; }
+.qp-reward { display: inline-flex; align-items: center; gap: .35rem; color: #7fc4e6; font-weight: 500; white-space: nowrap; }
+.qp-reward .i { width: 15px; height: 15px; }
+.qp-state { color: #8d887a; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.qp-done { color: #7fbf8f; }

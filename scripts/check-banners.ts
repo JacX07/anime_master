@@ -3,8 +3,6 @@
 // Usage : npm run check:banners   (Node 24)
 
 import { prisma } from "../src/lib/db";
-import { checkAchievements } from "../src/lib/achievements";
-import { ACHIEVEMENTS } from "../src/lib/achievements";
 import { ensureBanners, listBanners, PERMANENT_KEYS, WELCOME_KEYS } from "../src/lib/banners";
 import { BannerError, NoPackAvailableError, openPack } from "../src/lib/packs";
 
@@ -91,21 +89,16 @@ async function main() {
     const opening = await prisma.packOpening.findFirst({ where: { userId: ids[1] } });
     check("Le lot enregistre sa bannière", opening?.bannerId === waifu.id);
 
-    // --- Bannière d'événement : cristaux spéciaux, journal ---
+    // --- Bannière d'événement : payée en cristaux normaux ---
     const media = await prisma.characterMedia.findFirstOrThrow({ select: { mediaId: true } });
     const evChars = await prisma.characterMedia.findMany({ where: { mediaId: media.mediaId, character: { disabled: false } }, select: { characterId: true }, distinct: ["characterId"] });
-    const sp = await prisma.banner.create({ data: { key: `event-test-${stamp}`, name: "Événement test", description: "", category: "event", costKind: "SPECIAL", weight: 1, startsAt: new Date(now.getTime() - 3600_000), endsAt: new Date(now.getTime() + 86400_000), characters: { createMany: { data: evChars } } } });
+    const sp = await prisma.banner.create({ data: { key: `event-test-${stamp}`, name: "Événement test", description: "", category: "event", costKind: "NORMAL", weight: 1, startsAt: new Date(now.getTime() - 3600_000), endsAt: new Date(now.getTime() + 86400_000), characters: { createMany: { data: evChars } } } });
     tempBanners.push(sp.id);
-    check("Un événement en cours est proposé", (await listBanners({ welcomeDraws: 0, welcomeBannerId: null })).some((b) => b.id === sp.id && b.costKind === "SPECIAL"));
-    await make(ids[2], { crystals: 50, specialCrystals: 7 });
-    check("Pas assez de cristaux spéciaux (7 < 10) : refusé, rien consommé", (await rejects(() => openPack(ids[2], 10, undefined, sp.id), BannerError)) && (await prisma.user.findUniqueOrThrow({ where: { id: ids[2] } })).specialCrystals === 7);
-    await prisma.user.update({ where: { id: ids[2] }, data: { specialCrystals: 12 } });
+    check("Un événement en cours est proposé", (await listBanners({ welcomeDraws: 0, welcomeBannerId: null })).some((b) => b.id === sp.id && b.category === "event"));
+    await make(ids[2], { crystals: 50 });
     const s1 = await openPack(ids[2], 10, undefined, sp.id);
     note(s1.cards);
-    const u2 = await prisma.user.findUniqueOrThrow({ where: { id: ids[2] } });
-    check("×10 spécial : 10 cristaux spéciaux dépensés, cristaux normaux intacts", s1.state.specialCrystals === 2 && u2.specialCrystals === 2 && s1.state.available === 50);
-    const ledger = await prisma.specialCrystalLedger.findMany({ where: { userId: ids[2] } });
-    check("Journal spécial : −10 (BANNER_SPEND) lié au lot", ledger.length === 1 && ledger[0].amount === -10 && ledger[0].reason === "BANNER_SPEND");
+    check("×10 événement : 10 cristaux normaux dépensés", s1.state.available === 40, `${s1.state.available}`);
     check("Bannière inconnue refusée", await rejects(() => openPack(ids[2], 5, undefined, "inexistante"), BannerError));
     check("Bannière spéciale : refus sans lot partiel", (await prisma.packOpening.count({ where: { userId: ids[2] } })) === 1);
     check("Aucun cristal normal : le ×5 standard est refusé", await (async () => {
@@ -113,17 +106,6 @@ async function main() {
       return rejects(() => openPack(ids[2], 5), NoPackAvailableError);
     })());
 
-    // --- Succès : cristaux spéciaux crédités et journalisés ---
-    const total100 = ACHIEVEMENTS.reduce((n, a) => n + (a.special ?? 0), 0);
-    check("Les succès rapportent 100 cristaux spéciaux au total", total100 === 100, `${total100}`);
-    const ssr = await prisma.character.findFirstOrThrow({ where: { rarity: "SSR", disabled: false }, select: { id: true, pullCount: true } });
-    const lot = await prisma.packOpening.findFirstOrThrow({ where: { userId: ids[2] }, select: { id: true } });
-    await prisma.card.create({ data: { ownerId: ids[2], characterId: ssr.id, finish: "NORMAL", serial: 900000 + (stamp % 1000), rarityAtPull: "SSR", packOpeningId: lot.id } });
-    const before = (await prisma.user.findUniqueOrThrow({ where: { id: ids[2] } })).specialCrystals;
-    await checkAchievements(ids[2]);
-    const after = await prisma.user.findUniqueOrThrow({ where: { id: ids[2] } });
-    const sum = (await prisma.specialCrystalLedger.aggregate({ where: { userId: ids[2] }, _sum: { amount: true } }))._sum.amount ?? 0;
-    check("Succès SSR : cristaux spéciaux crédités (≥ 5) et journalisés à l'identique", after.specialCrystals - before >= 5 && after.specialCrystals - before === sum + 10, `${before} → ${after.specialCrystals}, journal ${sum}`);
   } finally {
     for (const [characterId, count] of pulls) await prisma.character.update({ where: { id: characterId }, data: { pullCount: count } });
     await prisma.card.deleteMany({ where: { ownerId: { in: ids } } });

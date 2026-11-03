@@ -2,12 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { acceptDuel, answerQuestion, createDuel, currentQuestion, declineDuel, DuelError, startDefense } from "@/lib/duels";
+import { PVP_AVAILABLE, PVP_UNAVAILABLE_MESSAGE } from "@/lib/feature-flags";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
 
 async function run<T extends object>(fn: (userId: string) => Promise<T>, revalidate = true): Promise<ActionResult<T>> {
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
+  if (!PVP_AVAILABLE) return { ok: false, error: PVP_UNAVAILABLE_MESSAGE };
   try {
     const result = await fn(user.id);
     if (revalidate) revalidatePath("/", "layout");

@@ -22,7 +22,8 @@ export const maxDuration = 60;
 export default function Home() {
   return (
     <main className="mq-main mq-home-main">
-      <Suspense fallback={<Home_ guest />}>
+      {/* Pas la page visiteur en attendant : un joueur connecté qui revient sur l'accueil voyait « Créer un compte » sans ses boosters */}
+      <Suspense fallback={<p className="vt-inner vt-muted">Chargement de la Faille…</p>}>
         <Content />
       </Suspense>
     </main>

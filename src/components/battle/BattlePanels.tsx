@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { CardType } from "@/generated/prisma/enums";
-import { affinity as typeAffinity, BATTLE, hasCharacterSlots, type Side, type Spell, type UnitId, type UnitView } from "@/lib/battle";
+import { affinity as typeAffinity, BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
 import { BOSS_SKILLS } from "@/lib/boss-skills";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
-import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES, spellLabel, STATUS_INFO, type HistoryEntry, type Replay } from "@/lib/battle-replay";
+import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES } from "@/lib/battle-replay";
 import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { describeElement, effectElement } from "@/lib/attack-element";
 import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
@@ -173,87 +172,5 @@ export function SpellsPanel({
         })}
       </div>
     </section>
-  );
-}
-
-/** Historique des actions : de haut en bas, la plus récente en bas. */
-export function History({
-  entries,
-  rp,
-  characters,
-  names,
-  open,
-  onClose,
-}: {
-  /** Téléphone : tiroir ouvert par-dessus le plateau */
-  open: boolean;
-  onClose: () => void;
-  entries: HistoryEntry[];
-  rp: Replay;
-  characters: Record<number, PlayerCharacter>;
-  names: Record<Side, string>;
-}) {
-  // Ordre chronologique, la plus récente en bas : la liste suit le combat
-  const list = useRef<HTMLOListElement>(null);
-  const size = entries.reduce((n, h) => n + 1 + h.effects.length, 0);
-  useEffect(() => {
-    list.current?.scrollTo({ top: list.current.scrollHeight });
-  }, [size, open]);
-  const name = (id: UnitId) => characters[rp.info[id].characterId]?.name ?? id;
-  const line = (e: HistoryEntry["effects"][number]) => {
-    switch (e.kind) {
-      case "damage": {
-        const notes = [e.crit && "critique", e.affinity === "strong" && "efficace", e.affinity === "weak" && "résisté", e.exposedBonus && "exposé", e.absorbed > 0 && `bouclier −${num.format(Math.round(e.absorbed))}`].filter(Boolean);
-        return `−${num.format(Math.round(e.amount))} sur ${name(e.target)}${notes.length ? ` · ${notes.join(" · ")}` : ""}`;
-      }
-      case "dodge":
-        return `${name(e.target)} esquive`;
-      case "heal":
-        return `+${num.format(Math.round(e.amount))} PV pour ${name(e.target)}`;
-      case "shield":
-        return `+${num.format(Math.round(e.amount))} bouclier pour ${name(e.target)}`;
-      case "status":
-        return `${name(e.target)} ${e.on ? "reçoit" : "perd"} : ${STATUS_INFO[e.status].label}`;
-      case "poison":
-        return `−${num.format(Math.round(e.amount))} PV de ${e.bleed ? "saignement" : e.burn ? "brûlure" : "poison"} pour ${name(e.target)}`;
-      case "revive":
-        return `${name(e.target)} revient au combat`;
-      case "resist":
-        return `${name(e.target)} résiste`;
-      case "ko":
-        return `${name(e.target)} est K.O.`;
-    }
-  };
-  return (
-    <aside className="bt-history" aria-label="Historique des tours" data-open={open || undefined}>
-      <h3 className="bt-history-title">
-        Historique
-        <button type="button" className="bt-btn bt-history-close" onClick={onClose}>
-          Fermer
-        </button>
-      </h3>
-      {entries.length === 0 ? (
-        <p className="bt-history-empty">Aucun tour pour l&apos;instant.</p>
-      ) : (
-        <ol ref={list}>
-          {entries.map((h) => (
-            <li key={h.n} data-side={h.actor[0]}>
-              <b>
-                {name(h.actor)} <small>{names[h.actor[0] as Side]} · tour {h.round}</small>
-              </b>
-              <span>
-                {spellLabel(h.spell, rp.info[h.actor].type, h.name)}
-                {h.target ? ` → ${name(h.target)}` : ""}
-              </span>
-              <ul>
-                {h.effects.map((e, i) => (
-                  <li key={i}>{line(e)}</li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ol>
-      )}
-    </aside>
   );
 }

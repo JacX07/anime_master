@@ -185,10 +185,27 @@
   .mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .vt-btn, .bt-btn) { transition: none; transform: none; }
 }
 
-/* Relief du bouton d’ouverture, sans modifier son fond translucide. */
-.mq-app-shell[class] .pk-open.ui-button {
-  &::before { box-shadow: inset 0 1px 0 #f0d9a326, inset 0 -3px 3px -1px #0009; }
-  &:not(:disabled) { filter: drop-shadow(0 2px 1px #0009) drop-shadow(0 8px 5px #000a); }
-  &:hover:not(:disabled) { filter: drop-shadow(0 3px 2px #0009) drop-shadow(0 11px 7px #000a); }
-  &:active:not(:disabled) { filter: drop-shadow(0 2px 2px #0009); }
+/* Actions textuelles partagées, dont l’invocation : fond transparent et soulignement doré. */
+.mq-app-shell[class] .mq-page :is(button.pk-open.ui-button, button.ui-button.text-action) {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  filter: none;
+  color: #c4a76d;
+  &::before { content: none; }
+  &::after { content: ""; inset: auto 0 0; height: 2px; background: #c4a76d; opacity: 1; transform: scaleX(0); transition: transform .2s ease; }
+  &:hover:not(:disabled), &:active:not(:disabled) { background: transparent; filter: none; transform: none; color: #e3c985; }
+  &:is(:hover, :focus-visible, [aria-pressed="true"]):not(:disabled)::after { transform: scaleX(1); }
+  &:disabled { color: #717772; cursor: not-allowed; }
 }
+
+/* « Récupérer » : récompense prête (succès, quêtes). Texte doré qui pulse, soulignement lumineux (maquette validée le 2026-11-03) */
+.mq-app-shell[class] button.claim-button[class] { position: relative; background: none; border: 0; padding: .6rem .25rem; color: #c4a76d; font: 600 .72rem var(--font-dm), sans-serif; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+.mq-app-shell[class] button.claim-button[class]::after { content: ""; position: absolute; inset: auto 0 .25rem; height: 2px; background: #c4a76d; box-shadow: 0 0 10px #c4a76d; }
+.mq-app-shell[class] button.claim-button[class]:hover { color: #e3c985; }
+.mq-app-shell[class] button.claim-button[class]:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
+.mq-app-shell[class] button.claim-button[class]:disabled { color: #4b4a45; cursor: wait; }
+.mq-app-shell[class] button.claim-button[class]:disabled::after { box-shadow: none; background: #4b4a45; }
+.claim-dot { display: inline-block; width: 7px; height: 7px; margin-right: .5rem; border-radius: 50%; background: currentColor; animation: claim-pulse 1.6s infinite; }
+@keyframes claim-pulse { 50% { transform: scale(1.6); opacity: .4; } }
+@media (prefers-reduced-motion: reduce) { .claim-dot { animation: none; } }

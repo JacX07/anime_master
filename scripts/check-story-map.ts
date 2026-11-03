@@ -26,15 +26,15 @@ for (const u of UNIVERSES) {
 console.log("✓ Reprise : nouveau joueur, victoire, actes, univers, parcours terminé et 15 décors/boss.");
 
 const universes = UNIVERSES.map((u, i) => ({ ...u, ...progress([15, 5])[i], claimed: [], stars: Object.fromEntries(Array.from({ length: 15 }, (_, level) => [level + 1, level < (progress([15, 5])[i]?.maxLevel ?? 0) ? 1 : 0])), mixes: Array.from({ length: 15 }, () => ["R", "R", "SR", "SR"]) }));
-const html = renderToStaticMarkup(createElement(StoryMap, { universes, stock: {}, ready: true, chosenTeamSize: 4, pending: false, onFight() {} }));
-assert.equal((html.match(/data-level=/g) ?? []).length, 225);
-assert.equal((html.match(/class="hs-map-act"/g) ?? []).length, 45);
+const html = renderToStaticMarkup(createElement(StoryMap, { universes, stock: {}, pending: false, onPrepare() {} }));
+assert.equal((html.match(/data-level=/g) ?? []).length, 5);
 assert.equal((html.match(/aria-current="step"/g) ?? []).length, 1);
-assert.match(html, /data-universe="naruto" data-level="6"[^>]+aria-current="step"[^>]+aria-pressed="true"/);
-assert.match(html, /Univers 2 · Acte 2 · Combat 6/);
+assert.match(html, /data-universe="naruto" data-level="6"/);
+assert.match(html, /Carte ascendante : départ en bas, boss en haut/);
 assert.match(html, /La Nuit des Maudits/);
-assert.match(html, /one-piece-act-2\.png/);
-assert.match(html, /one-piece-act-3\.png/);
-assert.match(html, /Rob Lucci/);
-assert.match(html, /Donquixote Doflamingo/);
-console.log("✓ Carte rendue : 225 jalons, 45 actes et combat de reprise sélectionné dans le bon univers.");
+assert.ok(html.indexOf('hs-map-scene') < html.indexOf('hs-rewards'), "Récompenses sous la carte");
+assert.match(html, /Objets de cet univers/);
+const nodeTop = (level: number) => Number(html.match(new RegExp(`data-level="${level}"[^>]+top:([\\d.]+)%`))?.[1]);
+assert.ok(nodeTop(6) > nodeTop(10), "Le boss est plus haut que le début de l’acte");
+assert.match(html, /data-level="7" disabled/);
+console.log("✓ Carte rendue : acte de reprise, chemin ascendant, jalons verrouillés, récompenses et objets sous la carte.");

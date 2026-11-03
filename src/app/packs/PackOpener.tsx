@@ -10,7 +10,7 @@ import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { CRYSTAL_BUY_SIZES } from "@/lib/economy";
 import type { OpenedCard, OpenedPack, PlayerPackState } from "@/lib/packs";
 import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY, type LotSize } from "@/lib/pull";
-import { buyCrystalsAction, devGrantCrystalsAction, openPackAction } from "./actions";
+import { buyCrystalsAction, devGrantCrystalsAction, openPackAction, openWelcomeBoosterAction } from "./actions";
 import { CardDetail } from "./CardDetail";
 import { packAudio } from "@/lib/pack-audio";
 import "./packs.css";
@@ -64,21 +64,22 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
   const banner = banners.find((b) => b.id === bannerId) ?? null;
   const kind = banner?.costKind ?? "NORMAL";
-  const wallet = kind === "SPECIAL" ? state.specialCrystals : kind === "WELCOME" ? state.welcomeDraws : available;
-  const unit = kind === "SPECIAL" ? "cristal spécial" : kind === "WELCOME" ? "tirage de bienvenue" : "cristal";
-  const unitPlural = kind === "SPECIAL" ? "cristaux spéciaux" : kind === "WELCOME" ? "tirages de bienvenue" : "cristaux";
+  const wallet = kind === "WELCOME" ? state.welcomeDraws : available;
+  const unit = kind === "WELCOME" ? "tirage de bienvenue" : "cristal";
+  const unitPlural = kind === "WELCOME" ? "tirages de bienvenue" : "cristaux";
   const pool = banner?.pool ?? standardPool;
   const locked = banner?.costKind === "WELCOME" && state.welcomeBannerId !== null && state.welcomeBannerId !== banner.id;
   const waitingReveal = pack !== null && !revealed.every(Boolean);
   const canOpen = !pending && !locked && wallet >= lot && (!pack || summary);
 
-  function open() {
-    if (!canOpen || opening.current) return;
+  function open(welcomeBooster = false) {
+    if (welcomeBooster ? (pending || (pack !== null && !summary)) : !canOpen) return;
+    if (opening.current) return;
     opening.current = true;
     setError(null);
     startTransition(async () => {
       try {
-        const r = await openPackAction(lot, bannerId);
+        const r = welcomeBooster ? await openWelcomeBoosterAction() : await openPackAction(lot, bannerId);
         if (!r.ok) return setError(r.error);
         setState(r.pack.state);
         setPack(r.pack);
@@ -148,7 +149,6 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
       <header className="pk-head">
         <dl className="pk-wallet">
           <div><dt>Cristaux</dt><dd>{available}<span> / {MAX_CRYSTALS}</span></dd><small>{msLeft === null ? "Stock plein" : `Prochain dans ${formatDuration(msLeft)}`}</small></div>
-          {state.specialCrystals > 0 && <div><dt>Spéciaux</dt><dd>{state.specialCrystals}</dd></div>}
           {state.welcomeDraws > 0 && <div><dt>Bienvenue</dt><dd>{state.welcomeDraws}</dd></div>}
           <div><dt>Ryō</dt><dd><Money n={state.balance} /></dd></div>
         </dl>
@@ -174,6 +174,17 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         </aside>
       </header>
 
+      {state.welcomeBoosterAvailable && !pack && (
+        <section className="pk-welcome" aria-label="Booster de bienvenue">
+          <span className="pk-welcome-art" aria-hidden="true">A</span>
+          <div>
+            <h2>Booster de bienvenue ×10</h2>
+            <p>Gratuit, une fois par compte. Une SSR ou une UR garantie, tous animes confondus.</p>
+            <button type="button" className="ui-button" data-active="true" disabled={pending} onClick={() => open(true)}>{pending ? "Ouverture…" : "Ouvrir mon booster"}</button>
+          </div>
+        </section>
+      )}
+
       <div className="pk-main">
         {achievements}
         <section className="pk-panel pk-banner-panel" aria-label="Bannières">
@@ -190,7 +201,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className="pk-banner-face" src={b.featured.imageUrl} alt="" referrerPolicy="no-referrer" />
                 )}
-                <small>{b.costKind === "SPECIAL" ? "Événement" : b.costKind === "WELCOME" ? "Bienvenue" : b.categoryLabel}</small>
+                <small>{b.category === "event" ? "Événement" : b.costKind === "WELCOME" ? "Bienvenue" : b.categoryLabel}</small>
                 <b>{b.name}</b>
                 <span>{b.description}</span>
                 <em>{b.weightPercent > 0 ? `${b.weightPercent} % de cartes de la bannière` : "Catalogue complet"}</em>
@@ -201,7 +212,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           <details className="pk-rates">
             <summary>Taux et garanties</summary>
             <table>
-              <thead><tr><th>Rareté</th><th>Carte</th><th>10ᵉ du ×10</th><th>Personnages</th></tr></thead>
+              <thead><tr><th>Rareté</th><th>Carte</th><th>10ᵉ invocation</th><th>Personnages</th></tr></thead>
               <tbody>
                 {ORDER.map((r) => (
                   <tr key={r}>
@@ -282,12 +293,15 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           <div className="pk-controls">
             <div className="pk-lots" role="radiogroup" aria-label="Taille du lot">
               {LOT_SIZES.map((n) => (
-                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} disabled={pending || waitingReveal} onClick={() => setLot(n)}>×{n}</button>
+                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} disabled={pending || waitingReveal} onClick={() => setLot(n)}><span>×{n}</span><small>{n} {n > 1 ? unitPlural : unit}</small></button>
               ))}
             </div>
-            <button type="button" className="pk-open ui-button" onClick={open} disabled={!canOpen} data-lot={lot}>
+            <div className="pk-boost" aria-label="Invocation boostée">
+              <p>{lot >= 10 - state.cardsSinceBoost ? <>Ce lot contient une <b>invocation boostée</b></> : <>Invocation boostée dans <b>{10 - state.cardsSinceBoost} cartes</b></>}</p>
+              <div className="pk-boost-dots" aria-hidden="true">{Array.from({ length: 10 }, (_, i) => <i key={i} data-filled={i < state.cardsSinceBoost} data-last={i === 9} />)}</div>
+            </div>
+            <button type="button" className="pk-open ui-button" onClick={() => open()} disabled={!canOpen} data-lot={lot}>
               <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>
-              {!pending && <span className="pk-open-cost">{lot} {lot > 1 ? unitPlural : unit}</span>}
             </button>
             {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
             {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}

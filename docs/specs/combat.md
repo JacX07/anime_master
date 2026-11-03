@@ -545,3 +545,8 @@ Fangame gratuit, sans frustration : en jouant assez, on finit toujours par obten
 
 
 > *Mesure du 2026-10-31 après suppression du sort de type et jauge de base à 50 : 1,94 ultime par équipe et par combat (6,5 tours en moyenne) ; 4 SSR contre 4 SR 99,9 %, 4 UR contre 4 SSR 99,7 %, 4 SSR contre 4 SSR 50,7 %. Les difficultés de l'histoire ont été recalibrées (×0,98 à ×1,22).*
+
+### Écran de combat et de résultat (2026-11-04)
+- Plus d'historique des tours : ordre de passage à gauche, plateau au centre, sorts à droite. Thème du site (pierre sombre, or, biseaux), boutons-texte à soulignement doré.
+- Écran de résultat : ton équipe en colonnes (MVP = plus de dégâts), défense dessous (K.O. en niveaux de gris), statistiques (dégâts infligés/subis, soins, ennemis vaincus, tours) et étoiles à la place d'un rang.
+- Étoiles hors histoire : 1 pour la victoire, +1 si aucun allié n'est à terre à la fin, +1 si le combat dure 8 tours ou moins. L'histoire garde ses propres étoiles.

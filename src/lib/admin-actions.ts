@@ -10,7 +10,7 @@ export class AdminError extends Error {}
 
 export type Role = "player" | "moderator" | "admin";
 export interface Actor { id: string; username: string; role: Role }
-export type StaffAction = "ban" | "unban" | "ryo" | "crystals" | "special" | "card_give" | "card_remove" | "pity_reset" | "role";
+export type StaffAction = "ban" | "unban" | "ryo" | "crystals" | "card_give" | "card_remove" | "pity_reset" | "role";
 
 const SANCTIONS: StaffAction[] = ["ban", "unban"];
 export const MAX_ADJUST = 1_000_000;
@@ -91,17 +91,6 @@ export function adjustCrystals(actor: Actor, targetId: string, delta: number, re
     if (next.crystals < 0) throw new AdminError("Pas assez de cristaux à retirer.");
     await tx.user.update({ where: { id: t.id }, data: next });
     return { data: { delta: d, before: u.crystals, after: next.crystals }, result: undefined };
-  });
-}
-
-export function adjustSpecialCrystals(actor: Actor, targetId: string, delta: number, reason: string) {
-  return act(actor, "special", targetId, reason, async (tx, t) => {
-    const d = amount(delta);
-    const u = await tx.user.findUniqueOrThrow({ where: { id: t.id }, select: { specialCrystals: true } });
-    if (u.specialCrystals + d < 0) throw new AdminError(`Solde insuffisant (${u.specialCrystals} cristaux spéciaux).`);
-    await tx.user.update({ where: { id: t.id }, data: { specialCrystals: { increment: d } } });
-    await tx.specialCrystalLedger.create({ data: { userId: t.id, amount: d, reason: "ADMIN", refId: actor.id } });
-    return { data: { delta: d, before: u.specialCrystals, after: u.specialCrystals + d }, result: undefined };
   });
 }
 
