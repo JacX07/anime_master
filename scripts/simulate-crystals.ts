@@ -177,7 +177,7 @@ function firstCurrent(what: "SSR" | "UR") {
 
 function runProduction(n: LotSize, cards: number) {
   const counts = zero();
-  let state = { cardsSinceSSR: 0, cardsSinceUR: 0 };
+  let state = { cardsSinceSSR: 0, cardsSinceUR: 0, cardsSinceBoost: 0 };
   let drawn = 0;
   let longestSSR = 0;
   let longestUR = 0;

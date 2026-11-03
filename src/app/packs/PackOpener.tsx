@@ -200,7 +200,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           <details className="pk-rates">
             <summary>Taux et garanties</summary>
             <table>
-              <thead><tr><th>Rareté</th><th>Carte</th><th>10ᵉ du ×10</th><th>Personnages</th></tr></thead>
+              <thead><tr><th>Rareté</th><th>Carte</th><th>10ᵉ invocation</th><th>Personnages</th></tr></thead>
               <tbody>
                 {ORDER.map((r) => (
                   <tr key={r}>
@@ -290,7 +290,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
             </button>
             {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
             {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}
-            {kind === "NORMAL" && <p className="pk-note">Garantie : SSR dans {SSR_PITY - state.cardsSinceSSR} cartes · UR dans {UR_PITY - state.cardsSinceUR}</p>}
+            {kind === "NORMAL" && <p className="pk-note">Garantie : SSR dans {SSR_PITY - state.cardsSinceSSR} cartes · UR dans {UR_PITY - state.cardsSinceUR} · Invocation boostée dans {10 - state.cardsSinceBoost} cartes</p>}
             {error && <p role="alert" className="pk-error">{error}</p>}
           </div>
         </section>

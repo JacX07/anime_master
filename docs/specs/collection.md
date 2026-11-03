@@ -54,7 +54,7 @@ Pas d'envoi d'email en local : pas de vérification d'email ni de « mot de pass
   Lors d'une ouverture, `packsStored = disponibles − 1`, et `lastPackAt` avance de `écoulés × 10 min` (ou passe à maintenant si le stock était plein), pour ne pas perdre la progression vers le paquet suivant.
 
 ### 4. Tirage
-> **Évolue** : le pity passe en cartes (75 / 500), la carte garantie reste par bloc de 5 et le ×10 améliore la 10ᵉ carte : voir « Étape 4 bis ».
+> **Évolue** : le pity passe en cartes (75 / 500), la carte garantie reste par bloc de 5 et une invocation sur 10 est boostée : voir « Étape 4 bis ».
 
 Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasard, uniformément, parmi ceux de cette rareté**, puis la **finition**.
 
@@ -191,7 +191,7 @@ Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 
 L'achat s'ajoute au stock et peut le faire dépasser 50. Journal : nouvelle raison `CRYSTAL_BUY` dans `CurrencyLedger`.
 
 ### 3. Lots ×5 et ×10
-- Un ×5 coûte 5 cristaux, un ×10 coûte 10 cristaux (aucune remise : le gain du ×10 est la 10ᵉ carte).
+- Un ×5 coûte 5 cristaux, un ×10 coûte 10 cristaux (aucune remise : le ×10 contient simplement une invocation boostée de plus qu'un ×5).
 - Chaque lot se tire dans **une seule transaction**. Un lot est refusé s'il y a moins de cristaux que son coût.
 - Taux de rareté de base inchangés : N 65 / R 24 / SR 8 / SSR 2,5 / UR 0,5 %. Finitions inchangées : Normal 90 / Holo 9 / Gold 1 %.
 
@@ -199,9 +199,9 @@ L'achat s'ajoute au stock et peut le faire dépasser 50. Journal : nouvelle rais
 1. **Pity UR** : si `cardsSinceUR ≥ 499`, la carte est un UR.
 2. **Pity SSR** : si `cardsSinceSSR ≥ 74` et que la carte tirée n'est ni SSR ni UR, elle est retirée parmi SSR et UR (SSR 5/6, UR 1/6).
 3. **Carte garantie** : la 5ᵉ carte de chaque bloc de 5 est tirée parmi R, SR, SSR et UR (selon leurs taux relatifs) si les 4 cartes précédentes du bloc sont toutes N. Comme aujourd'hui.
-4. **10ᵉ carte du ×10** : elle est tirée avec la table ci-dessous (au moins R) **à la place** de la règle 3 pour cette carte. Le ×5 n'a pas de 10ᵉ carte.
+4. **10ᵉ invocation** (décidé le 2026-11-03) : une carte sur 10 est tirée avec la table ci-dessous (au moins R) **à la place** de la règle 3 pour cette carte, **quel que soit le format du lot** (×5 ou ×10). Un compteur persistant (`User.cardsSinceBoost`, de 0 à 9) compte les cartes tirées depuis la dernière carte boostée : deux ×5 de suite contiennent une carte boostée, et un ×10 depuis un compteur à 0 la boost en dernière position.
 
-| Rareté | Taux de base | 10ᵉ carte du ×10 |
+| Rareté | Taux de base | 10ᵉ invocation |
 |---|---|---|
 | N | 65 % | 0 % |
 | R | 24 % | 68,75 % |

@@ -149,6 +149,8 @@ model User {
   /// Compteurs de pity, en cartes (SPEC étape 4 bis §4)
   cardsSinceSSR       Int                    @default(0)
   cardsSinceUR        Int                    @default(0)
+  /// Cartes tirées depuis la dernière carte boostée (0 à 9) : une carte sur 10 est boostée, quel que soit le format du lot
+  cardsSinceBoost     Int                    @default(0)
   /// Tirages de bienvenue restants (bannière de catégorie choisie à la première utilisation, SPEC étape 4 bis §8)
   welcomeDraws        Int                    @default(20)
   welcomeBannerId     String?
