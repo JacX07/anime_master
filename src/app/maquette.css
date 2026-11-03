@@ -2474,9 +2474,4 @@
   .mq-app-shell[class] .mq-game-nav .mq-nav-side > :is(a, .mq-nav-dropdown) { flex: 0 0 var(--tab-w); width: var(--tab-w); }
   .mq-app-shell[class] .mq-game-nav .mq-nav-side > a, .mq-app-shell[class] .mq-game-nav .mq-nav-dropdown > a { width: 100%; padding-inline: 0; justify-content: center; }
   .mq-app-shell[class] .mq-topbar .mq-header-actions { margin-left: auto; }
-  .mq-season-mark { display: none; }
-}
-@media (min-width: 1900px) {
-  .mq-app-shell[class] .mq-topbar { --x: 400px; }
-  .mq-season-mark { display: block; }
 }

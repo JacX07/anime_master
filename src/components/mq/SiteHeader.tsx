@@ -64,10 +64,6 @@ export function SiteHeader() {
       </nav>
       </Navigation>
       <div className="mq-header-actions">
-        <div className="mq-season-mark">
-          <small>SAISON I</small>
-          <span>LA FAILLE</span>
-        </div>
         <Suspense fallback={null}>
           <Account />
         </Suspense>
