@@ -1,6 +1,6 @@
 # Administration et statistiques
 
-> Statut : **proposition, à valider avant de coder.**
+> Statut : **validée, rien codé.**
 
 ## 1. Objectif
 Un espace réservé à l'équipe pour :
@@ -10,7 +10,7 @@ Un espace réservé à l'équipe pour :
 
 ## 2. Sécurité (priorité absolue)
 Cacher l'URL ne protège pas. La protection est faite côté serveur :
-1. `User.role` : `player` (défaut) ou `admin`. Jamais modifiable depuis l'interface ; le premier admin est promu par un script en ligne de commande (`npm run admin:promote -- <pseudo>`), les suivants par un admin.
+1. `User.role` : `player` (défaut), `moderator` ou `admin`. Jamais modifiable depuis l'interface ; le premier admin est promu par un script en ligne de commande (`npm run admin:promote -- <pseudo>`), les suivants par un admin.
 2. Un helper unique `requireAdmin()` lit la session côté serveur et lit le rôle **en base** (pas dans un cookie ni dans le client). Il est appelé :
    - dans `src/app/admin/layout.tsx` (chaque page) ;
    - au début de **chaque** server action et route API `/admin`.
@@ -20,6 +20,18 @@ Cacher l'URL ne protège pas. La protection est faite côté serveur :
 6. Limite de débit sur les actions admin ; tout est écrit dans `AdminAudit`.
 7. Un admin ne peut pas se retirer le rôle s'il est le dernier ; un admin ne peut pas en bannir un autre.
 8. Une compte banni voit sa session invalidée et ne peut plus se connecter.
+
+### Rôles
+| Droit | moderator | admin |
+|---|---|---|
+| Voir stats et fiches joueurs | oui | oui |
+| Bannir / débannir un joueur | oui | oui |
+| Notifications à un joueur | oui | oui |
+| Ajuster monnaie, cartes, pity | non | oui |
+| Bannières, notification globale | non | oui |
+| Changer les rôles, voir tout l'audit | non | oui |
+
+`requireRole('moderator')` / `requireRole('admin')` remplace `requireAdmin()` ; un modérateur ne peut pas sanctionner un admin ni un autre modérateur.
 
 ## 3. Collecte de données : `GameEvent`
 Les tables actuelles gardent surtout l'état. Pour des stats fines, on ajoute une table d'événements en ajout seul :
@@ -84,8 +96,8 @@ Toutes : admin requis, confirmation, motif, écriture dans `AdminAudit`.
 4. **Joueurs** : liste, fiche, actions monnaie / carte / bannissement.
 5. **Contenu** : bannières, notifications.
 
-## 8. Questions ouvertes
-- Un seul niveau d'admin, ou aussi un rôle « modérateur » (voit et bannit, ne touche pas à la monnaie) ?
-- Durée de rétention des événements bruts ?
-- Les joueurs voient-ils des stats publiques (classements, taux de tirage) pour la transparence ?
-- Bibliothèque de graphiques (légère) ou SVG maison ?
+## 8. Décisions
+- Deux niveaux : admin et modérateur (voir §2).
+- Rétention des événements bruts : 180 jours ; agrégats gardés.
+- Pas de stats publiques pour les joueurs (à rouvrir si besoin).
+- Graphiques : bibliothèque légère (choix précis au lot 2).
