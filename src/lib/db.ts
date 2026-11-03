@@ -8,10 +8,15 @@ if (!url) throw new Error("DATABASE_URL manquant (voir .env)");
 // Réutilise le client entre les rechargements à chaud de Next.js en dev.
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
+// Le Session pooler de Supabase limite à 15 clients en tout (« EMAXCONNSESSION … pool_size: 15 »).
+// Chaque instance serverless garde jusqu'à `max` connexions : avec 5, trois instances saturent le pool.
+// 2 par instance en production ; réglable par DB_POOL_MAX sans toucher au code.
+const poolMax = Math.max(1, Number(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === "production" ? 2 : 5));
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter: new PrismaPg({ connectionString: url, max: 5, connectionTimeoutMillis: 10_000 }),
+    adapter: new PrismaPg({ connectionString: url, max: poolMax, connectionTimeoutMillis: 10_000, idleTimeoutMillis: 5_000 }),
     // Le défaut (5 s) est trop court quand Vercel et Supabase sont dans des régions éloignées :
     // une ouverture de lot enchaîne ~25 requêtes dans une même transaction.
     transactionOptions: { maxWait: 10_000, timeout: 30_000 },
