@@ -2428,12 +2428,12 @@
 .mq-player .mq-avatar { display: grid; place-items: center; flex-shrink: 0; }
 .mq-player-text b { text-transform: none; letter-spacing: .02em; }
 /* Écrans moyens : on ne garde que l'avatar à droite et on serre un peu la navigation pour que JOUER ne soit jamais chevauché */
-@media (max-width: 1749px) {
+@media (max-width: 1499px) {
   .mq-season-mark, .mq-player-text { display: none; }
   .mq-player .mq-avatar { width: 50px; height: 50px; }
   .mq-app-shell .mq-game-nav .mq-nav-side > :is(a, button), .mq-app-shell .mq-game-nav .mq-nav-dropdown > :is(a, button) { padding-inline: 8px; letter-spacing: .08em; }
 }
-@media (max-width: 1749px) { .mq-brand > span:last-child { display: none; } .mq-brand { min-width: 46px; } }
+@media (max-width: 1499px) { .mq-brand > span:last-child { display: none; } .mq-brand { min-width: 46px; } }
 
 /* Bouton JOUER (piste A) : forme taillée en or contrasté sur un calque interne (<i>), halo et trait de lumière sur le bouton lui-même (non rogné). */
 .mq-app-shell[class][class] .mq-play-button {
@@ -2458,9 +2458,9 @@
 @media (max-width: 1100px) { .mq-play-button::before { inset: -10px -6px; } }
 @media (max-width: 1100px) { .mq-app-shell[class][class] .mq-game-nav .mq-play-button { min-width: 240px; justify-self: center; } }
 
-/* Barre du haut ≥ 1750 px : JOUER centré sur la page, 4 onglets de même largeur de chaque côté, compte tout à droite. */
-@media (min-width: 1750px) {
-  .mq-app-shell[class] .mq-topbar { --tab-w: clamp(104px, 5.6vw, 124px); --tab-gap: 10px; padding-right: 14px; }
+/* Barre du haut ≥ 1500 px : JOUER centré sur la page, 4 onglets de même largeur de chaque côté, compte tout à droite. */
+@media (min-width: 1500px) {
+  .mq-app-shell[class] .mq-topbar { --tab-w: clamp(112px, 5.8vw, 124px); --tab-gap: 10px; padding-right: 14px; }
   .mq-app-shell[class] .mq-game-nav {
     position: absolute; inset: 0 auto 0 50%; transform: translateX(-50%); margin: 0; pointer-events: none;
     grid-template-columns: calc(4 * var(--tab-w) + 3 * var(--tab-gap)) 138px calc(4 * var(--tab-w) + 3 * var(--tab-gap)); gap: 10px !important;
@@ -2477,5 +2477,6 @@
   /* Les paramètres passent dans le menu du profil */
   .mq-app-shell[class] .mq-header-actions .mq-gear { display: none; }
 }
-/* Le bloc « Saison » ne tient à côté des onglets que sur très grand écran. */
-@media (min-width: 1750px) and (max-width: 1899px) { .mq-season-mark { display: none; } }
+/* Entre 1500 et 1900 px, le compte se compacte pour laisser la place aux onglets : « Saison » masquée, puis nom et ressources masqués sous 1800 px (visibles dans le menu du profil). */
+@media (min-width: 1500px) and (max-width: 1899px) { .mq-season-mark { display: none; } }
+@media (min-width: 1500px) and (max-width: 1799px) { .mq-app-shell[class] .mq-header-actions .mq-player-text { display: none; } }
