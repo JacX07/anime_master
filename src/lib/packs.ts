@@ -7,6 +7,7 @@ import { prisma } from "./db";
 import { CRYSTAL_PRICE, crystalsLeft } from "./economy";
 import { afterSpend, crystalStock } from "./crystal-stock";
 import { isBannerOpen, WELCOME_KEYS } from "./banners";
+import { track } from "./events";
 import { rollLot, secureRandom, type Finish, type LotSize, type PityTrigger, type Random } from "./pull";
 
 export class NoPackAvailableError extends Error {
@@ -106,7 +107,7 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
  * est passée entre-temps, aucune ligne ne correspond et la transaction est annulée.
  */
 export async function openPack(userId: string, size: LotSize = 5, rng: Random = secureRandom, bannerId: string | null = null): Promise<OpenedPack> {
-  return prisma.$transaction(async (tx) => {
+  const opened = await prisma.$transaction(async (tx) => {
     const now = new Date();
     const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
     const banner = bannerId ? await tx.banner.findUnique({ where: { id: bannerId }, select: { id: true, key: true, costKind: true, weight: true, startsAt: true, endsAt: true } }) : null;
@@ -239,4 +240,11 @@ export async function openPack(userId: string, size: LotSize = 5, rng: Random = 
       },
     };
   });
+  const rarities: Record<string, number> = {};
+  for (const c of opened.cards) rarities[c.rarity] = (rarities[c.rarity] ?? 0) + 1;
+  await track("pack_open", userId, {
+    lotSize: opened.lotSize, bannerId, pity: opened.pity, rarities,
+    newCards: opened.cards.filter((c) => c.isNew).length, finishes: opened.cards.filter((c) => c.finish !== "NORMAL").length,
+  });
+  return opened;
 }

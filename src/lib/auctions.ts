@@ -4,6 +4,7 @@
 import type { Prisma } from "../generated/prisma/client";
 import type { CardType, Finish, Rarity } from "../generated/prisma/enums";
 import { prisma } from "./db";
+import { track } from "./events";
 import { AUCTION_DURATIONS_H, endAfterBid, MAX_ACTIVE_AUCTIONS, minBid, sellerProceeds, tradeEligibility } from "./economy";
 import { checkAchievementsSafe } from "./achievements";
 import { notify } from "./notifications";
@@ -83,7 +84,10 @@ export async function closeAuction(auctionId: string, now = new Date()) {
       await notify(tx, a.sellerId, "AUCTION_UNSOLD", { auctionId: a.id, character: a.card.character.name });
     }
   });
-  if (soldBy) await checkAchievementsSafe(soldBy);
+  if (soldBy) {
+    await track("auction_end", soldBy, { auctionId, sold: true });
+    await checkAchievementsSafe(soldBy);
+  }
 }
 
 /** Clôture toutes les enchères échues (appelée à chaque consultation du marché et par la tâche planifiée). */
@@ -153,6 +157,7 @@ export async function buyNow(buyerId: string, auctionId: string, now = new Date(
     await settle(tx, a, buyerId, price, now);
     seller = a.sellerId;
   });
+  await track("auction_end", buyerId, { auctionId, sold: true, buyNow: true });
   await checkAchievementsSafe(seller);
 }
 

@@ -9,6 +9,7 @@ const TABS = [
   { href: "/admin/boosters", label: "Boosters" },
   { href: "/admin/combats", label: "Combats" },
   { href: "/admin/economie", label: "Économie" },
+  { href: "/admin/evenements", label: "Événements" },
 ];
 
 function Tabs() {

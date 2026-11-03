@@ -2,6 +2,7 @@
 // tout est revérifié à l'acceptation, puis exécuté dans une seule transaction (tout ou rien).
 
 import { prisma } from "./db";
+import { track } from "./events";
 import { MAX_PENDING_TRADES, TRADE_LIFETIME_MS, tradeEligibility } from "./economy";
 import { checkAchievementsSafe } from "./achievements";
 import { notify } from "./notifications";
@@ -114,6 +115,7 @@ export async function acceptTrade(userId: string, tradeId: string, now = new Dat
       await notify(tx, t.fromId, "TRADE_ACCEPTED", { tradeId, username: t.to.username });
       parties = [t.fromId, t.toId];
     });
+    await track("trade", userId, { tradeId, parties: parties.length });
     await checkAchievementsSafe(...parties);
   } catch (err) {
     if (err instanceof InvalidTrade) {

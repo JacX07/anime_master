@@ -1,4 +1,5 @@
 import { combatPowers } from "./combat-power";
+import { track } from "./events";
 import { sumArtifactStats } from "./artifact-stats";
 import { adventureLock } from "./adventure-state";
 // Combats 4 contre 4 côté serveur (docs/specs/combat.md §10) : équipe d'attaque enregistrée, lancement, mode manuel, abandon.
@@ -641,6 +642,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
         },
       });
     });
+    await track("battle_end", userId, { mode, opponent, manual: false, winner: result.winner, stars: row.storyStars, events: result.log.length, ryo: (row.loot as { ryo?: number } | null)?.ryo ?? 0 });
     return toView(row, null);
   }
   const row = await prisma.battle.create({ data: { userId, mode, opponent, manual, seed, teams: toJson(teams) } });
@@ -705,6 +707,7 @@ export async function playAction(userId: string, battleId: string, action: Actio
       await tx.battle.update({ where: { id: row.id }, data: { storyStars: 0 } });
     }
     });
+  if (done) await track("battle_end", userId, { mode: row.mode, opponent: row.opponent, manual: true, winner: done.winner, stars: score, events: done.log.length, steps: row.steps + 1, durationMs: now.getTime() - row.createdAt.getTime(), ryo: (loot as { ryo?: number } | null)?.ryo ?? 0 });
   return toView({ ...row, steps: row.steps + 1, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
 }
 
@@ -715,4 +718,5 @@ export async function abandonBattle(userId: string, battleId: string, now = new 
     data: { status: "ABANDONED", winner: "B", endedAt: now },
   });
   if (res.count !== 1) throw new BattleError("Combat introuvable ou déjà terminé.");
+  await track("battle_abandon", userId, { battleId });
 }

@@ -2,6 +2,7 @@
 // Usage : npm run check:admin   (Node 24)
 import "dotenv/config";
 import { prisma } from "../src/lib/db";
+import { EVENT_RETENTION_DAYS, purgeOldEvents, track } from "../src/lib/events";
 
 let failures = 0;
 function check(label: string, ok: boolean) {
@@ -25,8 +26,17 @@ async function main() {
     let refused = false;
     try { await prisma.user.update({ where: { id: user.id }, data: { role: "root" as never } }); } catch { refused = true; }
     check("rôle inconnu refusé", refused);
+
+    await track("login", user.id);
+    await track("pack_open", user.id, { lotSize: 5, rarities: { N: 5 } });
+    const mine = await prisma.gameEvent.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" } });
+    check("track écrit les événements", mine.length === 2 && mine[1].type === "pack_open");
+    const old = await prisma.gameEvent.create({ data: { userId: user.id, type: "login", createdAt: new Date(Date.now() - (EVENT_RETENTION_DAYS + 1) * 86_400_000) } });
+    await purgeOldEvents();
+    check("purge : vieux événement supprimé, récents gardés", !(await prisma.gameEvent.findUnique({ where: { id: old.id } })) && (await prisma.gameEvent.count({ where: { userId: user.id } })) === 2);
   } finally {
     await prisma.adminAudit.deleteMany({ where: { actorId: user.id } });
+    await prisma.gameEvent.deleteMany({ where: { userId: user.id } });
     await prisma.user.delete({ where: { id: user.id } });
     await prisma.$disconnect();
   }

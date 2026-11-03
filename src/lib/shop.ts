@@ -3,6 +3,7 @@
 
 import { CRYSTAL_BUY_SIZES, CRYSTAL_PRICE, crystalsLeft, startOfDay } from "./economy";
 import { prisma } from "./db";
+import { track } from "./events";
 import { afterGain } from "./crystal-stock";
 import { SaleError } from "./wallet";
 
@@ -36,4 +37,5 @@ export async function buyCrystals(userId: string, count: number, now = new Date(
     if (updated.count !== 1) throw new SaleError("Une autre opération est en cours, réessaie.");
     await tx.currencyLedger.create({ data: { userId, amount: -cost, reason: "CRYSTAL_BUY" } });
   });
+  await track("purchase", userId, { kind: "crystals", count, cost });
 }

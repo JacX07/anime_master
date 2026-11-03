@@ -173,3 +173,31 @@ export async function economyStats(days: Period) {
     top,
   };
 }
+
+export async function eventStats(days: Period) {
+  const since = sinceOf(days);
+  const [byType, daily, recent, fights] = await Promise.all([
+    prisma.$queryRaw<{ type: string; n: bigint; players: bigint }[]>`
+      SELECT type, COUNT(*) AS n, COUNT(DISTINCT "userId") AS players FROM "GameEvent" WHERE "createdAt" >= ${since} GROUP BY 1 ORDER BY n DESC`,
+    prisma.$queryRaw<{ day: Date; type: string; n: bigint }[]>`
+      SELECT date_trunc('day', "createdAt") AS day, type, COUNT(*) AS n FROM "GameEvent" WHERE "createdAt" >= ${since} GROUP BY 1, 2`,
+    prisma.$queryRaw<{ createdAt: Date; type: string; username: string | null; data: unknown }[]>`
+      SELECT e."createdAt", e.type, u.username, e.data FROM "GameEvent" e LEFT JOIN "User" u ON u.id = e."userId" ORDER BY e."createdAt" DESC LIMIT 40`,
+    prisma.$queryRaw<{ mode: string; manual: boolean; n: bigint; wins: bigint; events: number; steps: number | null; seconds: number | null }[]>`
+      SELECT data->>'mode' AS mode, (data->>'manual')::boolean AS manual, COUNT(*) AS n,
+             COUNT(*) FILTER (WHERE data->>'winner' = 'A') AS wins,
+             COALESCE(AVG((data->>'events')::float), 0) AS events, AVG((data->>'steps')::float) AS steps,
+             AVG((data->>'durationMs')::float) / 1000 AS seconds
+      FROM "GameEvent" WHERE type = 'battle_end' AND "createdAt" >= ${since} GROUP BY 1, 2 ORDER BY n DESC`,
+  ]);
+  const types = [...new Set(daily.map((d) => d.type))];
+  const labels = fillDays([], days).labels;
+  return {
+    total: byType.reduce((s, r) => s + num(r.n), 0),
+    byType: byType.map((r) => ({ type: r.type, n: num(r.n), players: num(r.players) })),
+    labels,
+    series: types.map((type) => ({ label: type, values: fillDays(daily.filter((d) => d.type === type).map((d) => ({ day: d.day, n: d.n })), days).values })),
+    recent: recent.map((r) => ({ at: r.createdAt, type: r.type, username: r.username, data: JSON.stringify(r.data ?? {}) })),
+    fights: fights.map((f) => ({ mode: f.mode, manual: f.manual, n: num(f.n), rate: num(f.n) ? num(f.wins) / num(f.n) : 0, events: Math.round(f.events), steps: f.steps === null ? null : Math.round(f.steps), seconds: f.seconds === null ? null : Math.round(f.seconds) })),
+  };
+}

@@ -931,3 +931,17 @@ model AdminAudit {
   @@index([createdAt])
   @@index([actorId])
 }
+
+/// Événements de jeu en ajout seul, pour les statistiques d'administration (SPEC admin §3). Pas de donnée personnelle dans `data`.
+model GameEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  /// Joueur concerné (sans clé étrangère : l'événement survit à la suppression du compte)
+  userId    String?
+  type      String
+  data      Json?
+
+  @@index([createdAt])
+  @@index([type, createdAt])
+  @@index([userId, createdAt])
+}

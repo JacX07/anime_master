@@ -3,6 +3,7 @@
 
 import { loadAnimeIndex } from "./anime";
 import { prisma } from "./db";
+import { track } from "./events";
 import { notify } from "./notifications";
 
 export interface AchievementDef {
@@ -155,6 +156,7 @@ export async function checkAchievements(userId: string): Promise<AchievementDef[
         await notify(tx, userId, "ACHIEVEMENT", { label: def.label, amount: def.reward, special: def.special ?? 0 });
       });
       unlocked.push(def);
+      await track("achievement", userId, { key });
     } catch (err) {
       // Clé déjà prise par une vérification concurrente : rien à faire
       if (!(err instanceof Error && /Unique constraint|P2002/.test(err.message))) throw err;
