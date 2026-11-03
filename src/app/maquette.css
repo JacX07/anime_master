@@ -2428,12 +2428,12 @@
 .mq-player .mq-avatar { display: grid; place-items: center; flex-shrink: 0; }
 .mq-player-text b { text-transform: none; letter-spacing: .02em; }
 /* Écrans moyens : on ne garde que l'avatar à droite et on serre un peu la navigation pour que JOUER ne soit jamais chevauché */
-@media (max-width: 1499px) {
+@media (max-width: 1599px) {
   .mq-season-mark, .mq-player-text { display: none; }
   .mq-player .mq-avatar { width: 50px; height: 50px; }
   .mq-app-shell .mq-game-nav .mq-nav-side > :is(a, button), .mq-app-shell .mq-game-nav .mq-nav-dropdown > :is(a, button) { padding-inline: 8px; letter-spacing: .08em; }
 }
-@media (max-width: 1499px) { .mq-brand > span:last-child { display: none; } .mq-brand { min-width: 46px; } }
+@media (max-width: 1599px) { .mq-brand > span:last-child { display: none; } .mq-brand { min-width: 46px; } }
 
 /* Bouton JOUER (piste A) : forme taillée en or contrasté sur un calque interne (<i>), halo et trait de lumière sur le bouton lui-même (non rogné). */
 .mq-app-shell[class][class] .mq-play-button {
@@ -2457,3 +2457,22 @@
 @media (prefers-reduced-motion: reduce) { .mq-play-button::before { animation: none; } }
 @media (max-width: 1100px) { .mq-play-button::before { inset: -10px -6px; } }
 @media (max-width: 1100px) { .mq-app-shell[class][class] .mq-game-nav .mq-play-button { min-width: 240px; justify-self: center; } }
+
+/* Barre du haut ≥ 1600 px : JOUER centré sur la page, onglets de même largeur collés de part et d'autre (5 à gauche, 3 à droite). */
+@media (min-width: 1600px) {
+  .mq-app-shell[class] .mq-topbar { --tab-w: clamp(104px, 6.3vw, 124px); }
+  .mq-app-shell[class] .mq-game-nav {
+    position: absolute; inset: 0 auto 0 50%; transform: translateX(-50%); margin: 0; pointer-events: none;
+    grid-template-columns: calc(5 * var(--tab-w)) 138px calc(5 * var(--tab-w)); gap: 10px !important;
+  }
+  .mq-app-shell[class] .mq-topbar .mq-header-actions { margin-left: auto; }
+  .mq-app-shell[class] .mq-game-nav > * { pointer-events: auto; }
+  .mq-app-shell[class] .mq-game-nav::before, .mq-app-shell[class] .mq-game-nav::after { display: none; }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-left { justify-content: flex-end; }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-right { justify-content: flex-start; }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-side > :is(a, .mq-nav-dropdown) { flex: 0 0 var(--tab-w); width: var(--tab-w); }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-dropdown > a { width: 100%; padding-inline: 0; justify-content: center; }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-side > a { padding-inline: 0; justify-content: center; }
+}
+/* Le bloc « Saison » ne tient à côté des onglets que sur très grand écran. */
+@media (min-width: 1600px) and (max-width: 1849px) { .mq-season-mark { display: none; } }
