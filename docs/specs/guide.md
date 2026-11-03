@@ -1,6 +1,12 @@
 # Guide du joueur — Pew
 
-Scénario du guide intégré au jeu. **Proposition du 2026-11-03, à valider avant de coder.** Le lore est dans [lore.md](../../lore.md).
+## Version simple, codée le 2026-11-03
+
+Pour l’instant, pas de personnage : une page **Guide** (`/guide`, menu Quêtes › Guide du jeu) liste 16 étapes numérotées. Chaque étape indique où la trouver dans le menu, quoi y faire, son état (fait, à faire, verrouillé avec la condition, ou simple découverte) et un bouton « Y aller ». Une barre montre les étapes accomplies et un lien mène à la prochaine étape. Les états viennent des données d’aventure existantes (`src/lib/guide.ts`), sans nouvelle table.
+
+## Scénario avec Pew (en attente)
+
+Scénario du guide intégré au jeu. **Proposition du 2026-11-03, mise de côté : on garde la version simple ci-dessus pour l’instant.** Le lore est dans [lore.md](../../lore.md).
 
 ## 1. Principe
 

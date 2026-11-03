@@ -40,7 +40,13 @@ export function SiteHeader() {
         </div>
         <PlayMenu />
         <div className="mq-nav-side mq-nav-right">
-          <NavItem href="/quetes">Quêtes</NavItem>
+          <div className="mq-nav-dropdown">
+            <NavItem href="/quetes" match={["/guide"]}>Quêtes <span>⌄</span></NavItem>
+            <div className="mq-dropdown-panel">
+              <Link href="/quetes">Carnet de quêtes</Link>
+              <Link href="/guide">Guide du jeu</Link>
+            </div>
+          </div>
           <div className="mq-nav-dropdown">
             <NavItem href="/market" match={["/trades"]}>Marché <span>⌄</span></NavItem>
             <div className="mq-dropdown-panel">

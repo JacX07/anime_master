@@ -17,7 +17,7 @@ Les titres « Étape N » d'origine sont gardés dans chaque fichier, pour que l
 | [social.md](social.md) | Profils, amis, guildes, messagerie, succès | 5 | Succès codés ; social à faire |
 | [admin.md](admin.md) | Rôle admin, statistiques (boosters, combats, économie), actions sur les comptes, journal d'audit | — | Validée, rien codé |
 | [direction-visuelle.md](direction-visuelle.md) | Style « Citadelle sombre » tiré de la maquette Figma, remplace le style futuriste | — | Proposition, à valider |
-| [guide.md](guide.md) | Guide du joueur : scénario de Pew, prologue, astuces | — | Proposition, à valider |
+| [guide.md](guide.md) | Guide du joueur : page tutoriel en étapes ; scénario de Pew en attente | — | Page simple codée ; Pew en attente |
 
 ## Priorité
 1. **Système de combat** : finir les règles ([combat.md](combat.md)), puis le brancher en jeu.

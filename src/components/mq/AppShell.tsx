@@ -12,7 +12,7 @@ export function pageKey(path: string) {
   if (["equipe", "builder"].includes(p)) return "team";
   if (["market", "trades"].includes(p)) return "market";
   if (["u", "profil", "achievements"].includes(p)) return "profile";
-  if (p === "quetes") return "quests";
+  if (p === "quetes" || p === "guide") return "quests";
   if (p === "leaderboard") return "ranking";
   if (p === "histoire") return "story";
   if (p === "donjons") return "dungeons";
