@@ -155,7 +155,7 @@ Incident du 2026-11-03 : le code publié lisait `User.role` (migration `admin_ro
 
 1. **Sauvegarde** : Actions → Sauvegarde prod → Run workflow (§9).
 2. **Lister les migrations en attente** : comparer `ls prisma/migrations` avec ce que la prod a déjà appliqué (`npm run db:deploy` les applique toutes, mais n'en applique que les manquantes).
-3. **Migrer la prod** (URL du Session pooler, port 5432, jamais le Transaction pooler) :
+3. **Migrer la prod** (URL du **Session pooler**, port 5432, pas le Transaction pooler : les migrations sont des opérations longues) :
    ```bash
    cd ~/anime_master-postgres
    git pull && nvm use 24
@@ -172,6 +172,24 @@ Incident du 2026-11-03 : le code publié lisait `User.role` (migration `admin_ro
 - Compatible avec l'ancienne version du code (qui tourne encore quelques secondes) : on **ajoute** une colonne ou une table, on ne supprime ni ne renomme dans la même version.
 - Une nouvelle colonne obligatoire a une valeur par défaut.
 
-### Pool de connexions
+### Pool de connexions (réglage retenu le 2026-11-03)
 
-Le Session pooler de Supabase est limité à 15 clients (`pool_size`). Chaque instance Vercel en garde `DB_POOL_MAX` (2 par défaut en production, voir `src/lib/db.ts`). Le Transaction pooler (port 6543) a été essayé le 2026-11-03 et **rend les transactions interactives de Prisma trop lentes** (ouvertures de lots et combats en échec) : ne pas l'utiliser.
+| Variable Vercel (Production) | Valeur | Pourquoi |
+|---|---|---|
+| `DATABASE_URL` | **Transaction pooler**, port **6543** | Le site : une connexion n'est prêtée que le temps d'une requête, donc peu de connexions servent beaucoup de joueurs. |
+| `DIRECT_URL` | **Session pooler**, port **5432** | Les migrations (`db:deploy`) : opérations longues. |
+
+- **Supabase → Database → Settings → Connection pooling → Pool size : 15** (le projet est en calcul **Nano**, 381 Mo de RAM : plus de connexions = plus de mémoire engagée).
+- `src/lib/db.ts` : 2 connexions par instance (`DB_POOL_MAX`), connexions inactives fermées après 5 s.
+- `src/lib/auth.ts` : session en cache dans le cookie 5 minutes, ce qui évite une lecture en base à chaque page.
+
+Mesures du 2026-11-03 (test de 10 utilisateurs simultanés : inscription, 2 lots, squad, 3 combats d'Histoire) :
+
+| Configuration | Résultat |
+|---|---|
+| Session pooler (15 puis 30), 5 connexions par instance | effondrement dès 3 à 5 utilisateurs (`EMAXCONNSESSION`, timeouts de connexion) |
+| **Transaction pooler, pool 15, 2 connexions par instance, cache de session** | **10 utilisateurs : 0 échec sur 70 actions, 32 s** |
+
+Un premier essai du Transaction pooler avait échoué (transactions Prisma en timeout), mais il avait eu lieu **pendant que la base était déjà saturée** par les tests : l'essai à froid a ensuite réussi. Ne pas tester un changement de pooler juste après une rafale.
+
+Limites connues : au-delà de 10 simultanés, le test s'est dégradé, mais la machine de test (12 cœurs, 20 navigateurs) était elle-même saturée, donc la limite réelle du serveur n'est pas mesurée. Le calcul Nano (381 Mo de RAM) reste la contrainte de fond : au-delà de quelques dizaines de joueurs actifs, prévoir la taille Micro (plan Pro de Supabase).
