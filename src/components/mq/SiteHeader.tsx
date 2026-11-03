@@ -52,6 +52,8 @@ export function SiteHeader() {
             </div>
           </div>
           <NavItem href="/leaderboard">Classement</NavItem>
+          <NavItem href="/achievements">Succès</NavItem>
+          <NavItem href="/parametres">Paramètres</NavItem>
         </div>
       </nav>
       </Navigation>

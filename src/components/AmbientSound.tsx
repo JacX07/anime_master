@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { packAudio } from "@/lib/pack-audio";
 
+export const AUDIO_PREF_EVENT = "am-audio-pref";
 const INTERACTIVE = "a[href], button, summary, [role=button], [role=radio], [role=tab], [role=menuitem], label[for], .flip";
 // Ces éléments jouent leur propre son (ouverture de paquet, retournement des cartes, bouton d'ambiance)
 const OWN_SOUND = ".pk-open, .flip, .ambient-toggle, .ambient-ui";
@@ -11,13 +12,18 @@ const PRIMARY = ".pk-open, .vt-btn, .site-cta, .mq-header-cta, .mq-play-button, 
 /** Sons du site : musique d'ambiance (démarre au premier clic, se coupe en combat) et sons d'interface (survol, clic, sélection). */
 export function AmbientSound() {
   const [music, setMusic] = useState(false);
-  const [ui, setUi] = useState(true);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Préférences localStorage relues après hydratation pour garder le HTML serveur stable.
     setMusic(packAudio.ambienceWanted);
-    setUi(packAudio.uiWanted);
     packAudio.uiOn = packAudio.uiWanted;
+  }, []);
+
+  // La page Paramètres change les préférences : elle prévient ici pour démarrer ou couper l'ambiance.
+  useEffect(() => {
+    const sync = () => { setMusic(packAudio.ambienceWanted); };
+    window.addEventListener(AUDIO_PREF_EVENT, sync);
+    return () => window.removeEventListener(AUDIO_PREF_EVENT, sync);
   }, []);
 
   useEffect(() => {
@@ -84,14 +90,5 @@ export function AmbientSound() {
     };
   }, []);
 
-  return (
-    <div className="ambient-bar">
-      <button type="button" className="ambient-toggle" aria-pressed={music} onClick={() => { const next = !music; setMusic(next); packAudio.setAmbience(next); }} title="Musique d'ambiance">
-        {music ? "♪ Ambiance" : "♪ Muet"}
-      </button>
-      <button type="button" className="ambient-toggle ambient-ui" aria-pressed={ui} onClick={() => { const next = !ui; setUi(next); packAudio.setUi(next); }} title="Sons des boutons">
-        {ui ? "◈ Effets" : "◈ Sans effets"}
-      </button>
-    </div>
-  );
+  return null;
 }

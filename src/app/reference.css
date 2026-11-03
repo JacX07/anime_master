@@ -53,7 +53,6 @@
 .mq-app-shell .card:not([data-missing]) .card-kind { top: 8cqw; right: 8cqw; }
 
 /* Bouton d'ambiance sonore : discret, en bas à droite de toutes les pages */
-.ambient-bar { position: fixed; right: 14px; bottom: 14px; z-index: 40; display: flex; gap: 4px; }
 .ambient-toggle { padding: 6px 10px; border: 0; border-bottom: 2px solid transparent; background: #0b0e0fcc; color: #8c918b; font: 400 11px/1.5 var(--font-dm), sans-serif; cursor: pointer; }
 .ambient-toggle[aria-pressed="true"] { color: #e9e5dc; border-bottom-color: #c4a76d; }
 .ambient-toggle:hover { color: #e9e5dc; border-bottom-color: #c4a76d; }
