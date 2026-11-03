@@ -83,8 +83,8 @@
 .mq-app-shell .eq-character-dialog .artifact-tile-grid { grid-template-columns: repeat(auto-fill, 5.2rem); gap: .7rem; }
 
 @media (max-width: 62rem) {
-  .eq-character-dialog { height: 94vh; overflow-y: auto; }
-  .eq-character-dialog .cd { height: auto; grid-template-columns: 1fr; }
+  .mq-app-shell .eq-character-dialog, .eq-character-dialog { height: 94dvh; max-height: 94dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .eq-character-dialog .cd { height: auto; grid-template-columns: 1fr; padding-top: 3.8rem; }
   .eq-character-dialog .gear-slots { grid-template-columns: repeat(2, 1fr); }
   .eq-character-dialog .cd-hero .eq-art { height: 22rem; }
   .eq-character-dialog .cd-side { padding-right: 0; }
