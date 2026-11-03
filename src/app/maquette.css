@@ -2438,7 +2438,7 @@
 /* Bouton JOUER (piste A) : forme taillée en or contrasté sur un calque interne (<i>), halo et trait de lumière sur le bouton lui-même (non rogné). */
 .mq-app-shell[class][class] .mq-play-button {
   align-self: center; position: relative; isolation: isolate; display: grid; place-items: center;
-  height: 48px; padding: 0 38px; border: 0; background: none; cursor: pointer;
+  height: 48px; width: max-content; flex: none; white-space: nowrap; padding: 0 38px 0 calc(38px + .22em); border: 0; background: none; cursor: pointer;
   color: #17120a; font: 800 13px var(--font-cinzel), serif; letter-spacing: .22em; text-shadow: 0 1px 0 #ffffff66;
   transition: filter .2s ease, transform .2s ease;
 }
@@ -2456,3 +2456,4 @@
 @keyframes play-breathe { 50% { opacity: .55; transform: scale(.93); } }
 @media (prefers-reduced-motion: reduce) { .mq-play-button::before { animation: none; } }
 @media (max-width: 1100px) { .mq-play-button::before { inset: -10px -6px; } }
+@media (max-width: 1100px) { .mq-app-shell[class][class] .mq-game-nav .mq-play-button { min-width: 240px; justify-self: center; } }
