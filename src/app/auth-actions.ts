@@ -14,6 +14,7 @@ export interface AuthFormState {
 const ERRORS: Record<string, string> = {
   AUTH_RATE_LIMITED: "Trop de tentatives. Réessaie dans une minute.",
   AUTH_TEMPORARILY_UNAVAILABLE: "Authentification temporairement indisponible.",
+  INVALID_INVITE_CODE: "Code d'invitation invalide.",
   USER_ALREADY_EXISTS: "Un compte existe déjà avec cet email.",
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Un compte existe déjà avec cet email.",
   USERNAME_IS_ALREADY_TAKEN: "Ce pseudo est déjà pris.",
@@ -41,6 +42,7 @@ export async function signUp(_prev: AuthFormState, form: FormData): Promise<Auth
   const username = field(form, "username");
   const email = field(form, "email").toLowerCase();
   const password = String(form.get("password") ?? "");
+  const inviteCode = String(form.get("inviteCode") ?? "");
   const values = { username, email };
 
   if (!/^[a-zA-Z0-9_]+$/.test(username)) return { error: ERRORS.INVALID_USERNAME, values };
@@ -49,7 +51,9 @@ export async function signUp(_prev: AuthFormState, form: FormData): Promise<Auth
   if (password.length < PASSWORD_MIN) return { error: ERRORS.PASSWORD_TOO_SHORT, values };
 
   try {
-    await auth.api.signUpEmail({ body: { email, password, name: username, username } });
+    // `inviteCode` n'est pas un champ de Better Auth : il est lu par le hook (src/lib/auth-throttle.ts).
+    const body = { email, password, name: username, username, inviteCode };
+    await auth.api.signUpEmail({ body });
   } catch (err) {
     return { error: describe(err), values };
   }

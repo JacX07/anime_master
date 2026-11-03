@@ -179,6 +179,7 @@ Incident du 2026-11-03 : le code publié lisait `User.role` (migration `admin_ro
 | `DATABASE_URL` | **Transaction pooler**, port **6543** | Le site : une connexion n'est prêtée que le temps d'une requête, donc peu de connexions servent beaucoup de joueurs. |
 | `DIRECT_URL` | **Session pooler**, port **5432** | Les migrations (`db:deploy`) : opérations longues. |
 | `DB_POOL_MAX` | **8** | Connexions gardées par instance Vercel (voir ci-dessous). |
+| `INVITE_CODE` | phrase longue et aléatoire (12 caractères minimum) | Code demandé à l'inscription (voir §11). |
 
 - **Supabase → Database → Settings → Connection pooling → Pool size : 15** (le projet est en calcul **Nano**, 381 Mo de RAM : plus de connexions = plus de mémoire engagée).
 - `src/lib/db.ts` : 8 connexions par instance (`DB_POOL_MAX`), connexions inactives fermées après 5 s. Avec 2, une instance n'avait que 2 « tuyaux » : un combat ou un lot en occupe un pendant plusieurs secondes, les pages derrière attendaient plus de 10 s et échouaient (`timeout exceeded when trying to connect`, 59 erreurs lors d'un test de 20 joueurs). Avec 8 : **1 seule erreur serveur sur quatre tests de 20 joueurs**.
@@ -194,3 +195,17 @@ Mesures du 2026-11-03 (test de 10 utilisateurs simultanés : inscription, 2 lots
 Un premier essai du Transaction pooler avait échoué (transactions Prisma en timeout), mais il avait eu lieu **pendant que la base était déjà saturée** par les tests : l'essai à froid a ensuite réussi. Ne pas tester un changement de pooler juste après une rafale.
 
 Limites connues : au-delà de 10 simultanés, le test s'est dégradé, mais la machine de test (12 cœurs, 20 navigateurs) était elle-même saturée, donc la limite réelle du serveur n'est pas mesurée. Le calcul Nano (381 Mo de RAM) reste la contrainte de fond : au-delà de quelques dizaines de joueurs actifs, prévoir la taille Micro (plan Pro de Supabase).
+
+## 11. Inscription sur invitation
+
+Le site est privé : créer un compte demande un **code d'invitation**, que tu donnes à tes amis.
+
+- Le code est la variable **`INVITE_CODE`** (Vercel → Settings → Environment Variables, Production). Après un changement : **Redeploy**.
+- Le contrôle est fait **côté serveur**, dans le hook d'authentification (`src/lib/auth-throttle.ts`, fonction `inviteCodeValid` de `src/lib/invite.ts`), donc l'API `/api/auth/sign-up/email` appelée directement est bloquée aussi, pas seulement le formulaire.
+- **Sans `INVITE_CODE` en production, les inscriptions sont fermées** pour tout le monde (échec fermé). En développement et en test, sans variable, elles restent ouvertes.
+- Les essais de code comptent dans le limiteur de tentatives (10 par minute et par adresse, 300 par minute au total) : choisir un code d'au moins 12 caractères.
+- Les comptes existants se connectent sans code. Changer ou retirer le code ne déconnecte personne.
+- Casse et espaces autour du code sont ignorés.
+- Pour inviter quelqu'un : lui envoyer le code. Pour **révoquer** (code qui a fuité) : changer `INVITE_CODE` puis Redeploy.
+- Les scripts de test qui créent des comptes par HTTP (`scripts/audit-local-security.ts`) lisent `INVITE_CODE` dans leur environnement.
+- Contrôle automatique : `scripts/check-invite.ts`.

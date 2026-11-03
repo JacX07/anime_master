@@ -16,7 +16,7 @@ async function main() {
   const players: { id: string; cookie: string }[] = [];
   for (const suffix of ["a", "b"]) {
     const username = `audit${tag}${suffix}`;
-    const response = await request("/api/auth/sign-up/email", { method: "POST", headers: { "Content-Type": "application/json", Origin: base }, body: JSON.stringify({ email: `${username}@example.invalid`, password: "Disposable-pentest-2026!", name: username, username }) });
+    const response = await request("/api/auth/sign-up/email", { method: "POST", headers: { "Content-Type": "application/json", Origin: base }, body: JSON.stringify({ email: `${username}@example.invalid`, password: "Disposable-pentest-2026!", name: username, username, inviteCode: process.env.INVITE_CODE ?? "" }) });
     assert.equal(response.status, 200, "signup local");
     const payload = await response.json();
     assert.ok(await prisma.user.findUnique({ where: { id: payload.user.id } }), "Serveur relié à la même base jetable");
@@ -29,7 +29,7 @@ async function main() {
     assert.equal((await request("/api/album/more")).status, 401);
     assert.equal((await request("/api/builder/jobs")).status, 404);
     assert.equal((await request("/api/auctions/close", { method: "POST" })).status, 403);
-    const badOrigin = await request("/api/auth/sign-up/email", { method: "POST", headers: { "Content-Type": "application/json", Origin: "https://attacker.invalid" }, body: JSON.stringify({ email: `csrf${tag}@example.invalid`, password: "Disposable-pentest-2026!", name: "csrf", username: `csrf${tag}` }) });
+    const badOrigin = await request("/api/auth/sign-up/email", { method: "POST", headers: { "Content-Type": "application/json", Origin: "https://attacker.invalid" }, body: JSON.stringify({ email: `csrf${tag}@example.invalid`, password: "Disposable-pentest-2026!", name: "csrf", username: `csrf${tag}`, inviteCode: process.env.INVITE_CODE ?? "" }) });
     assert.equal(badOrigin.status, 403);
     assert.equal(await prisma.user.count({ where: { email: `csrf${tag}@example.invalid` } }), 0);
     for (const query of ["' OR 1=1 --", "'; DROP TABLE User; --", '<img src=x onerror=alert(1)>']) {

@@ -33,6 +33,12 @@ export function AuthForm({ mode, action }: Props) {
           />
         </label>
       )}
+      {signup && (
+        <label className="flex flex-col gap-1 text-sm">
+          Code d&apos;invitation
+          <input name="inviteCode" required autoComplete="off" spellCheck={false} className={inputClass} />
+        </label>
+      )}
       <label className="flex flex-col gap-1 text-sm">
         Email
         <input
