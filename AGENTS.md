@@ -45,6 +45,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Vérification sur le site
 
+- Compte de test pour se connecter (la plupart des pages redirigent vers `/login`) : voir `docs/compte-test.md`. Lancer le serveur de dev sur le port 3012, sinon le login échoue (`INVALID_ORIGIN`).
 - Pour chaque fonctionnalité développée, vérifier dans le navigateur sur le site en cours d’exécution que le parcours utilisateur fonctionne réellement et que les changements sont visibles. Les tests automatisés, le typecheck et le lint ne suffisent pas.
 - Vérifier avant le commit et le push, puis confirmer après le push que le site testé utilise bien la version poussée. Corriger les problèmes constatés et refaire le parcours avant d’annoncer la fonctionnalité terminée.
 - Tester les interactions concernées et les états pertinents (succès, erreur, persistance après rechargement), sur les vues et tailles d’écran affectées.
