@@ -1,3 +1,4 @@
+import { pvpClosedPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -69,6 +70,8 @@ function Team({ title, team }: { title: string; team: DuelView["myTeam"] }) {
 
 async function Duel({ params }: { params: PageProps<"/duels/[id]">["params"] }) {
   const user = await requireUser();
+  const closed = pvpClosedPanel();
+  if (closed) return closed;
   const { id } = await params;
   const d = await duelView(user.id, id);
   if (!d) notFound();

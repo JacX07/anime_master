@@ -12,10 +12,12 @@ Les rangs sont Éveillé (1–10), Traverseur (11–20), Tisseur de liens (21–
 
 ## Passages
 
-- Expéditions : niveau 3 et combat 5 de One Piece remporté.
+- Expéditions : niveau 25 (était 3, décision du 2026-11-03) et combat 5 de One Piece remporté.
 - Donjons : niveau 5 et combat 10 de One Piece remporté.
-- Tour : niveau 8 et One Piece terminé.
-- Raid : niveau 12 et les deux premiers univers terminés.
+- Tour : niveau 20 (était 8, décision du 2026-11-03) et One Piece terminé.
+- Raid : niveau 15 (était 12, décision du 2026-11-03) et les deux premiers univers terminés.
+
+- **Arène PvP et Arène live** : fermées (« pas encore disponible ») tant que `PVP_AVAILABLE` vaut `false` dans `src/lib/feature-flags.ts` ; les pages `/duels` et les actions de duel refusent.
 
 L’histoire seule fournit le niveau requis à chacun de ces jalons. Les conditions s’appliquent côté serveur au lancement. Les combats et expéditions déjà commencés restent terminables. Les pages verrouillées expliquent les conditions et renvoient vers les Quêtes.
 

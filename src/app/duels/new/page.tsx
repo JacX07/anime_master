@@ -1,3 +1,4 @@
+import { pvpClosedPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -22,6 +23,8 @@ export default function NewDuelPage({ searchParams }: PageProps<"/duels/new">) {
 
 async function NewDuel({ searchParams }: { searchParams: PageProps<"/duels/new">["searchParams"] }) {
   const user = await requireUser();
+  const closed = pvpClosedPanel();
+  if (closed) return closed;
   const sp = await searchParams;
   const to = typeof sp.to === "string" ? sp.to.trim().toLowerCase() : "";
   const other = to ? await prisma.user.findUnique({ where: { username: to }, select: { id: true, username: true, elo: true } }) : null;

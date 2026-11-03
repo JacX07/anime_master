@@ -1,3 +1,4 @@
+import { pvpClosedPanel } from "@/components/AdventureLock";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -78,6 +79,8 @@ function DuelList({ duels, empty }: { duels: DuelRow[]; empty: string }) {
 
 async function Duels({ searchParams }: { searchParams: PageProps<"/duels">["searchParams"] }) {
   const user = await requireUser();
+  const closed = pvpClosedPanel();
+  if (closed) return closed;
   const [duels, quota] = await Promise.all([listDuels(user.id), duelQuota(user.id)]);
   const open = duels.filter((d) => d.status === "PENDING" || d.status === "ACCEPTED");
   const lists: Record<Tab, { duels: DuelRow[]; empty: string }> = {
