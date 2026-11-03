@@ -27,25 +27,37 @@ async function loadAdventure(userId: string) {
   if (tower || battles.some((b) => b.mode === "TOWER")) legacy.add("tower");
   if (dungeon.length || battles.some((b) => b.mode === "DUNGEON")) legacy.add("dungeon");
   if (raid.length || battles.some((b) => b.mode === "RAID")) legacy.add("raid");
-  const records = await prisma.$transaction(async (tx) => {
-    // Postgres : sérialise les décisions concurrentes pour ce joueur.
-    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
-    const saved = await tx.adventureRecord.findMany({ where: { userId } });
+  const wanted = [...quests.filter((q) => q.done).map((q) => ({ key: q.key, xp: q.xp })), ...[...legacy].map((key) => ({ key: `access:${key}`, xp: 0 }))];
+  // Cas courant (rien de nouveau) : lecture seule, sans verrou. Cette fonction tourne à chaque affichage de page :
+  // une transaction verrouillant `User` à chaque fois bloquait toutes les écritures du joueur dès qu'une requête
+  // était interrompue en cours de route (session « idle in transaction », puis statement timeout 57014).
+  const pending = (saved: { key: string; xp: number }[]) => {
     const known = new Set(saved.map((r) => r.key));
-    const fresh = [...quests.filter((q) => q.done).map((q) => ({ key: q.key, xp: q.xp })), ...[...legacy].map((key) => ({ key: `access:${key}`, xp: 0 }))].filter((q) => !known.has(q.key));
-    if (fresh.length) await tx.adventureRecord.createMany({ data: fresh.map((r) => ({ userId, ...r })) });
-    const xp = saved.reduce((n, r) => n + r.xp, 0) + fresh.reduce((n, r) => n + r.xp, 0);
-    const level = adventureLevel(xp);
-    for (let n = 2; n <= level; n++) {
-      const key = `level:${n}`;
-      if (known.has(key)) continue;
-      await tx.adventureRecord.create({ data: { userId, key } });
-      const reward = 25 + (n % 10 === 0 ? 100 : 0);
-      await tx.user.update({ where: { id: userId }, data: { balance: { increment: reward } } });
-      await tx.currencyLedger.create({ data: { userId, amount: reward, reason: "ACHIEVEMENT", refId: `adventure:${key}` } });
-    }
-    return [...saved, ...fresh];
-  });
+    const fresh = wanted.filter((q) => !known.has(q.key));
+    const level = adventureLevel(saved.reduce((n, r) => n + r.xp, 0) + fresh.reduce((n, r) => n + r.xp, 0));
+    const levels: number[] = [];
+    for (let n = 2; n <= level; n++) if (!known.has(`level:${n}`)) levels.push(n);
+    return { fresh, levels };
+  };
+  let records: { key: string; xp: number }[] = await prisma.adventureRecord.findMany({ where: { userId }, select: { key: true, xp: true } });
+  const todo = pending(records);
+  if (todo.fresh.length || todo.levels.length) {
+    records = await prisma.$transaction(async (tx) => {
+      // Postgres : sérialise les décisions concurrentes pour ce joueur.
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+      const saved = await tx.adventureRecord.findMany({ where: { userId }, select: { key: true, xp: true } });
+      const { fresh, levels } = pending(saved); // relu sous verrou : une requête concurrente a pu tout enregistrer
+      if (fresh.length) await tx.adventureRecord.createMany({ data: fresh.map((r) => ({ userId, ...r })) });
+      for (const n of levels) {
+        const key = `level:${n}`;
+        await tx.adventureRecord.create({ data: { userId, key } });
+        const reward = 25 + (n % 10 === 0 ? 100 : 0);
+        await tx.user.update({ where: { id: userId }, data: { balance: { increment: reward } } });
+        await tx.currencyLedger.create({ data: { userId, amount: reward, reason: "ACHIEVEMENT", refId: `adventure:${key}` } });
+      }
+      return [...saved, ...fresh];
+    });
+  }
   const completed = new Set(records.map((r) => r.key));
   const xp = records.reduce((n, r) => n + r.xp, 0), level = adventureLevel(xp);
   const modes = ADVENTURE_MODES.map((mode) => ({ ...mode, unlocked: modeUnlocked(mode, level, story, completed.has(`access:${mode.key}`)), legacy: completed.has(`access:${mode.key}`) }));
