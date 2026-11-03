@@ -70,7 +70,7 @@ Implémentée sur `migration/postgres` : lint, types de routes, TypeScript, puis
 
 ### Étape 4 — Deux projets Supabase
 
-Bases dev et prod initialisées et catalogue chargé le 2026-11-03 ; sauvegarde ponctuelle restaurée en test, permissions publiques fermées. Copie externe et sauvegardes régulières encore à organiser. Voir [preparation-prod.md](preparation-prod.md).
+Bases dev et prod initialisées et catalogue chargé le 2026-11-03 ; sauvegarde ponctuelle restaurée en test, permissions publiques fermées. Copie externe et sauvegardes quotidiennes en place (section 9). Voir [preparation-prod.md](preparation-prod.md).
 
 - `anime-dev` et `anime-prod` (le plan gratuit permet 2 projets actifs).
 - Clés et URLs dans un coffre à part, jamais dans le repo. Variables d'environnement Vercel, une valeur par environnement.
@@ -95,7 +95,9 @@ Fusion `main` → `production`, tag `v0.1.0`, vérification du site en ligne (in
 
 ### Étape 8 — Plus tard
 
-Test de charge avant d'inviter plus de monde, alerte si le site tombe (UptimeRobot ou équivalent), Playwright sur 3–4 parcours clés, domaine personnalisé, sauvegardes régulières de la base prod.
+Test de charge avant d'inviter plus de monde, alerte si le site tombe (UptimeRobot ou équivalent), Playwright sur 3–4 parcours clés, domaine personnalisé.
+
+Les sauvegardes régulières de la base prod sont en place : voir la section 9.
 
 ## 6. Capacité attendue et limites du plan gratuit
 
@@ -122,3 +124,22 @@ Chiffres tirés de blogs tiers, **à vérifier** sur supabase.com/pricing et ver
 - Adresse **`*.vercel.app`** pour la bêta (décidé le 2026-11-02).
 - Illustrations : dans le repo ou Supabase Storage ?
 - **Remise à zéro des joueurs à la sortie officielle**, avec sauvegarde préalable de la bêta (décidé le 2026-11-02).
+
+## 9. Sauvegardes de la base prod
+
+- **Quoi** : `.github/workflows/backup-prod.yml` fait un `pg_dump` (format custom, PostgreSQL 17) de la base prod, le chiffre en AES256 avec `gpg` et l'envoie dans le bucket privé Cloudflare R2, dossier `daily/`.
+- **Quand** : tous les jours à 03:17 UTC, ou à la demande (Actions → Sauvegarde prod → Run workflow).
+- **Rétention** : 30 jours. Les fichiers plus anciens sont supprimés par le workflow.
+- **Secrets GitHub** : `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_BUCKET`, `PROD_DATABASE_URL`, `BACKUP_PASSPHRASE`. La phrase de passe est aussi dans le gestionnaire de mots de passe : sans elle, les sauvegardes sont illisibles.
+- **Taille** : environ 2,5 Mo par sauvegarde au 2026-11-03.
+
+### Restaurer (testé le 2026-11-03)
+
+1. Télécharger le `.dump.gpg` depuis R2 (hors du dépôt ; `*.gpg` est ignoré localement).
+2. `gpg --output restore.dump --decrypt fichier.dump.gpg` (la phrase de passe est demandée dans le terminal).
+3. Utiliser `pg_restore` en version 17 (`/usr/lib/postgresql/17/bin/`), pas celui d'Ubuntu 22.04 (14), qui refuse le format.
+4. `createdb restore_test && pg_restore --no-owner --no-privileges -d restore_test restore.dump`.
+5. Trois erreurs sur l'extension `supabase_vault` sont normales hors Supabase.
+6. Supprimer `restore.dump` et la base de test ensuite.
+
+À refaire de temps en temps (par exemple chaque mois) pour s'assurer que les sauvegardes restent lisibles.
