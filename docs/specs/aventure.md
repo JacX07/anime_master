@@ -23,9 +23,9 @@ L’histoire seule fournit le niveau requis à chacun de ces jalons. Les conditi
 
 ## Carnet
 
-L’onglet principal Quêtes (`/quetes`) présente le niveau, la barre d’XP, le lore du rang, le prochain passage, trois objectifs disponibles, les quatre modes et le journal filtrable : À suivre, Histoire, Découverte, Succès, Accomplies. Les objectifs futurs restent consultables. Le niveau est également visible dans le menu utilisateur.
+La page Quêtes (`/quetes`) présente le niveau, la barre d’XP, le lore du rang et le prochain passage. Elle conserve les **quêtes principales** d’histoire et de découverte dans un journal filtrable : À suivre, Histoire, Découverte et Accomplies. Les objectifs futurs restent consultables, avec leur état verrouillé. Leur XP est versée automatiquement une seule fois ; les objectifs accomplis restent mémorisés. Les succès gardent leur page dédiée.
 
-**Évolution (en cours de validation visuelle)** : le carnet n’affiche plus que les **quêtes quotidiennes et hebdomadaires**, avec leur progression, leur remise à zéro et un bouton « Récupérer » quand l’objectif est atteint. Les quêtes d’histoire, de découverte et les succès ne sont plus listés dans ce carnet. Leur XP continue d’être calculée et versée automatiquement : niveau, modes et guide restent inchangés. Règles des quêtes périodiques et barème : [economie.md](economie.md), § « Succès et quêtes périodiques ». Les récompenses se réclament (une fois par période) ; les quêtes périodiques ne donnent pas d’XP.
+Les **quêtes quotidiennes et hebdomadaires** s’ajoutent à ce journal, avec leur progression, leur remise à zéro et un bouton « Récupérer » quand l’objectif est atteint. Règles et barème : [economie.md](economie.md), § « Succès et quêtes périodiques ». Les cristaux se réclament une fois par période ; ces quêtes ne donnent pas d’XP.
 
 ## Historique et sûreté
 

@@ -16,6 +16,10 @@ const PERIODS = [["daily", "Quotidiennes", "Se remettent à zéro chaque jour à
 
 export function QuestBoard({ state, quests }: { state: Awaited<ReturnType<typeof getAdventure>>; quests: PeriodicQuestView[] }) {
   const router = useRouter();
+  const [filter, setFilter] = useState("À suivre");
+  const [limit, setLimit] = useState(20);
+  const mainQuests = state.quests.filter((q) => q.group !== "Succès");
+  const mainShown = mainQuests.filter((q) => filter === "Accomplies" ? q.done : filter === "À suivre" ? !q.done && q.available : q.group === filter && !q.done);
   const [period, setPeriod] = useState<"daily" | "weekly">("daily");
   const [error, setError] = useState<string | null>(null);
   const [busy, start] = useTransition();
@@ -36,6 +40,29 @@ export function QuestBoard({ state, quests }: { state: Awaited<ReturnType<typeof
   return <>
     <section className="quest-identity"><div><p className="quest-kicker">{state.rank.name}</p><h2>Arpenteur niveau {state.level}</h2><p>{state.rank.lore}</p></div><div className="quest-xp"><b>{state.xp.toLocaleString("fr-FR")} XP</b><progress aria-label="Progression vers le prochain niveau" value={state.next === null ? 1 : state.xp - state.floor} max={state.next === null ? 1 : state.next - state.floor} /><small>{state.next === null ? "Empreinte au niveau maximal" : `${state.next - state.xp} XP avant le niveau ${state.level + 1}`}</small></div></section>
     {nextMode && <section className="quest-next"><div><p className="quest-kicker">Prochain passage</p><h2>{nextMode.label}</h2><p>{nextMode.lore}</p></div><p>Niveau {nextMode.level} {state.level >= nextMode.level ? "✓" : `· actuel ${state.level}`}</p><Link href="/histoire" className="ui-button">Continuer l’histoire</Link></section>}
+    <section aria-labelledby="main-quests-title">
+      <div className="quest-journal-head">
+        <h2 id="main-quests-title" className="quest-section-title">Quêtes principales</h2>
+        <span>{mainQuests.filter((q) => q.done).length} objectifs accomplis</span>
+      </div>
+      <p className="qp-sub">L’histoire et les premières découvertes rapportent de l’XP automatiquement, une seule fois par objectif.</p>
+      <div className="quest-filters" role="group" aria-label="Filtrer les quêtes principales">
+        {["À suivre", "Histoire", "Découverte", "Accomplies"].map((name) => (
+          <button type="button" className="ui-button" key={name} aria-pressed={filter === name} onClick={() => { setFilter(name); setLimit(20); }}>{name}</button>
+        ))}
+      </div>
+      <ul className="quest-list">
+        {mainShown.slice(0, limit).map((q) => (
+          <li key={q.key}>
+            <div><small>{q.group}{q.done ? " · Accomplie" : !q.available ? " · À découvrir" : ""}</small><h3>{q.title}</h3><p>{q.description}</p></div>
+            <b>+{q.xp} XP</b>
+            {q.done ? <span>Accomplie · XP reçue</span> : q.available ? <Link className="ui-button" href={q.href}>Poursuivre</Link> : <span>Passage à ouvrir</span>}
+          </li>
+        ))}
+      </ul>
+      {!mainShown.length && <p className="qp-sub">Aucune quête dans cette catégorie pour le moment.</p>}
+      {mainShown.length > limit && <button type="button" className="quest-more ui-button" onClick={() => setLimit(limit + 20)}>Afficher la suite</button>}
+    </section>
     <section aria-label="Quêtes périodiques">
       <div className="qp-head">
         <div className="qp-tabs" role="tablist" aria-label="Période">

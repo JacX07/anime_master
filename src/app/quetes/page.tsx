@@ -9,7 +9,7 @@ import { PageHeading } from "@/components/mq/PageHeading";
 
 export const metadata = { title: "Quêtes — Anime Masters", robots: { index: false } };
 export default function QuestsPage() {
-  return <main className="vt"><div className="vt-inner quest-page"><PageHeading eyebrow="CARNET D’ARPENTEUR" title="Quêtes" description="Les quêtes du jour et de la semaine. Chaque quête accomplie rapporte des cristaux." /><Suspense fallback={<p>Ouverture du carnet…</p>}><Journal /></Suspense></div></main>;
+  return <main className="vt"><div className="vt-inner quest-page"><PageHeading eyebrow="CARNET D’ARPENTEUR" title="Quêtes" description="Suis les quêtes principales pour gagner de l’XP et récupère les cristaux des quêtes quotidiennes et hebdomadaires." /><Suspense fallback={<p>Ouverture du carnet…</p>}><Journal /></Suspense></div></main>;
 }
 async function Journal() {
   const user = await requireUser();
