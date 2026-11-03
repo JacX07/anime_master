@@ -43,3 +43,12 @@
   .mq-app-shell .squads-manager[class] .squad-picker-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mq-app-shell .squads-manager[class] .squad-picker-filters input { grid-column: 1 / -1; }
 }
+
+/* Emplacements et squads cliquables : contour pointillé doré, survol et focus visibles (demande du 2026-11-03) */
+.mq-app-shell .squads-manager[class] button.squad-card:not(:disabled) .squad-empty { position: relative; color: #d5bb7f; font-weight: 500; outline: 1px dashed #c4a76d88; outline-offset: -10px; cursor: pointer; transition: background .18s, color .18s, outline-color .18s; }
+.mq-app-shell .squads-manager[class] button.squad-card:not(:disabled) .squad-empty::after { content: ""; position: absolute; inset: auto 24px 18px; height: 2px; background: #c4a76d; transform: scaleX(.25); opacity: .5; transition: transform .2s, opacity .2s; }
+.mq-app-shell .squads-manager[class] button.squad-card:not(:disabled):is(:hover, :focus-visible) .squad-empty { background: #c4a76d1f; color: #f0dca3; outline-color: #c4a76d; }
+.mq-app-shell .squads-manager[class] button.squad-card:not(:disabled):is(:hover, :focus-visible) .squad-empty::after { transform: scaleX(1); opacity: 1; }
+.mq-app-shell .squads-manager[class] .squad-summary { cursor: pointer; transition: background .18s, color .18s; }
+.mq-app-shell .squads-manager[class] .squad-summary:hover:not(:disabled):not([aria-pressed="true"]) { background: #1d2220; color: #e9e5dc; }
+.mq-app-shell .squads-manager[class] .squad-summary:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
