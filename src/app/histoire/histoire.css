@@ -153,7 +153,7 @@
 .hs-camp-head h3 { font-size: 18px; margin: 0; }
 .hs-camp-head strong { color: #c4a76d; font-size: 14px; font-weight: 500; }
 .hs-prep-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
-.mq-app-shell .hs-card-choice[class] { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: #e9e5dc; text-align: left; cursor: pointer; }
+.mq-app-shell[class] button.hs-card-choice[class] { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: #e9e5dc; text-align: left; cursor: pointer; }
 .hs-card-choice .card, .hs-enemy-card .card { max-width: 164px; margin-inline: auto; }
 .hs-card-choice > small, .hs-enemy-card > small { display: block; text-align: center; margin-top: 6px; font: 400 11px/1.4 var(--font-sans); color: #b4b2aa; }
 .hs-card-choice:focus-visible { outline: 2px solid #c4a76d; outline-offset: 4px; }
@@ -196,3 +196,28 @@
   .hs-picker-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
 }
 @media(prefers-reduced-motion:reduce) { .hs-depart::after, .hs-depart > div { animation: none; } .hs-depart::after { display: none; } }
+
+/* Le décor reste lisible ; le titre et les jalons gardent leur contraste sur les nuages. */
+.hs-map-scene::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(225deg, #081311ee, #081311a8 18%, transparent 48%); }
+.hs-map-location h2 { color: #f4dfad; text-shadow: 0 2px 4px #000, 0 0 20px #000a; }
+.hs-map-location p { color: #f0ece2; text-shadow: 0 1px 3px #000; }
+.hs-map-parcours .hs-map-node { width: 54px; height: 58px; border: 0; border-radius: 15px 15px 25px 25px; background: linear-gradient(145deg, #34433b, #101c17 70%); color: #e0dac8; box-shadow: inset 0 0 0 1px #9b9575, inset 0 0 0 5px #101913, inset 0 0 0 6px #776c4c, 0 5px 12px #0008; }
+.hs-node-face { display: grid; justify-items: center; align-content: center; gap: 1px; }
+.hs-map-parcours .hs-node-face .i { width: 15px; height: 15px; }
+.hs-node-face b { font: 500 20px/1 var(--font-display); }
+.hs-map-parcours .hs-map-node.is-current { width: 58px; height: 62px; background: linear-gradient(145deg, #796339, #342d1b 70%); color: #ffe7a4; box-shadow: inset 0 0 0 1px #ead198, inset 0 0 0 5px #332d1b, inset 0 0 0 6px #b89a59, 0 0 0 5px #d5b56c30, 0 5px 20px #0008; }
+.hs-map-parcours .hs-map-node.is-current::after { content: "À JOUER"; position: absolute; bottom: calc(100% + 6px); padding: 3px 7px; border-radius: 3px; background: #142019; color: #f5d68d; font: 600 8px/1.2 var(--font-dm), sans-serif; letter-spacing: .12em; white-space: nowrap; }
+.hs-map-parcours .hs-map-node.is-done { background: linear-gradient(145deg, #514e34, #19251c); color: #e2c585; }
+.hs-map-parcours .hs-map-node:disabled { opacity: 1; color: #b7bcb2; filter: saturate(.2); }
+.hs-map-parcours .hs-map-node.is-boss { width: 58px; height: 62px; background: linear-gradient(145deg, #543c38, #241d1b); box-shadow: inset 0 0 0 1px #b17d6d, inset 0 0 0 5px #241d1b, inset 0 0 0 6px #71554b, 0 5px 12px #0008; }
+.hs-map-parcours .hs-map-node.is-boss.is-current { box-shadow: inset 0 0 0 1px #ead198, inset 0 0 0 5px #332d1b, inset 0 0 0 6px #b89a59, 0 0 0 5px #d5b56c30, 0 5px 20px #0008; }
+.hs-map-parcours .hs-map-node small { top: calc(100% + 6px); padding: 3px 8px; border-radius: 4px; background: #0b1716ed; color: #eee9dc; text-shadow: none; font-size: 10px; line-height: 1.35; }
+.hs-map-parcours .hs-map-node.is-current small { color: #fff2d0; }
+.hs-map-parcours .hs-node-stars { color: #edcf85; font-size: 10px; }
+.mq-app-shell[class] button.hs-card-choice[class]:has(.hs-empty-slot) { text-align: center; }
+.hs-empty-slot { gap: 10px; align-content: center; padding: 12px; box-sizing: border-box; background: radial-gradient(ellipse at 50% 35%, #28352b66, transparent 70%), #151e18; box-shadow: inset 0 0 0 1px #53634655; border-radius: 5px; }
+.hs-empty-slot .i { width: 34px; height: 34px; color: #a38d5c; opacity: .8; }
+.hs-empty-slot b { color: #c8b888; font: 500 12px var(--font-display); }
+.hs-empty-slot > span { max-width: 14ch; color: #b4bcb1; font: 400 11px/1.4 var(--font-dm), sans-serif; }
+.mq-app-shell[class] button.hs-card-choice[class]:hover:not(:disabled) .hs-empty-slot { background-color: #202d22; box-shadow: inset 0 0 0 1px #b79e60; }
+@media(max-width:600px) { .hs-empty-slot { min-height: 170px; } }

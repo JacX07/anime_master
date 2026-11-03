@@ -8,8 +8,8 @@ import { STORY_ART } from "./story-art";
 import { StoryDrops } from "./StoryDrops";
 import { StarRewards } from "./StarRewards";
 
-const points = [[180, 378], [355, 320], [475, 240], [315, 160], [200, 70]];
-const route = "M180 378C180 350 355 350 355 320S475 280 475 240 315 200 315 160 200 115 200 70";
+const points = [[180, 365], [355, 320], [475, 240], [315, 160], [200, 70]];
+const route = "M180 365C180 345 355 350 355 320S475 280 475 240 315 200 315 160 200 115 200 70";
 
 export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
   universes: UniverseView[];
@@ -51,7 +51,7 @@ export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
             style={{ left: `${x / 680 * 100}%`, top: `${y / 440 * 100}%` }} aria-current={current ? "step" : undefined}
             aria-label={`${world.name}, combat ${n}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}, ${count} étoiles`}
             onClick={() => onPrepare(n, world)}>
-            {isBoss(n) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }}/> : !unlocked ? <Icon name="lock"/> : done ? <Icon name="valider"/> : n}
+            <span className="hs-node-face" aria-hidden="true">{isBoss(n) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }}/> : <><Icon name={!unlocked ? "lock" : done ? "valider" : "atk"}/><b>{n}</b></>}</span>
             <small>{isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}<span className="hs-node-stars">{done ? "★".repeat(count) + "☆".repeat(3 - count) : current ? "Vous êtes ici" : ""}</span>{STORY_BOSSES[world.key]?.[n] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][n].name}</span>}</small>
           </button>;
         })}

@@ -359,10 +359,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : « Récupérer » reste gris et le choix du lot déborde à gauche sur téléphone. Les pastilles des filtres perdent leur contour.
 - Cause : spécificité du sélecteur partagé des boutons, grille d’ouverture à deux colonnes trop large, suppression globale des bordures.
 - Correctif : sélecteurs des récompenses dans le shell, une colonne pour les contrôles sur téléphone, contour des pastilles avec outline.
-- Occurrences : 3 (récompenses/filtres, bouton d’ouverture, puis actions de préparation histoire le 2026-11-03).
+- Occurrences : 4 (récompenses/filtres, bouton d’ouverture, actions de préparation histoire, puis emplacements sans carte le 2026-11-03).
 - Validation : doré calculé #c4a76d et fond transparent sur « Récupérer » ; commandes ×5/×10 dans la largeur à 390 px ; contours des pastilles présents. Corrigé.
 
-- Complément : `identity.css` redessinait un encadrement via `::after` et `controls.css` ajoutait un fond via `::before`. L’ouverture reçoit désormais un style textuel partagé, assez spécifique pour neutraliser ces deux couches ; son prix reste dans le sélecteur. Le même style partagé `text-action` est réutilisé pour les actions histoire.
+- Complément : `identity.css` redessinait un encadrement via `::after` et `controls.css` ajoutait un fond via `::before`. L’ouverture reçoit désormais un style textuel partagé, assez spécifique pour neutraliser ces deux couches ; son prix reste dans le sélecteur. Le même style partagé `text-action` est réutilisé pour les actions histoire. Les emplacements vides, sans image ni SVG, étaient aussi capturés par le sélecteur des boutons textuels : affichage horizontal et proportions cassées. Le sélecteur explicite `button.hs-card-choice` dans le shell doit rester prioritaire, y compris sans carte.
 
 ## 2026-11-03 — Reprise des quatre visuels validés (feedback Lester)
 
@@ -397,3 +397,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Contrôles : typecheck et ESLint TypeScript réussis, `check-story-map.ts` et nouveau `check-story-preparation.ts` réussis (aperçu sans écriture, verrous, parité des ennemis et puissances avec le moteur, éveil/artefact, quatre/duo), build complet réussi sous Node 24. `graphify update .` réussi ; ses fichiers déjà modifiés avant reprise restent hors du commit de fonctionnalité.
 - Détail de catalogue pour les tests : les noms en base sont « Lucci Rob » et « Doflamingo Donquixote » ; les noms d’affichage des jalons sont dans `STORY_BOSSES`. Identifier les boss par leur `characterId` dans les assertions de données.
 - Suite : maquette du visuel de combat, puis audio, donjons, social et tutoriel, un lot à la fois. Les cadres restent inchangés. Aucun serveur supplémentaire et aucune publication en production.
+
+## 2026-11-03 — Contraste de la carte histoire signalé par l’utilisateur
+
+- Symptôme : « Grand Line » et les légendes des jalons se perdent sur les nuages blancs. Le jalon courant paraît trop simple.
+- Cause : titre blanc sans protection de contraste locale ; légendes posées directement sur l’image claire.
+- Correctif : ombre sombre localisée derrière le titre, texte ivoire/doré ; jalons héraldiques avec sceau intérieur, épées du sprite, numéro et libellés sur fond sombre. Emplacements vides également corrigés à partir des captures utilisateur.
+- Validation : navigateur à 1440/390 px sur compte neuf sans cartes : titre, cinq jalons, verrous, préparation au clic, quatre emplacements verticaux au ratio des cartes et libellés dessous, sélection vide, fermeture Échap, focus clavier et légende du jalon courant non coupée. Typecheck, ESLint ciblé, contrôle de carte et actualisation Graphify réussis. Build complet non relancé pour cette retouche visuelle.
