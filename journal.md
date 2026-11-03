@@ -353,3 +353,18 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : réutiliser le menu compact sous 1500 px, garder ressources et XP visibles et répartir l’en-tête sur deux rangées sur téléphone.
 - Occurrences : 1.
 - Validation : ressources et XP visibles à 1440 et 390 px, aucun débordement horizontal ; menu mobile, verrous et lien Paramètres testés.
+
+## 2026-11-03 — Styles des contrôles prioritaires sur les nouveaux composants
+
+- Symptôme : « Récupérer » reste gris et le choix du lot déborde à gauche sur téléphone. Les pastilles des filtres perdent leur contour.
+- Cause : spécificité du sélecteur partagé des boutons, grille d’ouverture à deux colonnes trop large, suppression globale des bordures.
+- Correctif : sélecteurs des récompenses dans le shell, une colonne pour les contrôles sur téléphone, contour des pastilles avec outline.
+- Occurrences : 1.
+- Validation : doré calculé #c4a76d et fond transparent sur « Récupérer » ; commandes ×5/×10 dans la largeur à 390 px ; contours des pastilles présents. Corrigé.
+
+## 2026-11-03 — Reprise des quatre visuels validés (feedback Lester)
+
+- Branche : `chantier/feedback-lester`, checkout `anime_master-postgres`. Travail séquentiel, un seul Next dev sur 3012.
+- Vérifications navigateur : Ryō/XP/engrenage, menu compact et verrous ; succès individuel puis tout récupérer (versements et persistance) ; quête quotidienne après trois ouvertures (+2 cristaux, persistance), onglet hebdomadaire et exclusion des quêtes inaccessibles ; booster gratuit ×10 unique sans débit ; deux ×5 faisant avancer le boost ; choix ×10 ; animations SSR et UR (UR déclenchée par une fixture de pity sur le compte jetable uniquement) ; album Tous, filtres SSR+Combat, compteur 1/2, effacement, largeurs 1440/390.
+- Vérifications techniques : typecheck, ESLint ciblé, check-achievements et check-periodic-quests réussis.
+- Suite : présenter une maquette avant de coder cadres des cartes, carte histoire, combat, sons, social. Aucun autre agent à relancer ; ne pas publier en production.
