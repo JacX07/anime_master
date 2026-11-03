@@ -50,7 +50,7 @@ Physicien et théoricien de l'univers 483. Depuis des années, il défend la **t
 En 1700, les premières failles lui donnent raison. Il comprend vite qu'il s'agit d'une anomalie à corriger au plus tôt, et il construit la machine qui permet de le faire.
 
 - Caractère **[à valider]** : brillant, obstiné, pressé par l'urgence, porte la culpabilité d'avoir « attendu » ce jour. Pas un héros d'action : il réfléchit, il calcule, il envoie les autres sur le terrain.
-- Rôle en jeu : donne les missions et explique les mécaniques (PNJ du laboratoire).
+- Rôle en jeu : apparaît dans le prologue et aux grands moments (premier retour, fin d'un univers). Le guide au quotidien, c'est Pew.
 
 ### Alice
 Élève de Bernstein, devenue sa collègue. Elle a fait les calculs que Bernstein n'avait pas la patience de faire, et c'est elle qui tient la machine en état de marche.
@@ -68,24 +68,24 @@ Pew surgit un jour d'une brèche. Son origine est inconnue, mais sa signature pr
 
 La brèche se referme avant que la machine puisse établir une ancre d'origine. On ne peut donc pas calculer son retour. La même règle vaut pour toute personne dont l'origine est introuvable : Pew ne bénéficie d'aucune exception.
 
-Pew accompagne l'équipe comme compagnon-guide, hors des combats. Il sent la proximité de certaines brèches, sans en connaître la destination, la cause ou ce qui se trouve de l'autre côté. Il signale une piste ; il ne résout pas l'enquête.
+Pew est le **guide du jeu** : il parle au joueur et lui indique quoi faire (scénario dans [docs/specs/guide.md](docs/specs/guide.md)). Il reste hors des combats. Il sent la proximité de certaines brèches, sans en connaître la destination, la cause ou ce qui se trouve de l'autre côté. Il signale une piste ; il ne résout pas l'enquête.
 
-**Direction de caractérisation** : sa curiosité, sa peur et son attachement passent par ses gestes, pas par des explications. Il regarde les êtres secourus repartir vers leur univers et réagit peu à peu à ces départs. Il ne parle pas (ou très peu) **[à valider]**.
+**Direction de caractérisation** : il parle par phrases courtes et concrètes. Il explique quoi faire, jamais d'où il vient : sa curiosité, sa peur et son attachement passent par ses gestes. Il regarde les êtres secourus repartir vers leur univers et réagit peu à peu à ces départs.
 
 ### Les chasseurs rivaux
-Bernstein n'est pas le seul à avoir compris. Dans d'autres univers, des savants comme lui ont fait la même découverte et construit des machines semblables. Certains sont même des **versions de Bernstein ou d'Alice** venues d'autres étages de la Tour **[à valider]**.
+Bernstein n'est pas le seul à avoir compris. Dans d'autres univers, des savants comme lui ont fait la même découverte et construit des machines semblables. Certains sont même des **versions de Bernstein ou d'Alice** venues d'autres étages de la Tour.
 
 Mais tous n'ont pas les mêmes intentions. Certains ne renvoient pas les êtres qu'ils capturent : ils les **gardent captifs** et les forcent à se battre pour eux, afin d'assouvir leur soif de domination et de **régner sur le multivers**. Chaque capture qu'ils gardent aggrave le dérèglement et rapproche les mondes de la collision.
 
-- Nom de la faction **[à valider]** : propositions *les Geôliers*, *la Ménagerie*, *l'Ordre de la Chaîne*, *les Dompteurs*.
+- Nom de la faction : **l'Ordre de la Chaîne**.
 - Différence morale avec le joueur : l'Arpenteur renvoie l'être chez lui et ne garde qu'un **écho** (voir §4) ; le rival garde l'être lui-même, enchaîné.
-- Rôle en jeu : adversaires de l'histoire (combats contre leurs équipes), boss d'acte possibles, et explication de l'arène (voir §5).
+- Rôle en jeu : ils **n'apparaissent pas dans le mode histoire**. Dans l'arène, les autres Arpenteurs sont des rivaux (voir §5).
 
 ---
 
 ## 4. La machine de Bernstein
 
-Une seule machine, deux fonctions.
+**L'Araignée de Bernstein** : une seule machine, deux fonctions.
 
 ### Le détecteur
 Il repère les signatures qui ne correspondent pas à leur univers et cherche une route vers leur origine. Détecter ne suffit pas : le retour exige une **signature complète** et une **ancre d'origine stable** qui donne une destination fiable. La machine peut repérer un être sans savoir encore où le renvoyer.
@@ -93,7 +93,7 @@ Il repère les signatures qui ne correspondent pas à leur univers et cherche un
 ### L'attrapeur
 Les êtres venus des univers d'anime apparaissent sous forme **bidimensionnelle**. L'attrapeur les capture et les fige dans une **carte** pour les transporter sans danger. La machine consomme des **cristaux** pour capturer : un cristal, une capture.
 
-Nom de la machine **[à valider]** : la direction d'origine était une machine-araignée qui tisse les fils entre les univers (sans reprendre de nom ni de visuel existant). Propositions : *le Métier*, *la Fileuse*, *l'Araignée de Bernstein*.
+Nom de la machine : **l'Araignée de Bernstein**, une machine-araignée qui tisse les fils entre les univers (sans reprendre de nom ni de visuel existant).
 
 ### Retour, empreinte et écho
 1. L'Arpenteur capture l'être dans une carte.
@@ -122,7 +122,7 @@ Cette règle est le cœur moral du jeu : l'Arpenteur ne garde personne prisonnie
 | Raid et cœurs de brèche | Créatures géantes sorties des brèches majeures ; leur cœur sert aux étoiles 4 et 5. |
 | Donjons | Repaires dans un univers, gardés par un boss unique. |
 | Tour multiverselle | Gravir les étages de l'univers 0 vers l'étage 500, sans jamais l'atteindre (pour l'instant). |
-| Arène (PvP) | **[à valider]** Combats d'échos entre Arpenteurs pour s'entraîner contre les méthodes des chasseurs rivaux, ou affrontements directs contre leurs équipes. |
+| Arène (PvP) | Les autres Arpenteurs sont des rivaux : on mesure ses échos aux leurs. |
 | Bourse des brèches | Marché parallèle toléré entre Arpenteurs. Ceux qui revendent avec profit reçoivent le titre permanent de « mercenaire ». |
 | Niveau d'Arpenteur | Reconnaissance de l'équipe Bernstein, rang après rang. |
 
@@ -158,10 +158,10 @@ Cette règle est le cœur moral du jeu : l'Arpenteur ne garde personne prisonnie
 
 ---
 
-## 9. Questions ouvertes
-1. Bernstein et Alice **remplacent-ils** le Dr Hakase et Akari de la première version ? (Ce guide part du principe que oui.)
-2. Garder le nom « téléporteur inversé », ou parler d'une machine à deux fonctions (détecteur + attrapeur) avec son propre nom ?
-3. Nom de la faction des chasseurs rivaux, et existence de versions alternatives de Bernstein et d'Alice.
-4. L'arène PvP : combats amicaux entre Arpenteurs, ou combats contre les rivaux ?
-5. Les rivaux apparaissent-ils dans le mode histoire (boss d'acte, univers dédié) ?
-6. Pew parle-t-il ?
+## 9. Décisions (2026-11-03)
+1. Bernstein et Alice **remplacent** le Dr Hakase et Akari.
+2. La machine s'appelle **l'Araignée de Bernstein**.
+3. Les chasseurs rivaux forment **l'Ordre de la Chaîne** ; certains sont des versions de Bernstein ou d'Alice.
+4. Arène : les autres Arpenteurs sont des rivaux.
+5. Les rivaux n'apparaissent pas dans le mode histoire.
+6. Pew parle et sert de guide.
