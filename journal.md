@@ -331,3 +331,17 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - À envisager : `idle_in_transaction_session_timeout` côté base en filet de sécurité.
 - Occurrences : 1 (plusieurs sessions orphelines le même jour).
 - Statut : corrigé dans main, à publier et à confirmer en prod.
+
+## 2026-11-03 — Inscription locale refusée (« Invalid origin ») sur un autre port que 3012
+
+- Symptôme : `POST /api/auth/sign-up/email` renvoie `INVALID_ORIGIN` quand le serveur de dev tourne sur le port 3100.
+- Cause : `BETTER_AUTH_URL` vaut `http://localhost:3012` dans `.env` ; Better Auth n'accepte que cette origine.
+- Contournement : lancer `next dev -p 3012` pour les vérifications avec connexion (et envoyer `Origin: http://localhost:3012`).
+- Occurrences : 1.
+
+## 2026-11-03 — Sept sessions en parallèle saturent la machine
+
+- Symptôme : load average ≈ 38, mémoire presque pleine, `npm install` de 20 min, première compilation de 10 min, deux sessions en échec (« timed out while registering its MCP tools »).
+- Cause : chaque session avait son worktree, son `npm install`, son `next dev` et son navigateur headless.
+- Contournement : une seule branche, un seul serveur à la fois, arrêté après chaque vérification.
+- Occurrences : 1.
