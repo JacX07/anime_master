@@ -85,7 +85,11 @@ export function StoryBoard({ universes, team, attackIds, ownedCards, stock }: Pr
   const selectedIds = duo ? duoIds : attackIds.filter((id): id is string => !!id);
   const ready = duo ? duoIds.length === 2 : team.every(Boolean);
 
-  function run(level: number, u: UniverseView = fight?.universe ?? universes[0]) {
+  // `fight.universe` est une copie prise au premier combat : sa progression (maxLevel) reste figée.
+  // On relit donc toujours l'univers courant dans `universes`, que router.refresh() met à jour.
+  const freshUniverse = (u: UniverseView) => universes.find((x) => x.key === u.key) ?? u;
+
+  function run(level: number, u: UniverseView = freshUniverse(fight?.universe ?? universes[0])) {
     setError(null);
     start(async () => {
       // Combat suivi par le serveur : Auto ou Manuel comme au dernier combat, modifiable en route
@@ -104,7 +108,8 @@ export function StoryBoard({ universes, team, attackIds, ownedCards, stock }: Pr
   }
 
   if (fight) {
-    const { battle, universe: fu, level } = fight;
+    const { battle, level } = fight;
+    const fu = freshUniverse(fight.universe);
     return (
       <section className="hs-fight">
         <LiveBattle
