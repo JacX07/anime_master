@@ -169,7 +169,7 @@
   .mq-app-shell .mq-game-nav .mq-nav-dropdown > :is(a, button) { min-height: 44px; height: auto; justify-content: flex-start; font-size: 13px; }
   .mq-app-shell .mq-game-nav .mq-dropdown-panel { position: static; width: auto; padding: 0 8px; opacity: 1; visibility: visible; transform: none; box-shadow: none; background: none; backdrop-filter: none; }
   .mq-app-shell .mq-game-nav .mq-dropdown-panel a { min-height: 44px; align-items: center; font-size: 12px; }
-  .mq-app-shell .mq-game-nav .mq-play-button { width: 100%; min-height: 44px; }
+  .mq-app-shell .mq-game-nav .mq-play-button { width: min(100%, 420px); min-height: 48px; justify-self: center; }
   .mq-app-shell .mq-header-cta { padding-inline: 8px; }
   .mq-app-shell .mq-header-link { font-size: 12px; }
   .mq-app-shell .mq-player .mq-avatar { width: 44px; height: 44px; }

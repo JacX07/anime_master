@@ -37,8 +37,8 @@ export function PlayMenu({ locks = {} }: { locks?: Record<string, string> }) {
   return (
     <>
       <button type="button" className={`mq-play-button ${open ? "mq-active" : ""}`} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(!open)}>
-        <span>JOUER</span>
         <i />
+        <span>JOUER</span>
       </button>
       {open && createPortal(
         <div className="mq-app-shell mq-play-root"><div className="mq-play-overlay" onClick={() => setOpen(false)}>
