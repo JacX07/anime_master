@@ -322,3 +322,12 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Piège connexe : le Session pooler Supabase est limité à 15 clients (`EMAXCONNSESSION`) ; pool réduit à 2 par instance et session en cache cookie. Un premier essai du Transaction pooler avait échoué parce qu'il avait lieu pendant une saturation ; à froid, il tient 10 utilisateurs simultanés sans échec (DATABASE_URL en 6543, DIRECT_URL en 5432). Ne jamais conclure sur un pooler juste après une rafale de tests.
 - Occurrences : 2 (auth_throttle, puis admin_roles et game_events). À proposer en règle dans AGENTS.md avec l'accord de l'utilisateur.
 - Statut : correctif de doc fait, migration prod à confirmer.
+
+## 2026-11-03 — Écritures qui se figent (combat, booster, équipe) : verrou `User` laissé par une transaction orpheline
+
+- Symptôme : « Ouverture… » ou boutons de combat grisés indéfiniment, puis `57014 canceling statement due to statement timeout` (ex. `StoryStageStar.createMany`). Les pages en lecture restent rapides.
+- Cause : `getAdventure` (appelé par l'en-tête de chaque page) ouvrait une transaction avec `SELECT … FOR UPDATE` sur `User` même sans rien à écrire. Si la requête était interrompue en cours de route, la session restait « idle in transaction » avec le verrou et bloquait toutes les écritures du joueur (`pg_stat_activity` : `pg_blocking_pids` pointe la session orpheline).
+- Correctif : lecture seule d'abord, transaction uniquement s'il y a des objectifs ou niveaux à enregistrer (`adventure-state.ts`, commit 3badae7). Dépannage en attendant : `pg_terminate_backend` des sessions `idle in transaction` > 10 s.
+- À envisager : `idle_in_transaction_session_timeout` côté base en filet de sécurité.
+- Occurrences : 1 (plusieurs sessions orphelines le même jour).
+- Statut : corrigé dans main, à publier et à confirmer en prod.
