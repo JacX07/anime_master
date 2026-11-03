@@ -37,7 +37,7 @@ export function albumHref(filters: Filters, patch: Partial<Filters> = {}) {
 
 function Chip({ href, active, children, color, title }: { href: string; active: boolean; children: React.ReactNode; color?: string; title?: string }) {
   return (
-    <Link href={href} className="vt-chip" data-active={active} aria-pressed={active} title={title} style={color ? ({ "--rar": color } as React.CSSProperties) : undefined}>
+    <Link href={href} className="vt-chip" data-active={active} aria-current={active ? "true" : undefined} title={title ?? (active ? "Filtre actif" : "Cliquer pour filtrer")} style={color ? ({ "--rar": color } as React.CSSProperties) : undefined}>
       {children}
     </Link>
   );
@@ -91,6 +91,11 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
             </Chip>
           ))}
         </div>
+        {(filters.rarity || filters.type) && (
+          <Link href={albumHref(filters, { rarity: null, type: null })} className="album-filters-clear ui-button">
+            {(filters.rarity ? 1 : 0) + (filters.type ? 1 : 0)} filtre{filters.rarity && filters.type ? "s" : ""} actif{filters.rarity && filters.type ? "s" : ""} · Effacer
+          </Link>
+        )}
       </div>
     </div>
   );
