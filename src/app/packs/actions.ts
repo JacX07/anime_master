@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { BannerError, ConcurrentOpeningError, NoPackAvailableError, openPack, type OpenedPack } from "@/lib/packs";
+import { BannerError, ConcurrentOpeningError, NoPackAvailableError, openPack, openWelcomeBooster, WelcomeBoosterClaimedError, type OpenedPack } from "@/lib/packs";
 import { LOT_SIZES, type LotSize } from "@/lib/pull";
 import { checkAchievementsSafe } from "@/lib/achievements";
 import { getSessionUser } from "@/lib/session";
@@ -32,7 +32,25 @@ export async function openPackAction(size: number = 5, bannerId: string | null =
   }
 }
 
-export type BuyCrystalsResult = { ok: true; state: Awaited<ReturnType<typeof getPackState>> } | { ok: false; error: string };
+/** Récupère et ouvre le booster de bienvenue ×10 (gratuit, une seule fois par compte). */
+export async function openWelcomeBoosterAction(): Promise<OpenPackResult> {
+  const user = await getSessionUser();
+  if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
+  try {
+    const pack = await openWelcomeBooster(user.id);
+    await checkAchievementsSafe(user.id);
+    revalidatePath("/album");
+    return { ok: true, pack };
+  } catch (err) {
+    if (err instanceof WelcomeBoosterClaimedError) return { ok: false, error: err.message };
+    // Une autre requête (double clic) a récupéré le booster en même temps : la page affichera l'état réel au rechargement
+    if (err instanceof ConcurrentOpeningError) return { ok: false, error: "Ton booster de bienvenue est déjà en cours d'ouverture. Recharge la page pour vérifier." };
+    console.error("Échec du booster de bienvenue :", err);
+    return { ok: false, error: "L'ouverture a échoué, réessaie." };
+  }
+}
+
+export type BuyCrystalsResult ={ ok: true; state: Awaited<ReturnType<typeof getPackState>> } | { ok: false; error: string };
 
 /** Achète 5 ou 25 cristaux avec des Ryō et renvoie le nouvel état (stock, solde, achats restants). */
 export async function buyCrystalsAction(count: number = 5): Promise<BuyCrystalsResult> {

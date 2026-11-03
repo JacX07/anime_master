@@ -154,6 +154,8 @@ model User {
   /// Tirages de bienvenue restants (bannière de catégorie choisie à la première utilisation, SPEC étape 4 bis §8)
   welcomeDraws        Int                    @default(20)
   welcomeBannerId     String?
+  /// Booster de bienvenue ×10 (gratuit, une seule fois) : date de récupération, vide tant qu'il n'est pas ouvert (SPEC collection §8 ter)
+  welcomeBoosterClaimedAt DateTime?
   /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
   expeditionsDone     Int                    @default(0)
   expeditions         Expedition[]
