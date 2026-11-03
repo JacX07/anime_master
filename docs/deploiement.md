@@ -178,9 +178,10 @@ Incident du 2026-11-03 : le code publié lisait `User.role` (migration `admin_ro
 |---|---|---|
 | `DATABASE_URL` | **Transaction pooler**, port **6543** | Le site : une connexion n'est prêtée que le temps d'une requête, donc peu de connexions servent beaucoup de joueurs. |
 | `DIRECT_URL` | **Session pooler**, port **5432** | Les migrations (`db:deploy`) : opérations longues. |
+| `DB_POOL_MAX` | **8** | Connexions gardées par instance Vercel (voir ci-dessous). |
 
 - **Supabase → Database → Settings → Connection pooling → Pool size : 15** (le projet est en calcul **Nano**, 381 Mo de RAM : plus de connexions = plus de mémoire engagée).
-- `src/lib/db.ts` : 2 connexions par instance (`DB_POOL_MAX`), connexions inactives fermées après 5 s.
+- `src/lib/db.ts` : 8 connexions par instance (`DB_POOL_MAX`), connexions inactives fermées après 5 s. Avec 2, une instance n'avait que 2 « tuyaux » : un combat ou un lot en occupe un pendant plusieurs secondes, les pages derrière attendaient plus de 10 s et échouaient (`timeout exceeded when trying to connect`, 59 erreurs lors d'un test de 20 joueurs). Avec 8 : **1 seule erreur serveur sur quatre tests de 20 joueurs**.
 - `src/lib/auth.ts` : session en cache dans le cookie 5 minutes, ce qui évite une lecture en base à chaque page.
 
 Mesures du 2026-11-03 (test de 10 utilisateurs simultanés : inscription, 2 lots, squad, 3 combats d'Histoire) :

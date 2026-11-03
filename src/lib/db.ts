@@ -9,8 +9,8 @@ if (!url) throw new Error("DATABASE_URL manquant (voir .env)");
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 // Chaque instance serverless garde jusqu'à `max` connexions vers le pooler Supabase (voir docs/deploiement.md §10).
-// 2 par instance en production ; réglable par DB_POOL_MAX sans toucher au code.
-const poolMax = Math.max(1, Number(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === "production" ? 2 : 5));
+// 8 par instance en production (le Transaction pooler les partage) ; réglable par DB_POOL_MAX sans toucher au code.
+const poolMax = Math.max(1, Number(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === "production" ? 8 : 5));
 
 export const prisma =
   globalForPrisma.prisma ??
