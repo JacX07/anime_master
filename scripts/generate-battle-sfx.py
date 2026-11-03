@@ -4,6 +4,7 @@ Usage : python3 scripts/generate-battle-sfx.py [dossier de sortie]
 Les états aléatoires préservent exactement les échantillons approuvés.
 """
 import sys
+import runpy
 from pathlib import Path
 import numpy as np
 import soundfile as sf
@@ -101,19 +102,8 @@ finish("coup", "Coup — Chair et cuir",mix,"Élan de tissu, choc mat de corps e
 
 
 
-RNG.bit_generator.state = {'bit_generator': 'PCG64', 'state': {'state': 302911428683295182415353251649897157613, 'inc': 200944967220690722716855230028434796397}, 'has_uint32': 0, 'uinteger': 0}
-mix = np.zeros((int(2.4*SR),2))
-t = np.arange(int(.65*SR))/SR
-charge = filt(RNG.normal(0,1,len(t)),[240,1600],"bandpass")*(t/.65)**1.7
-put(mix,charge,0,.38)
-put(mix,voice(38,1.8,"choir"),.04,.38)
-put(mix,drum(1),.58,.68)
-put(mix,texture(1.6,950,2),.59,.8)
-put(mix,voice(50,1.7,"bow"),.61,.20,-.3)
-put(mix,voice(51,1.5,"bow"),.7,.12,.3)
-finish("sort", "Sort — Sceau de la crypte",mix,"Inspiration rauque, charge occulte, rupture grave puis souffle ; impact à 0,58 s.",.24)
-
-
+# Le projectile dispose de sa recette dédiée ; les autres sons gardent leurs états aléatoires.
+runpy.run_path(str(Path(__file__).with_name("generate-projectile-sfx.py")), init_globals={"OUTPUT_PATH": OUT/"sort.ogg"})
 
 RNG.bit_generator.state = {'bit_generator': 'PCG64', 'state': {'state': 68721041702277405604954540917063347623, 'inc': 200944967220690722716855230028434796397}, 'has_uint32': 0, 'uinteger': 0}
 mix = np.zeros((int(2.5*SR),2))

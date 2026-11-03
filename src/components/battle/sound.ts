@@ -31,6 +31,7 @@ export class BattleAudio {
   private resultMusic: BattleResultMusic | null = null;
   private generated = new Map<GeneratedSfx, AudioBuffer>();
   private generatedRequest: AbortController | null = null;
+  private projectileActor: string | null = null;
   private noise!: AudioBuffer;
   private blade: AudioBuffer | null = null;
   private bladeRequest: AbortController | null = null;
@@ -86,6 +87,7 @@ export class BattleAudio {
     this.generatedRequest?.abort();
     this.generatedRequest = null;
     this.generated.clear();
+    this.projectileActor = null;
     this.musicEngine = null;
     this.bladeRequest?.abort();
     this.bladeRequest = null;
@@ -241,6 +243,7 @@ export class BattleAudio {
    * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
    */
   play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special" | "tertiary" | "ultimate"; type: CardType } | null, speed: number, actor: ActorSound = { element: null, magic: false }) {
+    if (ev.kind === "action") this.projectileActor = null;
     // La musique de résultat respecte Musique, même lorsque les effets sont coupés.
     if (ev.kind === "end" && ev.winner) {
       if (ev.winner === "A") this.playVictoryMusic();
@@ -258,12 +261,16 @@ export class BattleAudio {
         this.tone(t, "sine", 150 * v, 90, 0.2 * k, 0.1);
         break;
       case "action":
-        // Un sort élémentaire couvre son lancement et son impact (le premier coup tombe 480 ms de replay plus tard)
-        if (actor.element && actor.magic) this.element(t, actor.element, Math.max(0, ELEMENT_IMPACT - ELEMENT_IMPACT / speed), 1);
-        else if (ev.spell !== "base") {
-          // Impact du fichier à 0,58 s, aligné sur les 0,48 s du lecteur, même en accéléré.
-          if (!this.sample(t, "sort", 0.32, 1 / k, 0.58 - 0.48 / speed / k)) this.cast(t, cur?.type ?? "COMBAT", k, v);
-        }
+        // Familles de rayons vérifiées dans le catalogue : aucun classement par type MAGIE.
+        // Une cible alliée exclut les soins/buffs ; les éléments gardent toujours leur son propre.
+        if (!actor.element && /\b(?:zoltraak|kamehameha)\b/iu.test(ev.name ?? "") && (!ev.target || ev.target[0] !== ev.actor[0])) {
+          // Le départ descendant est à 0,55 s dans le fichier, l'impact visuel à 0,48 s de replay.
+          if (this.sample(t, "sort", 0.32, 1 / k, Math.max(0, 0.55 - 0.48 / speed / k))) this.projectileActor = ev.actor;
+          else this.cast(t, cur?.type ?? "MAGIE", k, v);
+        } else if (actor.element && actor.magic) {
+          // Un sort élémentaire couvre son lancement et son impact (le premier coup tombe 480 ms de replay plus tard)
+          this.element(t, actor.element, Math.max(0, ELEMENT_IMPACT - ELEMENT_IMPACT / speed), 1);
+        } else if (ev.spell !== "base") this.cast(t, cur?.type ?? "COMBAT", k, v);
         break;
       case "damage": {
         const chain = prev?.kind === "damage" ? 0.6 : 1;
@@ -271,6 +278,8 @@ export class BattleAudio {
         const power = (ev.affinity === "strong" ? 1.2 : ev.affinity === "weak" ? 0.7 : 1) * chain;
         const criticalSample = ev.crit && !soaked && this.sample(t, "critique", 0.42 * power, v / k, 0.045);
         if (criticalSample) this.duck(t);
+        // Le rayon porte déjà son impact : pas de slash ni de coup de corps supplémentaire.
+        if (this.projectileActor === ev.source) break;
         if (actor.element) {
           if (actor.magic) {
             // Le fichier lancé avec l'action porte déjà l'impact : on ne garde que le renfort du critique
@@ -307,7 +316,7 @@ export class BattleAudio {
         break;
       }
       case "dodge":
-        if (cur?.spell === "base" && !(actor.element && actor.magic)) this.bladeHit(t, speed, v, 0.5);
+        if (cur?.spell === "base" && this.projectileActor !== ev.source && !(actor.element && actor.magic)) this.bladeHit(t, speed, v, 0.5);
         break;
       case "heal":
         if (prev?.kind === "heal") break;

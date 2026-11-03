@@ -172,11 +172,12 @@
   "sort.ogg": {
     "author": "Composition originale Anima Clash — synthèse procédurale",
     "sources": [],
-    "generation": "scripts/generate-battle-sfx.py (numpy/scipy/soundfile, états aléatoires fixes)",
-    "durationSeconds": 2.4,
+    "generation": "scripts/generate-projectile-sfx.py (appelé aussi par generate-battle-sfx.py)",
+    "durationSeconds": 1.65,
     "sampleRate": 32000,
     "channels": 2,
-    "processing": "Synthèse additive, bruit filtré, enveloppes, résonances et normalisation. Variante courte A pour les jingles ; critique renforcé V2. Échantillons approuvés le 2026-11-03."
+    "processing": "Attaque douce, descente de 1550 Hz vers le grave, souffle amorti. Départ à 0,55 s. Réservé aux familles Zoltraak et Kamehameha, sans cible alliée et sans élément. Buffs/debuffs : synthèse de lancement existante.",
+    "title": "Projectile — énergie descendante"
   },
   "mort.ogg": {
     "author": "Composition originale Anima Clash — synthèse procédurale",
