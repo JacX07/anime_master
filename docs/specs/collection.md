@@ -135,6 +135,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - Sur les 3 411 séries, on obtient **1 340 franchises**. Les franchises d'au moins **5 personnages** (≈ 285) ont leur entrée dans l'album ; les plus petites sont rassemblées en **blocs de 5 anime tirés au hasard** (« Autres anime n°1, n°2… », ordre fixé par un hachage de l'identifiant : stable d'une visite à l'autre, mais un bloc peut changer quand de nouveaux personnages sont importés).
 - Filtre « Anime » (liste déroulante avec la progression de chaque anime, ✓ quand il est complet ; les blocs sont dans un groupe à part), adresse `/album?anime=<id>` ou `anime=autres-<n>`. En-tête de progression avec « Collection complète » ; pour un bloc, la progression de chacun de ses anime.
 - La complétion se calcule par franchise, y compris pour les petites : le bloc n'est qu'un regroupement d'affichage. Les succès « anime complet » ne comptent que les franchises listées (au moins 5 personnages).
+- **Possession (corrigé le 2026-11-03)** : sans filtre de possession (`/album` sans paramètre `owned`), l'album affiche la vue « mondes » ; elle ne liste pour l'instant que les mondes relevés. Le filtre **« Tous »** (`owned=all`) affiche la grille de **tous** les personnages, possédés ou non, avec les autres filtres. Le bug : « Tous » retombait sur la vue « mondes » (cf. `journal.md`).
 
 ### 8. Critères pour dire que l'étape 2 est finie
 - [x] Inscription, connexion et déconnexion fonctionnent ; un nouveau compte reçoit le cadeau de bienvenue de 50 cartes (voir Étape 4 bis §8).
@@ -257,6 +258,14 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - Remplace les 10 paquets : **50 cartes** en tout.
 - 30 cristaux normaux + **20 tirages sur une bannière choisie par le joueur** (Générale, Waifu ou Husbando, §5), à usage unique (un ×20 se joue en deux ×10). Il ne peut pas être perdu en ne choisissant pas : à défaut de choix, les 20 sont convertis en cristaux normaux.
 - Le cadeau injecte **autant de cartes qu'aujourd'hui** (50), pas plus.
+
+### 8 ter. Booster de bienvenue ×10 (décidé le 2026-11-03)
+- Un **booster de bienvenue ×10** par compte, **gratuit**, à récupérer **une seule fois** (`User.welcomeBoosterClaimedAt`, vide tant qu'il n'est pas ouvert).
+- Il tire dans **tout le catalogue** (tous les anime, aucune bannière) et contient **au moins une carte SSR ou UR**.
+- **Garantie** : si les 9 premières cartes ne contiennent ni SSR ni UR, la 10ᵉ est tirée parmi SSR et UR (SSR 5/6, UR 1/6). Sinon, tirage normal.
+- Il ne coûte ni cristal ni tirage de bienvenue. Ses 10 cartes comptent pour le pity et pour le compteur de boost (§4 bis, §3).
+- **Récupération atomique** : la mise à jour qui marque le booster comme récupéré est conditionnelle (le champ est encore vide), dans la même transaction que le tirage et l'enregistrement des cartes. Un double clic ou deux requêtes simultanées ne donnent qu'un seul booster.
+- **À trancher** : le booster s'ajoute-t-il aux 50 cartes du cadeau de bienvenue (§8, « pas plus de 50 »), ou les remplace-t-il ? Pour l'instant il s'ajoute, en plus des 50 cartes.
 
 ### 8 bis. Calendrier quotidien de bienvenue
 - Calendrier d'un cadeau par jour pendant **30 jours** à compter de l'inscription ; les 7 premiers jours forment le palier de bienvenue d'une semaine.

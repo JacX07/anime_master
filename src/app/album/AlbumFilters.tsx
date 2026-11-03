@@ -27,7 +27,7 @@ export function albumHref(filters: Filters, patch: Partial<Filters> = {}) {
   if (f.q) p.set("q", f.q);
   if (f.rarity) p.set("rarity", f.rarity);
   if (f.type) p.set("type", f.type);
-  if (f.owned !== "all") p.set("owned", f.owned);
+  if (f.owned) p.set("owned", f.owned);
   if (f.anime) p.set("anime", f.anime);
   if (f.sort !== "power") p.set("sort", f.sort);
   if (f.page > 1) p.set("page", String(f.page));
@@ -51,7 +51,7 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
         <form action="/album" className="vt-search" role="search">
           {filters.rarity && <input type="hidden" name="rarity" value={filters.rarity} />}
           {filters.type && <input type="hidden" name="type" value={filters.type} />}
-          {filters.owned !== "all" && <input type="hidden" name="owned" value={filters.owned} />}
+          {filters.owned && <input type="hidden" name="owned" value={filters.owned} />}
           {filters.anime && <input type="hidden" name="anime" value={filters.anime} />}
           {filters.sort !== "power" && <input type="hidden" name="sort" value={filters.sort} />}
           <input type="search" name="q" defaultValue={filters.q} placeholder="Rechercher un personnage" aria-label="Rechercher un personnage" />
