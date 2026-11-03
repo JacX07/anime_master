@@ -39,6 +39,11 @@ export function SiteHeader() {
           </div>
           <NavItem href="/inventaire" match={["/forge", "/eveil"]}>Inventaire</NavItem>
           <NavItem href="/equipe">Squads</NavItem>
+        </div>
+        <Suspense fallback={<PlayMenu />}>
+          <PlayMenuWithLocks />
+        </Suspense>
+        <div className="mq-nav-side mq-nav-right">
           <div className="mq-nav-dropdown">
             <NavItem href="/quetes" match={["/guide"]}>Quêtes <span>⌄</span></NavItem>
             <div className="mq-dropdown-panel">
@@ -46,11 +51,6 @@ export function SiteHeader() {
               <Link href="/guide">Guide du jeu</Link>
             </div>
           </div>
-        </div>
-        <Suspense fallback={<PlayMenu />}>
-          <PlayMenuWithLocks />
-        </Suspense>
-        <div className="mq-nav-side mq-nav-right">
           <div className="mq-nav-dropdown">
             <NavItem href="/market" match={["/trades"]}>Marché <span>⌄</span></NavItem>
             <div className="mq-dropdown-panel">
@@ -121,6 +121,7 @@ async function Account() {
             <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
+          <Link href="/parametres">Paramètres</Link>
           {staff && <Link href="/admin">Administration</Link>}
           <button type="submit">Se déconnecter</button>
         </form>

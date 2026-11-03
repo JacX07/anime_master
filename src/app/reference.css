@@ -153,7 +153,7 @@
 /* Navigation compacte : tous les liens restent accessibles sans défilement horizontal. */
 .mq-navigation, .mq-navigation-content { display: contents; }
 .mq-app-shell[class] .mq-navigation-toggle[class] { display: none; }
-@media (max-width: 1599px) {
+@media (max-width: 1749px) {
   .mq-app-shell .mq-topbar { overflow: visible; height: 76px; gap: 12px; }
   .mq-app-shell .mq-brand, .mq-app-shell .mq-header-actions { position: static; background: none; }
   .mq-app-shell .mq-header-actions { margin-left: auto; gap: 8px; }
@@ -187,7 +187,7 @@
 .mq-app-shell[class] .mq-navigation-toggle[class] { position: relative; min-width: 0; padding: 8px; font: 400 13px/1.5 var(--font-dm), sans-serif; }
 
 /* Menu mobile : entrées distinctes (fond léger), page courante en or sur fond doré, sous-liens plus discrets. */
-@media (max-width: 1599px) {
+@media (max-width: 1749px) {
   .mq-app-shell[class][class] .mq-game-nav .mq-nav-side > :is(a, button),
   .mq-app-shell[class][class] .mq-game-nav .mq-nav-dropdown > :is(a, button) { color: #d6d2c6; background: #ffffff0d; padding-inline: 14px; }
   .mq-app-shell[class][class] .mq-game-nav .mq-nav-side > :is(a, button):is(.mq-active, [aria-current="page"]),
@@ -215,7 +215,7 @@
 .mq-gear::after { content: ""; position: absolute; inset: auto 7px 3px; height: 2px; background: #c4a76d; transform: scaleX(0); transition: transform .2s; }
 .mq-gear:hover::after, .mq-gear:focus-visible::after { transform: scaleX(1); }
 .mq-gear:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
-@media (max-width: 1599px) {
+@media (max-width: 1749px) {
   .mq-player-text { display: block; }
   .mq-wallet { margin-top: 5px; }
 }
