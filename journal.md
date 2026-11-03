@@ -280,3 +280,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Environnement : après redémarrage, /tmp a disparu ; résultats persistants conservés, outils réinstallés dans data/audit-tools, dernière base jetable PostgreSQL 14.24. pg_ctl nécessite -k /tmp en utilisateur non privilégié (socket /var/run/postgresql inaccessible).
 - Limites : aucune migration distante ni publication pendant cet audit. Migration AuthThrottle indispensable avant utilisation distante du code ; 16 alertes modérées minimatch de développement documentées, zéro alerte npm sur les dépendances d'exécution. Pas de test de charge ou de garantie de sécurité absolue.
 - Statut : audit ciblé et correctifs applicatifs validés localement ; publication réservée à l'utilisateur.
+
+## 2026-11-03 — Pas de compte pour tester dans le navigateur
+
+- Symptôme : `/histoire` redirige vers `/login` ; impossible de vérifier une fonctionnalité sur le site sans identifiants.
+- Correctif : compte de test créé sur la base dev, identifiants dans `docs/compte-test.md`.
+- Piège : l'inscription par API exige `username` et l'en-tête `Origin` doit valoir `BETTER_AUTH_URL` (port 3012), pas le port du serveur de dev.
+- Occurrences : 1.
+- Statut : résolu.

@@ -1,6 +1,6 @@
 /* Shared text controls: open surface, gold underline, no rectangular frame.
    Image/card selectors retain their own visual selection states. */
-.mq-app-shell[class] :is(button:not(:has(img, svg)):not(:where(.inventory-slot, .eq-slot-main, .art-tile, .pk-banner, .pk-pack, .bt-spell, .avatar, .mq-play-button)), .ui-button, .pk-open, .pk-ghost, .pk-buy button, .gear-equip, .gear-upgrade, .art-reset, .bt-exit, .bt-play, .mq-play-heading button, .daily-bonus, .vt-btn, .bt-btn, .site-cta, .vt-chip, .mq-sell-button, .mq-deck-button, .mq-header-cta, .mq-header-link, .inventory-actions a, .inventory-empty a, .inventory-equip-target, .inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .quest-more) {
+.mq-app-shell[class] :is(button:not(:has(img, svg)):not(:where(.inventory-slot, .eq-slot-main, .art-tile, .pk-banner, .pk-pack, .bt-spell, .avatar, .mq-play-button, .hs-map-node)), .ui-button, .pk-open, .pk-ghost, .pk-buy button, .gear-equip, .gear-upgrade, .art-reset, .bt-exit, .bt-play, .mq-play-heading button, .daily-bonus, .vt-btn, .bt-btn, .site-cta, .vt-chip, .mq-sell-button, .mq-deck-button, .mq-header-cta, .mq-header-link, .inventory-actions a, .inventory-empty a, .inventory-equip-target, .inventory-tabs button, .eq-tabs button, .eq-character-tabs button, .pg-tabs nav a, .mq-market-tabs a, .quest-filters button, .quest-more) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
