@@ -1,11 +1,30 @@
 // Deux bases jetables ; DATABASE_URL doit désigner un serveur de test autorisant CREATE DATABASE.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { client, readPostgres, readSqlite, syncContent } from "./content-sync";
+
+const migrationsDir = path.resolve(import.meta.dirname, "../prisma/migrations");
+const migrations = readdirSync(migrationsDir, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+
+/** Découpe un fichier SQL sur « ; », sans couper les blocs $$ … $$ (DO, fonctions). */
+function statements(sql: string): string[] {
+  const out: string[] = [];
+  let buffer = "";
+  sql.split("$$").forEach((part, index) => {
+    if (index % 2 === 1) { buffer += `$$${part}$$`; return; }
+    const pieces = part.split(";");
+    pieces.forEach((piece, i) => {
+      buffer += piece;
+      if (i < pieces.length - 1) { out.push(buffer); buffer = ""; }
+    });
+  });
+  if (buffer.trim()) out.push(buffer);
+  return out.filter((statement) => statement.trim());
+}
 
 async function main() {
   assert(process.env.NODE_ENV !== "production", "Check réservé aux tests");
@@ -30,9 +49,11 @@ async function main() {
   try {
     for (let i = 0; i < names.length; i++) {
       await admin.$executeRawUnsafe(`CREATE DATABASE "${names[i]}"`);
-      // Le SQL versionné contient plusieurs instructions ; les exécuter séparément.
-      const sql = readFileSync(path.resolve(import.meta.dirname, "../prisma/migrations/20261102160000_init_postgres/migration.sql"), "utf8");
-      for (const statement of sql.split(";").filter((s) => s.trim())) await clients[i].$executeRawUnsafe(statement);
+      // Le SQL versionné contient plusieurs instructions ; les exécuter séparément, toutes les migrations dans l'ordre
+      // (le client Prisma courant attend le schéma complet, pas seulement la migration initiale).
+      for (const migration of migrations) {
+        for (const statement of statements(readFileSync(path.resolve(migrationsDir, migration, "migration.sql"), "utf8"))) await clients[i].$executeRawUnsafe(statement);
+      }
     }
     const sqlite = new Database(filename);
     try {
