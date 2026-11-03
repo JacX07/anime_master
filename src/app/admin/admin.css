@@ -20,3 +20,16 @@
 .adm-up { color: #8ca68d; }
 .adm-down { color: #b8715f; }
 .adm-code { color: #a8ada6; font-size: .72rem; white-space: normal; word-break: break-all; }
+.adm-search { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.adm-search input, .adm-form input, .adm-form select { background: #0b0f0e; color: inherit; border: 1px solid #ffffff22; padding: 7px 10px; font: inherit; min-width: 0; }
+.adm-form { display: grid; gap: 8px; align-content: start; padding: 12px 0; border-top: 1px solid #ffffff0d; }
+.adm-form h3 { margin: 0; font: 500 .9rem/1.3 var(--font-cinzel), serif; }
+.adm-form label { display: grid; gap: 2px; font-size: .72rem; color: #8c918b; }
+.adm-form button { justify-self: start; }
+.adm-danger { color: #b8715f; }
+.adm-tag { font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: #c0a361; }
+.adm-tag.ban { color: #b8715f; }
+.adm-pager { display: flex; gap: 16px; align-items: center; font-size: .8rem; color: #8c918b; }
+.adm-cards { display: flex; flex-wrap: wrap; gap: 6px; }
+.adm-card-row { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+.adm-card-row form { margin: 0; }

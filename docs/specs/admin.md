@@ -1,6 +1,6 @@
 # Administration et statistiques
 
-> Statut : **validée, rien codé.**
+> Statut : **lots 1 à 4 codés** (rôles, stats, événements, joueurs et actions). Reste le lot 5 (contenu).
 
 ## 1. Objectif
 Un espace réservé à l'équipe pour :
@@ -95,6 +95,13 @@ Toutes : admin requis, confirmation, motif, écriture dans `AdminAudit`.
 3. **`GameEvent` + `track()`** : branchement dans boosters, combats, achats, connexion.
 4. **Joueurs** : liste, fiche, actions monnaie / carte / bannissement.
 5. **Contenu** : bannières, notifications.
+
+## 7 bis. Écarts du lot 4
+- Fait : liste (recherche, tri, pagination), fiche, ajustement Ryō / cristaux / cristaux spéciaux, pity, offrir / retirer une carte, bannir / débannir, changer un rôle, journal d'audit (admin : tout ; modérateur : ses actions). Motif obligatoire, confirmation en deux temps, limite de 30 actions par minute.
+- Non fait : « rembourser un tirage » (= retirer les cartes + rendre les cristaux, faisable à la main) ; notes internes sur la fiche ; notifications (lot 5).
+- Ban : les sessions sont supprimées et aucune session ne peut être recréée ; le cache de session en cookie (5 min) peut laisser un joueur déjà connecté actif jusqu'à 5 minutes.
+- Une carte offerte est rattachée à un tirage vide (`lotSize = 0`) ignoré par les statistiques.
+- Nouvelle migration `20261103050000_admin_players` : à appliquer en prod (`npm run db:deploy`) avant la publication.
 
 ## 8. Décisions
 - Deux niveaux : admin et modérateur (voir §2).

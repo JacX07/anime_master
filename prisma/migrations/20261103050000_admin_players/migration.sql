@@ -1,0 +1,3 @@
+ALTER TYPE "LedgerReason" ADD VALUE 'ADMIN';
+ALTER TYPE "SpecialCrystalReason" ADD VALUE 'ADMIN';
+ALTER TABLE "User" ADD COLUMN "bannedAt" TIMESTAMP(3), ADD COLUMN "banReason" TEXT;

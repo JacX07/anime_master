@@ -139,6 +139,9 @@ model User {
   emailVerified       Boolean                @default(false)
   /// Rôle d'administration (SPEC admin §2) : jamais modifiable depuis l'interface joueur
   role                UserRole               @default(player)
+  /// Compte suspendu par l'équipe (SPEC admin §2.8) : sessions supprimées, connexion refusée
+  bannedAt            DateTime?
+  banReason           String?
   image               String?
   /// Cristaux en stock au moment de `crystalsUpdatedAt` (1 cristal = 1 carte ; recharge calculée à la lecture, SPEC étape 4 bis §1)
   crystals            Int                    @default(30)
@@ -344,6 +347,7 @@ enum SpecialCrystalReason {
   ACHIEVEMENT
   EXPEDITION
   BANNER_SPEND
+  ADMIN
 }
 
 /// Journal des cristaux spéciaux (la somme par joueur égale `User.specialCrystals`).
@@ -378,6 +382,7 @@ enum LedgerReason {
   EXPEDITION
   STORY
   TOWER
+  ADMIN
 }
 
 /// Journal de tous les mouvements de Ryō (la somme par joueur égale `User.balance`).

@@ -6,7 +6,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { username } from "better-auth/plugins";
 import { prisma } from "./db";
-import { createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { authThrottle } from "./auth-throttle";
 import { track } from "./events";
 
@@ -25,6 +25,17 @@ export const auth = betterAuth({
     }),
   },
   database: prismaAdapter(prisma, { provider: "postgresql" }),
+  databaseHooks: {
+    session: {
+      create: {
+        // Compte banni : aucune session ne peut être créée (SPEC admin §2.8).
+        before: async (session) => {
+          const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { bannedAt: true } });
+          if (user?.bannedAt) throw new APIError("FORBIDDEN", { message: "Ce compte est suspendu." });
+        },
+      },
+    },
+  },
   emailAndPassword: { enabled: true, minPasswordLength: PASSWORD_MIN, autoSignIn: true },
   // La session est relue à chaque page et chaque action : sans cache, une rafale de pages (préchargement des
   // liens du menu) fait des dizaines de lectures en parallèle et sature les 15 clients du Session pooler.

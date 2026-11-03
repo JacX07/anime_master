@@ -10,6 +10,8 @@ const TABS = [
   { href: "/admin/combats", label: "Combats" },
   { href: "/admin/economie", label: "Économie" },
   { href: "/admin/evenements", label: "Événements" },
+  { href: "/admin/joueurs", label: "Joueurs" },
+  { href: "/admin/audit", label: "Audit" },
 ];
 
 function Tabs() {
@@ -18,7 +20,7 @@ function Tabs() {
   const suffix = p ? `?p=${encodeURIComponent(p)}` : "";
   return (
     <nav className="mq-section-tabs" aria-label="Administration">
-      {TABS.map((t) => <Link key={t.href} href={t.href + suffix} aria-current={path === t.href ? "page" : undefined}>{t.label}</Link>)}
+      {TABS.map((t) => <Link key={t.href} href={t.href + suffix} aria-current={path === t.href || (t.href !== "/admin" && path.startsWith(`${t.href}/`)) ? "page" : undefined}>{t.label}</Link>)}
     </nav>
   );
 }

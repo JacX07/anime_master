@@ -33,7 +33,7 @@ function fillDays(rows: { day: Date; n: bigint | number }[], days: number): Seri
 
 /** Activité d'un joueur = ouverture, combat, mouvement de Ryō ou session renouvelée. */
 const ACTIVITY = `
-  SELECT "userId", "openedAt" AS ts FROM "PackOpening"
+  SELECT "userId", "openedAt" AS ts FROM "PackOpening" WHERE "lotSize" > 0
   UNION ALL SELECT "userId", "createdAt" FROM "Battle"
   UNION ALL SELECT "userId", "createdAt" FROM "CurrencyLedger"
   UNION ALL SELECT "userId", "updatedAt" FROM "Session"`;
@@ -49,7 +49,7 @@ export async function dashboardStats(days: Period) {
              COUNT(DISTINCT "userId") FILTER (WHERE ts >= now() - interval '7 days') AS d7,
              COUNT(DISTINCT "userId") FILTER (WHERE ts >= now() - interval '30 days') AS d30 FROM a`),
     prisma.$queryRaw<{ day: Date; n: bigint }[]>`SELECT date_trunc('day', "createdAt") AS day, COUNT(*) AS n FROM "User" WHERE "createdAt" >= ${since} GROUP BY 1`,
-    prisma.$queryRaw<{ day: Date; n: bigint }[]>`SELECT date_trunc('day', "openedAt") AS day, COUNT(*) AS n FROM "PackOpening" WHERE "openedAt" >= ${since} GROUP BY 1`,
+    prisma.$queryRaw<{ day: Date; n: bigint }[]>`SELECT date_trunc('day', "openedAt") AS day, COUNT(*) AS n FROM "PackOpening" WHERE "lotSize" > 0 AND "openedAt" >= ${since} GROUP BY 1`,
     prisma.$queryRaw<{ day: Date; n: bigint }[]>`SELECT date_trunc('day', "createdAt") AS day, COUNT(*) AS n FROM "Battle" WHERE "createdAt" >= ${since} GROUP BY 1`,
     prisma.$queryRawUnsafe<{ day: Date; n: bigint }[]>(`
       WITH a AS (${ACTIVITY})
@@ -76,21 +76,21 @@ export async function boosterStats(days: Period) {
   const [rarity, finish, pity, lots, banners, top, drawn, total] = await Promise.all([
     prisma.$queryRaw<{ k: string; n: bigint }[]>`
       SELECT c."rarityAtPull"::text AS k, COUNT(*) AS n FROM "Card" c JOIN "PackOpening" p ON p.id = c."packOpeningId"
-      WHERE p."openedAt" >= ${since} GROUP BY 1`,
+      WHERE p."lotSize" > 0 AND p."openedAt" >= ${since} GROUP BY 1`,
     prisma.$queryRaw<{ k: string; n: bigint }[]>`
       SELECT c.finish::text AS k, COUNT(*) AS n FROM "Card" c JOIN "PackOpening" p ON p.id = c."packOpeningId"
-      WHERE p."openedAt" >= ${since} GROUP BY 1`,
-    prisma.$queryRaw<{ k: string; n: bigint }[]>`SELECT "pityTriggered"::text AS k, COUNT(*) AS n FROM "PackOpening" WHERE "openedAt" >= ${since} GROUP BY 1`,
-    prisma.$queryRaw<{ k: number; n: bigint }[]>`SELECT "lotSize" AS k, COUNT(*) AS n FROM "PackOpening" WHERE "openedAt" >= ${since} GROUP BY 1`,
+      WHERE p."lotSize" > 0 AND p."openedAt" >= ${since} GROUP BY 1`,
+    prisma.$queryRaw<{ k: string; n: bigint }[]>`SELECT "pityTriggered"::text AS k, COUNT(*) AS n FROM "PackOpening" WHERE "lotSize" > 0 AND "openedAt" >= ${since} GROUP BY 1`,
+    prisma.$queryRaw<{ k: number; n: bigint }[]>`SELECT "lotSize" AS k, COUNT(*) AS n FROM "PackOpening" WHERE "lotSize" > 0 AND "openedAt" >= ${since} GROUP BY 1`,
     prisma.$queryRaw<{ name: string | null; openings: bigint; cards: bigint; top: bigint }[]>`
       SELECT COALESCE(b.name, 'Tirage standard') AS name, COUNT(DISTINCT p.id) AS openings, COUNT(c.id) AS cards,
              COUNT(c.id) FILTER (WHERE c."rarityAtPull" IN ('SSR', 'UR')) AS top
       FROM "PackOpening" p LEFT JOIN "Banner" b ON b.id = p."bannerId" LEFT JOIN "Card" c ON c."packOpeningId" = p.id
-      WHERE p."openedAt" >= ${since} GROUP BY 1 ORDER BY openings DESC LIMIT 15`,
+      WHERE p."lotSize" > 0 AND p."openedAt" >= ${since} GROUP BY 1 ORDER BY openings DESC LIMIT 15`,
     prisma.$queryRaw<{ name: string; rarity: string; n: bigint }[]>`
       SELECT ch.name, c."rarityAtPull"::text AS rarity, COUNT(*) AS n FROM "Card" c
       JOIN "Character" ch ON ch.id = c."characterId" JOIN "PackOpening" p ON p.id = c."packOpeningId"
-      WHERE p."openedAt" >= ${since} GROUP BY ch.name, c."rarityAtPull" ORDER BY n DESC LIMIT 10`,
+      WHERE p."lotSize" > 0 AND p."openedAt" >= ${since} GROUP BY ch.name, c."rarityAtPull" ORDER BY n DESC LIMIT 10`,
     prisma.$queryRaw<{ n: bigint }[]>`SELECT COUNT(DISTINCT "characterId") AS n FROM "Card"`,
     prisma.character.count(),
   ]);
