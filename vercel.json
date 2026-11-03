@@ -5,5 +5,8 @@
       "**": false,
       "production": true
     }
-  }
+  },
+  "regions": [
+    "fra1"
+  ]
 }
