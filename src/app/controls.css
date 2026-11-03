@@ -185,12 +185,18 @@
   .mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .vt-btn, .bt-btn) { transition: none; transform: none; }
 }
 
-/* Relief du bouton d’ouverture, sans modifier son fond translucide. */
-.mq-app-shell[class] .pk-open.ui-button {
-  &::before { box-shadow: inset 0 1px 0 #f0d9a326, inset 0 -3px 3px -1px #0009; }
-  &:not(:disabled) { filter: drop-shadow(0 2px 1px #0009) drop-shadow(0 8px 5px #000a); }
-  &:hover:not(:disabled) { filter: drop-shadow(0 3px 2px #0009) drop-shadow(0 11px 7px #000a); }
-  &:active:not(:disabled) { filter: drop-shadow(0 2px 2px #0009); }
+/* Invocation : le prix figure dans le sélecteur ; action textuelle et soulignement doré. */
+.mq-app-shell[class] .mq-page button.pk-open.ui-button {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  filter: none;
+  color: #c4a76d;
+  &::before { content: none; }
+  &::after { content: ""; inset: auto 0 0; height: 2px; background: #c4a76d; opacity: 1; transform: scaleX(0); transition: transform .2s ease; }
+  &:hover:not(:disabled), &:active:not(:disabled) { background: transparent; filter: none; transform: none; color: #e3c985; }
+  &:is(:hover, :focus-visible):not(:disabled)::after { transform: scaleX(1); }
+  &:disabled { color: #717772; cursor: not-allowed; }
 }
 
 /* « Récupérer » : récompense prête (succès, quêtes). Texte doré qui pulse, soulignement lumineux (maquette validée le 2026-11-03) */

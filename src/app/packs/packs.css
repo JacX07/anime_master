@@ -196,7 +196,7 @@
 .pk-stage > .pk-note { font-size: 11px; }
 .pk-controls { flex-shrink: 0; gap: 4px; }
 .pk-controls .pk-note { font-size: 10px; }
-.pk-open-main, .pk-open-cost { display: block; }
+.pk-open-main { display: block; }
 .pk-banner-panel { padding: 20px; gap: 16px; max-height: none; overflow: visible; }
 .pk-banners { max-height: none; overflow: visible; gap: 10px; }
 .pk-banner { min-height: 86px; padding: 12px; gap: 5px; flex-shrink: 0; }

@@ -302,7 +302,6 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
             </div>
             <button type="button" className="pk-open ui-button" onClick={() => open()} disabled={!canOpen} data-lot={lot}>
               <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>
-              {!pending && <span className="pk-open-cost">{lot} {lot > 1 ? unitPlural : unit}</span>}
             </button>
             {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
             {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}
