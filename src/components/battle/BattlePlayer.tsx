@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
-import { historyOf, holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
+import { holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { attackElement } from "@/lib/attack-element";
 import { attackVisual, attackWeapon } from "@/lib/attack-visual";
@@ -15,7 +15,8 @@ import { StatusIcon, TypeIcon } from "../icons";
 import { BattleReport } from "./BattleReport";
 import { TurnOrder } from "./TurnOrder";
 import { replayTurnOrder } from "@/lib/battle-report";
-import { History, SpellsPanel } from "./BattlePanels";
+import { SpellsPanel } from "./BattlePanels";
+import { BattleVictory } from "./BattleVictory";
 import "./battle.css";
 import { BattleAudio } from "./sound";
 
@@ -40,6 +41,8 @@ interface Props {
   title?: string;
   /** Contenu ajouté à l'écran de fin (butin, boutons de la page appelante) */
   endExtra?: React.ReactNode;
+  /** Étoiles imposées par le mode (histoire) */
+  stars?: number | null;
   /** Quitter par une fonction plutôt que par un lien */
   onExit?: () => void;
   /** « Nouveau combat » sous forme de bouton (à la place du lien) */
@@ -78,7 +81,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, onExit, exitHref = "/", live }: Props) {
+export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -87,7 +90,6 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       document.body.style.overflow = before;
     };
   }, []);
-  const [drawer, setDrawer] = useState(false);
   const [rp, setRp] = useState<Replay>(() => replayStart(log));
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
@@ -295,13 +297,11 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
   const order = end ? [] : replayTurnOrder(log, rp.idx, rp.cur?.actor ?? null, rp.info, (id) => !!rp.units[id]?.ko, caughtUp && live ? live.timeline : undefined, !caughtUp ? live?.timeline : undefined);
-  const history = historyOf(log, rp.idx);
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
     <div className="bt-layout bt-layout-with-order" onPointerDown={() => getAudio().unlock()}>
       <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
-      <History entries={history} rp={rp} characters={characters} names={names} open={drawer} onClose={() => setDrawer(false)} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
         {title && <b className="bt-title">{title}</b>}
@@ -315,9 +315,6 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
                 ? `${actorName} · ${spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name)}`
                 : ""}
         </span>
-        <button type="button" className="bt-btn bt-drawer-btn" onClick={() => setDrawer(true)}>
-          Historique
-        </button>
         {onExit ? (
           <button type="button" className="bt-btn bt-exit" onClick={onExit} aria-label="Quitter le combat" title="Quitter le combat">
             ✕
@@ -402,12 +399,12 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       {end && (
         <div className="bt-end" role="region" aria-label="Résultat du combat" data-winner={end.winner ?? "draw"}>
           <div className="bt-result-window">
+          <BattleVictory log={log} rp={rp} characters={characters} names={names} end={end} stars={stars} />
           {endExtra !== undefined ? (
             // La page appelante fournit tout l'écran de fin (résultat, butin, boutons)
             endExtra
           ) : (
             <>
-          <b>{end.winner ? `Victoire — ${names[end.winner]}` : "Match nul"}</b>
           <span>
             {end.reason === "ko"
               ? `Toute l'équipe adverse est à terre, en ${end.rounds} tours.`

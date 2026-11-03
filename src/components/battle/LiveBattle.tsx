@@ -92,6 +92,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
       onEnd={onEnd ? () => onEnd(view) : undefined}
       onNext={onNext}
       endExtra={renderEnd ? renderEnd(view) : undefined}
+      stars={view.storyStars}
       live={{
         actor: view.actor,
         choices: view.choices,
