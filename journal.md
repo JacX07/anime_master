@@ -288,3 +288,12 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Piège : l'inscription par API exige `username` et l'en-tête `Origin` doit valoir `BETTER_AUTH_URL` (port 3012), pas le port du serveur de dev.
 - Occurrences : 1.
 - Statut : résolu.
+
+## 2026-11-03 — check-content-sync cassé par une nouvelle migration
+
+- Symptôme : `npm run check` en CI : seul `check-content-sync.ts` échoue (code 1), les 54 autres étapes passent.
+- Cause : ce check créait ses bases jetables avec la seule migration initiale (`20261102160000_init_postgres`) puis utilisait le client Prisma courant ; la colonne `User.role` (migration `admin_roles`) manquait. Le découpage naïf sur « ; » aurait aussi coupé les blocs `DO $$ … $$` des migrations suivantes.
+- Correctif : appliquer toutes les migrations dans l'ordre, avec un découpeur qui respecte les blocs `$$`. Piège à retenir : toute nouvelle migration qui touche `User`, `Card`, `PackOpening` ou `Character` casse ce check si la liste est figée.
+- Non vérifié en local : pas de Postgres de test avec `CREATE DATABASE` (CHECK_DATABASE_URL absent). Le découpeur a été validé sur les 5 migrations ; le check complet reste à confirmer par la CI.
+- Occurrences : 1.
+- Statut : corrigé, à confirmer par la CI.
