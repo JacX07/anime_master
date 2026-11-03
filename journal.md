@@ -379,3 +379,13 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Itération suivante : noir encore trop dominant selon l’utilisateur. Cadre et cartouche éclaircis et teintés par la rareté ; sceau plein coloré avec emblème et texte foncés. Nuances, grain et reflets conservés. Vérification HTML 728/390 px, cinq raretés et mode compact sans chevauchement réussie ; intégration en attente de validation.
 
 - Décision finale utilisateur sur les cadres (2026-11-03) : « laisser comme avant », propositions non retenues, sujet reporté. Aucune modification des cadres n’a été intégrée à l’application ; conserver son rendu existant et ne pas reprendre cette refonte sans nouvelle demande.
+
+## 2026-11-03 — Reprise histoire : prévisualisation sans nouveau moteur
+
+- Contexte utile : `storyEnemies(universe, level)` produit déjà les quatre ennemis de façon déterministe avec une graine par univers/combat ; Rob Lucci (10) et Doflamingo (15) sont imposés. Réutiliser cette fonction pour le futur écran VS, sans lancer de combat pour obtenir un aperçu.
+- Carte existante : `StoryMap.tsx`, illustrations `public/story-map/`, `StoryDrops` et `StarRewards` réutilisables. L’équipe quatre cartes est déjà enregistrée via `setAttackTeam`. Le duo existe et doit rester accessible depuis la préparation.
+- Maquette dans `docs/maquettes/histoire-parcours.html` : carte ascendante, paliers et objets sous la carte ; clic sur un jalon ouvrant une préparation quatre contre quatre avec puissances, changement de compagnon, composition conservée, duo et aperçu de transition. Données de personnages et ennemis exportées en lecture seule depuis la base dev ; progression d’exemple et aucun combat réel lancé.
+- Validation : aperçu HTML à 728/390 px, sens du chemin et jalons verrouillés, quatre emplacements par camp, sélection sans doublon, retour carte/préparation conservant l’équipe, duo et réserves, entrée/sortie de transition, absence de débordement. Les animations prennent en compte `prefers-reduced-motion`.
+- Statut : en attente de validation visuelle utilisateur avant intégration ; les cadres restent inchangés.
+
+- Pour l’intégration des puissances : `Character.power` représente la popularité. Réutiliser le calcul du moteur (`equippedCards` / `combatPowers`, avec équipement, éveil et synergies) pour le total réel ; les valeurs de la maquette sont un échantillon de démonstration.
