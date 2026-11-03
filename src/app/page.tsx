@@ -15,6 +15,10 @@ function progress(key: string, unique: number) {
 }
 
 // Accueil de la maquette : succès à gauche, le booster au centre, les invocations à droite.
+// Les actions serveur (ouverture de lots) tournent avec la config de la page qui les affiche.
+// Sans durée suffisante, Vercel peut couper la fonction avant le COMMIT et laisser une transaction ouverte.
+export const maxDuration = 60;
+
 export default function Home() {
   return (
     <main className="mq-main mq-home-main">
