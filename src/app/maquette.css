@@ -2458,25 +2458,9 @@
 @media (max-width: 1100px) { .mq-play-button::before { inset: -10px -6px; } }
 @media (max-width: 1100px) { .mq-app-shell[class][class] .mq-game-nav .mq-play-button { min-width: 240px; justify-self: center; } }
 
-/* Barre du haut ≥ 1500 px : JOUER centré sur la page, 4 onglets de même largeur de chaque côté, compte tout à droite. */
+/* Barre du haut ≥ 1500 px : onglets écartés sur toute la largeur de leur colonne ; Paramètres passe dans le menu du profil. */
 @media (min-width: 1500px) {
-  .mq-app-shell[class] .mq-topbar { --tab-w: clamp(112px, 5.8vw, 124px); --tab-gap: 10px; padding-right: 14px; }
-  .mq-app-shell[class] .mq-game-nav {
-    position: absolute; inset: 0 auto 0 50%; transform: translateX(-50%); margin: 0; pointer-events: none;
-    grid-template-columns: calc(4 * var(--tab-w) + 3 * var(--tab-gap)) 138px calc(4 * var(--tab-w) + 3 * var(--tab-gap)); gap: 10px !important;
-  }
-  .mq-app-shell[class] .mq-topbar .mq-header-actions { margin-left: auto; }
-  .mq-app-shell[class] .mq-game-nav > * { pointer-events: auto; }
-  .mq-app-shell[class] .mq-game-nav::before, .mq-app-shell[class] .mq-game-nav::after { display: none; }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-side { gap: var(--tab-gap); }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-left { justify-content: flex-end; }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-right { justify-content: flex-start; }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-side > :is(a, .mq-nav-dropdown) { flex: 0 0 var(--tab-w); width: var(--tab-w); }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-dropdown > a { width: 100%; padding-inline: 0; justify-content: center; }
-  .mq-app-shell[class] .mq-game-nav .mq-nav-side > a { padding-inline: 0; justify-content: center; }
-  /* Les paramètres passent dans le menu du profil */
+  .mq-app-shell[class] .mq-game-nav { grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr); }
+  .mq-app-shell[class] .mq-game-nav .mq-nav-side { justify-content: space-between; padding-inline: 14px; }
   .mq-app-shell[class] .mq-header-actions .mq-gear { display: none; }
 }
-/* Entre 1500 et 1900 px, le compte se compacte pour laisser la place aux onglets : « Saison » masquée, puis nom et ressources masqués sous 1800 px (visibles dans le menu du profil). */
-@media (min-width: 1500px) and (max-width: 1899px) { .mq-season-mark { display: none; } }
-@media (min-width: 1500px) and (max-width: 1799px) { .mq-app-shell[class] .mq-header-actions .mq-player-text { display: none; } }
