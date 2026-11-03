@@ -331,3 +331,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - À envisager : `idle_in_transaction_session_timeout` côté base en filet de sécurité.
 - Occurrences : 1 (plusieurs sessions orphelines le même jour).
 - Statut : corrigé dans main, à publier et à confirmer en prod.
+
+## 2026-11-03 — Son de projectile limité à deux exemples de sorts
+
+- Symptôme : le son descendant ne jouait que pour Zoltraak et Kamehameha, alors que la demande portait sur tous les projectiles magiques non élémentaires sans son dédié.
+- Cause : les exemples avaient été traités comme une liste exhaustive ; le seul événement de lancement ne permet pas de distinguer une attaque générique d'un buff/debuff seul.
+- Correctif : pour le style projectile magique non élémentaire, attendre le premier événement de dégâts ou d'esquive pour jouer le son à l'impact, une fois par action. Conserver le lancement anticipé des rayons explicitement identifiés et la priorité des éléments.
+- Occurrences : 1.
+- Validation : cas positifs génériques et rayons nommés, exclusions des cibles alliées, soins et debuffs seuls, priorité élémentaire et absence de doublon en zone.

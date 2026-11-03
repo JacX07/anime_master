@@ -32,6 +32,7 @@ export class BattleAudio {
   private generated = new Map<GeneratedSfx, AudioBuffer>();
   private generatedRequest: AbortController | null = null;
   private projectileActor: string | null = null;
+  private pendingProjectileActor: string | null = null;
   private noise!: AudioBuffer;
   private blade: AudioBuffer | null = null;
   private bladeRequest: AbortController | null = null;
@@ -88,6 +89,7 @@ export class BattleAudio {
     this.generatedRequest = null;
     this.generated.clear();
     this.projectileActor = null;
+    this.pendingProjectileActor = null;
     this.musicEngine = null;
     this.bladeRequest?.abort();
     this.bladeRequest = null;
@@ -243,7 +245,10 @@ export class BattleAudio {
    * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
    */
   play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special" | "tertiary" | "ultimate"; type: CardType } | null, speed: number, actor: ActorSound = { element: null, magic: false }) {
-    if (ev.kind === "action") this.projectileActor = null;
+    if (ev.kind === "action") {
+      this.projectileActor = null;
+      this.pendingProjectileActor = null;
+    }
     // La musique de résultat respecte Musique, même lorsque les effets sont coupés.
     if (ev.kind === "end" && ev.winner) {
       if (ev.winner === "A") this.playVictoryMusic();
@@ -261,8 +266,11 @@ export class BattleAudio {
         this.tone(t, "sine", 150 * v, 90, 0.2 * k, 0.1);
         break;
       case "action":
-        // Familles de rayons vérifiées dans le catalogue : aucun classement par type MAGIE.
-        // Une cible alliée exclut les soins/buffs ; les éléments gardent toujours leur son propre.
+        // Tous les projectiles magiques génériques sont candidats. Le premier dégât ou
+        // l'esquive confirme le tir : un buff/debuff/soin seul ne déclenche jamais ce son.
+        if (!actor.element && actor.magic && (!ev.target || ev.target[0] !== ev.actor[0])) this.pendingProjectileActor = ev.actor;
+        // Les rayons nommés ont aussi ce son quand le personnage est classé mêlée (Goku).
+        // Leur lancement complet peut être anticipé, contrairement aux sorts génériques.
         if (!actor.element && /\b(?:zoltraak|kamehameha)\b/iu.test(ev.name ?? "") && (!ev.target || ev.target[0] !== ev.actor[0])) {
           // Le départ descendant est à 0,55 s dans le fichier, l'impact visuel à 0,48 s de replay.
           if (this.sample(t, "sort", 0.32, 1 / k, Math.max(0, 0.55 - 0.48 / speed / k))) this.projectileActor = ev.actor;
@@ -278,6 +286,10 @@ export class BattleAudio {
         const power = (ev.affinity === "strong" ? 1.2 : ev.affinity === "weak" ? 0.7 : 1) * chain;
         const criticalSample = ev.crit && !soaked && this.sample(t, "critique", 0.42 * power, v / k, 0.045);
         if (criticalSample) this.duck(t);
+        // Le départ est déjà passé : jouer la descente à l'impact du projectile générique.
+        if (this.pendingProjectileActor === ev.source && this.projectileActor !== ev.source) {
+          if (this.sample(t, "sort", 0.32, 1 / k, 0.55)) this.projectileActor = ev.source;
+        }
         // Le rayon porte déjà son impact : pas de slash ni de coup de corps supplémentaire.
         if (this.projectileActor === ev.source) break;
         if (actor.element) {
@@ -316,6 +328,9 @@ export class BattleAudio {
         break;
       }
       case "dodge":
+        if (this.pendingProjectileActor === ev.source && this.projectileActor !== ev.source) {
+          if (this.sample(t, "sort", 0.32, 1 / k, 0.55)) this.projectileActor = ev.source;
+        }
         if (cur?.spell === "base" && this.projectileActor !== ev.source && !(actor.element && actor.magic)) this.bladeHit(t, speed, v, 0.5);
         break;
       case "heal":

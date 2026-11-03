@@ -176,7 +176,7 @@
     "durationSeconds": 1.65,
     "sampleRate": 32000,
     "channels": 2,
-    "processing": "Attaque douce, descente de 1550 Hz vers le grave, souffle amorti. Départ à 0,55 s. Réservé aux familles Zoltraak et Kamehameha, sans cible alliée et sans élément. Buffs/debuffs : synthèse de lancement existante.",
+    "processing": "Attaque douce, descente de 1550 Hz vers le grave, souffle amorti. Départ à 0,55 s. Son par défaut de tous les projectiles magiques non élémentaires, confirmé par un dégât ou une esquive pour exclure les buffs/debuffs/soins seuls. Zoltraak et Kamehameha anticipent le lancement complet, y compris pour un personnage de mêlée. Aucun changement des sons élémentaires.",
     "title": "Projectile — énergie descendante"
   },
   "mort.ogg": {
