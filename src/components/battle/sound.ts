@@ -56,7 +56,7 @@ export class BattleAudio {
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     suspendWhenHidden(ctx);
     this.ctx = ctx;
-    this.musicEngine = new BattleMusic(ctx, this.music, this.noise);
+    this.musicEngine = new BattleMusic(ctx, this.music);
     void this.loadBlade(ctx);
     void this.loadElements(ctx);
     return ctx;
@@ -73,6 +73,7 @@ export class BattleAudio {
   /** Ferme le contexte audio (fin de la page) */
   dispose() {
     this.stopMusic();
+    this.musicEngine?.dispose();
     this.musicEngine = null;
     this.bladeRequest?.abort();
     this.bladeRequest = null;

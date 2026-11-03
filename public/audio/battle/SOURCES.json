@@ -137,5 +137,18 @@
     ],
     "license": "CC0-1.0 sauf la bibliothèque électrique de Little Robot Sound Factory (CC-BY-3.0, à créditer)",
     "processing": "Montage de prises enregistrées : superposition, transposition par rééchantillonnage, filtrage, fondus, saturation douce, normalisation. Impact calé à 0,48 s. Aucun oscillateur. Recette : scripts/mix-element-sfx.py."
+  },
+  "combat.ogg": {
+    "author": "Composition originale Anima Clash — synthèse procédurale",
+    "title": "La marche des cendres",
+    "sources": [],
+    "generation": "scripts/generate-battle-music.py (numpy/scipy/soundfile, état aléatoire fixe)",
+    "bpm": 152,
+    "bars": 16,
+    "durationSeconds": 25.26315625,
+    "sampleRate": 32000,
+    "channels": 2,
+    "processing": "Tambours de peau, luth, cors et chœurs synthétiques. Extraction de la période centrale pour conserver les résonances, normalisation et correction de jonction. Validée en combat le 2026-11-03.",
+    "mixGain": 1.5
   }
 }
