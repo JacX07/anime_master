@@ -173,3 +173,13 @@
 }
 
 .mq-app-shell[class] .mq-navigation-toggle[class] { position: relative; min-width: 0; padding: 8px; font: 400 13px/1.5 var(--font-dm), sans-serif; }
+
+/* Menu mobile : entrées distinctes (fond léger), page courante en or sur fond doré, sous-liens plus discrets. */
+@media (max-width: 1100px) {
+  .mq-app-shell[class][class] .mq-game-nav .mq-nav-side > :is(a, button),
+  .mq-app-shell[class][class] .mq-game-nav .mq-nav-dropdown > :is(a, button) { color: #d6d2c6; background: #ffffff0d; padding-inline: 14px; }
+  .mq-app-shell[class][class] .mq-game-nav .mq-nav-side > :is(a, button):is(.mq-active, [aria-current="page"]),
+  .mq-app-shell[class][class] .mq-game-nav .mq-nav-dropdown > :is(a, button):is(.mq-active, [aria-current="page"]) { color: #e3c985; background: #c4a76d2e; }
+  .mq-app-shell[class][class] .mq-game-nav .mq-dropdown-panel a { color: #9a9f98; padding-inline: 14px; }
+  .mq-app-shell[class][class] .mq-game-nav .mq-dropdown-panel a:is(.mq-active, [aria-current="page"]) { color: #e3c985; background: #c4a76d1f; }
+}
