@@ -417,3 +417,10 @@ Classement « **étage maximum atteint** », en cas d'égalité le joueur arriv�
 Les difficultés sont recalibrées sur le moteur actuel : 1 UR + 3 SSR aléatoires, 5★, bonus d'arme +10 % sans passif. Cible au boss final : 95 % dans le premier univers, puis baisse linéaire jusqu'à 20 % dans le dernier. Les passifs d'armes restent un avantage de composition au-dessus de cette référence.
 
 Commande : `npm run calibrate:story -- --games 1000`, neuf étapes de dichotomie par univers. Vérification indépendante : `npm run calibrate:story -- --verify --games 1000` ; elle mesure les valeurs courantes avec une autre graine sans réécrire le fichier temporaire. Les taux restent des estimations sur des compositions aléatoires, pas une garantie pour chaque équipe.
+
+### Parcours histoire validé le 2026-11-03
+
+- Carte ascendante, un acte de cinq jalons à la fois ; univers et actes accessibles depuis les contrôles. Récompenses d’étoiles et objets récupérables sous la carte.
+- Le clic sur un jalon accessible ouvre la préparation, sans créer de combat : quatre emplacements alliés face aux quatre vrais ennemis, grand VS et puissances calculées par le moteur avec éveil, équipement et synergies.
+- Chaque emplacement permet de choisir un compagnon distinct. Les remplacements en mode quatre cartes sont enregistrés comme équipe d’attaque ; le brouillon et le choix du duo sont conservés par compte dans le navigateur. Le duo garde deux emplacements en réserve.
+- « Combattre » déclenche une transition courte, adaptée à la réduction des animations. Les erreurs de lancement restent dans la préparation. Les règles de progression, étoiles, butin et enchaînement restent identiques.

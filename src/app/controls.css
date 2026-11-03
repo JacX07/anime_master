@@ -185,8 +185,8 @@
   .mq-app-shell[class] :is(.ui-button, .gear-equip, .gear-upgrade, .inventory-equip-target, .vt-btn, .bt-btn) { transition: none; transform: none; }
 }
 
-/* Invocation : le prix figure dans le sélecteur ; action textuelle et soulignement doré. */
-.mq-app-shell[class] .mq-page button.pk-open.ui-button {
+/* Actions textuelles partagées, dont l’invocation : fond transparent et soulignement doré. */
+.mq-app-shell[class] .mq-page :is(button.pk-open.ui-button, button.ui-button.text-action) {
   background: transparent;
   border-radius: 0;
   box-shadow: none;
@@ -195,7 +195,7 @@
   &::before { content: none; }
   &::after { content: ""; inset: auto 0 0; height: 2px; background: #c4a76d; opacity: 1; transform: scaleX(0); transition: transform .2s ease; }
   &:hover:not(:disabled), &:active:not(:disabled) { background: transparent; filter: none; transform: none; color: #e3c985; }
-  &:is(:hover, :focus-visible):not(:disabled)::after { transform: scaleX(1); }
+  &:is(:hover, :focus-visible, [aria-pressed="true"]):not(:disabled)::after { transform: scaleX(1); }
   &:disabled { color: #717772; cursor: not-allowed; }
 }
 

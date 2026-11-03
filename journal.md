@@ -359,10 +359,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : « Récupérer » reste gris et le choix du lot déborde à gauche sur téléphone. Les pastilles des filtres perdent leur contour.
 - Cause : spécificité du sélecteur partagé des boutons, grille d’ouverture à deux colonnes trop large, suppression globale des bordures.
 - Correctif : sélecteurs des récompenses dans le shell, une colonne pour les contrôles sur téléphone, contour des pastilles avec outline.
-- Occurrences : 2 (récompenses/filtres, puis bouton d’ouverture le 2026-11-03).
+- Occurrences : 3 (récompenses/filtres, bouton d’ouverture, puis actions de préparation histoire le 2026-11-03).
 - Validation : doré calculé #c4a76d et fond transparent sur « Récupérer » ; commandes ×5/×10 dans la largeur à 390 px ; contours des pastilles présents. Corrigé.
 
-- Complément : `identity.css` redessinait un encadrement via `::after` et `controls.css` ajoutait un fond via `::before`. L’ouverture reçoit désormais un style textuel partagé, assez spécifique pour neutraliser ces deux couches ; son prix reste dans le sélecteur.
+- Complément : `identity.css` redessinait un encadrement via `::after` et `controls.css` ajoutait un fond via `::before`. L’ouverture reçoit désormais un style textuel partagé, assez spécifique pour neutraliser ces deux couches ; son prix reste dans le sélecteur. Le même style partagé `text-action` est réutilisé pour les actions histoire.
 
 ## 2026-11-03 — Reprise des quatre visuels validés (feedback Lester)
 
@@ -386,6 +386,14 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Carte existante : `StoryMap.tsx`, illustrations `public/story-map/`, `StoryDrops` et `StarRewards` réutilisables. L’équipe quatre cartes est déjà enregistrée via `setAttackTeam`. Le duo existe et doit rester accessible depuis la préparation.
 - Maquette dans `docs/maquettes/histoire-parcours.html` : carte ascendante, paliers et objets sous la carte ; clic sur un jalon ouvrant une préparation quatre contre quatre avec puissances, changement de compagnon, composition conservée, duo et aperçu de transition. Données de personnages et ennemis exportées en lecture seule depuis la base dev ; progression d’exemple et aucun combat réel lancé.
 - Validation : aperçu HTML à 728/390 px, sens du chemin et jalons verrouillés, quatre emplacements par camp, sélection sans doublon, retour carte/préparation conservant l’équipe, duo et réserves, entrée/sortie de transition, absence de débordement. Les animations prennent en compte `prefers-reduced-motion`.
-- Statut : en attente de validation visuelle utilisateur avant intégration ; les cadres restent inchangés.
+- Statut : parcours validé par l’utilisateur le 2026-11-03 (« je valide »). Intégration en cours ; les cadres restent inchangés.
 
 - Pour l’intégration des puissances : `Character.power` représente la popularité. Réutiliser le calcul du moteur (`equippedCards` / `combatPowers`, avec équipement, éveil et synergies) pour le total réel ; les valeurs de la maquette sont un échantillon de démonstration.
+
+- Intégration histoire : la transition de départ doit passer à l’état visible avant `startTransition` ; à l’intérieur, React peut différer son affichage jusqu’à la fin de l’action serveur et la rendre imperceptible. État urgent avant l’action, durée minimale 550 ms, sans délai si réduction des animations.
+
+- Intégration du parcours validé terminée sur `chantier/feedback-lester` : carte par acte ascendante, récompenses/objets dessous, préparation avec vrais ennemis et puissances du moteur, choix sans doublon, sauvegarde serveur des remplacements à quatre et brouillon/duo par compte dans le navigateur, transition et retour à la carte.
+- Vérifications avant commit : navigateur 1440/1024/390 px ; remplacement, retour carte/préparation et rechargement ; duo/réserves, composition automatique, lancement réel quatre/duo, transition normale et animations réduites, victoire et progression persistée, abandon, erreur d’une carte devenue indisponible ; récompense d’étoiles réclamée puis persistée, navigation des trois actes, Lucci au combat 10 et Doflamingo au 15, fermeture du sélecteur avec Échap, reprise dans Naruto après One Piece.
+- Contrôles : typecheck et ESLint TypeScript réussis, `check-story-map.ts` et nouveau `check-story-preparation.ts` réussis (aperçu sans écriture, verrous, parité des ennemis et puissances avec le moteur, éveil/artefact, quatre/duo), build complet réussi sous Node 24. `graphify update .` réussi ; ses fichiers déjà modifiés avant reprise restent hors du commit de fonctionnalité.
+- Détail de catalogue pour les tests : les noms en base sont « Lucci Rob » et « Doflamingo Donquixote » ; les noms d’affichage des jalons sont dans `STORY_BOSSES`. Identifier les boss par leur `characterId` dans les assertions de données.
+- Suite : maquette du visuel de combat, puis audio, donjons, social et tutoriel, un lot à la fois. Les cadres restent inchangés. Aucun serveur supplémentaire et aucune publication en production.

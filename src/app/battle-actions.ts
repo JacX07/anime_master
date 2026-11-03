@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { abandonBattle, autoTeam, BattleError, equipArtifact, getBattle, getStoryProgress, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, autoTeam, BattleError, equipArtifact, getBattle, getStoryProgress, getStoryPreview, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -38,6 +38,9 @@ export async function startBattleAction(opponent: string, manual: boolean, story
 }
 export async function getStoryProgressAction() {
   return run(async (id) => ({ progress: await getStoryProgress(id) }));
+}
+export async function getStoryPreviewAction(universe: string, level: number) {
+  return run(async (id) => ({ cards: await getStoryPreview(id, String(universe), Number(level)) }));
 }
 export async function getBattleAction(battleId: string) {
   return run(async (id) => ({ battle: await getBattle(id, String(battleId)) }));
