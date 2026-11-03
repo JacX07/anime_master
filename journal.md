@@ -1,5 +1,13 @@
 # Journal des agents
 
+## 2026-11-03 — Ancien CSS servi après intégration du dos de carte
+
+- Symptôme : sur le serveur dev 3012, le navigateur affiche encore le fond rayé malgré le nouveau CSS présent dans le worktree et l'image accessible en HTTP 200.
+- Cause : état périmé du serveur de développement ; origine exacte non isolée. Toucher le fichier CSS ne suffit pas.
+- Correctif : redémarrer Next dans `anime_master-postgres`, sous Node 24 sur le port 3012. Parcours navigateur desktop/mobile, retournement au clavier, révélation complète et rechargement ensuite réussis.
+- Occurrences : 1.
+- Statut : corrigé.
+
 ## 2026-11-02 — Décision de dépôt privé non encore appliquée
 
 - Symptôme : pendant la configuration CI, la lecture sans authentification de l'API GitHub renvoie `private: false`, `visibility: public` pour `JacX07/anime_master`.
@@ -27,6 +35,14 @@
 
 Bugs et manques de contexte rencontrés une fois. Voir la section « Journal et promotion en règle » de `AGENTS.md`.
 Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences, statut (ouvert / promu en règle).
+
+## 2026-11-03 — Base locale : dossier configuré absent
+
+- Symptôme : l'inscription sur le serveur de développement échoue avec `Cannot open database because the directory does not exist`.
+- Cause : le chemin fourni par la configuration locale `DATABASE_URL` ne correspond pas à un dossier présent dans cette session.
+- Contournement : pour vérifier les dos de cartes sans modifier la configuration ni les comptes existants, créer une sauvegarde SQLite de `data/app.db` dans `/tmp/anima-card-back-test.db` et démarrer Next avec `DATABASE_URL=file:/tmp/anima-card-back-test.db`.
+- Occurrences : 1.
+- Statut : contourné pour la vérification ; configuration locale inchangée.
 
 ## 2026-11-02 — Node du serveur et module SQLite natif
 
@@ -306,4 +322,3 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Piège connexe : le Session pooler Supabase est limité à 15 clients (`EMAXCONNSESSION`) ; pool réduit à 2 par instance et session en cache cookie. Un premier essai du Transaction pooler avait échoué parce qu'il avait lieu pendant une saturation ; à froid, il tient 10 utilisateurs simultanés sans échec (DATABASE_URL en 6543, DIRECT_URL en 5432). Ne jamais conclure sur un pooler juste après une rafale de tests.
 - Occurrences : 2 (auth_throttle, puis admin_roles et game_events). À proposer en règle dans AGENTS.md avec l'accord de l'utilisateur.
 - Statut : correctif de doc fait, migration prod à confirmer.
-
