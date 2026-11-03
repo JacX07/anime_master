@@ -252,7 +252,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
           {pack && (
             <div className="pk-cards" data-best={best}>
-              <button type="button" className="pk-return ui-button" onClick={returnToBooster}>Revenir au booster</button>
+              {!waitingReveal && <button type="button" className="pk-return ui-button" onClick={returnToBooster}>Revenir au booster</button>}
               {rare && waitingReveal && (
                 <p className="pk-hint" data-rarity={best} role="status">
                   <RarityGem rarity={best!} /> {rareCount > 1 ? `${rareCount} cartes SSR ou mieux` : `Une carte ${best === "UR" ? "UR" : "SSR ou mieux"}`} dans ce paquet
