@@ -994,3 +994,21 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 @media(prefers-reduced-motion: reduce) { .bt-charge-fill { transition: none; } .bt-turn-order li { animation: none; } }
 
 .bt-spell-copy { min-width: 0; }
+
+/* Téléphone : sorts compacts pour laisser la place au plateau */
+@media (max-width: 69.999rem) {
+  .bt-layout-with-order .bt-spells { padding: .5rem; }
+  .bt-layout-with-order .bt-spells-title { font-size: .8rem; margin-bottom: .25rem; }
+  .bt-layout-with-order .bt-spells-title small { font-size: .6rem; }
+  .bt-layout-with-order .bt-legend { font-size: .62rem; margin: 0 0 .3rem; }
+  .bt-layout-with-order .bt-spell-list { gap: .3rem; }
+  .bt-layout-with-order .bt-spell { padding: .3rem .4rem; font-size: .62rem; }
+  .bt-layout-with-order .bt-spell b { font-size: .7rem; margin: 0 0 .1rem; }
+  .bt-layout-with-order .bt-spell em { font-size: .58rem; }
+  .bt-layout-with-order .bt-spell p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: .1rem; line-height: 1.25; }
+  .bt-layout-with-order .bt-spell-copy > small { display: none; }
+  .bt-layout-with-order .bt-spell[data-ultimate] { min-height: 0; padding: .4rem .5rem; grid-template-columns: 2.6rem minmax(0, 1fr); gap: .5rem; }
+  .bt-layout-with-order .bt-spell[data-ultimate] b { font-size: .8rem; }
+  .bt-layout-with-order .bt-ultimate-charge, .bt-layout-with-order .bt-ultimate-charge svg { width: 2.6rem; height: 2.6rem; }
+  .bt-layout-with-order .bt-ultimate-charge span { font-size: .6rem; }
+}
