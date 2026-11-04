@@ -1,7 +1,7 @@
 import { getVolume, onVolumeChange } from "./audio-volume";
 import { suspendWhenHidden } from "./audio-visibility";
 // Sons de la salle des invocations, synthétisés en WebAudio (aucun fichier) :
-// carte qui sort du paquet, carte retournée, carillon pour les SSR et UR, ambiance de salle (nappe lente + cloche rare).
+// carte qui sort du paquet et carte retournée (papier), mécanisme d'invocation, ambiance de salle (nappe lente + cloche rare).
 
 import type { Rarity } from "@/generated/prisma/enums";
 
@@ -79,35 +79,61 @@ class PackAudio {
     o.stop(at + dur + 0.05);
   }
 
-  /** Une carte glisse hors du paquet (`delay` en secondes pour les enchaîner). */
+  /** Bruit filtré à enveloppe courte : brique de base des sons de papier. */
+  private nz(at: number, o: { type?: BiquadFilterType; f: number; f2?: number; q?: number; att?: number; dur: number; g: number }) {
+    const ctx = this.ctx!;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    const fl = ctx.createBiquadFilter();
+    fl.type = o.type ?? "bandpass";
+    fl.frequency.setValueAtTime(o.f, at);
+    if (o.f2) fl.frequency.exponentialRampToValueAtTime(o.f2, at + o.dur);
+    fl.Q.value = o.q ?? 1;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(o.g, at + (o.att ?? 0.003));
+    g.gain.exponentialRampToValueAtTime(0.0001, at + o.dur);
+    src.connect(fl).connect(g).connect(this.master);
+    src.start(at, Math.random() * 0.5);
+    src.stop(at + o.dur + 0.03);
+  }
+
+  /** Froissement : micro-craquements aléatoires, filtrés haut. */
+  private rustle(at: number, span: number, n: number, level: number, lo: number, hi: number) {
+    for (let i = 0; i < n; i++) {
+      this.nz(at + Math.pow(Math.random(), 1.3) * span, {
+        f: lo + Math.random() * (hi - lo), q: 1.5 + Math.random() * 3, att: 0.0004, dur: 0.004 + Math.random() * 0.012, g: level * (0.3 + Math.random() * 0.7),
+      });
+    }
+  }
+
+  /** Claquement mince du papier à plat. */
+  private paperSnap(at: number, level = 1) {
+    this.nz(at, { f: 3200, q: 0.9, att: 0.0006, dur: 0.022, g: 0.34 * level });
+    this.nz(at, { type: "highpass", f: 5500, q: 0.4, att: 0.0004, dur: 0.014, g: 0.18 * level });
+  }
+
+  /** Une carte glisse hors du paquet (`delay` en secondes pour les enchaîner) : froissement léger, sans queue. */
   deal(delay = 0) {
     if (!this.uiOn) return;
     const ctx = this.ready();
     const t = ctx.currentTime + delay;
-    this.swish(t, 0.22, 900 * (0.9 + Math.random() * 0.2), 4200, 0.5);
-    this.tone(t + 0.16, 150, 0.09, 0.12, "triangle");
+    this.nz(t, { type: "highpass", f: 1800, f2: 5000, q: 0.4, att: 0.05, dur: 0.15, g: 0.13 });
+    this.rustle(t, 0.15, 10, 0.07, 2500, 7500);
   }
 
-  /** Carte retournée : claquement de carte, avec carillon si SSR ou UR. */
+  /** Carte retournée : levée aérienne puis claquement de papier. SSR et UR ajoutent des claquements, jamais de queue ni de note. */
   flip(rarity: Rarity) {
     if (!this.uiOn) return;
     const ctx = this.ready();
     const t = ctx.currentTime;
-    this.swish(t, 0.14, 2200, 6500, 0.45);
-    this.tone(t + 0.07, 190 * (0.95 + Math.random() * 0.1), 0.08, 0.14, "triangle");
-    if (rarity === "SSR") {
-      this.swish(t, 0.7, 300, 7000, 0.7);
-      this.tone(t + 0.1, midi(40), 1.4, 0.35, "triangle");
-      [72, 76, 79, 84].forEach((n, i) => this.tone(t + 0.35 + i * 0.1, midi(n), 1.6, 0.2));
-    }
+    this.nz(t, { type: "highpass", f: 2200, f2: 6000, q: 0.4, att: 0.022, dur: 0.075, g: 0.16 });
+    this.rustle(t, 0.08, 9, 0.09, 2500, 8000);
+    this.paperSnap(t + 0.085);
+    if (rarity === "SSR") this.paperSnap(t + 0.11, 0.5);
     if (rarity === "UR") {
-      this.swish(t, 1, 200, 9000, 0.9);
-      this.tone(t + 0.1, midi(34), 2.4, 0.5, "triangle");
-      this.tone(t + 0.1, midi(46), 2, 0.25, "sawtooth");
-      [72, 76, 79, 84, 88, 91].forEach((n, i) => {
-        this.tone(t + 0.5 + i * 0.09, midi(n), 2.4, 0.22);
-        this.tone(t + 0.5 + i * 0.09, midi(n + 12), 1.8, 0.1);
-      });
+      this.paperSnap(t + 0.11, 0.6);
+      this.paperSnap(t + 0.135, 0.4);
     }
   }
 

@@ -158,6 +158,7 @@ Transitions courtes (.18–.2 s), sans rebond. Pas d'animation continue sur les 
 - Pages : le pignon de la crémaillère tourne de trois crans à l'arrivée sur la page.
 - **Invocation** : après la réponse du serveur, quatre crans de .3 s (.17 s pour un lot de 10) : l'aiguille fait un tour complet par quarts et les rouages avancent d'une dent ; verrouillage sec (« clac » : décalage de 2 px en .14 s), l'anneau du cadran prend la couleur de la meilleure rareté du paquet, trois éclats or se détachent et tombent en .9 s, puis les cartes apparaissent en fondu .2 s. La rareté n'apparaît qu'au verrouillage. Un clic ou Entrée sur la machine passe directement aux cartes.
 - **Son de l'invocation** (« rouage sec », validé le 2026-11-04, `packAudio.machine`) : chaque cran = friction brève, « tck » d'acier net, rebond du cliquet et petit coup grave, avec une tension qui monte ; verrouillage = double « clac-clac » métal contre métal et ressort qui se détend ; éclats = tintements secs. SSR : ressort libéré + une frappe de cloche d'horloge ; UR : coup grave, deux frappes de cloche. Aucun accord musical, aucune réverbération. Il respecte le volume général et le réglage Effets.
+- **Sons des cartes** (papier, validé le 2026-11-04) : distribution = froissement léger ; retournement = levée aérienne puis claquement mince ; SSR +1 claquement, UR +2. Uniquement du bruit filtré, rien après le dernier claquement.
 - `prefers-reduced-motion` : rouages de fond immobiles, invocation sans crans ni éclats ni son (résultat direct).
 
 ## 7. Mise en page
@@ -180,3 +181,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-04 : ce fichier devient la référence unique.
 - 2026-11-04 : tutoriel en infobulles validé : panneau flottant des §4.6–4.7, sur-titre de progression, contour or sur la cible, sans flèche ni pastille pleine ; bouton « Suivant » de type `ui-button` pendant les présentations.
 - 2026-11-04 : son de l'invocation « rouage sec » validé (§6).
+- 2026-11-04 : sons de carte distribuée et retournée en papier (bruit filtré, sans note ni queue ; SSR/UR = claquements en plus), §6.
