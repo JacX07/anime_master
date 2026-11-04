@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
@@ -45,6 +46,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
         </div>
         <div>
           <h1 className="vt-title">{profile.username}</h1>
+          {profile.guild && <Link className="pl-title" href={`/guilds/${profile.guild.tag}`}>[{profile.guild.tag}] {profile.guild.name}</Link>}
           {profile.title && <span className="pl-title pf-title">{profile.title}</span>}
           <p className="vt-sub">Joueur depuis le {dateFmt.format(profile.since)}</p>
           {relation && <FriendButtons username={profile.username} userId={profile.id} relation={relation} />}

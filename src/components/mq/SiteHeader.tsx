@@ -122,6 +122,7 @@ async function Account() {
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
           <Link href="/friends">Amis</Link>
+          <Link href="/guilds">Guildes</Link>
           <Link href="/parametres">Paramètres</Link>
           {staff && <Link href="/admin">Administration</Link>}
           <button type="submit">Se déconnecter</button>

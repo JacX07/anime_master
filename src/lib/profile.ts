@@ -15,6 +15,7 @@ export interface Profile {
   username: string;
   title: string | null;
   titleKey: string | null;
+  guild: { tag: string; name: string } | null;
   since: Date;
   unique: number;
   power: number;
@@ -29,7 +30,7 @@ export interface Profile {
 export async function getProfile(username: string): Promise<Profile | null> {
   const user = await prisma.user.findUnique({
     where: { username: username.toLowerCase() },
-    select: { id: true, username: true, title: true, createdAt: true, expeditionsDone: true },
+    select: { id: true, username: true, title: true, createdAt: true, expeditionsDone: true, guild: { select: { tag: true, name: true } } },
   });
   if (!user) return null;
   const [cards, power, duelWins, unlocked, pinned, anime] = await Promise.all([
@@ -50,6 +51,7 @@ export async function getProfile(username: string): Promise<Profile | null> {
     username: user.username,
     title: titleOf(titleKey),
     titleKey,
+    guild: user.guild,
     since: user.createdAt,
     unique: owned.size,
     power,

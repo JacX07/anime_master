@@ -427,9 +427,9 @@ export async function eloLeaderboard(me: string | null, top = 100) {
       stats.set(id, s);
     }
   }
-  const users = await prisma.user.findMany({ where: { id: { in: [...stats.keys()] } }, select: { id: true, username: true, elo: true, title: true } });
+  const users = await prisma.user.findMany({ where: { id: { in: [...stats.keys()] } }, select: { id: true, username: true, elo: true, title: true, guild: { select: { tag: true } } } });
   const ranked = users
     .sort((a, b) => b.elo - a.elo || a.username.localeCompare(b.username))
-    .map((u, i) => ({ userId: u.id, username: u.username, title: titleOf(u.title), elo: u.elo, ...stats.get(u.id)!, rank: i + 1 }));
+    .map((u, i) => ({ userId: u.id, username: u.username, title: titleOf(u.title), guildTag: u.guild?.tag ?? null, elo: u.elo, ...stats.get(u.id)!, rank: i + 1 }));
   return { top: ranked.slice(0, top), me: me ? (ranked.find((r) => r.userId === me) ?? null) : null, players: ranked.length };
 }

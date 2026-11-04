@@ -28,7 +28,7 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
 
 ### 3. Guildes
 - Création : 1 000 Ryō (ligne `GUILD_CREATE` dans le journal).
-- Nom unique, tag unique de 2 à 4 caractères (lettres et chiffres) affiché à côté du pseudo, description, icône (emoji).
+- Nom unique, tag unique de 2 à 4 caractères (lettres et chiffres) affiché à côté du pseudo, description (500 caractères maximum), emblème du sprite héraldique (direction artistique du site). Nom de 3 à 40 caractères, unicité sans distinction de casse ; tag normalisé en majuscules.
 - 20 membres maximum.
 - **Rôles** :
   | Rôle | Droits |
@@ -37,11 +37,13 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
   | Officier | Accepter ou refuser les demandes, expulser des membres (pas les officiers ni le chef) |
   | Membre | Discuter, quitter la guilde |
 - **Entrée** : guilde ouverte (entrée directe) ou sur demande (validation par un officier ou le chef).
-- Une seule guilde par joueur ; délai de 24 h après un départ avant d'en rejoindre une autre.
+- Une seule guilde par joueur ; délai de 24 h après un départ ou une expulsion avant de créer une guilde ou d’en rejoindre une autre. Le délai est vérifié aussi à l’acceptation d’une demande.
 - Le chef ne peut pas partir sans transmettre son rôle, sauf s'il est seul (la guilde est alors dissoute).
 - **Classements des guildes** (deux onglets dans `/leaderboard`) :
   - **Collection** : somme des scores Collection des membres.
-  - **Duels de la semaine** : nombre de victoires en duel des membres depuis lundi 0 h.
+  - **Duels de la semaine** : nombre de victoires en duel des membres actuels depuis lundi 0 h (fuseau Europe/Paris).
+
+Les demandes en attente sont annulées lorsque le joueur rejoint une guilde. Une demande refusée peut être renvoyée ; une demande peut être annulée par son auteur. La dissolution libère tous les membres avec le même délai de 24 h, sans remboursement. Les opérations d’adhésion, de rôles et de paiement sont transactionnelles, avec verrou sur la guilde et le joueur, pour respecter les limites même en concurrence.
 
 ### 4. Messagerie
 - **Widget de chat** *(2026-11-04)* : bouton en bas à droite de chaque page (hors combat plein écran), qui ouvre un panneau avec trois onglets **Guilde**, **Général**, **Privé**. Un pastille de non-lus par onglet ; panneau repliable, l'onglet et l'état ouvert/fermé sont mémorisés par navigateur. Les pages `/messages` et `/guilds/[tag]` ouvrent le même chat.

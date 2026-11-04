@@ -62,6 +62,7 @@
     "check:tower": "tsx scripts/check-tower.ts",
     "simulate:tower": "tsx scripts/simulate-tower.ts",
     "check:dungeon": "tsx scripts/check-dungeon.ts",
+    "check:guilds": "tsx scripts/check-guilds.ts",
     "check:friends": "tsx scripts/check-friends.ts",
     "db:deploy": "prisma migrate deploy",
     "admin:promote": "tsx scripts/admin-promote.ts",

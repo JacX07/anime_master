@@ -158,6 +158,12 @@ model User {
   welcomeBoosterClaimedAt DateTime?
   /// Dernière activité, mise à jour au plus une fois par minute (statut « en ligne », SPEC social §2)
   lastSeenAt          DateTime?
+  guildId             String?
+  guild               Guild?                 @relation("GuildMembers", fields: [guildId], references: [id], onDelete: SetNull)
+  guildRole           GuildRole              @default(MEMBER)
+  guildLeftAt         DateTime?
+  ownedGuild          Guild?                 @relation("GuildOwner")
+  guildRequests       GuildJoinRequest[]
   friendshipsSent     Friendship[]          @relation("FriendRequester")
   friendshipsReceived Friendship[]          @relation("FriendAddressee")
   blocksMade          Block[]               @relation("Blocker")
@@ -212,6 +218,8 @@ model User {
   packOpenings        PackOpening[]
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
+  @@index([guildId])
+
 }
 
 model Session {
@@ -352,6 +360,7 @@ model BannerCharacter {
 // ---------- Étape 3 : économie ----------
 
 enum LedgerReason {
+  GUILD_CREATE
   ARTIFACT_UPGRADE
   QUICK_SELL
   DAILY
@@ -966,4 +975,47 @@ model Block {
 
   @@unique([blockerId, blockedId])
   @@index([blockedId])
+}
+
+// ---------- Social : guildes ----------
+enum GuildRole {
+  OWNER
+  OFFICER
+  MEMBER
+}
+enum GuildJoinMode {
+  OPEN
+  REQUEST
+}
+enum GuildRequestStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
+}
+model Guild {
+  id          String @id @default(cuid())
+  name        String
+  nameKey     String @unique
+  tag         String @unique
+  description String @default("")
+  icon        String @default("squads")
+  joinMode    GuildJoinMode @default(REQUEST)
+  ownerId     String @unique
+  owner       User @relation("GuildOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     User[] @relation("GuildMembers")
+  requests    GuildJoinRequest[]
+  createdAt   DateTime @default(now())
+}
+model GuildJoinRequest {
+  id        String @id @default(cuid())
+  guildId   String
+  guild     Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    GuildRequestStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, userId])
+  @@index([guildId, status])
+  @@index([userId, status])
 }

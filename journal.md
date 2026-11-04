@@ -352,7 +352,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : load average ≈ 38, mémoire presque pleine, `npm install` de 20 min, première compilation de 10 min, deux sessions en échec (« timed out while registering its MCP tools »).
 - Cause : chaque session avait son worktree, son `npm install`, son `next dev` et son navigateur headless.
 - Contournement : une seule branche, un seul serveur à la fois, arrêté après chaque vérification.
-- Occurrences : 1.
+- Occurrences : 2 (sept sessions le 2026-11-03 ; serveurs de deux checkouts et rechargements en boucle le 2026-11-04).
+- Complément du 2026-11-04 : pendant la vérification des guildes, `next dev` recharge `/guilds` en continu (compilations 1–3 ms) et les champs sont détachés pendant la saisie. Un autre checkout exécutait aussi son serveur. Cause exacte de la boucle non établie ; arrêt de notre serveur et vérification du build local avec `next start`, sans toucher à l’autre session.
 
 ## 2026-11-03 — En-tête des ressources : navigation et XP masquées aux largeurs intermédiaires
 
@@ -419,3 +420,15 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : `export const uneAction = (x) => run(...)` dans un fichier `"use server"`. Seules les `export async function` sont acceptées.
 - Correctif : déclarer chaque action avec `export async function`. Après un nouveau fichier d'actions, ouvrir la page dans le navigateur avant de conclure : `tsc` et ESLint ne suffisent pas.
 - Aggravant : une autre session lançait `tsc` en même temps (charge > 30). Attendre qu'elle ait fini avant de rouvrir l'onglet.
+
+## 2026-11-04 — Reprise du social : étape guildes
+
+- État retrouvé : amis poussés dans `f343375`, branche `chantier/social`. L’utilisateur a validé l’étape guildes ; la précédente tentative n’avait fait que lire le schéma, sans code de guilde.
+- Réutilisation : formule Collection de `leaderboard.ts`, boutons/panneaux de la direction artistique, emblèmes du sprite. Le chat est réservé à l’étape suivante ; ne pas réintroduire les emojis prévus par l’ancienne spec, contraires à `docs/direction-artistique.md`.
+- Point sensible : ajouter `GUILD_CREATE` au ledger et protéger débit, unicité d’appartenance, capacité et transmission du chef par transaction. Tester les accès par rôle et les doubles clics, pas seulement le chemin nominal.
+
+## 2026-11-04 — Lint React Compiler et heure courante dans un composant serveur
+
+- Symptôme : `react-hooks/purity` refuse `Date.now()` dans les pages serveur des guildes, malgré le typecheck et le build réussis.
+- Cause : l’évaluation du délai de réadhésion était faite pendant le rendu React.
+- Correctif : calculer cet état dans les lecteurs de données (`listGuilds`, `getGuild`) puis transmettre le résultat au rendu. La garde transactionnelle côté serveur reste la référence pour les mutations.
