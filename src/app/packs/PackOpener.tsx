@@ -9,7 +9,7 @@ import type { BannerInfo, RarityCounts } from "@/lib/banners";
 import { CRYSTAL_INTERVAL_MS, MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { CRYSTAL_BUY_SIZES } from "@/lib/economy";
 import type { OpenedCard, OpenedPack, PlayerPackState } from "@/lib/packs";
-import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY, type LotSize } from "@/lib/pull";
+import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, UR_PITY, type LotSize } from "@/lib/pull";
 import { buyCrystalsAction, devGrantCrystalsAction, openPackAction, openWelcomeBoosterAction } from "./actions";
 import { CardDetail } from "./CardDetail";
 import { SummonMachine } from "./SummonMachine";
@@ -215,13 +215,12 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           <details className="pk-rates">
             <summary>Taux et garanties</summary>
             <table>
-              <thead><tr><th>Rareté</th><th>Carte</th><th>10ᵉ invocation</th><th>Personnages</th></tr></thead>
+              <thead><tr><th>Rareté</th><th>Carte</th><th>Personnages</th></tr></thead>
               <tbody>
                 {ORDER.map((r) => (
                   <tr key={r}>
                     <th scope="row"><RarityGem rarity={r} /> {r}</th>
                     <td>{pct(RARITY_RATES.find(([x]) => x === r)?.[1] ?? 0)}</td>
-                    <td>{TENTH_CARD_RATES.find(([x]) => x === r) ? pct(TENTH_CARD_RATES.find(([x]) => x === r)![1]) : "—"}</td>
                     <td>{pool[r] ?? 0}</td>
                   </tr>
                 ))}
@@ -300,10 +299,6 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               {LOT_SIZES.map((n) => (
                 <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} disabled={pending || waitingReveal} aria-label={`Lot de ${n} cartes, ${n} ${n > 1 ? unitPlural : unit}`} onClick={() => setLot(n)}><span>×{n}</span></button>
               ))}
-            </div>
-            <div className="pk-boost" aria-label="Invocation boostée">
-              <p>{lot >= 10 - state.cardsSinceBoost ? <>Ce lot contient une <b>invocation boostée</b></> : <>Invocation boostée dans <b>{10 - state.cardsSinceBoost} cartes</b></>}</p>
-              <div className="pk-boost-dots" aria-hidden="true">{Array.from({ length: 10 }, (_, i) => <i key={i} data-filled={i < state.cardsSinceBoost} data-last={i === 9} />)}</div>
             </div>
             <button type="button" className="pk-open ui-button" onClick={() => open()} disabled={!canOpen} data-lot={lot}>
               <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>

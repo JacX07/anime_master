@@ -344,13 +344,6 @@
 .pk-lots button[data-active="true"] { background: #c4a76d24; color: #e9e5dc; }
 .pk-lots button[data-active="true"]::after { content: ""; position: absolute; inset: auto 0 0; height: 2px; background: #c4a76d; }
 .pk-lots button:focus-visible { outline: 2px solid #c4a76d; outline-offset: -2px; }
-.pk-boost { text-align: center; color: var(--muted); font-size: 0.8rem; }
-.pk-boost p { margin: 0 0 .4rem; }
-.pk-boost b { color: #c4a76d; font-weight: 600; }
-.pk-boost-dots { display: flex; gap: 5px; justify-content: center; }
-.pk-boost-dots i { width: 14px; height: 5px; background: #2a302e; }
-.pk-boost-dots i[data-filled="true"] { background: #655331; }
-.pk-boost-dots i[data-last="true"] { background: #c4a76d; }
 .pk-welcome { display: flex; gap: 1rem; align-items: center; margin: 0 0 1.2rem; padding: 1rem 1.2rem; position: relative; background: linear-gradient(100deg, #c4a76d33, #c4a76d0a 60%), #161b1a; }
 .pk-welcome::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #c4a76d; }
 .pk-welcome h2 { margin: 0; font-size: 1.1rem; }

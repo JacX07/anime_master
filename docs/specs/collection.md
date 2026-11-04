@@ -162,7 +162,7 @@ Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 
 - Régénération et plafond équivalents à l'actuel : **1 cristal toutes les 2 min, plafond 50**.
 - Achat avec des Ryō : **25 cristaux par jour maximum**.
 - **Pity compté en cartes**, un seul compteur : SSR ou mieux garanti à la **75ᵉ** carte sans SSR, UR garanti à la **500ᵉ** carte sans UR (soit exactement l'actuel, 15 et 100 paquets de 5).
-- **Le ×10 améliore la 10ᵉ carte**, de façon dégressive : le gain relatif est plus fort sur SR que sur SSR, plus fort que sur UR (variante C, ci-dessous).
+- ~~Le ×10 améliore la 10ᵉ carte~~ : **règle retirée le 2026-11-04** (trop de SSR). Voir §3, règle 4.
 - **Bannières** de catégories (sport, shonen, isekai, waifu, husbando) et de personnages ciblés, payées en cristaux normaux (les cristaux spéciaux ont été supprimés le 2026-11-03).
 
 ### Validé le 2026-10-12 (propositions du conseil, acceptées)
@@ -191,7 +191,7 @@ Remplacer le « paquet » par une ressource accumulable, les **cristaux** : **1 
 L'achat s'ajoute au stock et peut le faire dépasser 50. Journal : nouvelle raison `CRYSTAL_BUY` dans `CurrencyLedger`.
 
 ### 3. Lots ×5 et ×10
-- Un ×5 coûte 5 cristaux, un ×10 coûte 10 cristaux (aucune remise : le ×10 contient simplement une invocation boostée de plus qu'un ×5).
+- Un ×5 coûte 5 cristaux, un ×10 coûte 10 cristaux (aucune remise : le ×10 contient simplement deux fois plus de cartes).
 - Chaque lot se tire dans **une seule transaction**. Un lot est refusé s'il y a moins de cristaux que son coût.
 - Taux de rareté de base inchangés : N 65 / R 24 / SR 8 / SSR 2,5 / UR 0,5 %. Finitions inchangées : Normal 90 / Holo 9 / Gold 1 %.
 
@@ -199,15 +199,7 @@ L'achat s'ajoute au stock et peut le faire dépasser 50. Journal : nouvelle rais
 1. **Pity UR** : si `cardsSinceUR ≥ 499`, la carte est un UR.
 2. **Pity SSR** : si `cardsSinceSSR ≥ 74` et que la carte tirée n'est ni SSR ni UR, elle est retirée parmi SSR et UR (SSR 5/6, UR 1/6).
 3. **Carte garantie** : la 5ᵉ carte de chaque bloc de 5 est tirée parmi R, SR, SSR et UR (selon leurs taux relatifs) si les 4 cartes précédentes du bloc sont toutes N. Comme aujourd'hui.
-4. **10ᵉ invocation** (décidé le 2026-11-03) : une carte sur 10 est tirée avec la table ci-dessous (au moins R) **à la place** de la règle 3 pour cette carte, **quel que soit le format du lot** (×5 ou ×10). Un compteur persistant (`User.cardsSinceBoost`, de 0 à 9) compte les cartes tirées depuis la dernière carte boostée : deux ×5 de suite contiennent une carte boostée, et un ×10 depuis un compteur à 0 la boost en dernière position.
-
-| Rareté | Taux de base | 10ᵉ invocation |
-|---|---|---|
-| N | 65 % | 0 % |
-| R | 24 % | 68,75 % |
-| SR | 8 % | 24 % (×3) |
-| SSR | 2,5 % | 6,25 % (×2,5) |
-| UR | 0,5 % | 1 % (×2) |
+4. ~~**10ᵉ invocation**~~ — **supprimée le 2026-11-04** : plus aucune carte boostée, plus de compteur ni d'affichage. La colonne `User.cardsSinceBoost` reste en base, inutilisée (pas de migration). Mesure après suppression (200 000 lots) : SSR 0,135 par ×5 et 0,267 par ×10 ; UR 0,026 et 0,054 (l'ancienne règle ajoutait environ 7 % de SSR à un ×10).
 
 **Résultats simulés** (2 000 000 cartes, `npm run simulate:crystals`), relatifs à l'actuel, par lot de 10 cartes :
 | | SR | SSR | UR |
@@ -260,7 +252,7 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - Un **booster de bienvenue ×10** par compte, **gratuit**, à récupérer **une seule fois** (`User.welcomeBoosterClaimedAt`, vide tant qu'il n'est pas ouvert).
 - Il tire dans **tout le catalogue** (tous les anime, aucune bannière) et contient **au moins une carte SSR ou UR**.
 - **Garantie** : si les 9 premières cartes ne contiennent ni SSR ni UR, la 10ᵉ est tirée parmi SSR et UR (SSR 5/6, UR 1/6). Sinon, tirage normal.
-- Il ne coûte ni cristal ni tirage de bienvenue. Ses 10 cartes comptent pour le pity et pour le compteur de boost (§4 bis, §3).
+- Il ne coûte ni cristal ni tirage de bienvenue. Ses 10 cartes comptent pour le pity (§4 bis, §3).
 - **Récupération atomique** : la mise à jour qui marque le booster comme récupéré est conditionnelle (le champ est encore vide), dans la même transaction que le tirage et l'enregistrement des cartes. Un double clic ou deux requêtes simultanées ne donnent qu'un seul booster.
 - **À trancher** : le booster s'ajoute-t-il aux 50 cartes du cadeau de bienvenue (§8, « pas plus de 50 »), ou les remplace-t-il ? Pour l'instant il s'ajoute, en plus des 50 cartes.
 

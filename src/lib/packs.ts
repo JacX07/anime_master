@@ -56,8 +56,6 @@ export interface PlayerPackState {
   nextCrystalAt: string | null;
   cardsSinceSSR: number;
   cardsSinceUR: number;
-  /** Cartes tirées depuis la dernière invocation boostée (la 10ᵉ est boostée) */
-  cardsSinceBoost: number;
   /** Puissance totale de la collection (somme de la puissance de chaque carte) */
   collectionPower: number;
   /** Boutique : solde en Ryō, prix d'un cristal et cristaux encore achetables aujourd'hui */
@@ -84,7 +82,6 @@ const USER_PACK_FIELDS = {
   crystalsUpdatedAt: true,
   cardsSinceSSR: true,
   cardsSinceUR: true,
-  cardsSinceBoost: true,
   balance: true,
   crystalsBoughtToday: true,
   crystalsBoughtDate: true,
@@ -101,7 +98,6 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     nextCrystalAt: stock.nextCrystalAt?.toISOString() ?? null,
     cardsSinceSSR: user.cardsSinceSSR,
     cardsSinceUR: user.cardsSinceUR,
-    cardsSinceBoost: user.cardsSinceBoost,
     collectionPower: await getCollectionPower(userId),
     balance: user.balance,
     crystalPrice: CRYSTAL_PRICE,

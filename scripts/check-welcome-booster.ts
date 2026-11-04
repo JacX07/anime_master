@@ -14,25 +14,20 @@ const rejects = async (fn: () => Promise<unknown>, kind: new (...a: never[]) => 
 
 async function main() {
   // --- Tirage pur : une SSR ou une UR à chaque booster, sans toucher aux autres garanties ---
-  const empty = { cardsSinceSSR: 0, cardsSinceUR: 0, cardsSinceBoost: 0 };
+  const empty = { cardsSinceSSR: 0, cardsSinceUR: 0 };
   let missing = 0;
   for (let i = 0; i < 20_000; i++) {
     const roll = rollLot(empty, 10, Math.random, true);
     if (!roll.cards.some((c) => c.rarity === "SSR" || c.rarity === "UR")) missing++;
   }
   check("Booster : une SSR ou une UR dans chacun des 20 000 lots simulés", missing === 0, `${missing} lot(s) sans SSR`);
-  // --- 10ᵉ invocation boostée : une carte sur 10, quel que soit le format du lot ---
-  let nBoost = 0, nPlain = 0, badNext = 0;
+  // --- Plus de 10ᵉ invocation boostée (retirée le 2026-11-04) : un tirage ordinaire peut donner des N à toute position ---
+  let nN = 0;
   for (let i = 0; i < 5_000; i++) {
-    const five = rollLot({ cardsSinceSSR: 0, cardsSinceUR: 0, cardsSinceBoost: 7 }, 5, Math.random);
-    if (five.cards[2].rarity === "N") nBoost++; // 3ᵉ carte du lot = 10ᵉ invocation : jamais N
-    if (five.next.cardsSinceBoost !== 2) badNext++;
-    const plain = rollLot({ cardsSinceSSR: 0, cardsSinceUR: 0, cardsSinceBoost: 0 }, 5, Math.random);
-    if (plain.cards[0].rarity === "N") nPlain++;
+    const ten = rollLot(empty, 10, Math.random);
+    if (ten.cards[9].rarity === "N") nN++;
   }
-  check("×5 avec compteur à 7 : la 3ᵉ carte (10ᵉ invocation) n'est jamais N", nBoost === 0, `${nBoost} N`);
-  check("Compteur après un ×5 depuis 7 : 2", badNext === 0);
-  check("Cartes hors 10ᵉ invocation : des N sortent encore", nPlain > 0);
+  check("10ᵉ carte d'un ×10 : des N sortent comme ailleurs (plus de règle de 10ᵉ invocation)", nN > 0, `${nN} N`);
   const stamp = Date.now();
   const ids = [`wb-a-${stamp}`, `wb-b-${stamp}`];
   const make = (id: string) => prisma.user.create({ data: { id, name: id, username: id, email: `${id}@test.local` } });
