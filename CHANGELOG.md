@@ -1,6 +1,58 @@
 # Notes de mise à jour
 
-Brouillon pour la première version bêta : à relire et corriger par l'humain avant la publication (lister ce qui est réellement jouable en ligne).
+Une section par version, la plus récente en haut. Chaque version correspond à un tag Git (`v0.2.0`…) posé sur `main`. Les migrations de base de données à appliquer avant la publication sont listées dans chaque section.
+
+## v0.2.0 — Social, retours de la bêta et refonte du combat
+
+Gros lot de retours de la bêta. Les comptes existants sont conservés.
+
+### Nouveautés
+- **Booster de bienvenue** : un booster ×10 offert, une seule fois, avec un SSR ou un UR garanti (n'importe quel anime), mis en avant à l'ouverture.
+- **10ᵉ invocation boostée** : une carte sur 10 est boostée, en ×5 comme en ×10, avec un compteur qui suit ta progression.
+- **Tutoriel en infobulles** : trois actions guidées, présentation des modes et des onglets. La page « Guide du jeu » (16 étapes) est dans le menu Quêtes.
+- **Social** :
+  - amis (demandes, blocage, statut en ligne) ;
+  - guildes (création pour 1 000 Ryō, jusqu'à 20 membres, rôles chef, officier et membre, entrée ouverte ou sur demande) ;
+  - chat en bas à droite de chaque page, avec trois onglets : guilde, général, privé. Limites de taille et de fréquence, filtre de mots, signalement, suppression par le chef de guilde.
+- **Classements** : nouveaux onglets Puissance, Histoire (étoiles) et Tour ; podium 1-2-3 ; nombre de personnages par rareté pour chaque joueur ; barre « Ton rang » fixée en bas de l'écran quand tu es hors du top 100 ; classements de guildes (collection et duels de la semaine).
+- **Donjons par univers** : chaque donjon s'ouvre quand tu gagnes le combat 10 de l'histoire du même univers.
+
+### Économie et progression
+- **Cristaux spéciaux supprimés** : ils sont convertis en cristaux normaux, et les bannières d'événement coûtent des cristaux normaux.
+- **Succès** : cristaux normaux selon la difficulté (5 · 10 · 25 · 50), récupération manuelle avec un bouton « Récupérer » bien visible.
+- **Quêtes** : uniquement quotidiennes et hebdomadaires, avec « Tout récupérer ».
+- **Verrous de niveau** : Raids niveau 15, Tour universelle niveau 20, Expéditions niveau 25 ; l'Arène PvP et l'Arène Live sont marquées « pas encore disponibles ».
+- **Histoire** : carte ascendante par acte, récompenses et butin sous la carte, écran de préparation « VS » avec la puissance des ennemis, composition automatique et équipe mémorisée.
+
+### Combat
+- Écran de combat aux couleurs du site (pierre sombre, or, biseaux), sans historique des tours.
+- Nouvel écran de résultat : ton équipe, la défense adverse, statistiques et étoiles (victoire, aucun allié à terre, 8 tours ou moins).
+- Musique dark fantasy à 152 BPM, effets sonores sombres et jingles courts ; sons de mort et de projectiles complétés.
+- Sorts compacts sur mobile.
+
+### Interface
+- En-tête : Ryō, cristaux, barre d'XP et accès aux paramètres ; bouton JOUER centré ; menus verrouillés grisés.
+- Boutons d'action plus visibles (fond or plus marqué, filet inférieur) ; sélecteur d'invocation ×5 gris / ×10 jaune ; emplacements de squad cliquables.
+- Avatars et emblèmes de guilde en « anneau gravé ».
+- Album : « Tous » affiche tous les personnages, possédés ou non ; filtres plus lisibles.
+- Inventaire en cases de taille égale ; collection visible sous les squads ; fiche personnage plus compacte sur téléphone.
+- Nouveau logo Anima Clash et dos de carte Anima Clash.
+
+### Technique et exploitation
+- Inscription sur invitation (code `INVITE_CODE` vérifié côté serveur).
+- Administration : rôles, joueurs, actions (Ryō, cristaux, cartes, bannissement), journal d'événements et statistiques.
+- Sécurité : tables du jeu fermées à l'API publique (RLS), dépendances vulnérables mises à jour.
+- Performances : connexions à la base réglées pour la production, session mise en cache 5 minutes, délais des actions longues allongés.
+- Sauvegardes quotidiennes de la base de production vers un stockage externe chiffré.
+- Intégration continue : nouveaux contrôles pour le social, les classements et les donjons par univers.
+
+### Migrations de base de données (à appliquer avant la publication)
+`welcome_booster`, `remove_special_crystals` (**destructive** : convertit puis supprime les cristaux spéciaux), `boost_counter`, `friends_blocks`, `guilds`, `chat`, `tutorial_step`, `rls_social`. `npm run db:deploy` n'applique que celles qui manquent à la base visée, y compris les migrations d'administration et de sécurité de la veille (`private_game_tables`, `auth_throttle`, `admin_roles`, `game_events`, `admin_players`) si la prod ne les a pas encore.
+
+### À savoir
+- Le chat général demande le niveau d'Arpenteur 3 pour écrire ; la liste des mots filtrés est courte et sera complétée.
+- Les signalements de messages sont enregistrés mais n'ont pas encore d'écran de traitement dans l'administration.
+- Les cadres de cartes ne changent pas dans cette version.
 
 ## v0.1.0 — Première bêta
 
