@@ -5,9 +5,10 @@
 .mq-profile-hero > div:last-child { z-index: 1; }
 .mq-profile .vt-title { margin: 0; font-family: var(--font-cinzel), Georgia, serif; }
 .mq-profile .pf-title { display: inline-block; margin-top: .4rem; color: #c4a76d; }
-.mq-profile-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 0; border: 1px solid #303632; border-radius: .4rem; background: #121615; }
+.mq-profile-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0; border: 1px solid #303632; border-radius: .4rem; background: #121615; }
 .mq-profile-stats li { min-width: 0; align-items: center; justify-content: center; padding: 1rem .55rem; text-align: center; border: 0; border-right: 1px solid #303632; border-radius: 0; background: none; }
-.mq-profile-stats li:last-child { border-right: 0; }
+.mq-profile-stats li:nth-child(4n) { border-right: 0; }
+.mq-profile-stats li:nth-child(-n+4) { border-bottom: 1px solid #303632; }
 .mq-profile-stats b { color: #d6c08b; font: 600 1.2rem var(--font-cinzel), Georgia, serif; }
 .mq-profile-stats span { text-transform: uppercase; letter-spacing: .08em; }
 .mq-profile > section { padding-top: .2rem; }
@@ -23,7 +24,7 @@
   .mq-profile-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mq-profile-stats li { border-bottom: 1px solid #303632; }
   .mq-profile-stats li:nth-child(2n) { border-right: 0; }
-  .mq-profile-stats li:last-child { grid-column: 1 / -1; border-bottom: 0; }
+  .mq-profile-stats li:nth-child(n+7) { border-bottom: 0; }
 }
 .pf-friend { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem; margin-top: .4rem; }
 .pf-friend .fr-msg { flex-basis: 100%; margin: .3rem 0 0; color: #d49b96; font-size: .8rem; }

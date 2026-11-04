@@ -463,3 +463,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Validation : outils testés dans le navigateur sur compte jetable, desktop 1440 px et mobile 390 px ; recherche/don, lot, éveil, niveau, progression, ressources, retrait refusé, rechargement et redirection sans session.
 - Occurrences : 1.
 - Contrôles finaux : typecheck et ESLint ciblé, build Node 24, test de régression `scripts/check-dev-tools.ts` (dons concurrents, compteur, maintien du niveau 25, refus des mutations en production). En navigateur, `/dev` affiche bien 404 sur le build local en production même avec une session ; aucune publication distante.
+
+## 2026-11-04 — `check-banners` instable sur la base de dev partagée
+
+- Symptôme : `check-banners.ts` échoue environ une fois sur deux en local (`Unique constraint failed on Card_characterId_serial_key`), y compris sur `main`. `check-bulk.ts` a une vérification statistique (10ᵉ carte jamais N) qui échouait par intermittence tant que la règle de la 10ᵉ invocation existait ; elle est retirée avec la règle.
+- Cause probable : numéros de série (`pullCount` des personnages) en collision avec des cartes laissées par d'autres sessions ou des runs interrompus sur la même base de dev. La CI part d'une base vide et n'est pas concernée.
+- Contournement : relancer, ou lancer le check sur une base jetable (`CHECK_DATABASE_URL`). À corriger : attribuer les numéros de série de test sous verrou comme le fait la production.

@@ -23,7 +23,6 @@ async function main() {
     note(r.cards);
     check("×10 : 10 cartes, 10 cristaux dépensés", r.cards.length === 10 && r.lotSize === 10 && r.state.available === 40, `${r.state.available}`);
     check("Un seul lot enregistré, 10 cartes en base", (await prisma.packOpening.count({ where: { userId: id, lotSize: 10 } })) === 1 && (await prisma.card.count({ where: { ownerId: id } })) === 10);
-    check("10ᵉ carte du ×10 : au moins R", r.cards[9].rarity !== "N");
     let u = await prisma.user.findUniqueOrThrow({ where: { id }, select: { cardsSinceSSR: true, cardsSinceUR: true } });
     check("Pity : compteurs en cartes (≤ 10 après un ×10, bornés par les seuils)", u.cardsSinceSSR <= 10 && u.cardsSinceUR <= 10 && u.cardsSinceSSR < SSR_PITY && u.cardsSinceUR < UR_PITY, `${u.cardsSinceSSR}/${u.cardsSinceUR}`);
 

@@ -22,6 +22,12 @@ export interface Profile {
   expeditions: number;
   duelWins: number;
   completedAnime: string[];
+  /** Boosters ouverts (hors dons de test) */
+  packsOpened: number;
+  /** Étoiles de l'histoire : un combat gagné vaut au moins 1 étoile */
+  storyStars: number;
+  /** Étage le plus haut atteint dans la Tour universelle */
+  towerFloor: number;
   achievements: { key: string; label: string; description: string; title: string; unlockedAt: Date | null }[];
   showcase: AlbumEntry[];
 }
@@ -33,13 +39,21 @@ export async function getProfile(username: string): Promise<Profile | null> {
     select: { id: true, username: true, title: true, createdAt: true, expeditionsDone: true, guild: { select: { tag: true, name: true } } },
   });
   if (!user) return null;
-  const [cards, power, duelWins, unlocked, pinned, anime] = await Promise.all([
+  const [cards, power, duelWins, unlocked, pinned, anime, packsOpened, stars, tower] = await Promise.all([
     prisma.card.findMany({ where: { ownerId: user.id }, select: { characterId: true }, distinct: ["characterId"] }),
     getCollectionPower(user.id),
     prisma.duel.count({ where: { winnerId: user.id, status: { in: ["DONE", "FORFEIT"] } } }),
     prisma.userAchievement.findMany({ where: { userId: user.id }, select: { key: true, unlockedAt: true } }),
     prisma.showcaseCharacter.findMany({ where: { userId: user.id }, orderBy: { position: "asc" }, select: { characterId: true } }),
     loadAnimeIndex(),
+    prisma.packOpening.count({ where: { userId: user.id, lotSize: { gt: 0 } } }),
+    prisma.$queryRaw<{ stars: bigint | null }[]>`
+      SELECT SUM(GREATEST(COALESCE(s.stars, 0), 1)) AS stars
+      FROM "StoryProgress" p
+      CROSS JOIN LATERAL generate_series(1, p."maxLevel") AS lv(level)
+      LEFT JOIN "StoryStageStar" s ON s."userId" = p."userId" AND s.universe = p.universe AND s.level = lv.level
+      WHERE p."userId" = ${user.id}`,
+    prisma.towerProgress.findUnique({ where: { userId: user.id }, select: { maxFloor: true } }),
   ]);
   const owned = new Set(cards.map((c) => c.characterId));
   const at = new Map(unlocked.map((u) => [u.key, u.unlockedAt]));
@@ -58,6 +72,9 @@ export async function getProfile(username: string): Promise<Profile | null> {
     expeditions: user.expeditionsDone,
     duelWins,
     completedAnime: anime.listed.filter((a) => a.characterIds.every((id) => owned.has(id))).map((a) => a.title).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" })),
+    packsOpened,
+    storyStars: Number(stars[0]?.stars ?? 0),
+    towerFloor: tower?.maxFloor ?? 0,
     achievements: ACHIEVEMENTS.map((a) => ({ key: a.key, label: a.label, description: a.description, title: a.title, unlockedAt: at.get(a.key) ?? null })),
     showcase,
   };

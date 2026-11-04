@@ -9,11 +9,11 @@ import { BattleError } from "@/lib/battles";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
 
-export async function awakenCardAction(cardId: string): Promise<ActionResult<{ stars: number }>> {
+export async function awakenCardAction(cardId: string, expectedStars?: number): Promise<ActionResult<{ stars: number }>> {
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
-    const { stars } = await awakenCard(user.id, String(cardId));
+    const { stars } = await awakenCard(user.id, String(cardId), Number.isInteger(expectedStars) ? Number(expectedStars) : undefined);
     revalidatePath("/eveil");
     revalidatePath("/inventaire");
     return { ok: true, stars };

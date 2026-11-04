@@ -83,8 +83,8 @@ async function main() {
     }
     check("Bannière Waifu : toutes les cartes viennent de ses personnages", inPool === total, `${inPool}/${total}`);
     const nShare = (rarities.N ?? 0) / total;
-    // En ×10 la 10ᵉ carte n'est jamais N et la règle des blocs de 5 en retire encore : ≈ 57 % attendus (écart type ≈ 2 points sur 600 cartes)
-    check("Les taux de rareté ne changent pas (N ≈ 57 % en ×10)", nShare > 0.51 && nShare < 0.63, `N ${(nShare * 100).toFixed(1)} %`);
+    // La règle des blocs de 5 retire quelques N (la 5ᵉ carte est R ou mieux si les 4 précédentes sont N) : ≈ 63 % attendus (écart type ≈ 2 points sur 600 cartes)
+    check("Les taux de rareté ne changent pas (N ≈ 63 % en ×10)", nShare > 0.57 && nShare < 0.69, `N ${(nShare * 100).toFixed(1)} %`);
     check("Coût en cristaux normaux inchangé (10 par ×10) et pity avancé comme d'habitude", pityOk);
     const opening = await prisma.packOpening.findFirst({ where: { userId: ids[1] } });
     check("Le lot enregistre sa bannière", opening?.bannerId === waifu.id);

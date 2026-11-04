@@ -151,7 +151,11 @@ function Awakening({ card }: { card: TeamCard }) {
   const [info, setInfo] = useState<AwakenInfo | null>(null);
   const [msg, setMsg] = useState("");
   const [pending, start] = useTransition();
-  useEffect(() => { let live = true; awakenInfoAction(card.id).then((r) => { if (live) setInfo(r); }); return () => { live = false; }; }, [card.id, card.stars]);
+  // Relit le coût après chaque éveil, même si la carte affichée n'est pas encore rafraîchie
+  const [version, setVersion] = useState(0);
+  // Étoile déjà payée mais carte pas encore rafraîchie : empêche un deuxième clic qui paierait l'étoile suivante
+  const [paidAt, setPaidAt] = useState<number | null>(null);
+  useEffect(() => { let live = true; awakenInfoAction(card.id).then((r) => { if (live) setInfo(r); }); return () => { live = false; }; }, [card.id, card.stars, version]);
   const ok = !!info && !info.maxed && info.cost.every((c) => c.have >= c.quantity) && (info.duplicate === null || info.duplicate > 0);
   return <div className="cd-awaken">
     <span className="card-stars cd-stars" role="img" aria-label={`${card.stars} étoiles sur 5`}>{[1, 2, 3, 4, 5].map((n) => <i key={n} data-on={n <= card.stars || undefined}>★</i>)}</span>
@@ -160,7 +164,7 @@ function Awakening({ card }: { card: TeamCard }) {
         {info.cost.map((c) => <li key={c.key} data-short={c.have < c.quantity || undefined} title={c.name}><ResourceArt resource={c.key} size={26} /><span>{c.have}/{c.quantity}</span></li>)}
         {info.duplicate !== null && <li data-short={info.duplicate < 1 || undefined} title="Doublon libre consommé">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={card.imageUrl} alt="" referrerPolicy="no-referrer" width={22} height={30} /><span>{Math.min(info.duplicate, 1)}/1</span></li>}
       </ul>
-      <button type="button" className="bt-btn" disabled={!ok || pending} onClick={() => start(async () => { const r = await awakenCardAction(card.id); setMsg(r.ok ? "" : r.error); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
+      <button type="button" className="bt-btn" disabled={!ok || pending || paidAt === card.stars} onClick={() => start(async () => { const r = await awakenCardAction(card.id, card.stars); setMsg(r.ok ? "" : r.error); if (r.ok) setPaidAt(card.stars); setVersion((v) => v + 1); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
     </>}
     {info?.maxed && <small>{card.stars >= 5 ? "Éveil maximal" : "Éveil maximal pour cette rareté"}</small>}
     {msg && <small role="alert">{msg}</small>}
