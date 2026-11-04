@@ -1,0 +1,53 @@
+/* Lumière d'ambiance par mode et contre-accent vert-de-gris.
+   Référence : docs/direction-artistique.md §2.1 et §2.2 (variante C validée le 2026-11-04).
+   L'or reste réservé à l'action : seuls les fonds, sur-titres et ornements prennent la teinte du mode. */
+
+.mq-app-shell {
+  --info: #8fbfae;
+  --info-bg: rgb(111 154 141 / 14%);
+  --info-bar: #6f9a8d;
+  --mech: #c4a76d;
+}
+
+.mq-app-shell[data-ambiance="donjons"] { --amb: #3f6b62; --panel: #111716; --panel-raised: #161d1b; --amb-eyebrow: #7fa497; --mech: #8fb5a8; }
+.mq-app-shell[data-ambiance="tour"] { --amb: #3b4170; --panel: #12131a; --panel-raised: #171922; --amb-eyebrow: #8d93c4; --mech: #a3a9db; }
+.mq-app-shell[data-ambiance="histoire"] { --amb: #7a5a34; --panel: #151310; --panel-raised: #1b1814; --amb-eyebrow: #b8935f; --mech: #d0a96f; }
+.mq-app-shell[data-ambiance="arene"] { --amb: #6b2a32; --panel: #161112; --panel-raised: #1c1617; --amb-eyebrow: #b47a80; --mech: #c98d93; }
+.mq-app-shell[data-ambiance="guilde"] { --amb: #3a5568; --panel: #111518; --panel-raised: #161b1f; --amb-eyebrow: #88a3b6; --mech: #9cb8cc; }
+
+/* Halo radial en haut de l'écran, dans le calque fixe des décors (derrière le contenu). */
+.mq-app-shell[data-ambiance] .mq-page-mythology {
+  background: radial-gradient(60% 75% at 30% 0%, color-mix(in srgb, var(--amb) 32%, transparent), transparent 70%);
+}
+
+/* Sur-titres et symboles teintés par le mode. */
+.mq-app-shell[data-ambiance] .mq-eyebrow { color: var(--amb-eyebrow) !important; }
+.mq-app-shell[data-ambiance] .mq-eyebrow::before { color: var(--mech); }
+
+/* Panneaux des pages de mode : fond légèrement teinté. */
+.mq-app-shell[data-ambiance] .mq-page :is(.tw-panel, .hs-drops, .hs-rewards, .hs-map-toolbar, .hs-team, .hs-result,
+.dg-summary, .dg-rules, .dg-owned, .dg-armory, .dg-level, .rd-boss, .rd-diff, .guild-panel) { background-color: var(--panel); }
+.mq-app-shell[data-ambiance] .mq-page :is(.guild-notice, .dg-level:hover) { background-color: var(--panel-raised); }
+/* Le cadre noir de la Tour laisse passer la lumière du lieu. */
+.mq-app-shell[data-ambiance="tour"] .mq-page .tw { background-color: color-mix(in srgb, #050607 70%, transparent); }
+
+/* Vert-de-gris : l'information (vaincu, bonus, progression). */
+.mq-app-shell .mq-page .hs-map-node.is-done { color: var(--info); border-color: var(--info-bar); }
+.mq-app-shell .mq-page .hs-map-parcours .hs-map-node.is-done { background: linear-gradient(145deg, #2f4a42, #16201d); color: var(--info); }
+.mq-app-shell .mq-page .hs-map-node.is-boss.is-done { border-color: var(--info-bar); box-shadow: 0 0 0 5px rgb(111 154 141 / 14%); }
+.mq-app-shell .mq-page .qp-done { color: var(--info); }
+
+/* Barres de progression : remplissage vert-de-gris, graduations tous les 10 % (§4.8). */
+.mq-app-shell .mq-page progress {
+  appearance: none;
+  height: 6px;
+  border: 0;
+  border-radius: 1px;
+  background: #313632;
+  accent-color: var(--info-bar);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(10% - 1px), transparent calc(10% - 1px) 10%);
+  mask: repeating-linear-gradient(90deg, #000 0 calc(10% - 1px), transparent calc(10% - 1px) 10%);
+}
+.mq-app-shell .mq-page progress::-webkit-progress-bar { background: #313632; border-radius: 1px; }
+.mq-app-shell .mq-page progress::-webkit-progress-value { background: var(--info-bar); border-radius: 0; transition: width .16s cubic-bezier(.2, .9, .3, 1); }
+.mq-app-shell .mq-page progress::-moz-progress-bar { background: var(--info-bar); }

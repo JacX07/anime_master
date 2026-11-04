@@ -23,11 +23,14 @@ export function pageKey(path: string) {
   return p;
 }
 
+/** Lumière d'ambiance des pages de mode (docs/direction-artistique.md §2.2) ; les autres pages restent neutres. */
+const AMBIANCE: Record<string, string> = { dungeons: "donjons", tower: "tour", story: "histoire", pvp: "arene", guilds: "guilde" };
+
 /** Enveloppe de toutes les pages : fond, ambiance et décor mythologique de la maquette, puis la barre du haut et la page. */
 export function AppShell({ header, children }: { header: ReactNode; children: ReactNode }) {
   const page = pageKey(usePathname());
   return (
-    <div className="mq-app-shell" data-page={page}>
+    <div className="mq-app-shell" data-page={page} data-ambiance={AMBIANCE[page]}>
       <div className="mq-ambient-fx" aria-hidden="true">
         {Array.from({ length: 14 }, (_, index) => <i key={index} />)}
       </div>
