@@ -92,6 +92,14 @@ Un champ reste identifiable comme champ (fond distinct `#171b1a`, texte clair, f
 ### 4.10 Barre du haut
 Onglet actif souligné d'or (2 px) et texte or clair ; menus déroulants au survol ; bouton **JOUER** central. Sur mobile, bouton « Menu ».
 
+### 4.11 Anneau gravé (avatars et emblèmes ronds)
+Validé le 2026-11-04 (maquette « A · Anneau gravé »). Classe partagée `ring-engraved` (`src/app/reference.css`), appliquée d'office à l'avatar de l'en-tête (`.mq-avatar`) et à l'avatar du profil (`.pf-avatar`) ; à réutiliser pour tout **élément rond** qui représente une personne ou un groupe (emblème de guilde, futurs avatars d'amis dans le chat).
+- Fond en relief : dégradé radial `#2b2f2c → #0f1211`, initiales ou symbole en or clair `#f0dca0` (Cinzel pour les initiales).
+- Double filet : or `#c4a76d` de 2 px à l'extérieur, un anneau sombre de 3 px, puis un filet d'or sourd `#655331` de 1 px ; ombre portée `0 4px 10px #000a`.
+- **Deux losanges** or de 5 px (7 px au-delà de 64 px) en haut et en bas, qui dépassent de 3 à 4 px. Pas de halo.
+- État « récompense prête » (bonus du jour) : le filet extérieur et les losanges passent à l'or clair.
+- C'est une **exception volontaire** à « aucune bordure » (§1) : un emblème gravé, pas un cadre de zone. Ne pas l'étendre aux panneaux, boutons ni cartes.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -110,6 +118,7 @@ Contenu max. 1530 px, marges `48px 4.3vw 70px` (téléphone : `28px 16px 45px`).
 Bordures de cadre, boutons pleins opaques ou encadrés, pastilles et bulles très arrondies, halos et néons, 3D, emojis, couleurs hors palette, nouvelle police, couleur de rareté utilisée comme décor.
 
 ## Historique
+- 2026-11-04 : bouton d'action `ui-button` renforcé (fond or 20 %, filet or de 2 px en bas) ; anneau gravé validé (§4.11) pour les avatars et emblèmes ronds.
 - 2026-11-01 : passage au style « Citadelle sombre » (ancien fichier `docs/specs/direction-visuelle.md`, lots 1 et 2 codés ; lot 3 : combat et donjons).
 - 2026-11-03 : interface sans bordures, boutons d'action « or translucide », contrôles textuels soulignés, bouton « Récupérer » validé.
 - 2026-11-04 : ce fichier devient la référence unique.

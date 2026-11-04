@@ -230,3 +230,27 @@
 .mq-mode-locked:hover { transform: none; border-color: inherit; background-color: inherit; }
 .mq-mode-card .mq-mode-lock { display: inline-flex; align-items: center; gap: 6px; font-style: normal; color: #8a867b; }
 .mq-mode-lock .i { width: 14px; height: 14px; }
+
+/* Anneau gravé (docs/direction-artistique.md §4.11) : avatars et emblèmes ronds. Double filet or, fond en relief, deux losanges. */
+.ring-engraved, .mq-app-shell .mq-avatar, .mq-app-shell .mq-profile .pf-avatar {
+  position: relative; display: inline-grid; place-items: center; border: 0; border-radius: 50%; clip-path: none;
+  background: radial-gradient(circle at 35% 28%, #2b2f2c, #0f1211 70%); color: #f0dca0;
+  box-shadow: inset 0 0 0 2px #c4a76d, inset 0 0 0 5px #0f1211, inset 0 0 0 6px #655331, 0 4px 10px #000a;
+}
+.ring-engraved::before, .ring-engraved::after, .mq-app-shell .mq-avatar::before, .mq-app-shell .mq-avatar::after, .mq-app-shell .mq-profile .pf-avatar::before, .mq-app-shell .mq-profile .pf-avatar::after {
+  content: ""; position: absolute; inset: auto; width: 5px; height: 5px; border: 0; border-radius: 0; background: #c4a76d; transform: rotate(45deg); left: calc(50% - 2.5px);
+}
+.ring-engraved::before, .mq-app-shell .mq-avatar::before, .mq-app-shell .mq-profile .pf-avatar::before { top: -3px; }
+.ring-engraved::after, .mq-app-shell .mq-avatar::after, .mq-app-shell .mq-profile .pf-avatar::after { bottom: -3px; }
+.mq-app-shell .mq-profile .pf-avatar { width: 5rem; height: 5rem; }
+.mq-app-shell .mq-profile .pf-avatar::before, .mq-app-shell .mq-profile .pf-avatar::after { width: 7px; height: 7px; left: calc(50% - 3.5px); }
+.mq-app-shell .mq-profile .pf-avatar::before { top: -4px; }
+.mq-app-shell .mq-profile .pf-avatar::after { bottom: -4px; }
+@media (max-width: 40rem) { .mq-app-shell .mq-profile .pf-avatar { width: 4rem; height: 4rem; } }
+/* Récompense du jour prête : le filet extérieur passe à l'or clair (pas de halo) */
+.mq-app-shell .mq-avatar.mq-active { box-shadow: inset 0 0 0 2px #f0dca0, inset 0 0 0 5px #0f1211, inset 0 0 0 6px #c4a76d, 0 4px 10px #000a; }
+.mq-app-shell .mq-avatar.mq-active::before, .mq-app-shell .mq-avatar.mq-active::after { background: #f0dca0; }
+/* Emblème de guilde */
+.guild-ring { flex: none; width: 3.2rem; height: 3.2rem; }
+.guild-ring .i { width: 1.6rem; height: 1.6rem; color: #c4a76d; }
+.guild-directory > li > .guild-ring, .guild-overview > .guild-ring { width: 3.2rem; height: 3.2rem; }
