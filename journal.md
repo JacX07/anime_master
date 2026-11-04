@@ -446,3 +446,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme 1 : le widget de chat monté dans `AppShell` perdait ses couleurs (onglet actif gris, boutons sans style) : `controls.css` restylise tous les `button` de `.mq-app-shell`. Correctif : monter les widgets globaux dans `layout.tsx` après `AppShell`, sous leur propre `Suspense`.
 - Symptôme 2 : en `next start`, l'inscription renvoie `INVALID_INVITE_CODE` (en production, sans `INVITE_CODE`, elle est fermée). Contournement pour les tests : lancer `INVITE_CODE=localtest npx next start -p 3012` et envoyer `inviteCode: "localtest"` dans le corps de `/api/auth/sign-up/email`.
 - Un `next start` après `npm run build` évite les rechargements en boucle de `next dev` observés pendant les vérifications du social.
+
+## 2026-11-04 — Branche changée sous les pieds par une autre session (worktree partagé)
+
+- Symptôme : un `git commit` suivi de `git push` échoue (« no upstream ») ; le commit est arrivé sur `chantier/outils-dev` au lieu de `main`.
+- Cause : une autre session a fait `git checkout -b chantier/outils-dev` dans le même dossier `anime_master-postgres` pendant le travail (reflog : « moving from main to chantier/outils-dev »).
+- Correctif : `git push origin <sha>:refs/heads/main` (avance rapide vérifiée avec `git merge-base --is-ancestor`), puis `git branch -f main <sha>` sans toucher à la branche extraite de l'autre session.
+- Prévention : vérifier `git branch --show-current` juste avant chaque commit ; pour un long chantier, travailler dans un worktree dédié.
+- Occurrences : 1.
