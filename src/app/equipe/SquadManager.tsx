@@ -28,6 +28,9 @@ export function SquadManager({ cards, presets, saved, inventory }: {
   const [draft, setDraft] = useState<SquadSlots>(current.slots);
   const [name, setName] = useState(current.name);
   const [editing, setEditing] = useState(false);
+  const [colRarity, setColRarity] = useState("");
+  const [colShown, setColShown] = useState(40);
+  const collection = useMemo(() => cards.filter((c) => !colRarity || c.rarity === colRarity), [cards, colRarity]);
   const [target, setTarget] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
@@ -132,6 +135,17 @@ export function SquadManager({ cards, presets, saved, inventory }: {
         {message && <p role={message.ok ? "status" : "alert"}>{message.text}</p>}
       </section>
     </div>
+    <section className="squad-collection" aria-label="Ma collection">
+      <div className="squad-collection-head"><h2>Ma collection <small>{cards.length} cartes</small></h2>
+        <div className="squad-collection-chips" role="group" aria-label="Filtrer par rareté">
+          <button type="button" aria-pressed={colRarity === ""} onClick={() => { setColRarity(""); setColShown(40); }}>Toutes</button>
+          {Object.entries(RARITY_NAMES).map(([key, label]) => <button key={key} type="button" aria-pressed={colRarity === key} onClick={() => { setColRarity(key); setColShown(40); }}>{label} <small>{cards.filter((c) => c.rarity === key).length}</small></button>)}
+        </div>
+      </div>
+      <div className="squad-picker-grid squad-collection-grid">{collection.slice(0, colShown).map((card) => <button key={card.id} type="button" className="squad-card" aria-label={`Voir ${card.name}`} onClick={() => setFocus(card)}><CharacterCard {...card} /></button>)}</div>
+      {!collection.length && <p className="vt-muted">Aucune carte de cette rareté.</p>}
+      {colShown < collection.length && <button type="button" className="ui-button" onClick={() => setColShown((n) => n + 40)}>Afficher plus ({collection.length - colShown} restantes)</button>}
+    </section>
     <dialog ref={creator} className="squad-modal squad-create" aria-labelledby="squad-create-title" onClose={() => setCreating(false)}>
       <form onSubmit={(event) => { event.preventDefault(); start(async () => { try { const result = await saveSquadAction(null, newName, empty()); if (!result.ok) { setMessage({ ok: false, text: result.error }); return; } setSquads((all) => [...all, result.squad]); setSelected(result.squad.id); setName(result.squad.name); setDraft(empty()); setEditing(true); setCreating(false); setMessage(null); } catch { setMessage({ ok: false, text: "Création impossible, réessaie." }); } }); }}>
         <h2 id="squad-create-title">Nouvelle squad</h2><label>Nom<input autoFocus required maxLength={60} value={newName} onChange={(e) => setNewName(e.target.value)} /></label>

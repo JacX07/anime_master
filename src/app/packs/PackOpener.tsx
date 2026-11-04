@@ -293,7 +293,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           <div className="pk-controls">
             <div className="pk-lots" role="radiogroup" aria-label="Taille du lot">
               {LOT_SIZES.map((n) => (
-                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} disabled={pending || waitingReveal} onClick={() => setLot(n)}><span>×{n}</span><small>{n} {n > 1 ? unitPlural : unit}</small></button>
+                <button key={n} type="button" role="radio" aria-checked={lot === n} data-active={lot === n} disabled={pending || waitingReveal} aria-label={`Lot de ${n} cartes, ${n} ${n > 1 ? unitPlural : unit}`} onClick={() => setLot(n)}><span>×{n}</span></button>
               ))}
             </div>
             <div className="pk-boost" aria-label="Invocation boostée">
@@ -302,6 +302,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
             </div>
             <button type="button" className="pk-open ui-button" onClick={() => open()} disabled={!canOpen} data-lot={lot}>
               <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>
+              {!pending && <small className="pk-open-cost">{lot} {lot > 1 ? unitPlural : unit}</small>}
             </button>
             {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
             {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}

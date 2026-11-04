@@ -366,3 +366,12 @@
   .pk-lots { max-width: 100%; }
   .pk-lots button { min-width: 0; }
 }
+
+/* Choix du lot : ×5 gris, ×10 jaune plein ; le lot choisi est plein, l'autre gris (2026-11-04) */
+.mq-app-shell[class] .pk-lots[role] { gap: .5rem; border: 0; }
+.mq-app-shell[class] .pk-lots[role] button[role="radio"] { min-width: 5.5rem; min-height: 0; padding: .55rem 1.2rem; border-radius: 5px; background: #2a2e2c; color: #8d9490; font: 600 1.15rem var(--font-cinzel), serif; box-shadow: none; filter: none; }
+.mq-app-shell[class] .pk-lots[role] button[role="radio"]::before { content: none; }
+.mq-app-shell[class] .pk-lots[role] button[role="radio"]:hover:not(:disabled):not([data-active="true"]) { background: #343936; color: #c9cbc6; transform: none; }
+.mq-app-shell[class] .pk-lots[role] button[role="radio"][data-active="true"] { background: #c4a76d; color: #14110a; box-shadow: 0 4px 12px #0007; }
+.mq-app-shell[class] .pk-lots[role] button[role="radio"][data-active="true"]::after { content: none; }
+.pk-open-cost { display: block; margin-top: .1rem; font: 500 .62rem var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; opacity: .75; }
