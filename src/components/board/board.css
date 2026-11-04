@@ -1,0 +1,46 @@
+/* Podium, liste et barre « ton rang » (maquette du 2026-11-04) */
+.lb-podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 10px; align-items: end; margin: 6px 0 14px; }
+.lb-pc { --c: #c4a76d; position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 18px 10px 12px; text-align: center; background: linear-gradient(#171b1c, #0c0f10); box-shadow: inset 0 0 0 1px var(--c), 0 10px 18px #000a; min-width: 0; }
+.lb-pc.lb-p1 { padding-top: 24px; background: linear-gradient(#262216, #0f0e0a); }
+.lb-pc.lb-p2 { --c: #b9bfc4; }
+.lb-pc.lb-p3 { --c: #c08a5a; }
+.lb-pc[data-me] { box-shadow: inset 0 0 0 2px #f0dca0, 0 10px 18px #000a; }
+.lb-n { position: absolute; top: 0; left: 0; padding: 1px 12px 1px 8px; background: var(--c); color: #0b0d0e; font: 700 13px var(--font-cinzel), serif; clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%); }
+.lb-av.lb-av { width: 54px; height: 54px; margin-bottom: 6px; font: 600 17px var(--font-cinzel), serif; box-shadow: inset 0 0 0 2px var(--c), inset 0 0 0 5px #0f1211, inset 0 0 0 6px #655331, 0 4px 10px #000a; }
+.lb-p1 .lb-av.lb-av { width: 66px; height: 66px; font-size: 21px; }
+.lb-av::before, .lb-av::after { background: var(--c) !important; }
+.lb-pc .pl-name { justify-content: center; flex-wrap: wrap; max-width: 100%; }
+.lb-pc .lb-value { font: 500 26px var(--font-cinzel), serif; color: var(--c); margin-top: 4px; }
+.lb-p1 .lb-value { font-size: 34px; }
+.lb-pc small, .lb-who small { color: #8d887a; font-size: 11px; }
+.lb-pc .lb-rar { justify-content: center; margin-top: 6px; }
+.lb-rar { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.lb-rar i { font: normal 10px var(--font-dm), sans-serif; padding: 1px 5px; border-radius: 2px; background: #ffffff0d; color: #8d887a; }
+.lb-rar i b { font-weight: 700; }
+.lb-rar i[data-r="N"] b { color: var(--rarity-N, #94a3b8); } .lb-rar i[data-r="R"] b { color: var(--rarity-R, #38bdf8); } .lb-rar i[data-r="SR"] b { color: var(--rarity-SR, #a855f7); } .lb-rar i[data-r="SSR"] b { color: var(--rarity-SSR, #f59e0b); } .lb-rar i[data-r="UR"] b { color: var(--rarity-UR, #ff3b4a); }
+.lb-list { list-style: none; margin: 0; padding: 0; }
+.lb-row { display: grid; grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 14px; margin-bottom: 2px; background: #111514; }
+.lb-row[data-me] { background: linear-gradient(90deg, #c4a76d26, #111514); box-shadow: inset 3px 0 #c4a76d; }
+.lb-rank { font: 500 20px var(--font-cinzel), serif; color: #8d887a; text-align: center; }
+.lb-who { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.lb-who .lb-rar { flex-basis: 100%; }
+.lb-value { font: 500 22px var(--font-cinzel), serif; color: #d6c08b; }
+.lb-gap { text-align: center; color: #555; letter-spacing: .3em; padding: 4px; }
+.lb-dock { position: fixed; left: 50%; bottom: 0; z-index: 55; width: min(100%, 64rem); transform: translate(-50%, 110%); transition: transform .2s ease; display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center; padding: 10px 18px; background: linear-gradient(#171b1c, #0c0f10); box-shadow: inset 0 2px 0 #c4a76d, 0 -10px 22px #000b; }
+.lb-dock[data-show] { transform: translate(-50%, 0); }
+.lb-dock-rank { font: 500 26px var(--font-cinzel), serif; color: #f0dca0; }
+.lb-dock b { display: block; font-weight: 600; font-size: 13px; }
+.lb-dock small { display: block; color: #8d887a; font-size: 11px; }
+.lb-dock-value { font: 500 22px var(--font-cinzel), serif; color: #f0dca0; }
+.lb-dock a { color: #c4a76d; font: 600 10px var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; }
+@media (max-width: 40rem) {
+  .lb-podium { gap: 5px; }
+  .lb-pc { padding: 16px 4px 10px; } .lb-pc .lb-value { font-size: 18px; } .lb-p1 .lb-value { font-size: 22px; }
+  .lb-av.lb-av { width: 42px; height: 42px; font-size: 14px; } .lb-p1 .lb-av.lb-av { width: 52px; height: 52px; }
+  .lb-pc .lb-rar, .lb-pc small { display: none; }
+  .lb-row { grid-template-columns: 2.2rem minmax(0, 1fr) auto; padding: 9px 10px; }
+  .lb-dock { grid-template-columns: auto 1fr auto; padding: 9px 12px; } .lb-dock a { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .lb-dock { transition: none; } }
+/* Sept onglets : défilement horizontal plutôt que trois rangées sur téléphone */
+@media (max-width: 40rem) { .mq-leaderboard .pg-tabs nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .mq-leaderboard .pg-tabs nav a { flex: none; white-space: nowrap; } }

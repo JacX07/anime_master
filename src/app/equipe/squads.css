@@ -52,3 +52,13 @@
 .mq-app-shell .squads-manager[class] .squad-summary { cursor: pointer; transition: background .18s, color .18s; }
 .mq-app-shell .squads-manager[class] .squad-summary:hover:not(:disabled):not([aria-pressed="true"]) { background: #1d2220; color: #e9e5dc; }
 .mq-app-shell .squads-manager[class] .squad-summary:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+
+/* Collection sous les squads (2026-11-04) */
+.mq-app-shell .squads-manager[class] .squad-collection { margin-top: 48px; }
+.mq-app-shell .squads-manager[class] .squad-collection-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; }
+.mq-app-shell .squads-manager[class] .squad-collection-head h2 { margin: 0; font: 500 22px var(--font-cinzel), serif; }
+.mq-app-shell .squads-manager[class] .squad-collection-head h2 small { margin-left: 10px; color: #8d887a; font: 400 12px var(--font-dm), sans-serif; }
+.mq-app-shell .squads-manager[class] .squad-collection-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.mq-app-shell .squads-manager[class] .squad-collection-chips button { min-height: 0; padding: 7px 12px; border-radius: 5px; background: #171b1a; color: #8d9490; font: 600 11px var(--font-dm), sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.mq-app-shell .squads-manager[class] .squad-collection-chips button small { opacity: .7; margin-left: 4px; }
+.mq-app-shell .squads-manager[class] .squad-collection-chips button[aria-pressed="true"] { background: #c4a76d; color: #14110a; }

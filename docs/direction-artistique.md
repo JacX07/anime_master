@@ -100,6 +100,13 @@ Validé le 2026-11-04 (maquette « A · Anneau gravé »). Classe partagée `rin
 - État « récompense prête » (bonus du jour) : le filet extérieur et les losanges passent à l'or clair.
 - C'est une **exception volontaire** à « aucune bordure » (§1) : un emblème gravé, pas un cadre de zone. Ne pas l'étendre aux panneaux, boutons ni cartes.
 
+### 4.12 Classements : podium, liste, barre « ton rang »
+Validé le 2026-11-04. Composant `Leaderboard` (`src/components/board/`), utilisé par tous les classements de joueurs.
+- **Podium** : trois cartes (2 · 1 · 3), la première plus haute ; filet intérieur et numéro en bandeau aux couleurs métalliques or `#c4a76d`, argent `#b9bfc4`, bronze `#c08a5a` (information de rang, pas de décor). Avatar en **anneau gravé** (§4.11) à la couleur du rang, pseudo, score en Cinzel, détail, raretés.
+- **Liste** à partir du 4ᵉ : numéro Cinzel gris, pseudo et titre, détail, puces de raretés (`N R SR SSR UR` avec le nombre en couleur de rareté, car c'est de l'information), score Cinzel or. Ligne du joueur : fond or translucide et filet or à gauche.
+- **Barre « Ton rang »** : fixée en bas de l'écran, filet or en haut ; elle apparaît quand la ligne du joueur n'est plus visible, avec son rang, son score et ce qu'il manque pour entrer dans le top 100. Absente si le joueur n'est pas classé.
+- Mobile : podium compact (sans détail), onglets en défilement horizontal.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -118,6 +125,7 @@ Contenu max. 1530 px, marges `48px 4.3vw 70px` (téléphone : `28px 16px 45px`).
 Bordures de cadre, boutons pleins opaques ou encadrés, pastilles et bulles très arrondies, halos et néons, 3D, emojis, couleurs hors palette, nouvelle police, couleur de rareté utilisée comme décor.
 
 ## Historique
+- 2026-11-04 : classements (§4.12) : podium, raretés par joueur, barre « Ton rang » ; sélecteur de lot ×5 gris / ×10 jaune (lot choisi plein, l'autre gris).
 - 2026-11-04 : bouton d'action `ui-button` renforcé (fond or 20 %, filet or de 2 px en bas) ; anneau gravé validé (§4.11) pour les avatars et emblèmes ronds.
 - 2026-11-01 : passage au style « Citadelle sombre » (ancien fichier `docs/specs/direction-visuelle.md`, lots 1 et 2 codés ; lot 3 : combat et donjons).
 - 2026-11-03 : interface sans bordures, boutons d'action « or translucide », contrôles textuels soulignés, bouton « Récupérer » validé.

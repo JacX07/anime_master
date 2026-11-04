@@ -68,7 +68,7 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
 
   return (
     <div className="mt-6 grid gap-10 md:grid-cols-[18rem_1fr]">
-      <div className="flex flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-[12.5rem] flex-col gap-4 md:mx-0 md:max-w-none">
         <CharacterCard {...c} characterId={c.id} finish={c.copies?.[0]?.finish} stars={owned ? Math.max(...c.copies!.map((x) => x.stars)) : undefined} missing={!owned} />
         {!owned && (
           <p className="text-center text-sm text-muted">
