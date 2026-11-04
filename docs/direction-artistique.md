@@ -140,10 +140,11 @@ Validé le 2026-11-04 (maquette `public/mockups/rouages-brises.html`). Prolonge 
 - **Brisures** obligatoires sur chaque grand ornement (au moins deux) : dents arrachées (bord déchiqueté), rayon cassé, fissure en zigzag avec embranchement, anneau ouvert sur un arc, morceau de roue manquant.
 - **Couleur** : celle des ornements du mode (§2.2). Dans les pages sans mode et pour l'invocation : or `#c4a76d`.
 - **Emplacements** :
-  - fond de page : un grand rouage, un pignon engrené et un cadran en haut à droite (opacité 17 %), un fragment de roue en ruine en bas à gauche (12 %), derrière le contenu et sans capter les clics ;
-  - derrière le titre de page : un cadran fêlé (opacité 20 %) ;
-  - sous le titre : le trait or de 70 px devient une **crémaillère** or (≈ 96 px) terminée par un petit pignon, qui tourne de quelques crans au changement de mode ou à une progression ;
+  - pages de mode : un grand rouage, un pignon engrené et un cadran en haut à droite (opacité 17 %), à la place de l'astrolabe de fond (`.mq-lore-system`) ; les autres pages gardent leur astrolabe ;
+  - toutes les pages décorées (sauf accueil et équipe) : un fragment de roue en ruine en bas à gauche (12 %) et un cadran fêlé derrière le titre de page (20 %) ;
+  - sous le titre (`PageHeading` et `.pg-head`) : le trait or devient une **crémaillère** or de 96 px terminée par un petit pignon, qui tourne de trois crans à l'arrivée sur la page ;
   - **invocation** : machine or (cadran, aiguille, deux rouages) au premier plan (§6).
+- **Code** : SVG générés par `scripts/generate-ornaments.mjs` dans `public/ornaments/` (traits noirs servant de masques), styles dans `src/app/ornaments.css`, calque de fond `MechanicalBackdrop`, machine `src/app/packs/SummonMachine.tsx`. Les teintes de mode vivent dans `src/app/ambiance.css` (attribut `data-ambiance` posé par `AppShell`).
 - C'est une **exception volontaire** à « pas de décor », comme l'anneau gravé : les ornements restent en arrière-plan, sauf la machine d'invocation. Ne jamais en faire des cadres de panneaux, de boutons ni de cartes.
 
 ## 5. Iconographie
@@ -154,8 +155,8 @@ Transitions courtes (.18–.2 s), sans rebond. Pas d'animation continue sur les 
 
 **Mouvement par crans** (mécanique, validé le 2026-11-04) : un rouage avance d'une dent en .16 s (`cubic-bezier(.2, .9, .3, 1)`), puis s'arrête net. Pas de rotation fluide continue ni de rebond.
 - Fond : seuls le grand rouage et son pignon tournent, d'un cran toutes les 1,8 s, en sens opposés. C'est la seule animation continue autorisée.
-- Actions : le pignon de la crémaillère tourne de trois crans au changement de mode et d'un cran à chaque progression ; la barre de progression avance par crans.
-- **Invocation** : quatre crans d'environ .3 s (aiguille et rouages), verrouillage sec (« clac » : décalage de 2 px en .14 s), l'anneau du cadran prend la couleur de la rareté obtenue, trois éclats or se détachent et tombent en .9 s, puis la carte apparaît en fondu .2 s. La rareté n'apparaît qu'au verrouillage. Un tirage ×10 pourra utiliser des crans plus rapides.
+- Pages : le pignon de la crémaillère tourne de trois crans à l'arrivée sur la page.
+- **Invocation** : après la réponse du serveur, quatre crans de .3 s (.17 s pour un lot de 10) : l'aiguille fait un tour complet par quarts et les rouages avancent d'une dent ; verrouillage sec (« clac » : décalage de 2 px en .14 s), l'anneau du cadran prend la couleur de la meilleure rareté du paquet, trois éclats or se détachent et tombent en .9 s, puis les cartes apparaissent en fondu .2 s. La rareté n'apparaît qu'au verrouillage. Un clic ou Entrée sur la machine passe directement aux cartes.
 - `prefers-reduced-motion` : rouages de fond immobiles, invocation sans crans ni éclats (résultat direct).
 
 ## 7. Mise en page

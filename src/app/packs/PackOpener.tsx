@@ -12,6 +12,7 @@ import type { OpenedCard, OpenedPack, PlayerPackState } from "@/lib/packs";
 import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, TENTH_CARD_RATES, UR_PITY, type LotSize } from "@/lib/pull";
 import { buyCrystalsAction, devGrantCrystalsAction, openPackAction, openWelcomeBoosterAction } from "./actions";
 import { CardDetail } from "./CardDetail";
+import { SummonMachine } from "./SummonMachine";
 import { packAudio } from "@/lib/pack-audio";
 import "./packs.css";
 
@@ -59,6 +60,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number } | null>(null);
   const [detail, setDetail] = useState<OpenedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [machine, setMachine] = useState(false);
   const [pending, startTransition] = useTransition();
   const { available, msLeft } = useLiveStock(state);
 
@@ -87,8 +89,8 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         setSummary(false);
         setCut(0);
         setRevealed(r.pack.cards.map(() => false));
+        setMachine(true);
         packAudio.open();
-        packAudio.deal(0.1);
       } catch {
         setError("Connexion interrompue. Recharge la page pour vérifier tes cartes avant de réessayer.");
       } finally { opening.current = false; }
@@ -97,6 +99,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
   function returnToBooster() {
     setPack(null);
+    setMachine(false);
     setRevealed([]);
     setCurrent(0);
     setSummary(false);
@@ -261,7 +264,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
 
           {burst && <div key={burst.key} className="pk-burst" data-rarity={burst.rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && setBurst(null)}><b>{burst.rarity}</b></div>}
 
-          {pack && (
+          {pack && machine && best && <SummonMachine rarity={best} fast={pack.lotSize >= 10} onDone={() => { setMachine(false); packAudio.deal(0.1); }} />}
+
+          {pack && !machine && (
             <div className="pk-cards" data-best={best}>
               {!waitingReveal && <button type="button" className="pk-return ui-button" onClick={returnToBooster}>Revenir au booster</button>}
               {rare && waitingReveal && (

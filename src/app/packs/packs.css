@@ -375,3 +375,68 @@
 .mq-app-shell[class] .pk-lots[role] button[role="radio"][data-active="true"] { background: #c4a76d; color: #14110a; box-shadow: 0 4px 12px #0007; }
 .mq-app-shell[class] .pk-lots[role] button[role="radio"][data-active="true"]::after { content: none; }
 .pk-open-cost { display: block; margin-top: .1rem; font: 500 .62rem var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; opacity: .75; }
+
+/* Mécanisme d'invocation : horlogerie brisée (docs/direction-artistique.md §4.13 et §6). */
+.mq-app-shell .pk-stage .pk-machine {
+  position: relative;
+  flex: none;
+  width: 260px;
+  height: 260px;
+  margin-top: 1.5rem;
+  cursor: pointer;
+}
+.pk-machine { --rc: #c4a76d; }
+.pk-machine:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; border-radius: 50%; }
+.pk-machine-part {
+  position: absolute;
+  background: #c4a76d;
+  -webkit-mask: var(--src) center / contain no-repeat;
+  mask: var(--src) center / contain no-repeat;
+  transition: transform .16s cubic-bezier(.2, .9, .3, 1);
+}
+.pk-machine-dial { --src: url("/ornaments/summon-dial.svg"); inset: 20px; }
+.pk-machine-gear { --src: url("/ornaments/summon-gear.svg"); left: -26px; top: 150px; width: 110px; height: 110px; transform: rotate(calc(var(--step) * 22.5deg)); }
+.pk-machine-pinion { --src: url("/ornaments/summon-pinion.svg"); left: 186px; top: -14px; width: 84px; height: 84px; transform: rotate(calc(var(--step) * -36deg)); }
+.pk-machine-ring { position: absolute; inset: 20px; border-radius: 50%; box-shadow: 0 0 0 2px transparent; transition: box-shadow .12s; }
+.pk-machine-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 86px;
+  margin: -86px 0 0 -2px;
+  transform-origin: 50% 100%;
+  transform: rotate(calc(var(--step) * 90deg));
+  transition: transform .16s cubic-bezier(.2, .9, .3, 1);
+  background: linear-gradient(#d5bb7f, #c4a76d);
+  clip-path: polygon(50% 0, 100% 85%, 50% 100%, 0 85%);
+}
+.pk-machine-hub { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: #0b0e0f; box-shadow: 0 0 0 2px #c4a76d; }
+.pk-machine[data-locked] .pk-machine-ring { box-shadow: 0 0 0 2px var(--rc); }
+.pk-machine[data-locked] .pk-machine-dial { animation: pk-machine-clac .14s steps(2); }
+.pk-machine[data-rarity="N"] { --rc: var(--rarity-N); }
+.pk-machine[data-rarity="R"] { --rc: var(--rarity-R); }
+.pk-machine[data-rarity="SR"] { --rc: var(--rarity-SR); }
+.pk-machine[data-rarity="SSR"] { --rc: var(--rarity-SSR); }
+.pk-machine[data-rarity="UR"] { --rc: var(--rarity-UR); }
+.pk-machine-shard {
+  position: absolute;
+  left: calc(120px + var(--k) * 14px);
+  top: 190px;
+  width: 8px;
+  height: 9px;
+  background: #c4a76d;
+  clip-path: polygon(0 0, 100% 30%, 40% 100%);
+  animation: pk-machine-fall .9s cubic-bezier(.5, 0, .9, .6) forwards;
+}
+.pk-machine-shard:nth-of-type(1) { --dx: -26px; --r: -200deg; }
+.pk-machine-shard:nth-of-type(2) { --dx: 0px; --r: 140deg; }
+.pk-machine-shard:nth-of-type(3) { --dx: 26px; --r: -200deg; }
+@keyframes pk-machine-clac { 0% { transform: none; } 50% { transform: translateY(2px); } 100% { transform: none; } }
+@keyframes pk-machine-fall { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translate(var(--dx), 120px) rotate(var(--r)); } }
+.pk-cards { animation: pk-cards-in .2s ease-out; }
+@keyframes pk-cards-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .pk-machine-part, .pk-machine-needle, .pk-machine-ring { transition: none; }
+  .pk-machine-shard, .pk-machine[data-locked] .pk-machine-dial, .pk-cards { animation: none; }
+}
