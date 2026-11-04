@@ -14,7 +14,8 @@ export const duplicateWhere = (userId: string, characterId: number, exceptCardId
   tradeItems: { none: { trade: { status: "PENDING" } } },
 });
 
-export async function awakenCard(userId: string, cardId: string): Promise<{ stars: number; cost: Cost; consumed: boolean }> {
+/** `expectedStars` : étoiles que l'écran affichait ; un double clic ou un écran périmé ne paie donc jamais une deuxième étoile. */
+export async function awakenCard(userId: string, cardId: string, expectedStars?: number): Promise<{ stars: number; cost: Cost; consumed: boolean }> {
   return prisma.$transaction(async (tx) => {
     const card = await tx.card.findUnique({
       where: { id: cardId },
@@ -22,6 +23,7 @@ export async function awakenCard(userId: string, cardId: string): Promise<{ star
     });
     if (!card || card.ownerId !== userId) throw new BattleError("Carte introuvable.");
     if (card.inAuction) throw new BattleError("Cette carte est en vente aux enchères.");
+    if (expectedStars !== undefined && card.stars !== expectedStars) throw new BattleError("Cette carte a déjà été éveillée : l'affichage vient d'être actualisé.");
     const to = card.stars + 1, rarity = card.character.rarity;
     if (card.stars >= MAX_STARS) throw new BattleError("Cette carte est déjà à 5 étoiles.");
     if (!canAwaken(rarity, to)) throw new BattleError("Les cartes N, R et SR s'arrêtent à 3 étoiles.");

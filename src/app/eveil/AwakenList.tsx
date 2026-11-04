@@ -23,11 +23,11 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
   const [pending, start] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   if (!rows.length) return <p className="vt-muted">Aucune carte à éveiller pour le moment.</p>;
-  const awaken = (id: string) =>
+  const awaken = (id: string, stars: number) =>
     start(async () => {
-      const res = await awakenCardAction(id);
+      const res = await awakenCardAction(id, stars);
       setMessage(res.ok ? null : res.error);
-      if (res.ok) router.refresh();
+      router.refresh();
     });
   return (
     <div>
@@ -47,7 +47,7 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
                 {cost.map((c) => <span key={c.key}><ResourceArt resource={c.key} size={24} />{c.quantity} {c.name} ({c.have}) </span>)}
                 {duplicate && ` + 1 doublon consommé (${duplicate.available} libre${duplicate.available > 1 ? "s" : ""})`}
               </small>
-              <button className={`${styles.awakenButton} ui-button`} type="button" disabled={!affordable || pending} onClick={() => awaken(id)}>
+              <button className={`${styles.awakenButton} ui-button`} type="button" disabled={!affordable || pending} onClick={() => awaken(id, stars)}>
 
                 {affordable ? "Éveiller" : duplicate && duplicate.available === 0 ? "Il faut un doublon libre" : "Ressources insuffisantes"}
               </button>

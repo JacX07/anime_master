@@ -38,7 +38,9 @@ export function SquadManager({ cards, presets, saved, inventory }: {
   const [rarity, setRarity] = useState("");
   const [type, setType] = useState("");
   const [shown, setShown] = useState(50);
-  const [focus, setFocus] = useState<TeamCard | null>(null);
+  // Identifiant seulement : la carte vient toujours des données à jour (étoiles, éveil) après un rafraîchissement
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const focus = focusId ? cards.find((c) => c.id === focusId) ?? null : null;
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
   const picker = useRef<HTMLDialogElement>(null);
@@ -119,7 +121,7 @@ export function SquadManager({ cards, presets, saved, inventory }: {
         {editing && !builtin(selected) && <label className="squad-name">Nom de la squad<input value={name} maxLength={60} onChange={(e) => setName(e.target.value)} /></label>}
         <div className="squad-members">
           {members.map((card, index) => <div key={index} className="squad-member">
-            <button className="squad-card" disabled={pending} aria-label={`${editing ? "Remplacer" : "Voir"} ${card?.name ?? `emplacement ${index + 1}`}`} onClick={() => { if (editing) openPicker(index); else if (card) setFocus(card); }}>
+            <button className="squad-card" disabled={pending} aria-label={`${editing ? "Remplacer" : "Voir"} ${card?.name ?? `emplacement ${index + 1}`}`} onClick={() => { if (editing) openPicker(index); else if (card) setFocusId(card.id); }}>
               {card ? <CharacterCard {...card} /> : <span className="squad-empty">{editing ? "+ Choisir un personnage" : "Emplacement vide"}</span>}
             </button>
             <small>{index === 0 ? "Leader" : `Poste ${index + 1}`}</small>
@@ -142,7 +144,7 @@ export function SquadManager({ cards, presets, saved, inventory }: {
           {Object.entries(RARITY_NAMES).map(([key, label]) => <button key={key} type="button" aria-pressed={colRarity === key} onClick={() => { setColRarity(key); setColShown(40); }}>{label} <small>{cards.filter((c) => c.rarity === key).length}</small></button>)}
         </div>
       </div>
-      <div className="squad-picker-grid squad-collection-grid">{collection.slice(0, colShown).map((card) => <button key={card.id} type="button" className="squad-card" aria-label={`Voir ${card.name}`} onClick={() => setFocus(card)}><CharacterCard {...card} /></button>)}</div>
+      <div className="squad-picker-grid squad-collection-grid">{collection.slice(0, colShown).map((card) => <button key={card.id} type="button" className="squad-card" aria-label={`Voir ${card.name}`} onClick={() => setFocusId(card.id)}><CharacterCard {...card} /></button>)}</div>
       {!collection.length && <p className="vt-muted">Aucune carte de cette rareté.</p>}
       {colShown < collection.length && <button type="button" className="ui-button" onClick={() => setColShown((n) => n + 40)}>Afficher plus ({collection.length - colShown} restantes)</button>}
     </section>
@@ -168,6 +170,6 @@ export function SquadManager({ cards, presets, saved, inventory }: {
         {shown < filtered.length && <button className="ui-button" onClick={() => setShown((count) => count + 50)}>Afficher plus ({filtered.length - shown} restantes)</button>}
       </>}
     </dialog>
-    <CardDialog editable={false} card={focus} inventory={inventory} team={members.filter((c): c is TeamCard => c !== null)} slot={-1} full onClose={() => setFocus(null)} onToggle={() => {}} />
+    <CardDialog editable={false} card={focus} inventory={inventory} team={members.filter((c): c is TeamCard => c !== null)} slot={-1} full onClose={() => setFocusId(null)} onToggle={() => {}} />
   </div>;
 }

@@ -44,6 +44,13 @@ async function main() {
     const left = (await prisma.resourceStock.findMany({ where: { userId: uid } })).reduce((s, r) => s + (1000 - r.quantity), 0);
     const expected = [1, 2].slice(0, stars).reduce((s, k) => s + sum(awakenCost("SSR", k, u)), 0);
     check("Deux clics simultanés : chaque étoile gagnée est payée une seule fois", stars >= 1 && stars === results.filter((r) => r.status === "fulfilled").length && left === expected, `${stars}★, ${left} dépensés`);
+    // Écran périmé ou double clic : l'étoile attendue ne correspond plus, rien n'est payé
+    const starsNow = (await prisma.card.findUniqueOrThrow({ where: { id: card } })).stars;
+    const stockNow = (await prisma.resourceStock.findMany({ where: { userId: uid } })).reduce((n, r) => n + r.quantity, 0);
+    if (starsNow < 3) {
+      check("Étoile attendue périmée : refusé, rien de payé", (await rejects(awakenCard(uid, card, starsNow - 1))) && (await prisma.card.findUniqueOrThrow({ where: { id: card } })).stars === starsNow && (await prisma.resourceStock.findMany({ where: { userId: uid } })).reduce((n, r) => n + r.quantity, 0) === stockNow);
+      check("Étoile attendue exacte : accepté", !(await rejects(awakenCard(uid, card, starsNow))) && (await prisma.card.findUniqueOrThrow({ where: { id: card } })).stars === starsNow + 1);
+    }
     while ((await prisma.card.findUniqueOrThrow({ where: { id: card } })).stars < 3) await awakenCard(uid, card);
     const total = (await prisma.resourceStock.findMany({ where: { userId: uid } })).reduce((s, r) => s + (1000 - r.quantity), 0);
     check("0→3★ : total dépensé = 200 (SSR)", total === 200, String(total));
