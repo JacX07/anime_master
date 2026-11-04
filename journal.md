@@ -454,3 +454,12 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : `git push origin <sha>:refs/heads/main` (avance rapide vérifiée avec `git merge-base --is-ancestor`), puis `git branch -f main <sha>` sans toucher à la branche extraite de l'autre session.
 - Prévention : vérifier `git branch --show-current` juste avant chaque commit ; pour un long chantier, travailler dans un worktree dédié.
 - Occurrences : 1.
+
+## 2026-11-04 — Outils de dev : imports et numéros de cartes
+
+- Symptômes : liste des matériaux indisponible au chargement puis Cœur de brèche en double ; dons de cartes attribuant un numéro sans avancer le compteur utilisé par les boosters.
+- Causes : lecture de constantes pendant un import circulaire, ressource de raid déjà dans RESOURCE_NAMES ; numéro calculé seulement depuis les cartes existantes.
+- Correctifs : calcul différé et dédoublonnage des matériaux ; allocation du numéro sous verrou du personnage et synchronisation de pullCount, en conservant les dons hors des statistiques d'ouvertures (lotSize 0).
+- Validation : outils testés dans le navigateur sur compte jetable, desktop 1440 px et mobile 390 px ; recherche/don, lot, éveil, niveau, progression, ressources, retrait refusé, rechargement et redirection sans session.
+- Occurrences : 1.
+- Contrôles finaux : typecheck et ESLint ciblé, build Node 24, test de régression `scripts/check-dev-tools.ts` (dons concurrents, compteur, maintien du niveau 25, refus des mutations en production). En navigateur, `/dev` affiche bien 404 sur le build local en production même avec une session ; aucune publication distante.
