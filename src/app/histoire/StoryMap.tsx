@@ -35,7 +35,7 @@ export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
           setPosition({ key: u.key, act: Math.ceil(Math.min(u.maxLevel + 1, LEVELS) / 5) });
         }}>{universes.map((u) => <option key={u.key} value={u.key}>{u.name}{u.unlocked ? "" : " · Verrouillé"}</option>)}</select></label>
         <div className="hs-actions" role="group" aria-label="Actes">{[1, 2, 3].map((n) => <button key={n} type="button" className="ui-button text-action" aria-pressed={act === n} disabled={!world.unlocked || world.maxLevel < (n - 1) * 5} onClick={() => setPosition({ ...position, act: n })}>Acte {n}</button>)}</div>
-        <button type="button" className="ui-button text-action" onClick={() => resume && setPosition({ key: resume.key, act: Math.ceil(resume.level / 5) })}>Ma progression</button>
+        <button type="button" className="ui-button" onClick={() => resume && setPosition({ key: resume.key, act: Math.ceil(resume.level / 5) })}>Ma progression</button>
       </header>
       <div className={`hs-map-scene${world.unlocked ? "" : " is-locked"}`} role="group" aria-label="Carte ascendante : départ en bas, boss en haut" style={{ "--hs-art": `url("${art?.acts?.[act]?.background ?? art?.background ?? `/story-map/${world.key}.svg`}")` } as CSSProperties}>
         <div className="hs-map-location"><h2>{art?.acts?.[act]?.location ?? art?.location ?? world.name}</h2><p>{world.name} · Acte {act}{world.unlocked ? "" : " · Verrouillé"}</p></div>
@@ -56,7 +56,7 @@ export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
           </button>;
         })}
       </div>
-      <div className="hs-map-hint"><p>{stars} / 45 étoiles · {world.maxLevel} combats terminés</p><button type="button" className="ui-button text-action" disabled={!open || pending} onClick={() => onPrepare(level, world)}>{pending ? "Chargement…" : !world.unlocked ? "Univers verrouillé" : `Préparer le combat ${level}`}</button></div>
+      <div className="hs-map-hint"><p>{stars} / 45 étoiles · {world.maxLevel} combats terminés</p><button type="button" className="ui-button" disabled={!open || pending} onClick={() => onPrepare(level, world)}>{pending ? "Chargement…" : !world.unlocked ? "Univers verrouillé" : `Préparer le combat ${level}`}</button></div>
       {!world.unlocked && <p className="hs-team-note">Termine l’univers précédent pour débloquer celui-ci.</p>}
       <StarRewards key={world.key} universe={world} onClaim={onClaim}/>
       <section className="hs-map-objects" aria-label="Objets de cet univers"><h2>Objets de cet univers</h2><p>Les quantités et bonus de première victoire s’affichent à la préparation.</p><div className="hs-object-list">{[world.resource, "fragment-de-signature", world.weaponResource].map((key) => <div key={key}><ResourceArt resource={key} size={32}/><span>{RESOURCE_NAMES[key] ?? key}<small>{key === world.weaponResource ? "Boss final · garanti" : "50 % par unité d’éveil"} · Stock : {stock[key] ?? 0}</small></span></div>)}</div></section>
