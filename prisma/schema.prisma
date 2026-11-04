@@ -156,6 +156,12 @@ model User {
   welcomeBannerId     String?
   /// Booster de bienvenue ×10 (gratuit, une seule fois) : date de récupération, vide tant qu'il n'est pas ouvert (SPEC collection §8 ter)
   welcomeBoosterClaimedAt DateTime?
+  /// Dernière activité, mise à jour au plus une fois par minute (statut « en ligne », SPEC social §2)
+  lastSeenAt          DateTime?
+  friendshipsSent     Friendship[]          @relation("FriendRequester")
+  friendshipsReceived Friendship[]          @relation("FriendAddressee")
+  blocksMade          Block[]               @relation("Blocker")
+  blocksReceived      Block[]               @relation("Blocked")
   /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
   expeditionsDone     Int                    @default(0)
   expeditions         Expedition[]
@@ -928,4 +934,36 @@ model GameEvent {
   @@index([createdAt])
   @@index([type, createdAt])
   @@index([userId, createdAt])
+}
+
+/// Demande d'ami puis amitié (SPEC social §2) : une seule ligne par paire, dans le sens de la demande
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+/// Joueur bloqué : plus de demande d'ami, de message, de défi ni d'échange vers le bloqueur (SPEC social §2)
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
 }

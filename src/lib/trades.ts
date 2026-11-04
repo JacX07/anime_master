@@ -1,6 +1,7 @@
 // Échanges directs entre joueurs (SPEC étape 3, §3). Les cartes ne sont pas bloquées pendant l'attente :
 // tout est revérifié à l'acceptation, puis exécuté dans une seule transaction (tout ou rien).
 
+import { assertNotBlocked } from "./friends";
 import { prisma } from "./db";
 import { track } from "./events";
 import { MAX_PENDING_TRADES, TRADE_LIFETIME_MS, tradeEligibility } from "./economy";
@@ -44,6 +45,7 @@ export async function createTrade(fromId: string, d: TradeDraft, now = new Date(
   const to = await prisma.user.findUnique({ where: { username: d.toUsername.trim().toLowerCase() }, select: { id: true, username: true } });
   if (!to) throw new TradeError("Joueur introuvable.");
   if (to.id === fromId) throw new TradeError("Tu ne peux pas t'envoyer une offre à toi-même.");
+  await assertNotBlocked(fromId, to.id).catch((e) => { throw new TradeError(e.message); });
 
   const [mine, theirs] = await Promise.all([eligibility(fromId, now), eligibility(to.id, now)]);
   if (!mine.ok) throw new TradeError(`Tu ne peux pas encore échanger : ${mine.reason}.`);

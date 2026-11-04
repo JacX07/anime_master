@@ -1,6 +1,7 @@
 // Duels asynchrones (SPEC étape 4, §1 à §4). Les délais sont appliqués paresseusement (`sweepDuels`, à chaque consultation).
 // Chaque changement d'état est un passage conditionnel (updateMany sur le statut) : un double clic ne l'exécute jamais deux fois.
 
+import { assertNotBlocked } from "./friends";
 import { titleOf } from "./achievements";
 import type { Prisma } from "../generated/prisma/client";
 import type { CardType, Rarity } from "../generated/prisma/enums";
@@ -55,6 +56,7 @@ export async function createDuel(challengerId: string, opponentUsername: string,
   const opponent = await prisma.user.findUnique({ where: { username: opponentUsername.trim().toLowerCase() }, select: { id: true } });
   if (!opponent) throw new DuelError("Joueur introuvable.");
   if (opponent.id === challengerId) throw new DuelError("Tu ne peux pas te défier toi-même.");
+  await assertNotBlocked(challengerId, opponent.id).catch((e) => { throw new DuelError(e.message); });
   const [mine, theirs] = await Promise.all([eligibility(challengerId, now), eligibility(opponent.id, now)]);
   if (!mine.ok) throw new DuelError(`Tu ne peux pas encore jouer en duel : ${mine.reason}.`);
   if (!theirs.ok) throw new DuelError(`${opponentUsername} ne peut pas encore jouer en duel : ${theirs.reason}.`);

@@ -412,3 +412,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : titre blanc sans protection de contraste locale ; légendes posées directement sur l’image claire.
 - Correctif : ombre sombre localisée derrière le titre, texte ivoire/doré ; jalons héraldiques avec sceau intérieur, épées du sprite, numéro et libellés sur fond sombre. Emplacements vides également corrigés à partir des captures utilisateur.
 - Validation : navigateur à 1440/390 px sur compte neuf sans cartes : titre, cinq jalons, verrous, préparation au clic, quatre emplacements verticaux au ratio des cartes et libellés dessous, sélection vide, fermeture Échap, focus clavier et légende du jalon courant non coupée. Typecheck, ESLint ciblé, contrôle de carte et actualisation Graphify réussis. Build complet non relancé pour cette retouche visuelle.
+
+## 2026-11-04 — Server Actions déclarées en `export const` : `tsc` ne les voit pas, Next les refuse
+
+- Symptôme : `/friends` affiche « Build Error : Server Actions must be async functions » (aucune erreur au typecheck) ; l'overlay de dev provoque des rechargements en boucle, le serveur monte à 2 Go et 180 % de CPU, et l'onglet de prévisualisation ne répond plus.
+- Cause : `export const uneAction = (x) => run(...)` dans un fichier `"use server"`. Seules les `export async function` sont acceptées.
+- Correctif : déclarer chaque action avec `export async function`. Après un nouveau fichier d'actions, ouvrir la page dans le navigateur avant de conclure : `tsc` et ESLint ne suffisent pas.
+- Aggravant : une autre session lançait `tsc` en même temps (charge > 30). Attendre qu'elle ait fini avant de rouvrir l'onglet.

@@ -10,7 +10,7 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
 ### Décisions validées
 - Album **public** par défaut (option « privé » envisageable plus tard).
 - Guildes : création à 1 000 Ryō, 20 membres maximum, une seule guilde par joueur.
-- Chat : messages privés entre amis et chat de guilde ; **pas de chat global**.
+- Chat : messages privés entre amis, chat de guilde et **chat général** (décidé le 2026-11-04, remplace « pas de chat global »). Un seul **widget de chat en bas à droite** de toutes les pages, avec trois onglets : Guilde, Général, Privé.
 - Temps réel : **polling toutes les 3 secondes** en local, vrai temps réel à la mise en ligne.
 
 ---
@@ -44,8 +44,10 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
   - **Duels de la semaine** : nombre de victoires en duel des membres depuis lundi 0 h.
 
 ### 4. Messagerie
+- **Widget de chat** *(2026-11-04)* : bouton en bas à droite de chaque page (hors combat plein écran), qui ouvre un panneau avec trois onglets **Guilde**, **Général**, **Privé**. Un pastille de non-lus par onglet ; panneau repliable, l'onglet et l'état ouvert/fermé sont mémorisés par navigateur. Les pages `/messages` et `/guilds/[tag]` ouvrent le même chat.
 - **Messages privés** : uniquement entre amis.
 - **Chat de guilde** : une conversation par guilde, ouverte à tous les membres.
+- **Chat général** *(2026-11-04)* : une conversation unique pour tous les joueurs (`kind` GENERAL), en français, lecture des 50 derniers messages. Mêmes limites et même modération que le reste ; en plus, un joueur doit avoir atteint le niveau d'Arpenteur 3 pour y écrire (anti-spam), il peut masquer le général sans quitter les autres onglets, et le chef de guilde n'y a aucun droit particulier (la suppression de messages y est réservée à l'administration).
 - **Polling** toutes les 3 secondes sur la conversation ouverte ; compteur de non-lus dans la cloche.
 - Limites : 500 caractères par message, 1 message par seconde par joueur, messages conservés 90 jours.
 - **Modération** : signalement d'un message, blocage, filtre de mots basique (liste configurable), suppression de messages par le chef dans le chat de guilde.
@@ -56,7 +58,7 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
 - **Block** : `blockerId`, `blockedId`, `createdAt`
 - **Guild** : `id`, `name`, `tag`, `description`, `icon`, `joinMode` (OPEN / REQUEST), `ownerId`, `createdAt`
 - **GuildJoinRequest** : `guildId`, `userId`, `status`, `createdAt`
-- **Conversation** : `id`, `kind` (DM / GUILD), `guildId` (si GUILD), `userAId` / `userBId` (si DM)
+- **Conversation** : `id`, `kind` (DM / GUILD / GENERAL), `guildId` (si GUILD), `userAId` / `userBId` (si DM)
 - **ConversationRead** : `conversationId`, `userId`, `lastReadAt`
 - **Message** : `id`, `conversationId`, `authorId`, `content`, `createdAt`, `deletedAt`
 - **Report** : `id`, `reporterId`, `messageId`, `reason`, `status`, `createdAt`
@@ -69,7 +71,7 @@ Faire jouer les joueurs ensemble : profils publics, amis, guildes, messagerie.
 | `/friends` | Amis, demandes reçues et envoyées, joueurs bloqués |
 | `/guilds` | Liste, recherche, création |
 | `/guilds/[tag]` | Membres, chat, demandes, gestion |
-| `/messages` | Conversations privées |
+| `/messages` | Conversations privées (même chat que le widget) |
 
 ### 7. Critères pour dire que l'étape 5 est finie
 - [ ] Demandes d'ami, suppression et blocage fonctionnent ; un joueur bloqué ne peut plus rien envoyer.

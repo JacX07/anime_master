@@ -6,6 +6,8 @@ import { Icon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { getProfile, pinnable, SHOWCASE_MAX } from "@/lib/profile";
 import { requireUser } from "@/lib/session";
+import { relationWith } from "@/lib/friends";
+import { FriendButtons } from "./FriendButtons";
 import { ProfileEditor } from "./ProfileEditor";
 import "./profile.css";
 
@@ -34,6 +36,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
   const mine = profile.id === viewer.id;
   const done = profile.achievements.filter((a) => a.unlockedAt);
   const pins = mine ? await pinnable(profile.id) : [];
+  const relation = mine ? null : await relationWith(viewer.id, profile.id);
   return (
     <div className="vt-inner mq-profile">
       <header className="pf-head mq-profile-hero">
@@ -44,6 +47,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
           <h1 className="vt-title">{profile.username}</h1>
           {profile.title && <span className="pl-title pf-title">{profile.title}</span>}
           <p className="vt-sub">Joueur depuis le {dateFmt.format(profile.since)}</p>
+          {relation && <FriendButtons username={profile.username} userId={profile.id} relation={relation} />}
         </div>
       </header>
 
