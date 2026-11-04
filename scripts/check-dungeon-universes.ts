@@ -8,6 +8,7 @@ async function main() {
  await prisma.user.create({data:{id,name:id,username:id,email:`${id}@test.local`}});
  try {
   await prisma.adventureRecord.create({data:{userId:id,key:'access:dungeon'}});
+  for(const d of DUNGEONS) await prisma.storyProgress.create({data:{userId:id,universe:d.key,maxLevel:10}});
   const opening=await prisma.packOpening.create({data:{userId:id,lotSize:5,pityTriggered:'NONE'}});
   const characters=await prisma.character.findMany({where:{disabled:false,rarity:'UR'},take:4,orderBy:{id:'asc'}});
   const cards=[];
