@@ -4,6 +4,23 @@
 
 Pour l’instant, pas de personnage : une page **Guide** (`/guide`, menu Quêtes › Guide du jeu) liste 16 étapes numérotées. Chaque étape indique où la trouver dans le menu, quoi y faire, son état (fait, à faire, verrouillé avec la condition, ou simple découverte) et un bouton « Y aller ». Une barre montre les étapes accomplies et un lien mène à la prochaine étape. Les états viennent des données d’aventure existantes (`src/lib/guide.ts`), sans nouvelle table.
 
+## Tutoriel en infobulles *(décidé le 2026-11-04, pas encore codé)*
+
+À la première arrivée d'un **nouveau compte**, des infobulles numérotées guident le joueur. Les comptes existants ne le voient pas (ils peuvent le lancer depuis la page Guide).
+
+**Phase 1 — Premiers pas (actions réelles).** L'étape suivante s'affiche automatiquement dès que l'action est faite.
+1. « Ici tu invoques tes cartes » : zone d'invocation de l'accueil. Terminé quand le joueur possède une carte.
+2. « Ici tu formes ta squad » : menu Squads, puis les emplacements. Terminé quand l'équipe d'attaque a 4 cartes.
+3. « Ici tu lances le mode histoire » : JOUER, puis Mode histoire, puis le combat 1 de One Piece. Terminé quand le **premier combat est gagné**.
+
+Si le joueur part ailleurs, la bulle le **suit** : sur une autre page, elle pointe l'entrée du menu qui ramène au bon endroit (sur mobile, d'abord le bouton Menu).
+
+**Phase 2 — Les modes de jeu (présentation, bouton Suivant).** Le menu JOUER s'ouvre ; une bulle par mode (donjons, raids, expéditions, arène, Tour) explique son rôle en une phrase. Les modes verrouillés sont présentés aussi, avec la condition qui les ouvre.
+
+**Phase 3 — Les autres onglets (Suivant).** Une bulle par onglet : Collection (album, souhaits), Inventaire (éveil, forge), Quêtes (carnet, guide), Marché (Bourse, échanges), Classement, Succès, Paramètres, puis l'avatar (bonus du jour, Ryō, cristaux). Dernière bulle : le tutoriel se relance depuis Quêtes › Guide du jeu.
+
+**Règles.** Bulle numérotée, élément ciblé mis en surbrillance, boutons « Suivant » (phases 2 et 3) et « Passer le tutoriel ». La progression est enregistrée sur le compte (reprise après rechargement ou sur un autre appareil). La page Guide garde sa liste et propose « Relancer le tutoriel ».
+
 ## Scénario avec Pew (en attente)
 
 Scénario du guide intégré au jeu. **Proposition du 2026-11-03, mise de côté : on garde la version simple ci-dessus pour l’instant.** Le lore est dans [lore.md](../../lore.md).
