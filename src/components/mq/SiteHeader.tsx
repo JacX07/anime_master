@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { after } from "next/server";
 import { Suspense } from "react";
+import { devToolsEnabled } from "@/lib/dev-tools";
 import { touchLastSeen } from "@/lib/friends";
 import { signOut } from "@/app/auth-actions";
 import { getAdventure } from "@/lib/adventure-state";
@@ -127,6 +128,7 @@ async function Account() {
           <Link href="/guilds">Guildes</Link>
           <Link href="/parametres">Paramètres</Link>
           {staff && <Link href="/admin">Administration</Link>}
+          {devToolsEnabled() && <Link href="/outils">Outils</Link>}
           <button type="submit">Se déconnecter</button>
         </form>
       </div>

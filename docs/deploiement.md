@@ -209,3 +209,11 @@ Le site est privé : créer un compte demande un **code d'invitation**, que tu d
 - Pour inviter quelqu'un : lui envoyer le code. Pour **révoquer** (code qui a fuité) : changer `INVITE_CODE` puis Redeploy.
 - Les scripts de test qui créent des comptes par HTTP (`scripts/audit-local-security.ts`) lisent `INVITE_CODE` dans leur environnement.
 - Contrôle automatique : `scripts/check-invite.ts`.
+
+## 12. Outils de développement : jamais en production
+
+Quatre outils ne servent qu'en local : `/outils` (le menu qui les réunit), `/dev` (dons et niveaux de test sur la base de dev), le Spell Builder (`/builder`, `/api/builder/*`) et l'éditeur d'illustrations (`/illustrations`, écritures de `/api/illustrations/*`). Ils sont fusionnés dans `main` comme le reste, mais **refusés hors développement** :
+- `devToolsEnabled()` (`src/lib/dev-tools.ts`) et les gardes du Spell Builder (`builderAllowed`, `requireBuilder`) répondent « introuvable » quand `NODE_ENV` vaut `production` (Vercel, `next start`). L'éditeur d'illustrations est plus strict : développement seulement.
+- Le lien « Outils » du menu du compte n'apparaît qu'en local.
+- `npm run check:dev-routes` (découvert aussi par `npm run check`) échoue si une page, une action serveur ou une route de ces dossiers n'appelle pas une garde, si une route d'illustrations qui écrit n'est pas gardée, ou si un autre fichier de l'application écrit sur le disque sans garde.
+- Un nouvel outil qui écrit sur le disque doit appeler une de ces gardes, sinon la CI échoue.
