@@ -64,6 +64,7 @@
     "check:dungeon": "tsx scripts/check-dungeon.ts",
     "check:guilds": "tsx scripts/check-guilds.ts",
     "check:friends": "tsx scripts/check-friends.ts",
+    "check:chat": "tsx scripts/check-chat.ts",
     "db:deploy": "prisma migrate deploy",
     "admin:promote": "tsx scripts/admin-promote.ts",
     "check:admin": "tsx scripts/check-admin.ts",

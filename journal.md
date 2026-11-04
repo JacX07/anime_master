@@ -432,3 +432,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : `react-hooks/purity` refuse `Date.now()` dans les pages serveur des guildes, malgré le typecheck et le build réussis.
 - Cause : l’évaluation du délai de réadhésion était faite pendant le rendu React.
 - Correctif : calculer cet état dans les lecteurs de données (`listGuilds`, `getGuild`) puis transmettre le résultat au rendu. La garde transactionnelle côté serveur reste la référence pour les mutations.
+
+## 2026-11-04 — Vérifier un widget global : hors `AppShell`, et inscription en `next start`
+
+- Symptôme 1 : le widget de chat monté dans `AppShell` perdait ses couleurs (onglet actif gris, boutons sans style) : `controls.css` restylise tous les `button` de `.mq-app-shell`. Correctif : monter les widgets globaux dans `layout.tsx` après `AppShell`, sous leur propre `Suspense`.
+- Symptôme 2 : en `next start`, l'inscription renvoie `INVALID_INVITE_CODE` (en production, sans `INVITE_CODE`, elle est fermée). Contournement pour les tests : lancer `INVITE_CODE=localtest npx next start -p 3012` et envoyer `inviteCode: "localtest"` dans le corps de `/api/auth/sign-up/email`.
+- Un `next start` après `npm run build` évite les rechargements en boucle de `next dev` observés pendant les vérifications du social.

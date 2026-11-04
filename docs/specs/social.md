@@ -60,10 +60,9 @@ Les demandes en attente sont annulées lorsque le joueur rejoint une guilde. Une
 - **Block** : `blockerId`, `blockedId`, `createdAt`
 - **Guild** : `id`, `name`, `tag`, `description`, `icon`, `joinMode` (OPEN / REQUEST), `ownerId`, `createdAt`
 - **GuildJoinRequest** : `guildId`, `userId`, `status`, `createdAt`
-- **Conversation** : `id`, `kind` (DM / GUILD / GENERAL), `guildId` (si GUILD), `userAId` / `userBId` (si DM)
-- **ConversationRead** : `conversationId`, `userId`, `lastReadAt`
-- **Message** : `id`, `conversationId`, `authorId`, `content`, `createdAt`, `deletedAt`
-- **Report** : `id`, `reporterId`, `messageId`, `reason`, `status`, `createdAt`
+- **ChatMessage** *(remplace Conversation et Message, 2026-11-04)* : `id`, `channel` (`general`, `guild:<id>` ou `dm:<idA>:<idB>` avec identifiants triés), `authorId`, `content`, `createdAt`, `deletedAt`
+- **ChatRead** : `channel`, `userId`, `lastReadAt` (compteurs de non-lus ; aucune pastille tant que le général n'a jamais été ouvert)
+- **ChatReport** : `id`, `reporterId`, `messageId`, `reason`, `status` (OPEN / DONE), `createdAt` (un signalement par joueur et par message)
 - **CurrencyLedger.reason** : ajout de GUILD_CREATE
 
 ### 6. Pages

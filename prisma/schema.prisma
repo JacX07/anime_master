@@ -158,6 +158,9 @@ model User {
   welcomeBoosterClaimedAt DateTime?
   /// Dernière activité, mise à jour au plus une fois par minute (statut « en ligne », SPEC social §2)
   lastSeenAt          DateTime?
+  chatMessages        ChatMessage[]
+  chatReads           ChatRead[]
+  chatReports         ChatReport[]
   guildId             String?
   guild               Guild?                 @relation("GuildMembers", fields: [guildId], references: [id], onDelete: SetNull)
   guildRole           GuildRole              @default(MEMBER)
@@ -1018,4 +1021,50 @@ model GuildJoinRequest {
   @@unique([guildId, userId])
   @@index([guildId, status])
   @@index([userId, status])
+}
+
+/// Message de chat (SPEC social §4). `channel` : « general », « guild:<id> » ou « dm:<idA>:<idB> » (identifiants triés)
+model ChatMessage {
+  id        String    @id @default(cuid())
+  channel   String
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+  reports   ChatReport[]
+
+  @@index([channel, createdAt])
+  @@index([authorId, createdAt])
+}
+
+/// Dernière lecture d'une conversation par un joueur (compteurs de non-lus)
+model ChatRead {
+  channel    String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt DateTime @default(now())
+
+  @@id([channel, userId])
+  @@index([userId])
+}
+
+enum ChatReportStatus {
+  OPEN
+  DONE
+}
+
+/// Signalement d'un message
+model ChatReport {
+  id         String           @id @default(cuid())
+  reporterId String
+  reporter   User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  messageId  String
+  message    ChatMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  reason     String           @default("")
+  status     ChatReportStatus @default(OPEN)
+  createdAt  DateTime         @default(now())
+
+  @@unique([reporterId, messageId])
+  @@index([status, createdAt])
 }
