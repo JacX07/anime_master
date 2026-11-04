@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
@@ -6,6 +7,8 @@ import { Icon } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
 import { getProfile, pinnable, SHOWCASE_MAX } from "@/lib/profile";
 import { requireUser } from "@/lib/session";
+import { relationWith } from "@/lib/friends";
+import { FriendButtons } from "./FriendButtons";
 import { ProfileEditor } from "./ProfileEditor";
 import "./profile.css";
 
@@ -34,6 +37,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
   const mine = profile.id === viewer.id;
   const done = profile.achievements.filter((a) => a.unlockedAt);
   const pins = mine ? await pinnable(profile.id) : [];
+  const relation = mine ? null : await relationWith(viewer.id, profile.id);
   return (
     <div className="vt-inner mq-profile">
       <header className="pf-head mq-profile-hero">
@@ -42,8 +46,10 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
         </div>
         <div>
           <h1 className="vt-title">{profile.username}</h1>
+          {profile.guild && <Link className="pl-title" href={`/guilds/${profile.guild.tag}`}>[{profile.guild.tag}] {profile.guild.name}</Link>}
           {profile.title && <span className="pl-title pf-title">{profile.title}</span>}
           <p className="vt-sub">Joueur depuis le {dateFmt.format(profile.since)}</p>
+          {relation && <FriendButtons username={profile.username} userId={profile.id} relation={relation} />}
         </div>
       </header>
 

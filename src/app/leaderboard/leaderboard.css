@@ -2,7 +2,7 @@
 .mq-board-head { padding-bottom: .9rem; border-bottom: 1px solid #303632; }
 .mq-board-head .vt-title { font-family: var(--font-cinzel), Georgia, serif; }
 .mq-leaderboard .pg-tabs { margin: -.2rem 0 .2rem; border-bottom: 1px solid #303632; }
-.mq-leaderboard .pg-tabs nav { display: flex; gap: .25rem; }
+.mq-leaderboard .pg-tabs nav { display: flex; flex-wrap: wrap; gap: .25rem; }
 .mq-leaderboard .pg-tabs a { padding: .75rem 1rem; color: #858a85; border-bottom: 2px solid transparent; text-decoration: none; }
 .mq-leaderboard .pg-tabs a[aria-current="page"] { color: #e9e5dc; border-color: #c4a76d; }
 .mq-leaderboard section > .vt-sub { max-width: 58rem; margin: .5rem 0 1.2rem; line-height: 1.7; }

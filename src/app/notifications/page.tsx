@@ -31,6 +31,8 @@ const TEXT: Record<NotificationType, (p: Payload) => string> = {
   DUEL_EXPIRED: (p) => (p.username ? `${p.username} n'a pas répondu à ton duel à temps.` : "Un duel a expiré : personne n'a joué sa défense à temps."),
   DUEL_RESULT: (p) =>
     `${p.outcome === "win" ? "Victoire" : p.outcome === "draw" ? "Match nul" : "Défaite"}${p.forfeit ? " par forfait" : ""} contre ${p.username}${p.amount ? ` (+${ryo(p.amount)})` : ""}.`,
+  FRIEND_REQUEST: (p) => `${p.username} t'a envoyé une demande d'ami.`,
+  FRIEND_ACCEPTED: (p) => `${p.username} a accepté ta demande d'ami.`,
   EXPEDITION_DONE: (p) => `Ton expédition « ${p.label} » est terminée : va récupérer le butin.`,
   AUCTION_UNSOLD: (p) => `Ton enchère sur ${p.character} s'est terminée sans offre : la carte est revenue dans ton album.`,
 };
@@ -59,7 +61,7 @@ async function Notifications() {
         <ul className="notif-list">
           {list.map((n) => (
             <li key={n.id} className={n.read ? "" : "unread"}>
-              <Link href={n.payload.duelId ? `/duels/${n.payload.duelId}` : n.payload.auctionId ? `/market/${n.payload.auctionId}` : n.payload.characterId ? `/character/${n.payload.characterId}` : n.payload.label ? "/achievements" : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
+              <Link href={n.type === "FRIEND_REQUEST" || n.type === "FRIEND_ACCEPTED" ? "/friends" : n.payload.duelId ? `/duels/${n.payload.duelId}` : n.payload.auctionId ? `/market/${n.payload.auctionId}` : n.payload.characterId ? `/character/${n.payload.characterId}` : n.payload.label ? "/achievements" : "/trades"}>{(TEXT[n.type] ?? (() => "Notification"))(n.payload)}</Link>
               <time className="vt-muted">{dateFmt.format(n.createdAt)}</time>
             </li>
           ))}
