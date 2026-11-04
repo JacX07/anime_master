@@ -7,6 +7,7 @@ export interface CollectionRow {
   userId: string;
   username: string;
   title: string | null;
+  guildTag?: string | null;
   score: number;
   unique: number;
   rank: number;
@@ -19,7 +20,7 @@ interface Raw {
 }
 
 /** Score de chaque joueur, calculé en une requête (même formule que `collectionValue`). */
-async function scores(): Promise<Raw[]> {
+export async function collectionScores(): Promise<Raw[]> {
   return prisma.$queryRaw<Raw[]>`
     SELECT g."ownerId" AS "userId",
            SUM(CASE ch.rarity WHEN 'N' THEN 1 WHEN 'R' THEN 3 WHEN 'SR' THEN 10 WHEN 'SSR' THEN 40 WHEN 'UR' THEN 200 ELSE 0 END
@@ -36,10 +37,10 @@ async function scores(): Promise<Raw[]> {
 }
 
 export async function collectionLeaderboard(me: string | null, top = 100) {
-  const raw = (await scores()).map((r) => ({ userId: r.userId, score: Math.floor(Number(r.score)), unique: Number(r.uniq) }));
+  const raw = (await collectionScores()).map((r) => ({ userId: r.userId, score: Math.floor(Number(r.score)), unique: Number(r.uniq) }));
   raw.sort((a, b) => b.score - a.score || b.unique - a.unique || a.userId.localeCompare(b.userId));
-  const users = await prisma.user.findMany({ where: { id: { in: raw.map((r) => r.userId) } }, select: { id: true, username: true, title: true } });
+  const users = await prisma.user.findMany({ where: { id: { in: raw.map((r) => r.userId) } }, select: { id: true, username: true, title: true, guild: { select: { tag: true } } } });
   const who = new Map(users.map((u) => [u.id, u]));
-  const ranked: CollectionRow[] = raw.map((r, i) => ({ ...r, username: who.get(r.userId)?.username ?? "?", title: titleOf(who.get(r.userId)?.title), rank: i + 1 }));
+  const ranked: CollectionRow[] = raw.map((r, i) => ({ ...r, username: who.get(r.userId)?.username ?? "?", title: titleOf(who.get(r.userId)?.title), guildTag: who.get(r.userId)?.guild?.tag ?? null, rank: i + 1 }));
   return { top: ranked.slice(0, top), me: me ? (ranked.find((r) => r.userId === me) ?? null) : null, players: ranked.length };
 }

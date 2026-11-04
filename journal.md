@@ -352,7 +352,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : load average ≈ 38, mémoire presque pleine, `npm install` de 20 min, première compilation de 10 min, deux sessions en échec (« timed out while registering its MCP tools »).
 - Cause : chaque session avait son worktree, son `npm install`, son `next dev` et son navigateur headless.
 - Contournement : une seule branche, un seul serveur à la fois, arrêté après chaque vérification.
-- Occurrences : 1.
+- Occurrences : 2 (sept sessions le 2026-11-03 ; serveurs de deux checkouts et rechargements en boucle le 2026-11-04).
+- Complément du 2026-11-04 : pendant la vérification des guildes, `next dev` recharge `/guilds` en continu (compilations 1–3 ms) et les champs sont détachés pendant la saisie. Un autre checkout exécutait aussi son serveur. Cause exacte de la boucle non établie ; arrêt de notre serveur et vérification du build local avec `next start`, sans toucher à l’autre session.
 
 ## 2026-11-03 — En-tête des ressources : navigation et XP masquées aux largeurs intermédiaires
 
@@ -412,3 +413,28 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : titre blanc sans protection de contraste locale ; légendes posées directement sur l’image claire.
 - Correctif : ombre sombre localisée derrière le titre, texte ivoire/doré ; jalons héraldiques avec sceau intérieur, épées du sprite, numéro et libellés sur fond sombre. Emplacements vides également corrigés à partir des captures utilisateur.
 - Validation : navigateur à 1440/390 px sur compte neuf sans cartes : titre, cinq jalons, verrous, préparation au clic, quatre emplacements verticaux au ratio des cartes et libellés dessous, sélection vide, fermeture Échap, focus clavier et légende du jalon courant non coupée. Typecheck, ESLint ciblé, contrôle de carte et actualisation Graphify réussis. Build complet non relancé pour cette retouche visuelle.
+
+## 2026-11-04 — Server Actions déclarées en `export const` : `tsc` ne les voit pas, Next les refuse
+
+- Symptôme : `/friends` affiche « Build Error : Server Actions must be async functions » (aucune erreur au typecheck) ; l'overlay de dev provoque des rechargements en boucle, le serveur monte à 2 Go et 180 % de CPU, et l'onglet de prévisualisation ne répond plus.
+- Cause : `export const uneAction = (x) => run(...)` dans un fichier `"use server"`. Seules les `export async function` sont acceptées.
+- Correctif : déclarer chaque action avec `export async function`. Après un nouveau fichier d'actions, ouvrir la page dans le navigateur avant de conclure : `tsc` et ESLint ne suffisent pas.
+- Aggravant : une autre session lançait `tsc` en même temps (charge > 30). Attendre qu'elle ait fini avant de rouvrir l'onglet.
+
+## 2026-11-04 — Reprise du social : étape guildes
+
+- État retrouvé : amis poussés dans `f343375`, branche `chantier/social`. L’utilisateur a validé l’étape guildes ; la précédente tentative n’avait fait que lire le schéma, sans code de guilde.
+- Réutilisation : formule Collection de `leaderboard.ts`, boutons/panneaux de la direction artistique, emblèmes du sprite. Le chat est réservé à l’étape suivante ; ne pas réintroduire les emojis prévus par l’ancienne spec, contraires à `docs/direction-artistique.md`.
+- Point sensible : ajouter `GUILD_CREATE` au ledger et protéger débit, unicité d’appartenance, capacité et transmission du chef par transaction. Tester les accès par rôle et les doubles clics, pas seulement le chemin nominal.
+
+## 2026-11-04 — Lint React Compiler et heure courante dans un composant serveur
+
+- Symptôme : `react-hooks/purity` refuse `Date.now()` dans les pages serveur des guildes, malgré le typecheck et le build réussis.
+- Cause : l’évaluation du délai de réadhésion était faite pendant le rendu React.
+- Correctif : calculer cet état dans les lecteurs de données (`listGuilds`, `getGuild`) puis transmettre le résultat au rendu. La garde transactionnelle côté serveur reste la référence pour les mutations.
+
+## 2026-11-04 — Vérifier un widget global : hors `AppShell`, et inscription en `next start`
+
+- Symptôme 1 : le widget de chat monté dans `AppShell` perdait ses couleurs (onglet actif gris, boutons sans style) : `controls.css` restylise tous les `button` de `.mq-app-shell`. Correctif : monter les widgets globaux dans `layout.tsx` après `AppShell`, sous leur propre `Suspense`.
+- Symptôme 2 : en `next start`, l'inscription renvoie `INVALID_INVITE_CODE` (en production, sans `INVITE_CODE`, elle est fermée). Contournement pour les tests : lancer `INVITE_CODE=localtest npx next start -p 3012` et envoyer `inviteCode: "localtest"` dans le corps de `/api/auth/sign-up/email`.
+- Un `next start` après `npm run build` évite les rechargements en boucle de `next dev` observés pendant les vérifications du social.

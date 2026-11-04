@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
+import { after } from "next/server";
 import { Suspense } from "react";
+import { touchLastSeen } from "@/lib/friends";
 import { signOut } from "@/app/auth-actions";
 import { getAdventure } from "@/lib/adventure-state";
 import { MAX_CRYSTALS } from "@/lib/crystal-stock";
@@ -83,6 +85,8 @@ async function Account() {
       </>
     );
   }
+  // Statut « en ligne » des amis : au plus une écriture par minute, après la réponse
+  after(() => touchLastSeen(user.id));
   const [wallet, packs, adventure, title, staff] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id)]);
   const xpPct = adventure.next === null ? 100 : Math.max(0, Math.min(100, Math.round(((adventure.xp - adventure.floor) / (adventure.next - adventure.floor)) * 100)));
   return (
@@ -117,6 +121,8 @@ async function Account() {
             <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
+          <Link href="/friends">Amis</Link>
+          <Link href="/guilds">Guildes</Link>
           <Link href="/parametres">Paramètres</Link>
           {staff && <Link href="/admin">Administration</Link>}
           <button type="submit">Se déconnecter</button>

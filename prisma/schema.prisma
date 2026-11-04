@@ -156,6 +156,21 @@ model User {
   welcomeBannerId     String?
   /// Booster de bienvenue ×10 (gratuit, une seule fois) : date de récupération, vide tant qu'il n'est pas ouvert (SPEC collection §8 ter)
   welcomeBoosterClaimedAt DateTime?
+  /// Dernière activité, mise à jour au plus une fois par minute (statut « en ligne », SPEC social §2)
+  lastSeenAt          DateTime?
+  chatMessages        ChatMessage[]
+  chatReads           ChatRead[]
+  chatReports         ChatReport[]
+  guildId             String?
+  guild               Guild?                 @relation("GuildMembers", fields: [guildId], references: [id], onDelete: SetNull)
+  guildRole           GuildRole              @default(MEMBER)
+  guildLeftAt         DateTime?
+  ownedGuild          Guild?                 @relation("GuildOwner")
+  guildRequests       GuildJoinRequest[]
+  friendshipsSent     Friendship[]          @relation("FriendRequester")
+  friendshipsReceived Friendship[]          @relation("FriendAddressee")
+  blocksMade          Block[]               @relation("Blocker")
+  blocksReceived      Block[]               @relation("Blocked")
   /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
   expeditionsDone     Int                    @default(0)
   expeditions         Expedition[]
@@ -206,6 +221,8 @@ model User {
   packOpenings        PackOpening[]
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
+  @@index([guildId])
+
 }
 
 model Session {
@@ -346,6 +363,7 @@ model BannerCharacter {
 // ---------- Étape 3 : économie ----------
 
 enum LedgerReason {
+  GUILD_CREATE
   ARTIFACT_UPGRADE
   QUICK_SELL
   DAILY
@@ -928,4 +946,125 @@ model GameEvent {
   @@index([createdAt])
   @@index([type, createdAt])
   @@index([userId, createdAt])
+}
+
+/// Demande d'ami puis amitié (SPEC social §2) : une seule ligne par paire, dans le sens de la demande
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+/// Joueur bloqué : plus de demande d'ami, de message, de défi ni d'échange vers le bloqueur (SPEC social §2)
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+// ---------- Social : guildes ----------
+enum GuildRole {
+  OWNER
+  OFFICER
+  MEMBER
+}
+enum GuildJoinMode {
+  OPEN
+  REQUEST
+}
+enum GuildRequestStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
+}
+model Guild {
+  id          String @id @default(cuid())
+  name        String
+  nameKey     String @unique
+  tag         String @unique
+  description String @default("")
+  icon        String @default("squads")
+  joinMode    GuildJoinMode @default(REQUEST)
+  ownerId     String @unique
+  owner       User @relation("GuildOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     User[] @relation("GuildMembers")
+  requests    GuildJoinRequest[]
+  createdAt   DateTime @default(now())
+}
+model GuildJoinRequest {
+  id        String @id @default(cuid())
+  guildId   String
+  guild     Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    GuildRequestStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, userId])
+  @@index([guildId, status])
+  @@index([userId, status])
+}
+
+/// Message de chat (SPEC social §4). `channel` : « general », « guild:<id> » ou « dm:<idA>:<idB> » (identifiants triés)
+model ChatMessage {
+  id        String    @id @default(cuid())
+  channel   String
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+  reports   ChatReport[]
+
+  @@index([channel, createdAt])
+  @@index([authorId, createdAt])
+}
+
+/// Dernière lecture d'une conversation par un joueur (compteurs de non-lus)
+model ChatRead {
+  channel    String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt DateTime @default(now())
+
+  @@id([channel, userId])
+  @@index([userId])
+}
+
+enum ChatReportStatus {
+  OPEN
+  DONE
+}
+
+/// Signalement d'un message
+model ChatReport {
+  id         String           @id @default(cuid())
+  reporterId String
+  reporter   User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  messageId  String
+  message    ChatMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  reason     String           @default("")
+  status     ChatReportStatus @default(OPEN)
+  createdAt  DateTime         @default(now())
+
+  @@unique([reporterId, messageId])
+  @@index([status, createdAt])
 }

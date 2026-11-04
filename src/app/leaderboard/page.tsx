@@ -5,6 +5,7 @@ import { PlayerName } from "@/components/PlayerName";
 import { SceneBody } from "@/components/SceneBody";
 import { eloLeaderboard } from "@/lib/duels";
 import { collectionLeaderboard } from "@/lib/leaderboard";
+import { guildLeaderboard } from "@/lib/guilds";
 import { getSessionUser } from "@/lib/session";
 import "./leaderboard.css";
 import { PageHeading } from "@/components/mq/PageHeading";
@@ -15,6 +16,8 @@ const num = new Intl.NumberFormat("fr-FR");
 const TABS = [
   ["collection", "Collection"],
   ["duel", "Duel"],
+  ["guild-collection", "Guildes · Collection"],
+  ["guild-duels", "Guildes · Duels"],
 ] as const;
 
 export default function LeaderboardPage({
@@ -37,16 +40,18 @@ async function Leaderboard({
 }) {
   const raw = (await searchParams).tab;
   const asked = Array.isArray(raw) ? raw[0] : raw;
-  const tab = asked === "duel" ? "duel" : "collection";
+  const tab = asked === "duel" || asked === "guild-collection" || asked === "guild-duels" ? asked : "collection";
+  const guildTab = tab === "guild-collection" || tab === "guild-duels";
   const user = await getSessionUser();
-  const [{ top, me, players }, elo] = await Promise.all([
-    collectionLeaderboard(user?.id ?? null),
-    eloLeaderboard(user?.id ?? null),
+  const [{ top, me, players }, elo, guilds] = await Promise.all([
+    guildTab ? Promise.resolve({ top: [], me: null, players: 0 }) : collectionLeaderboard(user?.id ?? null),
+    guildTab ? Promise.resolve({ top: [], me: null, players: 0 }) : eloLeaderboard(user?.id ?? null),
+    guildTab ? guildLeaderboard(tab === "guild-duels" ? "duels" : "collection") : Promise.resolve([]),
   ]);
   const eloRow = (r: (typeof elo.top)[number]) => (
     <li key={r.userId} data-me={r.userId === user?.id}>
       <span className="rank">{r.rank}</span>
-      <PlayerName username={r.username} title={r.title} />
+      <PlayerName username={r.username} title={r.title} guildTag={r.guildTag} />
       <span className="vt-muted">
         {r.wins} victoire{r.wins > 1 ? "s" : ""} sur {r.played} duel
         {r.played > 1 ? "s" : ""}
@@ -57,7 +62,7 @@ async function Leaderboard({
   const row = (r: (typeof top)[number]) => (
     <li key={r.userId} data-me={r.userId === user?.id}>
       <span className="rank">{r.rank}</span>
-      <PlayerName username={r.username} title={r.title} />
+      <PlayerName username={r.username} title={r.title} guildTag={r.guildTag} />
       <span className="vt-muted">{num.format(r.unique)} personnages</span>
       <span className="score">{num.format(r.score)}</span>
     </li>
@@ -79,7 +84,7 @@ async function Leaderboard({
           ))}
         </nav>
       </div>
-      {tab === "duel" ? (
+      {guildTab ? <section><p className="vt-sub">{tab === "guild-duels" ? "Victoires en duel des membres actuels depuis lundi 0 h, heure de Paris." : "Somme des scores Collection des membres actuels, selon la même formule que le classement individuel."} <Link href="/guilds" className="underline">Trouver une guilde</Link></p>{guilds.length ? <ol className="rank-list">{guilds.map((g) => <li key={g.id}><span className="rank">{g.rank}</span><Link href={`/guilds/${g.tag}`}>[{g.tag}] {g.name}</Link><span className="vt-muted">{g.members} / 20 membres</span><span className="score">{num.format(g.score)}</span></li>)}</ol> : <p className="vt-empty">Aucune guilde pour l’instant.</p>}</section> : tab === "duel" ? (
         <section>
           <p className="vt-sub">
             Elo : départ à 1 000, ±16 environ par duel entre joueurs de même

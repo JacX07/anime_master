@@ -37,7 +37,7 @@ export function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
 
 export const MODE_NAMES: Record<string, string> = { TEST: "Test", STORY: "Histoire", RAID: "Raid", TOWER: "Tour", DUNGEON: "Donjon", ARENA: "Arène" };
 export const REASON_NAMES: Record<string, string> = {
-  ARTIFACT_UPGRADE: "Amélioration d'artefact", QUICK_SELL: "Vente rapide", DAILY: "Bonus du jour", PACK_BUY: "Achat de lot", CRYSTAL_BUY: "Achat de cristaux",
+  GUILD_CREATE: "Création de guilde", ARTIFACT_UPGRADE: "Amélioration d'artefact", QUICK_SELL: "Vente rapide", DAILY: "Bonus du jour", PACK_BUY: "Achat de lot", CRYSTAL_BUY: "Achat de cristaux",
   BID_HOLD: "Enchère (mise)", BID_REFUND: "Enchère (remboursement)", AUCTION_SALE: "Vente aux enchères", AUCTION_FEE: "Frais d'enchère",
   TRADE_IN: "Échange (reçu)", TRADE_OUT: "Échange (envoyé)", DUEL_REWARD: "Duel", ACHIEVEMENT: "Succès", EXPEDITION: "Expédition", STORY: "Histoire", TOWER: "Tour", ADMIN: "Ajustement équipe",
 };
