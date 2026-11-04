@@ -1,6 +1,6 @@
 // Donjon One Piece : progression, butin atomique, défaite, équipement et propriété.
 // Usage : npm run check:dungeon
-import { BattleError, equipArtifact, getArtifactInventory, getBattle, getAttackTeam, playAction, setAttackTeam, startBattle } from "../src/lib/battles";
+import { BattleError, equipArtifact, getArtifactInventory, getDungeonAccess, getBattle, getAttackTeam, playAction, setAttackTeam, startBattle } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
 import { artifactMainStat, artifactSlot, artifactSubStats, dungeonKey } from "../src/lib/dungeons";
 import { RARITY_NAMES } from "../src/lib/labels";
@@ -64,6 +64,10 @@ async function main() {
       return ids;
     };
     await makeTeam("N");
+    check("Donjon verrouillé sans le combat 10 de l'histoire", await rejects(startBattle(uid, dungeonKey(1), false)));
+    await prisma.storyProgress.create({ data: { userId: uid, universe: "one-piece", maxLevel: 10 } });
+    check("Donjon One Piece ouvert après le combat 10, Naruto toujours fermé", (await getDungeonAccess(uid))["one-piece"].unlocked && !(await getDungeonAccess(uid)).naruto.unlocked);
+    check("Donjon Naruto refusé", await rejects(startBattle(uid, dungeonKey(1, "naruto"), false)));
     check("Difficulté 2 verrouillée avant le premier succès", await rejects(startBattle(uid, dungeonKey(2), false)));
     const defeat = await startBattle(uid, dungeonKey(1), false);
     check("Défaite sans pénalité ni artefact", defeat.winner !== "A" && !defeat.loot?.artifact);
