@@ -90,7 +90,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
         setCut(0);
         setRevealed(r.pack.cards.map(() => false));
         setMachine(true);
-        packAudio.open();
+        packAudio.machine(ORDER.find((x) => r.pack.cards.some((c) => c.rarity === x)) ?? "N", r.pack.lotSize >= 10);
       } catch {
         setError("Connexion interrompue. Recharge la page pour vérifier tes cartes avant de réessayer.");
       } finally { opening.current = false; }

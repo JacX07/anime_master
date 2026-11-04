@@ -216,6 +216,81 @@ class PackAudio {
     try { return localStorage.getItem(STORE_UI) !== "off"; } catch { return true; }
   }
 
+  // ---- Mécanisme d'invocation : rouage sec (docs/direction-artistique.md §6), calé sur SummonMachine ----
+  /** Rafale de bruit filtrée : grincement, « tck » d'acier. */
+  private burst(at: number, freq: number, q: number, dur: number, level: number) {
+    const ctx = this.ctx!;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    const f = ctx.createBiquadFilter();
+    f.type = "bandpass";
+    f.frequency.value = freq;
+    f.Q.value = q;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(level, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    src.connect(f).connect(g).connect(this.master);
+    src.start(at, Math.random() * 0.5);
+    src.stop(at + dur + 0.02);
+  }
+
+  /** Tintement de métal : partiels inharmoniques très courts. */
+  private metal(at: number, base: number, level: number, dur: number) {
+    [1, 2.76, 5.4, 8.93].forEach((m, i) => this.tone(at, base * m, dur / (1 + i * 0.8), level / (1 + i * 1.4)));
+  }
+
+  /** Un cran : friction, « tck » net, rebond du cliquet, coup grave quand la dent s'appuie. */
+  private cog(at: number, i: number, ticks: number) {
+    const tension = 1 + i * (0.5 / Math.max(1, ticks - 1)); // la tension monte jusqu'au verrou
+    const jitter = 0.97 + Math.random() * 0.06;
+    this.burst(at - 0.028, 2600, 1.2, 0.024, 0.18);
+    this.burst(at, 4200 * jitter, 2.2, 0.018, 0.5 * tension);
+    this.tone(at, 2900 * jitter, 0.03, 0.12 * tension);
+    this.burst(at + 0.011, 3600, 3, 0.012, 0.22);
+    this.thud(at, 150, 70, 0.05, 0.16 * tension);
+  }
+
+  /** Mécanisme d'invocation entier ; `rarity` = meilleure carte du paquet. Mêmes dates que SummonMachine. */
+  machine(rarity: Rarity, fast: boolean) {
+    if (!this.uiOn) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = this.ready();
+    const t0 = ctx.currentTime;
+    const beat = fast ? 0.17 : 0.3;
+    const TICKS = 4;
+    for (let i = 0; i < TICKS; i++) this.cog(t0 + 0.06 + beat * i, i, TICKS);
+    const lk = t0 + 0.06 + beat * TICKS;
+    // Verrouillage : deux impacts métal contre métal et un ressort qui se détend
+    this.burst(lk, 3400, 1.6, 0.03, 0.6);
+    this.metal(lk, 1700, 0.1, 0.09);
+    this.thud(lk, 110, 55, 0.09, 0.4);
+    this.burst(lk + 0.024, 2800, 1.6, 0.026, 0.5);
+    this.thud(lk + 0.024, 80, 45, 0.1, 0.35);
+    const sp = ctx.createOscillator();
+    sp.type = "triangle";
+    sp.frequency.setValueAtTime(820, lk + 0.05);
+    sp.frequency.exponentialRampToValueAtTime(380, lk + 0.2);
+    const sg = ctx.createGain();
+    sg.gain.setValueAtTime(0.0001, lk + 0.05);
+    sg.gain.exponentialRampToValueAtTime(0.06, lk + 0.06);
+    sg.gain.exponentialRampToValueAtTime(0.0001, lk + 0.2);
+    sp.connect(sg).connect(this.master);
+    sp.start(lk + 0.05);
+    sp.stop(lk + 0.25);
+    // Trois éclats qui tombent
+    [0.58, 0.74, 0.9].forEach((d, k) => this.metal(lk + d, 2400 + k * 420, 0.06, 0.12));
+    // Accent de rareté : ressort libéré et cloche d'horloge, aucun accord
+    if (rarity === "SSR") {
+      this.metal(lk + 0.02, 2800, 0.12, 0.25);
+      this.iron(lk + 0.08, 520, 1.1, 0.14);
+    } else if (rarity === "UR") {
+      this.thud(lk, 52, 30, 0.35, 0.55);
+      this.metal(lk + 0.02, 3100, 0.14, 0.3);
+      this.iron(lk + 0.08, 330, 1.6, 0.18);
+      this.iron(lk + 0.62, 330, 1.8, 0.16);
+    }
+  }
+
   /** Clic d'ouverture : petit coup grave et souffle montant. */
   open() {
     if (!this.uiOn) return;
