@@ -76,7 +76,7 @@ Réutiliser les classes existantes ; ne pas recréer un composant dans une feuil
 ### 4.2 Boutons et liens d'action (`src/app/controls.css`)
 | Type | Classe | Rendu |
 |---|---|---|
-| **Action** (Y aller, Équiper, Améliorer…) | `ui-button` | Fond or translucide 12 %, angles 7 px, Cinzel 600 12 px `#edd49a`, ombre portée, hauteur min. 44 px ; au survol fond 20 % et montée de 2 px. |
+| **Action** (Y aller, Équiper, Améliorer…) | `ui-button` | Fond or translucide 20 % (`rgb(205 170 99 / 20%)`) avec filet or 2 px en bas (55 %), angles 3 px et coins fins cassants (`identity.css`), Cinzel 600 12 px `#edd49a`, hauteur min. 44 px ; au survol fond 30 %, filet or plein `#c4a76d` et montée de 2 px. |
 | **Action textuelle** (invocation, actions secondaires) | `ui-button text-action` | Fond transparent, texte or, soulignement or 2 px qui s'ouvre au survol. |
 | **Contrôle textuel / onglet / filtre** | `button` nu ou classes d'onglets | Transparent, DM Sans 11 px gris `#717772`, soulignement or 2 px au survol et à l'état actif (texte `#e9e5dc`). |
 | **Récompense prête** | `claim-button` | Texte or en capitales espacées, point qui pulse, soulignement lumineux. |
