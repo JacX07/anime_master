@@ -165,7 +165,8 @@ Transitions courtes (.18–.2 s), sans rebond. Pas d'animation continue sur les 
 - **Invocation** : après la réponse du serveur, quatre crans de .3 s (.17 s pour un lot de 10) : l'aiguille fait un tour complet par quarts et les rouages avancent d'une dent ; verrouillage sec (« clac » : décalage de 2 px en .14 s), l'anneau du cadran prend la couleur de la meilleure rareté du paquet, trois éclats or se détachent et tombent en .9 s, puis les cartes apparaissent en fondu .2 s. La rareté n'apparaît qu'au verrouillage. Un clic ou Entrée sur la machine passe directement aux cartes.
 - **Son de l'invocation** (« rouage sec », validé le 2026-11-04, `packAudio.machine`) : chaque cran = friction brève, « tck » d'acier net, rebond du cliquet et petit coup grave, avec une tension qui monte ; verrouillage = double « clac-clac » métal contre métal et ressort qui se détend ; éclats = tintements secs. SSR : ressort libéré + une frappe de cloche d'horloge ; UR : coup grave, deux frappes de cloche. Aucun accord musical, aucune réverbération. Il respecte le volume général et le réglage Effets.
 - **Sons des cartes** (papier, validé le 2026-11-04) : distribution = froissement léger ; retournement = levée aérienne puis claquement mince ; SSR +1 claquement, UR +2. Uniquement du bruit filtré, rien après le dernier claquement.
-- `prefers-reduced-motion` : rouages de fond immobiles, invocation sans crans ni éclats ni son (résultat direct).
+- **Éclat SSR / UR** (validé le 2026-11-04, `RarityBurst`) : remplace l'éclair à rayons. 1,7 s, tout par crans. Anneau gravé (24 dents, filets, deux losanges) qui entre en .22 s et tourne de trois crans ; plaque de rareté (fond `#101312`, double filet) qui claque en place à .55 s ; deux lames de lumière avec cœur blanc (trois pour l'UR) ; 9 éclats anguleux (14 pour l'UR) qui retombent en .8 s ; fissures claires aux coins ; éclair bref teinté. Couleurs : or `#c4a76d` (SSR), braise `#e0645c` (UR, avec un second anneau contre-rotatif, plus de fissures et une secousse crantée de .5 s). Aucun rayon rotatif continu.
+- `prefers-reduced-motion` : rouages de fond immobiles, éclat SSR/UR supprimé, invocation sans crans ni éclats ni son (résultat direct).
 
 ## 7. Mise en page
 Contenu max. 1530 px, marges `48px 4.3vw 70px` (téléphone : `28px 16px 45px`). Vérifier chaque écran à 1280 px et sur téléphone (375 px), sans défilement horizontal.
@@ -189,3 +190,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-04 : son de l'invocation « rouage sec » validé (§6).
 - 2026-11-04 : sons de carte distribuée et retournée en papier (bruit filtré, sans note ni queue ; SSR/UR = claquements en plus), §6.
 - 2026-11-04 : tiroir de navigation mobile, profil au toucher et menu Social validés (§4.14).
+- 2026-11-04 : éclat SSR/UR mécanique (anneau, plaque, éclats) validé, remplace l'éclair à rayons (§6).

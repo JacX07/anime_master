@@ -127,24 +127,42 @@
 @keyframes pk-sweep { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 @keyframes pk-pulse { 50% { opacity: 0.65; } }
 @keyframes pk-pop { 0% { scale: 1; } 40% { scale: 1.16; } 100% { scale: 1; } }
-@keyframes pk-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes pk-spin { to { transform: rotate(1turn); } }
 @media (max-width: 700px) {
   .pk-grid, .pk-grid[data-lot="10"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pk-detail-in { grid-template-columns: 1fr; }
   .pk-detail-stats { grid-template-columns: repeat(2, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pk-pack, .pk-pack-shine, .pk-hint, .pk-grid .flip, .pk-burst, .pk-burst::before, .pk-grid .flip[data-hint] .card-back, .mq-app-shell[class] button.pk-open.pk-open, .mq-app-shell[class] button.pk-open.pk-open::after { animation: none; }
+  .pk-pack, .pk-pack-shine, .pk-hint, .pk-grid .flip, .pk-grid .flip[data-hint] .card-back, .mq-app-shell[class] button.pk-open.pk-open, .mq-app-shell[class] button.pk-open.pk-open::after { animation: none; }
 }
 
-/* Éclat plein scène quand un SSR ou un UR apparaît */
-.pk-burst { position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; animation: pk-flash 1.8s ease-out forwards; background: radial-gradient(circle at 50% 45%, #fff9 0%, color-mix(in srgb, var(--c) 55%, transparent) 28%, transparent 62%); }
-.pk-burst::before { content: ""; position: absolute; left: 50%; top: 45%; width: 220%; aspect-ratio: 1; translate: -50% -50%; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--c) 70%, transparent) 0 6deg, transparent 6deg 18deg); -webkit-mask-image: radial-gradient(circle, #000, transparent 55%); mask-image: radial-gradient(circle, #000, transparent 55%); animation: pk-spin 6s linear infinite; }
-.pk-burst[data-rarity="SSR"] { --c: #f59e0b; }
-.pk-burst[data-rarity="UR"] { --c: #ff3b4a; }
-.pk-burst > b { position: absolute; left: 50%; top: 45%; translate: -50% -50%; font-family: var(--font-display); font-size: clamp(3rem, 9vw, 6rem); letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 30px var(--c), 0 0 70px var(--c); }
-
+/* Éclat plein scène quand un SSR ou un UR apparaît (§6 : mouvement par crans) */
+.pk-burst { --c: #c4a76d; --cl: #f0dca0; position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; animation: pk-burst-life 1.7s linear forwards; }
+.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; animation: pk-burst-life 1.7s linear forwards, pk-burst-shake .5s steps(5, end) .55s; }
+.pk-burst > * { position: absolute; }
+.pk-burst-ring { left: 50%; top: 45%; width: var(--size); aspect-ratio: 1; margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2); opacity: 0; filter: drop-shadow(0 6px 5px #000c) drop-shadow(0 0 8px color-mix(in srgb, var(--c) 40%, transparent)); animation: pk-ring-in .22s ease-out forwards, pk-ring-turn .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
+.pk-burst-ring[data-reverse] { animation: pk-ring-in .22s ease-out .12s forwards, pk-ring-turn-rev .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
+.pk-burst-ring svg { width: 100%; height: 100%; overflow: visible; stroke: var(--c); }
+.pk-burst-dim { stroke: color-mix(in srgb, var(--c) 45%, #000); }
+.pk-burst-gem { fill: var(--cl); stroke: none; }
+.pk-burst > b.pk-burst-plate { left: 50%; top: 45%; translate: -50% -50%; padding: 0.25em 0.55em; opacity: 0; background: #101312; border: 2px solid var(--c); color: var(--cl); font: 600 clamp(2.2rem, 7vw, 3.4rem) var(--font-display), serif; letter-spacing: 0.14em;
+  box-shadow: inset 0 0 0 4px #101312, inset 0 0 0 5px color-mix(in srgb, var(--c) 55%, #000); animation: pk-plate-in .16s cubic-bezier(.2, .9, .3, 1) .55s forwards, pk-burst-out .35s ease-in 1.3s forwards; }
+.pk-burst-slash { left: calc(50% - 170px); top: 45%; width: 340px; height: 3px; rotate: var(--rot); opacity: 0; background: linear-gradient(90deg, transparent, var(--c) 20%, #fff 50%, var(--c) 80%, transparent); animation: pk-slash .22s steps(4, end) calc(.55s + var(--i) * .04s) forwards; }
+.pk-burst-shard { left: 50%; top: 45%; width: 14px; height: 26px; opacity: 0; background: linear-gradient(135deg, #fff, var(--c)); clip-path: polygon(50% 0, 100% 70%, 40% 100%, 0 55%); animation: pk-shard .8s steps(7, end) var(--d) forwards; }
+.pk-burst-cracks { inset: 0; width: 100%; height: 100%; stroke: var(--c); opacity: 0; animation: pk-burst-on .15s steps(2, end) .55s forwards, pk-burst-out .6s ease-in 1.2s forwards; }
+.pk-burst-flash { inset: 0; background: color-mix(in srgb, var(--c) 40%, #fff); opacity: 0; animation: pk-flash-cut .26s steps(3, end) .55s; }
+@keyframes pk-burst-life { 0%, 90% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes pk-ring-in { from { opacity: 0; scale: 1.5; } to { opacity: 1; scale: 1; } }
+@keyframes pk-ring-turn { to { rotate: 90deg; } }
+@keyframes pk-ring-turn-rev { to { rotate: -90deg; } }
+@keyframes pk-burst-out { to { opacity: 0; scale: 1.15; } }
+@keyframes pk-burst-on { to { opacity: 1; } }
+@keyframes pk-plate-in { 0% { opacity: 0; translate: -50% -90%; } 70% { opacity: 1; translate: -50% -46%; } 100% { opacity: 1; translate: -50% -50%; } }
+@keyframes pk-slash { 0% { opacity: 0; scale: .2 1; } 30% { opacity: 1; } 100% { opacity: 0; scale: 1.1 1; } }
+@keyframes pk-shard { 0% { opacity: 1; translate: 0 0; rotate: 0deg; } 100% { opacity: 0; translate: var(--x) var(--y); rotate: var(--r); } }
+@keyframes pk-flash-cut { 0% { opacity: .7; } 100% { opacity: 0; } }
+@keyframes pk-burst-shake { 0%, 100% { translate: 0; } 20% { translate: -3px 2px; } 40% { translate: 3px -2px; } 60% { translate: -2px -2px; } 80% { translate: 2px 2px; } }
+@media (prefers-reduced-motion: reduce) { .pk-burst { display: none; } }
 
 /* Le booster est un objet à manipuler ; les actions gardent les contrôles communs. */
 .pk-pack { cursor: pointer; color: var(--foreground); font: inherit; animation: none; padding-top: 3rem; }
