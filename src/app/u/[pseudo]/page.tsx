@@ -65,6 +65,10 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
           <span>puissance</span>
         </li>
         <li>
+          <b>{num.format(profile.packsOpened)}</b>
+          <span>boosters ouverts</span>
+        </li>
+        <li>
           <b>{profile.duelWins}</b>
           <span>victoires en duel</span>
         </li>
@@ -75,6 +79,14 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
         <li>
           <b>{profile.completedAnime.length}</b>
           <span>anime complets</span>
+        </li>
+        <li>
+          <b>{profile.storyStars}</b>
+          <span>étoiles de l&apos;histoire</span>
+        </li>
+        <li>
+          <b>{profile.towerFloor > 0 ? `Étage ${profile.towerFloor}` : "—"}</b>
+          <span>Tour universelle</span>
         </li>
       </ul>
 
