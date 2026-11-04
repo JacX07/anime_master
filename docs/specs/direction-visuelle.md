@@ -1,4 +1,6 @@
-# Direction visuelle — « Citadelle sombre »
+# Direction visuelle — « Citadelle sombre » (historique)
+
+> **Remplacé le 2026-11-04 par [docs/direction-artistique.md](../direction-artistique.md)**, seule référence de style. Ce fichier ne garde que l'historique du chantier ; en cas de différence, `direction-artistique.md` prime.
 
 Source : maquette Figma Make `JacX07/MaquetteDeJeuTCG` (clonée hors projet). **Remplace** l'ancien style « futuriste » (Michroma, bleus acier, effets 3D). État : **validé le 2026-11-01**, lot 1 codé.
 

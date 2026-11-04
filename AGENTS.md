@@ -31,17 +31,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Browser scripts must also set navigation and interaction deadlines (15 seconds each), close their browser in `finally`, and use a process timeout for the whole suite. Avoid waiting for `networkidle` on the development server; wait for the relevant visible UI instead.
 - Keep server startup checks bounded (15 seconds). A persistent development server is the only intentional long-running process; redirect its output to a log and probe it separately with `curl --connect-timeout 2 --max-time 5`.
 
-## Style des boutons
+## Direction artistique
 
-- Iconographie retenue : piste C « Héraldique ». Réutiliser le sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem` et `StatusIcon` ; silhouettes de blasons, aplats francs, traits lisibles en petit, couleurs de rareté conservées. Éviter les nouveaux emojis ou pictogrammes dessinés séparément dans les composants.
-
-- Direction temporaire : supprimer les bordures de l’interface et masquer les cadres décoratifs détaillés des cartes via `src/app/reference.css`. Les cartes gardent une simple bordure colorée selon leur rareté. Conserver un focus clavier visible et distinguer les sélections par leur fond ou leur texte.
-
-- Référence visuelle : `JacX07/MaquetteDeJeuTCG`, `src/index.css` et `src/App.tsx`. Reprendre ses composants et mesures plutôt que réinterpréter la maquette : Cinzel 500 pour les titres (`clamp(34px, 4vw, 52px)/1.05`, approche `-.025em`) et DM Sans 400, 11px pour les onglets. Les adaptations communes vivent dans `src/app/reference.css` et `src/components/mq/PageHeading.tsx`.
-
-- Tous les boutons d’action textuels et onglets suivent `src/app/controls.css` : fond transparent, aucun encadré rectangulaire, soulignement doré au survol ou pour l’état actif, focus clavier visible et état désactivé distinct.
-- Réutiliser les classes partagées existantes ou `ui-button` pour les nouveaux boutons et liens d’action. Ne pas recréer de boutons pleins ou encadrés dans une feuille locale.
-- Les cartes et objets sélectionnables conservent leur présentation visuelle de contenu ; les champs de saisie restent identifiables comme champs.
+- Avant toute maquette ou tout code visuel, lire `docs/direction-artistique.md` et s'y conformer. Il prime sur toute autre indication de style (anciens fichiers, maquettes, habitudes).
+- Une maquette réutilise les couleurs, polices, classes et mesures du site, jamais des valeurs inventées. La montrer et attendre l'accord de l'utilisateur avant de coder.
+- Quand l'utilisateur valide une nouvelle décision visuelle, la reporter dans `docs/direction-artistique.md` dans le même commit.
+- Cette règle s'applique aussi aux sous-agents : l'inclure dans leurs consignes.
 
 ## Vérification sur le site
 
