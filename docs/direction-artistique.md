@@ -147,6 +147,12 @@ Validé le 2026-11-04 (maquette `public/mockups/rouages-brises.html`). Prolonge 
 - **Code** : SVG générés par `scripts/generate-ornaments.mjs` dans `public/ornaments/` (traits noirs servant de masques), styles dans `src/app/ornaments.css`, calque de fond `MechanicalBackdrop`, machine `src/app/packs/SummonMachine.tsx`. Les teintes de mode vivent dans `src/app/ambiance.css` (attribut `data-ambiance` posé par `AppShell`).
 - C'est une **exception volontaire** à « pas de décor », comme l'anneau gravé : les ornements restent en arrière-plan, sauf la machine d'invocation. Ne jamais en faire des cadres de panneaux, de boutons ni de cartes.
 
+### 4.14 Tiroir de navigation et profil (téléphone et tablette, < 1500 px)
+Validé le 2026-11-04. Barre de 68 px en trois colonnes : bouton **Menu** à gauche (fond `#2a2e2c`, trois traits or, filet or dessous), logo au centre, notifications et **avatar à anneau gravé** (§4.11) à droite. Plus d'engrenage dans l'en-tête : Paramètres est dans le menu du profil.
+- **Tiroir** : panneau de 84 % de large (360 px max) à gauche, fond `#1d211f`, voile `#000a` derrière, ouverture en .18 s (§6). « Jouer » en tête, entrées de 50 px, page courante : filet or à gauche et fond `#c4a76d14`. Se ferme au clic sur un lien, sur le voile ou avec Échap.
+- **Profil** : panneau sous la barre ouvert au toucher sur l'avatar ; boutons de 46 px avec filet or à gauche, « Se déconnecter » en rouge (`#e0645c`).
+- Menu « Social » (Amis, Guildes, Classement) remplace l'entrée Classement, sur tous les écrans.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -182,3 +188,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-04 : tutoriel en infobulles validé : panneau flottant des §4.6–4.7, sur-titre de progression, contour or sur la cible, sans flèche ni pastille pleine ; bouton « Suivant » de type `ui-button` pendant les présentations.
 - 2026-11-04 : son de l'invocation « rouage sec » validé (§6).
 - 2026-11-04 : sons de carte distribuée et retournée en papier (bruit filtré, sans note ni queue ; SSR/UR = claquements en plus), §6.
+- 2026-11-04 : tiroir de navigation mobile, profil au toucher et menu Social validés (§4.14).

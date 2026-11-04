@@ -18,6 +18,7 @@ import { NavItem } from "./NavItem";
 import { PlayMenu } from "./PlayMenu";
 import { Tutorial } from "../Tutorial";
 import { Navigation } from "./Navigation";
+import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
 import { PVP_AVAILABLE } from "@/lib/feature-flags";
 
@@ -62,7 +63,14 @@ export function SiteHeader() {
               <Link href="/trades">Échanges</Link>
             </div>
           </div>
-          <NavItem href="/leaderboard">Classement</NavItem>
+          <div className="mq-nav-dropdown">
+            <NavItem href="/friends" match={["/guilds", "/leaderboard"]}>Social <span>⌄</span></NavItem>
+            <div className="mq-dropdown-panel">
+              <Link href="/friends">Amis</Link>
+              <Link href="/guilds">Guildes</Link>
+              <Link href="/leaderboard">Classement</Link>
+            </div>
+          </div>
           <NavItem href="/achievements">Succès</NavItem>
         </div>
       </nav>
@@ -97,8 +105,7 @@ async function Account() {
         <NotificationBell userId={user.id} />
       </Suspense>
       <Tutorial />
-      <Link href="/parametres" className="mq-gear" aria-label="Paramètres" title="Paramètres"><Icon name="parametres" /></Link>
-      <div className="mq-nav-dropdown mq-account">
+      <AccountDropdown>
         <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player" aria-label={`Profil de ${user.username}`}>
           <span className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`}>{user.username.slice(0, 2).toUpperCase()}</span>
           <span className="mq-player-text">
@@ -124,14 +131,12 @@ async function Account() {
             <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
           </dl>
           <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
-          <Link href="/friends">Amis</Link>
-          <Link href="/guilds">Guildes</Link>
           <Link href="/parametres">Paramètres</Link>
           {staff && <Link href="/admin">Administration</Link>}
           {devToolsEnabled() && <Link href="/outils">Outils</Link>}
           <button type="submit">Se déconnecter</button>
         </form>
-      </div>
+      </AccountDropdown>
     </>
   );
 }

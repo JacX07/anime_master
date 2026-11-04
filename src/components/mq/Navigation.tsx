@@ -25,7 +25,8 @@ export function Navigation({ children }: { children: ReactNode }) {
       }
     }}>
       <button type="button" className="ui-button mq-navigation-toggle" ref={toggle}
-        aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>Menu</button>
+        aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}><i className="mq-burger" aria-hidden="true" />Menu</button>
+      <span className="mq-navigation-scrim" aria-hidden="true" onClick={() => setOpen(false)} />
       <div className="mq-navigation-content" id={id} onClick={(event) => {
         if ((event.target as HTMLElement).closest("a, .mq-play-button")) setOpen(false);
       }}>
