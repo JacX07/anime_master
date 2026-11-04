@@ -28,7 +28,7 @@ function quest(f: GuideFacts, key: string, prefix = false) {
   return f.adventure.quests.some((q) => q.done && (prefix ? q.key.startsWith(key) : q.key === key));
 }
 
-function lockReason(mode: Adventure["modes"][number]) {
+export function lockReason(mode: Adventure["modes"][number]) {
   const story = mode.worlds === 2 ? "terminer les deux premiers univers" : mode.storyLevel === 15 ? "terminer One Piece" : `remporter le combat ${mode.storyLevel} de One Piece`;
   return `S’ouvre au niveau d’Arpenteur ${mode.level}. Il faut aussi ${story}.`;
 }

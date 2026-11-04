@@ -113,3 +113,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, pastilles et bulles trè
 - 2026-11-01 : passage au style « Citadelle sombre » (ancien fichier `docs/specs/direction-visuelle.md`, lots 1 et 2 codés ; lot 3 : combat et donjons).
 - 2026-11-03 : interface sans bordures, boutons d'action « or translucide », contrôles textuels soulignés, bouton « Récupérer » validé.
 - 2026-11-04 : ce fichier devient la référence unique.
+- 2026-11-04 : tutoriel en infobulles validé : panneau flottant des §4.6–4.7, sur-titre de progression, contour or sur la cible, sans flèche ni pastille pleine ; bouton « Suivant » de type `ui-button` pendant les présentations.

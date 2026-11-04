@@ -5,13 +5,14 @@ import { getAdventure } from "@/lib/adventure-state";
 import { prisma } from "@/lib/db";
 import { guideSteps } from "@/lib/guide";
 import { PageHeading } from "@/components/mq/PageHeading";
+import { RestartTutorial } from "./RestartTutorial";
 import "./guide.css";
 
 export const metadata = { title: "Guide — Anime Masters", robots: { index: false } };
 
 export default function GuidePage() {
   return <main className="vt"><div className="vt-inner guide-page">
-    <PageHeading eyebrow="TUTORIEL" title="Guide" description="Toutes les étapes du jeu, dans l’ordre. Chaque étape indique où la trouver dans le menu." />
+    <PageHeading eyebrow="TUTORIEL" title="Guide" description="Toutes les étapes du jeu, dans l’ordre. Chaque étape indique où la trouver dans le menu."><RestartTutorial /></PageHeading>
     <Suspense fallback={<p>Chargement du guide…</p>}><Steps /></Suspense>
   </div></main>;
 }

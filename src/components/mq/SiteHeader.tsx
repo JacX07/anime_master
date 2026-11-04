@@ -13,6 +13,7 @@ import { DailyBonus } from "../DailyBonus";
 import { NotificationBell } from "../NotificationBell";
 import { NavItem } from "./NavItem";
 import { PlayMenu } from "./PlayMenu";
+import { Tutorial } from "../Tutorial";
 import { Navigation } from "./Navigation";
 import { Icon } from "../icons";
 import { PVP_AVAILABLE } from "@/lib/feature-flags";
@@ -90,6 +91,7 @@ async function Account() {
       <Suspense fallback={null}>
         <NotificationBell userId={user.id} />
       </Suspense>
+      <Tutorial />
       <Link href="/parametres" className="mq-gear" aria-label="Paramètres" title="Paramètres"><Icon name="parametres" /></Link>
       <div className="mq-nav-dropdown mq-account">
         <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player" aria-label={`Profil de ${user.username}`}>

@@ -229,7 +229,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           </details>
         </section>
 
-        <section className="pk-stage" data-summary={summary} aria-label="Ouverture">
+        <section className="pk-stage" data-summary={summary} data-revealing={waitingReveal || undefined} aria-label="Ouverture">
           {!pack && (
             <button ref={packButton} type="button" className="pk-pack" disabled={!canOpen} aria-label={`Ouvrir le booster de ${lot} cartes`}
               onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } open(); }}

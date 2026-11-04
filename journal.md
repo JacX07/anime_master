@@ -412,3 +412,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : titre blanc sans protection de contraste locale ; légendes posées directement sur l’image claire.
 - Correctif : ombre sombre localisée derrière le titre, texte ivoire/doré ; jalons héraldiques avec sceau intérieur, épées du sprite, numéro et libellés sur fond sombre. Emplacements vides également corrigés à partir des captures utilisateur.
 - Validation : navigateur à 1440/390 px sur compte neuf sans cartes : titre, cinq jalons, verrous, préparation au clic, quatre emplacements verticaux au ratio des cartes et libellés dessous, sélection vide, fermeture Échap, focus clavier et légende du jalon courant non coupée. Typecheck, ESLint ciblé, contrôle de carte et actualisation Graphify réussis. Build complet non relancé pour cette retouche visuelle.
+
+## 2026-11-04 — Tutoriel : menu JOUER hors écran sur téléphone
+
+- Symptôme : à 375 px, la présentation des modes place menu et bulle sous la fenêtre.
+- Cause : `reference.css` applique `inset-block-start: 100%` au menu JOUER fixe ; cette valeur désigne la hauteur de la fenêtre, contrairement au menu de navigation positionné sous l’en-tête. Le suivi du tutoriel ne recadre pas une cible inchangée après redimensionnement.
+- Correctif : réserver `100%` à la navigation, conserver le décalage existant de JOUER et recadrer la cible lors du redimensionnement ; borner la position de la bulle.
+- Autre cible absente constatée au parcours : les paramètres sont désormais une roue dentée `.mq-gear` dans l’en-tête, et non un onglet `.mq-game-nav`. Le tutoriel cible ce contrôle existant.
+- Contexte de reprise : worktree `/home/jxu002/anime_master-tuto`, branche `chantier/tutoriel`. Port 3013 et `BETTER_AUTH_URL=http://localhost:3013` pour isoler les tests ; ne pas modifier le checkout social. Migration tutoriel déjà appliquée à la base dev par la session précédente. Turbopack exige ici un vrai dossier `node_modules`, pas un lien symbolique hors racine.

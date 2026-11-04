@@ -4,7 +4,7 @@
 
 Pour l’instant, pas de personnage : une page **Guide** (`/guide`, menu Quêtes › Guide du jeu) liste 16 étapes numérotées. Chaque étape indique où la trouver dans le menu, quoi y faire, son état (fait, à faire, verrouillé avec la condition, ou simple découverte) et un bouton « Y aller ». Une barre montre les étapes accomplies et un lien mène à la prochaine étape. Les états viennent des données d’aventure existantes (`src/lib/guide.ts`), sans nouvelle table.
 
-## Tutoriel en infobulles *(décidé le 2026-11-04, pas encore codé)*
+## Tutoriel en infobulles *(codé le 2026-11-04)*
 
 À la première arrivée d'un **nouveau compte**, des infobulles numérotées guident le joueur. Les comptes existants ne le voient pas (ils peuvent le lancer depuis la page Guide).
 

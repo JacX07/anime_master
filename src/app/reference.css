@@ -223,7 +223,7 @@
   .mq-app-shell .mq-topbar { display: grid; grid-template-columns: auto 1fr; height: auto; padding-block: 10px; gap: 8px; }
   .mq-app-shell .mq-navigation { justify-self: end; }
   .mq-app-shell .mq-header-actions { grid-column: 1 / -1; width: 100%; justify-content: flex-end; margin-left: 0; }
-  .mq-app-shell .mq-navigation-content, .mq-app-shell .mq-play-overlay { inset-block-start: 100%; }
+  .mq-app-shell .mq-navigation-content { inset-block-start: 100%; }
   .mq-player-text { display: block; }
 }
 .mq-mode-locked { filter: grayscale(1); opacity: .6; }

@@ -156,6 +156,8 @@ model User {
   welcomeBannerId     String?
   /// Booster de bienvenue ×10 (gratuit, une seule fois) : date de récupération, vide tant qu'il n'est pas ouvert (SPEC collection §8 ter)
   welcomeBoosterClaimedAt DateTime?
+  /// Tutoriel en infobulles (docs/specs/guide.md) : étape en cours, 0 = terminé ou passé. Les comptes créés avant le tutoriel sont à 0.
+  tutorialStep        Int                    @default(1)
   /// Expéditions récupérées (débloque les emplacements 2 et 3, succès)
   expeditionsDone     Int                    @default(0)
   expeditions         Expedition[]

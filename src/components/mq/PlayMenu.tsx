@@ -27,6 +27,13 @@ export function PlayMenu({ locks = {} }: { locks?: Record<string, string> }) {
     setOpen(false);
   }
 
+  // Le tutoriel ouvre et referme ce menu pour présenter les modes.
+  useEffect(() => {
+    const onTutorial = (e: Event) => setOpen(!!(e as CustomEvent<{ open: boolean }>).detail?.open);
+    window.addEventListener("tutorial:play", onTutorial);
+    return () => window.removeEventListener("tutorial:play", onTutorial);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
