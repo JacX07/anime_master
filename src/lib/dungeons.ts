@@ -12,6 +12,9 @@ export const DUNGEONS = [
   { key: "dragon-ball", universe: "Dragon Ball", name: "La Forteresse de Freeza", description: "Brise les défenses de Freeza et de sa garde pour gagner les reliques saiyan.", franchiseId: 813, bossId: 3694, resource: "armure-saiyan", mechanics: ["Barrière de ki", "Vague destructrice", "Supernova"], bonus: "2 pièces : +10 % de dégâts physiques et de DEF. 4 pièces : +20 % de dégâts physiques et de DEF." },
   { key: "bleach", universe: "Bleach", name: "Le Palais du Hueco Mundo", description: "Défie Aizen et ses gardiens pour récupérer les reliques du shinigami.", franchiseId: 269, bossId: 1086, resource: "fragment-de-zanpakuto", mechanics: ["Barrière spirituelle", "Pression spirituelle", "Éveil du Hōgyoku"], bonus: "2 pièces : +25 % de dégâts de saignement. 4 pièces : +40 % de dégâts de saignement et précision : les coups ne peuvent plus être esquivés." },
 ];
+/** Un donjon s'ouvre quand le combat 10 de l'histoire du même univers est gagné ; un joueur qui y a déjà progressé le garde. */
+export const DUNGEON_UNLOCK_LEVEL = 10;
+export const dungeonUnlocked = (storyMaxLevel: number, dungeonMaxLevel: number) => storyMaxLevel >= DUNGEON_UNLOCK_LEVEL || dungeonMaxLevel > 0;
 export type Dungeon = (typeof DUNGEONS)[number];
 export const dungeonOf = (key: string) => DUNGEONS.find((d) => d.key === key);
 export const dungeonOfKey = (key: string) => dungeonOf(key.split(":")[1]);

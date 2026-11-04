@@ -88,3 +88,8 @@
 }
 
 .dg-universes { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }
+
+.dg-universes .dg-locked { opacity: .5; }
+.dg-lock { padding: 1.5rem 0; max-width: 40rem; }
+.dg-lock h2 { margin: 0 0 .5rem; }
+.dg-lock-progress { color: var(--gold, #c4a76d); }

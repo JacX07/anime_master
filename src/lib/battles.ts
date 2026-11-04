@@ -25,7 +25,7 @@ import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./
 
 import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
-import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, SET_KEYS, DUNGEON_PREFIX, dungeonOf, dungeonOfKey, type Dungeon, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
+import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEONS, SET_KEYS, DUNGEON_PREFIX, dungeonOf, dungeonOfKey, dungeonUnlocked, DUNGEON_UNLOCK_LEVEL, type Dungeon, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
 import type { CharacterSpell } from "./spells";
 
 export class BattleError extends Error {}
@@ -507,6 +507,15 @@ export async function equipArtifact(userId: string, artifactId: string, cardId: 
   });
 }
 
+/** Pour chaque donjon : ouvert ou non, et où en est l'histoire du même univers. */
+export async function getDungeonAccess(userId: string) {
+  const [story, dungeons] = await Promise.all([prisma.storyProgress.findMany({ where: { userId } }), prisma.dungeonProgress.findMany({ where: { userId } })]);
+  return Object.fromEntries(DUNGEONS.map((d) => {
+    const storyLevel = story.find((r) => r.universe === d.key)?.maxLevel ?? 0;
+    return [d.key, { storyLevel, unlocked: dungeonUnlocked(storyLevel, dungeons.find((r) => r.dungeon === d.key)?.maxLevel ?? 0) }];
+  })) as Record<string, { storyLevel: number; unlocked: boolean }>;
+}
+
 export async function getDungeonState(userId: string, setKey = DUNGEON_KEY) {
   if (!dungeonOf(setKey)) throw new BattleError("Donjon inconnu.");
   const [progress, artifacts, team] = await Promise.all([
@@ -641,6 +650,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (dungeonLevel) {
     const dungeon = dungeonOfKey(opponent)!;
     const progress = await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: dungeon.key } }, select: { maxLevel: true } });
+    if (!(await getDungeonAccess(userId))[dungeon.key].unlocked) throw new BattleError(`Donjon verrouillé : gagne le combat ${DUNGEON_UNLOCK_LEVEL} de l'histoire ${dungeon.universe}.`);
     if (dungeonLevel > (progress?.maxLevel ?? 0) + 1) throw new BattleError("Difficulté verrouillée : gagne la précédente.");
   }
   const raid = parseRaid(opponent);
