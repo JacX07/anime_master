@@ -11,7 +11,9 @@ const migrationsDir = path.resolve(import.meta.dirname, "../prisma/migrations");
 const migrations = readdirSync(migrationsDir, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
 
 /** Découpe un fichier SQL sur « ; », sans couper les blocs $$ … $$ (DO, fonctions). */
-function statements(sql: string): string[] {
+function statements(raw: string): string[] {
+  // Les commentaires de ligne peuvent contenir des « ; » : on les retire avant de découper.
+  const sql = raw.replace(/^\s*--.*$/gm, "");
   const out: string[] = [];
   let buffer = "";
   sql.split("$$").forEach((part, index) => {
