@@ -1,0 +1,27 @@
+/* Outils de test (base de dev) : panneaux sans bordure, champs identifiables, boutons partagés ui-button. */
+.dev-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; align-items: start; }
+.dev-summary { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 0; padding: 14px 18px; background: var(--panel, #111514); border-radius: 5px; }
+.dev-summary dt { color: #767b76; font-size: 10px; text-transform: uppercase; letter-spacing: .09em; }
+.dev-summary dd { margin: 2px 0 0; font: 500 16px var(--font-cinzel), serif; color: #d5bb7f; }
+.dev-panel { display: grid; gap: 12px; padding: 20px; background: var(--panel, #111514); border-radius: 5px; }
+.dev-panel h2 { font: 500 18px var(--font-cinzel), serif; margin: 0; }
+.dev-panel h3 { font: 500 13px var(--font-cinzel), serif; color: #b4b2aa; margin: 6px 0 0; }
+.dev-form { display: grid; gap: 10px; }
+.dev-fields { display: flex; flex-wrap: wrap; gap: 10px; }
+.dev-fields label, .dev-search { display: grid; gap: 4px; flex: 1 1 130px; color: #b4b2aa; font-size: 11px; }
+.dev-panel :is(input, select) { width: 100%; min-height: 38px; padding: 0 10px; background: #171b1a; color: #e9e5dc; font: 13px var(--font-dm), sans-serif; border-radius: 3px; }
+.dev-panel :is(input, select):focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.dev-form .ui-button { justify-self: start; }
+.dev-ok, .dev-ko, .dev-note { margin: 0; font-size: 12px; }
+.dev-ok { color: var(--info, #8fbfae); }
+.dev-ko { color: #d9a46b; }
+.dev-note { color: #767b76; }
+.dev-picker { display: grid; gap: 10px; }
+.dev-results { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 300px; overflow-y: auto; }
+.mq-app-shell[class] .dev-results button {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 4px 8px;
+  background: #151918; color: #e9e5dc; font-size: 13px; text-align: left; border-radius: 3px; text-transform: none; letter-spacing: 0;
+}
+.mq-app-shell[class] .dev-results button:hover, .mq-app-shell[class] .dev-results button[aria-pressed="true"] { background: #1d2321; color: #d5bb7f; }
+.dev-results img { width: 30px; height: 40px; object-fit: cover; border-radius: 2px; }
+.dev-results span { flex: 1; }
