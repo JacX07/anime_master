@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette rouages brisés</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0e0f; --fg:#e9e5dc; --fg2:#b4b2aa; --muted:#767b76;
+  --gold:#c4a76d; --gold-l:#d5bb7f; --gold-d:#a68e5d;
+  --r-n:#94a3b8; --r-r:#38bdf8; --r-sr:#a855f7; --r-ssr:#f59e0b; --r-ur:#ff3b4a;
+  --ok:#8fbfae; --ok-bg:rgb(111 154 141 / 14%); --bar:#6f9a8d;
+}
+body[data-m=donjons]{--amb:#3f6b62;--tint:#111716;--tint2:#161d1b;--eyebrow:#7fa497;--mech:#8fb5a8}
+body[data-m=tour]{--amb:#3b4170;--tint:#12131a;--tint2:#171922;--eyebrow:#8d93c4;--mech:#a3a9db}
+body[data-m=histoire]{--amb:#7a5a34;--tint:#151310;--tint2:#1b1814;--eyebrow:#b8935f;--mech:#d0a96f}
+body[data-m=arene]{--amb:#6b2a32;--tint:#161112;--tint2:#1c1617;--eyebrow:#b47a80;--mech:#c98d93}
+body[data-m=guilde]{--amb:#3a5568;--tint:#111518;--tint2:#161b1f;--eyebrow:#88a3b6;--mech:#9cb8cc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{color:var(--fg);font:400 13px/1.5 "DM Sans",sans-serif}
+.app{background:var(--bg);border-radius:var(--radius,8px);overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+.ctl{position:relative;z-index:5;background:#060808;padding:10px 16px;display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;font-size:11px}
+.ctl b{color:#e9e5dc;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:10px;margin-right:4px}
+.ctl button{padding:6px 10px;color:#717772;border-bottom:2px solid transparent}
+.ctl button[aria-pressed=true]{color:#e9e5dc;border-color:var(--gold)}
+.ctl label{margin-left:auto;color:#8a8f89;display:flex;gap:6px;align-items:center;cursor:pointer}
+
+/* Mécanique */
+.gear{position:absolute;display:block;transition:transform .16s cubic-bezier(.2,.9,.3,1)}
+.gear *{vector-effect:non-scaling-stroke}
+.mech-stroke{fill:none;stroke:var(--mech);stroke-width:1.2;stroke-linejoin:miter}
+.mech-thin{fill:none;stroke:var(--mech);stroke-width:.8}
+.crack{fill:none;stroke:var(--mech);stroke-width:1;stroke-linejoin:miter}
+.bg-mech{position:absolute;top:0;right:0;width:520px;height:420px;pointer-events:none;opacity:.17;z-index:-1}
+.bg-ruin{position:absolute;left:-70px;bottom:-60px;width:260px;height:260px;pointer-events:none;opacity:.12;z-index:-1}
+
+.page{position:relative;padding:40px 24px 56px;isolation:isolate;overflow:hidden}
+.page::before{content:"";position:absolute;inset:0 0 auto 0;height:520px;z-index:-2;background:radial-gradient(60% 100% at 30% 0%, color-mix(in srgb,var(--amb) 32%,transparent), transparent 70%)}
+.head{position:relative}
+.head .dial{position:absolute;left:-120px;top:-110px;width:300px;height:300px;opacity:.2;z-index:-1;pointer-events:none}
+.eyebrow{color:var(--eyebrow);font-size:9px;letter-spacing:.28em;font-weight:700;text-transform:uppercase;margin-bottom:11px}
+.eyebrow::before{content:"◇";margin-right:8px;color:var(--mech)}
+h1{font:500 40px/1.05 "Cinzel",serif;letter-spacing:-.025em}
+.lead{color:#777d78;margin-top:12px;max-width:520px}
+.rack{display:flex;align-items:center;gap:0;margin:20px 0 30px;height:22px}
+.rack svg{display:block}
+.rack .pinion{position:relative;width:22px;height:22px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.panel{background:var(--tint);border-radius:5px;padding:20px;position:relative;overflow:hidden}
+.kicker{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--eyebrow);font-weight:700}
+h2{font:500 18px "Cinzel",serif;margin:6px 0 8px}
+.cap{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.big{font:500 40px "Cinzel",serif;color:var(--gold-l);line-height:1}
+
+/* Barre graduée à cliquet */
+.gauge{position:relative;height:22px;margin:12px 0 4px}
+.gauge .track{position:absolute;left:0;right:0;top:8px;height:6px;background:#313632;border-radius:1px}
+.gauge .fill{position:absolute;left:0;top:8px;height:6px;background:var(--bar);width:40%;transition:width .16s cubic-bezier(.2,.9,.3,1)}
+.gauge .ticks{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),#0b0e0f calc(10% - 1px) 10%);top:8px;height:6px}
+.gauge .marks{position:absolute;left:0;right:0;top:0;height:5px;background:repeating-linear-gradient(90deg,var(--mech) 0 1px,transparent 1px 10%);opacity:.45}
+.gauge .pawl{position:absolute;top:15px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:7px solid var(--ok);margin-left:-5px;left:40%;transition:left .16s cubic-bezier(.2,.9,.3,1)}
+.bonus{display:inline-flex;gap:8px;align-items:center;margin-top:10px;padding:5px 10px;border-radius:4px;background:var(--ok-bg);color:var(--ok);font-size:11px}
+.bonus::before{content:"◆";font-size:9px}
+
+.ui-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:7px;background:rgb(205 170 99 / 20%);box-shadow:inset 0 -2px 0 var(--gold),0 6px 14px #0007;font:600 12px "Cinzel",serif;color:#edd49a;letter-spacing:.06em;transition:transform .18s,background .18s}
+.ui-button:hover{background:rgb(205 170 99 / 28%);transform:translateY(-2px)}
+.ui-button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.txt{font-size:11px;color:#717772;padding:6px 4px;border-bottom:2px solid transparent}
+.txt:hover{color:var(--fg);border-color:var(--gold)}
+
+/* Invocation */
+.summon{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+.machine{position:relative;width:260px;height:260px;--mech:var(--gold)}
+.machine .dialbox{position:absolute;inset:20px;width:220px;height:220px}
+.machine .needle{position:absolute;left:50%;top:50%;width:4px;height:86px;margin-left:-2px;margin-top:-86px;transform-origin:50% 100%;transition:transform .16s cubic-bezier(.2,.9,.3,1)}
+.machine .needle::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--gold-l),var(--gold));clip-path:polygon(50% 0,100% 85%,50% 100%,0 85%)}
+.machine .hub{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;background:#0b0e0f;border-radius:50%;box-shadow:0 0 0 2px var(--gold)}
+.machine .lock-ring{position:absolute;inset:20px;border-radius:50%;box-shadow:0 0 0 2px transparent;transition:box-shadow .12s}
+.machine.locked .lock-ring{box-shadow:0 0 0 2px var(--rc,var(--gold))}
+.machine.locked .dialbox{animation:clac .14s steps(2)}
+@keyframes clac{0%{transform:translateY(0)}50%{transform:translateY(2px)}100%{transform:none}}
+.machine .g1{left:-26px;top:150px;width:110px;height:110px}
+.machine .g2{left:186px;top:-14px;width:84px;height:84px}
+.shard{position:absolute;width:8px;height:9px;background:var(--gold);clip-path:polygon(0 0,100% 30%,40% 100%);opacity:0;pointer-events:none}
+.shard.fall{animation:fall .9s cubic-bezier(.5,0,.9,.6) forwards}
+@keyframes fall{0%{opacity:1;transform:none}100%{opacity:0;transform:translate(var(--dx),120px) rotate(var(--r))}}
+.out{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.reveal{display:flex;gap:16px;align-items:center;min-height:132px}
+.card{width:96px;aspect-ratio:3/4;border-radius:3px;border:2px solid var(--c);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 30%,#1b1f1e),#0d1010 75%);display:flex;align-items:flex-end;padding:7px;font-size:11px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s}
+.card.on{opacity:1;transform:none}
+.card small{display:block;color:var(--c);font-weight:700;font-size:9px;letter-spacing:.08em}
+.back{width:96px;aspect-ratio:3/4;border-radius:3px;background:#0e1312;display:grid;place-items:center;color:#3c423e;font-size:22px}
+
+.legend{margin-top:32px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.legend div{background:#0e1211;border-radius:5px;padding:14px;font-size:12px;color:var(--fg2)}
+.legend b{display:block;font:500 13px "Cinzel",serif;color:var(--fg);margin-bottom:4px}
+
+@media (max-width:600px){
+  .grid,.legend{grid-template-columns:1fr}
+  .summon{grid-template-columns:1fr;justify-items:center}
+  .page{padding:28px 16px 45px}
+  .bg-mech{width:380px;right:-120px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-m="donjons">
+<div class="app">
+<div class="ctl" role="toolbar" aria-label="Choix de la maquette">
+  <b>Mode</b>
+  <button data-set-m="donjons" aria-pressed="true">Donjons</button>
+  <button data-set-m="tour" aria-pressed="false">Tour</button>
+  <button data-set-m="histoire" aria-pressed="false">Histoire</button>
+  <button data-set-m="arene" aria-pressed="false">Arène</button>
+  <button data-set-m="guilde" aria-pressed="false">Guilde</button>
+  <label><input type="checkbox" id="anim" checked> Rouages de fond animés</label>
+</div>
+
+<main class="page">
+  <div class="bg-mech" id="bgmech"></div>
+  <div class="bg-ruin" id="bgruin"></div>
+
+  <div class="head">
+    <div class="dial" id="headdial"></div>
+    <p class="eyebrow" id="eyebrow">Mode · Donjons</p>
+    <h1 id="title">Crypte des Lames</h1>
+    <p class="lead" id="lead">Une horloge éteinte depuis la chute de l'univers 483. Ses rouages tournent encore, mal.</p>
+    <div class="rack" aria-hidden="true"><svg id="racksvg" width="96" height="22" viewBox="0 0 96 22"></svg><div class="pinion" id="pinion"></div></div>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <p class="kicker">Progression</p>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:6px"><span class="big" id="prog">4/10</span><span class="cap">difficultés vaincues</span></div>
+      <div class="gauge" aria-hidden="true"><div class="marks"></div><div class="track"></div><div class="fill" id="fill"></div><div class="ticks"></div><div class="pawl" id="pawl"></div></div>
+      <span class="bonus">Bonus de set actif · +12 % ATK</span>
+      <div style="margin-top:8px"><button class="txt" id="win">Simuler une victoire</button></div>
+    </section>
+    <section class="panel">
+      <p class="kicker">Le gardien</p>
+      <h2>Le Gardien sans visage</h2>
+      <p style="color:var(--fg2)">Chaque emplacement a 25 % de chances de tomber. Les difficultés 9 et 10 donnent de l'UR.</p>
+      <div style="margin-top:14px"><button class="ui-button">Préparer mon équipe</button></div>
+    </section>
+
+    <section class="panel summon">
+      <div class="machine" id="machine">
+        <div class="gear g1" id="mg1"></div>
+        <div class="gear g2" id="mg2"></div>
+        <div class="dialbox" id="mdial"></div>
+        <div class="lock-ring"></div>
+        <div class="needle" id="needle"></div>
+        <div class="hub"></div>
+      </div>
+      <div class="out">
+        <p class="kicker" style="color:var(--gold-d)">Invocation</p>
+        <h2 style="margin:0">Le mécanisme s'enclenche</h2>
+        <p style="color:var(--fg2);max-width:380px">Quatre crans secs, l'aiguille se verrouille, un éclat se détache, puis la carte apparaît. La couleur de rareté n'arrive qu'au verrouillage.</p>
+        <div class="reveal"><div class="back" id="back">◇</div><div class="card" id="card"><div><span id="cname">Kael</span><small id="crar">UR</small></div></div></div>
+        <button class="ui-button" id="go">Invoquer ×1</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="legend">
+    <div><b>Horloge médiévale, pas steampunk</b>Dessin au trait or ou teinté, angles vifs, aucun laiton en relief, ni tuyau ni vapeur.</div>
+    <div><b>Brisé</b>Dents arrachées, rayons cassés, cadrans fêlés et anneaux ouverts : un mécanisme qui a survécu à une chute.</div>
+    <div><b>Par crans</b>Ça avance d'un cran puis s'arrête net. En continu, uniquement les rouages de fond, très lents.</div>
+    <div><b>Teinté par le mode</b>Les ornements prennent la lumière du lieu. L'or reste réservé à l'action et à l'invocation.</div>
+  </div>
+</main>
+</div>
+
+<script>
+const TAU=Math.PI*2, P=(r,a)=>[(r*Math.cos(a)).toFixed(2),(r*Math.sin(a)).toFixed(2)];
+function gear({n,r,h,missing=[],spokes=5,brokenSpoke=-1,crack=null,cut=null}){
+  const s=TAU/n; let pts=[];
+  for(let i=0;i<n;i++){
+    const a=i*s-Math.PI/2;
+    if(cut&&i>=cut[0]&&i<=cut[1]){ // morceau arraché : bord déchiqueté vers l'intérieur
+      pts.push(P(r*(.62+.1*((i*7)%3)),a),P(r*(.5+.08*((i*5)%3)),a+s*.5));continue;}
+    if(missing.includes(i)){pts.push(P(r,a),P(r+h*.35,a+s*.18),P(r-h*.2,a+s*.32),P(r,a+s*.52));continue;}
+    pts.push(P(r,a),P(r+h,a+s*.2),P(r+h,a+s*.3),P(r,a+s*.52));
+  }
+  const R=r+h+3;
+  let out=`<svg viewBox="${-R} ${-R} ${2*R} ${2*R}" width="100%" height="100%"><path class="mech-stroke" d="M${pts.map(p=>p.join(' ')).join('L')}Z"/>`;
+  out+=`<circle class="mech-thin" r="${(r*.78).toFixed(1)}"/><circle class="mech-stroke" r="${(r*.2).toFixed(1)}"/><circle class="mech-thin" r="${(r*.08).toFixed(1)}"/>`;
+  for(let k=0;k<spokes;k++){const a=k*TAU/spokes-Math.PI/2; const end=k===brokenSpoke?r*.48:r*.78;
+    const[x1,y1]=P(r*.2,a),[x2,y2]=P(end,a);out+=`<line class="mech-stroke" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+    if(k===brokenSpoke){const[x3,y3]=P(r*.53,a+.06),[x4,y4]=P(r*.6,a-.03);out+=`<path class="mech-stroke" d="M${x2} ${y2}L${x3} ${y3}M${x4} ${y4}L${P(r*.78,a).join(' ')}"/>`;}}
+  if(crack!==null){const a=crack;let d=`M${P(r+h*.5,a).join(' ')}`;[.9,.78,.66,.55,.42].forEach((f,j)=>{d+=`L${P(r*f,a+(j%2?.07:-.05)).join(' ')}`});
+    d+=`M${P(r*.66,a-.05).join(' ')}L${P(r*.6,a-.16).join(' ')}`;out+=`<path class="crack" d="${d}"/>`;}
+  return out+'</svg>';
+}
+function dial({r=100,gap=[.62,.7],cracks=true}){
+  const R=r+8,c=TAU*r;let o=`<svg viewBox="${-R} ${-R} ${2*R} ${2*R}" width="100%" height="100%">`;
+  // anneau extérieur ouvert (arc manquant)
+  const a0=TAU*gap[1]-Math.PI/2,a1=TAU*(1+gap[0])-Math.PI/2;
+  o+=`<path class="mech-stroke" d="M${P(r,a0).join(' ')}A${r} ${r} 0 1 1 ${P(r,a1).join(' ')}"/>`;
+  o+=`<circle class="mech-thin" r="${r*.9}" stroke-dasharray="1 4"/><circle class="mech-thin" r="${r*.62}"/><circle class="mech-thin" r="${r*.3}"/>`;
+  for(let i=0;i<60;i++){const f=i/60;if(f>gap[0]&&f<gap[1])continue;const a=i*TAU/60-Math.PI/2,l=i%5?r*.95:r*.86;
+    const[x1,y1]=P(r,a),[x2,y2]=P(l,a);o+=`<line class="${i%5?'mech-thin':'mech-stroke'}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;}
+  [0,.25,.5,.75].forEach(f=>{if(f>gap[0]&&f<gap[1])return;const a=f*TAU-Math.PI/2,[x,y]=P(r*.62,a);o+=`<path class="mech-stroke" d="M${x} ${+y-5}L${+x+4} ${y}L${x} ${+y+5}L${x-4} ${y}Z" fill="var(--mech)"/>`});
+  if(cracks){o+=`<path class="crack" d="M${P(r*.32,-.6).join(' ')}L${P(r*.45,-.48).join(' ')}L${P(r*.52,-.58).join(' ')}L${P(r*.7,-.42).join(' ')}L${P(r*.78,-.5).join(' ')}L${P(r*1.02,-.38).join(' ')}M${P(r*.52,-.58).join(' ')}L${P(r*.6,-.75).join(' ')}"/>`;
+    o+=`<path class="crack" d="M${P(r*.3,2.3).join(' ')}L${P(r*.42,2.42).join(' ')}L${P(r*.55,2.33).join(' ')}L${P(r*.66,2.45).join(' ')}"/>`;}
+  return o+'</svg>';
+}
+const $=id=>document.getElementById(id);
+// Fond : grand rouage cassé + pignon + cadran
+const bg=$('bgmech');
+bg.innerHTML=`<div class="gear" id="b1" style="left:200px;top:-70px;width:340px;height:340px">${gear({n:28,r:150,h:14,missing:[3,4,17],spokes:6,brokenSpoke:2,crack:2.2})}</div>
+<div class="gear" id="b2" style="left:122px;top:180px;width:150px;height:150px">${gear({n:12,r:58,h:12,missing:[7],spokes:4,brokenSpoke:-1})}</div>
+<div class="gear" style="left:330px;top:220px;width:200px;height:200px">${dial({r:90,gap:[.1,.24]})}</div>`;
+$('bgruin').innerHTML=`<div class="gear" style="inset:0;width:100%;height:100%;transform:rotate(-18deg)">${gear({n:20,r:100,h:12,cut:[9,15],spokes:5,brokenSpoke:3,crack:.4})}</div>`;
+$('headdial').innerHTML=dial({r:100,gap:[.3,.42]});
+// Crémaillère
+let rk='<path class="mech-stroke" style="stroke:var(--gold)" d="M0 16H96';
+for(let x=2;x<96;x+=8)rk+=`M${x} 16L${x+2} 8L${x+4} 8L${x+6} 16`;
+$('racksvg').innerHTML=rk+'"/>';
+$('pinion').innerHTML=`<div class="gear" style="inset:0;width:22px;height:22px;--mech:var(--gold)" id="pin">${gear({n:8,r:7,h:3,spokes:0})}</div>`;
+// Machine d'invocation
+$('mdial').innerHTML=dial({r:100,gap:[.36,.44]});
+$('mg1').innerHTML=gear({n:16,r:44,h:8,missing:[5],spokes:4,brokenSpoke:1,crack:1.2});
+$('mg2').innerHTML=gear({n:10,r:32,h:7,spokes:3});
+
+const ang={};
+function tick(id,deg){const el=$(id);if(!el)return;ang[id]=(ang[id]||0)+deg;el.style.transform=`rotate(${ang[id]}deg)`}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Fond : un cran toutes les 1,8 s
+setInterval(()=>{if(reduce||!$('anim').checked)return;tick('b1',360/28);tick('b2',-360/12)},1800);
+
+// Modes
+const D={donjons:["Crypte des Lames","Une horloge éteinte depuis la chute de l'univers 483. Ses rouages tournent encore, mal."],
+tour:["Tour d'Alice","Le mécanisme qui fait monter la Tour grince à chaque étage."],
+histoire:["Chroniques","Les cadrans gardent la date de chaque chapitre, même fêlés."],
+arene:["Arène","Les portes s'ouvrent sur un engrenage de fer et de sang."],
+guilde:["Guilde","L'horloge commune de ta bannière : chaque membre en est un rouage."]};
+document.querySelectorAll('[data-set-m]').forEach(b=>b.onclick=async()=>{
+  document.body.dataset.m=b.dataset.setM;
+  document.querySelectorAll('[data-set-m]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('title').textContent=D[b.dataset.setM][0];$('lead').textContent=D[b.dataset.setM][1];$('eyebrow').textContent='Mode · '+b.textContent;
+  for(let i=0;i<3;i++){tick('pin',45);await sleep(150)}
+});
+// Progression à cliquet
+let won=4;
+$('win').onclick=()=>{won=won>=10?4:won+1;$('prog').textContent=won+'/10';$('fill').style.width=won*10+'%';$('pawl').style.left=won*10+'%';tick('pin',45)};
+// Invocation
+const POOL=[["Kael","UR","--r-ur",.04],["Mira","SSR","--r-ssr",.12],["Oren","SR","--r-sr",.3],["Lys","R","--r-r",1]];
+let busy=false;
+$('go').onclick=async()=>{
+  if(busy)return;busy=true;$('go').disabled=true;
+  const m=$('machine');m.classList.remove('locked');$('card').classList.remove('on');$('back').style.opacity=1;
+  const roll=Math.random();const pick=POOL.find(p=>roll<p[3]);
+  for(let i=0;i<4;i++){tick('needle',72+(i===3?18:0));tick('mg1',360/16);tick('mg2',-360/10);await sleep(reduce?0:300)}
+  m.style.setProperty('--rc',`var(${pick[2]})`);m.classList.add('locked');
+  if(!reduce)for(let k=0;k<3;k++){const s=document.createElement('span');s.className='shard';s.style.left=(120+k*14)+'px';s.style.top='190px';
+    s.style.setProperty('--dx',(k-1)*26+'px');s.style.setProperty('--r',(k%2?140:-200)+'deg');m.appendChild(s);requestAnimationFrame(()=>s.classList.add('fall'));setTimeout(()=>s.remove(),1000)}
+  await sleep(reduce?0:260);
+  $('back').style.opacity=.25;const c=$('card');c.style.setProperty('--c',`var(${pick[2]})`);$('cname').textContent=pick[0];$('crar').textContent=pick[1];c.classList.add('on');
+  busy=false;$('go').disabled=false;$('go').textContent='Invoquer à nouveau';
+};
+</script>
+</body>
+</html>

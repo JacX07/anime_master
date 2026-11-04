@@ -12,6 +12,8 @@ Ce fichier décrit le site **tel qu'il est codé** (`src/app/globals.css`, `maqu
 - **Pas de lueur décorative.** L'or sert à signaler : action, sélection, élément actif.
 - **Sobriété des arrondis** : 3 à 7 px. Jamais de bulles très arrondies (10 px et plus) ni de pilules, sauf le bouton JOUER et les avatars ronds.
 - **Pas d'emoji ni de pictogramme dessiné à la main** : icônes du sprite (§5).
+- **Horlogerie médiévale brisée** (validé le 2026-11-04) : astrolabes, cadrans gradués et rouages dessinés au trait, abîmés par une chute (dents arrachées, rayons cassés, cadrans fêlés, anneaux ouverts). C'est une horloge astronomique en ruine, pas du steampunk (§4.13).
+- **L'or parle, la couleur éclaire** : l'or reste réservé à l'action ; chaque mode a sa lumière d'ambiance, et un vert-de-gris porte l'information (§2).
 
 ## 2. Couleurs
 Toujours via les variables de `globals.css` ou les valeurs ci-dessous, jamais de valeur inventée.
@@ -33,6 +35,29 @@ Toujours via les variables de `globals.css` ou les valeurs ci-dessous, jamais de
 | Rareté N / R / SR / SSR / UR | `#94a3b8` / `#38bdf8` / `#a855f7` / `#f59e0b` / `#ff3b4a` | `--rarity-*` |
 
 Les couleurs de rareté sont de l'**information de jeu** : on ne les réutilise pas comme décor.
+
+### 2.1 Contre-accent vert-de-gris (validé le 2026-11-04, variante C)
+Du bronze oxydé à côté de l'or patiné. Il porte l'**information** : difficulté vaincue, bonus actif, remplissage des barres de progression, états « en cours ». L'or reste sur les actions.
+
+| Rôle | Valeur |
+|---|---|
+| Texte et marque d'information | `#8fbfae` |
+| Fond d'étiquette (bonus actif) | `rgb(111 154 141 / 14%)` |
+| Remplissage de barre | `#6f9a8d` |
+
+### 2.2 Lumière d'ambiance par mode (validé le 2026-11-04, variante C)
+Maquette : `public/mockups/couleurs-ambiance.html`.
+Chaque mode a une teinte sombre et désaturée. Elle colore uniquement : un halo radial en haut de page (`radial-gradient(60% 100% at 30% 0%, <ambiance> à 32 %, transparent 70%)`), le fond des panneaux, les sur-titres et les ornements mécaniques (§4.13). Les boutons, le texte courant et l'or ne changent pas.
+
+| Mode | Ambiance | Panneau | Panneau relevé | Sur-titre | Ornements |
+|---|---|---|---|---|---|
+| Donjons | vert-de-gris `#3f6b62` | `#111716` | `#161d1b` | `#7fa497` | `#8fb5a8` |
+| Tour | indigo nuit `#3b4170` | `#12131a` | `#171922` | `#8d93c4` | `#a3a9db` |
+| Histoire | parchemin ambré `#7a5a34` | `#151310` | `#1b1814` | `#b8935f` | `#d0a96f` |
+| Arène | grenat sombre `#6b2a32` | `#161112` | `#1c1617` | `#b47a80` | `#c98d93` |
+| Guilde | bleu acier `#3a5568` | `#111518` | `#161b1f` | `#88a3b6` | `#9cb8cc` |
+
+Les pages sans mode (collection, inventaire, profil…) gardent la palette neutre du §2. Règle de dosage : 60 % de fond neutre, 30 % de teinte d'ambiance, 10 % d'or. Les ambiances restent sombres pour ne jamais être confondues avec une rareté ; le grenat de l'Arène doit rester distinct du rouge UR.
 
 ## 3. Typographie
 - **Cinzel** : logo, titres de page, titres de bloc, gros chiffres, boutons d'action.
@@ -82,7 +107,7 @@ Modèle : `.mq-play-overlay` / `.mq-play-menu`.
 - **Élément ciblé** (tutoriel) : il reste au-dessus du voile, entouré d'un contour or 2 px (même style que le focus clavier), sans halo diffus.
 
 ### 4.8 Barres de progression, compteurs, états vides
-- Barre fine (4 à 10 px), fond `#313632`, remplissage or, extrémités arrondies.
+- Barre fine (4 à 10 px), fond `#313632`, remplissage vert-de-gris `#6f9a8d` (§2.1), extrémités droites. Graduations tous les 10 % (encoches sombres dans la barre et repères fins au-dessus, couleur d'ornement), cliquet triangulaire sous le front de remplissage ; elle avance par crans (§6).
 - Gros chiffres en Cinzel or clair ; légende en capitales 10 px atténuées.
 - État vide : symbole `◇`, titre Cinzel, une phrase.
 
@@ -107,11 +132,31 @@ Validé le 2026-11-04. Composant `Leaderboard` (`src/components/board/`), utilis
 - **Barre « Ton rang »** : fixée en bas de l'écran, filet or en haut ; elle apparaît quand la ligne du joueur n'est plus visible, avec son rang, son score et ce qu'il manque pour entrer dans le top 100. Absente si le joueur n'est pas classé.
 - Mobile : podium compact (sans détail), onglets en défilement horizontal.
 
+### 4.13 Ornements mécaniques brisés
+Validé le 2026-11-04 (maquette `public/mockups/rouages-brises.html`). Prolonge le langage du dos de carte (`public/images/cards/anima-clash-back.webp`) : cercles concentriques, graduations, losanges cardinaux.
+- **Dessin au trait uniquement** (SVG), filet de 0,8 à 1,2 px, angles vifs (`stroke-linejoin: miter`). Pas de remplissage, de laiton en relief, de dégradé métallique, de rivets, de tuyaux ni de vapeur.
+- **Rouages** : dents trapézoïdales à sommet étroit, moyeu, jante intérieure, 3 à 6 rayons.
+- **Cadrans** : anneau extérieur gradué (60 graduations, une sur cinq plus longue), anneau pointillé, losanges aux quatre points cardinaux.
+- **Brisures** obligatoires sur chaque grand ornement (au moins deux) : dents arrachées (bord déchiqueté), rayon cassé, fissure en zigzag avec embranchement, anneau ouvert sur un arc, morceau de roue manquant.
+- **Couleur** : celle des ornements du mode (§2.2). Dans les pages sans mode et pour l'invocation : or `#c4a76d`.
+- **Emplacements** :
+  - fond de page : un grand rouage, un pignon engrené et un cadran en haut à droite (opacité 17 %), un fragment de roue en ruine en bas à gauche (12 %), derrière le contenu et sans capter les clics ;
+  - derrière le titre de page : un cadran fêlé (opacité 20 %) ;
+  - sous le titre : le trait or de 70 px devient une **crémaillère** or (≈ 96 px) terminée par un petit pignon, qui tourne de quelques crans au changement de mode ou à une progression ;
+  - **invocation** : machine or (cadran, aiguille, deux rouages) au premier plan (§6).
+- C'est une **exception volontaire** à « pas de décor », comme l'anneau gravé : les ornements restent en arrière-plan, sauf la machine d'invocation. Ne jamais en faire des cadres de panneaux, de boutons ni de cartes.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
 ## 6. Mouvement
 Transitions courtes (.18–.2 s), sans rebond. Pas d'animation continue sur les grandes surfaces. Toujours une variante `prefers-reduced-motion`.
+
+**Mouvement par crans** (mécanique, validé le 2026-11-04) : un rouage avance d'une dent en .16 s (`cubic-bezier(.2, .9, .3, 1)`), puis s'arrête net. Pas de rotation fluide continue ni de rebond.
+- Fond : seuls le grand rouage et son pignon tournent, d'un cran toutes les 1,8 s, en sens opposés. C'est la seule animation continue autorisée.
+- Actions : le pignon de la crémaillère tourne de trois crans au changement de mode et d'un cran à chaque progression ; la barre de progression avance par crans.
+- **Invocation** : quatre crans d'environ .3 s (aiguille et rouages), verrouillage sec (« clac » : décalage de 2 px en .14 s), l'anneau du cadran prend la couleur de la rareté obtenue, trois éclats or se détachent et tombent en .9 s, puis la carte apparaît en fondu .2 s. La rareté n'apparaît qu'au verrouillage. Un tirage ×10 pourra utiliser des crans plus rapides.
+- `prefers-reduced-motion` : rouages de fond immobiles, invocation sans crans ni éclats (résultat direct).
 
 ## 7. Mise en page
 Contenu max. 1530 px, marges `48px 4.3vw 70px` (téléphone : `28px 16px 45px`). Vérifier chaque écran à 1280 px et sur téléphone (375 px), sans défilement horizontal.
@@ -122,9 +167,10 @@ Contenu max. 1530 px, marges `48px 4.3vw 70px` (téléphone : `28px 16px 45px`).
 - Toute décision validée est reportée ici (section concernée, avec la date).
 
 ## 9. Interdits
-Bordures de cadre, boutons pleins opaques ou encadrés, pastilles et bulles très arrondies, halos et néons, 3D, emojis, couleurs hors palette, nouvelle police, couleur de rareté utilisée comme décor.
+Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en relief, rivets, tuyaux, vapeur), ornements mécaniques intacts et propres ou en premier plan hors invocation, pastilles et bulles très arrondies, halos et néons, 3D, emojis, couleurs hors palette, nouvelle police, couleur de rareté utilisée comme décor.
 
 ## Historique
+- 2026-11-04 : variante C validée : lumière d'ambiance par mode (§2.2) et contre-accent vert-de-gris pour l'information (§2.1) ; ornements d'horlogerie médiévale brisée (§4.13), mouvement par crans et séquence d'invocation (§6), barre de progression graduée (§4.8).
 - 2026-11-04 : classements (§4.12) : podium, raretés par joueur, barre « Ton rang » ; sélecteur de lot ×5 gris / ×10 jaune (lot choisi plein, l'autre gris).
 - 2026-11-04 : bouton d'action `ui-button` renforcé (fond or 20 %, filet or de 2 px en bas) ; anneau gravé validé (§4.11) pour les avatars et emblèmes ronds.
 - 2026-11-01 : passage au style « Citadelle sombre » (ancien fichier `docs/specs/direction-visuelle.md`, lots 1 et 2 codés ; lot 3 : combat et donjons).
