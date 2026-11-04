@@ -191,7 +191,7 @@ export function StoryBoard({ universes, attackIds, ownedCards, stock, storageKey
               </ul>
             )}
             <div className="hs-actions">
-              <button type="button" className="bt-btn" onClick={() => { setFight(null); setPreparation(null); }}>Retour à la carte</button>
+              <button type="button" className="ui-button" onClick={() => { setFight(null); setPreparation(null); }}>Retour à la carte</button>
               <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level)}>Rejouer ce combat</button>
               {battle.winner === "A" && fight.level < LEVELS && fight.level <= fu.maxLevel + 1 && (
                 <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level + 1)}>Combat suivant</button>
