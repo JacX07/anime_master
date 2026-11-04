@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { MechanicalBackdrop } from "./MechanicalBackdrop";
 
 /** Page de la maquette correspondant à l'URL : pilote les décors par page (`.mq-app-shell[data-page]`). */
 export function pageKey(path: string) {
@@ -52,8 +53,9 @@ export function AppShell({ header, children }: { header: ReactNode; children: Re
           </div>
         </div>
       </div>
+      <MechanicalBackdrop />
       {header}
-      <div className="mq-page">{children}</div>
+      <div className="mq-page"><span className="mq-head-dial" aria-hidden="true" />{children}</div>
     </div>
   );
 }

@@ -1,0 +1,86 @@
+/* Ornements d'horlogerie médiévale brisée (docs/direction-artistique.md §4.13 et §6).
+   Les SVG de public/ornaments/ servent de masques : la couleur vient de --mech (or, ou teinte du mode). */
+
+.mq-mech-part, .mq-head-dial {
+  display: block;
+  background-color: var(--mech, #c4a76d);
+  -webkit-mask: var(--src) center / contain no-repeat;
+  mask: var(--src) center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* Calque fixe derrière le contenu, sous la barre du haut. */
+.mq-mech { position: fixed; inset: 96px 0 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.mq-app-shell:is([data-page="home"], [data-page="team"]) :is(.mq-mech, .mq-head-dial) { display: none; }
+
+/* Pages de mode : grand rouage, pignon et cadran en haut à droite, à la place de l'astrolabe. */
+.mq-mech-cluster { display: none; position: absolute; top: 0; right: -20px; width: 540px; height: 420px; opacity: .17; }
+.mq-app-shell[data-ambiance] .mq-mech-cluster { display: block; }
+.mq-app-shell[data-ambiance] .mq-lore-system { display: none; }
+.mq-mech-cluster .mq-mech-part { position: absolute; }
+.mq-mech-gear { --src: url("/ornaments/gear-broken.svg"); left: 200px; top: -70px; width: 340px; height: 340px; }
+.mq-mech-pinion { --src: url("/ornaments/pinion-broken.svg"); left: 122px; top: 180px; width: 150px; height: 150px; }
+.mq-mech-dial { --src: url("/ornaments/dial-open.svg"); left: 330px; top: 220px; width: 200px; height: 200px; }
+.mq-mech-gear, .mq-mech-pinion { transition: transform .16s cubic-bezier(.2, .9, .3, 1); }
+
+/* Toutes les pages décorées : fragment de roue en ruine en bas à gauche. */
+.mq-mech-ruin { --src: url("/ornaments/gear-ruin.svg"); position: absolute; left: -70px; bottom: -60px; width: 260px; height: 260px; opacity: .12; transform: rotate(-18deg); }
+
+/* Cadran fêlé derrière le titre de page. */
+.mq-head-dial {
+  --src: url("/ornaments/dial-cracked.svg");
+  position: absolute;
+  left: calc(4.3vw - 120px);
+  top: -62px;
+  width: 300px;
+  height: 300px;
+  z-index: -1;
+  opacity: .2;
+}
+
+/* Crémaillère or sous le titre, terminée par un pignon qui tourne de trois crans à l'arrivée sur la page. */
+.mq-app-shell .mq-page-heading::after,
+.mq-app-shell .mq-page .pg-head::after {
+  content: "";
+  position: absolute;
+  inset: auto auto -24px 0;
+  width: 96px;
+  height: 18px;
+  background: #c4a76d;
+  box-shadow: none;
+  -webkit-mask: url("/ornaments/rack.svg") left center / 96px 18px no-repeat;
+  mask: url("/ornaments/rack.svg") left center / 96px 18px no-repeat;
+  pointer-events: none;
+}
+.mq-app-shell .mq-page .pg-head::after { bottom: -2px; }
+.mq-app-shell .mq-page-heading::before,
+.mq-app-shell .mq-page .pg-head::before {
+  content: "";
+  position: absolute;
+  left: 96px;
+  bottom: -26px;
+  width: 22px;
+  height: 22px;
+  background: #c4a76d;
+  -webkit-mask: url("/ornaments/pinion-small.svg") center / contain no-repeat;
+  mask: url("/ornaments/pinion-small.svg") center / contain no-repeat;
+  animation: mech-pinion-turn .48s cubic-bezier(.2, .9, .3, 1) .2s both;
+  pointer-events: none;
+}
+.mq-app-shell .mq-page .pg-head::before { bottom: -4px; }
+@keyframes mech-pinion-turn {
+  0% { transform: rotate(0deg); }
+  33% { transform: rotate(45deg); }
+  66% { transform: rotate(90deg); }
+  100% { transform: rotate(135deg); }
+}
+
+@media (max-width: 700px) {
+  .mq-mech-cluster { right: -200px; transform: scale(.7); transform-origin: top right; }
+  .mq-head-dial { left: -110px; top: -70px; width: 240px; height: 240px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mq-mech-gear, .mq-mech-pinion { transition: none; }
+  .mq-app-shell .mq-page-heading::before, .mq-app-shell .mq-page .pg-head::before { animation: none; }
+}
