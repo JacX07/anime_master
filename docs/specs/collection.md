@@ -12,7 +12,7 @@ Un site Next.js qui tourne en local, où l'on crée un compte, reçoit des paque
 ### Décisions validées
 - **Authentification** : Better Auth, email + mot de passe.
 - **10 paquets de bienvenue** à l'inscription.
-- **Taux par carte** : N 65 % / R 24 % / SR 8 % / SSR 2,5 % / UR 0,5 %.
+- **Taux par carte** : N 65,5 % / R 24 % / SR 8 % / SSR 2 % / UR 0,5 % *(SSR abaissé de 2,5 à 2 % le 2026-11-04, la différence va aux N)*.
 - **Carte garantie** : au moins une carte R ou mieux par paquet.
 - **Pity SSR** à 15 paquets, **pity UR** à 100 paquets.
 - **Numéro d'exemplaire** par personnage.
@@ -64,7 +64,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 | N | 65 % | |
 | R | 24 % | |
 | SR | 8 % | ~1 tous les 2–3 paquets |
-| SSR | 2,5 % | ~1 tous les 8 paquets (SSR ou mieux : ~1 tous les 7) |
+| SSR | 2 % | ~1 tous les 10 paquets (SSR ou mieux : ~1 tous les 8) |
 | UR | 0,5 % | ~1 tous les 40 paquets |
 
 **Taux de finition (par carte, indépendants de la rareté)** : Normal 90 % / Holo 9 % / Gold 1 %.
@@ -79,7 +79,7 @@ Pour chaque carte : on tire d'abord la **rareté**, puis **un personnage au hasa
 - `packsSinceUR` : remis à 0 si le paquet contient au moins un UR, sinon +1.
 - Affichés sur `/packs` : « SSR garanti dans X paquets », « UR garanti dans Y paquets ».
 
-**Taux réels, garanties comprises** (calcul exact, confirmé par `npm run simulate`) : N 62,5 % / R 25,5 % / SR 8,5 % / SSR 2,9 % / UR 0,61 %. La carte garantie et les pity relèvent légèrement les raretés hautes.
+**Taux réels, garanties comprises** (calcul exact, confirmé par `npm run simulate`) : N 62,8 % / R 25,5 % / SR 8,5 % / SSR 2,46 % / UR 0,64 % (mesure du 2026-11-04, 2 000 000 cartes, sans la 10ᵉ invocation). La carte garantie et les pity relèvent légèrement les raretés hautes.
 
 **Premier UR** (simulation de 2 000 nouveaux joueurs) : 32 paquets en moyenne, médiane 24, 90 % des joueurs avant 75, jamais plus de 100. Pour un joueur qui ouvre tout dès la recharge (10 de bienvenue + 6 par heure), c'est ~4 h en moyenne et ~11 h dans le pire des cas courants. Il faut compter plus pour un joueur régulier ou occasionnel.
 
@@ -193,11 +193,11 @@ L'achat s'ajoute au stock et peut le faire dépasser 50. Journal : nouvelle rais
 ### 3. Lots ×5 et ×10
 - Un ×5 coûte 5 cristaux, un ×10 coûte 10 cristaux (aucune remise : le ×10 contient simplement deux fois plus de cartes).
 - Chaque lot se tire dans **une seule transaction**. Un lot est refusé s'il y a moins de cristaux que son coût.
-- Taux de rareté de base inchangés : N 65 / R 24 / SR 8 / SSR 2,5 / UR 0,5 %. Finitions inchangées : Normal 90 / Holo 9 / Gold 1 %.
+- Taux de rareté de base inchangés : N 65,5 / R 24 / SR 8 / SSR 2 / UR 0,5 %. Finitions inchangées : Normal 90 / Holo 9 / Gold 1 %.
 
 **Règles de tirage d'un lot, appliquées carte par carte dans l'ordre :**
 1. **Pity UR** : si `cardsSinceUR ≥ 499`, la carte est un UR.
-2. **Pity SSR** : si `cardsSinceSSR ≥ 74` et que la carte tirée n'est ni SSR ni UR, elle est retirée parmi SSR et UR (SSR 5/6, UR 1/6).
+2. **Pity SSR** : si `cardsSinceSSR ≥ 74` et que la carte tirée n'est ni SSR ni UR, elle est retirée parmi SSR et UR (SSR 4/5, UR 1/5).
 3. **Carte garantie** : la 5ᵉ carte de chaque bloc de 5 est tirée parmi R, SR, SSR et UR (selon leurs taux relatifs) si les 4 cartes précédentes du bloc sont toutes N. Comme aujourd'hui.
 4. ~~**10ᵉ invocation**~~ — **supprimée le 2026-11-04** : plus aucune carte boostée, plus de compteur ni d'affichage. La colonne `User.cardsSinceBoost` reste en base, inutilisée (pas de migration). Mesure après suppression (200 000 lots) : SSR 0,135 par ×5 et 0,267 par ×10 ; UR 0,026 et 0,054 (l'ancienne règle ajoutait environ 7 % de SSR à un ×10).
 
@@ -251,7 +251,7 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 ### 8 ter. Booster de bienvenue ×10 (décidé le 2026-11-03)
 - Un **booster de bienvenue ×10** par compte, **gratuit**, à récupérer **une seule fois** (`User.welcomeBoosterClaimedAt`, vide tant qu'il n'est pas ouvert).
 - Il tire dans **tout le catalogue** (tous les anime, aucune bannière) et contient **au moins une carte SSR ou UR**.
-- **Garantie** : si les 9 premières cartes ne contiennent ni SSR ni UR, la 10ᵉ est tirée parmi SSR et UR (SSR 5/6, UR 1/6). Sinon, tirage normal.
+- **Garantie** : si les 9 premières cartes ne contiennent ni SSR ni UR, la 10ᵉ est tirée parmi SSR et UR (SSR 4/5, UR 1/5). Sinon, tirage normal.
 - Il ne coûte ni cristal ni tirage de bienvenue. Ses 10 cartes comptent pour le pity (§4 bis, §3).
 - **Récupération atomique** : la mise à jour qui marque le booster comme récupéré est conditionnelle (le champ est encore vide), dans la même transaction que le tirage et l'enregistrement des cartes. Un double clic ou deux requêtes simultanées ne donnent qu'un seul booster.
 - **À trancher** : le booster s'ajoute-t-il aux 50 cartes du cadeau de bienvenue (§8, « pas plus de 50 »), ou les remplace-t-il ? Pour l'instant il s'ajoute, en plus des 50 cartes.

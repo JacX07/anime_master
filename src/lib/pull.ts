@@ -13,10 +13,10 @@ export const SSR_PITY = 75;
 export const UR_PITY = 500;
 
 export const RARITY_RATES: [Rarity, number][] = [
-  ["N", 0.65],
+  ["N", 0.655],
   ["R", 0.24],
   ["SR", 0.08],
-  ["SSR", 0.025],
+  ["SSR", 0.02],
   ["UR", 0.005],
 ];
 
@@ -70,7 +70,7 @@ function weightedPick<T>(entries: [T, number][], rng: Random): T {
   return entries[entries.length - 1][0];
 }
 
-/** Taux relatifs restreints à certaines raretés (ex. R+ : R 24 / SR 8 / SSR 2,5 / UR 0,5). */
+/** Taux relatifs restreints à certaines raretés (ex. R+ : R 24 / SR 8 / SSR 2 / UR 0,5). */
 const ratesAmong = (rarities: Rarity[]) => RARITY_RATES.filter(([r]) => rarities.includes(r));
 
 /**
