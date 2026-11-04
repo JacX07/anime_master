@@ -3,3 +3,8 @@
 .settings-list li > span { display: grid; gap: 2px; }
 .settings-list small { color: #8c918b; font-size: .75rem; }
 .settings-list .ambient-toggle { flex: none; }
+
+.settings-volume { display: flex; align-items: center; gap: 12px; min-width: 14rem; }
+.settings-volume input[type="range"] { flex: 1; accent-color: #c4a76d; height: 4px; cursor: pointer; }
+.settings-volume output { min-width: 3.2rem; text-align: right; color: #d5bb7f; font: 500 15px var(--font-cinzel), serif; }
+@media (max-width: 40rem) { .settings-list li { flex-wrap: wrap; } .settings-volume { min-width: 100%; } }

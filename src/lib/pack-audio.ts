@@ -1,3 +1,4 @@
+import { getVolume, onVolumeChange } from "./audio-volume";
 import { suspendWhenHidden } from "./audio-visibility";
 // Sons de la salle des invocations, synthétisés en WebAudio (aucun fichier) :
 // carte qui sort du paquet, carte retournée, carillon pour les SSR et UR, ambiance de salle (nappe lente + cloche rare).
@@ -5,6 +6,7 @@ import { suspendWhenHidden } from "./audio-visibility";
 import type { Rarity } from "@/generated/prisma/enums";
 
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
+const BASE_GAIN = 1.4;
 const STORE = "am-packs-ambience";
 const STORE_UI = "am-ui-sfx";
 
@@ -21,7 +23,8 @@ class PackAudio {
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctor();
     this.master = ctx.createGain();
-    this.master.gain.value = 1.4;
+    this.master.gain.value = BASE_GAIN * getVolume();
+    onVolumeChange((v) => { if (this.ctx) this.master.gain.setTargetAtTime(BASE_GAIN * v, this.ctx.currentTime, 0.03); });
     const limiter = ctx.createDynamicsCompressor();
     limiter.threshold.value = -8;
     this.master.connect(limiter).connect(ctx.destination);
@@ -78,6 +81,7 @@ class PackAudio {
 
   /** Une carte glisse hors du paquet (`delay` en secondes pour les enchaîner). */
   deal(delay = 0) {
+    if (!this.uiOn) return;
     const ctx = this.ready();
     const t = ctx.currentTime + delay;
     this.swish(t, 0.22, 900 * (0.9 + Math.random() * 0.2), 4200, 0.5);
@@ -86,6 +90,7 @@ class PackAudio {
 
   /** Carte retournée : claquement de carte, avec carillon si SSR ou UR. */
   flip(rarity: Rarity) {
+    if (!this.uiOn) return;
     const ctx = this.ready();
     const t = ctx.currentTime;
     this.swish(t, 0.14, 2200, 6500, 0.45);
@@ -213,6 +218,7 @@ class PackAudio {
 
   /** Clic d'ouverture : petit coup grave et souffle montant. */
   open() {
+    if (!this.uiOn) return;
     const ctx = this.ready();
     const t = ctx.currentTime;
     this.tone(t, 110, 0.25, 0.2, "triangle");

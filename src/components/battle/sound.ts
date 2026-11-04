@@ -1,3 +1,4 @@
+import { getVolume, onVolumeChange } from "@/lib/audio-volume";
 import { suspendWhenHidden } from "@/lib/audio-visibility";
 // Sons du lecteur de combat : synthèse WebAudio et prise de lame enregistrée pour les attaques de base.
 // Deux bus (effets, musique) passent par un master puis un compresseur, pour garder de la marge avant la saturation.
@@ -43,7 +44,8 @@ export class BattleAudio {
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctor();
     const master = ctx.createGain();
-    master.gain.value = 0.8;
+    master.gain.value = 0.8 * getVolume();
+    onVolumeChange((v) => master.gain.setTargetAtTime(0.8 * v, ctx.currentTime, 0.03));
     const limiter = ctx.createDynamicsCompressor();
     limiter.threshold.value = -12;
     limiter.knee.value = 12;
