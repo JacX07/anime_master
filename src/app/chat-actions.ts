@@ -18,7 +18,7 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
   }
 }
 
-/** Sondage toutes les 3 s : nouveaux messages du canal ouvert et compteurs de non-lus. */
+/** Sondage (5 s chat ouvert, 60 s fermé) : nouveaux messages du canal ouvert et compteurs de non-lus. */
 export async function pollChatAction(channel: string | null, after: string | null, markRead: boolean): Promise<Result<{ messages: ChatMessageView[]; state: State }>> {
   return run(async (id) => {
     const messages = channel ? await getMessages(id, String(channel), after ? String(after) : null, !!markRead) : [];

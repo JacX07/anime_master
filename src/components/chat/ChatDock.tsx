@@ -68,11 +68,11 @@ export function ChatDock({ userId }: { userId: string }) {
     } finally { busy.current = false; }
   }, [channel, watching]);
 
-  // Changement de canal : on recharge ; ensuite sondage toutes les 3 s (15 s fermé)
+  // Changement de canal : on recharge ; ensuite sondage toutes les 5 s (60 s fermé)
   useEffect(() => { last.current = null; void poll(true); }, [channel, watching]); // eslint-disable-line react-hooks/exhaustive-deps
   const messages = box.channel === channel ? box.items : [];
   useEffect(() => {
-    const id = setInterval(() => { if (!document.hidden) void poll(false); }, open ? 3000 : 15000);
+    const id = setInterval(() => { if (!document.hidden) void poll(false); }, open ? 5000 : 60000); // fermé : simple pastille de non-lus, une minute suffit (egress Supabase)
     return () => clearInterval(id);
   }, [poll, open]);
   useEffect(() => { list.current?.scrollTo({ top: list.current.scrollHeight }); }, [messages.length, open, tab, peer]);
