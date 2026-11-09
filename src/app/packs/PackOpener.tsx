@@ -133,7 +133,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     if (!pack || revealed[i]) return;
     const rarity = pack.cards[i].rarity;
     packAudio.flip(rarity);
-    if (rarity === "SSR" || rarity === "UR") setBurst({ rarity, key: ++burstKey.current });
+    if (rarity === "SSR" || rarity === "UR") { setBurst({ rarity, key: ++burstKey.current }); packAudio.jingle(rarity); }
     setRevealed((r) => r.map((v, j) => v || j === i));
   }
   function revealAll() {
@@ -141,7 +141,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     pack.cards.forEach((c, i) => {
       if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
     });
-    if (rare) setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current });
+    if (rare) { setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current }); packAudio.jingle(best as "SSR" | "UR"); }
     setRevealed((r) => r.map(() => true));
     setSummary(true);
   }

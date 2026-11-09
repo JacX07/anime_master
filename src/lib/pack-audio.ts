@@ -265,6 +265,23 @@ class PackAudio {
     [1, 2.76, 5.4, 8.93].forEach((m, i) => this.tone(at, base * m, dur / (1 + i * 0.8), level / (1 + i * 1.4)));
   }
 
+  /** Carillon d'horloge à l'apparition d'une SSR/UR : tic sec + cloches qui montent, puis accord final (UR : plus haut, avec cloche grave). */
+  jingle(rarity: "SSR" | "UR") {
+    this.ui((_ctx, t0) => {
+      const hz = (n: number) => 440 * Math.pow(2, (n - 69) / 12);
+      const ur = rarity === "UR";
+      const t = t0 + 0.05;
+      const notes = ur ? [74, 78, 81, 86] : [69, 73, 76];
+      notes.forEach((n, i) => {
+        this.nz(t + i * 0.16 - 0.02, { type: "bandpass", f: 5000, q: 2, dur: 0.05, g: 0.1 });
+        this.metal(t + i * 0.16, hz(n), 0.2, 1.4);
+      });
+      const end = t + notes.length * 0.16 + 0.08;
+      (ur ? [62, 69, 74] : [57, 64, 69]).forEach((n) => this.metal(end, hz(n), 0.18, ur ? 3 : 2));
+      if (ur) this.metal(end + 0.35, hz(50), 0.26, 3.2);
+    });
+  }
+
   /** Un cran : friction, « tck » net, rebond du cliquet, coup grave quand la dent s'appuie. */
   private cog(at: number, i: number, ticks: number) {
     const tension = 1 + i * (0.5 / Math.max(1, ticks - 1)); // la tension monte jusqu'au verrou
