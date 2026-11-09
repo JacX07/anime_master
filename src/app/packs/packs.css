@@ -137,31 +137,51 @@
 }
 
 /* Éclat plein scène quand un SSR ou un UR apparaît (§6 : mouvement par crans) */
-.pk-burst { --c: #c4a76d; --cl: #f0dca0; position: fixed; inset: -8px; z-index: 200; overflow: hidden; pointer-events: none; background: #0a0c0d; animation: pk-burst-life 3.1s linear forwards; }
-.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; animation: pk-burst-life 3.1s linear forwards, pk-burst-shake .5s steps(5, end) .55s; }
+.pk-burst { --c: #c4a76d; --cl: #f0dca0; --S: 1.65s; --sh: 3px; position: fixed; inset: -8px; z-index: 200; overflow: hidden; pointer-events: none; animation: pk-shake .32s steps(5, end) var(--S), pk-shake .32s steps(5, end) calc(var(--S) + .25s); }
+.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; --S: 1.85s; --sh: 5px; }
 .pk-burst > * { position: absolute; }
-.pk-burst-ring { left: 50%; top: 45%; width: var(--size); aspect-ratio: 1; margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2); opacity: 0; will-change: transform; animation: pk-ring-in .22s ease-out forwards, pk-ring-turn .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
-.pk-burst-ring[data-reverse] { animation: pk-ring-in .22s ease-out .12s forwards, pk-ring-turn-rev .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
-.pk-burst-ring svg { width: 100%; height: 100%; overflow: visible; stroke: var(--c); }
-.pk-burst-dim { stroke: color-mix(in srgb, var(--c) 45%, #000); }
-.pk-burst-gem { fill: var(--cl); stroke: none; }
-.pk-burst > b.pk-burst-plate { left: 50%; top: 45%; translate: -50% -50%; padding: 0.25em 0.55em; opacity: 0; background: #101312; border: 2px solid var(--c); color: var(--cl); font: 600 clamp(2.2rem, 7vw, 3.4rem) var(--font-display), serif; letter-spacing: 0.14em;
-  box-shadow: inset 0 0 0 4px #101312, inset 0 0 0 5px color-mix(in srgb, var(--c) 55%, #000); animation: pk-plate-in .16s cubic-bezier(.2, .9, .3, 1) .55s forwards, pk-burst-out .35s ease-in 1.3s forwards; }
-.pk-burst-slash { left: calc(50% - 170px); top: 45%; width: 340px; height: 3px; rotate: var(--rot); opacity: 0; background: linear-gradient(90deg, transparent, var(--c) 20%, #fff 50%, var(--c) 80%, transparent); animation: pk-slash .22s steps(4, end) calc(.55s + var(--i) * .04s) forwards; }
-.pk-burst-shard { left: 50%; top: 45%; width: 14px; height: 26px; opacity: 0; background: linear-gradient(135deg, #fff, var(--c)); clip-path: polygon(50% 0, 100% 70%, 40% 100%, 0 55%); animation: pk-shard .8s steps(7, end) var(--d) forwards; }
-.pk-burst-cracks { inset: 0; width: 100%; height: 100%; stroke: var(--c); opacity: 0; animation: pk-burst-on .15s steps(2, end) .55s forwards, pk-burst-out .6s ease-in 1.2s forwards; }
-.pk-burst-flash { inset: 0; background: color-mix(in srgb, var(--c) 40%, #fff); opacity: 0; animation: pk-flash-cut .26s steps(3, end) .55s; }
-@keyframes pk-burst-life { 0% { opacity: 0; } 3% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes pk-ring-in { from { opacity: 0; scale: 1.5; } to { opacity: 1; scale: 1; } }
-@keyframes pk-ring-turn { to { rotate: 90deg; } }
-@keyframes pk-ring-turn-rev { to { rotate: -90deg; } }
-@keyframes pk-burst-out { to { opacity: 0; scale: 1.15; } }
-@keyframes pk-burst-on { to { opacity: 1; } }
-@keyframes pk-plate-in { 0% { opacity: 0; translate: -50% -90%; } 70% { opacity: 1; translate: -50% -46%; } 100% { opacity: 1; translate: -50% -50%; } }
-@keyframes pk-slash { 0% { opacity: 0; scale: .2 1; } 30% { opacity: 1; } 100% { opacity: 0; scale: 1.1 1; } }
-@keyframes pk-shard { 0% { opacity: 1; translate: 0 0; rotate: 0deg; } 100% { opacity: 0; translate: var(--x) var(--y); rotate: var(--r); } }
-@keyframes pk-flash-cut { 0% { opacity: .7; } 100% { opacity: 0; } }
-@keyframes pk-burst-shake { 0%, 100% { translate: 0; } 20% { translate: -3px 2px; } 40% { translate: 3px -2px; } 60% { translate: -2px -2px; } 80% { translate: 2px 2px; } }
+.pk-bg { inset: 0; background: #07090a; opacity: 0; animation: pk-fade-in .15s linear forwards, pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
+.pk-light { inset: 0; background: radial-gradient(circle, var(--cl) 0, var(--c) 22%, #07090a 68%); opacity: 0; animation: pk-fade-in .22s linear calc(var(--S) + .25s) forwards, pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
+/* Portes de bronze : rivets, filets dorés, cadre intérieur et reflet qui passe */
+.pk-door { top: 0; bottom: 0; width: 50%; overflow: hidden; }
+.pk-door-l { left: 0; border-right: 3px solid var(--c); translate: -100% 0; background: radial-gradient(circle at 14px 14px, color-mix(in srgb, var(--c) 67%, transparent) 2px, transparent 3px) 0 0 / 48px 48px, repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--c) 13%, transparent) 46px 48px), linear-gradient(90deg, #0f0c07, #2c2517); animation: pk-door-l-in .2s steps(4, end) .15s forwards, pk-door-l-open .7s steps(7, end) calc(var(--S) + .25s) forwards; }
+.pk-door-r { right: 0; border-left: 3px solid var(--c); translate: 100% 0; background: radial-gradient(circle at 14px 14px, color-mix(in srgb, var(--c) 67%, transparent) 2px, transparent 3px) 0 0 / 48px 48px, repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--c) 13%, transparent) 46px 48px), linear-gradient(270deg, #0f0c07, #2c2517); animation: pk-door-r-in .2s steps(4, end) .15s forwards, pk-door-r-open .7s steps(7, end) calc(var(--S) + .25s) forwards; }
+.pk-door { box-shadow: inset 0 0 0 8px #0f0c07, inset 0 0 0 9px color-mix(in srgb, var(--c) 40%, transparent), 0 0 30px #000; }
+.pk-door i { position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .22) 50%, transparent 65%); translate: -130% 0; animation: pk-sheen-door .8s linear .35s forwards; }
+/* Horloge gravée sur la jonction : avance de 12 crans jusqu'à la frappe */
+.pk-clock { left: 50%; top: 50%; width: min(250px, 60vw); height: min(250px, 60vw); margin: calc(min(250px, 60vw) / -2) 0 0 calc(min(250px, 60vw) / -2); fill: none; stroke: var(--c); stroke-width: 3; opacity: 0; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 55%, transparent)); animation: pk-fade-in .2s steps(3, end) .45s forwards, pk-clock-pop .6s steps(5, end) var(--S) forwards; }
+.pk-clock-hand { transform-box: view-box; transform-origin: 50% 50%; animation: pk-hand calc(var(--S) - .6s) steps(12, end) .6s forwards; }
+.pk-clock-hand circle { fill: var(--c); }
+/* Lignes d'énergie, anneaux de choc, éclat, étoiles de reflet */
+.pk-rays { left: 50%; top: 50%; width: 120vmin; height: 120vmin; margin: -60vmin 0 0 -60vmin; stroke: var(--cl); opacity: 0; animation: pk-rays .75s steps(6, end) calc(var(--S) + .25s) forwards; }
+.pk-burst[data-rarity="SSR"] .pk-rays-3, .pk-burst[data-rarity="SSR"] .pk-ring-ur { display: none; }
+.pk-ring { left: 50%; top: 50%; width: 160px; height: 160px; margin: -80px; border: 3px solid var(--cl); border-radius: 50%; opacity: 0; animation: pk-ring .65s steps(6, end) calc(var(--S) + var(--o, 0s)) forwards; }
+.pk-ring-ur { border-color: var(--c); }
+.pk-flash { inset: 0; background: var(--cl); opacity: 0; animation: pk-flash .28s steps(3, end) var(--S); }
+.pk-glint { fill: #fff; opacity: 0; animation: pk-glint .42s steps(5, end) calc(var(--S) * var(--k, 0) + var(--g, 0s)) forwards; }
+/* La carte sort de la jonction : petite, puis grosse au premier plan, puis elle se pose et redescend */
+.pk-burst-card { left: 50%; top: 50%; width: min(14rem, 58vw); translate: -50% -50%; opacity: 0; filter: drop-shadow(0 8px 26px color-mix(in srgb, var(--c) 70%, transparent)); animation: pk-emerge 1.05s steps(7, end) calc(var(--S) + .45s) forwards, pk-leave .45s linear calc(var(--S) + 2.4s) forwards; }
+.pk-burst-card .card { box-shadow: 0 0 0 2px var(--c), 0 0 40px 6px color-mix(in srgb, var(--c) 45%, transparent); }
+.pk-sheen { inset: 0; overflow: hidden; border-radius: .6rem; pointer-events: none; }
+.pk-sheen, .pk-sheen i { position: absolute; }
+.pk-sheen i { inset: -10% 0; width: 60%; background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%); translate: -120% 0; animation: pk-sheen-card .7s linear calc(var(--S) + 1.35s) forwards; }
+@keyframes pk-fade-in { to { opacity: 1; } }
+@keyframes pk-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pk-door-l-in { from { translate: -100% 0; } to { translate: 0 0; } }
+@keyframes pk-door-r-in { from { translate: 100% 0; } to { translate: 0 0; } }
+@keyframes pk-door-l-open { from { translate: 0 0; } to { translate: -101% 0; } }
+@keyframes pk-door-r-open { from { translate: 0 0; } to { translate: 101% 0; } }
+@keyframes pk-sheen-door { to { translate: 260% 0; } }
+@keyframes pk-sheen-card { to { translate: 260% 0; } }
+@keyframes pk-hand { to { transform: rotate(360deg); } }
+@keyframes pk-clock-pop { from { opacity: 1; scale: 1; } to { opacity: 0; scale: 1.7; } }
+@keyframes pk-rays { from { opacity: 1; scale: .45; } to { opacity: 0; scale: 1.5; } }
+@keyframes pk-ring { from { opacity: 1; scale: .3; } to { opacity: 0; scale: 3.4; } }
+@keyframes pk-flash { from { opacity: .75; } to { opacity: 0; } }
+@keyframes pk-glint { 0% { opacity: 1; scale: 0; rotate: 0deg; } 45% { opacity: 1; scale: 1; rotate: 20deg; } 100% { opacity: 0; scale: 0; rotate: 45deg; } }
+@keyframes pk-emerge { 0% { opacity: 1; scale: .1; } 72% { opacity: 1; scale: 1.38; } 100% { opacity: 1; scale: 1; } }
+@keyframes pk-leave { from { opacity: 1; translate: -50% -50%; scale: 1; } to { opacity: 0; translate: -50% calc(-50% + 150px); scale: .7; } }
+@keyframes pk-shake { 0%, 100% { translate: 0; } 25% { translate: calc(var(--sh) * -1) var(--sh); } 50% { translate: var(--sh) calc(var(--sh) * -1); } 75% { translate: calc(var(--sh) / -2) calc(var(--sh) / -2); } }
 @media (prefers-reduced-motion: reduce) { .pk-burst { display: none; } }
 
 /* Le booster est un objet à manipuler ; les actions gardent les contrôles communs. */
@@ -451,9 +471,3 @@
   .pk-machine-part, .pk-machine-needle, .pk-machine-ring { transition: none; }
   .pk-machine-shard, .pk-machine[data-locked] .pk-machine-dial, .pk-cards { animation: none; }
 }
-
-/* La carte tirée vient au centre après l'éclat, puis redescend vers sa place */
-.pk-burst-card { left: 50%; top: 50%; width: min(15rem, 62vw); translate: -50% -50%; opacity: 0; filter: none; animation: pk-card-up .3s steps(4, end) 1.5s forwards, pk-card-down .5s cubic-bezier(.5, 0, .9, .5) 2.45s forwards; }
-.pk-burst-card .card { box-shadow: 0 0 0 2px var(--c), 0 0 40px 6px color-mix(in srgb, var(--c) 45%, transparent); }
-@keyframes pk-card-up { from { opacity: 0; translate: -50% -40%; scale: .85; } to { opacity: 1; translate: -50% -50%; scale: 1; } }
-@keyframes pk-card-down { from { opacity: 1; translate: -50% -50%; scale: 1; } to { opacity: 0; translate: -50% 30vh; scale: .6; } }

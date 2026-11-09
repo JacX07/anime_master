@@ -132,14 +132,14 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   function reveal(i: number) {
     if (!pack || revealed[i]) return;
     const rarity = pack.cards[i].rarity;
-    packAudio.flip(rarity);
+    packAudio.flip();
     if (rarity === "SSR" || rarity === "UR") { setBurst({ rarity, key: ++burstKey.current, card: pack.cards[i] }); packAudio.jingle(rarity); }
     setRevealed((r) => r.map((v, j) => v || j === i));
   }
   function revealAll() {
     if (!pack) return;
     pack.cards.forEach((c, i) => {
-      if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
+      if (!revealed[i]) window.setTimeout(() => packAudio.flip(), i * 90);
     });
     if (rare) { setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current, card: pack.cards.find((c) => c.rarity === best) }); packAudio.jingle(best as "SSR" | "UR"); }
     setRevealed((r) => r.map(() => true));

@@ -1,53 +1,51 @@
-import type { ReactNode } from "react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-/** Éclat plein scène d'un SSR ou d'un UR (docs/direction-artistique.md §6) : tout avance par crans.
- *  Anneau gravé qui tourne de trois crans (deux anneaux contre-rotatifs pour l'UR), plaque de rareté qui claque,
- *  lames de lumière, éclats anguleux, fissures claires, éclair bref ; secousse crantée pour l'UR. 1,7 s. */
-const SHARDS = [
-  [-170, -90, 120], [150, -120, -200], [-90, 120, 250], [190, 70, -90], [-40, -150, 180], [60, 150, -240], [-200, 20, 60], [110, -40, 300],
-  [-130, 90, -150], [20, -190, 90], [230, -20, -300], [-240, -60, 210], [90, 110, -60], [-60, 170, 150],
-] as const;
+/** Éclat plein écran d'un SSR ou d'un UR (docs/direction-artistique.md §6) : « horloge + portes ».
+ *  Deux portes de bronze se ferment, une horloge s'allume sur la jonction et avance par crans jusqu'à la frappe,
+ *  les portes s'ouvrent sur la lumière et la carte en sort : petite, puis grosse au premier plan, puis elle redescend.
+ *  Tout est piloté en CSS par --S (instant de la frappe : 1,65 s en SSR, 1,85 s en UR). */
+const rand = (i: number, k: number) => { const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
 
-function Ring({ r, reverse }: { r: number; reverse?: boolean }) {
-  const ticks = Array.from({ length: 24 }, (_, i) => {
-    const a = (i * 15 * Math.PI) / 180;
-    const [r1, r2] = [104, i % 2 ? 112 : 118];
-    return <line key={i} x1={115 + r1 * Math.sin(a)} y1={115 - r1 * Math.cos(a)} x2={115 + r2 * Math.sin(a)} y2={115 - r2 * Math.cos(a)} strokeWidth={i % 2 ? 2 : 3} />;
-  });
+function Rays({ n, r0, r1, w, k, className }: { n: number; r0: number; r1: number; w: number; k: number; className: string }) {
   return (
-    <span className="pk-burst-ring" data-reverse={reverse || undefined} style={{ "--size": `${r}px` } as CSSProperties}>
-      <svg viewBox="0 0 230 230" aria-hidden="true">
-        <circle cx="115" cy="115" r="100" fill="none" strokeWidth="3" />
-        <circle cx="115" cy="115" r="92" fill="none" strokeWidth="2" strokeDasharray={reverse ? "6 5" : "30 8"} className="pk-burst-dim" />
-        <g>{ticks}</g>
-        <path d="M115 -4l5 5-5 5-5-5z M115 224l5 5-5 5-5-5z" className="pk-burst-gem" />
-      </svg>
-    </span>
+    <svg className={`pk-rays ${className}`} viewBox="-200 -200 400 400" strokeWidth={w} aria-hidden="true">
+      {Array.from({ length: n }, (_, i) => {
+        const a = (i / n) * Math.PI * 2 + rand(i, k) * 0.12;
+        const l = r0 + (0.4 + rand(i, k + 1) * 0.6) * (r1 - r0);
+        return <line key={i} x1={Math.cos(a) * r0} y1={Math.sin(a) * r0} x2={Math.cos(a) * l} y2={Math.sin(a) * l} />;
+      })}
+    </svg>
   );
 }
 
+const GLINTS = [
+  { x: "50%", y: "20%", s: 40, k: 0, g: 0.45 }, { x: "50%", y: "78%", s: 32, k: 0, g: 0.6 },
+  { x: "62%", y: "34%", s: 44, k: 1, g: 0.95 }, { x: "36%", y: "66%", s: 34, k: 1, g: 1.15 }, { x: "58%", y: "70%", s: 26, k: 1, g: 1.35 },
+] as const;
+
 export function RarityBurst({ rarity, onEnd, children }: { rarity: "SSR" | "UR"; onEnd: () => void; children?: ReactNode }) {
-  const ur = rarity === "UR";
   return (
-    <div className="pk-burst" data-rarity={rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && e.animationName === "pk-burst-life" && onEnd()}>
-      <Ring r={230} />
-      {ur && <Ring r={290} reverse />}
-      <svg className="pk-burst-cracks" viewBox="0 0 760 400" preserveAspectRatio="none">
-        <g fill="none" strokeWidth="2" strokeLinejoin="miter">
-          <path d="M0 60L120 90L170 70L300 150" />
-          <path d="M760 40L650 100L610 80L480 160" />
-          <path d="M0 340L110 300L160 320L290 250" />
-          <path d="M760 360L660 310L620 330L490 250" />
-          {ur && <path d="M380 0L360 60L400 100L370 150" />}
-          {ur && <path d="M380 400L400 340L360 300L390 250" />}
-        </g>
+    <div className="pk-burst" data-rarity={rarity} aria-hidden="true" onAnimationEnd={(e) => { if (e.animationName === "pk-fade-out" && (e.target as HTMLElement).classList.contains("pk-bg")) onEnd(); }}>
+      <div className="pk-bg" />
+      <div className="pk-light" />
+      <Rays n={30} r0={40} r1={290} w={1.6} k={1} className="pk-rays-1" />
+      <Rays n={14} r0={70} r1={340} w={3} k={5} className="pk-rays-2" />
+      <Rays n={22} r0={50} r1={330} w={2} k={9} className="pk-rays-3" />
+      {children && <div className="pk-burst-card">{children}<div className="pk-sheen"><i /></div></div>}
+      <div className="pk-door pk-door-l"><i /></div>
+      <div className="pk-door pk-door-r"><i /></div>
+      <svg className="pk-clock" viewBox="-100 -100 200 200" aria-hidden="true">
+        <circle r="92" /><circle r="84" strokeWidth="1" strokeDasharray="2 5" /><circle r="40" strokeWidth="1.5" />
+        {Array.from({ length: 12 }, (_, i) => <line key={i} y1="-92" y2="-78" transform={`rotate(${i * 30})`} />)}
+        <g className="pk-clock-hand"><line y2="-68" strokeWidth="4" /><circle r="6" /></g>
       </svg>
-      {[-30, 28, 90].slice(0, ur ? 3 : 2).map((rot, i) => <i key={rot} className="pk-burst-slash" style={{ "--rot": `${rot}deg`, "--i": i } as CSSProperties} />)}
-      {SHARDS.slice(0, ur ? 14 : 9).map(([x, y, r], i) => <i key={i} className="pk-burst-shard" style={{ "--x": `${x}px`, "--y": `${y}px`, "--r": `${r}deg`, "--d": `${0.55 + (i % 5) * 0.012}s` } as CSSProperties} />)}
-      <b className="pk-burst-plate">{rarity}</b>
-      {children && <div className="pk-burst-card">{children}</div>}
-      <span className="pk-burst-flash" />
+      <i className="pk-ring" /><i className="pk-ring" style={{ "--o": "0.12s" } as CSSProperties} /><i className="pk-ring pk-ring-ur" style={{ "--o": "0.24s" } as CSSProperties} />
+      <i className="pk-flash" />
+      {GLINTS.map((g, i) => (
+        <svg key={i} className="pk-glint" viewBox="-50 -50 100 100" style={{ left: g.x, top: g.y, width: g.s, height: g.s, margin: `${-g.s / 2}px 0 0 ${-g.s / 2}px`, "--k": g.k, "--g": `${g.g}s` } as CSSProperties}>
+          <path d="M0,-50 L7,-7 L50,0 L7,7 L0,50 L-7,7 L-50,0 L-7,-7Z" />
+        </svg>
+      ))}
     </div>
   );
 }

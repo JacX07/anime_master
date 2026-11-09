@@ -122,19 +122,14 @@ class PackAudio {
     this.rustle(t, 0.15, 10, 0.07, 2500, 7500);
   }
 
-  /** Carte retournée : levée aérienne puis claquement de papier. SSR et UR ajoutent des claquements, jamais de queue ni de note. */
-  flip(rarity: Rarity) {
+  /** Carte retournée : « parchemin lourd » (validé le 2026-11-09) : souffle d'étoffe épaisse puis claquement sourd et mat. */
+  flip() {
     if (!this.uiOn) return;
     const ctx = this.ready();
-    const t = ctx.currentTime;
-    this.nz(t, { type: "highpass", f: 2200, f2: 6000, q: 0.4, att: 0.022, dur: 0.075, g: 0.16 });
-    this.rustle(t, 0.08, 9, 0.09, 2500, 8000);
-    this.paperSnap(t + 0.085);
-    if (rarity === "SSR") this.paperSnap(t + 0.11, 0.5);
-    if (rarity === "UR") {
-      this.paperSnap(t + 0.11, 0.6);
-      this.paperSnap(t + 0.135, 0.4);
-    }
+    const t = ctx.currentTime + 0.02;
+    this.nz(t, { f: 700, f2: 1700, q: 0.7, att: 0.05, dur: 0.22, g: 0.1 });
+    this.nz(t + 0.17, { type: "lowpass", f: 700, dur: 0.08, g: 0.13 });
+    this.thud(t + 0.17, 110, 60, 0.14, 0.08);
   }
 
   // ---- Sons d'interface : courts et discrets, pour que chaque geste ait un retour ----
@@ -265,21 +260,57 @@ class PackAudio {
     [1, 2.76, 5.4, 8.93].forEach((m, i) => this.tone(at, base * m, dur / (1 + i * 0.8), level / (1 + i * 1.4)));
   }
 
-  /** Carillon d'horloge à l'apparition d'une SSR/UR : tic sec + cloches qui montent, puis accord final (UR : plus haut, avec cloche grave). */
+  /** Nappe grave qui gonfle (dents de scie filtrées). */
+  private pad(at: number, freq: number, dur: number, level: number) {
+    const ctx = this.ctx!;
+    [0, 6, -6].forEach((detune) => {
+      const o = ctx.createOscillator();
+      o.type = "sawtooth";
+      o.frequency.value = freq;
+      o.detune.value = detune;
+      const fl = ctx.createBiquadFilter();
+      fl.type = "lowpass";
+      fl.frequency.setValueAtTime(300, at);
+      fl.frequency.linearRampToValueAtTime(1800, at + dur * 0.7);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.linearRampToValueAtTime(level, at + dur * 0.6);
+      g.gain.linearRampToValueAtTime(0.0001, at + dur);
+      o.connect(fl).connect(g).connect(this.master);
+      o.start(at);
+      o.stop(at + dur + 0.05);
+    });
+  }
+
+  /** Éclat SSR/UR « horloge + portes » (DA §6) : clang des portes, 12 tics, frappe de cloche, grincement, nappe, chuintement à la sortie de la carte, cloche d'arrivée. Calé sur --S du CSS (1,65 s SSR, 1,85 s UR). */
   jingle(rarity: "SSR" | "UR") {
     this.ui((_ctx, t0) => {
       const hz = (n: number) => 440 * Math.pow(2, (n - 69) / 12);
       const ur = rarity === "UR";
-      const t = t0 + 0.05;
-      const notes = ur ? [74, 78, 81, 86] : [69, 73, 76];
-      notes.forEach((n, i) => {
-        this.nz(t + i * 0.22 - 0.02, { type: "bandpass", f: 5000, q: 2, dur: 0.05, g: 0.1 });
-        this.metal(t + i * 0.22, hz(n), 0.2, 1.8);
-      });
-      const end = t + notes.length * 0.22 + 0.1;
-      (ur ? [62, 69, 74] : [57, 64, 69]).forEach((n) => this.metal(end, hz(n), 0.18, ur ? 4.2 : 3));
-      this.metal(t + 1.5, hz(ur ? 86 : 81), 0.14, 2.4); // cloche d'arrivée de la carte
-      if (ur) this.metal(end + 0.45, hz(50), 0.26, 4.4);
+      const S = ur ? 1.85 : 1.65;
+      const K = 0.4;
+      const T = (s: number) => t0 + 0.05 + s;
+      this.metal(T(0.35), hz(40), 0.6 * K, 1.2);
+      this.thud(T(0.35), 90, 45, 0.35, 0.8 * K);
+      this.nz(T(0.35), { f: 1500, q: 2, dur: 0.2, g: 0.3 * K });
+      const span = S - 0.6;
+      for (let i = 1; i <= 12; i++) {
+        const tt = T(0.6 + (i * span) / 12);
+        this.nz(tt - 0.01, { f: 4200 + i * 150, q: 3, dur: 0.02, g: 0.3 * K });
+        this.tone(tt, 200 + i * 20, 0.05, 0.05 * K);
+      }
+      this.metal(T(S), hz(ur ? 55 : 60), 0.5 * K, 3.4);
+      this.thud(T(S), 110, 45, 0.35, 0.7 * K);
+      this.nz(T(S), { type: "highpass", f: 2500, dur: 0.3, g: 0.25 * K });
+      if (ur) { this.metal(T(S + 0.28), hz(67), 0.4 * K, 3.4); this.metal(T(S + 0.28), hz(43), 0.5 * K, 4); }
+      this.nz(T(S + 0.25), { type: "lowpass", f: 500, f2: 150, dur: 0.7, g: 0.4 * K, att: 0.05 });
+      this.pad(T(S + 0.25), hz(ur ? 43 : 48), 2.2, 0.1 * K);
+      this.pad(T(S + 0.25), hz(ur ? 50 : 55), 2.2, 0.08 * K);
+      this.nz(T(S + 0.45), { type: "highpass", f: 600, f2: 5000, dur: 0.9, g: 0.14 * K, att: 0.5 });
+      for (let i = 0; i < 6; i++) this.tone(T(S + 0.45 + i * 0.12), hz(72 + i * 3), 0.5, 0.05 * K);
+      this.metal(T(S + 1.45), hz(ur ? 79 : 74), 0.3 * K, 2.8);
+      this.thud(T(S + 1.45), 100, 45, 0.35, 0.6 * K);
+      if (ur) { this.thud(T(S + 1.7), 80, 40, 0.35, 0.6 * K); this.metal(T(S + 1.7), hz(86), 0.25 * K, 3); }
     });
   }
 
