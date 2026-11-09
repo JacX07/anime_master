@@ -13,6 +13,7 @@ import { FINISH_RATES, LOT_SIZES, RARITY_RATES, SSR_PITY, UR_PITY, type LotSize 
 import { buyCrystalsAction, devGrantCrystalsAction, openPackAction, openWelcomeBoosterAction } from "./actions";
 import { CardDetail } from "./CardDetail";
 import { SummonMachine } from "./SummonMachine";
+import { RarityBurst } from "./RarityBurst";
 import { packAudio } from "@/lib/pack-audio";
 import "./packs.css";
 
@@ -261,7 +262,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           )}
           {!pack && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
 
-          {burst && <div key={burst.key} className="pk-burst" data-rarity={burst.rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && setBurst(null)}><b>{burst.rarity}</b></div>}
+          {burst && <RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)} />}
 
           {pack && machine && best && <SummonMachine rarity={best} fast={pack.lotSize >= 10} onDone={() => { setMachine(false); packAudio.deal(0.1); }} />}
 
