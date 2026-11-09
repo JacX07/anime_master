@@ -221,3 +221,20 @@
 .hs-empty-slot > span { max-width: 14ch; color: #b4bcb1; font: 400 11px/1.4 var(--font-dm), sans-serif; }
 .mq-app-shell[class] button.hs-card-choice[class]:hover:not(:disabled) .hs-empty-slot { background-color: #202d22; box-shadow: inset 0 0 0 1px #b79e60; }
 @media(max-width:600px) { .hs-empty-slot { min-height: 170px; } }
+
+/* Étoiles de l'histoire (DA §4.17) : compteur à paliers et étoiles du sprite sur la carte */
+.hs-star-counter { flex: 1 1 280px; max-width: 420px; }
+.hs-map-hint .hs-star-total-big { display: flex; align-items: baseline; gap: 8px; font: 500 34px/1 var(--font-cinzel), Georgia, serif; color: #e3c985; }
+.hs-star-total-big small { font: 400 15px var(--font-dm), sans-serif; color: #9a9a92; }
+.hs-star-bar { position: relative; height: 8px; margin: 12px 0 26px; background: #1a1f1d; }
+.hs-star-bar > i { position: absolute; inset: 0 auto 0 0; background: #c4a76d; }
+.hs-star-bar > span { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; background: #555b56; }
+.hs-star-bar > span.is-ok { background: #e3c985; }
+.hs-star-bar > span em { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); font: 400 11px var(--font-dm), sans-serif; font-style: normal; color: #777d78; }
+.hs-star-bar > span:last-child em { transform: translateX(-100%); }
+.hs-map-hint .hs-star-next b { color: #e3c985; font-weight: 600; }
+.hs-node-stars { display: flex; gap: 2px; justify-content: center; }
+.hs-node-stars .i { width: 17px; height: 17px; flex: none; }
+.hs-node-stars .i.is-on { color: #e3c985; }
+.hs-node-stars .i.is-off { color: #6b6247; }
+@media (max-width: 480px) { .hs-map-hint .hs-star-total-big { font-size: 30px; } .hs-node-stars .i { width: 15px; height: 15px; } }

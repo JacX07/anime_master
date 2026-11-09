@@ -158,6 +158,9 @@ Validé le 2026-11-09 (`BattlePlayer`, bloc « Barre de contrôle » de `battle.
 ### 4.16 Cases d'artefact par rareté (validé le 2026-11-09, variante C)
 Fond de la couleur de rareté à 20 % sur `#0a0e0d`, liseré intérieur 2 px de la rareté assombrie, petit losange plein de la couleur de rareté en haut à gauche, reflet diagonal discret sur SSR et UR. Les cinq raretés ont chacune leur teinte (`--rarity-*`). Sélection : fond à 30 % et contour or `#d5bb7f` décalé de 3 px. Icône non désaturée. Même rendu dans la fiche personnage (`.eq-character-dialog`).
 
+### 4.17 Étoiles du mode histoire (validé le 2026-11-09, variante A)
+Compteur sous la carte (`StoryMap`, `StarCounter`) : total en Cinzel 34 px or clair `#e3c985`, « / 45 étoiles » en `#9a9a92`, barre de 8 px (fond `#1a1f1d`, remplissage or `#c4a76d`) avec un repère par palier de récompense (12 · 24 · 36 · 45, repère or quand atteint) et une ligne « Prochain palier : N ★ · encore X étoiles · Y combats terminés ». Sur la carte, chaque combat terminé affiche trois étoiles du sprite (`etoile` pleine or `#e3c985`, `etoile-vide` en contour `#6b6247`), 17 px (15 px sur téléphone).
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -204,3 +207,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : éclat SSR/UR remplacé par « horloge + portes » (carte qui sort des portes, lignes d'énergie, reflets), retournement en « parchemin lourd » (§6).
 - 2026-11-09 : ouverture « graduations » et éclat « constellation encadrée » (style dos de carte) remplacent le rouage et « horloge + portes » ; saut d'animation au clic ou Échap (§6).
 - 2026-11-09 : barre de contrôle du combat refaite en dock central biseauté, sans Recommencer ni progression (§4.15).
+- 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
