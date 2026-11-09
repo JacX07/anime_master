@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
-import { deleteChatAction, pollChatAction, reportChatAction, sendChatAction } from "@/app/chat-actions";
+import { deleteChatAction, onlinePlayersAction, pollChatAction, reportChatAction, sendChatAction } from "@/app/chat-actions";
 import type { ChatMessageView } from "@/lib/chat";
 import { CHAT_MAX_LENGTH } from "@/lib/chat-rules";
 import "./chat.css";
 
-type Tab = "guild" | "general" | "dm";
+type Tab = "guild" | "general" | "dm" | "online";
+type Online = Extract<Awaited<ReturnType<typeof onlinePlayersAction>>, { ok: true }>;
 type PollOk = Extract<Awaited<ReturnType<typeof pollChatAction>>, { ok: true }>;
 type State = PollOk["state"];
 
@@ -34,8 +35,9 @@ export function ChatDock({ userId }: { userId: string }) {
   const [hideRaw, setHideRaw] = useStored("chat-hide-general", "0");
   const open = openRaw === "1";
   const hideGeneral = hideRaw === "1";
-  const tab: Tab = tabRaw === "guild" || tabRaw === "dm" ? tabRaw : "general";
+  const tab: Tab = tabRaw === "guild" || tabRaw === "dm" || tabRaw === "online" ? tabRaw : "general";
   const [peer, setPeer] = useState<string | null>(null);
+  const [online, setOnline] = useState<Online | null>(null);
   const [state, setState] = useState<State | null>(null);
   const [box, setBox] = useState<{ channel: string | null; items: ChatMessageView[] }>({ channel: null, items: [] });
   const [text, setText] = useState("");
@@ -45,7 +47,7 @@ export function ChatDock({ userId }: { userId: string }) {
   const last = useRef<string | null>(null);
   const busy = useRef(false);
 
-  const channel = tab === "general" ? "general" : tab === "guild" ? state?.guild?.channel ?? null : peer;
+  const channel = tab === "online" ? null : tab === "general" ? "general" : tab === "guild" ? state?.guild?.channel ?? null : peer;
   const watching = open && !!channel && !(tab === "general" && hideGeneral);
 
   const poll = useCallback(async (reset: boolean) => {
@@ -75,6 +77,14 @@ export function ChatDock({ userId }: { userId: string }) {
     const id = setInterval(() => { if (!document.hidden) void poll(false); }, open ? 5000 : 60000); // fermé : simple pastille de non-lus, une minute suffit (egress Supabase)
     return () => clearInterval(id);
   }, [poll, open]);
+  // Onglet « En ligne » : chargement à l'ouverture puis toutes les 60 s (egress Supabase)
+  useEffect(() => {
+    if (!open || tab !== "online") return;
+    const load = () => { void onlinePlayersAction().then((r) => { if (r.ok) setOnline(r); }); };
+    load();
+    const id = setInterval(() => { if (!document.hidden) load(); }, 60000);
+    return () => clearInterval(id);
+  }, [open, tab]);
   useEffect(() => { list.current?.scrollTo({ top: list.current.scrollHeight }); }, [messages.length, open, tab, peer]);
 
   const toggle = (v: boolean) => setOpenRaw(v ? "1" : "0");
@@ -108,10 +118,29 @@ export function ChatDock({ userId }: { userId: string }) {
         {state?.guild && <button role="tab" type="button" aria-selected={tab === "guild"} onClick={() => pick("guild")}>Guilde{state.guild.unread > 0 && <i>{state.guild.unread}</i>}</button>}
         {!hideGeneral && <button role="tab" type="button" aria-selected={tab === "general"} onClick={() => pick("general")}>Général{(state?.general.unread ?? 0) > 0 && <i>{state?.general.unread}</i>}</button>}
         <button role="tab" type="button" aria-selected={tab === "dm"} onClick={() => pick("dm")}>Privé{(state?.dms.reduce((n, d) => n + d.unread, 0) ?? 0) > 0 && <i>{state?.dms.reduce((n, d) => n + d.unread, 0)}</i>}</button>
+        <button role="tab" type="button" aria-selected={tab === "online"} onClick={() => pick("online")}>En ligne{online && online.total > 0 && <i className="chat-count">{online.total}</i>}</button>
         <button type="button" className="chat-close" onClick={() => toggle(false)} aria-label="Réduire le chat">–</button>
       </div>
 
-      {tab === "dm" && !peer ? (
+      {tab === "online" ? (
+        <div className="chat-list chat-online">
+          {!online ? <p className="chat-empty">Chargement…</p> : online.players.length === 0 ? <p className="chat-empty">Personne d&apos;autre n&apos;est en ligne pour l&apos;instant.</p> : (
+            <>
+              {online.players.map((p) => {
+                const conv = p.friend ? state?.dms.find((d) => d.userId === p.id) : undefined;
+                return (
+                  <div key={p.id} className="chat-player">
+                    <span className="chat-dot" aria-hidden="true" />
+                    <span className="chat-player-name"><Link href={`/u/${p.username}`}>{p.username}</Link><small>{[p.friend && "ami", p.guildTag && `[${p.guildTag}]`].filter(Boolean).join(" · ") || "en ligne"}</small></span>
+                    {conv ? <button type="button" onClick={() => { setTabRaw("dm"); setPeer(conv.channel); }}>Message</button> : <Link href={`/u/${p.username}`}>Profil</Link>}
+                  </div>
+                );
+              })}
+              {online.total > online.players.length && <p className="chat-empty">+ {online.total - online.players.length} autres joueurs en ligne</p>}
+            </>
+          )}
+        </div>
+      ) : tab === "dm" && !peer ? (
         <div className="chat-list">
           {state?.dms.length ? state.dms.map((d) => (
             <button key={d.channel} type="button" className="chat-conv" onClick={() => setPeer(d.channel)}>
