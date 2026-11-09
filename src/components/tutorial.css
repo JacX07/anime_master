@@ -8,6 +8,9 @@
 .tuto-tip .tuto-eyebrow { margin: 0 0 7px; color: #a68e5d; font-size: 9px; font-weight: 700; letter-spacing: .28em; line-height: 1.2; }
 .tuto-tip h2 { margin: 0 0 6px; font: 500 14px/1.3 var(--font-cinzel), serif; color: #e9e5dc; }
 .tuto-tip p { margin: 0; color: #b4b2aa; font-size: 13px; line-height: 1.5; }
+.tuto-points { margin: 8px 0 0; padding: 0; list-style: none; }
+.tuto-points li { position: relative; margin: 3px 0; padding-left: 14px; color: #b4b2aa; font-size: 12px; line-height: 1.45; }
+.tuto-points li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 5px; height: 5px; background: #c4a76d; transform: rotate(45deg); }
 .tuto-tip .tuto-lock { margin-top: 6px; color: #d9a46b; font-size: 12px; }
 .tuto-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
 .mq-app-shell[class] .tuto-tip .tuto-skip { padding: 6px 0 7px; }

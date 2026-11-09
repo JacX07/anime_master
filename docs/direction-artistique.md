@@ -99,6 +99,7 @@ Modèle : `.mq-dropdown-panel` (`maquette.css`).
 - Pas de flèche dessinée ni de pastille pleine : la relation avec l'élément visé se voit par la position et la surbrillance (§4.7).
 - Apparition : fondu + glissement de 8 px en .18 s.
 
+- Liste « à quoi ça sert » (2026-11-09) : sous la phrase, des points précédés d'un petit losange plein or (`.tuto-points`, 12 px, `#b4b2aa`). Phases : actions, accueil, modes, onglets, raccourcis, combat (bulles centrées, sans élément ciblé), fin.
 ### 4.7 Surimpressions (fenêtres, menu JOUER, tutoriel)
 Modèle : `.mq-play-overlay` / `.mq-play-menu`.
 - Voile `rgba(4, 6, 6, .82)` avec flou de 12 px ; apparition en fondu .2 s.
@@ -212,3 +213,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : barre de contrôle du combat refaite en dock central biseauté, sans Recommencer ni progression (§4.15).
 - 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
 - 2026-11-09 : onglet « En ligne » dans le chat (§4.18).
+- 2026-11-09 : tutoriel plus explicatif (listes de points, phases accueil, raccourcis et combat), Guide du jeu à 22 étapes (§4.6).

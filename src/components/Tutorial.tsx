@@ -65,10 +65,10 @@ export function Tutorial() {
     const track = () => {
       const fighting = !!document.querySelector(".hs-fight, .bt-layout, .pk-stage[data-revealing]") || pathname.startsWith("/combat");
       setHidden(fighting);
-      const away = step.phase === "action" && pathname !== step.page;
+      const away = (step.phase === "action" || step.phase === "home") && pathname !== step.page;
       const selectors = away ? step.away ?? [] : step.targets;
       // Menu replié (petits écrans) : on cible le bouton Menu à la place de l'onglet.
-      const el = firstVisible(selectors) ?? (away || step.phase === "tabs" ? firstVisible([".mq-navigation-toggle"]) : null);
+      const el = firstVisible(selectors) ?? (away || step.phase === "tabs" || step.key === "play" ? firstVisible([".mq-navigation-toggle"]) : null);
       const size = `${innerWidth},${innerHeight}`;
       if (el !== target.current || size !== viewport) {
         viewport = size;
@@ -117,8 +117,9 @@ export function Tutorial() {
   } else pos = { left: (innerWidth - tipSize.w) / 2, top: Math.max(MARGIN, (innerHeight - tipSize.h) / 2) };
 
   const { index, total } = phaseProgress(state.step);
-  const eyebrow = step.phase === "action" ? `TUTORIEL · ${index} / ${total}` : step.phase === "modes" ? `LES MODES DE JEU · ${index} / ${total}` : step.phase === "tabs" ? `LES ONGLETS · ${index} / ${total}` : "TUTORIEL";
-  const awayHint = step.phase === "action" && pathname !== step.page;
+  const EYEBROW: Record<string, string> = { action: "TUTORIEL", home: "L’ACCUEIL", modes: "LES MODES DE JEU", tabs: "LES ONGLETS", shortcuts: "LES RACCOURCIS", combat: "LE COMBAT" };
+  const eyebrow = step.phase === "end" ? "TUTORIEL" : `${EYEBROW[step.phase]} · ${index} / ${total}`;
+  const awayHint = (step.phase === "action" || step.phase === "home") && pathname !== step.page;
   const lock = step.mode ? state.locks[step.mode] : undefined;
 
   // Rendu dans <body> : la barre du haut (flou d'arrière-plan) piégerait les positions fixes.
@@ -131,6 +132,7 @@ export function Tutorial() {
         <p className="tuto-eyebrow">{eyebrow}</p>
         <h2>{step.title}</h2>
         <p>{awayHint ? `${step.text} Suis l’élément entouré pour y aller.` : step.text}</p>
+        {step.points && <ul className="tuto-points">{step.points.map((point) => <li key={point}>{point}</li>)}</ul>}
         {lock && <p className="tuto-lock">{lock}</p>}
         {error && <p role="alert">{error}</p>}
         <div className="tuto-row">
