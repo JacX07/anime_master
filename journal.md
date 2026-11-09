@@ -469,3 +469,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : `check-banners.ts` échoue environ une fois sur deux en local (`Unique constraint failed on Card_characterId_serial_key`), y compris sur `main`. `check-bulk.ts` a une vérification statistique (10ᵉ carte jamais N) qui échouait par intermittence tant que la règle de la 10ᵉ invocation existait ; elle est retirée avec la règle.
 - Cause probable : numéros de série (`pullCount` des personnages) en collision avec des cartes laissées par d'autres sessions ou des runs interrompus sur la même base de dev. La CI part d'une base vide et n'est pas concernée.
 - Contournement : relancer, ou lancer le check sur une base jetable (`CHECK_DATABASE_URL`). À corriger : attribuer les numéros de série de test sous verrou comme le fait la production.
+
+## 2026-11-09 — Quotas gratuits dépassés : écritures ISR Vercel et egress Supabase
+
+- Symptôme : mails Vercel (200 000 écritures ISR atteintes, risque de pause) et Supabase (egress > 5,5 Go) avec 6 joueurs actifs.
+- Cause : `revalidatePath("/", "layout")` dans les actions joueur invalidait les coquilles statiques de tout le site (`cacheComponents`). Côté base, des lectures complètes à chaque page ou action : puissance de collection (toutes les cartes et leurs personnages), `distinct` Prisma (fait en mémoire, relit toutes les lignes), catalogue des anime. Mesuré via `pg_stat_statements` sur la prod : plus de 100 M de lignes en 7 jours.
+- Correctif : `refresh()` dans les actions ; agrégats SQL (`$queryRaw`, `groupBy`) ; `"use cache"` sur le catalogue ; sondage du chat ralenti (branche `perf/egress-isr`).
+- À retenir : pour rafraîchir l'écran après une action, `refresh()` suffit (pages dynamiques) ; pas de `distinct` Prisma ni de `select` imbriqué sur une collection entière pour un simple total. La base Supabase dev (`.env`) compte aussi dans l'egress de l'organisation.
+- Occurrences : 1.
