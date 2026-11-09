@@ -1,29 +1,31 @@
-// Un seul SVG statique : le fer forgé reprend la couleur de rareté, sans filtre ni animation.
+// SVG statique « filet biseauté » (DA §4.5) : fins filets, coins coupés, losanges, comme le dos de carte.
+// Chaque rareté ajoute un élément : filet intérieur (R), losanges haut et bas (SR), pointillé (SSR), losanges latéraux et filet extérieur (UR).
 const C = "var(--rarity)";
-const LIGHT = "var(--frame-light)";
-const LOW = "var(--frame-low)";
-const DARK = "var(--frame-dark)";
+const W = 220;
+const H = 308;
+const LEVEL = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 } as const;
+const cham = (i: number, c: number) => `M${i + c},${i}H${W - i - c}L${W - i},${i + c}V${H - i - c}L${W - i - c},${H - i}H${i + c}L${i},${H - i - c}V${i + c}Z`;
+const dia = (x: number, y: number, s: number) => `M${x},${y - s}L${x + s},${y}L${x},${y + s}L${x - s},${y}Z`;
 
-/** Même cadre riveté pour toutes les raretés, y compris N. */
-export function CardDeco() {
+/** Fond sombre du cadre (sous l'illustration), à coins coupés. */
+export function CardFill() {
   return (
-    <svg className="card-deco" viewBox="0 0 220 308" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-      <rect x="3" y="3" width="214" height="302" rx="3" fill="none" stroke={DARK} strokeWidth="9" />
-      <rect x="3" y="3" width="214" height="302" rx="3" fill="none" stroke={C} strokeWidth="3.5" />
-      <rect x="7" y="7" width="206" height="294" rx="1" fill="none" stroke={LOW} strokeWidth="1.5" />
-      {[[3, 3, 0], [217, 3, 90], [217, 305, 180], [3, 305, 270]].map(([x, y, angle]) => (
-        <g key={angle} transform={`translate(${x} ${y}) rotate(${angle})`}>
-          <path d="M-5 38V-5H38L30 4H4V30Z" fill={LOW} stroke={C} strokeWidth="1.6" />
-          <path d="M-2 31V-2H31" fill="none" stroke={LIGHT} strokeWidth="1" />
-          <path d="M5 10 10 5" stroke={DARK} strokeWidth="2" />
-          <circle cx="10" cy="10" r="3.6" fill={DARK} stroke={LIGHT} strokeWidth="1.2" />
-          <circle cx="9.4" cy="9.4" r="1.3" fill={C} />
-          <circle cx="29" cy="0" r="2" fill={LIGHT} />
-          <circle cx="0" cy="29" r="2" fill={LIGHT} />
-        </g>
-      ))}
-      <path d="M65 3H155M65 305H155" stroke={C} strokeWidth="3" />
-      <path d="M3 100V208M217 100V208" stroke={C} strokeWidth="2.5" />
+    <svg className="card-deco-fill" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d={cham(3, 20)} fill="var(--frame-dark)" />
+    </svg>
+  );
+}
+
+export function CardDeco({ rarity }: { rarity: keyof typeof LEVEL }) {
+  const l = LEVEL[rarity] ?? 0;
+  return (
+    <svg className="card-deco" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d={cham(3, 20)} fill="none" stroke={C} strokeWidth="3" />
+      {l >= 1 && <path d={cham(9, 16)} fill="none" stroke={C} strokeWidth="1.2" opacity=".75" />}
+      {l >= 2 && <path d={dia(W / 2, 3, 7) + dia(W / 2, H - 3, 7)} fill={C} />}
+      {l >= 3 && <path d={cham(15, 12)} fill="none" stroke={C} strokeWidth="1" strokeDasharray="2 4" opacity=".7" />}
+      {l >= 4 && <path d={dia(3, H / 2, 7) + dia(W - 3, H / 2, 7)} fill={C} />}
+      {l >= 4 && <path d={cham(-6, 26)} fill="none" stroke={C} strokeWidth="1" opacity=".5" />}
     </svg>
   );
 }
