@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Money, RarityGem } from "@/components/icons";
@@ -58,7 +59,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const burstKey = useRef(0);
   const suppressClick = useRef(false);
   const [revealed, setRevealed] = useState<boolean[]>([]);
-  const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number } | null>(null);
+  const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number; card?: OpenedCard } | null>(null);
   const [detail, setDetail] = useState<OpenedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [machine, setMachine] = useState(false);
@@ -131,16 +132,19 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   function reveal(i: number) {
     if (!pack || revealed[i]) return;
     const rarity = pack.cards[i].rarity;
-    packAudio.flip(rarity);
-    if (rarity === "SSR" || rarity === "UR") setBurst({ rarity, key: ++burstKey.current });
+    packAudio.flip();
+    if (rarity === "SSR" || rarity === "UR") { setBurst({ rarity, key: ++burstKey.current, card: pack.cards[i] }); packAudio.jingle(rarity); }
     setRevealed((r) => r.map((v, j) => v || j === i));
   }
   function revealAll() {
     if (!pack) return;
     pack.cards.forEach((c, i) => {
-      if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
+      if (!revealed[i]) window.setTimeout(() => packAudio.flip(), i * 90);
     });
-    if (rare) setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current });
+    // L'éclat ne rejoue que pour une SSR/UR pas encore retournée (une carte déjà révélée a eu son éclat)
+    const hidden = pack.cards.filter((c, i) => !revealed[i] && (c.rarity === "SSR" || c.rarity === "UR"));
+    const top = hidden.find((c) => c.rarity === "UR") ?? hidden[0];
+    if (top) { setBurst({ rarity: top.rarity as "SSR" | "UR", key: ++burstKey.current, card: top }); packAudio.jingle(top.rarity as "SSR" | "UR"); }
     setRevealed((r) => r.map(() => true));
     setSummary(true);
   }
@@ -262,7 +266,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           )}
           {!pack && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
 
-          {burst && <RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)} />}
+          {burst && createPortal(<RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)}>{burst.card && <CharacterCard {...burst.card} characterId={burst.card.characterId} />}</RarityBurst>, document.body)}
 
           {pack && machine && best && <SummonMachine rarity={best} fast={pack.lotSize >= 10} onDone={() => { setMachine(false); packAudio.deal(0.1); }} />}
 
@@ -275,16 +279,6 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 </p>
               )}
               {pack.pity !== "NONE" && <p className="pk-pity">Garantie {pack.pity} déclenchée !</p>}
-              <div className={summary ? undefined : "pk-table"}>
-              {!summary && (
-                <div className="pk-pile" data-count={current} aria-label={`${current} carte${current > 1 ? "s" : ""} révélée${current > 1 ? "s" : ""}`}>
-                  {pack.cards.slice(Math.max(0, current - 6), current).map((card, k, shown) => (
-                    <div key={card.cardId} className="pk-pile-card" data-rarity={card.rarity} style={{ "--k": shown.length - 1 - k, "--rot": [-3, 2, -1, 4, -4, 1][(current - shown.length + k) % 6] } as React.CSSProperties} aria-hidden="true">
-                      <CharacterCard {...card} characterId={card.characterId} />
-                    </div>
-                  ))}
-                </div>
-              )}
               <div className={summary ? "pk-grid" : "pk-stack"} data-lot={pack.lotSize}>
                 {pack.cards.map((card, i) => (summary || i === current) && (
                   <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} data-hint={!revealed[i] && (card.rarity === "SSR" || card.rarity === "UR") ? card.rarity : undefined} style={{ "--i": i } as React.CSSProperties} onClick={() => { if (summary) setDetail(card); else if (!revealed[i]) reveal(i); else if (current + 1 < pack.cards.length) setCurrent(current + 1); else setSummary(true); }} role="button" tabIndex={0} aria-label={revealed[i] ? (summary ? `${card.name} : voir les stats et les sorts` : "Carte suivante") : `Retourner la carte ${i + 1}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } }}>
@@ -295,8 +289,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                   </div>
                 ))}
               </div>
-              </div>
-              {!summary && <p className="pk-note" role="status">Carte {current + 1} / {pack.cards.length} · {current} révélée{current > 1 ? "s" : ""} · {revealed[current] ? "Clique pour continuer" : "Clique pour retourner"}</p>}
+              {!summary && <p className="pk-note" role="status">Carte {current + 1} / {pack.cards.length} · {revealed[current] ? "Clique pour continuer" : "Clique pour retourner"}</p>}
               {waitingReveal ? (
                 <button type="button" className="pk-ghost" onClick={revealAll}>Tout révéler</button>
               ) : (

@@ -2,37 +2,44 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Rarity } from "@/generated/prisma/enums";
+import { packAudio } from "@/lib/pack-audio";
+import { ChamferFrame, StarRings } from "./StarFrame";
 
-const TICKS = 4;
+/** Invocation « graduations » (docs/direction-artistique.md §6) : cadre biseauté, astrolabe qui se trace, 60 graduations
+ *  qui se remplissent pendant qu'une aiguille fait un tour par crans (12) avec son arc lumineux, puis verrouillage à la couleur
+ *  de la meilleure rareté (étoile, anneaux de choc). N'importe quel clic sur l'écran, ou Échap, l'abrège (son coupé). */
+const LOCK = 2.05;
 
-/** Mécanisme d'invocation (docs/direction-artistique.md §6) : quatre crans secs, verrouillage à la couleur
- *  de la meilleure rareté du paquet, trois éclats qui tombent, puis la main passe aux cartes. Un clic l'abrège. */
 export function SummonMachine({ rarity, fast, onDone }: { rarity: Rarity; fast: boolean; onDone: () => void }) {
-  const [step, setStep] = useState(0);
   const [locked, setLocked] = useState(false);
+  const [box, setBox] = useState<[number, number]>([0, 0]);
+  const root = useRef<HTMLDivElement>(null);
   const done = useRef(onDone);
   useEffect(() => { done.current = onDone; });
+  const k = fast ? 0.6 : 1;
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { done.current(); return; }
-    const beat = fast ? 170 : 300;
-    const timers = Array.from({ length: TICKS }, (_, i) => window.setTimeout(() => setStep(i + 1), 60 + beat * i));
-    timers.push(window.setTimeout(() => setLocked(true), 60 + beat * TICKS));
-    timers.push(window.setTimeout(() => done.current(), 60 + beat * TICKS + (fast ? 520 : 700)));
-    return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [fast]);
+    const timers = [window.setTimeout(() => setLocked(true), LOCK * k * 1000), window.setTimeout(() => done.current(), (LOCK + 0.8) * k * 1000)];
+    const skip = () => { packAudio.cut(); done.current(); };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") skip(); };
+    window.addEventListener("pointerdown", skip);
+    window.addEventListener("keydown", key);
+    const ro = new ResizeObserver(([e]) => setBox([Math.round(e.contentRect.width), Math.round(e.contentRect.height)]));
+    if (root.current) ro.observe(root.current);
+    return () => { timers.forEach((t) => window.clearTimeout(t)); window.removeEventListener("pointerdown", skip); window.removeEventListener("keydown", key); ro.disconnect(); };
+  }, [k]);
 
   return (
-    <div role="button" tabIndex={0} className="pk-machine" data-locked={locked || undefined} data-rarity={locked ? rarity : undefined}
-      style={{ "--step": step } as React.CSSProperties} onClick={() => done.current()}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); done.current(); } }} aria-label="Invocation en cours, cliquer pour passer">
-      <span className="pk-machine-part pk-machine-gear" aria-hidden="true" />
-      <span className="pk-machine-part pk-machine-pinion" aria-hidden="true" />
-      <span className="pk-machine-part pk-machine-dial" aria-hidden="true" />
-      <span className="pk-machine-ring" aria-hidden="true" />
-      <span className="pk-machine-needle" aria-hidden="true" />
-      <span className="pk-machine-hub" aria-hidden="true" />
-      {locked && [0, 1, 2].map((k) => <i key={k} className="pk-machine-shard" style={{ "--k": k } as React.CSSProperties} aria-hidden="true" />)}
+    <div ref={root} className="pk-machine" data-locked={locked || undefined} data-rarity={locked ? rarity : undefined} style={{ "--k": k } as React.CSSProperties} role="status" aria-label="Invocation en cours, cliquer pour passer">
+      <ChamferFrame w={box[0]} h={box[1]} />
+      <div className="pk-machine-dial">
+        <StarRings ticks extras lateAt={1.9}>
+          <line className="pk-needle" x1={200} y1={200} x2={200} y2={22} strokeWidth={1.4} />
+          <circle className="pk-draw pk-trail" cx={200} cy={200} r={170} pathLength={1} strokeWidth={2.4} style={{ "--d": ".25s", "--t": "1.7s", "--n": 12 } as React.CSSProperties} />
+        </StarRings>
+      </div>
+      {locked && <><i className="pk-ring" /><i className="pk-ring" style={{ "--o": "0.12s" } as React.CSSProperties} /></>}
     </div>
   );
 }
