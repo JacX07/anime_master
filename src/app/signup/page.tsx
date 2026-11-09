@@ -7,10 +7,13 @@ export const metadata: Metadata = { title: "Inscription — Anime Masters" };
 
 export default function SignupPage() {
   return (
-    <main className="mx-auto w-full max-w-sm flex-1 px-4 py-16">
-      <h1 className="mb-2 text-2xl font-bold">Créer un compte</h1>
-      <p className="mb-8 text-sm text-muted">{WELCOME_CRYSTALS} cristaux et {WELCOME_DRAWS} tirages sur la bannière de ton choix t&apos;attendent (50 cartes).</p>
-      <AuthForm mode="signup" action={signUp} />
+    <main className="auth-page">
+      <section className="auth-card">
+        <p className="auth-eyebrow">Inscription</p>
+        <h1>Créer un compte</h1>
+        <p className="auth-lead">{WELCOME_CRYSTALS} cristaux et {WELCOME_DRAWS} tirages sur la bannière de ton choix t’attendent (50 cartes). Un e-mail de confirmation te sera envoyé.</p>
+        <AuthForm mode="signup" action={signUp} />
+      </section>
     </main>
   );
 }
