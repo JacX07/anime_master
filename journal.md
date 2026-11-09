@@ -3,6 +3,30 @@
 Bugs et manques de contexte rencontrés une fois. Voir la section « Journal et promotion en règle » de `AGENTS.md`.
 Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences, statut (ouvert / promu en règle).
 
+## 2026-11-09 — Taille de texte canvas et DPR
+
+- Symptôme : le grossissement des chiffres sur petit écran dépend involontairement du mode de qualité.
+- Cause : le seuil de lisibilité utilisait l'échelle du buffer canvas, multipliée par le DPR, au lieu des dimensions CSS.
+- Correctif : conserver une échelle CSS distincte pour les tailles lisibles ; réserver l'échelle du buffer au rendu haute densité.
+- Occurrences : 1, preview Megumin.
+- Statut : corrigé.
+
+## 2026-11-09 — Tests de ralenti et valeurs d'un select
+
+- Symptôme : un test de reprise du son reste figé à vitesse nulle alors que la lecture semble active.
+- Cause : le script affecte `0.25` au select, dont l'option valait `.25` ; le navigateur vide la sélection et `Number('')` donne zéro. Un contrôle de synchronisation seul ne détecte pas que les deux horloges sont immobiles.
+- Correctif : utiliser les valeurs canoniques `0.25` et `0.5` dans les options ; vérifier également que le temps avance lors de chaque test de vitesse.
+- Occurrences : 1 diagnostic confirmé pendant la refonte Megumin ; contrôles de synchronisation précédents insuffisants sur ce cas.
+- Statut : corrigé.
+
+## 2026-11-09 — Résultats masqués dans une preview à mouvement réduit
+
+- Symptôme : une preview de sort qui saute directement à son état final en mouvement réduit peut masquer les chiffres de dégâts.
+- Cause : le fondu des chiffres utilise le temps de l'animation normale ; les chiffres ont déjà disparu à l'état final.
+- Correctif : conserver les chiffres du résultat fixe lorsque la réduction des animations est active. Vérifier ce résultat indépendamment de la lecture animée.
+- Occurrences : 1, pendant la refonte de la preview Megumin.
+- Statut : corrigé ; vérification du rendu fixe ajoutée au contrôle ciblé.
+
 ## 2026-11-09 — Serveur actif dans un autre checkout
 
 - Symptôme : le serveur Next déjà actif sur le port 3012 utilise `anime_master-postgres`, pas ce dépôt `anime_master` ; les nouvelles maquettes de ce dépôt n'y sont pas visibles.

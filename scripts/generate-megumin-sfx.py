@@ -4,8 +4,8 @@ import wave
 import numpy as np
 
 RATE = 44100
-DURATION = 6.4
-IMPACT = 2.8
+DURATION = 3.6
+IMPACT = 1.8
 rng = np.random.default_rng(89361)
 t = np.arange(round(RATE * DURATION)) / RATE
 
@@ -20,8 +20,8 @@ def noise(low, high):
 
 
 # Rising, dissonant magical resonance, sucked inward before the impact.
-charge = np.clip(t / 2.6, 0, 1) ** 1.7
-charge *= np.clip((2.72 - t) / .12, 0, 1)
+charge = np.clip(t / (IMPACT - .2), 0, 1) ** 1.7
+charge *= np.clip(((IMPACT - .08) - t) / .12, 0, 1)
 phase = 2 * np.pi * (110 * t + 65 * t ** 2)
 tone = sum(np.sin(phase * ratio + .8 * np.sin(t * 9)) / (i + 2)
            for i, ratio in enumerate([1, 1.1892, 1.4983, 2, 3.001]))
@@ -44,7 +44,7 @@ for delay, gain in [(.093, .2), (.173, .14), (.291, .1), (.437, .065)]:
     samples = round(delay * RATE)
     sound[samples:] += blast[:-samples] * gain
 for _ in range(34):
-    at = rng.uniform(3.05, 5.7)
+    at = rng.uniform(IMPACT + .25, DURATION - .3)
     age = np.maximum(0, t - at)
     envelope = (t >= at) * np.minimum(age / .001, 1) * np.exp(-age / rng.uniform(.012, .055))
     sound += rng.uniform(.009, .04) * envelope * noise(600, 11000)
@@ -56,8 +56,8 @@ stereo = np.column_stack([sound + air, sound - np.roll(air, 137)])
 stereo *= (np.minimum(t / .015, 1) * np.clip((DURATION - t) / .35, 0, 1))[:, None]
 stereo *= 10 ** (-1 / 20) / np.max(np.abs(stereo))
 pcm = np.round(stereo * 32767).astype('<i2')
-assert len(pcm) == 282240
-assert 2.8 <= t[np.argmax(np.max(np.abs(stereo), axis=1))] < 3.1
+assert len(pcm) == round(RATE * DURATION)
+assert IMPACT <= t[np.argmax(np.max(np.abs(stereo), axis=1))] < IMPACT + .3
 assert np.max(np.abs(stereo)) < .9
 assert np.max(np.abs(stereo[-200:])) < .01
 output = Path('public/audio/sfx/megumin-explosion.wav')

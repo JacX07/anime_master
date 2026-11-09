@@ -5,122 +5,66 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Megumin · Explosion !</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#111413;color:#e9e5dc;font:14px/1.5 system-ui,sans-serif}main{max-width:1160px;margin:auto;padding:24px}h1{font:500 clamp(34px,4vw,52px)/1.05 Georgia,serif;letter-spacing:-.025em;margin:0 0 12px}p{color:#b4b5af;margin:0 0 20px}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}button{font:inherit;background:transparent;border:0;color:#e9e5dc;padding:11px 10px;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:8px}button:hover,button[aria-pressed=true]{text-decoration-color:#c4a76d}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c4a76d;outline-offset:4px}select{font:inherit;background:#242925;color:inherit;padding:6px;border:0}label{display:flex;align-items:center;gap:8px}#scene{position:relative;aspect-ratio:2/1;background:#1b2221;overflow:hidden;isolation:isolate}canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}#readout{display:flex;justify-content:space-between;gap:12px;margin:16px 0}#time{width:100%;accent-color:#c4a76d}output{font-variant-numeric:tabular-nums}.note{margin-top:22px;max-width:78ch;font-size:12px}@media(max-width:600px){main{padding:16px}#scene{aspect-ratio:1/1}.toolbar{gap:4px 12px}.toolbar label{font-size:12px}#readout{font-size:12px}}
+*{box-sizing:border-box}body{margin:0;background:#111413;color:#e9e5dc;font:14px/1.5 system-ui,sans-serif}main{max-width:1160px;margin:auto;padding:24px}h1{font:500 clamp(34px,4vw,52px)/1.05 Georgia,serif;letter-spacing:-.025em;margin:0 0 12px}p{color:#b4b5af;margin:0 0 20px}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}button{font:inherit;background:transparent;border:0;color:#e9e5dc;padding:11px 10px;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:8px}button:hover,button[aria-pressed=true]{text-decoration-color:#c4a76d}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c4a76d;outline-offset:4px}select{font:inherit;background:#242925;color:inherit;padding:6px;border:0}label{display:flex;align-items:center;gap:8px}#scene{position:relative;aspect-ratio:2/1;background:#1b2221;overflow:hidden;isolation:isolate}canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}#readout{display:flex;justify-content:space-between;gap:12px;margin:16px 0}#time{width:100%;accent-color:#c4a76d}output{font-variant-numeric:tabular-nums}.note{margin-top:22px;max-width:78ch;font-size:12px}@media(max-width:600px){main{padding:16px}#scene{aspect-ratio:4/3}.toolbar{gap:4px 12px}.toolbar label{font-size:12px}#readout{font-size:12px}}
 </style>
 </head>
 <body><main>
 <h1>Megumin · Explosion&nbsp;!</h1>
-<p>Incantation. Convergence. Déflagration.</p>
+<p>Ultime de feu · Zone ennemie · 3,6 secondes</p>
 <div class="toolbar">
-<button id="play">Lancer le sort</button><button id="pause" disabled>Pause</button><button id="stop" disabled>Interrompre</button>
-<label>Vitesse <select id="speed"><option value=".25">×0,25</option><option value=".5">×0,5</option><option value="1" selected>×1</option><option value="2">×2</option><option value="4">×4</option></select></label>
+<button id="play">Lancer le sort</button><button id="pause" disabled>Pause</button><button id="stop" disabled>Interrompre</button><button id="skip" disabled>Passer</button>
+<label>Vitesse <select id="speed"><option value="0.25">×0,25</option><option value="0.5">×0,5</option><option value="1" selected>×1</option><option value="2">×2</option><option value="4">×4</option></select></label>
+<label>Qualité <select id="quality"><option value="full">Complète</option><option value="low">Réduite</option></select></label>
 <label><input id="loop" type="checkbox"> Boucle</label>
 <label><input id="sound" type="checkbox" checked> Son</label>
 </div>
 <div id="scene"><canvas id="fx" role="img" aria-label="Prévisualisation du sort Explosion de Megumin"></canvas></div>
-<div id="readout"><span id="phase" role="status">Prêt à lancer</span><output id="clock" for="time">0,00 / 6,40 s</output></div>
-<input id="time" aria-label="Inspecter l’animation" type="range" min="0" max="6400" step="10" value="0">
-<p class="note">Test visuel isolé, sans modification des dégâts. Impact à 2,80 s. L’option système « réduire les animations » désactive secousses et lecture animée ; la réglette permet d’inspecter chaque phase.</p>
+<div id="readout"><span id="phase" role="status">Prêt à lancer</span><output id="clock" for="time">0,00 / 3,60 s</output></div>
+<input id="time" aria-label="Inspecter l’animation" type="range" min="0" max="3600" step="10" value="0">
+<p class="note">Maquette isolée : dégâts et statuts de démonstration. Impact à 1,80 s, pose figée de 50 ms. Aucun résultat de combat calculé ici. L’option système « réduire les animations » désactive secousses et lecture animée ; la réglette permet d’inspecter chaque phase.</p>
 </main>
+<script src="/vfx/megumin-explosion.js"></script>
 <script>
-// Timeline déterministe : aucune particule ni minuterie ne survit à une interruption.
-const $=id=>document.getElementById(id), canvas=$('fx'), ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id), canvas=$('fx');
 const motion=matchMedia('(prefers-reduced-motion: reduce)');
 const sound=new Audio('/audio/sfx/megumin-explosion.wav');
 sound.preload='auto';sound.volume=.65;sound.preservesPitch=false;
-const duration=6400, impact=2800;
-let time=0, playing=false, raf=0, last=0, speed=1, destroyed=false;
-const clamp=v=>Math.max(0,Math.min(1,v));
-const seg=(t,a,b)=>clamp((t-a)/(b-a));
-const out=v=>1-(1-v)**3;
-const random=i=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n)};
-function ellipse(x,y,rx,ry,color,alpha=1){if(rx<=0||ry<=0||alpha<=0)return;ctx.globalAlpha=clamp(alpha);ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
-function line(points,color,width=1,alpha=1){ctx.globalAlpha=clamp(alpha);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.globalAlpha=1}
-function glow(x,y,r,color,alpha){if(r<=0||alpha<=0)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'#ff381000');ellipse(x,y,r,r,g,alpha)}
-function circle(x,y,r,rotation,alpha,flat=1){
-  ctx.save();ctx.translate(x,y);ctx.scale(1,flat);ctx.rotate(rotation);ctx.globalAlpha=clamp(alpha);ctx.strokeStyle='#ff4b30';ctx.lineWidth=1.7;
-  for(const scale of [1,.94,.76]){ctx.beginPath();ctx.arc(0,0,r*scale,0,Math.PI*2);ctx.stroke()}
-  for(let j=0;j<2;j++){ctx.beginPath();for(let i=0;i<=3;i++){const a=i*Math.PI*2/3+j*Math.PI;const px=Math.cos(a)*r*.88,py=Math.sin(a)*r*.88;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke()}
-  for(let i=0;i<32;i++){const a=i*Math.PI/16;ctx.save();ctx.rotate(a);ctx.translate(r*.85,0);ctx.beginPath();ctx.moveTo(-3,-3);ctx.lineTo(3,-3);ctx.lineTo(-2,3);ctx.moveTo(0,-5);ctx.lineTo(0,5);ctx.stroke();ctx.restore()}
-  ctx.restore();
+let duration=MEGUMIN_TIMING.duration, time=0, playing=false, raf=0, speed=1, destroyed=false, generation=0;
+const options={reducedMotion:motion.matches,onEvent:event=>$('scene').dispatchEvent(new CustomEvent('spell-vfx',{detail:event}))};
+let effect=new MeguminExplosion(canvas,options);
+function phase(){return time===0?'Prêt à lancer':time<MEGUMIN_TIMING.launch*duration/MEGUMIN_TIMING.duration?'Incantation':time<MEGUMIN_TIMING.impact*duration/MEGUMIN_TIMING.duration?'Convergence':time<MEGUMIN_TIMING.shockwave*duration/MEGUMIN_TIMING.duration?'Impact · hit stop':time<MEGUMIN_TIMING.recover*duration/MEGUMIN_TIMING.duration?'Onde de choc et poussière':time<duration?'Retour au calme':'Terminé'}
+function update(){
+  if(playing)effect.advance(time);else effect.draw(time);
+  $('time').value=time;$('clock').textContent=(time/1000).toFixed(2).replace('.',',')+' / '+(duration/1000).toFixed(2).replace('.',',')+' s';$('phase').textContent=phase();
+  $('pause').disabled=time===0&&!playing||time===duration;$('pause').textContent=playing?'Pause':'Reprendre';
+  $('stop').disabled=time===0&&!playing;$('skip').disabled=time===duration||time===0&&!playing;
 }
-function card(x,y,name,caster,t){
-  const fall=caster?out(seg(t,4400,4900)):0;
-  ctx.save();ctx.translate(x,y);ctx.rotate(fall*-.19);ctx.translate(0,fall*17);
-  ctx.fillStyle='#111716';ctx.fillRect(-37,-103,74,108);ctx.strokeStyle=caster?'#d9b579':'#9c7cbd';ctx.lineWidth=1;ctx.strokeRect(-37,-103,74,108);
-  ctx.fillStyle=caster?'#5a2426':'#344740';ctx.fillRect(-33,-99,66,76);
-  // Silhouettes de personnages dans la scène, sans nouvel asset d’interface.
-  ellipse(0,-62,12,14,caster?'#edc9a6':'#b7bdb2');
-  ctx.fillStyle=caster?'#332326':'#1b2826';ctx.beginPath();ctx.moveTo(-24,-25);ctx.lineTo(-13,-49);ctx.lineTo(13,-49);ctx.lineTo(24,-25);ctx.fill();
-  if(caster){ctx.fillStyle='#251d24';ctx.beginPath();ctx.moveTo(-28,-70);ctx.lineTo(-7,-101);ctx.lineTo(11,-75);ctx.lineTo(30,-70);ctx.closePath();ctx.fill();line([[-21,-74],[15,-78]],'#d5a553',3);line([[23,-31],[29,-86]],'#a58156',3);ellipse(29,-87,5,5,'#f3573d')}
-  ctx.fillStyle='#eee7dc';ctx.textAlign='center';ctx.font='10px system-ui';ctx.fillText(name,0,-7);ctx.fillStyle='#8fa78d';ctx.fillRect(-28,0,56,2);ctx.restore();
-}
-function draw(ms){
-  const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),w=Math.round(rect.width*dpr),h=Math.round(rect.height*dpr);
-  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
-  ctx.setTransform(w/1000,0,0,h/500,0,0);ctx.clearRect(0,0,1000,500);
-  const t=ms, u=(t-impact)/1000, charge=seg(t,100,2500),fade=1-seg(t,2500,2850), ground=402, target=710;
-  ctx.fillStyle='#1b2221';ctx.fillRect(0,0,1000,500);
-  // Lointain rocheux et sol, immobiles pour garder l’impact lisible.
-  ctx.fillStyle='#26302d';ctx.beginPath();ctx.moveTo(0,320);[[0,275],[120,236],[220,285],[350,240],[470,299],[620,228],[760,279],[900,242],[1000,287],[1000,500],[0,500]].forEach(p=>ctx.lineTo(...p));ctx.fill();
-  ctx.fillStyle='#30332b';ctx.fillRect(0,ground,1000,100);
-  for(let i=0;i<26;i++){const x=random(i)*1000,y=414+random(i+30)*80;line([[x,y],[x+12+random(i+5)*18,y-1]],'#47483a',1)}
-  ctx.fillStyle=`rgba(5,5,10,${charge*.62*fade})`;ctx.fillRect(0,0,1000,500);
-  const shake=!motion.matches&&u>0&&u<.7?Math.sin(u*95)*7*(1-u/.7):0;
-  ctx.save();ctx.translate(shake,shake*.4);
-  ellipse(180,ground+6,49,8,'#0c100e',.5);ellipse(target,ground+6,49,8,'#0c100e',.5);
-  card(180,ground,'Megumin',true,t);card(target,ground,'Cible',false,t);
-  if(charge>0&&fade>0){
-    glow(180,ground-60,125,'#fa3020',charge*.32*fade);
-    circle(180,ground+3,87*out(charge),t*.0004,charge*fade,.29);
-    for(let i=0;i<3;i++){const arrive=out(seg(t,350+i*360,1050+i*360));circle(target,115+i*62,135*arrive,t*.00025*(i%2?-1:1),arrive*fade,.3)}
-    glow(target,ground-80,150,'#ff3020',charge*.25*fade);
-    for(let i=0;i<50;i++){const p=(t*.0003+random(i))%1,a=random(i+90)*Math.PI*2,r=145*(1-p);ellipse(180+Math.cos(a)*r,ground-65+Math.sin(a)*r,1+p*2,1+p*2,'#ffb35b',charge*fade*p)}
-    const aim=seg(t,1850,2550);line([[206,ground-86],[340,190],[target,150],[target,ground]],'#ff3b23',1.4,aim*.7*fade);
-    glow(target,ground-5,10+28*aim,'#ffe8aa',aim*fade);
-  }
-  if(u>=0&&u<3.6){
-    const growth=out(clamp(u/.6)),decay=1-seg(u,1.1,2.8);
-    // La colonne précède le dôme ; un unique éclair chaud, sans stroboscope.
-    if(u<.45){const a=1-seg(u,.12,.45);ctx.fillStyle=`rgba(255,226,170,${a*.36})`;ctx.fillRect(0,0,1000,500);ctx.fillStyle='#fff3c1';ctx.globalAlpha=a;ctx.fillRect(target-14-18*growth,0,28+36*growth,ground);ctx.globalAlpha=1}
-    ellipse(target,ground+7,235*growth,39*growth,'#e85827',.6*decay);
-    for(let i=0;i<3;i++){const p=seg(u,i*.1,.75+i*.1),r=380*out(p);ctx.save();ctx.translate(target,ground+3);ctx.scale(1,.24);ctx.strokeStyle=i===0?'#ffe8b2':'#c8a584';ctx.globalAlpha=(1-p)*.85;ctx.lineWidth=5-i;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();ctx.restore()}
-    glow(target,ground-90,290*growth,'#ff7b23',.65*decay);
-    // Masses de feu en aplats : bord rouge, orange, or et cœur blanc.
-    for(let layer=0;layer<4;layer++){
-      const colors=['#76291c','#ed4b1c','#ffac2b','#fff0af'];
-      const s=1-layer*.17;
-      ellipse(target,ground-95*growth,170*growth*s,147*growth*s,colors[layer],decay);
-      for(let i=0;i<11;i++){const a=Math.PI+i*Math.PI/10,r=136*growth*s,wobble=Math.sin(i*8+Math.floor(u*12))*.035;ellipse(target+Math.cos(a)*r,ground-62*growth+Math.sin(a)*r*(1.25+wobble),48*growth*s,56*growth*s,colors[layer],decay)}
-    }
-    // Débris balistiques et gerbes, reproductibles lors de l’inspection.
-    for(let i=0;i<46;i++){const age=u-random(i+200)*.16;if(age<0)continue;const a=Math.PI+random(i+70)*Math.PI,v=100+random(i+12)*290,px=target+Math.cos(a)*v*age,py=ground+Math.sin(a)*v*age+120*age*age;const alpha=1-seg(age,.5,1.6);if(py<ground+12){ctx.save();ctx.translate(px,py);ctx.rotate(age*7+i);ctx.fillStyle=i%3?'#ffc55d':'#493c31';ctx.globalAlpha=alpha;ctx.fillRect(-2,-3,3+random(i)*5,7+random(i+9)*10);ctx.restore()}}
-    const smoke=seg(u,.6,1.5)*(1-seg(u,2.25,3.6));
-    for(let i=0;i<23;i++){const p=random(i+70),a=random(i+120)*Math.PI*2,spread=90+u*45;ellipse(target+Math.cos(a)*spread*p,ground-30-u*28-Math.abs(Math.sin(a))*120*p,(29+p*27)*(1+u*.15),(24+p*25)*(1+u*.13),['#51483e','#73604b','#998164'][i%3],smoke*.72)}
-    for(let i=0;i<15;i++){const dir=i%2?1:-1,p=random(i+240);ellipse(target+dir*(55+u*(55+p*70)),ground-4-p*12,(22+p*20)*(1+u*.25),10+p*12,'#b29a76',smoke*.55)}
-  }
-  if(u>0){const a=seg(u,.7,1.5)*(1-seg(t,5800,6400));ellipse(target,ground+5,95,17,'#181a16',a);for(let i=0;i<9;i++){const a0=i*2.4;line([[target,ground+6],[target+Math.cos(a0)*70,ground+6+Math.sin(a0)*12],[target+Math.cos(a0+.15)*110,ground+6+Math.sin(a0+.15)*18]],'#171b17',1.5,a)}}
-  ctx.restore();
-  if(t>2450&&t<3550){ctx.save();ctx.translate(500,82);ctx.rotate(-.045);ctx.textAlign='center';ctx.font='900 italic 54px Georgia,serif';ctx.globalAlpha=seg(t,2450,2590)*(1-seg(t,3100,3550));ctx.strokeStyle='#29140e';ctx.lineWidth=7;ctx.strokeText('EXPLOSION !',0,0);ctx.fillStyle='#ffecc4';ctx.fillText('EXPLOSION !',0,0);ctx.restore()}
-}
-function phase(){return time===0?'Prêt à lancer':time<1850?'Incantation':time<impact?'Convergence':time<3850?'Explosion !':time<5200?'Onde de choc et poussière':time<duration?'Megumin est épuisée':'Terminé'}
-function update(){draw(time);$('time').value=time;$('clock').textContent=(time/1000).toFixed(2).replace('.',',')+' / 6,40 s';$('phase').textContent=phase();$('pause').disabled=!playing;$('stop').disabled=time===0&&!playing}
-function cancel(){cancelAnimationFrame(raf);raf=0;playing=false;sound.pause()}
-function startSound(){sound.play().catch(error=>{if(error.name==='AbortError'||!playing)return;cancel();update();$('phase').textContent='Son indisponible : recharge la page pour réessayer'})}
+function cancel(){generation++;cancelAnimationFrame(raf);raf=0;playing=false;sound.pause()}
+function startSound(){const token=generation;sound.play().catch(error=>{if(token!==generation||error.name==='AbortError'||!playing)return;cancel();update();$('phase').textContent='Son indisponible : recharge la page pour réessayer'})}
 // Le son est l’horloge de référence : chargement et ralentis restent synchronisés.
-function tick(){raf=0;if(!playing||destroyed)return;time=Math.min(duration,sound.currentTime*1000);update();if(time>=duration||sound.ended){if($('loop').checked){time=0;sound.currentTime=0;startSound()}else{cancel();update();return}}raf=requestAnimationFrame(tick)}
-function play(){if(destroyed)return;cancel();if(motion.matches){time=impact+200;update();$('phase').textContent='Mouvement réduit : aperçu fixe';return}time=0;sound.currentTime=0;sound.playbackRate=speed;playing=true;update();startSound();raf=requestAnimationFrame(tick)}
+function tick(){raf=0;if(!playing||destroyed)return;time=Math.min(duration,sound.currentTime*1000*duration/MEGUMIN_TIMING.duration);update();if(time>=duration||sound.ended){if($('loop').checked){time=0;effect.resetEvents();sound.currentTime=0;startSound()}else{time=duration;cancel();update();return}}raf=requestAnimationFrame(tick)}
+function resume(){if(destroyed||motion.matches||playing||time>=duration)return;sound.playbackRate=speed*MEGUMIN_TIMING.duration/duration;playing=true;update();startSound();raf=requestAnimationFrame(tick)}
+function play(){if(destroyed)return;cancel();effect.resetEvents();if(motion.matches){time=duration;effect.advance(time);update();$('phase').textContent='Mouvement réduit : résultat fixe';return}time=0;sound.currentTime=0;resume()}
 function pause(){cancel();update()}
-function stop(){cancel();time=0;update()}
-$('play').onclick=play;$('pause').onclick=pause;$('stop').onclick=stop;
-$('speed').onchange=()=>{speed=Number($('speed').value);sound.playbackRate=speed};
+function stop(){cancel();time=0;sound.currentTime=0;effect.resetEvents();update()}
+function skip(){if(destroyed)return;cancel();time=duration;effect.advance(time);update()}
+function configure(next){
+  if(destroyed)return;stop();Object.assign(options,next,{reducedMotion:motion.matches});
+  // The preview audio supports half to double length; the renderer accepts independent durations.
+  options.duration=Math.max(1800,Math.min(7200,options.duration||MEGUMIN_TIMING.duration));
+  effect.destroy();effect=new MeguminExplosion(canvas,options);duration=effect.duration;$('time').max=duration;update();
+}
+$('play').onclick=play;$('pause').onclick=()=>playing?pause():resume();$('stop').onclick=stop;$('skip').onclick=skip;
+$('speed').onchange=()=>{speed=Number($('speed').value);sound.playbackRate=speed*MEGUMIN_TIMING.duration/duration};
+$('quality').onchange=()=>configure({quality:$('quality').value});
 $('sound').onchange=()=>{sound.muted=!$('sound').checked};
-$('time').oninput=()=>{cancel();time=Number($('time').value);update()};
-function onResize(){update()}function onMotion(){stop()}function onVisibility(){if(document.hidden)pause()}
+$('time').oninput=()=>{cancel();time=Number($('time').value);sound.currentTime=time/duration*MEGUMIN_TIMING.duration/1000;effect.lastEventTime=time/duration*MEGUMIN_TIMING.duration;update()};
+function onResize(){effect.resize();update()}function onMotion(){configure({reducedMotion:motion.matches})}function onVisibility(){if(document.hidden)pause()}
 addEventListener('resize',onResize);motion.addEventListener('change',onMotion);document.addEventListener('visibilitychange',onVisibility);
-function destroy(){cancel();destroyed=true;sound.removeAttribute('src');sound.load();removeEventListener('resize',onResize);motion.removeEventListener('change',onMotion);document.removeEventListener('visibilitychange',onVisibility);ctx.clearRect(0,0,canvas.width,canvas.height)}
-addEventListener('pagehide',destroy,{once:true});
-window.meguminPreview={play,pause,stop,destroy,seek(ms){cancel();time=Math.max(0,Math.min(duration,ms));update()},get state(){return{time,playing,raf,speed,destroyed,reducedMotion:motion.matches}}};
+function destroy(){cancel();destroyed=true;sound.removeAttribute('src');sound.load();effect.destroy();removeEventListener('resize',onResize);motion.removeEventListener('change',onMotion);document.removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onPageHide)}
+function onPageHide(event){if(event.persisted)pause();else destroy()}
+addEventListener('pagehide',onPageHide);
+window.meguminPreview={play,pause,resume,stop,skip,configure,destroy,seek(ms){if(destroyed)return;cancel();time=Math.max(0,Math.min(duration,ms));sound.currentTime=time/duration*MEGUMIN_TIMING.duration/1000;effect.lastEventTime=time/duration*MEGUMIN_TIMING.duration;update()},get state(){return{time,duration,playing,raf,speed,destroyed,reducedMotion:motion.matches,particles:effect.options.quality==='low'?30:76}}};
 update();
 </script>
 </body></html>
