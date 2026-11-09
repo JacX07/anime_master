@@ -46,7 +46,7 @@ export async function awakenCard(userId: string, cardId: string, expectedStars?:
       if (paid.count !== 1) throw new BattleError("Ressources insuffisantes.");
     }
     if (duplicate) {
-      const gone = await tx.card.deleteMany({ where: { id: duplicate, ...duplicateWhere(userId, card.characterId, cardId) } });
+      const gone = await tx.card.deleteMany({ where: { AND: [{ id: duplicate }, duplicateWhere(userId, card.characterId, cardId)] } });
       if (gone.count !== 1) throw new BattleError("Le doublon n'est plus disponible, réessaie.");
     }
     return { stars: to, cost, consumed: !!duplicate };
