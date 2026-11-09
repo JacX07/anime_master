@@ -122,3 +122,28 @@ export async function deleteMessage(userId: string, messageId: string) {
   if (!staff && !owner) throw new ChatError("Tu ne peux pas supprimer ce message.");
   await prisma.chatMessage.update({ where: { id: messageId }, data: { deletedAt: new Date() } });
 }
+
+const ONLINE_WINDOW_MS = 5 * 60_000;
+const ONLINE_LIST_MAX = 60;
+
+export interface OnlinePlayerView { id: string; username: string; guildTag: string | null; friend: boolean; sameGuild: boolean }
+
+/** Joueurs vus depuis moins de 5 minutes (liste de l'onglet « En ligne ») : amis, puis guilde, puis les autres ; blocages exclus. */
+export async function getOnlinePlayers(userId: string, now = new Date()) {
+  const since = new Date(now.getTime() - ONLINE_WINDOW_MS);
+  const [me, friendships, blocks] = await Promise.all([
+    prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { guildId: true } }),
+    prisma.friendship.findMany({ where: { status: "ACCEPTED", OR: [{ requesterId: userId }, { addresseeId: userId }] }, select: { requesterId: true, addresseeId: true } }),
+    prisma.block.findMany({ where: { OR: [{ blockerId: userId }, { blockedId: userId }] }, select: { blockerId: true, blockedId: true } }),
+  ]);
+  const friendIds = new Set(friendships.map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId)));
+  const hidden = [userId, ...blocks.map((b) => (b.blockerId === userId ? b.blockedId : b.blockerId))];
+  const where = { lastSeenAt: { gt: since }, bannedAt: null, id: { notIn: hidden } };
+  const [total, rows] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findMany({ where, orderBy: { username: "asc" }, take: ONLINE_LIST_MAX, select: { id: true, username: true, guildId: true, guild: { select: { tag: true } } } }),
+  ]);
+  const players: OnlinePlayerView[] = rows.map((u) => ({ id: u.id, username: u.username, guildTag: u.guild?.tag ?? null, friend: friendIds.has(u.id), sameGuild: !!me.guildId && u.guildId === me.guildId }))
+    .sort((a, b) => Number(b.friend) - Number(a.friend) || Number(b.sameGuild) - Number(a.sameGuild) || a.username.localeCompare(b.username));
+  return { total, players };
+}

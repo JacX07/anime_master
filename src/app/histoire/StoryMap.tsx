@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from "react";
 import { ResourceArt } from "@/components/ResourceArt";
 import { Icon } from "@/components/icons";
 import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES, STORY_BOSSES } from "@/lib/story";
+import { STAR_TIERS, UNIVERSE_MAX_STARS } from "@/lib/story-star-rewards";
 import { storyResume } from "@/lib/story-map";
 import type { UniverseView } from "./StoryBoard";
 import { STORY_ART } from "./story-art";
@@ -52,15 +53,30 @@ export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
             aria-label={`${world.name}, combat ${n}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}, ${count} étoiles`}
             onClick={() => onPrepare(n, world)}>
             <span className="hs-node-face" aria-hidden="true">{isBoss(n) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }}/> : <><Icon name={!unlocked ? "lock" : done ? "valider" : "atk"}/><b>{n}</b></>}</span>
-            <small>{isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}<span className="hs-node-stars">{done ? "★".repeat(count) + "☆".repeat(3 - count) : current ? "Vous êtes ici" : ""}</span>{STORY_BOSSES[world.key]?.[n] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][n].name}</span>}</small>
+            <small>{isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}<span className="hs-node-stars">{done ? [0, 1, 2].map((k) => <Icon key={k} name={k < count ? "etoile" : "etoile-vide"} className={k < count ? "is-on" : "is-off"} />) : current ? "Vous êtes ici" : ""}</span>{STORY_BOSSES[world.key]?.[n] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][n].name}</span>}</small>
           </button>;
         })}
       </div>
-      <div className="hs-map-hint"><p>{stars} / 45 étoiles · {world.maxLevel} combats terminés</p><button type="button" className="ui-button" disabled={!open || pending} onClick={() => onPrepare(level, world)}>{pending ? "Chargement…" : !world.unlocked ? "Univers verrouillé" : `Préparer le combat ${level}`}</button></div>
+      <div className="hs-map-hint"><StarCounter stars={stars} fights={world.maxLevel}/><button type="button" className="ui-button" disabled={!open || pending} onClick={() => onPrepare(level, world)}>{pending ? "Chargement…" : !world.unlocked ? "Univers verrouillé" : `Préparer le combat ${level}`}</button></div>
       {!world.unlocked && <p className="hs-team-note">Termine l’univers précédent pour débloquer celui-ci.</p>}
       <StarRewards key={world.key} universe={world} onClaim={onClaim}/>
       <section className="hs-map-objects" aria-label="Objets de cet univers"><h2>Objets de cet univers</h2><p>Les quantités et bonus de première victoire s’affichent à la préparation.</p><div className="hs-object-list">{[world.resource, "fragment-de-signature", world.weaponResource].map((key) => <div key={key}><ResourceArt resource={key} size={32}/><span>{RESOURCE_NAMES[key] ?? key}<small>{key === world.weaponResource ? "Boss final · garanti" : "50 % par unité d’éveil"} · Stock : {stock[key] ?? 0}</small></span></div>)}</div></section>
       <details className="hs-map-loot"><summary>Butin du combat {level}</summary><StoryDrops universeKey={world.key} level={level} cleared={level <= world.maxLevel}/></details>
     </section>
+  );
+}
+
+/** Total d'étoiles de l'univers, barre de progression avec les paliers de récompense et prochain objectif (DA §4.17). */
+function StarCounter({ stars, fights }: { stars: number; fights: number }) {
+  const next = STAR_TIERS.find((t) => t.stars > stars);
+  return (
+    <div className="hs-star-counter">
+      <p className="hs-star-total-big"><b>{stars}</b> <small>/ {UNIVERSE_MAX_STARS} étoiles</small></p>
+      <div className="hs-star-bar" role="progressbar" aria-valuemin={0} aria-valuemax={UNIVERSE_MAX_STARS} aria-valuenow={stars} aria-label="Étoiles gagnées dans cet univers">
+        <i style={{ width: `${Math.min(100, stars / UNIVERSE_MAX_STARS * 100)}%` }} />
+        {STAR_TIERS.map((t) => <span key={t.tier} className={t.stars <= stars ? "is-ok" : undefined} style={{ left: `${t.stars / UNIVERSE_MAX_STARS * 100}%` }}><em>{t.stars}</em></span>)}
+      </div>
+      <p className="hs-star-next">{next ? <>Prochain palier : <b>{next.stars} ★</b> · encore {next.stars - stars} étoile{next.stars - stars > 1 ? "s" : ""}</> : "Tous les paliers sont atteints"} · {fights} combat{fights > 1 ? "s" : ""} terminé{fights > 1 ? "s" : ""}</p>
+    </div>
   );
 }

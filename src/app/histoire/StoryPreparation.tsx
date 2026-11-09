@@ -7,6 +7,7 @@ import type { getStoryRoster } from "@/lib/battles";
 import type { UniverseView } from "./StoryBoard";
 import { StoryDrops } from "./StoryDrops";
 import { STORY_ART } from "./story-art";
+import { closeOnBackdrop } from "@/lib/dialog";
 
 export type StoryCard = Awaited<ReturnType<typeof getStoryRoster>>[number];
 export type StoryEnemy = { id: string; name: string; imageUrl: string; combat: BattleCard };
@@ -48,7 +49,7 @@ export function StoryPreparation({ universe, level, ownedCards, enemies, slots, 
     <footer className="hs-prep-footer"><StoryDrops universeKey={universe.key} level={level} cleared={level <= universe.maxLevel}/><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={onFight}>{pending ? "Chargement…" : level <= universe.maxLevel ? "Rejouer" : "Combattre"}</button></footer>
     {!ready && <p className="hs-team-note">Choisis {size} personnages différents pour combattre.</p>}
     <p className="hs-team-note">Une défaite ne coûte rien. Victoire : 1 étoile · aucun K.-O. : 2 · victoire en duo : 3, même si un personnage tombe.</p>
-    <dialog ref={dialog} className="hs-picker" aria-labelledby="hs-picker-title" onCancel={() => setSlot(null)} onClose={() => setSlot(null)}><header><h2 id="hs-picker-title">Choisir un compagnon</h2><button type="button" className="ui-button text-action" onClick={() => setSlot(null)}>Fermer</button></header><label className="hs-picker-search">Rechercher un personnage<input value={search} onChange={(e) => setSearch(e.target.value)} type="search"/></label><div className="hs-picker-grid">{ownedCards.filter((c) => c.name.toLocaleLowerCase("fr").includes(search.toLocaleLowerCase("fr"))).map((card) => {
+    <dialog ref={dialog} className="hs-picker" aria-labelledby="hs-picker-title" onCancel={() => setSlot(null)} onClose={() => setSlot(null)} onClick={closeOnBackdrop}><header><h2 id="hs-picker-title">Choisir un compagnon</h2><button type="button" className="ui-button text-action" onClick={() => setSlot(null)}>Fermer</button></header><label className="hs-picker-search">Rechercher un personnage<input value={search} onChange={(e) => setSearch(e.target.value)} type="search"/></label><div className="hs-picker-grid">{ownedCards.filter((c) => c.name.toLocaleLowerCase("fr").includes(search.toLocaleLowerCase("fr"))).map((card) => {
       const used = cards.some((c, i) => i !== slot && c?.combat.characterId === card.combat.characterId);
       return <button key={card.id} type="button" className="hs-card-choice" disabled={used || pending} aria-pressed={slot !== null && slots[slot] === card.id} aria-label={`Choisir ${card.name}${used ? ", déjà dans l’équipe" : ""}`} onClick={() => { if (slot !== null) onChoose(slot, card.id); setSlot(null); }}><Card card={card}/><small>{used ? "Déjà dans l’équipe" : card.name}</small></button>;
     })}</div>{!ownedCards.length && <p>Ouvre un booster pour recruter tes premiers compagnons.</p>}</dialog>

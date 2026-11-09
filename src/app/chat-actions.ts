@@ -1,6 +1,6 @@
 "use server";
 
-import { ChatError, deleteMessage, getChatState, getMessages, reportMessage, sendMessage, type ChatMessageView } from "@/lib/chat";
+import { ChatError, deleteMessage, getChatState, getMessages, getOnlinePlayers, reportMessage, sendMessage, type ChatMessageView } from "@/lib/chat";
 import { getSessionUser } from "@/lib/session";
 
 type State = Awaited<ReturnType<typeof getChatState>>;
@@ -33,4 +33,9 @@ export async function reportChatAction(messageId: string): Promise<Result<object
 }
 export async function deleteChatAction(messageId: string): Promise<Result<object>> {
   return run(async (id) => { await deleteMessage(id, String(messageId)); return {}; });
+}
+
+/** Onglet « En ligne » : joueurs vus depuis moins de 5 minutes (sondé toutes les 60 s, seulement onglet ouvert). */
+export async function onlinePlayersAction(): Promise<Result<Awaited<ReturnType<typeof getOnlinePlayers>>>> {
+  return run((id) => getOnlinePlayers(id));
 }
