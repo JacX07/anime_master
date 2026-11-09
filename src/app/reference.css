@@ -29,28 +29,28 @@
 
 .mq-app-shell .card { border: 1px solid var(--rarity) !important; }
 .mq-app-shell .card[data-rarity]:not([data-missing]) {
+  --frame-light: color-mix(in srgb, var(--rarity) 35%, white);
+  --frame-low: color-mix(in srgb, var(--rarity) 45%, #101010);
+  --frame-dark: color-mix(in srgb, var(--rarity) 18%, #10090c);
   border: 0 !important;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 3px;
+  background: var(--frame-dark);
   overflow: visible;
-  --frame-dark: color-mix(in srgb, var(--rarity) 12%, #0a0e0d);
 }
 .mq-app-shell .card-deco { display: block; }
-.mq-app-shell .card-deco-fill { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .mq-app-shell .card:not([data-missing]) .card-art {
-  inset: 5cqw;
-  width: calc(100% - 10cqw);
-  height: calc(100% - 10cqw);
-  border-radius: 0;
-  clip-path: polygon(3cqw 0, calc(100% - 3cqw) 0, 100% 3cqw, 100% calc(100% - 3cqw), calc(100% - 3cqw) 100%, 3cqw 100%, 0 calc(100% - 3cqw), 0 3cqw);
+  inset: 2.3cqw;
+  width: calc(100% - 4.6cqw);
+  height: calc(100% - 4.6cqw);
+  border-radius: 1px;
 }
 .mq-app-shell .card:not([data-missing]) .card-info {
-  inset: auto 5cqw 5cqw;
+  inset: auto 3.6cqw 3.6cqw;
   padding: 16cqw 4cqw 3cqw;
   border-radius: 0;
 }
-.mq-app-shell .card:not([data-missing]) .card-gem { top: 9cqw; left: 9cqw; }
-.mq-app-shell .card:not([data-missing]) .card-kind { top: 9cqw; right: 9cqw; }
+.mq-app-shell .card:not([data-missing]) .card-gem { top: 8cqw; left: 8cqw; }
+.mq-app-shell .card:not([data-missing]) .card-kind { top: 8cqw; right: 8cqw; }
 
 /* Bouton d'ambiance sonore : discret, en bas à droite de toutes les pages */
 .ambient-toggle { padding: 6px 10px; border: 0; border-bottom: 2px solid transparent; background: #0b0e0fcc; color: #8c918b; font: 400 11px/1.5 var(--font-dm), sans-serif; cursor: pointer; }
