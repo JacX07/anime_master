@@ -3,6 +3,14 @@
 Bugs et manques de contexte rencontrés une fois. Voir la section « Journal et promotion en règle » de `AGENTS.md`.
 Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences, statut (ouvert / promu en règle).
 
+## 2026-11-09 — Serveur actif dans un autre checkout
+
+- Symptôme : le serveur Next déjà actif sur le port 3012 utilise `anime_master-postgres`, pas ce dépôt `anime_master` ; les nouvelles maquettes de ce dépôt n'y sont pas visibles.
+- Cause : plusieurs checkouts partagent l'environnement ; un port ouvert ne prouve pas quel arbre est servi.
+- Contournement : vérifier le chemin du processus avant les tests, puis démarrer ce checkout avec Node 24 sur un port libre (3013 pour la preview Megumin).
+- Occurrences : 1.
+- Statut : contourné.
+
 ## 2026-11-03 — Base locale : dossier configuré absent
 
 - Symptôme : l'inscription sur le serveur de développement échoue avec `Cannot open database because the directory does not exist`.
