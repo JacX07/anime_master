@@ -90,7 +90,7 @@ Réutiliser les classes existantes ; ne pas recréer un composant dans une feuil
 Fond `#111514` (ou `#171b1a` pour un bloc mis en avant), **sans bordure**, arrondi 5 px (jusqu'à 7 px pour un panneau flottant). Bloc mis en avant possible avec un filet or intérieur à gauche (`box-shadow: inset 3px 0 0 #c4a76d`).
 
 ### 4.5 Cartes de personnages
-Liseré coloré selon la rareté, arrondi 3 px, cadres décoratifs détaillés masqués pour l'instant. Une sélection se marque par le fond ou le texte, pas par une nouvelle bordure.
+**Cadre « filet biseauté »** (validé le 2026-11-09, `CardDeco.tsx`) : filet de 3 px à coins coupés dans la couleur de rareté, fond sombre teinté, illustration aux coins coupés. Chaque rareté ajoute un élément : R filet intérieur fin, SR losanges haut et bas, SSR pointillé intérieur, UR losanges latéraux et filet extérieur. Fini le cadre riveté. Une sélection se marque par le fond ou le texte, pas par une nouvelle bordure.
 
 ### 4.6 Éléments flottants (menus déroulants, infobulles)
 Modèle : `.mq-dropdown-panel` (`maquette.css`).
@@ -204,3 +204,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : éclat SSR/UR remplacé par « horloge + portes » (carte qui sort des portes, lignes d'énergie, reflets), retournement en « parchemin lourd » (§6).
 - 2026-11-09 : ouverture « graduations » et éclat « constellation encadrée » (style dos de carte) remplacent le rouage et « horloge + portes » ; saut d'animation au clic ou Échap (§6).
 - 2026-11-09 : barre de contrôle du combat refaite en dock central biseauté, sans Recommencer ni progression (§4.15).
+- 2026-11-09 : cartes de personnages, cadre « filet biseauté » remplace le cadre riveté (§4.5).
