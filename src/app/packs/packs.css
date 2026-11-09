@@ -137,48 +137,69 @@
 }
 
 /* Éclat plein scène quand un SSR ou un UR apparaît (§6 : mouvement par crans) */
-.pk-burst { --c: #c4a76d; --cl: #f0dca0; --S: 1.65s; --sh: 3px; position: fixed; inset: -8px; z-index: 200; overflow: hidden; pointer-events: none; animation: pk-shake .32s steps(5, end) var(--S), pk-shake .32s steps(5, end) calc(var(--S) + .25s); }
-.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; --S: 1.85s; --sh: 5px; }
-.pk-burst > * { position: absolute; }
-.pk-bg { inset: 0; background: #07090a; opacity: 0; animation: pk-fade-in .15s linear forwards, pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
-.pk-light { inset: 0; background: radial-gradient(circle, var(--cl) 0, var(--c) 22%, #07090a 68%); opacity: 0; animation: pk-fade-in .22s linear calc(var(--S) + .25s) forwards, pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
-/* Portes de bronze : rivets, filets dorés, cadre intérieur et reflet qui passe */
-.pk-door { top: 0; bottom: 0; width: 50%; overflow: hidden; }
-.pk-door-l { left: 0; border-right: 3px solid var(--c); translate: -100% 0; background: radial-gradient(circle at 14px 14px, color-mix(in srgb, var(--c) 67%, transparent) 2px, transparent 3px) 0 0 / 48px 48px, repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--c) 13%, transparent) 46px 48px), linear-gradient(90deg, #0f0c07, #2c2517); animation: pk-door-l-in .2s steps(4, end) .15s forwards, pk-door-l-open .7s steps(7, end) calc(var(--S) + .25s) forwards; }
-.pk-door-r { right: 0; border-left: 3px solid var(--c); translate: 100% 0; background: radial-gradient(circle at 14px 14px, color-mix(in srgb, var(--c) 67%, transparent) 2px, transparent 3px) 0 0 / 48px 48px, repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--c) 13%, transparent) 46px 48px), linear-gradient(270deg, #0f0c07, #2c2517); animation: pk-door-r-in .2s steps(4, end) .15s forwards, pk-door-r-open .7s steps(7, end) calc(var(--S) + .25s) forwards; }
-.pk-door { box-shadow: inset 0 0 0 8px #0f0c07, inset 0 0 0 9px color-mix(in srgb, var(--c) 40%, transparent), 0 0 30px #000; }
-.pk-door i { position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .22) 50%, transparent 65%); translate: -130% 0; animation: pk-sheen-door .8s linear .35s forwards; }
-/* Horloge gravée sur la jonction : avance de 12 crans jusqu'à la frappe */
-.pk-clock { left: 50%; top: 50%; width: min(250px, 60vw); height: min(250px, 60vw); margin: calc(min(250px, 60vw) / -2) 0 0 calc(min(250px, 60vw) / -2); fill: none; stroke: var(--c); stroke-width: 3; opacity: 0; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 55%, transparent)); animation: pk-fade-in .2s steps(3, end) .45s forwards, pk-clock-pop .6s steps(5, end) var(--S) forwards; }
-.pk-clock-hand { transform-box: view-box; transform-origin: 50% 50%; animation: pk-hand calc(var(--S) - .6s) steps(12, end) .6s forwards; }
-.pk-clock-hand circle { fill: var(--c); }
-/* Lignes d'énergie, anneaux de choc, éclat, étoiles de reflet */
-.pk-rays { left: 50%; top: 50%; width: 120vmin; height: 120vmin; margin: -60vmin 0 0 -60vmin; stroke: var(--cl); opacity: 0; animation: pk-rays .75s steps(6, end) calc(var(--S) + .25s) forwards; }
-.pk-burst[data-rarity="SSR"] .pk-rays-3, .pk-burst[data-rarity="SSR"] .pk-ring-ur { display: none; }
-.pk-ring { left: 50%; top: 50%; width: 160px; height: 160px; margin: -80px; border: 3px solid var(--cl); border-radius: 50%; opacity: 0; animation: pk-ring .65s steps(6, end) calc(var(--S) + var(--o, 0s)) forwards; }
+/* Briques « dos de carte » : filets fins, cercles, étoile à quatre branches, losanges. Tout par crans, couleur --c. */
+.pk-machine, .pk-burst { --c: #c4a76d; --cl: #f0dca0; }
+.pk-machine[data-rarity="N"] { --c: var(--rarity-N); --cl: var(--rarity-N); }
+.pk-machine[data-rarity="R"] { --c: var(--rarity-R); --cl: var(--rarity-R); }
+.pk-machine[data-rarity="SR"] { --c: var(--rarity-SR); --cl: var(--rarity-SR); }
+.pk-machine[data-rarity="SSR"] { --c: var(--rarity-SSR); --cl: #f0dca0; }
+.pk-machine[data-rarity="UR"] { --c: var(--rarity-UR); --cl: #ffb3aa; }
+.pk-draw { fill: none; stroke: var(--c); stroke-dasharray: 1; stroke-dashoffset: 1; animation: pk-draw calc(var(--t, .8s) * var(--k, 1)) steps(var(--n, 12), end) calc(var(--d, 0s) * var(--k, 1)) forwards; }
+.pk-fadein { fill: none; stroke: var(--c); stroke-opacity: .85; opacity: 0; animation: pk-fade-in calc(var(--t, .3s) * var(--k, 1)) steps(4, end) calc(var(--d, 0s) * var(--k, 1)) forwards; }
+.pk-popin { stroke: var(--c); fill: none; transform-box: fill-box; transform-origin: center; scale: 0; animation: pk-popin calc(.3s * var(--k, 1)) steps(3, end) calc(var(--d, 0s) * var(--k, 1)) forwards; }
+.pk-fill { fill: var(--c); stroke: none; }
+.pk-frame { position: absolute; left: 0; top: 0; fill: none; stroke: var(--c); }
+.pk-astro { width: 100%; height: 100%; fill: none; stroke: var(--c); overflow: visible; }
+.pk-star { fill: var(--c); stroke: none; transform-box: fill-box; transform-origin: center; scale: 0; filter: drop-shadow(0 0 8px var(--c)); }
+@keyframes pk-draw { to { stroke-dashoffset: 0; } }
+@keyframes pk-popin { 0% { scale: 0; } 60% { scale: 1.5; } 100% { scale: 1; } }
+/* Invocation « graduations » */
+.pk-machine { position: absolute; inset: 0; z-index: 4; cursor: pointer; }
+.pk-machine-dial { position: absolute; left: 50%; top: 50%; width: min(440px, 88%); aspect-ratio: 1; translate: -50% -50%; animation: pk-lockpulse calc(.24s * var(--k, 1)) steps(2, end) calc(2.05s * var(--k, 1)), pk-fade-out calc(.35s * var(--k, 1)) linear calc(2.75s * var(--k, 1)) forwards; }
+.pk-tick { stroke: var(--c); opacity: 0; animation: pk-tickon calc(.06s * var(--k, 1)) steps(1, end) calc((.25s + var(--i) * .028s) * var(--k, 1)) forwards; }
+.pk-needle { stroke: var(--c); transform-origin: 200px 200px; animation: pk-turn calc(1.7s * var(--k, 1)) steps(12, end) calc(.25s * var(--k, 1)) forwards; }
+.pk-trail { opacity: .9; transform-origin: 200px 200px; rotate: -90deg; }
+.pk-machine .pk-late { animation-delay: calc(var(--d) * var(--k, 1)); }
+.pk-machine .pk-star { animation: pk-grow calc(.45s * var(--k, 1)) steps(6, end) calc(2.05s * var(--k, 1)) forwards; }
+.pk-machine .pk-ring { animation-delay: var(--o, 0s); }
+.pk-ring { position: absolute; left: 50%; top: 50%; width: 160px; height: 160px; margin: -80px; border: 1px solid var(--cl); border-radius: 50%; opacity: 0; animation: pk-ring .7s steps(7, end) calc(var(--S, 0s) + var(--o, 0s)) forwards; }
 .pk-ring-ur { border-color: var(--c); }
-.pk-flash { inset: 0; background: var(--cl); opacity: 0; animation: pk-flash .28s steps(3, end) var(--S); }
-.pk-glint { fill: #fff; opacity: 0; animation: pk-glint .42s steps(5, end) calc(var(--S) * var(--k, 0) + var(--g, 0s)) forwards; }
-/* La carte sort de la jonction : petite, puis grosse au premier plan, puis elle se pose et redescend */
-.pk-burst-card { left: 50%; top: 50%; width: min(14rem, 58vw); translate: -50% -50%; opacity: 0; filter: drop-shadow(0 8px 26px color-mix(in srgb, var(--c) 70%, transparent)); animation: pk-emerge 1.05s steps(7, end) calc(var(--S) + .45s) forwards, pk-leave .45s linear calc(var(--S) + 2.4s) forwards; }
+@keyframes pk-tickon { to { opacity: 1; } }
+@keyframes pk-turn { to { transform: rotate(360deg); } }
+@keyframes pk-grow { from { scale: 0; } to { scale: 1; } }
+@keyframes pk-lockpulse { 0%, 100% { scale: 1; } 50% { scale: 1.04; } }
+@keyframes pk-ring { from { opacity: 1; scale: .3; } to { opacity: 0; scale: 3.6; } }
+@keyframes pk-fade-in { to { opacity: 1; } }
+@keyframes pk-fade-out { from { opacity: 1; } to { opacity: 0; } }
+/* Éclat SSR/UR « constellation encadrée » */
+.pk-burst { --S: 1.3s; --sh: 3px; position: fixed; inset: -8px; z-index: 200; overflow: hidden; cursor: pointer; animation: pk-shake .32s steps(5, end) var(--S); }
+.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; --S: 1.5s; --sh: 5px; }
+.pk-burst > * { position: absolute; pointer-events: none; }
+.pk-bg { inset: 0; background: #07090a; opacity: 0; animation: pk-fade-in .15s linear forwards, pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
+.pk-light { inset: 0; background: radial-gradient(circle, color-mix(in srgb, var(--cl) 55%, transparent) 0, transparent 55%); opacity: 0; animation: pk-fade-in .22s linear var(--S) forwards, pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
+.pk-burst .pk-frame, .pk-cstl { inset: 0; }
+.pk-cstl { fill: none; stroke: var(--c); }
+.pk-box { animation: pk-draw .9s steps(18, end) .7s forwards, pk-boxpulse .5s steps(5, end) var(--S); }
+.pk-burst-astro { left: 50%; top: 50%; width: 300px; height: 300px; margin: -150px 0 0 -150px; animation: pk-fade-out .45s linear calc(var(--S) + 2.4s) forwards; }
+.pk-burst .pk-star { animation: pk-pulse-star .55s steps(3, end) .2s 2, pk-flare .5s steps(5, end) var(--S) forwards; }
+.pk-burst[data-rarity="UR"] .pk-star { animation: pk-pulse-star .5s steps(3, end) .2s 3, pk-flare .5s steps(5, end) var(--S) forwards; }
+.pk-rays { left: 50%; top: 50%; width: 120vmin; height: 120vmin; margin: -60vmin 0 0 -60vmin; stroke: var(--cl); opacity: 0; animation: pk-rays .8s steps(6, end) calc(var(--S) + .1s) forwards; }
+.pk-burst[data-rarity="SSR"] .pk-rays-3, .pk-burst[data-rarity="SSR"] .pk-ring-ur { display: none; }
+.pk-flash { inset: 0; background: radial-gradient(circle, var(--cl), transparent 70%); opacity: 0; animation: pk-flash .32s steps(4, end) var(--S); }
+.pk-glint { fill: #fff; opacity: 0; animation: pk-glint .42s steps(5, end) calc(var(--S) + var(--g, 0s)) forwards; }
+/* La carte sort de l'étoile : petite, puis grosse au premier plan, puis elle se pose et redescend */
+.pk-burst-card { left: 50%; top: 50%; width: min(14rem, 58vw); translate: -50% -50%; opacity: 0; filter: drop-shadow(0 8px 26px color-mix(in srgb, var(--c) 70%, transparent)); animation: pk-emerge 1.05s steps(7, end) calc(var(--S) + .3s) forwards, pk-leave .45s linear calc(var(--S) + 2.4s) forwards; }
 .pk-burst-card .card { box-shadow: 0 0 0 2px var(--c), 0 0 40px 6px color-mix(in srgb, var(--c) 45%, transparent); }
 .pk-sheen { inset: 0; overflow: hidden; border-radius: .6rem; pointer-events: none; }
 .pk-sheen, .pk-sheen i { position: absolute; }
-.pk-sheen i { inset: -10% 0; width: 60%; background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%); translate: -120% 0; animation: pk-sheen-card .7s linear calc(var(--S) + 1.35s) forwards; }
-@keyframes pk-fade-in { to { opacity: 1; } }
-@keyframes pk-fade-out { from { opacity: 1; } to { opacity: 0; } }
-@keyframes pk-door-l-in { from { translate: -100% 0; } to { translate: 0 0; } }
-@keyframes pk-door-r-in { from { translate: 100% 0; } to { translate: 0 0; } }
-@keyframes pk-door-l-open { from { translate: 0 0; } to { translate: -101% 0; } }
-@keyframes pk-door-r-open { from { translate: 0 0; } to { translate: 101% 0; } }
-@keyframes pk-sheen-door { to { translate: 260% 0; } }
+.pk-sheen i { inset: -10% 0; width: 60%; background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%); translate: -120% 0; animation: pk-sheen-card .7s linear calc(var(--S) + 1.2s) forwards; }
 @keyframes pk-sheen-card { to { translate: 260% 0; } }
-@keyframes pk-hand { to { transform: rotate(360deg); } }
-@keyframes pk-clock-pop { from { opacity: 1; scale: 1; } to { opacity: 0; scale: 1.7; } }
 @keyframes pk-rays { from { opacity: 1; scale: .45; } to { opacity: 0; scale: 1.5; } }
-@keyframes pk-ring { from { opacity: 1; scale: .3; } to { opacity: 0; scale: 3.4; } }
-@keyframes pk-flash { from { opacity: .75; } to { opacity: 0; } }
+@keyframes pk-flash { from { opacity: .8; } to { opacity: 0; } }
 @keyframes pk-glint { 0% { opacity: 1; scale: 0; rotate: 0deg; } 45% { opacity: 1; scale: 1; rotate: 20deg; } 100% { opacity: 0; scale: 0; rotate: 45deg; } }
+@keyframes pk-pulse-star { 0%, 100% { scale: .2; } 50% { scale: .34; } }
+@keyframes pk-flare { 0% { scale: .3; } 50% { scale: 1.9; } 100% { scale: 1.2; } }
+@keyframes pk-boxpulse { 0%, 100% { stroke-width: 1.4; } 50% { stroke-width: 3.4; stroke: var(--cl); } }
 @keyframes pk-emerge { 0% { opacity: 1; scale: .1; } 72% { opacity: 1; scale: 1.38; } 100% { opacity: 1; scale: 1; } }
 @keyframes pk-leave { from { opacity: 1; translate: -50% -50%; scale: 1; } to { opacity: 0; translate: -50% calc(-50% + 150px); scale: .7; } }
 @keyframes pk-shake { 0%, 100% { translate: 0; } 25% { translate: calc(var(--sh) * -1) var(--sh); } 50% { translate: var(--sh) calc(var(--sh) * -1); } 75% { translate: calc(var(--sh) / -2) calc(var(--sh) / -2); } }
@@ -407,67 +428,8 @@
 .mq-app-shell[class] .pk-lots[role] button[role="radio"][data-active="true"]::after { content: none; }
 .pk-open-cost { display: block; margin-top: .1rem; font: 500 .62rem var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; opacity: .75; }
 
-/* Mécanisme d'invocation : horlogerie brisée (docs/direction-artistique.md §4.13 et §6). */
-.mq-app-shell .pk-stage .pk-machine {
-  position: relative;
-  flex: none;
-  width: 260px;
-  height: 260px;
-  margin-top: 1.5rem;
-  cursor: pointer;
-}
-.pk-machine { --rc: #c4a76d; }
-.pk-machine:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; border-radius: 50%; }
-.pk-machine-part {
-  position: absolute;
-  background: #c4a76d;
-  -webkit-mask: var(--src) center / contain no-repeat;
-  mask: var(--src) center / contain no-repeat;
-  transition: transform .16s cubic-bezier(.2, .9, .3, 1);
-}
-.pk-machine-dial { --src: url("/ornaments/summon-dial.svg"); inset: 20px; }
-.pk-machine-gear { --src: url("/ornaments/summon-gear.svg"); left: -26px; top: 150px; width: 110px; height: 110px; transform: rotate(calc(var(--step) * 22.5deg)); }
-.pk-machine-pinion { --src: url("/ornaments/summon-pinion.svg"); left: 186px; top: -14px; width: 84px; height: 84px; transform: rotate(calc(var(--step) * -36deg)); }
-.pk-machine-ring { position: absolute; inset: 20px; border-radius: 50%; box-shadow: 0 0 0 2px transparent; transition: box-shadow .12s; }
-.pk-machine-needle {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 4px;
-  height: 86px;
-  margin: -86px 0 0 -2px;
-  transform-origin: 50% 100%;
-  transform: rotate(calc(var(--step) * 90deg));
-  transition: transform .16s cubic-bezier(.2, .9, .3, 1);
-  background: linear-gradient(#d5bb7f, #c4a76d);
-  clip-path: polygon(50% 0, 100% 85%, 50% 100%, 0 85%);
-}
-.pk-machine-hub { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: #0b0e0f; box-shadow: 0 0 0 2px #c4a76d; }
-.pk-machine[data-locked] .pk-machine-ring { box-shadow: 0 0 0 2px var(--rc); }
-.pk-machine[data-locked] .pk-machine-dial { animation: pk-machine-clac .14s steps(2); }
-.pk-machine[data-rarity="N"] { --rc: var(--rarity-N); }
-.pk-machine[data-rarity="R"] { --rc: var(--rarity-R); }
-.pk-machine[data-rarity="SR"] { --rc: var(--rarity-SR); }
-.pk-machine[data-rarity="SSR"] { --rc: var(--rarity-SSR); }
-.pk-machine[data-rarity="UR"] { --rc: var(--rarity-UR); }
-.pk-machine-shard {
-  position: absolute;
-  left: calc(120px + var(--k) * 14px);
-  top: 190px;
-  width: 8px;
-  height: 9px;
-  background: #c4a76d;
-  clip-path: polygon(0 0, 100% 30%, 40% 100%);
-  animation: pk-machine-fall .9s cubic-bezier(.5, 0, .9, .6) forwards;
-}
-.pk-machine-shard:nth-of-type(1) { --dx: -26px; --r: -200deg; }
-.pk-machine-shard:nth-of-type(2) { --dx: 0px; --r: 140deg; }
-.pk-machine-shard:nth-of-type(3) { --dx: 26px; --r: -200deg; }
-@keyframes pk-machine-clac { 0% { transform: none; } 50% { transform: translateY(2px); } 100% { transform: none; } }
-@keyframes pk-machine-fall { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translate(var(--dx), 120px) rotate(var(--r)); } }
 .pk-cards { animation: pk-cards-in .2s ease-out; }
 @keyframes pk-cards-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .pk-machine-part, .pk-machine-needle, .pk-machine-ring { transition: none; }
-  .pk-machine-shard, .pk-machine[data-locked] .pk-machine-dial, .pk-cards { animation: none; }
+  .pk-cards { animation: none; }
 }

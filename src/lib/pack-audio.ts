@@ -13,6 +13,7 @@ const STORE_UI = "am-ui-sfx";
 class PackAudio {
   private ctx: AudioContext | null = null;
   private master!: GainNode;
+  private limiter!: DynamicsCompressorNode;
   private ambience!: GainNode;
   private noise!: AudioBuffer;
   private stopAmbience: (() => void) | null = null;
@@ -28,6 +29,7 @@ class PackAudio {
     const limiter = ctx.createDynamicsCompressor();
     limiter.threshold.value = -8;
     this.master.connect(limiter).connect(ctx.destination);
+    this.limiter = limiter;
     this.ambience = ctx.createGain();
     this.ambience.gain.value = 0;
     this.ambience.connect(this.master);
@@ -37,6 +39,18 @@ class PackAudio {
     suspendWhenHidden(ctx);
     this.ctx = ctx;
     return ctx;
+  }
+
+  /** Coupe net tous les sons déjà programmés (saut d'une animation) : l'ancien bus est débranché, les sons suivants utilisent un bus neuf. */
+  cut() {
+    if (!this.ctx) return;
+    this.master.disconnect();
+    const m = this.ctx.createGain();
+    m.gain.value = BASE_GAIN * getVolume();
+    m.connect(this.limiter);
+    this.ambience.disconnect();
+    this.ambience.connect(m);
+    this.master = m;
   }
 
   private ready(): AudioContext {
@@ -282,28 +296,41 @@ class PackAudio {
     });
   }
 
-  /** Éclat SSR/UR « horloge + portes » (DA §6) : clang des portes, 12 tics, frappe de cloche, grincement, nappe, chuintement à la sortie de la carte, cloche d'arrivée. Calé sur --S du CSS (1,65 s SSR, 1,85 s UR). */
+  /** Balayage montant (sinus fin qui gonfle puis s'éteint). */
+  private rise(at: number, dur: number, f0: number, f1: number, level: number) {
+    const ctx = this.ctx!;
+    const o = ctx.createOscillator();
+    o.frequency.setValueAtTime(f0, at);
+    o.frequency.exponentialRampToValueAtTime(f1, at + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(level, at + dur * 0.75);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    o.connect(g).connect(this.master);
+    o.start(at);
+    o.stop(at + dur + 0.05);
+  }
+
+  /** Tic fin d'horlogerie. */
+  private tic(at: number, level = 1) {
+    this.nz(at, { f: 4200, q: 3, dur: 0.02, g: 0.3 * level });
+    this.tone(at, 1700, 0.05, 0.04 * level);
+  }
+
+  /** Éclat SSR/UR « constellation encadrée » (DA §6) : balayage fin qui monte, tics à chaque losange, frappe de cloche à l'embrasement, nappe, chuintement, cloche d'arrivée. Calé sur --S du CSS (1,3 s SSR, 1,5 s UR). */
   jingle(rarity: "SSR" | "UR") {
     this.ui((_ctx, t0) => {
       const hz = (n: number) => 440 * Math.pow(2, (n - 69) / 12);
       const ur = rarity === "UR";
-      const S = ur ? 1.85 : 1.65;
+      const S = ur ? 1.5 : 1.3;
       const K = 0.4;
       const T = (s: number) => t0 + 0.05 + s;
-      this.metal(T(0.35), hz(40), 0.6 * K, 1.2);
-      this.thud(T(0.35), 90, 45, 0.35, 0.8 * K);
-      this.nz(T(0.35), { f: 1500, q: 2, dur: 0.2, g: 0.3 * K });
-      const span = S - 0.6;
-      for (let i = 1; i <= 12; i++) {
-        const tt = T(0.6 + (i * span) / 12);
-        this.nz(tt - 0.01, { f: 4200 + i * 150, q: 3, dur: 0.02, g: 0.3 * K });
-        this.tone(tt, 200 + i * 20, 0.05, 0.05 * K);
-      }
-      this.metal(T(S), hz(ur ? 55 : 60), 0.5 * K, 3.4);
+      this.rise(T(0.08), S, 260, 2400, 0.045 * K);
+      for (let i = 0; i < 8; i++) this.tic(T(0.75 + i * 0.11), K * 2);
+      this.metal(T(S), hz(ur ? 55 : 60), 0.45 * K, 3.2);
       this.thud(T(S), 110, 45, 0.35, 0.7 * K);
-      this.nz(T(S), { type: "highpass", f: 2500, dur: 0.3, g: 0.25 * K });
-      if (ur) { this.metal(T(S + 0.28), hz(67), 0.4 * K, 3.4); this.metal(T(S + 0.28), hz(43), 0.5 * K, 4); }
-      this.nz(T(S + 0.25), { type: "lowpass", f: 500, f2: 150, dur: 0.7, g: 0.4 * K, att: 0.05 });
+      this.nz(T(S), { type: "highpass", f: 2500, dur: 0.3, g: 0.22 * K });
+      if (ur) { this.metal(T(S + 0.28), hz(67), 0.35 * K, 3.2); this.metal(T(S + 0.28), hz(43), 0.45 * K, 4); }
       this.pad(T(S + 0.25), hz(ur ? 43 : 48), 2.2, 0.1 * K);
       this.pad(T(S + 0.25), hz(ur ? 50 : 55), 2.2, 0.08 * K);
       this.nz(T(S + 0.45), { type: "highpass", f: 600, f2: 5000, dur: 0.9, g: 0.14 * K, att: 0.5 });
@@ -325,45 +352,31 @@ class PackAudio {
     this.thud(at, 150, 70, 0.05, 0.16 * tension);
   }
 
-  /** Mécanisme d'invocation entier ; `rarity` = meilleure carte du paquet. Mêmes dates que SummonMachine. */
+  /** Invocation « graduations » (DA §6) : balayage fin qui monte, tics tous les 5 crans, tintements à chaque douzième de tour, puis verrouillage (frappe de cloche pour une SSR/UR, choc discret sinon) et petites notes montantes. `rarity` = meilleure carte du paquet ; mêmes dates que SummonMachine. */
   machine(rarity: Rarity, fast: boolean) {
     if (!this.uiOn) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = this.ready();
-    const t0 = ctx.currentTime;
-    const beat = fast ? 0.17 : 0.3;
-    const TICKS = 4;
-    for (let i = 0; i < TICKS; i++) this.cog(t0 + 0.06 + beat * i, i, TICKS);
-    const lk = t0 + 0.06 + beat * TICKS;
-    // Verrouillage : deux impacts métal contre métal et un ressort qui se détend
-    this.burst(lk, 3400, 1.6, 0.03, 0.6);
-    this.metal(lk, 1700, 0.1, 0.09);
-    this.thud(lk, 110, 55, 0.09, 0.4);
-    this.burst(lk + 0.024, 2800, 1.6, 0.026, 0.5);
-    this.thud(lk + 0.024, 80, 45, 0.1, 0.35);
-    const sp = ctx.createOscillator();
-    sp.type = "triangle";
-    sp.frequency.setValueAtTime(820, lk + 0.05);
-    sp.frequency.exponentialRampToValueAtTime(380, lk + 0.2);
-    const sg = ctx.createGain();
-    sg.gain.setValueAtTime(0.0001, lk + 0.05);
-    sg.gain.exponentialRampToValueAtTime(0.06, lk + 0.06);
-    sg.gain.exponentialRampToValueAtTime(0.0001, lk + 0.2);
-    sp.connect(sg).connect(this.master);
-    sp.start(lk + 0.05);
-    sp.stop(lk + 0.25);
-    // Trois éclats qui tombent
-    [0.58, 0.74, 0.9].forEach((d, k) => this.metal(lk + d, 2400 + k * 420, 0.06, 0.12));
-    // Accent de rareté : ressort libéré et cloche d'horloge, aucun accord
-    if (rarity === "SSR") {
-      this.metal(lk + 0.02, 2800, 0.12, 0.25);
-      this.iron(lk + 0.08, 520, 1.1, 0.14);
-    } else if (rarity === "UR") {
-      this.thud(lk, 52, 30, 0.35, 0.55);
-      this.metal(lk + 0.02, 3100, 0.14, 0.3);
-      this.iron(lk + 0.08, 330, 1.6, 0.18);
-      this.iron(lk + 0.62, 330, 1.8, 0.16);
+    const hz = (n: number) => 440 * Math.pow(2, (n - 69) / 12);
+    const k = fast ? 0.6 : 1;
+    const K = 0.4;
+    const t = ctx.currentTime + 0.05;
+    this.rise(t + 0.2 * k, 1.8 * k, 350, 2200, 0.04 * K);
+    for (let i = 0; i < 12; i++) {
+      this.tic(t + (0.25 + i * 5 * 0.028) * k, K * 2);
+      this.metal(t + (0.25 + ((i + 1) * 1.7) / 12) * k, 1300 + i * 60, 0.05 * K, 0.1);
     }
+    const L = t + 2.05 * k;
+    const ur = rarity === "UR";
+    if (rarity === "SSR" || ur) {
+      this.metal(L, hz(ur ? 55 : 60), 0.45 * K, 3.2);
+      this.thud(L, 110, 45, 0.35, 0.7 * K);
+      this.nz(L, { type: "highpass", f: 2500, dur: 0.3, g: 0.22 * K });
+      if (ur) { this.metal(L + 0.28, hz(67), 0.35 * K, 3.2); this.metal(L + 0.28, hz(43), 0.45 * K, 4); }
+    } else {
+      this.metal(L, hz(67), 0.25 * K, 1.2);
+      this.thud(L, 100, 45, 0.3, 0.5 * K);
+    }
+    for (let i = 0; i < 5; i++) this.tone(L + 0.1 + i * 0.09, hz(76 + i * 3), 0.45, 0.04 * K);
   }
 
   /** Clic d'ouverture : petit coup grave et souffle montant. */
