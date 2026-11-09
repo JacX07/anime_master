@@ -29,12 +29,12 @@
 
 .mq-app-shell .card { border: 1px solid var(--rarity) !important; }
 .mq-app-shell .card[data-rarity]:not([data-missing]) {
-  /* Palette « cendre » (DA §4.5) : teinte de rareté éteinte vers le gris chaud du site */
-  --frame-m: color-mix(in srgb, var(--rarity) 50%, #6b665c);
-  --frame-c: color-mix(in srgb, var(--frame-m) 80%, #000);
-  --frame-light: color-mix(in srgb, var(--frame-m) 50%, #d8d0bc);
-  --frame-low: color-mix(in srgb, var(--frame-m) 40%, #141210);
-  --frame-dark: #0d0c0b;
+  /* Palette « cendre » (DA §4.5) : teinte de rareté patinée, mélangée au gris chaud du site */
+  --frame-m: color-mix(in srgb, var(--rarity) 68%, #6b665c);
+  --frame-c: color-mix(in srgb, var(--frame-m) 92%, #fff);
+  --frame-light: color-mix(in srgb, var(--frame-m) 50%, #eadfc4);
+  --frame-low: color-mix(in srgb, var(--frame-m) 50%, #141210);
+  --frame-dark: color-mix(in srgb, var(--frame-m) 16%, #0d0c0b);
   border: 0 !important;
   border-radius: 3px;
   background: var(--frame-dark);
