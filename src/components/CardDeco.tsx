@@ -1,5 +1,5 @@
 // Un seul SVG statique : le fer forgé reprend la couleur de rareté, sans filtre ni animation.
-const C = "var(--rarity)";
+const C = "var(--frame-c)";
 const LIGHT = "var(--frame-light)";
 const LOW = "var(--frame-low)";
 const DARK = "var(--frame-dark)";
