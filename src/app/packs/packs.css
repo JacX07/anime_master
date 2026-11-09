@@ -137,10 +137,10 @@
 }
 
 /* Éclat plein scène quand un SSR ou un UR apparaît (§6 : mouvement par crans) */
-.pk-burst { --c: #c4a76d; --cl: #f0dca0; position: absolute; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; animation: pk-burst-life 1.7s linear forwards; }
+.pk-burst { --c: #c4a76d; --cl: #f0dca0; position: fixed; inset: 0; z-index: 200; overflow: hidden; pointer-events: none; background: #0a0c0d; animation: pk-burst-life 1.7s linear forwards; }
 .pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; animation: pk-burst-life 1.7s linear forwards, pk-burst-shake .5s steps(5, end) .55s; }
 .pk-burst > * { position: absolute; }
-.pk-burst-ring { left: 50%; top: 45%; width: var(--size); aspect-ratio: 1; margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2); opacity: 0; filter: drop-shadow(0 6px 5px #000c) drop-shadow(0 0 8px color-mix(in srgb, var(--c) 40%, transparent)); animation: pk-ring-in .22s ease-out forwards, pk-ring-turn .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
+.pk-burst-ring { left: 50%; top: 45%; width: var(--size); aspect-ratio: 1; margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2); opacity: 0; will-change: transform; animation: pk-ring-in .22s ease-out forwards, pk-ring-turn .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
 .pk-burst-ring[data-reverse] { animation: pk-ring-in .22s ease-out .12s forwards, pk-ring-turn-rev .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
 .pk-burst-ring svg { width: 100%; height: 100%; overflow: visible; stroke: var(--c); }
 .pk-burst-dim { stroke: color-mix(in srgb, var(--c) 45%, #000); }
@@ -151,7 +151,7 @@
 .pk-burst-shard { left: 50%; top: 45%; width: 14px; height: 26px; opacity: 0; background: linear-gradient(135deg, #fff, var(--c)); clip-path: polygon(50% 0, 100% 70%, 40% 100%, 0 55%); animation: pk-shard .8s steps(7, end) var(--d) forwards; }
 .pk-burst-cracks { inset: 0; width: 100%; height: 100%; stroke: var(--c); opacity: 0; animation: pk-burst-on .15s steps(2, end) .55s forwards, pk-burst-out .6s ease-in 1.2s forwards; }
 .pk-burst-flash { inset: 0; background: color-mix(in srgb, var(--c) 40%, #fff); opacity: 0; animation: pk-flash-cut .26s steps(3, end) .55s; }
-@keyframes pk-burst-life { 0%, 90% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes pk-burst-life { 0% { opacity: 0; } 6% { opacity: 1; } 80% { opacity: 1; } 90% { opacity: .5; } 100% { opacity: 0; } }
 @keyframes pk-ring-in { from { opacity: 0; scale: 1.5; } to { opacity: 1; scale: 1; } }
 @keyframes pk-ring-turn { to { rotate: 90deg; } }
 @keyframes pk-ring-turn-rev { to { rotate: -90deg; } }
@@ -456,12 +456,12 @@
 .pk-table { display: flex; align-items: center; justify-content: center; gap: 1.5rem; width: 100%; }
 .pk-pile { position: relative; flex: none; width: 7rem; aspect-ratio: 5 / 7; }
 .pk-pile[data-count="0"] { visibility: hidden; }
-.pk-pile-card { position: absolute; inset: 0; overflow: hidden; border: 2px solid var(--rarity-N, #555); border-radius: 0.5rem; background: #0b0e0f; box-shadow: 0 6px 14px #000a; transform: translate(calc(var(--k) * -9px), calc(var(--k) * -3px)) rotate(calc(var(--rot) * 1deg)); animation: pk-pile-in .3s steps(4, end) backwards; pointer-events: none; }
+.pk-pile-card { position: absolute; contain: paint; inset: 0; overflow: hidden; border: 2px solid var(--rarity-N, #555); border-radius: 0.5rem; background: #0b0e0f; box-shadow: 0 6px 14px #000a; transform: translate(calc(var(--k) * -9px), calc(var(--k) * -3px)) rotate(calc(var(--rot) * 1deg)); animation: pk-pile-in .3s steps(4, end) backwards; pointer-events: none; }
 .pk-pile-card[data-rarity="R"] { border-color: var(--rarity-R); }
 .pk-pile-card[data-rarity="SR"] { border-color: var(--rarity-SR); }
 .pk-pile-card[data-rarity="SSR"] { border-color: var(--rarity-SSR); box-shadow: 0 6px 14px #000a, 0 0 0 2px #0b0e0f, 0 0 0 3px var(--rarity-SSR); }
 .pk-pile-card[data-rarity="UR"] { border-color: var(--rarity-UR); box-shadow: 0 6px 14px #000a, 0 0 0 2px #0b0e0f, 0 0 0 3px var(--rarity-UR); }
-.pk-pile-card > * { width: 100%; height: 100%; }
+.pk-pile-card img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; }
 @keyframes pk-pile-in { from { transform: translate(calc(var(--k) * -9px + 7rem), calc(var(--k) * -3px)) rotate(0deg); opacity: 0; } }
 @media (max-width: 640px) { .pk-table { gap: 0.75rem; } .pk-pile { width: 4.5rem; } }
 @media (prefers-reduced-motion: reduce) { .pk-pile-card { animation: none; } }

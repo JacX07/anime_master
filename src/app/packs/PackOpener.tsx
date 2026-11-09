@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { CharacterCard } from "@/components/CharacterCard";
 import { Money, RarityGem } from "@/components/icons";
@@ -262,7 +263,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           )}
           {!pack && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
 
-          {burst && <RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)} />}
+          {burst && createPortal(<RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)} />, document.body)}
 
           {pack && machine && best && <SummonMachine rarity={best} fast={pack.lotSize >= 10} onDone={() => { setMachine(false); packAudio.deal(0.1); }} />}
 
@@ -278,9 +279,10 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               <div className={summary ? undefined : "pk-table"}>
               {!summary && (
                 <div className="pk-pile" data-count={current} aria-label={`${current} carte${current > 1 ? "s" : ""} révélée${current > 1 ? "s" : ""}`}>
-                  {pack.cards.slice(Math.max(0, current - 6), current).map((card, k, shown) => (
+                  {pack.cards.slice(Math.max(0, current - 4), current).map((card, k, shown) => (
                     <div key={card.cardId} className="pk-pile-card" data-rarity={card.rarity} style={{ "--k": shown.length - 1 - k, "--rot": [-3, 2, -1, 4, -4, 1][(current - shown.length + k) % 6] } as React.CSSProperties} aria-hidden="true">
-                      <CharacterCard {...card} characterId={card.characterId} />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={card.imageUrl} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
                     </div>
                   ))}
                 </div>
