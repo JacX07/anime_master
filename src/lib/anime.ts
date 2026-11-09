@@ -67,11 +67,17 @@ export function franchiseTitle(head: string, titles: string[]): string {
   return name;
 }
 
-export async function loadAnimeIndex(): Promise<AnimeIndex> {
-  const [media, characters] = await Promise.all([
+/** Catalogue brut (~8 000 lignes) : il ne change qu'aux imports, on le garde en cache côté serveur au lieu de le relire à chaque requête (egress Supabase). */
+async function loadCatalog() {
+  "use cache";
+  return Promise.all([
     prisma.media.findMany({ select: { id: true, franchiseId: true, titleRomaji: true, titleEnglish: true } }),
     prisma.character.findMany({ where: { disabled: false }, select: { id: true, mainMediaId: true } }),
   ]);
+}
+
+export async function loadAnimeIndex(): Promise<AnimeIndex> {
+  const [media, characters] = await loadCatalog();
   const head = new Map(media.map((m) => [m.id, m.franchiseId ?? m.id]));
   const titles = new Map(media.map((m) => [m.id, m.titleEnglish ?? m.titleRomaji]));
   const titlesByFranchise = new Map<number, string[]>();
