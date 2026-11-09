@@ -9,8 +9,16 @@ const elements = new Map();
 const listeners = new Map();
 const frames = new Map();
 let frameId = 0;
+let audio;
 const motion = { matches: false, addEventListener() {}, removeEventListener() {} };
 const sandbox = {
+  Audio: class {
+    constructor() { audio = this; this.currentTime = 0; this.playbackRate = 1; this.paused = true; }
+    play() { this.paused = false; return Promise.resolve(); }
+    pause() { this.paused = true; }
+    removeAttribute() {}
+    load() {}
+  },
   document: {
     hidden: false,
     getElementById(id) {
@@ -31,6 +39,7 @@ const sandbox = {
 runInNewContext(script, sandbox, { timeout: 1000 });
 const preview = sandbox.window.meguminPreview;
 const advance = now => {
+  if (!audio.paused) audio.currentTime = now / 1000 * audio.playbackRate;
   const callbacks = [...frames.values()];
   frames.clear();
   callbacks.forEach(fn => fn(now));
@@ -39,6 +48,7 @@ preview.play();
 advance(16);
 assert.equal(preview.state.time, 16);
 preview.pause();
+assert.equal(audio.paused, true);
 advance(32);
 assert.equal(preview.state.time, 16);
 assert.equal(frames.size, 0);
@@ -49,6 +59,7 @@ for (const speed of [.25, .5, 1, 2, 4]) {
   advance(40);
   assert.equal(preview.state.time, 40 * speed);
   preview.stop();
+  assert.equal(audio.paused, true);
   assert.equal(frames.size, 0);
 }
 for (let i = 0; i < 30; i++) { preview.play(); preview.stop(); }
@@ -71,6 +82,7 @@ assert.match(elements.get('phase').textContent, /Mouvement réduit/);
 motion.matches = false;
 preview.play();
 preview.destroy();
+assert.equal(audio.paused, true);
 assert.equal(frames.size, 0);
 assert.equal(preview.state.destroyed, true);
 assert.equal(listeners.has('resize'), false);

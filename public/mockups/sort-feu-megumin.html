@@ -15,6 +15,7 @@
 <button id="play">Lancer le sort</button><button id="pause" disabled>Pause</button><button id="stop" disabled>Interrompre</button>
 <label>Vitesse <select id="speed"><option value=".25">×0,25</option><option value=".5">×0,5</option><option value="1" selected>×1</option><option value="2">×2</option><option value="4">×4</option></select></label>
 <label><input id="loop" type="checkbox"> Boucle</label>
+<label><input id="sound" type="checkbox" checked> Son</label>
 </div>
 <div id="scene"><canvas id="fx" role="img" aria-label="Prévisualisation du sort Explosion de Megumin"></canvas></div>
 <div id="readout"><span id="phase" role="status">Prêt à lancer</span><output id="clock" for="time">0,00 / 6,40 s</output></div>
@@ -25,6 +26,8 @@
 // Timeline déterministe : aucune particule ni minuterie ne survit à une interruption.
 const $=id=>document.getElementById(id), canvas=$('fx'), ctx=canvas.getContext('2d');
 const motion=matchMedia('(prefers-reduced-motion: reduce)');
+const sound=new Audio('/audio/sfx/megumin-explosion.wav');
+sound.preload='auto';sound.volume=.65;sound.preservesPitch=false;
 const duration=6400, impact=2800;
 let time=0, playing=false, raf=0, last=0, speed=1, destroyed=false;
 const clamp=v=>Math.max(0,Math.min(1,v));
@@ -102,17 +105,20 @@ function draw(ms){
 }
 function phase(){return time===0?'Prêt à lancer':time<1850?'Incantation':time<impact?'Convergence':time<3850?'Explosion !':time<5200?'Onde de choc et poussière':time<duration?'Megumin est épuisée':'Terminé'}
 function update(){draw(time);$('time').value=time;$('clock').textContent=(time/1000).toFixed(2).replace('.',',')+' / 6,40 s';$('phase').textContent=phase();$('pause').disabled=!playing;$('stop').disabled=time===0&&!playing}
-function cancel(){cancelAnimationFrame(raf);raf=0;playing=false}
-function tick(now){raf=0;if(!playing||destroyed)return;time=Math.min(duration,time+Math.min(now-last,80)*speed);last=now;update();if(time===duration){if($('loop').checked)time=0;else{cancel();update();return}}raf=requestAnimationFrame(tick)}
-function play(){cancel();if(motion.matches){time=impact+200;update();$('phase').textContent='Mouvement réduit : aperçu fixe';return}time=0;playing=true;last=performance.now();update();raf=requestAnimationFrame(tick)}
+function cancel(){cancelAnimationFrame(raf);raf=0;playing=false;sound.pause()}
+function startSound(){sound.play().catch(error=>{if(error.name==='AbortError'||!playing)return;cancel();update();$('phase').textContent='Son indisponible : recharge la page pour réessayer'})}
+// Le son est l’horloge de référence : chargement et ralentis restent synchronisés.
+function tick(){raf=0;if(!playing||destroyed)return;time=Math.min(duration,sound.currentTime*1000);update();if(time>=duration||sound.ended){if($('loop').checked){time=0;sound.currentTime=0;startSound()}else{cancel();update();return}}raf=requestAnimationFrame(tick)}
+function play(){if(destroyed)return;cancel();if(motion.matches){time=impact+200;update();$('phase').textContent='Mouvement réduit : aperçu fixe';return}time=0;sound.currentTime=0;sound.playbackRate=speed;playing=true;update();startSound();raf=requestAnimationFrame(tick)}
 function pause(){cancel();update()}
 function stop(){cancel();time=0;update()}
 $('play').onclick=play;$('pause').onclick=pause;$('stop').onclick=stop;
-$('speed').onchange=()=>{speed=Number($('speed').value)};
+$('speed').onchange=()=>{speed=Number($('speed').value);sound.playbackRate=speed};
+$('sound').onchange=()=>{sound.muted=!$('sound').checked};
 $('time').oninput=()=>{cancel();time=Number($('time').value);update()};
 function onResize(){update()}function onMotion(){stop()}function onVisibility(){if(document.hidden)pause()}
 addEventListener('resize',onResize);motion.addEventListener('change',onMotion);document.addEventListener('visibilitychange',onVisibility);
-function destroy(){cancel();destroyed=true;removeEventListener('resize',onResize);motion.removeEventListener('change',onMotion);document.removeEventListener('visibilitychange',onVisibility);ctx.clearRect(0,0,canvas.width,canvas.height)}
+function destroy(){cancel();destroyed=true;sound.removeAttribute('src');sound.load();removeEventListener('resize',onResize);motion.removeEventListener('change',onMotion);document.removeEventListener('visibilitychange',onVisibility);ctx.clearRect(0,0,canvas.width,canvas.height)}
 addEventListener('pagehide',destroy,{once:true});
 window.meguminPreview={play,pause,stop,destroy,seek(ms){cancel();time=Math.max(0,Math.min(duration,ms));update()},get state(){return{time,playing,raf,speed,destroyed,reducedMotion:motion.matches}}};
 update();
