@@ -153,6 +153,9 @@ Validé le 2026-11-04. Barre de 68 px en trois colonnes : bouton **Menu** à gau
 - **Profil** : panneau sous la barre ouvert au toucher sur l'avatar ; boutons de 46 px avec filet or à gauche, « Se déconnecter » en rouge (`#e0645c`).
 - Menu « Social » (Amis, Guildes, Classement) remplace l'entrée Classement, sur tous les écrans.
 
+### 4.16 Cases d'artefact par rareté (validé le 2026-11-09, variante C)
+Fond de la couleur de rareté à 20 % sur `#0a0e0d`, liseré intérieur 2 px de la rareté assombrie, petit losange plein de la couleur de rareté en haut à gauche, reflet diagonal discret sur SSR et UR. Les cinq raretés ont chacune leur teinte (`--rarity-*`). Sélection : fond à 30 % et contour or `#d5bb7f` décalé de 3 px. Icône non désaturée. Même rendu dans la fiche personnage (`.eq-character-dialog`).
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
