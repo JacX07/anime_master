@@ -16,8 +16,8 @@ for (const u of UNIVERSES) for (let level = 1; level <= LEVELS; level++) for (co
   assert.equal(preview.weapon, level === LEVELS ? 1 : 0);
 }
 const op = UNIVERSES[0];
-assert.deepEqual(storyLootPreview(op, 1, true), { units: 12, minUnits: 12, ryo: 15, crystals: 1, weapon: 0 });
-assert.deepEqual(storyLootPreview(op, 15, false), { units: 11, minUnits: 3, ryo: 0, crystals: 0, weapon: 1 });
+assert.deepEqual(storyLootPreview(op, 1, true), { units: 12, minUnits: 12, ryo: 55, crystals: 1, weapon: 0 });
+assert.deepEqual(storyLootPreview(op, 15, false), { units: 11, minUnits: 3, ryo: 38, crystals: 0, weapon: 1 });
 const split = storyLoot(op, 1, false, 500, (() => { let i = 0; return () => i++ % 2 ? .5 : .499; })());
 assert.equal(split.resources[op.resource], 2);
 assert.equal(split.resources[COMMON_RESOURCE], 2);
@@ -31,6 +31,6 @@ const boss = renderToStaticMarkup(createElement(StoryDrops, { universeKey: op.ke
 assert.match(boss, /Kairoseki/);
 assert.match(boss, /100 %/);
 assert.match(boss, /3 à 11 unités/);
-assert.doesNotMatch(boss, />Ryō</);
+assert.match(boss, /Ryō<small>×38</);
 assert.doesNotMatch(boss, />Cristaux</);
 console.log("✓ Butin : 225 combats, première victoire/rejeu, plafond, boss, tirage 50/50 et affichage des taux.");
