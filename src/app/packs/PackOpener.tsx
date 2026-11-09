@@ -141,7 +141,10 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     pack.cards.forEach((c, i) => {
       if (!revealed[i]) window.setTimeout(() => packAudio.flip(), i * 90);
     });
-    if (rare) { setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current, card: pack.cards.find((c) => c.rarity === best) }); packAudio.jingle(best as "SSR" | "UR"); }
+    // L'éclat ne rejoue que pour une SSR/UR pas encore retournée (une carte déjà révélée a eu son éclat)
+    const hidden = pack.cards.filter((c, i) => !revealed[i] && (c.rarity === "SSR" || c.rarity === "UR"));
+    const top = hidden.find((c) => c.rarity === "UR") ?? hidden[0];
+    if (top) { setBurst({ rarity: top.rarity as "SSR" | "UR", key: ++burstKey.current, card: top }); packAudio.jingle(top.rarity as "SSR" | "UR"); }
     setRevealed((r) => r.map(() => true));
     setSummary(true);
   }
