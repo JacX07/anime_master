@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { CSSProperties } from "react";
 
 /** Éclat plein scène d'un SSR ou d'un UR (docs/direction-artistique.md §6) : tout avance par crans.
@@ -26,10 +27,10 @@ function Ring({ r, reverse }: { r: number; reverse?: boolean }) {
   );
 }
 
-export function RarityBurst({ rarity, onEnd }: { rarity: "SSR" | "UR"; onEnd: () => void }) {
+export function RarityBurst({ rarity, onEnd, children }: { rarity: "SSR" | "UR"; onEnd: () => void; children?: ReactNode }) {
   const ur = rarity === "UR";
   return (
-    <div className="pk-burst" data-rarity={rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && onEnd()}>
+    <div className="pk-burst" data-rarity={rarity} aria-hidden="true" onAnimationEnd={(e) => e.target === e.currentTarget && e.animationName === "pk-burst-life" && onEnd()}>
       <Ring r={230} />
       {ur && <Ring r={290} reverse />}
       <svg className="pk-burst-cracks" viewBox="0 0 760 400" preserveAspectRatio="none">
@@ -45,6 +46,7 @@ export function RarityBurst({ rarity, onEnd }: { rarity: "SSR" | "UR"; onEnd: ()
       {[-30, 28, 90].slice(0, ur ? 3 : 2).map((rot, i) => <i key={rot} className="pk-burst-slash" style={{ "--rot": `${rot}deg`, "--i": i } as CSSProperties} />)}
       {SHARDS.slice(0, ur ? 14 : 9).map(([x, y, r], i) => <i key={i} className="pk-burst-shard" style={{ "--x": `${x}px`, "--y": `${y}px`, "--r": `${r}deg`, "--d": `${0.55 + (i % 5) * 0.012}s` } as CSSProperties} />)}
       <b className="pk-burst-plate">{rarity}</b>
+      {children && <div className="pk-burst-card">{children}</div>}
       <span className="pk-burst-flash" />
     </div>
   );

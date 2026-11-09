@@ -137,8 +137,8 @@
 }
 
 /* Éclat plein scène quand un SSR ou un UR apparaît (§6 : mouvement par crans) */
-.pk-burst { --c: #c4a76d; --cl: #f0dca0; position: fixed; inset: 0; z-index: 200; overflow: hidden; pointer-events: none; background: #0a0c0d; animation: pk-burst-life 1.7s linear forwards; }
-.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; animation: pk-burst-life 1.7s linear forwards, pk-burst-shake .5s steps(5, end) .55s; }
+.pk-burst { --c: #c4a76d; --cl: #f0dca0; position: fixed; inset: -8px; z-index: 200; overflow: hidden; pointer-events: none; background: #0a0c0d; animation: pk-burst-life 3.1s linear forwards; }
+.pk-burst[data-rarity="UR"] { --c: #e0645c; --cl: #ffb3aa; animation: pk-burst-life 3.1s linear forwards, pk-burst-shake .5s steps(5, end) .55s; }
 .pk-burst > * { position: absolute; }
 .pk-burst-ring { left: 50%; top: 45%; width: var(--size); aspect-ratio: 1; margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2); opacity: 0; will-change: transform; animation: pk-ring-in .22s ease-out forwards, pk-ring-turn .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
 .pk-burst-ring[data-reverse] { animation: pk-ring-in .22s ease-out .12s forwards, pk-ring-turn-rev .9s steps(3, end) .1s forwards, pk-burst-out .35s ease-in 1.15s forwards; }
@@ -151,7 +151,7 @@
 .pk-burst-shard { left: 50%; top: 45%; width: 14px; height: 26px; opacity: 0; background: linear-gradient(135deg, #fff, var(--c)); clip-path: polygon(50% 0, 100% 70%, 40% 100%, 0 55%); animation: pk-shard .8s steps(7, end) var(--d) forwards; }
 .pk-burst-cracks { inset: 0; width: 100%; height: 100%; stroke: var(--c); opacity: 0; animation: pk-burst-on .15s steps(2, end) .55s forwards, pk-burst-out .6s ease-in 1.2s forwards; }
 .pk-burst-flash { inset: 0; background: color-mix(in srgb, var(--c) 40%, #fff); opacity: 0; animation: pk-flash-cut .26s steps(3, end) .55s; }
-@keyframes pk-burst-life { 0% { opacity: 0; } 6% { opacity: 1; } 80% { opacity: 1; } 90% { opacity: .5; } 100% { opacity: 0; } }
+@keyframes pk-burst-life { 0% { opacity: 0; } 3% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes pk-ring-in { from { opacity: 0; scale: 1.5; } to { opacity: 1; scale: 1; } }
 @keyframes pk-ring-turn { to { rotate: 90deg; } }
 @keyframes pk-ring-turn-rev { to { rotate: -90deg; } }
@@ -465,3 +465,9 @@
 @keyframes pk-pile-in { from { transform: translate(calc(var(--k) * -9px + 7rem), calc(var(--k) * -3px)) rotate(0deg); opacity: 0; } }
 @media (max-width: 640px) { .pk-table { gap: 0.75rem; } .pk-pile { width: 4.5rem; } }
 @media (prefers-reduced-motion: reduce) { .pk-pile-card { animation: none; } }
+
+/* La carte tirée vient au centre après l'éclat, puis redescend vers sa place */
+.pk-burst-card { left: 50%; top: 50%; width: min(15rem, 62vw); translate: -50% -50%; opacity: 0; filter: none; animation: pk-card-up .3s steps(4, end) 1.5s forwards, pk-card-down .5s cubic-bezier(.5, 0, .9, .5) 2.45s forwards; }
+.pk-burst-card .card { box-shadow: 0 0 0 2px var(--c), 0 0 40px 6px color-mix(in srgb, var(--c) 45%, transparent); }
+@keyframes pk-card-up { from { opacity: 0; translate: -50% -40%; scale: .85; } to { opacity: 1; translate: -50% -50%; scale: 1; } }
+@keyframes pk-card-down { from { opacity: 1; translate: -50% -50%; scale: 1; } to { opacity: 0; translate: -50% 30vh; scale: .6; } }

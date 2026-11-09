@@ -273,12 +273,13 @@ class PackAudio {
       const t = t0 + 0.05;
       const notes = ur ? [74, 78, 81, 86] : [69, 73, 76];
       notes.forEach((n, i) => {
-        this.nz(t + i * 0.16 - 0.02, { type: "bandpass", f: 5000, q: 2, dur: 0.05, g: 0.1 });
-        this.metal(t + i * 0.16, hz(n), 0.2, 1.4);
+        this.nz(t + i * 0.22 - 0.02, { type: "bandpass", f: 5000, q: 2, dur: 0.05, g: 0.1 });
+        this.metal(t + i * 0.22, hz(n), 0.2, 1.8);
       });
-      const end = t + notes.length * 0.16 + 0.08;
-      (ur ? [62, 69, 74] : [57, 64, 69]).forEach((n) => this.metal(end, hz(n), 0.18, ur ? 3 : 2));
-      if (ur) this.metal(end + 0.35, hz(50), 0.26, 3.2);
+      const end = t + notes.length * 0.22 + 0.1;
+      (ur ? [62, 69, 74] : [57, 64, 69]).forEach((n) => this.metal(end, hz(n), 0.18, ur ? 4.2 : 3));
+      this.metal(t + 1.5, hz(ur ? 86 : 81), 0.14, 2.4); // cloche d'arrivée de la carte
+      if (ur) this.metal(end + 0.45, hz(50), 0.26, 4.4);
     });
   }
 

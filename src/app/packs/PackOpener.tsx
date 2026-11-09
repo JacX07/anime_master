@@ -59,7 +59,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const burstKey = useRef(0);
   const suppressClick = useRef(false);
   const [revealed, setRevealed] = useState<boolean[]>([]);
-  const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number } | null>(null);
+  const [burst, setBurst] = useState<{ rarity: "SSR" | "UR"; key: number; card?: OpenedCard } | null>(null);
   const [detail, setDetail] = useState<OpenedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [machine, setMachine] = useState(false);
@@ -133,7 +133,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     if (!pack || revealed[i]) return;
     const rarity = pack.cards[i].rarity;
     packAudio.flip(rarity);
-    if (rarity === "SSR" || rarity === "UR") { setBurst({ rarity, key: ++burstKey.current }); packAudio.jingle(rarity); }
+    if (rarity === "SSR" || rarity === "UR") { setBurst({ rarity, key: ++burstKey.current, card: pack.cards[i] }); packAudio.jingle(rarity); }
     setRevealed((r) => r.map((v, j) => v || j === i));
   }
   function revealAll() {
@@ -141,7 +141,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
     pack.cards.forEach((c, i) => {
       if (!revealed[i]) window.setTimeout(() => packAudio.flip(c.rarity), i * 90);
     });
-    if (rare) { setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current }); packAudio.jingle(best as "SSR" | "UR"); }
+    if (rare) { setBurst({ rarity: best as "SSR" | "UR", key: ++burstKey.current, card: pack.cards.find((c) => c.rarity === best) }); packAudio.jingle(best as "SSR" | "UR"); }
     setRevealed((r) => r.map(() => true));
     setSummary(true);
   }
@@ -263,7 +263,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
           )}
           {!pack && <p className="pk-note">Découpe le haut du booster ou clique dessus.</p>}
 
-          {burst && createPortal(<RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)} />, document.body)}
+          {burst && createPortal(<RarityBurst key={burst.key} rarity={burst.rarity} onEnd={() => setBurst(null)}>{burst.card && <CharacterCard {...burst.card} characterId={burst.card.characterId} />}</RarityBurst>, document.body)}
 
           {pack && machine && best && <SummonMachine rarity={best} fast={pack.lotSize >= 10} onDone={() => { setMachine(false); packAudio.deal(0.1); }} />}
 
@@ -276,7 +276,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 </p>
               )}
               {pack.pity !== "NONE" && <p className="pk-pity">Garantie {pack.pity} déclenchée !</p>}
-              <div className={summary ? undefined : "pk-table"}>
+              <div className="pk-table">
               {!summary && (
                 <div className="pk-pile" data-count={current} aria-label={`${current} carte${current > 1 ? "s" : ""} révélée${current > 1 ? "s" : ""}`}>
                   {pack.cards.slice(Math.max(0, current - 4), current).map((card, k, shown) => (
