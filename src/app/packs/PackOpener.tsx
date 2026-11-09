@@ -47,6 +47,9 @@ function formatDuration(ms: number) {
 /** Ouverture de paquets en 2D (direction « Citadelle sombre ») : choix de la bannière et du lot, tirage côté serveur, cartes retournées une à une. */
 export function PackOpener({ initialState, banners = [], standardPool = {}, expeditionsReady = 0, achievements }: { achievements?: ReactNode; initialState: PlayerPackState; banners?: BannerInfo[]; standardPool?: RarityCounts; expeditionsReady?: number }) {
   const [state, setState] = useState(initialState);
+  // Le serveur renvoie un nouvel état (cristaux gagnés ailleurs, navigation) : il remplace l'ancien.
+  const [seen, setSeen] = useState(initialState);
+  if (seen !== initialState) { setSeen(initialState); setState(initialState); }
   const [bannerId, setBannerId] = useState<string | null>(null);
   const [lot, setLot] = useState<LotSize>(5);
   const [pack, setPack] = useState<OpenedPack | null>(null);
