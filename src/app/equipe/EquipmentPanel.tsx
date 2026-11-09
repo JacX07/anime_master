@@ -13,6 +13,8 @@ import { artifactSubstatUpgrades, artifactRarity, artifactStatIcon, artifactStat
 import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost } from "@/lib/artifact-upgrade";
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
+import { GearPreview } from "./StatisticsPanel";
+import type { TeamCard } from "./TeamBuilder";
 
 type Inventory = Awaited<ReturnType<typeof getPlayerInventory>>;
 type Slot = "ARME" | typeof ARTIFACT_SLOTS[number];
@@ -27,7 +29,7 @@ function SlotIcon({ slot }: { slot: Slot }) {
   return <svg viewBox="0 0 40 40" aria-hidden="true"><path d={paths[slot]} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
-export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card: { id: string; name: string; weaponKey: string | null; stars: number } }) {
+export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inventory; card: TeamCard; team?: TeamCard[] }) {
   const [slot, setSlot] = useState<Slot | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const detailRef = useRef<HTMLElement>(null);
@@ -87,9 +89,10 @@ export function EquipmentPanel({ inventory, card }: { inventory: Inventory; card
             <div className="gear-item-body"><div><p className="gear-main-stat"><Icon name={artifactStatIcon(artifact.mainStat)} /><strong>{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</strong></p>
             <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}><Icon name={artifactStatIcon(stat.stat)} />{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</li>)}</ul>
             </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
+            <GearPreview card={card} team={team} inventory={inventory} artifact={artifact} />
             <div className="gear-item-actions">
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
-            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : "Améliorer"}</button></div>
+            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button></div>
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
           </article>;
         })() : <p className="gear-detail-placeholder">Sélectionne un artefact pour afficher sa fiche.</p>}

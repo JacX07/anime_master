@@ -10,6 +10,45 @@ import { DUNGEONS } from "@/lib/dungeons";
 
 const STAT_ICONS: Record<string, string> = { Puissance: "puissance", PV: "hp", "Compétence magique": "magie", ATK: "atk", DEF: "def", Vitesse: "speed", "Chance de critique": "eveil", "Dégâts critiques": "puissance", Esquive: "speed" };
 
+type Inv = Awaited<ReturnType<typeof getPlayerInventory>>;
+type Worn = NonNullable<Inv["items"][number]["artifact"]>;
+
+/** Stats en combat d'une carte ; `wear` remplace l'objet du même emplacement (aperçu avant d'équiper). */
+export function gearSnapshot(card: TeamCard, team: TeamCard[], inventory: Inv, wear?: Worn) {
+  const context = team.some((member) => member.id === card.id) ? team : [card];
+  const worn = (memberId: string) => {
+    let list = inventory.items.flatMap((item) => item.artifact?.equippedCard?.id === memberId ? [item.artifact] : []);
+    if (wear) {
+      list = list.filter((a) => a.id !== wear.id && (memberId !== card.id || a.slot !== wear.slot));
+      if (memberId === card.id) list.push(wear);
+    }
+    return list;
+  };
+  const battleCards: BattleCard[] = context.map((member) => ({ characterId: member.characterId, attack: member.attack, defense: member.defense, type: member.type, rarity: member.rarity, power: 0,
+    speed: member.speed, stars: member.stars, franchiseId: member.franchiseId, weapon: weaponDef(member.weaponKey ?? "")?.weapon ?? null, artifactStats: sumArtifactStats(worn(member.id)) }));
+  const index = context.findIndex((member) => member.id === card.id);
+  const unit = createBattle(battleCards, [], () => 0.5, { spells: false, combos: false }).teams.A[index];
+  const gear = battleCards[index].artifactStats!;
+  return { power: combatPowers(battleCards)[index], hp: unit.maxHp, atk: unit.atk, def: unit.def, speed: unit.speed,
+    crit: Math.max(0, Math.min(1, BATTLE.critRate + (gear.crit ?? 0))), critDamage: BATTLE.critDamage + (gear.critDamage ?? 0), dodge: Math.max(0, Math.min(1, unit.dodge + (gear.dodge ?? 0))) };
+}
+
+/** Avant / après : ce que l'objet sélectionné change sur la fiche du personnage. */
+export function GearPreview({ card, team, inventory, artifact }: { card: TeamCard; team: TeamCard[]; inventory: Inv; artifact: Worn }) {
+  const now = gearSnapshot(card, team, inventory);
+  const worn = artifact.equippedCard?.id === card.id;
+  const next = worn ? gearSnapshot(card, team, { ...inventory, items: inventory.items.filter((item) => item.artifact?.id !== artifact.id) }) : gearSnapshot(card, team, inventory, artifact);
+  const n = (v: number) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(v);
+  const p = (v: number) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(v * 100)} %`;
+  const rows: [string, number, number, (v: number) => string][] = [
+    ["Puissance", now.power, next.power, n], ["PV", now.hp, next.hp, n], ["ATK", now.atk, next.atk, n], ["DEF", now.def, next.def, n],
+    ["Vitesse", now.speed, next.speed, n], ["Critique", now.crit, next.crit, p], ["Dégâts crit.", now.critDamage, next.critDamage, p], ["Esquive", now.dodge, next.dodge, p],
+  ];
+  return <table className="gear-preview"><caption>{worn ? "Si tu retires cet objet" : "Si tu équipes cet objet"}</caption><tbody>
+    {rows.map(([label, a, b, f]) => { const d = Math.round((b - a) * 1000) / 1000; return <tr key={label} data-delta={d > 0 ? "up" : d < 0 ? "down" : undefined}><th scope="row">{label}</th><td>{f(a)}</td><td>{f(b)}</td></tr>; })}
+  </tbody></table>;
+}
+
 export function StatisticsPanel({ card, team, inventory }: { card: TeamCard; team: TeamCard[]; inventory: Awaited<ReturnType<typeof getPlayerInventory>> }) {
   const context = team.some((member) => member.id === card.id) ? team : [card];
   const battleCards: BattleCard[] = context.map((member) => ({ characterId: member.characterId, attack: member.attack, defense: member.defense, type: member.type, rarity: member.rarity, power: 0,

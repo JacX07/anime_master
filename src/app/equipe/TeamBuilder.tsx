@@ -186,7 +186,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
       {card && (
         <div className="cd">
           <button type="button" className="cd-close bt-btn" onClick={onClose}>Fermer</button>
-          <EquipmentPanel inventory={inventory} card={card} />
+          <EquipmentPanel inventory={inventory} card={card} team={team} />
           <figure className="cd-hero" data-rarity={card.rarity}>
             <figcaption className="cd-title">
               <b>{card.name}</b>
