@@ -110,30 +110,37 @@ export function earned(f: AchievementFacts): string[] {
 }
 
 async function gather(userId: string): Promise<AchievementFacts> {
-  const [openings, owned, auctionSales, trades, duelWins, expeditions, triumphs] = await Promise.all([
+  const [openings, owned, distinct, auctionSales, trades, duelWins, expeditions, triumphs] = await Promise.all([
     prisma.packOpening.count({ where: { userId } }),
-    prisma.card.findMany({ where: { ownerId: userId }, select: { characterId: true, finish: true, rarityAtPull: true, character: { select: { rarity: true, type: true, power: true } } } }),
+    // Agrégé par Postgres : quelques lignes au lieu de toute la collection et de ses personnages (egress Supabase)
+    prisma.$queryRaw<{ power: bigint | null; ssr: boolean | null; ur: boolean | null; holo: boolean | null; gold: boolean | null; types: bigint }[]>`
+      SELECT SUM(ch."power") AS power,
+        BOOL_OR(c."rarityAtPull"::text = 'SSR' OR ch."rarity"::text = 'SSR') AS ssr,
+        BOOL_OR(c."rarityAtPull"::text = 'UR' OR ch."rarity"::text = 'UR') AS ur,
+        BOOL_OR(c."finish"::text = 'HOLO') AS holo, BOOL_OR(c."finish"::text = 'GOLD') AS gold,
+        COUNT(DISTINCT ch."type") AS types
+      FROM "Card" c JOIN "Character" ch ON ch.id = c."characterId" WHERE c."ownerId" = ${userId}`.then(([row]) => row),
+    prisma.card.groupBy({ by: ["characterId"], where: { ownerId: userId } }),
     prisma.auction.count({ where: { sellerId: userId, status: "SOLD" } }),
     prisma.trade.count({ where: { status: "ACCEPTED", OR: [{ fromId: userId }, { toId: userId }] } }),
     prisma.duel.count({ where: { winnerId: userId, status: { in: ["DONE", "FORFEIT"] } } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { expeditionsDone: true } }).then((u) => u.expeditionsDone),
     prisma.expedition.count({ where: { userId, outcome: "TRIUMPH" } }),
   ]);
-  const ids = new Set(owned.map((c) => c.characterId));
-  const rarities = new Set(owned.flatMap((c) => [c.rarityAtPull, c.character.rarity]));
+  const ids = new Set(distinct.map((c) => c.characterId));
   // Anime complets : les anime de l'album (src/lib/anime.ts) dont tous les personnages sont possédés
   const anime = await loadAnimeIndex();
   const completedAnime = anime.listed.filter((a) => a.characterIds.every((id) => ids.has(id))).length;
   return {
-    collectionPower: owned.reduce((total, card) => total + card.character.power, 0),
+    collectionPower: Number(owned.power ?? 0),
     openings,
-    hasSSR: rarities.has("SSR"),
-    hasUR: rarities.has("UR"),
-    hasHolo: owned.some((c) => c.finish === "HOLO"),
-    hasGold: owned.some((c) => c.finish === "GOLD"),
+    hasSSR: !!owned.ssr,
+    hasUR: !!owned.ur,
+    hasHolo: !!owned.holo,
+    hasGold: !!owned.gold,
     unique: ids.size,
     completedAnime,
-    types: new Set(owned.map((c) => c.character.type)).size,
+    types: Number(owned.types),
     auctionSales,
     trades,
     duelWins,

@@ -2,9 +2,11 @@
 
 import { prisma } from "./db";
 
-type CardDb = { card: typeof prisma.card };
+type Db = Pick<typeof prisma, "$queryRaw">;
 
-export async function getCollectionPower(userId: string, db: CardDb = prisma): Promise<number> {
-  const cards = await db.card.findMany({ where: { ownerId: userId }, select: { character: { select: { power: true } } } });
-  return cards.reduce((sum, c) => sum + c.character.power, 0);
+/** Somme calculée par Postgres : une ligne renvoyée au lieu de toute la collection (egress Supabase). */
+export async function getCollectionPower(userId: string, db: Db = prisma): Promise<number> {
+  const [row] = await db.$queryRaw<{ power: bigint | null }[]>`
+    SELECT SUM(ch."power") AS power FROM "Card" c JOIN "Character" ch ON ch.id = c."characterId" WHERE c."ownerId" = ${userId}`;
+  return Number(row?.power ?? 0);
 }
