@@ -440,21 +440,6 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-btn:hover:not(:disabled) { background: #4b8bff44; }
 .bt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .bt-btn[aria-pressed="true"] { border-color: #4b8bff; background: #4b8bff55; }
-.bt-play { border-color: #4b8bff; background: #4b8bff33; min-width: 7rem; }
-.bt-speed { display: flex; gap: 0.25rem; }
-.bt-progress {
-  flex: 1 1 8rem;
-  height: 6px;
-  border-radius: 99px;
-  background: #ffffff1a;
-  overflow: hidden;
-}
-.bt-progress i {
-  display: block;
-  height: 100%;
-  background: #4b8bff;
-  transition: width 0.2s linear;
-}
 
 /* ---------- Fin du combat ---------- */
 
@@ -1014,8 +999,6 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-btn[aria-pressed="true"], .bt-play { border: 0; border-bottom: 1px solid var(--g); background: none; color: var(--g); }
 .bt-btn:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
 .bt-controls { border-top: 1px solid transparent; border-image: linear-gradient(90deg, transparent, var(--gd), transparent) 1; padding-top: .25rem; }
-.bt-progress { background: #000; box-shadow: 0 0 0 1px #2a2f2d; border-radius: 0; }
-.bt-progress i { background: linear-gradient(90deg, var(--gd), var(--g)); border-radius: 0; }
 
 /* Panneau de sorts : plaque biseautée en relief */
 .bt-spells { border: 0; border-radius: 0; background: linear-gradient(#171b1c, #0c0f10); box-shadow: inset 0 0 0 1px var(--gd); color: #e9e4d6;
@@ -1072,3 +1055,35 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .bv-stars { margin: 0 0 0 auto; font-size: clamp(2rem, 6vw, 2.8rem); letter-spacing: .1em; color: var(--g); text-shadow: 0 0 18px #c4a76d99, 0 3px 6px #000; }
 .bv-stars [data-off] { color: #2a2d2b; text-shadow: none; }
 .bt-result-window .hs-result > b:first-child, .bt-result-window .hs-stars-result { display: none; }
+
+/* Barre de contrôle : dock central biseauté (DA §4.15) */
+.bt-controls { flex-direction: column; justify-content: center; gap: .35rem; padding-top: .5rem; }
+.bt-dock { padding: 1px; background: var(--gd); clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px); }
+.bt-dock-in { display: flex; align-items: center; gap: .3rem; padding: .4rem 1rem; background: #0d1011; clip-path: polygon(13px 0, calc(100% - 13px) 0, 100% 13px, 100% calc(100% - 13px), calc(100% - 13px) 100%, 13px 100%, 0 calc(100% - 13px), 0 13px); }
+.mq-app-shell[class] .bt-dock .bt-ico, .mq-app-shell[class] .bt-dock-row .bt-quit { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-width: 2.4rem; min-height: 0; padding: .5rem .55rem; border: 0; border-radius: 0; background: none; color: #e9e4d6; font: 500 .7rem var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+.mq-app-shell[class] .bt-dock .bt-ico:hover:not(:disabled), .mq-app-shell[class] .bt-dock .bt-ico[aria-pressed="true"] { color: var(--g); box-shadow: inset 0 -1px 0 var(--gd); }
+.mq-app-shell[class] .bt-dock .bt-ico[aria-pressed="true"] { box-shadow: inset 0 -1px 0 var(--g); }
+.mq-app-shell[class] .bt-dock .bt-ico:disabled { opacity: .4; cursor: not-allowed; }
+.mq-app-shell[class] .bt-dock .bt-ico:focus-visible, .mq-app-shell[class] .bt-dock-row .bt-quit:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
+.mq-app-shell[class] .bt-dock .bt-ico .i, .mq-app-shell[class] .bt-dock-row .bt-quit .i { width: 1.05rem; height: 1.05rem; }
+.mq-app-shell[class] .bt-dock .bt-ico[data-off] { color: #8d958f; box-shadow: none; }
+.mq-app-shell[class] .bt-dock .bt-ico[data-off]::after { content: ""; position: absolute; left: .55rem; right: .55rem; top: 50%; height: 1.5px; background: #e0645c; rotate: -35deg; }
+.mq-app-shell[class] .bt-dock .bt-big { position: relative; display: grid; place-items: center; flex: none; width: 3.4rem; height: 3.4rem; margin: 0 .2rem; padding: 0; border: 0; background: none; color: #f0dca0; cursor: pointer; }
+.mq-app-shell[class] .bt-dock .bt-big::before, .mq-app-shell[class] .bt-dock .bt-big::after { content: ""; position: absolute; border-radius: 50%; }
+.mq-app-shell[class] .bt-dock .bt-big::before { inset: 0; box-shadow: inset 0 0 0 1px var(--g); }
+.mq-app-shell[class] .bt-dock .bt-big::after { inset: 5px; outline: 1px dotted var(--gd); outline-offset: -1px; }
+.mq-app-shell[class] .bt-dock .bt-big .i { position: relative; z-index: 1; width: 1.3rem; height: 1.3rem; }
+.mq-app-shell[class] .bt-dock .bt-big:hover::before { box-shadow: inset 0 0 0 1px #f0dca0; }
+.mq-app-shell[class] .bt-dock .bt-big:focus-visible, .mq-app-shell[class] .bt-dock .bt-spd:focus-visible, .mq-app-shell[class] .bt-dock-row .bt-sw:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
+.mq-app-shell[class] .bt-dock .bt-spd { display: block; min-width: 3.4rem; padding: .2rem .3rem; border: 0; background: none; color: var(--g); font: 600 1.25rem/1.2 var(--font-display, serif); letter-spacing: .04em; text-align: center; cursor: pointer; text-shadow: 0 1px 3px #000; }
+.mq-app-shell[class] .bt-dock .bt-spd small { display: block; font: .55rem var(--font-dm, sans-serif); letter-spacing: .2em; text-transform: uppercase; color: #8d958f; }
+.mq-app-shell[class] .bt-dock .bt-spd:hover { color: #f0dca0; }
+.bt-dock-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem 1rem; }
+.mq-app-shell[class] .bt-dock-row .bt-sw { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem; border: 0; background: none; color: #e9e4d6; font: 500 .7rem var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; text-shadow: 0 1px 3px #000; }
+.mq-app-shell[class] .bt-dock-row .bt-sw-tr { position: relative; width: 34px; height: 14px; background: #14181a; box-shadow: inset 0 0 0 1px var(--gd); clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0 50%); }
+.mq-app-shell[class] .bt-dock-row .bt-sw-tr::after { content: ""; position: absolute; top: 2px; left: 3px; width: 8px; height: 8px; background: #8d958f; rotate: 45deg; transition: left .15s steps(3); }
+.mq-app-shell[class] .bt-dock-row .bt-sw[aria-checked="true"] .bt-sw-tr::after { left: 20px; background: var(--g); box-shadow: 0 0 6px var(--g); }
+.mq-app-shell[class] .bt-dock-row .bt-quit { color: #9b6a66; }
+.mq-app-shell[class] .bt-dock-row .bt-quit:hover:not(:disabled) { color: #e0645c; box-shadow: inset 0 -1px 0 #e0645c; }
+@media (max-width: 480px) { .bt-dock-in { padding: .35rem .6rem; gap: .1rem; } .mq-app-shell[class] .bt-dock .bt-ico { min-width: 2.1rem; padding: .4rem; } .mq-app-shell[class] .bt-dock .bt-spd { min-width: 3rem; } }
+@media (prefers-reduced-motion: reduce) { .bt-sw-tr::after { transition: none; } }

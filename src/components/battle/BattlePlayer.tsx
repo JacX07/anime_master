@@ -11,7 +11,7 @@ import { attackVisual, attackWeapon } from "@/lib/attack-visual";
 import { actionVisualTargets } from "@/lib/combat-vfx-events";
 import { CombatVfx } from "./combat-vfx";
 import { PERSISTENT_STATUSES, STATUS_FX } from "./status-vfx";
-import { StatusIcon, TypeIcon } from "../icons";
+import { Icon, StatusIcon, TypeIcon } from "../icons";
 import { BattleReport } from "./BattleReport";
 import { TurnOrder } from "./TurnOrder";
 import { replayTurnOrder } from "@/lib/battle-report";
@@ -348,52 +348,57 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       ))}
 
       <div className="bt-controls">
-        <button type="button" className="bt-btn" onClick={restart} aria-label="Recommencer" title="Recommencer">
-          ⟲
-        </button>
-        <button
-          type="button"
-          className="bt-btn bt-play"
-          onClick={() => (finished ? restart() : setPlaying((p) => !p))}
-          aria-label={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
-        >
-          {finished ? "Rejouer" : playing ? "❚❚ Pause" : "▶ Lecture"}
-        </button>
-        <button type="button" className="bt-btn" onClick={skip} disabled={finished} aria-label="Aller à la fin" title="Aller à la fin">
-          Fin
-        </button>
-        <div className="bt-speed" role="group" aria-label="Vitesse">
-          {SPEEDS.map((s) => (
-            <button key={s} type="button" className="bt-btn" aria-pressed={speed === s}
-              onClick={() => {
-                setSpeed(s);
-                localStorage.setItem("bt-speed", String(s));
-              }}>
-              ×{s}
+        <div className="bt-dock">
+          <div className="bt-dock-in">
+            <button type="button" className="bt-ico" onClick={skip} disabled={finished} aria-label="Aller à la fin" title="Aller à la fin">
+              <Icon name="fin" />
             </button>
-          ))}
+            <button
+              type="button"
+              className="bt-big"
+              onClick={() => (finished ? restart() : setPlaying((p) => !p))}
+              aria-label={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
+              title={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
+            >
+              <Icon name={!finished && playing ? "pause" : "lecture"} />
+            </button>
+            <button
+              type="button"
+              className="bt-spd"
+              onClick={() => {
+                const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+                setSpeed(next);
+                localStorage.setItem("bt-speed", String(next));
+              }}
+              aria-label={`Vitesse ×${speed}, cliquer pour changer`}
+              title="Changer la vitesse (×1, ×2, ×4)"
+            >
+              ×{speed}
+              <small>Vitesse</small>
+            </button>
+            <button type="button" className="bt-ico" data-off={!sfxOn || undefined} aria-pressed={sfxOn} aria-label="Effets sonores" title="Effets sonores" onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>
+              <Icon name="son" />
+            </button>
+            <button type="button" className="bt-ico" data-off={!musicOn || undefined} aria-pressed={musicOn} aria-label="Musique" title="Musique" onClick={() => toggle("bt-music", !musicOn, setMusicOn)}>
+              <Icon name="musique" />
+            </button>
+          </div>
         </div>
-        <div className="bt-speed" role="group" aria-label="Son">
-          <button type="button" className="bt-btn" aria-pressed={sfxOn} onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>
-            Effets
-          </button>
-          <button type="button" className="bt-btn" aria-pressed={musicOn} onClick={() => toggle("bt-music", !musicOn, setMusicOn)}>
-            Musique
-          </button>
-        </div>
-        {live && !end && (
-          <button type="button" className="bt-btn" aria-pressed={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
-            {live.auto ? "Auto" : "Manuel"}
-          </button>
+        {((live && !end) || (live?.onAbandon && !end)) && (
+          <div className="bt-dock-row">
+            {live && !end && (
+              <button type="button" className="bt-sw" role="switch" aria-checked={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
+                <span className="bt-sw-tr" aria-hidden="true" />
+                {live.auto ? "Auto" : "Manuel"}
+              </button>
+            )}
+            {live?.onAbandon && !end && (
+              <button type="button" className="bt-quit" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
+                <Icon name="fermer" /> Abandonner
+              </button>
+            )}
+          </div>
         )}
-        {live?.onAbandon && !end && (
-          <button type="button" className="bt-btn" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
-            Abandonner
-          </button>
-        )}
-        <div className="bt-progress" role="progressbar" aria-valuemin={0} aria-valuemax={log.length} aria-valuenow={rp.idx} aria-label="Avancement du combat">
-          <i style={{ width: `${(rp.idx / log.length) * 100}%` }} />
-        </div>
       </div>
 
       {end && (
