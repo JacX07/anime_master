@@ -477,3 +477,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : `refresh()` dans les actions ; agrégats SQL (`$queryRaw`, `groupBy`) ; `"use cache"` sur le catalogue ; sondage du chat ralenti (branche `perf/egress-isr`).
 - À retenir : pour rafraîchir l'écran après une action, `refresh()` suffit (pages dynamiques) ; pas de `distinct` Prisma ni de `select` imbriqué sur une collection entière pour un simple total. La base Supabase dev (`.env`) compte aussi dans l'egress de l'organisation.
 - Occurrences : 1.
+
+## 2026-11-09 — Tiroir de menu mobile réduit à une bande de 32 px
+
+- Symptôme : sur téléphone, « Menu » ne montrait qu'une bande avec le haut du bouton JOUER, pas le tiroir (capture de l'utilisateur sur Vercel).
+- Cause : `.mq-topbar` avait `backdrop-filter: blur(20px)`, ce qui en fait le bloc contenant des descendants `position: fixed` : le tiroir (`inset: 68px auto 0 0`) prenait la hauteur de la barre (68 px) au lieu de l'écran. Lightning CSS a en plus laissé passer seulement `-webkit-backdrop-filter: none` dans un override, donc le `none` ne suffisait pas.
+- Correctif : `backdrop-filter` retiré de `.mq-topbar` sous 1500 px (réservé au bureau, `maquette.css`), fond plus opaque sur mobile.
+- À retenir : pas de `backdrop-filter`, `filter`, `transform` ni `contain` sur un ancêtre d'un élément `position: fixed` censé couvrir l'écran. Vérifier le tiroir ouvert, pas seulement fermé. Occurrences : 1.
