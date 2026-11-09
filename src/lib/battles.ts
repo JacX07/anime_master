@@ -543,6 +543,8 @@ export interface BattleTeams {
   scheduler?: "gauge-v1";
   /** Absent dans les combats enregistrés avant les effets d'élément : ils se rejouent sans. */
   elements?: "elements-v1";
+  /** PvE : atteindre le dernier tour est une défaite du joueur (absent dans les combats plus anciens). */
+  timeout?: "attacker-loses-v1";
 }
 
 /** Ce que le navigateur reçoit : le journal (complet ou depuis le dernier envoi) et, en manuel, les choix possibles. */
@@ -572,7 +574,7 @@ export interface BattleView {
 
 /** Rejoue un combat manuel : choix enregistrés pour A, stratégie automatique pour B, jusqu'au prochain choix de A. */
 function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleState {
-  const st = createBattle(teams.A, teams.B, seededRandom(seed), { gauge: teams.scheduler === "gauge-v1", elements: teams.elements === "elements-v1" });
+  const st = createBattle(teams.A, teams.B, seededRandom(seed), { gauge: teams.scheduler === "gauge-v1", elements: teams.elements === "elements-v1", timeoutLoser: teams.timeout ? "A" : undefined });
   let next = 0;
   for (let actor = currentActor(st); actor; actor = currentActor(st)) {
     if (actor.id.startsWith("A")) {
@@ -664,10 +666,10 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const fitted = await equippedCards(userId, storyCards ?? slots as NonNullable<typeof slots[number]>[]);
   const mine = fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
-  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1" };
+  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1", ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
-    const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true });
+    const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined });
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
       const stars = story ? storyStars(won, result.log, teams.A.length) : null;
