@@ -16,7 +16,8 @@ async function loadAdventure(userId: string) {
     prisma.towerProgress.findUnique({ where: { userId } }),
     prisma.dungeonProgress.findMany({ where: { userId } }),
     prisma.raidBest.findMany({ where: { userId } }),
-    prisma.battle.findMany({ where: { userId, mode: { in: ["RAID", "TOWER", "DUNGEON"] } }, distinct: ["mode"], select: { mode: true } }),
+    // groupBy : dédoublonné par Postgres (distinct de Prisma relisait tous les combats du joueur)
+    prisma.battle.groupBy({ by: ["mode"], where: { userId, mode: { in: ["RAID", "TOWER", "DUNGEON"] } } }),
   ]);
   const earned = new Set(achievements.map((a) => a.key));
   const quests = adventureQuests({ story, achievements: ACHIEVEMENTS.map((a) => ({ ...a, done: earned.has(a.key) })), team: team?.slots.filter((s) => s.card.ownerId === userId).length === 4,
