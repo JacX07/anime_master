@@ -165,6 +165,9 @@ Compteur sous la carte (`StoryMap`, `StarCounter`) : total en Cinzel 34 px or cl
 ### 4.18 Joueurs en ligne (validé le 2026-11-09, variante A)
 Onglet « En ligne » du chat (après Guilde, Général, Privé), avec pastille verte-de-gris (`#6f9a8d`, texte `#0b0e0f`) du nombre de joueurs. Une ligne par joueur : losange plein `#6fbf9a`, pseudo (lien vers le profil), mention « ami » et `[tag de guilde]`, action soulignée or : « Message » pour un ami (ouvre le privé), « Profil » sinon. Amis d'abord, puis la guilde, puis les autres ; « + N autres joueurs en ligne » au-delà de 60. « En ligne » = vu depuis moins de 5 minutes ; liste rechargée à l'ouverture de l'onglet puis toutes les 60 s ; joueurs bloqués (dans les deux sens) et bannis exclus.
 
+### 4.19 Connexion, inscription et mot de passe (validé le 2026-11-10)
+Pages `/login`, `/signup`, `/signup/verification`, `/forgot-password`, `/reset-password` (`AuthForm.tsx`, `auth.css`) : carte `#111514` aux coins coupés de 10 px, sur-titre doré, titre Cinzel 26 px, champs sur fond `#0b0e0f` à filet bas (doré au focus), bouton `ui-button`, liens d'aide soulignés or. Messages : erreur `#e8a29c` sur fond rouge à 12 %, information `#8fbfae` sur vert-de-gris à 14 %. Les e-mails (`email-templates.ts`) reprennent l'en-tête sombre « ANIMA CLASH » et un bouton or.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -214,3 +217,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
 - 2026-11-09 : onglet « En ligne » dans le chat (§4.18).
 - 2026-11-09 : tutoriel plus explicatif (listes de points, phases accueil, raccourcis et combat), Guide du jeu à 22 étapes (§4.6).
+- 2026-11-10 : pages de connexion, inscription et mot de passe oublié remises dans la DA, e-mails de confirmation (§4.19).

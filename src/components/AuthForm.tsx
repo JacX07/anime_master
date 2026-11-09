@@ -1,92 +1,81 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import type { AuthFormState } from "@/app/auth-actions";
+import { useActionState, useState, useTransition } from "react";
+import { resendVerification, type AuthFormState } from "@/app/auth-actions";
+import "./auth.css";
 
-interface Props {
-  mode: "signup" | "login";
-  action: (prev: AuthFormState, form: FormData) => Promise<AuthFormState>;
+type Action = (prev: AuthFormState, form: FormData) => Promise<AuthFormState>;
+
+function Field({ label, ...input }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return <label className="auth-field">{label}<input {...input} /></label>;
 }
 
-const inputClass =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 outline-none focus:border-[#c4a76d]";
+function Messages({ state }: { state: AuthFormState }) {
+  return (
+    <>
+      {state.error && <p role="alert" className="auth-error">{state.error}</p>}
+      {state.notice && <p role="status" className="auth-notice">{state.notice}</p>}
+    </>
+  );
+}
 
-export function AuthForm({ mode, action }: Props) {
+/** « Renvoyer l'e-mail » de confirmation (1 par minute et par adresse, limite côté serveur). */
+export function ResendButton({ email, label = "Renvoyer l’e-mail" }: { email: string; label?: string }) {
+  const [pending, start] = useTransition();
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  return (
+    <>
+      <button type="button" className="auth-link" disabled={pending} onClick={() => start(async () => { const r = await resendVerification(email); setMessage({ ok: r.ok, text: r.message }); })}>{pending ? "Envoi…" : label}</button>
+      {message && <p role="status" className={message.ok ? "auth-notice" : "auth-error"}>{message.text}</p>}
+    </>
+  );
+}
+
+export function AuthForm({ mode, action, notice }: { mode: "signup" | "login"; action: Action; notice?: string }) {
   const [state, formAction, pending] = useActionState(action, {});
   const signup = mode === "signup";
-
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      {signup && (
-        <label className="flex flex-col gap-1 text-sm">
-          Pseudo
-          <input
-            name="username"
-            required
-            minLength={3}
-            maxLength={20}
-            pattern="[a-zA-Z0-9_]+"
-            autoComplete="username"
-            defaultValue={state.values?.username}
-            className={inputClass}
-          />
-        </label>
-      )}
-      {signup && (
-        <label className="flex flex-col gap-1 text-sm">
-          Code d&apos;invitation
-          <input name="inviteCode" required autoComplete="off" spellCheck={false} className={inputClass} />
-        </label>
-      )}
-      <label className="flex flex-col gap-1 text-sm">
-        Email
-        <input
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          defaultValue={state.values?.email}
-          className={inputClass}
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Mot de passe
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={signup ? 8 : undefined}
-          autoComplete={signup ? "new-password" : "current-password"}
-          className={inputClass}
-        />
-      </label>
-
-      {state.error && (
-        <p role="alert" className="rounded-lg bg-rose-500/15 px-3 py-2 text-sm text-rose-300">
-          {state.error}
-        </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-lg bg-[#c4a76d] px-4 py-2 font-semibold text-[#0b0e0f] hover:bg-[#d5bb7f] disabled:opacity-60"
-      >
-        {pending ? "Un instant…" : signup ? "Créer mon compte" : "Se connecter"}
-      </button>
-
-      <p className="text-center text-sm text-muted">
-        {signup ? (
-          <>
-            Déjà un compte ? <Link href="/login" className="text-[#d5bb7f] hover:underline">Se connecter</Link>
-          </>
-        ) : (
-          <>
-            Pas encore de compte ? <Link href="/signup" className="text-[#d5bb7f] hover:underline">S&apos;inscrire</Link>
-          </>
-        )}
+    <form action={formAction} className="auth-form">
+      {notice && <p role="status" className="auth-notice">{notice}</p>}
+      {signup && <Field label="Pseudo" name="username" required minLength={3} maxLength={20} pattern="[a-zA-Z0-9_]+" autoComplete="username" defaultValue={state.values?.username} />}
+      {signup && <Field label="Code d’invitation" name="inviteCode" required autoComplete="off" spellCheck={false} />}
+      <Field label="E-mail" name="email" type="email" required autoComplete="email" defaultValue={state.values?.email} />
+      <Field label="Mot de passe" name="password" type="password" required minLength={signup ? 8 : undefined} autoComplete={signup ? "new-password" : "current-password"} />
+      <Messages state={state} />
+      {state.unverified && <div><ResendButton email={state.unverified} label="Renvoyer l’e-mail de confirmation" /></div>}
+      <div className="auth-row">
+        <button type="submit" disabled={pending} className="ui-button">{pending ? "Un instant…" : signup ? "Créer mon compte" : "Se connecter"}</button>
+        {!signup && <Link href="/forgot-password" className="auth-link">Mot de passe oublié ?</Link>}
+      </div>
+      <p className="auth-alt">
+        {signup ? <>Déjà un compte ? <Link href="/login">Se connecter</Link></> : <>Pas encore de compte ? <Link href="/signup">S’inscrire</Link></>}
       </p>
+    </form>
+  );
+}
+
+export function ForgotForm({ action }: { action: Action }) {
+  const [state, formAction, pending] = useActionState(action, {});
+  return (
+    <form action={formAction} className="auth-form">
+      <Field label="E-mail" name="email" type="email" required autoComplete="email" defaultValue={state.values?.email} />
+      <Messages state={state} />
+      <button type="submit" disabled={pending} className="ui-button">{pending ? "Un instant…" : "Envoyer le lien"}</button>
+      <p className="auth-alt"><Link href="/login">Retour à la connexion</Link></p>
+    </form>
+  );
+}
+
+export function ResetForm({ action, token }: { action: Action; token: string }) {
+  const [state, formAction, pending] = useActionState(action, {});
+  return (
+    <form action={formAction} className="auth-form">
+      <input type="hidden" name="token" value={token} />
+      <Field label="Nouveau mot de passe" name="password" type="password" required minLength={8} autoComplete="new-password" />
+      <Field label="Confirmer" name="confirm" type="password" required minLength={8} autoComplete="new-password" />
+      <Messages state={state} />
+      <button type="submit" disabled={pending} className="ui-button">{pending ? "Un instant…" : "Enregistrer"}</button>
     </form>
   );
 }

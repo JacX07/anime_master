@@ -6,13 +6,15 @@ import { inviteCodeValid } from "./invite";
 // Le hook est exécuté pour HTTP et auth.api, contrairement au limiteur HTTP natif.
 export function authThrottle(db: PrismaClient) {
   return createAuthMiddleware(async (ctx) => {
-    if (!/^\/(sign-in|sign-up)(\/|$)/.test(ctx.path)) return;
+    const mail = /^\/(request-password-reset|send-verification-email)(\/|$)/.test(ctx.path);
+    if (!mail && !/^\/(sign-in|sign-up)(\/|$)/.test(ctx.path)) return;
     const identity = String(ctx.body?.email ?? ctx.body?.username ?? "").trim().toLowerCase();
-    const key = createHash("sha256").update(identity).digest("hex");
+    const key = createHash("sha256").update(identity).digest("hex") + (mail ? ":mail" : "");
     try {
       // Pas de confiance dans X-Forwarded-For fourni par le client. Le plafond global
       // borne aussi les créations avec des identités différentes (petit jeu privé).
-      for (const [bucket, maximum] of [["global", 300], [key, 10]] as const) {
+      // E-mails (réinitialisation, renvoi de confirmation) : 1 par minute et par adresse
+      for (const [bucket, maximum] of [["global", 300], [key, mail ? 1 : 10]] as const) {
         const rows = await db.$queryRaw<{ count: number }[]>`
           INSERT INTO "AuthThrottle" ("key", "count", "expiresAt")
           VALUES (${bucket}, 1, clock_timestamp() + interval '1 minute')

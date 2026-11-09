@@ -1,0 +1,18 @@
+/* Pages de connexion, inscription et mot de passe (DA §4.19) */
+.auth-page { width: min(100% - 32px, 400px); margin: 0 auto; padding: 56px 0 72px; flex: 1; }
+.auth-card { padding: 26px 24px 24px; background: #111514; clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
+.auth-card .auth-eyebrow { margin: 0; color: #a68e5d; font-size: 9px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; }
+.auth-card h1 { margin: 6px 0 8px; font: 500 26px/1.15 var(--font-cinzel), Georgia, serif; color: #e9e5dc; }
+.auth-card .auth-lead { margin: 0 0 18px; color: #b4b2aa; font-size: 13px; line-height: 1.5; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-field { display: flex; flex-direction: column; gap: 4px; color: #9a9a92; font-size: 12px; }
+.mq-app-shell[class] .auth-field input { padding: 10px 11px; background: #0b0e0f; color: #e9e5dc; font: 400 14px var(--font-dm), sans-serif; box-shadow: inset 0 -1px 0 #4b4f4b; outline: none; }
+.mq-app-shell[class] .auth-field input:focus-visible { box-shadow: inset 0 -2px 0 #c4a76d; }
+.auth-error, .auth-notice { margin: 0; padding: 9px 11px; font-size: 13px; line-height: 1.45; }
+.auth-error { background: rgb(224 100 92 / 12%); color: #e8a29c; }
+.auth-notice { background: rgb(111 154 141 / 14%); color: #8fbfae; }
+.auth-form .ui-button { align-self: flex-start; }
+.auth-alt { margin: 4px 0 0; color: #9a9a92; font-size: 12px; }
+.auth-alt a, .auth-link { color: #c4a76d; border-bottom: 1px solid #c4a76d; text-decoration: none; background: none; padding: 0 0 1px; font: inherit; cursor: pointer; }
+.auth-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.mq-app-shell[class] .auth-card .auth-link { color: #c4a76d; font: 400 12px var(--font-dm), sans-serif; letter-spacing: 0; text-transform: none; }

@@ -180,6 +180,8 @@ Incident du 2026-11-03 : le code publié lisait `User.role` (migration `admin_ro
 | `DIRECT_URL` | **Session pooler**, port **5432** | Les migrations (`db:deploy`) : opérations longues. |
 | `DB_POOL_MAX` | **8** | Connexions gardées par instance Vercel (voir ci-dessous). |
 | `INVITE_CODE` | phrase longue et aléatoire (12 caractères minimum) | Code demandé à l'inscription (voir §11). |
+| `RESEND_API_KEY` | clé API Resend (`re_…`, droit d'envoi) | Envoi des e-mails de confirmation d'inscription et de mot de passe oublié. Sans clé en production, ces e-mails ne partent pas. |
+| `EMAIL_FROM` | `Anima Clash <no-reply@ton-domaine>` | Expéditeur. Le domaine doit être vérifié dans Resend (enregistrements DNS) ; l'adresse de test `onboarding@resend.dev` n'écrit qu'au compte Resend. |
 
 - **Supabase → Database → Settings → Connection pooling → Pool size : 15** (le projet est en calcul **Nano**, 381 Mo de RAM : plus de connexions = plus de mémoire engagée).
 - `src/lib/db.ts` : 8 connexions par instance (`DB_POOL_MAX`), connexions inactives fermées après 5 s. Avec 2, une instance n'avait que 2 « tuyaux » : un combat ou un lot en occupe un pendant plusieurs secondes, les pages derrière attendaient plus de 10 s et échouaient (`timeout exceeded when trying to connect`, 59 erreurs lors d'un test de 20 joueurs). Avec 8 : **1 seule erreur serveur sur quatre tests de 20 joueurs**.
