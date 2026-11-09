@@ -34,10 +34,10 @@ export function RarityBurst({ rarity, onEnd, children }: { rarity: "SSR" | "UR";
       {children && <div className="pk-burst-card">{children}<div className="pk-sheen"><i /></div></div>}
       <div className="pk-door pk-door-l"><i /></div>
       <div className="pk-door pk-door-r"><i /></div>
-      <svg className="pk-clock" viewBox="-100 -100 200 200" aria-hidden="true">
-        <circle r="92" /><circle r="84" strokeWidth="1" strokeDasharray="2 5" /><circle r="40" strokeWidth="1.5" />
-        {Array.from({ length: 12 }, (_, i) => <line key={i} y1="-92" y2="-78" transform={`rotate(${i * 30})`} />)}
-        <g className="pk-clock-hand"><line y2="-68" strokeWidth="4" /><circle r="6" /></g>
+      <svg className="pk-clock" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="92" /><circle cx="100" cy="100" r="84" strokeWidth="1" strokeDasharray="2 5" /><circle cx="100" cy="100" r="40" strokeWidth="1.5" />
+        {Array.from({ length: 12 }, (_, i) => <line key={i} x1="100" y1="8" x2="100" y2="22" transform={`rotate(${i * 30} 100 100)`} />)}
+        <g className="pk-clock-hand"><line x1="100" y1="100" x2="100" y2="32" strokeWidth="4" /><circle cx="100" cy="100" r="6" /></g>
       </svg>
       <i className="pk-ring" /><i className="pk-ring" style={{ "--o": "0.12s" } as CSSProperties} /><i className="pk-ring pk-ring-ur" style={{ "--o": "0.24s" } as CSSProperties} />
       <i className="pk-flash" />
