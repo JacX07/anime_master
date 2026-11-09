@@ -22,6 +22,14 @@ Mise à jour sans nouvelle migration de base de données. Si la v0.2.0 n'a pas e
 - Une carte SSR ou UR ne glisse plus sous sa case à l'ouverture.
 - Éveil : la fiche se met à jour après un éveil et un double clic ne paie plus qu'une étoile.
 - Ambiance de couleur par mode et ornements d'horlogerie brisée.
+- Menu mobile : le tiroir s'ouvre de nouveau sur tout l'écran (il se réduisait à une bande de quelques pixels sur téléphone).
+
+### Technique et exploitation
+- **Quotas gratuits** (Vercel et Supabase, alertes du 9 novembre) :
+  - les actions des joueurs rafraîchissent l'écran avec `refresh()` au lieu de `revalidatePath`, ce qui évite des centaines de milliers d'écritures ISR ;
+  - la puissance, les succès et les modes de combat de l'Arpenteur sont calculés par la base (agrégats SQL) au lieu de charger les collections entières ;
+  - le catalogue des anime est mis en cache côté serveur ;
+  - le chat interroge le serveur toutes les 5 s quand il est ouvert et toutes les 60 s quand il est fermé.
 
 ### Migrations de base de données
 Aucune nouvelle. Celles de la v0.2.0 restent à appliquer si elle n'est pas encore en production.
