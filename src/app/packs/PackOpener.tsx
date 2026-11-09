@@ -275,6 +275,16 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                 </p>
               )}
               {pack.pity !== "NONE" && <p className="pk-pity">Garantie {pack.pity} déclenchée !</p>}
+              <div className={summary ? undefined : "pk-table"}>
+              {!summary && (
+                <div className="pk-pile" data-count={current} aria-label={`${current} carte${current > 1 ? "s" : ""} révélée${current > 1 ? "s" : ""}`}>
+                  {pack.cards.slice(Math.max(0, current - 6), current).map((card, k, shown) => (
+                    <div key={card.cardId} className="pk-pile-card" data-rarity={card.rarity} style={{ "--k": shown.length - 1 - k, "--rot": [-3, 2, -1, 4, -4, 1][(current - shown.length + k) % 6] } as React.CSSProperties} aria-hidden="true">
+                      <CharacterCard {...card} characterId={card.characterId} />
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className={summary ? "pk-grid" : "pk-stack"} data-lot={pack.lotSize}>
                 {pack.cards.map((card, i) => (summary || i === current) && (
                   <div key={card.cardId} className="flip" data-revealed={revealed[i]} data-rarity={card.rarity} data-hint={!revealed[i] && (card.rarity === "SSR" || card.rarity === "UR") ? card.rarity : undefined} style={{ "--i": i } as React.CSSProperties} onClick={() => { if (summary) setDetail(card); else if (!revealed[i]) reveal(i); else if (current + 1 < pack.cards.length) setCurrent(current + 1); else setSummary(true); }} role="button" tabIndex={0} aria-label={revealed[i] ? (summary ? `${card.name} : voir les stats et les sorts` : "Carte suivante") : `Retourner la carte ${i + 1}`} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } }}>
@@ -285,7 +295,8 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
                   </div>
                 ))}
               </div>
-              {!summary && <p className="pk-note" role="status">Carte {current + 1} / {pack.cards.length} · {revealed[current] ? "Clique pour continuer" : "Clique pour retourner"}</p>}
+              </div>
+              {!summary && <p className="pk-note" role="status">Carte {current + 1} / {pack.cards.length} · {current} révélée{current > 1 ? "s" : ""} · {revealed[current] ? "Clique pour continuer" : "Clique pour retourner"}</p>}
               {waitingReveal ? (
                 <button type="button" className="pk-ghost" onClick={revealAll}>Tout révéler</button>
               ) : (
