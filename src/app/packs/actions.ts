@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { BannerError, ConcurrentOpeningError, NoPackAvailableError, openPack, openWelcomeBooster, WelcomeBoosterClaimedError, type OpenedPack } from "@/lib/packs";
 import { LOT_SIZES, type LotSize } from "@/lib/pull";
 import { checkAchievementsSafe } from "@/lib/achievements";
@@ -21,7 +21,7 @@ export async function openPackAction(size: number = 5, bannerId: string | null =
   try {
     const pack = await openPack(user.id, size as LotSize, undefined, bannerId ? String(bannerId) : null);
     await checkAchievementsSafe(user.id);
-    revalidatePath("/album"); // l'album affiche les nouvelles cartes à la prochaine visite
+    refresh(); // l’album relit les nouvelles cartes à la prochaine visite
     return { ok: true, pack };
   } catch (err) {
     if (err instanceof BannerError) return { ok: false, error: err.message };
@@ -39,7 +39,7 @@ export async function openWelcomeBoosterAction(): Promise<OpenPackResult> {
   try {
     const pack = await openWelcomeBooster(user.id);
     await checkAchievementsSafe(user.id);
-    revalidatePath("/album");
+    refresh();
     return { ok: true, pack };
   } catch (err) {
     if (err instanceof WelcomeBoosterClaimedError) return { ok: false, error: err.message };
@@ -58,7 +58,7 @@ export async function buyCrystalsAction(count: number = 5): Promise<BuyCrystalsR
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     await buyCrystals(user.id, count);
-    revalidatePath("/", "layout"); // le solde du menu du haut change
+    refresh(); // le solde du menu du haut change
     return { ok: true, state: await getPackState(user.id) };
   } catch (err) {
     if (err instanceof SaleError) return { ok: false, error: err.message };

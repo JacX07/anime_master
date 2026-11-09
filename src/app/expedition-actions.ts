@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { claimExpedition, ExpeditionError, startExpedition } from "@/lib/expeditions";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -10,7 +10,7 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const result = await fn(user.id);
-    revalidatePath("/", "layout"); // solde, cristaux et pastille du menu
+    refresh(); // solde, cristaux et pastille du menu
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof ExpeditionError) return { ok: false, error: err.message };

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import type { Rarity } from "@/generated/prisma/enums";
 import { RARITY_ORDER } from "@/lib/album";
 import { getSessionUser } from "@/lib/session";
@@ -24,7 +24,7 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
   try {
     const result = await fn(user.id);
     // Solde du menu, album et fiches : tout dépend de la collection et du portefeuille
-    revalidatePath("/", "layout");
+    refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof SaleError) return { ok: false, error: err.message };

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { BattleError } from "@/lib/battles";
 import { getSessionUser } from "@/lib/session";
 import { claimStarTier } from "@/lib/story-star-claims";
@@ -11,7 +11,7 @@ export async function claimStarTierAction(universe: string, tier: number): Promi
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const loot = await claimStarTier(user.id, String(universe), Number(tier));
-    revalidatePath("/histoire");
+    refresh();
     return { ok: true, ryo: loot.ryo, crystals: loot.crystals };
   } catch (err) {
     if (err instanceof BattleError) return { ok: false, error: err.message };

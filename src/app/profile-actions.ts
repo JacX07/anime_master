@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { ProfileError, setShowcase, setTitle } from "@/lib/profile";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -10,8 +10,7 @@ async function run(fn: (userId: string) => Promise<void>): Promise<ActionResult>
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     await fn(user.id);
-    revalidatePath(`/u/${user.username}`);
-    revalidatePath("/leaderboard");
+    refresh();
     return { ok: true };
   } catch (err) {
     if (err instanceof ProfileError) return { ok: false, error: err.message };

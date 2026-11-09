@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { getSessionUser } from "@/lib/session";
 import { GuildError, createGuild, updateGuild, joinGuild, cancelGuildRequest, reviewGuildRequest, changeGuildRole, transferGuild, kickGuildMember, leaveGuild, dissolveGuild } from "@/lib/guilds";
 import type { GuildInput } from "@/lib/guild-rules";
@@ -10,7 +10,7 @@ async function run(fn: (id: string) => Promise<{ tag?: string; message: string }
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const result = await fn(user.id);
-    revalidatePath("/", "layout");
+    refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof GuildError) return { ok: false, error: err.message };

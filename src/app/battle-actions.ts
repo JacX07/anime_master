@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 
 import { abandonBattle, autoTeam, BattleError, equipArtifact, getBattle, getStoryProgress, getStoryPreview, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
@@ -12,7 +12,7 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const result = await fn(user.id);
-    if ("battle" in result && result.battle && typeof result.battle === "object" && "status" in result.battle && result.battle.status !== "RUNNING") revalidatePath("/", "layout");
+    if ("battle" in result && result.battle && typeof result.battle === "object" && "status" in result.battle && result.battle.status !== "RUNNING") refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof BattleError) return { ok: false, error: err.message };

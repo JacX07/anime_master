@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { getSessionUser } from "@/lib/session";
 import { upgradeArtifact } from "@/lib/upgrade-artifact";
 import { BattleError } from "@/lib/battles";
@@ -9,8 +9,7 @@ export async function upgradeArtifactAction(artifactId: string, level: number) {
   if (!user) return { ok: false as const, error: "Ta session a expiré." };
   try {
     await upgradeArtifact(user.id, String(artifactId), level);
-    revalidatePath("/equipe");
-    revalidatePath("/inventaire");
+    refresh();
     return { ok: true as const };
   } catch (error) {
     if (error instanceof BattleError) return { ok: false as const, error: error.message };

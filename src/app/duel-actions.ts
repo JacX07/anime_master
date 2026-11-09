@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { acceptDuel, answerQuestion, createDuel, currentQuestion, declineDuel, DuelError, startDefense } from "@/lib/duels";
 import { PVP_AVAILABLE, PVP_UNAVAILABLE_MESSAGE } from "@/lib/feature-flags";
 import { getSessionUser } from "@/lib/session";
@@ -12,7 +12,7 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>, revalid
   if (!PVP_AVAILABLE) return { ok: false, error: PVP_UNAVAILABLE_MESSAGE };
   try {
     const result = await fn(user.id);
-    if (revalidate) revalidatePath("/", "layout");
+    if (revalidate) refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof DuelError) return { ok: false, error: err.message };

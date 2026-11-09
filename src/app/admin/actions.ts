@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { requireRole } from "@/lib/admin";
 import { AdminError, adjustCrystals, adjustRyo, banUser, changeRole, giveCard, removeCard, resetPity, unbanUser, type Role } from "@/lib/admin-actions";
 import { searchCharacters } from "@/lib/admin-players";
@@ -38,7 +38,7 @@ export async function staffAction(_prev: StaffState, fd: FormData): Promise<Staf
       }
       default: throw new AdminError("Action inconnue.");
     }
-    revalidatePath(`/admin/joueurs/${targetId}`);
+    refresh();
     return { ok: true, message: "Fait. L'action est inscrite au journal d'audit." };
   } catch (err) {
     if (err instanceof AdminError) return { ok: false, message: err.message };

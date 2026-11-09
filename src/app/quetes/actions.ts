@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { PeriodicQuestError, claimPeriodicQuest } from "@/lib/periodic-quests";
 import { getSessionUser } from "@/lib/session";
 
@@ -12,8 +12,7 @@ export async function claimPeriodicQuestAction(key: string): Promise<ClaimQuestR
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const result = await claimPeriodicQuest(user.id, key);
-    revalidatePath("/quetes");
-    revalidatePath("/", "layout"); // cristaux affichés dans l'en-tête
+    refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof PeriodicQuestError) return { ok: false, error: err.message };

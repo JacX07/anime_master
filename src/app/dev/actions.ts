@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import type { Rarity } from "@/generated/prisma/enums";
 import {
   DevToolError, addCrystals, keepAdventureLevel, addMaterials, addRyo, devToolsEnabled, giveCharacter, giveRandom, searchCharacters,
@@ -69,7 +69,7 @@ export async function devAction(_prev: DevState, fd: FormData): Promise<DevState
       default: throw new DevToolError("Action inconnue.");
     }
     if (text(fd, "op") !== "level") await keepAdventureLevel(id);
-    revalidatePath("/", "layout");
+    refresh();
     return { ok: true, message };
   } catch (err) {
     if (err instanceof DevToolError) return { ok: false, message: err.message };

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { acceptFriendRequest, blockUser, FriendError, removeFriendship, sendFriendRequest, unblockUser } from "@/lib/friends";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -10,8 +10,7 @@ async function run(fn: (userId: string) => Promise<unknown>): Promise<ActionResu
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     await fn(user.id);
-    revalidatePath("/friends");
-    revalidatePath("/u/[pseudo]", "page");
+    refresh();
     return { ok: true };
   } catch (err) {
     if (err instanceof FriendError) return { ok: false, error: err.message };

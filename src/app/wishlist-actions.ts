@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import type { Finish } from "@/generated/prisma/enums";
 import { getSessionUser } from "@/lib/session";
 import { addWish, removeWish, WishlistError } from "@/lib/wishlist";
@@ -11,7 +11,7 @@ async function run(fn: (userId: string) => Promise<void>): Promise<ActionResult>
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     await fn(user.id);
-    revalidatePath("/", "layout");
+    refresh();
     return { ok: true };
   } catch (err) {
     if (err instanceof WishlistError) return { ok: false, error: err.message };

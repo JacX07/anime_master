@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { AchievementError, claimAchievement } from "@/lib/achievements";
 import { getSessionUser } from "@/lib/session";
 
@@ -12,8 +12,7 @@ export async function claimAchievementAction(key: string): Promise<ClaimAchievem
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const result = await claimAchievement(user.id, key);
-    revalidatePath("/achievements");
-    revalidatePath("/", "layout"); // solde et cristaux affichés dans l'en-tête
+    refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof AchievementError) return { ok: false, error: err.message };

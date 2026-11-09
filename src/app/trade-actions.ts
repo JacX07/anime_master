@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { markAllRead } from "@/lib/notifications";
 import { getSessionUser } from "@/lib/session";
 import { acceptTrade, cancelTrade, createTrade, refuseTrade, setForTrade, TradeError } from "@/lib/trades";
@@ -11,7 +11,7 @@ async function run<T extends object>(fn: (userId: string) => Promise<T>): Promis
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const result = await fn(user.id);
-    revalidatePath("/", "layout");
+    refresh();
     return { ok: true, ...result };
   } catch (err) {
     if (err instanceof TradeError) return { ok: false, error: err.message };

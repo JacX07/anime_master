@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { awakenCard, duplicateWhere } from "@/lib/awaken";
 import { awakenCost, canAwaken, needsDuplicate, universeOfFranchise } from "@/lib/awakening";
 import { prisma } from "@/lib/db";
@@ -14,8 +14,7 @@ export async function awakenCardAction(cardId: string, expectedStars?: number): 
   if (!user) return { ok: false, error: "Ta session a expiré, reconnecte-toi." };
   try {
     const { stars } = await awakenCard(user.id, String(cardId), Number.isInteger(expectedStars) ? Number(expectedStars) : undefined);
-    revalidatePath("/eveil");
-    revalidatePath("/inventaire");
+    refresh();
     return { ok: true, stars };
   } catch (err) {
     if (err instanceof BattleError) return { ok: false, error: err.message };

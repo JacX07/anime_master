@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { builderAllowed, writeSlotDraft } from "@/lib/builder";
 import { prisma } from "@/lib/db";
 import { applyToGame } from "@/lib/builder-apply";
@@ -15,7 +15,7 @@ export async function saveSpellAction(characterId: number, spell: unknown, slot:
   const ch = await prisma.character.findUnique({ where: { id: characterId }, select: { rarity: true } });
   if (!ch || (ch.rarity !== "SSR" && ch.rarity !== "UR")) return { ok: false as const, error: "Seuls les SSR et UR ont un sort" };
   await writeSlotDraft(characterId, slot, parsed);
-  revalidatePath("/builder");
+  refresh();
   return { ok: true as const };
 }
 
@@ -23,7 +23,7 @@ export async function resetSpellAction(characterId: number, slot: BuilderSlot = 
   if (!(await builderAllowed())) return { ok: false as const, error: "Accès refusé" };
   if (!isBuilderSlot(slot)) return { ok: false as const, error: "Emplacement invalide" };
   await writeSlotDraft(characterId, slot, null);
-  revalidatePath("/builder");
+  refresh();
   return { ok: true as const };
 }
 
@@ -38,7 +38,7 @@ export async function startMechanicAction(characterId: number, wish: string) {
 export async function mergeMechanicAction(jobId: string) {
   if (!(await builderAllowed())) return { ok: false as const, error: "Accès refusé" };
   const r = await mergeMechanic(jobId);
-  revalidatePath("/builder");
+  refresh();
   return r;
 }
 
@@ -57,6 +57,6 @@ export async function applyToGameAction(characterId: number, spell: unknown, slo
   const ch = await prisma.character.findUnique({ where: { id: characterId }, select: { rarity: true } });
   if (!ch || (ch.rarity !== "SSR" && ch.rarity !== "UR")) return { ok: false as const, error: "Seuls les SSR et UR ont un sort" };
   await applyToGame(characterId, slot, parsed);
-  revalidatePath("/builder");
+  refresh();
   return { ok: true as const };
 }

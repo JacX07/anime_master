@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/session";
 import { validateSquad, type SavedSquad } from "@/lib/squads";
@@ -23,7 +23,7 @@ export async function saveSquadAction(id: string | null, name: string, slots: (s
       const created = await tx.squad.create({ data: { userId: user.id, name: input.name, cardIds: input.slots } });
       return { id: created.id, name: created.name, slots: input.slots };
     });
-    revalidatePath("/equipe");
+    refresh();
     return { ok: true, squad };
   } catch (error) {
     console.error("Enregistrement de squad :", error);
