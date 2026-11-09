@@ -90,20 +90,24 @@
 @media (max-width: 550px) { .mq-app-shell .gear-item-actions > button { min-width: 105px; padding-inline: 15px; } }
 
 /* Artefacts : grille compacte et fiche à droite, maquette validée. */
+/* Cases d'artefact « fond de rareté + losange » (DA §4.16, variante C). */
 .mq-app-shell .artifact-tile {
-  --artifact-color: #36433c;
+  --artifact-color: #94a3b8;
   position: relative; display: grid; place-items: center; width: 96px; height: 96px;
-  min-width: 0; min-height: 0; padding: 12px; border-radius: 5px;
-  background: color-mix(in srgb, var(--artifact-color) 18%, #0a0e0d);
-  box-shadow: inset 0 0 0 4px var(--artifact-color); cursor: pointer;
+  min-width: 0; min-height: 0; padding: 12px; border-radius: 5px; overflow: hidden;
+  background: color-mix(in srgb, var(--artifact-color) 20%, #0a0e0d);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--artifact-color) 70%, #000); cursor: pointer;
 }
-.mq-app-shell .artifact-tile[data-rarity="R"] { --artifact-color: #245b3b; }
-.mq-app-shell .artifact-tile[data-rarity="SR"] { --artifact-color: #49245f; }
-.mq-app-shell .artifact-tile:is([data-rarity="SSR"], [data-rarity="UR"]) { --artifact-color: #78501f; }
-.mq-app-shell .artifact-tile[aria-pressed="true"] { background: color-mix(in srgb, var(--artifact-color) 25%, #0a0e0d); box-shadow: inset 0 0 0 5px var(--artifact-color); }
-.mq-app-shell .artifact-tile:hover { background: color-mix(in srgb, var(--artifact-color) 28%, #0a0e0d); }
+.mq-app-shell .artifact-tile[data-rarity="R"] { --artifact-color: var(--rarity-R, #38bdf8); }
+.mq-app-shell .artifact-tile[data-rarity="SR"] { --artifact-color: var(--rarity-SR, #a855f7); }
+.mq-app-shell .artifact-tile[data-rarity="SSR"] { --artifact-color: var(--rarity-SSR, #f59e0b); }
+.mq-app-shell .artifact-tile[data-rarity="UR"] { --artifact-color: var(--rarity-UR, #ff3b4a); }
+.mq-app-shell .artifact-tile::before { content: ""; position: absolute; left: 7px; top: 7px; width: 9px; height: 9px; background: var(--artifact-color); transform: rotate(45deg); pointer-events: none; }
+.mq-app-shell .artifact-tile:is([data-rarity="SSR"], [data-rarity="UR"])::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, #ffffff22 50%, transparent 60%); pointer-events: none; }
+.mq-app-shell .artifact-tile[aria-pressed="true"] { background: color-mix(in srgb, var(--artifact-color) 30%, #0a0e0d); outline: 2px solid #d5bb7f; outline-offset: 3px; }
+.mq-app-shell .artifact-tile:hover { background: color-mix(in srgb, var(--artifact-color) 30%, #0a0e0d); }
 .mq-app-shell .artifact-tile:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 4px; }
-.mq-app-shell .artifact-tile > :is(img, svg) { width: 100%; height: 100%; object-fit: contain; filter: saturate(.65) brightness(.82); }
+.mq-app-shell .artifact-tile > :is(img, svg) { width: 100%; height: 100%; object-fit: contain; filter: none; }
 .mq-app-shell .artifact-tile-level { position: absolute; right: 8px; bottom: 8px; padding: 3px 5px; border-radius: 4px; background: #00000012; color: #fff; font: 700 13px/1.4 var(--font-dm), sans-serif; }
 .mq-app-shell .gear-workspace { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); gap: 24px; align-items: start; background: #080b0c; padding: 20px; border-radius: 5px; }
 .mq-app-shell .artifact-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, 96px); gap: 12px; align-content: start; }

@@ -68,18 +68,7 @@
 .eq-character-dialog .gear-detail .gear-item-art { min-height: 7rem; background: #030505; }
 .eq-character-dialog .gear-detail .gear-item-art > :is(img, svg) { width: 7rem; height: 7rem; }
 
-/* Tuiles d'artefacts : fond plus noir, filet fin et contrasté avec points lumineux aux coins */
-.mq-app-shell .eq-character-dialog .artifact-tile {
-  --artifact-color: #4a5249; --artifact-hi: #5f685f;
-  width: 5.2rem; height: 5.2rem; padding: .6rem; border: 2px solid transparent !important; box-shadow: none; border-radius: 6px;
-  background: linear-gradient(#030505, #030505) padding-box, linear-gradient(135deg, var(--artifact-hi) 0%, var(--artifact-color) 22%, #151918 55%, var(--artifact-color) 80%, var(--artifact-hi) 100%) border-box;
-}
-.mq-app-shell .eq-character-dialog .artifact-tile[data-rarity="R"] { --artifact-color: #2fa766; --artifact-hi: #4fbf86; }
-.mq-app-shell .eq-character-dialog .artifact-tile[data-rarity="SR"] { --artifact-color: #8a55d6; --artifact-hi: #a37ae0; }
-.mq-app-shell .eq-character-dialog .artifact-tile:is([data-rarity="SSR"], [data-rarity="UR"]) { --artifact-color: #d99a2b; --artifact-hi: #e6b24a; }
-.mq-app-shell .eq-character-dialog .artifact-tile:hover { background: linear-gradient(#0b0f0e, #0b0f0e) padding-box, linear-gradient(135deg, var(--artifact-hi) 0%, var(--artifact-color) 22%, #151918 55%, var(--artifact-color) 80%, var(--artifact-hi) 100%) border-box; }
-.mq-app-shell .eq-character-dialog .artifact-tile[aria-pressed="true"] { background: linear-gradient(#14110a, #14110a) padding-box, linear-gradient(135deg, #d5bb7f, var(--artifact-color) 35%, var(--artifact-color) 65%, #d5bb7f) border-box; box-shadow: 0 0 12px -2px var(--artifact-color); }
-.mq-app-shell .eq-character-dialog .artifact-tile > :is(img, svg) { filter: none; }
+.mq-app-shell .eq-character-dialog .artifact-tile { width: 5.2rem; height: 5.2rem; padding: .6rem; }
 .mq-app-shell .eq-character-dialog .artifact-tile-grid { grid-template-columns: repeat(auto-fill, 5.2rem); gap: .7rem; }
 
 @media (max-width: 62rem) {
