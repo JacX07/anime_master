@@ -2,6 +2,33 @@
 
 Une section par version, la plus récente en haut. Chaque version correspond à un tag Git (`v0.2.0`…) posé sur `main`. Les migrations de base de données à appliquer avant la publication sont listées dans chaque section.
 
+## v0.2.1 — Animations d'invocation, combat et corrections
+
+Mise à jour sans nouvelle migration de base de données. Si la v0.2.0 n'a pas encore été publiée, ses migrations sont toujours à appliquer (voir plus bas).
+
+### Nouveautés
+- **Ouverture de booster** : nouvelle invocation « graduations » (astrolabe, cadran gradué et aiguille, dans le style du dos de carte) et nouvel éclat plein écran pour les SSR et UR (« constellation encadrée »), avec leurs sons. Un clic n'importe où ou Échap passe l'animation.
+- **Retournement des cartes** : nouveau son de parchemin lourd, identique pour toutes les raretés.
+- **Combat** : barre de contrôle centrale (Lecture/Pause, Fin, vitesse ×1 ×2 ×4, effets et musique), sans bouton « recommencer » ni barre de progression ; en combat réel, interrupteur Auto/Manuel et « Abandonner » dessous.
+- **Menu mobile** : tiroir de navigation, profil au toucher, menu Social.
+- **Sons** : curseur de volume général dans les Paramètres ; les sons du booster respectent « Effets ».
+- **Inventaire** : les cases d'artefact prennent la couleur de leur rareté (fond teinté, losange, reflet sur SSR et UR), y compris dans la fiche personnage.
+- **Profil** : boosters ouverts, étoiles de l'histoire et étage de la Tour.
+
+### Équilibrage et corrections
+- Taux de SSR abaissé de 2,5 % à 2 % (la différence va aux cartes N).
+- La règle de la 10ᵉ invocation boostée est retirée (trop de SSR) : plus de compteur ni d'affichage.
+- « Tout révéler » ne rejoue plus l'éclat d'une SSR ou UR déjà retournée.
+- Une carte SSR ou UR ne glisse plus sous sa case à l'ouverture.
+- Éveil : la fiche se met à jour après un éveil et un double clic ne paie plus qu'une étoile.
+- Ambiance de couleur par mode et ornements d'horlogerie brisée.
+
+### Migrations de base de données
+Aucune nouvelle. Celles de la v0.2.0 restent à appliquer si elle n'est pas encore en production.
+
+### À savoir
+- Les cadres de cartes ne changent pas dans cette version.
+
 ## v0.2.0 — Social, retours de la bêta et refonte du combat
 
 Gros lot de retours de la bêta. Les comptes existants sont conservés.
