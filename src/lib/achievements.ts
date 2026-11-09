@@ -222,5 +222,16 @@ export async function listAchievements(userId: string) {
   return ACHIEVEMENTS.map((a) => ({ ...a, crystals: crystalsOf(a), unlockedAt: at.get(a.key) ?? null, claimed: claimed.has(a.key) }));
 }
 
+/** Succès débloqués dont la récompense n'a pas encore été récupérée (pastille du menu). */
+export async function unclaimedAchievementCount(userId: string) {
+  const [rows, paid] = await Promise.all([
+    prisma.userAchievement.findMany({ where: { userId }, select: { key: true } }),
+    prisma.currencyLedger.findMany({ where: { userId, reason: "ACHIEVEMENT" }, select: { refId: true } }),
+  ]);
+  const known = new Set(ACHIEVEMENTS.map((a) => a.key));
+  const claimed = new Set(paid.map((p) => p.refId));
+  return rows.filter((r) => known.has(r.key) && !claimed.has(r.key)).length;
+}
+
 /** Titre associé à une clé de succès (null si la clé est inconnue). */
 export const titleOf = (key: string | null | undefined) => ACHIEVEMENTS.find((a) => a.key === key)?.title ?? null;
