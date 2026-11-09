@@ -1986,5 +1986,102 @@
         }
       }
     ]
+  },
+  "lecture": {
+    "viewBox": "0 0 48 48",
+    "shapes": [
+      {
+        "tag": "path",
+        "attrs": {
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linecap": "square",
+          "stroke-linejoin": "miter",
+          "vector-effect": "non-scaling-stroke",
+          "d": "M14 8 40 24 14 40Z"
+        }
+      }
+    ]
+  },
+  "pause": {
+    "viewBox": "0 0 48 48",
+    "shapes": [
+      {
+        "tag": "path",
+        "attrs": {
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linecap": "square",
+          "stroke-linejoin": "miter",
+          "vector-effect": "non-scaling-stroke",
+          "d": "M13 8h8v32h-8ZM27 8h8v32h-8Z"
+        }
+      }
+    ]
+  },
+  "fin": {
+    "viewBox": "0 0 48 48",
+    "shapes": [
+      {
+        "tag": "path",
+        "attrs": {
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linecap": "square",
+          "stroke-linejoin": "miter",
+          "vector-effect": "non-scaling-stroke",
+          "d": "M8 8 30 24 8 40ZM38 8v32"
+        }
+      }
+    ]
+  },
+  "son": {
+    "viewBox": "0 0 48 48",
+    "shapes": [
+      {
+        "tag": "path",
+        "attrs": {
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linecap": "square",
+          "stroke-linejoin": "miter",
+          "vector-effect": "non-scaling-stroke",
+          "d": "M6 18v12h9l13 11V7L15 18ZM34 17q5 7 0 14M39 12q9 12 0 24"
+        }
+      }
+    ]
+  },
+  "musique": {
+    "viewBox": "0 0 48 48",
+    "shapes": [
+      {
+        "tag": "path",
+        "attrs": {
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linecap": "square",
+          "stroke-linejoin": "miter",
+          "vector-effect": "non-scaling-stroke",
+          "d": "M19 36V9l22-5v27"
+        }
+      },
+      {
+        "tag": "path",
+        "attrs": {
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke-width": "1.2",
+          "stroke-linecap": "square",
+          "stroke-linejoin": "miter",
+          "vector-effect": "non-scaling-stroke",
+          "d": "M19 36a6 6 0 1 1-12 0 6 6 0 0 1 12 0ZM41 31a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"
+        }
+      }
+    ]
   }
 }

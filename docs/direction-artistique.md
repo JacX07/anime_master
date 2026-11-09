@@ -153,6 +153,9 @@ Validé le 2026-11-04. Barre de 68 px en trois colonnes : bouton **Menu** à gau
 - **Profil** : panneau sous la barre ouvert au toucher sur l'avatar ; boutons de 46 px avec filet or à gauche, « Se déconnecter » en rouge (`#e0645c`).
 - Menu « Social » (Amis, Guildes, Classement) remplace l'entrée Classement, sur tous les écrans.
 
+### 4.15 Barre de contrôle du combat : dock central
+Validé le 2026-11-09 (`BattlePlayer`, bloc « Barre de contrôle » de `battle.css`). Un dock au cadre biseauté (filet `--gd` de 1 px, coins coupés à 14 px, même langage que le dos de carte) centré sous l'arène : **Fin** (icône), grand bouton **Lecture/Pause** cerclé (anneau plein + anneau pointillé ; « Rejouer » en fin de combat), **vitesse** qui cycle ×1 → ×2 → ×4 d'un clic (mémorisée dans `bt-speed`), **Effets** et **Musique** en icônes (soulignement doré si actifs, grisés et barrés de rouge si coupés). Dessous, en combat réel : interrupteur losangé **Auto/Manuel** et **Abandonner** discret (rouge au survol). Supprimés : le bouton Recommencer et la barre de progression (sans intérêt en jeu). Icônes `lecture`, `pause`, `fin`, `son`, `musique` ajoutées au sprite `public/icons/icons.json`. Les bordures étant bannies (`border-style: none !important`), les traits passent par `box-shadow`/`outline`/`background` ; les sélecteurs sont renforcés (`.mq-app-shell[class] .bt-dock …`) pour passer devant `controls.css`.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -198,3 +201,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : éclat SSR/UR allongé à 3,1 s avec la carte tirée au centre puis qui redescend ; carillon plus long ; grille du résumé de tirage corrigée (§6).
 - 2026-11-09 : éclat SSR/UR remplacé par « horloge + portes » (carte qui sort des portes, lignes d'énergie, reflets), retournement en « parchemin lourd » (§6).
 - 2026-11-09 : ouverture « graduations » et éclat « constellation encadrée » (style dos de carte) remplacent le rouage et « horloge + portes » ; saut d'animation au clic ou Échap (§6).
+- 2026-11-09 : barre de contrôle du combat refaite en dock central biseauté, sans Recommencer ni progression (§4.15).
