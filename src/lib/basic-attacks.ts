@@ -159,5 +159,6 @@ export function describeBasicRider(rider: BasicRider): string {
 }
 
 export function describeBasicAttack(attack: BasicAttack, detailed = true): string {
-  return `${detailed ? "1× ATK. " : ""}${describeBasicRider(attack.rider)}.`;
+  const rider = describeBasicRider(attack.rider);
+  return detailed ? `1× ATK. ${rider.charAt(0).toUpperCase()}${rider.slice(1)}.` : `${rider}.`;
 }

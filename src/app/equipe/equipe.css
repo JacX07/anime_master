@@ -164,3 +164,6 @@ table.gear-preview td { text-align: right; padding-left: .6rem; }
 table.gear-preview td + td { color: #e9e6dc; }
 table.gear-preview tr[data-delta="up"] td + td { color: #7fd48b; }
 table.gear-preview tr[data-delta="down"] td + td { color: #e07a6c; }
+.eq-spell-help summary { cursor: pointer; color: #d8c48a; font-size: .8rem; }
+.eq-spell-help summary:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 3px; }
+.eq-spell-help ul { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .4rem; font-size: .78rem; line-height: 1.5; color: #b4b2aa; }
