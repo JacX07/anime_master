@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { CharacterCard, type CharacterCardProps } from "@/components/CharacterCard";
 import "./gallery.css";
+import { closeOnBackdrop } from "@/lib/dialog";
 
 type GalleryCharacter = CharacterCardProps & { id: number };
 
@@ -41,9 +42,7 @@ export function URGallery({ characters }: { characters: GalleryCharacter[] }) {
         ref={dialog}
         className="ur-gallery-viewer"
         aria-labelledby="ur-illustration-title"
-        onClick={(event) => {
-          if (event.target === event.currentTarget) dialog.current?.close();
-        }}
+        onClick={closeOnBackdrop}
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
             event.preventDefault();

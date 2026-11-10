@@ -99,6 +99,7 @@ Modèle : `.mq-dropdown-panel` (`maquette.css`).
 - Pas de flèche dessinée ni de pastille pleine : la relation avec l'élément visé se voit par la position et la surbrillance (§4.7).
 - Apparition : fondu + glissement de 8 px en .18 s.
 
+- Liste « à quoi ça sert » (2026-11-09) : sous la phrase, des points précédés d'un petit losange plein or (`.tuto-points`, 12 px, `#b4b2aa`). Phases : actions, accueil, modes, onglets, raccourcis, combat (bulles centrées, sans élément ciblé), fin.
 ### 4.7 Surimpressions (fenêtres, menu JOUER, tutoriel)
 Modèle : `.mq-play-overlay` / `.mq-play-menu`.
 - Voile `rgba(4, 6, 6, .82)` avec flou de 12 px ; apparition en fondu .2 s.
@@ -158,6 +159,15 @@ Validé le 2026-11-09 (`BattlePlayer`, bloc « Barre de contrôle » de `battle.
 ### 4.16 Cases d'artefact par rareté (validé le 2026-11-09, variante C)
 Fond de la couleur de rareté à 20 % sur `#0a0e0d`, liseré intérieur 2 px de la rareté assombrie, petit losange plein de la couleur de rareté en haut à gauche, reflet diagonal discret sur SSR et UR. Les cinq raretés ont chacune leur teinte (`--rarity-*`). Sélection : fond à 30 % et contour or `#d5bb7f` décalé de 3 px. Icône non désaturée. Même rendu dans la fiche personnage (`.eq-character-dialog`).
 
+### 4.17 Étoiles du mode histoire (validé le 2026-11-09, variante A)
+Compteur sous la carte (`StoryMap`, `StarCounter`) : total en Cinzel 34 px or clair `#e3c985`, « / 45 étoiles » en `#9a9a92`, barre de 8 px (fond `#1a1f1d`, remplissage or `#c4a76d`) avec un repère par palier de récompense (12 · 24 · 36 · 45, repère or quand atteint) et une ligne « Prochain palier : N ★ · encore X étoiles · Y combats terminés ». Sur la carte, chaque combat terminé affiche trois étoiles du sprite (`etoile` pleine or `#e3c985`, `etoile-vide` en contour `#6b6247`), 17 px (15 px sur téléphone).
+
+### 4.18 Joueurs en ligne (validé le 2026-11-09, variante A)
+Onglet « En ligne » du chat (après Guilde, Général, Privé), avec pastille verte-de-gris (`#6f9a8d`, texte `#0b0e0f`) du nombre de joueurs. Une ligne par joueur : losange plein `#6fbf9a`, pseudo (lien vers le profil), mention « ami » et `[tag de guilde]`, action soulignée or : « Message » pour un ami (ouvre le privé), « Profil » sinon. Amis d'abord, puis la guilde, puis les autres ; « + N autres joueurs en ligne » au-delà de 60. « En ligne » = vu depuis moins de 5 minutes ; liste rechargée à l'ouverture de l'onglet puis toutes les 60 s ; joueurs bloqués (dans les deux sens) et bannis exclus.
+
+### 4.19 Connexion, inscription et mot de passe (validé le 2026-11-10)
+Pages `/login`, `/signup`, `/signup/verification`, `/forgot-password`, `/reset-password` (`AuthForm.tsx`, `auth.css`) : carte `#111514` aux coins coupés de 10 px, sur-titre doré, titre Cinzel 26 px, champs sur fond `#0b0e0f` à filet bas (doré au focus), bouton `ui-button`, liens d'aide soulignés or. Messages : erreur `#e8a29c` sur fond rouge à 12 %, information `#8fbfae` sur vert-de-gris à 14 %. Les e-mails (`email-templates.ts`) reprennent l'en-tête sombre « ANIMA CLASH » et un bouton or.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -204,3 +214,7 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : éclat SSR/UR remplacé par « horloge + portes » (carte qui sort des portes, lignes d'énergie, reflets), retournement en « parchemin lourd » (§6).
 - 2026-11-09 : ouverture « graduations » et éclat « constellation encadrée » (style dos de carte) remplacent le rouage et « horloge + portes » ; saut d'animation au clic ou Échap (§6).
 - 2026-11-09 : barre de contrôle du combat refaite en dock central biseauté, sans Recommencer ni progression (§4.15).
+- 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
+- 2026-11-09 : onglet « En ligne » dans le chat (§4.18).
+- 2026-11-09 : tutoriel plus explicatif (listes de points, phases accueil, raccourcis et combat), Guide du jeu à 22 étapes (§4.6).
+- 2026-11-10 : pages de connexion, inscription et mot de passe oublié remises dans la DA, e-mails de confirmation (§4.19).

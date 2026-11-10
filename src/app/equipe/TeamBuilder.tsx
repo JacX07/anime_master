@@ -22,6 +22,7 @@ import { TypeIcon } from "@/components/icons";
 import "@/components/battle/battle.css";
 import "./equipe.css";
 import "./character.css";
+import { closeOnBackdrop } from "@/lib/dialog";
 
 export interface TeamCard {
   id: string;
@@ -83,7 +84,7 @@ function LeaveDialog({ open, canSave, pending, onSave, onLeave, onStay }: { open
     if (!open && d.open) d.close();
   }, [open]);
   return (
-    <dialog ref={ref} className="eq-dialog eq-leave" onClose={onStay} aria-labelledby="eq-leave-title">
+    <dialog ref={ref} className="eq-dialog eq-leave" onClose={onStay} onClick={closeOnBackdrop} aria-labelledby="eq-leave-title">
       <h2 id="eq-leave-title" className="eq-h">Enregistrer ton équipe ?</h2>
       <p>Tu as modifié ton équipe sans l&apos;enregistrer.{canSave ? "" : " Elle doit compter 4 cartes pour être enregistrée."}</p>
       <div className="eq-dlg-btns">
@@ -182,7 +183,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
     if (!card && d.open) d.close();
   }, [card]);
   return (
-    <dialog ref={ref} className="eq-dialog eq-character-dialog" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()} aria-label={card ? `Personnage et inventaire de ${card.name}` : undefined}>
+    <dialog ref={ref} className="eq-dialog eq-character-dialog" onClose={onClose} onClick={closeOnBackdrop} aria-label={card ? `Personnage et inventaire de ${card.name}` : undefined}>
       {card && (
         <div className="cd">
           <button type="button" className="cd-close bt-btn" onClick={onClose}>Fermer</button>

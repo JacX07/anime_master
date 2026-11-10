@@ -8,6 +8,7 @@ import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import type { OpenedCard } from "@/lib/packs";
 import { speedOf } from "@/lib/speed";
 import { SpellList } from "@/app/equipe/TeamBuilder";
+import { closeOnBackdrop } from "@/lib/dialog";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -20,7 +21,7 @@ export function CardDetail({ card, onClose }: { card: OpenedCard; onClose: () =>
   }, []);
   const t = TYPE_LABELS[card.type];
   return (
-    <dialog ref={ref} className="pk-detail" aria-label={card.name} onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
+    <dialog ref={ref} className="pk-detail" aria-label={card.name} onClose={onClose} onClick={closeOnBackdrop}>
       <div className="pk-detail-in">
         <div className="pk-detail-art">
           <CharacterCard {...card} characterId={card.characterId} />

@@ -9,6 +9,9 @@ import { prisma } from "./db";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { authThrottle } from "./auth-throttle";
 import { track } from "./events";
+import { sendEmailInBackground } from "./email";
+import { emailConfigured } from "./email-config";
+import { resetPasswordEmail, verificationEmail } from "./email-templates";
 
 export const USERNAME_MIN = 3;
 export const USERNAME_MAX = 20;
@@ -36,7 +39,20 @@ export const auth = betterAuth({
       },
     },
   },
-  emailAndPassword: { enabled: true, minPasswordLength: PASSWORD_MIN, autoSignIn: true },
+  emailAndPassword: {
+    enabled: true, minPasswordLength: PASSWORD_MIN,
+    // Connexion refusée tant que l'e-mail n'est pas confirmé, seulement si Resend est configuré (les comptes antérieurs sont marqués confirmés par migration).
+    requireEmailVerification: emailConfigured(),
+    resetPasswordTokenExpiresIn: 60 * 60,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => { sendEmailInBackground(resetPasswordEmail(user.email, user.name, url)); },
+  },
+  emailVerification: {
+    sendOnSignUp: emailConfigured(),
+    expiresIn: 24 * 60 * 60,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => { sendEmailInBackground(verificationEmail(user.email, user.name, url)); },
+  },
   // La session est relue à chaque page et chaque action : sans cache, une rafale de pages (préchargement des
   // liens du menu) fait des dizaines de lectures en parallèle et sature les 15 clients du Session pooler.
   // Le cookie signé sert la session 5 minutes sans interroger la base (un changement de rôle met ≤ 5 min à s'appliquer).

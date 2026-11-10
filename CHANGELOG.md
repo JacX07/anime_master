@@ -2,6 +2,28 @@
 
 Une section par version, la plus récente en haut. Chaque version correspond à un tag Git (`v0.2.0`…) posé sur `main`. Les migrations de base de données à appliquer avant la publication sont listées dans chaque section.
 
+## v0.2.2 — Joueurs en ligne, tutoriel plus complet et pages de connexion
+
+Une migration de données (sans suppression) est à appliquer avant la publication. Si la v0.2.0 n'a pas encore été publiée, ses migrations restent à appliquer aussi.
+
+### Nouveautés
+- **Joueurs en ligne** : un onglet « En ligne » dans le chat montre les joueurs vus depuis moins de 5 minutes, tes amis et ta guilde d'abord. Les joueurs bloqués n'y figurent pas. « Message » ouvre la conversation privée avec un ami, « Profil » ouvre la fiche des autres.
+- **Étoiles du mode histoire** : le total est affiché en grand, avec une barre de progression marquée aux paliers de récompense (12, 24, 36 et 45) et le prochain objectif. Chaque combat terminé montre ses trois étoiles, plus grandes.
+- **Tutoriel plus explicatif** : 28 étapes avec, pour chaque élément, une courte liste « à quoi ça sert ». Nouvelles étapes : cristaux, Ryō, bannières et taux, lot ×5 ou ×10, onglet Social, bouton JOUER, cloche, chat. Nouvelle phase « Le combat » : éléments et combos, dégâts physiques et magiques, saignement et altérations.
+- **Guide du jeu** : 22 étapes, avec les ressources, les étoiles de l'histoire, les éléments et combos, physique et magique, saignement, le pilotage d'un combat et le chat.
+- **Fenêtres** : un clic en dehors d'une fenêtre la ferme (squads, choix d'un compagnon, fiche personnage, fiche d'une carte, galerie).
+- **Connexion et inscription** : pages remises dans le style du site.
+
+### Préparé, pas encore actif
+- **Mot de passe oublié et confirmation d'e-mail à l'inscription** : le code est en place (envoi par Resend, lien de réinitialisation valable 1 heure, lien de confirmation valable 24 heures, 1 e-mail par minute et par adresse). Il ne s'active que lorsque `RESEND_API_KEY` et `EMAIL_FROM` sont définies. Sans elles, l'inscription ouvre directement la session et le lien « Mot de passe oublié ? » n'apparaît pas.
+
+### Migrations de base de données
+`verify_existing_emails` : marque les comptes existants comme confirmés pour que la confirmation d'e-mail, une fois activée, ne bloque personne. Aucune donnée supprimée. Celles de la v0.2.0 restent à appliquer si elle n'est pas encore en production.
+
+### À savoir
+- Pour activer les e-mails : domaine vérifié dans Resend, puis `RESEND_API_KEY` et `EMAIL_FROM` dans Vercel (Production) et Redeploy (voir `docs/deploiement.md`).
+- Les cadres de cartes ne changent pas dans cette version.
+
 ## v0.2.1 — Animations d'invocation, combat et corrections
 
 Mise à jour sans nouvelle migration de base de données. Si la v0.2.0 n'a pas encore été publiée, ses migrations sont toujours à appliquer (voir plus bas).

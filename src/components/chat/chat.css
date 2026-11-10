@@ -29,3 +29,13 @@
 .chat-input button { background: none; border: 0; color: #c4a76d; font: 600 .65rem var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; padding: 0 .9rem; cursor: pointer; }
 .chat-input button:disabled { opacity: .4; cursor: not-allowed; }
 @media (max-width: 40rem) { .chat-panel { right: .5rem; bottom: .5rem; } .chat-fab { right: .5rem; bottom: .5rem; } }
+
+/* Onglet « En ligne » (DA §4.18) */
+.chat-tabs .chat-count { background: #6f9a8d; color: #0b0e0f; font-weight: 700; }
+.chat-player { display: flex; align-items: center; gap: .6rem; padding: .55rem .8rem; border-bottom: 1px solid #1d2220; }
+.chat-player:hover { background: #c4a76d14; }
+.chat-dot { flex: none; width: 8px; height: 8px; background: #6fbf9a; transform: rotate(45deg); }
+.chat-player-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-player-name a { color: #e9e4d6; font-weight: 500; font-size: .85rem; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-player-name small { color: #8d887a; font-size: .68rem; }
+.chat-player > button, .chat-player > a { background: none; border: 0; border-bottom: 1px solid #c4a76d; color: #c4a76d; font: 600 .62rem var(--font-dm), sans-serif; letter-spacing: .1em; text-transform: uppercase; padding: 0 0 1px; cursor: pointer; text-decoration: none; }

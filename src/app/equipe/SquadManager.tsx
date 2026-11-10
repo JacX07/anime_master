@@ -10,6 +10,7 @@ import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { CardDialog, type TeamCard } from "./TeamBuilder";
 import { saveSquadAction } from "./actions";
 import "./squads.css";
+import { closeOnBackdrop } from "@/lib/dialog";
 
 type Kind = "ATTACK" | "DEFENSE";
 const empty = (): SquadSlots => [null, null, null, null];
@@ -148,14 +149,14 @@ export function SquadManager({ cards, presets, saved, inventory }: {
       {!collection.length && <p className="vt-muted">Aucune carte de cette rareté.</p>}
       {colShown < collection.length && <button type="button" className="ui-button" onClick={() => setColShown((n) => n + 40)}>Afficher plus ({collection.length - colShown} restantes)</button>}
     </section>
-    <dialog ref={creator} className="squad-modal squad-create" aria-labelledby="squad-create-title" onClose={() => setCreating(false)}>
+    <dialog ref={creator} className="squad-modal squad-create" aria-labelledby="squad-create-title" onClose={() => setCreating(false)} onClick={closeOnBackdrop}>
       <form onSubmit={(event) => { event.preventDefault(); start(async () => { try { const result = await saveSquadAction(null, newName, empty()); if (!result.ok) { setMessage({ ok: false, text: result.error }); return; } setSquads((all) => [...all, result.squad]); setSelected(result.squad.id); setName(result.squad.name); setDraft(empty()); setEditing(true); setCreating(false); setMessage(null); } catch { setMessage({ ok: false, text: "Création impossible, réessaie." }); } }); }}>
         <h2 id="squad-create-title">Nouvelle squad</h2><label>Nom<input autoFocus required maxLength={60} value={newName} onChange={(e) => setNewName(e.target.value)} /></label>
         <button className="ui-button" disabled={pending || !newName.trim()}>Créer la squad</button><button type="button" className="ui-button" disabled={pending} onClick={() => setCreating(false)}>Annuler</button>
         {message && !message.ok && <p role="alert">{message.text}</p>}
       </form>
     </dialog>
-    <dialog ref={picker} className="squad-modal squad-picker" aria-labelledby="squad-picker-title" onClose={() => setTarget(null)} onClick={(e) => { if (e.target === e.currentTarget) setTarget(null); }}>
+    <dialog ref={picker} className="squad-modal squad-picker" aria-labelledby="squad-picker-title" onClose={() => setTarget(null)} onClick={closeOnBackdrop}>
       {target !== null && <><div className="squad-picker-head"><h2 id="squad-picker-title">Choisir le personnage · Poste {target + 1}</h2><button className="ui-button" onClick={() => setTarget(null)}>Fermer</button></div>
         <div className="squad-picker-filters"><input type="search" aria-label="Rechercher une carte" placeholder="Nom ou anime…" value={query} onChange={(e) => { setQuery(e.target.value); setShown(50); }} />
           <select aria-label="Rareté" value={rarity} onChange={(e) => { setRarity(e.target.value); setShown(50); }}><option value="">Toutes raretés</option>{Object.entries(RARITY_NAMES).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>

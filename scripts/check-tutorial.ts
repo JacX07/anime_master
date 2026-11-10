@@ -17,4 +17,7 @@ assert.deepEqual(phaseProgress(1), { index: 1, total: 3 });
 assert.deepEqual(phaseProgress(3), { index: 3, total: 3 });
 assert.deepEqual(phaseProgress(4), { index: 1, total: 5 });
 assert.deepEqual(phaseProgress(TUTORIAL_LENGTH), { index: 1, total: 1 });
+assert.deepEqual(phaseProgress(9), { index: 1, total: 4 });
+assert.deepEqual(TUTORIAL_STEPS.filter((s) => s.phase === "combat").length, 4);
+for (const step of TUTORIAL_STEPS) assert.ok(step.title && step.text, step.key);
 console.log("Tutoriel : transitions, arrêt sur présentation et numérotation OK.");

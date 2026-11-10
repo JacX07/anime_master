@@ -22,6 +22,13 @@ const STEPS: { title: string; where: string; href: string; what: string; done?: 
   { title: "Échanger avec un joueur", where: "Marché › Échanges", href: "/trades", what: "Propose un échange de cartes ou de Ryō à un autre joueur." },
   { title: "Noter tes souhaits", where: "Collection › Souhaits", href: "/wishlist", what: "Liste les personnages que tu cherches pour les retrouver plus vite à la Bourse." },
   { title: "Débloquer des succès", where: "Succès", href: "/achievements", what: "Chaque succès rapporte de l’XP. Compare-toi aux autres dans Classement.", done: (f) => f.adventure.quests.some((q) => q.group === "Succès" && q.done) },
+  { title: "Comprendre tes ressources", where: "Accueil", href: "/", what: "Un cristal = une carte (50 au maximum, recharge avec le temps, achat en Ryō). Les Ryō viennent des combats, des quêtes et de la vente de doublons." },
+  { title: "Gagner des étoiles en histoire", where: "JOUER › Mode histoire", href: "/histoire", what: "Jusqu’à 3 étoiles par combat : victoire, aucun allié à terre, 8 tours ou moins. Les paliers 12, 24, 36 et 45 étoiles d’un univers donnent des récompenses." },
+  { title: "Utiliser les éléments et leurs combos", where: "Squads › fiche d’une carte › Sorts", href: "/equipe", what: "Eau : soigne un allié de 10 % et trempe. Foudre : étourdit un ennemi trempé. Feu : brûlure 5 % des PV max. Terre : vitesse −25 %. Air : esquive +20 points. Terre + feu brise (DEF −40 %), air + eau affaiblit (+25 % de dégâts subis)." },
+  { title: "Distinguer dégâts physiques et magiques", where: "Squads", href: "/equipe", what: "Les cartes de type Magie et celles de Jujutsu Kaisen infligent des dégâts magiques, toutes les autres des dégâts physiques. Les bonus d’équipement et de set s’appliquent selon ce type." },
+  { title: "Gérer saignement, poison et brûlure", where: "Pendant un combat", href: "/equipe", what: "Le saignement (porteurs de lame) se cumule jusqu’à 5 fois : 2 % des PV actuels par cumul et par action, effacé par un soin. Poison et brûlure retirent des PV à la fin de l’action de la cible ; purge et immunité les retirent ou les bloquent." },
+  { title: "Piloter un combat", where: "Pendant un combat", href: "/histoire", what: "Barre centrale : Pause ou Lecture, Fin pour passer à la conclusion, vitesse ×1 ×2 ×4, effets et musique. En combat réel, l’interrupteur Auto ou Manuel et « Abandonner » sont dessous." },
+  { title: "Discuter et voir qui est en ligne", where: "Chat, en bas à droite", href: "/", what: "Guilde, Général (niveau d’Arpenteur 3 pour écrire), Privé avec tes amis, et En ligne pour voir qui est connecté." },
 ];
 
 function quest(f: GuideFacts, key: string, prefix = false) {
