@@ -13,6 +13,9 @@ const ZONE_SILENCE_KEEP: Record<number, SpellSlot[]> = {
 };
 /** Un sort ne soigne pas son lanceur de plus de 35 % de ses PV max (les soins d'alliés ne sont pas plafonnés). */
 export const SELF_HEAL_CAP = 0.35;
+/** Provocation : 2 tours au plus si c'est le seul effet du sort, 1 tour si elle s'accompagne d'autres effets. */
+export const TAUNT_ALONE_MAX = 2;
+export const TAUNT_COMBINED_MAX = 1;
 
 function rule(characterId: number, slot: SpellSlot, spell: CharacterSpell, e: Effect): Effect {
   if (e.k === "silence" && e.to === "foes" && !ZONE_SILENCE_KEEP[characterId]?.includes(slot)) {
@@ -20,6 +23,7 @@ function rule(characterId: number, slot: SpellSlot, spell: CharacterSpell, e: Ef
     return spell.target === "foe" ? { ...e, to: "target" } : { ...e, count: 1 };
   }
   if (e.k === "heal" && e.to === "self" && e.pct > SELF_HEAL_CAP) return { ...e, pct: SELF_HEAL_CAP };
+  if (e.k === "taunt") return { ...e, turns: Math.min(e.turns, spell.effects.length === 1 ? TAUNT_ALONE_MAX : TAUNT_COMBINED_MAX) };
   return e;
 }
 
