@@ -54,6 +54,7 @@ export interface BattleCard {
     /** Bonus de set (absents des combats enregistrés avant eux) : vitesse %, dégâts physiques / magiques, jauge par sort, saignement, précision */
     magicSkill?: number;
     speedPct?: number; physDamage?: number; magicDamage?: number; gaugePerSpell?: number; bleedBonus?: number; precision?: number;
+    ignoreDef?: number; elementalDamage?: number; titanGuard?: number;
   };
   /** Boss d'histoire ou de raid : résiste au silence */
   boss?: boolean;
@@ -176,7 +177,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -297,6 +298,9 @@ interface Unit {
   /** Passif de mort (ultime lancé automatiquement) déjà utilisé */
   deathCast: boolean;
   continuingTurn: boolean;
+  titanTriggered: boolean;
+  /** Part restante du bouclier temporaire, consommée avant les autres boucliers. */
+  titanShield: number;
   fx: Fx[];
 }
 
@@ -395,7 +399,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0,
-      revived: false, master: null, deathCast: false, continuingTurn: false, fx: [],
+      revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [],
     };
   });
 }
@@ -451,7 +455,7 @@ function nextSlot(st: BattleState) {
   st.roundOpen = false;
   if (st.round !== 1) return;
   for (const u of st.teams[st.order[1]]) {
-    const lost = Math.min(u.shield, u.maxHp * BATTLE.secondShield);
+    const lost = Math.min(Math.max(0, u.shield - u.titanShield), u.maxHp * BATTLE.secondShield);
     if (u.hp <= 0 || lost <= 0) continue;
     u.shield -= lost;
     st.log.push({ kind: "shield", source: null, target: u.id, amount: -lost, shield: u.shield });
@@ -460,7 +464,7 @@ function nextSlot(st: BattleState) {
 
 function removeSecondShield(st: BattleState) {
   for (const u of st.teams[st.order[1]]) {
-    const lost = Math.min(u.shield, u.maxHp * BATTLE.secondShield);
+    const lost = Math.min(Math.max(0, u.shield - u.titanShield), u.maxHp * BATTLE.secondShield);
     if (u.hp <= 0 || lost <= 0) continue;
     u.shield -= lost;
     st.log.push({ kind: "shield", source: null, target: u.id, amount: -lost, shield: u.shield });
@@ -588,6 +592,17 @@ function clearBleed(st: BattleState, u: Unit) {
   st.log.push({ kind: "status", target: u.id, status: "bleed", on: false });
 }
 
+/** Le coup déclencheur est payé avant le bouclier ; un porteur mort n'est jamais sauvé. */
+function triggerTitan(st: BattleState, u: Unit, fresh: boolean) {
+  if (!u.card.artifactStats?.titanGuard || u.titanTriggered || u.hp <= 0 || u.hp > u.maxHp * 0.5) return;
+  u.titanTriggered = true;
+  u.titanShield = u.maxHp * 0.5;
+  u.shield += u.titanShield;
+  u.fx.push({ key: "titan", amount: 0.5, turns: 2, fresh, source: u.id });
+  st.log.push({ kind: "shield", source: u.id, target: u.id, amount: u.titanShield, shield: u.shield });
+  st.log.push({ kind: "status", target: u.id, status: "titan", on: true, amount: 0.5, turns: 2, source: u.id });
+}
+
 function finishUnitTurn(st: BattleState, u: Unit) {
   u.continuingTurn = false;
   for (const status of ["elan", "weaken"] as const) {
@@ -602,9 +617,10 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       continue;
     }
     if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn" || effect.key === "bleed")) {
-      const amount = Math.min(u.hp, (effect.key === "bleed" ? Math.ceil(u.hp * effect.amount) : u.maxHp * effect.amount));
+      const amount = Math.min(u.hp, (effect.key === "bleed" ? Math.ceil(u.hp * effect.amount) : u.maxHp * effect.amount) * (1 - fxKeySum(u, "titan")));
       u.hp -= amount;
       st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}), ...(effect.key === "bleed" ? { bleed: true } : {}) });
+      triggerTitan(st, u, false);
       if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
     }
     if (u.hp > 0 && effect.key === "regen") {
@@ -615,6 +631,12 @@ function finishUnitTurn(st: BattleState, u: Unit) {
     }
     if (effect.key === "bleed") continue;
     if (--effect.turns <= 0) {
+      if (effect.key === "titan") {
+        const lost = Math.min(u.shield, u.titanShield);
+        u.shield -= lost;
+        u.titanShield = 0;
+        if (lost > 0) st.log.push({ kind: "shield", source: u.id, target: u.id, amount: -lost, shield: u.shield });
+      }
       u.fx = u.fx.filter((fx) => fx !== effect);
       st.log.push({ kind: "status", target: u.id, status: effect.key, on: false });
     }
@@ -636,6 +658,7 @@ function processDeaths(st: BattleState) {
       if (x.hp > 0 && x.master && unit(st, x.master).hp <= 0) {
         x.hp = 0;
         x.shield = 0;
+        x.titanShield = 0;
         st.log.push({ kind: "ko", target: x.id });
         changed = true;
       }
@@ -646,6 +669,7 @@ function processDeaths(st: BattleState) {
         if (lastOfHome) {
           x.hp = 0;
           x.shield = 0;
+          x.titanShield = 0;
           st.log.push({ kind: "ko", target: x.id });
           changed = true;
         }
@@ -849,7 +873,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       consumedIgnoreFx = true;
       dropFx(u, pendingIgnoreFx);
     }
-    ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef);
+    ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef + (u.card.artifactStats?.ignoreDef ?? 0));
     // Esquive : arme (sorts affiliés seulement) ou effet d'un sort ; un coup qui traverse ne s'esquive pas
     const dodge = pierce || u.card.artifactStats?.precision ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + (t.card.artifactStats?.dodge ?? 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
     if (dodge > 0 && rng() < dodge) {
@@ -865,20 +889,23 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit"), 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card);
     dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0);
+    if (action.spell === "special" && opts.elements && !u.card.noElement && effectElement(u.card.characterId)) dmg *= 1 + (u.card.artifactStats?.elementalDamage ?? 0);
     const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
     if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 + fxKeySum(t, "vulnerable");
-    dmg *= 1 - clamp(fxKeySum(t, "reduce"), 0, BATTLE.reduceCap);
+    dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan"), 0, BATTLE.reduceCap);
     const absorbed = pierce ? 0 : Math.min(t.shield, dmg);
     t.shield -= absorbed;
+    t.titanShield = Math.max(0, t.titanShield - absorbed);
     t.hp = Math.max(0, t.hp - (dmg - absorbed));
     log.push({
       kind: "damage", source: u.id, target: t.id, amount: dmg, absorbed, crit,
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
     if (dmg > 0) { landedHit = true; struck.add(t); }
+    triggerTitan(st, t, t === u);
     if (t.hp === 0) log.push({ kind: "ko", target: t.id });
     else if (t.side !== u.side) {
       if (hasFx(t, "counter")) shadows.add(t);
@@ -980,7 +1007,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         break;
       case "feu":
         // Une zone brûle moins fort chaque cible (calibrage : sinon +12 pp pour Mustang et Megumin)
-        for (const t of hitFoes) if (!consumed.has(t)) addFx(t, "burn", hitFoes.length > 1 ? r.burnPct * r.burnZoneScale : r.burnPct, r.burnTurns);
+        for (const t of hitFoes) if (!consumed.has(t)) addFx(t, "burn", (hitFoes.length > 1 ? r.burnPct * r.burnZoneScale : r.burnPct) * (1 + (u.card.artifactStats?.elementalDamage ?? 0)), r.burnTurns);
         break;
       case "air":
         for (const t of hitFoes) if (!consumed.has(t)) addFx(t, "swept", 0, r.dodgeTurns);
@@ -1123,6 +1150,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
             u.revived = true;
             dead.hp = dead.maxHp * e.pct;
             dead.shield = 0;
+            dead.titanShield = 0;
             dead.fx = [];
             Object.assign(dead, { exposed: false, weaken: 0, elan: 0, spellIn: 2, pIn: SPELL_FIRST, tIn: SPELL_FIRST, held: 0, master: u.id });
             log.push({ kind: "revive", source: u.id, target: dead.id, hp: dead.hp, zombie: true });
@@ -1141,6 +1169,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
             u.revived = true;
             target.hp = target.maxHp * e.pct;
             target.shield = 0;
+            target.titanShield = 0;
             target.fx = [];
             Object.assign(target, { exposed: false, weaken: 0, elan: 0, spellIn: 2, pIn: SPELL_FIRST, tIn: SPELL_FIRST, held: 0 });
             log.push({ kind: "revive", source: u.id, target: target.id, hp: target.hp });
@@ -1199,14 +1228,16 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     const aff = affinity(owner.card.type, u.card.type);
     let dmg = owner.atk * aff * fxKeySum(owner, "counter") * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
-    dmg *= 1 - clamp(fxKeySum(u, "reduce"), 0, BATTLE.reduceCap);
+    dmg *= 1 - clamp(fxKeySum(u, "reduce") + fxKeySum(u, "titan"), 0, BATTLE.reduceCap);
     const absorbed = Math.min(u.shield, dmg);
     u.shield -= absorbed;
+    u.titanShield = Math.max(0, u.titanShield - absorbed);
     u.hp = Math.max(0, u.hp - (dmg - absorbed));
     log.push({
       kind: "damage", source: owner.id, target: u.id, amount: dmg, absorbed, crit: false,
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus: false, hp: u.hp, shield: u.shield, shadow: true,
     });
+    triggerTitan(st, u, true);
     if (u.hp === 0) log.push({ kind: "ko", target: u.id });
   }
   // Un sort actif (même sans dégât : buff, soin, debuff) charge la jauge comme une attaque qui touche

@@ -90,6 +90,7 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   controlled: { label: "Contrôlé", glyph: "☍", help: "Joue pour le camp adverse ; exécuté s'il est le dernier survivant de son camp.", bad: true },
   bloodlust: { label: "Soif de sang", glyph: "♥", help: "Récupère des PV à chaque coup reçu d'un ennemi.", bad: false },
   zombie: { label: "Zombie", glyph: "✝", help: "Ressuscité par Arise. Disparaît si son maître tombe.", bad: false },
+  titan: { label: "Cuirasse du Titan", glyph: "", help: "Dégâts subis −50 % et bouclier temporaire de 50 % des PV max. Une activation par combat, pendant 2 actions du porteur.", bad: false },
   reduce: { label: "Dégâts réduits", glyph: "⛉", help: "Subit moins de dégâts.", bad: false },
   regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacun de ses tours.", bad: false },
   burn: { label: "Brûlure", glyph: "♨", help: "Perd 5 % de ses PV max à la fin de chacun de ses tours.", bad: true },

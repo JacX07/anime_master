@@ -1,6 +1,6 @@
 "use client";
 
-import type { Status, UnitId, UnitView } from "@/lib/battle";
+import { BATTLE, type Status, type UnitId, type UnitView } from "@/lib/battle";
 import { STATUS_INFO, type UnitState } from "@/lib/battle-replay";
 import type { PlayerCharacter } from "./BattlePlayer";
 
@@ -15,7 +15,7 @@ function valueOf(status: Status, amount?: number) {
   if (status === "poison" || status === "burn") return `${pct(amount).replace("+", "")} des PV max par tour`;
   if (status === "bleed") return `${pct(amount).replace("+", "")} des PV actuels par tour`;
   if (status === "regen") return `${pct(amount)} des PV max par tour`;
-  if (status === "reduce") return `dégâts subis ${pct(-amount)}`;
+  if (status === "reduce" || status === "titan") return `dégâts subis ${pct(-amount)}`;
   if (status === "bloodlust") return `soigne ${pct(amount).replace("+", "")} des dégâts reçus`;
   // Le libellé porte déjà le sens (« ATK + » / « ATK − ») : valeur sans signe
   if (status.endsWith("Up") || status.endsWith("Down")) return `${Math.round(Math.abs(amount) * 100)} %`;
@@ -34,7 +34,7 @@ export function EffectsPanel({ unit, state, info, characters }: { unit: UnitView
     ["Vitesse", fmt(unit.speed), fmt(Math.max(20, unit.speed * (1 + clamp(sum("speed")))))],
     ["Critique", "", sum("crit") ? pct(sum("crit")) : "—"],
     ["Esquive", "", sum("dodge") ? pct(sum("dodge")) : "—"],
-    ["Dégâts subis", "", (fxd.reduce?.amount ? pct(-fxd.reduce.amount) : "") + (state.exposed ? " (exposé)" : "") || "—"],
+    ["Dégâts subis", "", ((fxd.reduce?.amount || fxd.titan?.amount) ? pct(-Math.min(BATTLE.reduceCap, (fxd.reduce?.amount ?? 0) + (fxd.titan?.amount ?? 0))) : "") + (state.exposed ? " (exposé)" : "") || "—"],
   ];
   const name = (id?: UnitId) => (id && info[id] ? characters[info[id]!.characterId]?.name ?? id : null);
   return <section className="bt-effects" aria-label={`Effets de ${characters[unit.characterId]?.name ?? unit.id}`}>

@@ -8,7 +8,7 @@ export function sumArtifactStats(artifacts: { setKey?: string; mainStat: string;
   const worn = artifacts.filter((a) => SET_KEYS.includes(a.setKey ?? DUNGEON_KEY));
   const stats: Totals = {
     attack: 0, defense: 0, hp: 0, speed: 0, crit: 0, critDamage: 0, dodge: 0, flatAttack: 0, flatDefense: 0, flatHp: 0,
-    magicSkill: 0, speedPct: 0, physDamage: 0, magicDamage: 0, gaugePerSpell: 0, bleedBonus: 0, precision: 0,
+    magicSkill: 0, speedPct: 0, physDamage: 0, magicDamage: 0, gaugePerSpell: 0, bleedBonus: 0, precision: 0, ignoreDef: 0, elementalDamage: 0, titanGuard: 0,
   };
   const pieces = new Map<string, number>();
   for (const a of worn) pieces.set(a.setKey ?? DUNGEON_KEY, (pieces.get(a.setKey ?? DUNGEON_KEY) ?? 0) + 1);

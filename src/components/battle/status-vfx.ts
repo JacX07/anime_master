@@ -75,7 +75,7 @@ for (const fx of FX) for (const key of KEYS[fx.name]) STATUS_FX[key] = { apply: 
 
 // Les statuts supplémentaires réutilisent les effets et leur cycle de vie existants.
 const STATUS_ALIASES: Partial<Record<Status, Status>> = {
-  counter: "defUp", zombie: "regen", bloodlust: "regen", seal: "silence", controlled: "silence",
+  titan: "reduce", counter: "defUp", zombie: "regen", bloodlust: "regen", seal: "silence", controlled: "silence",
   earth: "speedDown", swept: "wet", broken: "defDown", vulnerable: "exposed", bleed: "poison",
 };
 for (const [key, source] of Object.entries(STATUS_ALIASES)) STATUS_FX[key as Status] = STATUS_FX[source];

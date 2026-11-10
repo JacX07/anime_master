@@ -26,11 +26,11 @@ async function Dungeon({ searchParams }: { searchParams: Promise<{ set?: string 
   const access = await getDungeonAccess(user.id);
   const nav = <div className="pg-tabs"><nav className="dg-universes" aria-label="Univers du donjon">{DUNGEONS.map((d) => access[d.key].unlocked
     ? <Link key={d.key} href={`/donjons?set=${d.key}`} aria-current={d.key === dungeon.key ? "page" : undefined}>{d.universe}</Link>
-    : <Link key={d.key} href={`/donjons?set=${d.key}`} className="dg-locked" aria-current={d.key === dungeon.key ? "page" : undefined} title={`Gagne le combat ${DUNGEON_UNLOCK_LEVEL} de l'histoire ${d.universe}`}>{d.universe} · verrouillé</Link>)}</nav></div>;
+    : <Link key={d.key} href={`/donjons?set=${d.key}`} className="dg-locked" aria-current={d.key === dungeon.key ? "page" : undefined} title={`Gagne le combat ${DUNGEON_UNLOCK_LEVEL} de l'histoire ${d.storyName}`}>{d.universe} · verrouillé</Link>)}</nav></div>;
   if (!access[dungeon.key].unlocked) return <div className="vt-inner dungeon-page">
     <header className="pg-head"><h1 className="vt-title">Donjons</h1><p className="vt-sub">Choisis ton univers, défie son gardien et récupère les artefacts de son set.</p></header>
     {nav}
-    <section className="dg-lock" role="status"><h2>{dungeon.name} · verrouillé</h2><p>Gagne le combat {DUNGEON_UNLOCK_LEVEL} de l&apos;histoire {dungeon.universe} pour ouvrir ce donjon.</p><p className="dg-lock-progress">Histoire {dungeon.universe} : {Math.min(access[dungeon.key].storyLevel, DUNGEON_UNLOCK_LEVEL)} / {DUNGEON_UNLOCK_LEVEL}</p><Link className="bt-btn" href="/histoire">Aller à l&apos;histoire</Link></section>
+    <section className="dg-lock" role="status"><h2>{dungeon.name} · verrouillé</h2><p>Gagne le combat {DUNGEON_UNLOCK_LEVEL} de l&apos;histoire {dungeon.storyName} pour ouvrir ce donjon.</p><p className="dg-lock-progress">Histoire {dungeon.storyName} : {Math.min(access[dungeon.key].storyLevel, DUNGEON_UNLOCK_LEVEL)} / {DUNGEON_UNLOCK_LEVEL}</p><Link className="bt-btn" href="/histoire">Aller à l&apos;histoire</Link></section>
   </div>;
   const [state, boss, context] = await Promise.all([
     getDungeonState(user.id, dungeon.key),

@@ -26,7 +26,7 @@ import { floorRarities, floorScale, MAX_FLOOR, TOWER_PREFIX, towerRyo } from "./
 
 import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
-import { artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEONS, SET_KEYS, DUNGEON_PREFIX, dungeonOf, dungeonOfKey, dungeonUnlocked, DUNGEON_UNLOCK_LEVEL, type Dungeon, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
+import { dungeonArtifactRarities, artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEONS, SET_KEYS, DUNGEON_PREFIX, dungeonOf, dungeonOfKey, dungeonUnlocked, DUNGEON_UNLOCK_LEVEL, type Dungeon, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
 import type { CharacterSpell } from "./spells";
 
 export class BattleError extends Error {}
@@ -236,14 +236,18 @@ async function settleDungeon(tx: Prisma.TransactionClient, userId: string, oppon
   const dungeon = dungeonOfKey(opponent)!;
   await tx.dungeonProgress.createMany({ data: [{ userId, dungeon: dungeon.key }], skipDuplicates: true });
   await tx.dungeonProgress.updateMany({ where: { userId, dungeon: dungeon.key, maxLevel: { lt: level } }, data: { maxLevel: level } });
-  const slot = artifactSlot(seed);
-  const rarity = levelReward(level).rarity;
-  const main = artifactMainStat(slot, rarity, seed ^ 0x4d3c2b1a);
-  const subStats = artifactSubStats(slot, rarity, seed ^ 0x7f4a7c15, main.stat);
-  await tx.artifact.create({ data: { userId, setKey: dungeon.key, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
+  const artifacts: NonNullable<Loot["artifact"]>[] = [];
+  for (const [i, rarity] of dungeonArtifactRarities(level, seed).entries()) {
+    const pieceSeed = i === 0 ? seed : seed ^ 0x6a09e667;
+    const slot = artifactSlot(pieceSeed);
+    const main = artifactMainStat(slot, rarity, pieceSeed ^ 0x4d3c2b1a);
+    const subStats = artifactSubStats(slot, rarity, pieceSeed ^ 0x7f4a7c15, main.stat);
+    await tx.artifact.create({ data: { userId, setKey: dungeon.key, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
+    artifacts.push({ slot, rarity, mainStat: main.stat, mainValue: main.value, subStats });
+  }
   const material = levelReward(level).resource;
   if (material) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: dungeon.resource } }, create: { userId, key: dungeon.resource, quantity: material }, update: { quantity: { increment: material } } });
-  return { ryo: 0, crystals: 0, resources: material ? { [dungeon.resource]: material } : {}, artifact: { slot, rarity, mainStat: main.stat, mainValue: main.value, subStats } };
+  return { ryo: 0, crystals: 0, resources: material ? { [dungeon.resource]: material } : {}, artifact: artifacts[0], artifacts };
 }
 
 /** Difficultés ouvertes pour ce joueur : le Normal après le tutoriel, puis chaque niveau en battant le précédent (sur n'importe quel boss). */
@@ -546,7 +550,7 @@ export async function equipArtifact(userId: string, artifactId: string, cardId: 
 export async function getDungeonAccess(userId: string) {
   const [story, dungeons] = await Promise.all([prisma.storyProgress.findMany({ where: { userId } }), prisma.dungeonProgress.findMany({ where: { userId } })]);
   return Object.fromEntries(DUNGEONS.map((d) => {
-    const storyLevel = story.find((r) => r.universe === d.key)?.maxLevel ?? 0;
+    const storyLevel = story.find((r) => r.universe === d.storyKey)?.maxLevel ?? 0;
     return [d.key, { storyLevel, unlocked: dungeonUnlocked(storyLevel, dungeons.find((r) => r.dungeon === d.key)?.maxLevel ?? 0) }];
   })) as Record<string, { storyLevel: number; unlocked: boolean }>;
 }
@@ -725,7 +729,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (dungeonLevel) {
     const dungeon = dungeonOfKey(opponent)!;
     const progress = await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: dungeon.key } }, select: { maxLevel: true } });
-    if (!(await getDungeonAccess(userId))[dungeon.key].unlocked) throw new BattleError(`Donjon verrouillé : gagne le combat ${DUNGEON_UNLOCK_LEVEL} de l'histoire ${dungeon.universe}.`);
+    if (!(await getDungeonAccess(userId))[dungeon.key].unlocked) throw new BattleError(`Donjon verrouillé : gagne le combat ${DUNGEON_UNLOCK_LEVEL} de l'histoire ${dungeon.storyName}.`);
     if (dungeonLevel > (progress?.maxLevel ?? 0) + 1) throw new BattleError("Difficulté verrouillée : gagne la précédente.");
   }
   const raid = parseRaid(opponent);

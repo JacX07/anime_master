@@ -2,7 +2,7 @@
 // Usage : npm run check:dungeon
 import { BattleError, equipArtifact, getArtifactInventory, getDungeonAccess, getBattle, getAttackTeam, playAction, setAttackTeam, startBattle } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
-import { artifactMainStat, artifactSlot, artifactSubStats, dungeonKey } from "../src/lib/dungeons";
+import { artifactMainStat, artifactSlot, artifactSubStats, dungeonKey, dungeonArtifactRarities, DUNGEONS, ARTIFACT_SLOTS } from "../src/lib/dungeons";
 import { RARITY_NAMES } from "../src/lib/labels";
 import type { Rarity } from "../src/generated/prisma/enums";
 let failures = 0;
@@ -121,6 +121,42 @@ async function main() {
       view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0] });
     }
     check("Combat manuel terminé", view.status === "DONE");
+    // Nouveaux donjons : distinguer univers d'histoire et clé du set (Fairy Tail).
+    await prisma.storyProgress.create({ data: { userId: uid, universe: "fairy-tail", maxLevel: 10 } });
+    check("Une fausse progression Fairy Tail ne débloque pas le donjon", !(await getDungeonAccess(uid))["fairy-tail"].unlocked);
+    await prisma.storyProgress.create({ data: { userId: uid, universe: "grande-alchimie", maxLevel: 9 } });
+    check("Grande Alchimie 9 insuffisant pour Fairy Tail", !(await getDungeonAccess(uid))["fairy-tail"].unlocked);
+    // Équipement de test sur les seules cartes jetables, pour garantir la victoire.
+    const strong = await getAttackTeam(uid);
+    for (const c of strong) if (c) {
+      await prisma.artifact.deleteMany({ where: { userId: uid, equippedCardId: c.id } });
+      for (const [i, slot] of ARTIFACT_SLOTS.entries()) await prisma.artifact.create({ data: { userId: uid, equippedCardId: c.id, setKey: "one-piece", slot, rarity: "UR", mainStat: i === 0 ? "flatAttack" : "flatHp", mainValue: i === 0 ? 50000 : 200000 } });
+    }
+    for (const d of DUNGEONS.filter((d) => ["attack-on-titan", "demon-slayer", "fairy-tail"].includes(d.key))) {
+      await prisma.storyProgress.upsert({ where: { userId_universe: { userId: uid, universe: d.storyKey } }, create: { userId: uid, universe: d.storyKey, maxLevel: 10 }, update: { maxLevel: 10 } });
+      check(`${d.universe} débloqué par son histoire`, (await getDungeonAccess(uid))[d.key].unlocked);
+      await prisma.dungeonProgress.create({ data: { userId: uid, dungeon: d.key, maxLevel: 2 } });
+      const before = await prisma.artifact.count({ where: { userId: uid, setKey: d.key } });
+      let fight = await startBattle(uid, dungeonKey(3, d.key), d.key === "fairy-tail");
+      for (let i = 0; i < 100 && fight.status === "RUNNING"; i++) { const choice = fight.choices[0]; fight = await playAction(uid, fight.id, { spell: choice.spell, target: choice.targets[0] }); }
+      check(`${d.universe} victoire réelle et deux raretés`, fight.winner === "A" && fight.loot?.artifacts?.map((a) => a.rarity).join(",") === "R,N");
+      const after = await prisma.artifact.count({ where: { userId: uid, setKey: d.key } });
+      check(`${d.universe} deux pièces enregistrées`, after - before === 2);
+      await getBattle(uid, fight.id); await getBattle(uid, fight.id);
+      check(`${d.universe} relecture sans double versement`, await prisma.artifact.count({ where: { userId: uid, setKey: d.key } }) === after);
+      check(`${d.universe} progression indépendante`, (await prisma.dungeonProgress.findUniqueOrThrow({ where: { userId_dungeon: { userId: uid, dungeon: d.key } } })).maxLevel === 3);
+      const even = await startBattle(uid, dungeonKey(4, d.key), false);
+      const saved = await prisma.battle.findUniqueOrThrow({ where: { id: even.id }, select: { seed: true } });
+      const expected = dungeonArtifactRarities(4, saved.seed);
+      check(`${d.universe} butin pair conforme à la graine`, even.winner === "A" && JSON.stringify(even.loot?.artifacts?.map((a) => a.rarity)) === JSON.stringify(expected));
+      check(`${d.universe} compte exact après le tirage bonus`, await prisma.artifact.count({ where: { userId: uid, setKey: d.key } }) === after + expected.length);
+
+    }
+    await prisma.dungeonProgress.update({ where: { userId_dungeon: { userId: uid, dungeon: "fairy-tail" } }, data: { maxLevel: 6 } });
+    const materialWin = await startBattle(uid, dungeonKey(7, "fairy-tail"), false);
+    const material = await prisma.resourceStock.findUnique({ where: { userId_key: { userId: uid, key: "cristal-de-magie" } } });
+    check("Deux pièces mais un seul versement de matériaux", materialWin.loot?.artifacts?.length === 2 && materialWin.loot.resources["cristal-de-magie"] === 1 && material?.quantity === 1);
+
   } finally { await prisma.user.deleteMany({ where: { id: uid } }); }
   console.log(failures ? `\n${failures} vérification(s) en échec.` : "\nDonjon conforme.");
   process.exitCode = failures ? 1 : 0;

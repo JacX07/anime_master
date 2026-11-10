@@ -2,7 +2,7 @@
 
 [← Index des specs](README.md)
 
-*(Discuté et décidé dans ses grandes lignes le 2026-10-31. Rien n'est codé. Les chiffres sont à fixer au simulateur.)*
+*(Discuté et décidé dans ses grandes lignes le 2026-10-31. Le socle est désormais codé. Les décisions v0.3.0 du [lot 6](lot-6-donjons-sets.md) remplacent les anciens barèmes de butin et complètent les sets.)*
 
 ## Vue d'ensemble
 

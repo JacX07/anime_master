@@ -135,7 +135,10 @@ export interface Loot {
   resources: Record<string, number>;
   /** Raid : part des PV du boss retirée (0 à 1) */
   share?: number;
+  /** Première pièce, conservée pour les anciens lecteurs de butin. */
   artifact?: { slot: string; rarity: Rarity; mainStat: string; mainValue: number; subStats: { stat: string; value: number }[] };
+  /** Toutes les pièces gagnées (absent des anciens combats à une pièce). */
+  artifacts?: NonNullable<Loot["artifact"]>[];
 }
 
 /** Butin d'une victoire. `rand` tire les unités entre ressource d'univers et commune (50 / 50). `fullUnits` : unités encore au taux plein aujourd'hui (rejeu). */

@@ -11,7 +11,10 @@ export const DUNGEONS = [
   { key: "jujutsu-kaisen", universe: "Jujutsu Kaisen", name: "Le Sanctuaire malveillant", description: "Affronte Sukuna et ses exorcistes pour arracher les reliques maudites.", franchiseId: 113415, bossId: 133701, resource: "outil-maudit", mechanics: ["Barrière maudite", "Entaille dévastatrice", "Sanctuaire malveillant"], bonus: "2 pièces : +5 % de dégâts magiques. 4 pièces : +15 % de dégâts magiques et 50 points de jauge d’ultime par sort." },
   { key: "dragon-ball", universe: "Dragon Ball", name: "La Forteresse de Freeza", description: "Brise les défenses de Freeza et de sa garde pour gagner les reliques saiyan.", franchiseId: 813, bossId: 3694, resource: "armure-saiyan", mechanics: ["Barrière de ki", "Vague destructrice", "Supernova"], bonus: "2 pièces : +10 % de dégâts physiques et de DEF. 4 pièces : +20 % de dégâts physiques et de DEF." },
   { key: "bleach", universe: "Bleach", name: "Le Palais du Hueco Mundo", description: "Défie Aizen et ses gardiens pour récupérer les reliques du shinigami.", franchiseId: 269, bossId: 1086, resource: "fragment-de-zanpakuto", mechanics: ["Barrière spirituelle", "Pression spirituelle", "Éveil du Hōgyoku"], bonus: "2 pièces : +25 % de dégâts de saignement. 4 pièces : +40 % de dégâts de saignement et précision : les coups ne peuvent plus être esquivés." },
-];
+  { key: "attack-on-titan", universe: "Attaque des Titans", name: "La Citadelle du Titan cuirassé", description: "Brise la cuirasse de Reiner pour récupérer les quatre pièces de la Cuirasse du temps.", franchiseId: 16498, bossId: 46484, resource: "lame-ultra-dure", mechanics: ["Cuirasse renforcée", "Charge du Titan", "Effondrement des remparts"], bonus: "Cuirasse du temps — 2 pièces : +15 % DEF et PV. 4 pièces : mêmes stats ; à 50 % de PV ou moins, bouclier de 50 % des PV max et dégâts subis −50 % pendant 2 tours, une fois par combat (si le porteur survit)." },
+  { key: "demon-slayer", universe: "Demon Slayer", name: "La Forteresse infinie", description: "Affronte Muzan et ses démons pour forger les reliques des pourfendeurs.", franchiseId: 101922, bossId: 129132, resource: "acier-ecarlate", mechanics: ["Chair régénérante", "Sang démoniaque", "Nuit sans fin"], bonus: "2 pièces : +10 points de taux critique. 4 pièces : +15 points de taux critique au total et ignore 25 % de la DEF adverse." },
+  { key: "fairy-tail", universe: "Fairy Tail", name: "Le Repaire du dragon noir", description: "Défie Acnologia pour arracher les reliques des cinq éléments.", franchiseId: 6702, bossId: 49003, resource: "cristal-de-magie", mechanics: ["Écailles du dragon", "Souffle du néant", "Rugissement d’Acnologia"], bonus: "2 pièces : +15 % de dégâts élémentaires. 4 pièces : +30 % au total. Feu, eau, air, terre et foudre : dégâts du secondaire élémentaire et sa brûlure ; soins et attaques sans élément inchangés." },
+].map((d) => ({ ...d, storyKey: d.key === "fairy-tail" ? "grande-alchimie" : d.key, storyName: d.key === "fairy-tail" ? "La Grande Alchimie" : d.universe }));
 /** Un donjon s'ouvre quand le combat 10 de l'histoire du même univers est gagné ; un joueur qui y a déjà progressé le garde. */
 export const DUNGEON_UNLOCK_LEVEL = 10;
 export const dungeonUnlocked = (storyMaxLevel: number, dungeonMaxLevel: number) => storyMaxLevel >= DUNGEON_UNLOCK_LEVEL || dungeonMaxLevel > 0;
@@ -33,6 +36,13 @@ const randomFor = (seed: number) => {
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
 };
+/** Un tirage séparé du slot et des stats : le bonus à 50 % ne dépend pas de la pièce gagnée. */
+export function dungeonArtifactRarities(level: number, seed: number): Rarity[] {
+  const rarity = DIFFICULTY_RARITY(level);
+  if (level % 2 === 0) return randomFor(seed ^ 0x3c6ef372)() < 0.5 ? [rarity, rarity] : [rarity];
+  return level === 1 ? [rarity] : [rarity, DIFFICULTY_RARITY(level - 2)];
+}
+
 export const artifactSlot = (seed: number): ArtifactSlot => ARTIFACT_SLOTS[Math.floor(randomFor(seed ^ 0x51ed270b)() * ARTIFACT_SLOTS.length)];
 export const parseDungeonKey = (key: string) => {
   const match = /^dungeon:([a-z-]+):(\d{1,2})$/.exec(key);
@@ -84,8 +94,9 @@ export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: numbe
 };
 /** Bonus de set par univers (docs/specs/donjons.md, « Sets »). Le bonus à 4 pièces remplace celui à 2 pièces. */
 export interface SetBonus {
-  attack?: number; defense?: number; crit?: number; dodge?: number; speedPct?: number;
+  attack?: number; defense?: number; hp?: number; crit?: number; dodge?: number; speedPct?: number;
   physDamage?: number; magicDamage?: number;
+  ignoreDef?: number; elementalDamage?: number; titanGuard?: number;
   /** Jauge d'ultime gagnée par sort actif (34 par défaut) */
   gaugePerSpell?: number;
   /** Multiplicateur des dégâts de saignement infligés (0,25 = +25 %) */
@@ -98,6 +109,9 @@ const SET_BONUSES: Record<string, [SetBonus, SetBonus]> = {
   naruto: [{ dodge: 0.05 }, { dodge: 0.1, speedPct: 0.15 }],
   "jujutsu-kaisen": [{ magicDamage: 0.05 }, { magicDamage: 0.15, gaugePerSpell: 50 }],
   "dragon-ball": [{ physDamage: 0.1, defense: 0.1 }, { physDamage: 0.2, defense: 0.2 }],
+  "attack-on-titan": [{ defense: 0.15, hp: 0.15 }, { defense: 0.15, hp: 0.15, titanGuard: 1 }],
+  "demon-slayer": [{ crit: 0.1 }, { crit: 0.15, ignoreDef: 0.25 }],
+  "fairy-tail": [{ elementalDamage: 0.15 }, { elementalDamage: 0.3 }],
   bleach: [{ bleedBonus: 0.25 }, { bleedBonus: 0.4, precision: 1 }],
 };
 export const SET_KEYS = Object.keys(SET_BONUSES);
