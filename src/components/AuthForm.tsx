@@ -32,7 +32,7 @@ export function ResendButton({ email, label = "Renvoyer l’e-mail" }: { email: 
   );
 }
 
-export function AuthForm({ mode, action, notice }: { mode: "signup" | "login"; action: Action; notice?: string }) {
+export function AuthForm({ mode, action, notice, canReset = false }: { mode: "signup" | "login"; action: Action; notice?: string; canReset?: boolean }) {
   const [state, formAction, pending] = useActionState(action, {});
   const signup = mode === "signup";
   return (
@@ -46,7 +46,7 @@ export function AuthForm({ mode, action, notice }: { mode: "signup" | "login"; a
       {state.unverified && <div><ResendButton email={state.unverified} label="Renvoyer l’e-mail de confirmation" /></div>}
       <div className="auth-row">
         <button type="submit" disabled={pending} className="ui-button">{pending ? "Un instant…" : signup ? "Créer mon compte" : "Se connecter"}</button>
-        {!signup && <Link href="/forgot-password" className="auth-link">Mot de passe oublié ?</Link>}
+        {!signup && canReset && <Link href="/forgot-password" className="auth-link">Mot de passe oublié ?</Link>}
       </div>
       <p className="auth-alt">
         {signup ? <>Déjà un compte ? <Link href="/login">Se connecter</Link></> : <>Pas encore de compte ? <Link href="/signup">S’inscrire</Link></>}

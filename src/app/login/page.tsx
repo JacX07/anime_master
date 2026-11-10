@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { signIn } from "@/app/auth-actions";
 import { AuthForm } from "@/components/AuthForm";
+import { emailConfigured } from "@/lib/email-config";
 
 export const metadata: Metadata = { title: "Connexion — Anime Masters" };
 
 async function LoginForm({ searchParams }: { searchParams: Promise<{ reset?: string }> }) {
   const { reset } = await searchParams;
-  return <AuthForm mode="login" action={signIn} notice={reset ? "Mot de passe modifié. Connecte-toi avec le nouveau." : undefined} />;
+  return <AuthForm mode="login" action={signIn} notice={reset ? "Mot de passe modifié. Connecte-toi avec le nouveau." : undefined} canReset={emailConfigured()} />;
 }
 
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ reset?: string }> }) {
