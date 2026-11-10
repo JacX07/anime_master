@@ -4,7 +4,7 @@ import { refresh } from "next/cache";
 import type { Rarity } from "@/generated/prisma/enums";
 import {
   DevToolError, addCrystals, keepAdventureLevel, addMaterials, addRyo, devToolsEnabled, giveCharacter, giveRandom, searchCharacters,
-  setAdventureLevel, setDungeon, setStars, setStory, setTower,
+  setAdventureLevel, setDungeon, setStars, setStory, setTower, giveArtifacts, unlockAll,
 } from "@/lib/dev-tools";
 import { getSessionUser } from "@/lib/session";
 
@@ -66,9 +66,19 @@ export async function devAction(_prev: DevState, fd: FormData): Promise<DevState
         message = `${num(fd, "amount")} ajouté${n > 1 ? `s à ${n} matériaux` : ""}.`;
         break;
       }
+      case "artifacts": {
+        const n = await giveArtifacts(id, text(fd, "set"), rarity(text(fd, "rarity")), num(fd, "level"), num(fd, "count"));
+        message = `${n} artefact${n > 1 ? "s" : ""} ${text(fd, "rarity")} +${num(fd, "level")} ajouté${n > 1 ? "s" : ""}.`;
+        break;
+      }
+      case "unlock": {
+        await unlockAll(id);
+        message = "Tout est débloqué : histoire, Tour, donjons, raids et niveau d'Arpenteur maximum.";
+        break;
+      }
       default: throw new DevToolError("Action inconnue.");
     }
-    if (text(fd, "op") !== "level") await keepAdventureLevel(id);
+    if (text(fd, "op") !== "level" && text(fd, "op") !== "unlock") await keepAdventureLevel(id);
     refresh();
     return { ok: true, message };
   } catch (err) {

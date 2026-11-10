@@ -4,8 +4,9 @@ import { MAX_ADVENTURE_LEVEL, xpForLevel } from "./adventure";
 import { getAdventure } from "./adventure-state";
 import { afterGain } from "./crystal-stock";
 import { prisma } from "./db";
-import { DUNGEONS } from "./dungeons";
-import { RAID_RESOURCE } from "./raid";
+import { ARTIFACT_SLOTS, DUNGEONS, artifactMainStat, artifactSubStats, type ArtifactSlot } from "./dungeons";
+import { ARTIFACT_MAX_LEVEL, upgradedMainValue, upgradedSubStats } from "./artifact-upgrade";
+import { DIFFICULTIES, RAID_BOSSES, RAID_RESOURCE } from "./raid";
 import { LEVELS, RESOURCE_NAMES, UNIVERSES } from "./story";
 import { MAX_FLOOR } from "./tower";
 
@@ -178,4 +179,39 @@ export async function addMaterials(userId: string, key: string | "ALL", amount: 
   const q = clamp(amount, 1, 100_000);
   await prisma.$transaction(keys.map((k) => prisma.resourceStock.upsert({ where: { userId_key: { userId, key: k } }, create: { userId, key: k, quantity: q }, update: { quantity: { increment: q } } })));
   return keys.length;
+}
+
+/** Artefacts tirés comme en donjon (emplacement, stat principale, sous-stats), puis montés au niveau voulu. */
+export async function giveArtifacts(userId: string, setKey: string | "ALL", rarity: Rarity, level: number, count: number) {
+  guard();
+  const sets = setKey === "ALL" ? DUNGEONS.map((d) => d.key) : DUNGEONS.some((d) => d.key === setKey) ? [setKey] : [];
+  if (!sets.length) throw new DevToolError("Set inconnu.");
+  const lv = clamp(level, 0, ARTIFACT_MAX_LEVEL);
+  const n = clamp(count, 1, 50);
+  const rows = [];
+  for (const set of sets) for (let i = 0; i < n; i++) {
+    // Un set complet par lot de 4 : chaque emplacement à tour de rôle.
+    const slot: ArtifactSlot = ARTIFACT_SLOTS[i % ARTIFACT_SLOTS.length];
+    const seed = Math.floor(Math.random() * 2 ** 31);
+    const main = artifactMainStat(slot, rarity, seed);
+    let value = main.value, subs = artifactSubStats(slot, rarity, seed ^ 0x7f4a7c15, main.stat);
+    for (let l = 0; l < lv; l++) { value = upgradedMainValue(value, l); subs = upgradedSubStats(subs, l + 1, main.stat); }
+    rows.push({ userId, setKey: set, slot, rarity, level: lv, mainStat: main.stat, mainValue: value, subStats: subs as unknown as object });
+  }
+  await prisma.artifact.createMany({ data: rows });
+  return rows.length;
+}
+
+/** Tout le contenu ouvert : histoire terminée partout à 3 étoiles, Tour au sommet, donjons à 10, raids gagnés, niveau max. */
+export async function unlockAll(userId: string) {
+  guard();
+  await setStory(userId, UNIVERSES[UNIVERSES.length - 1].key, LEVELS);
+  await setTower(userId, MAX_FLOOR);
+  for (const d of DUNGEONS) await setDungeon(userId, d.key, 10);
+  await prisma.$transaction(RAID_BOSSES.flatMap((b) => DIFFICULTIES.map((d) => prisma.raidBest.upsert({
+    where: { userId_boss_difficulty: { userId, boss: b.key, difficulty: d.key } },
+    create: { userId, boss: b.key, difficulty: d.key, won: true, bestShare: 1 },
+    update: { won: true, bestShare: 1 },
+  }))));
+  await setAdventureLevel(userId, MAX_ADVENTURE_LEVEL);
 }

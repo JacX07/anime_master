@@ -161,7 +161,8 @@ table.gear-preview { width: 100%; border-collapse: collapse; margin: .4rem 0; fo
 table.gear-preview caption { text-align: left; color: #d8c48a; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; padding-bottom: .2rem; }
 table.gear-preview th { text-align: left; font-weight: 400; }
 table.gear-preview td { text-align: right; padding-left: .6rem; }
-table.gear-preview td + td { color: #e9e6dc; }
+table.gear-preview td:first-of-type { color: #e9e6dc; }
+table.gear-preview td + td { width: 6.5em; font-weight: 600; }
 table.gear-preview tr[data-delta="up"] td + td { color: #7fd48b; }
 table.gear-preview tr[data-delta="down"] td + td { color: #e07a6c; }
 .eq-spell-help summary { cursor: pointer; color: #d8c48a; font-size: .8rem; }
