@@ -584,10 +584,14 @@ export interface BattleTeams {
   elements?: "elements-v1";
   /** PvE : atteindre le dernier tour est une défaite du joueur (absent dans les combats plus anciens). */
   timeout?: "attacker-loses-v1";
+  /** Donjon : difficulté déjà vaincue avant le lancement, figée pour toute la lecture. */
+  spellFxUnlocked?: boolean;
 }
 
 /** Ce que le navigateur reçoit : le journal (complet ou depuis le dernier envoi) et, en manuel, les choix possibles. */
 export interface BattleView {
+  /** Donjon : autorise la préférence sans effets seulement après une victoire antérieure. */
+  spellFxUnlocked?: boolean;
   id: string;
   /** Version du choix affiché, refusée si une autre requête a déjà joué. */
   steps: number;
@@ -642,6 +646,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     winner: (st?.result ? st.result.winner : (row.winner as Side | null)) ?? null,
     loot: (row.loot as unknown as Loot | null) ?? null,
     storyStars: row.storyStars,
+    spellFxUnlocked: row.mode !== "DUNGEON" || teams.spellFxUnlocked === true,
     log: log.slice(from),
     actor: running ? currentActor(st)!.id : null,
     choices: running ? legalActions(st) : [],
@@ -726,10 +731,12 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   const dungeonLevel = opponent.startsWith(DUNGEON_PREFIX) ? parseDungeonKey(opponent) : null;
   if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");
   if (story) await checkStoryAccess(userId, story.universe, story.level);
+  let spellFxUnlocked = false;
   if (dungeonLevel) {
     const dungeon = dungeonOfKey(opponent)!;
     const progress = await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId, dungeon: dungeon.key } }, select: { maxLevel: true } });
     if (!(await getDungeonAccess(userId))[dungeon.key].unlocked) throw new BattleError(`Donjon verrouillé : gagne le combat ${DUNGEON_UNLOCK_LEVEL} de l'histoire ${dungeon.storyName}.`);
+    spellFxUnlocked = dungeonLevel <= (progress?.maxLevel ?? 0);
     if (dungeonLevel > (progress?.maxLevel ?? 0) + 1) throw new BattleError("Difficulté verrouillée : gagne la précédente.");
   }
   const raid = parseRaid(opponent);
@@ -750,7 +757,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const fitted = await equippedCards(userId, storyCards ?? slots as NonNullable<typeof slots[number]>[]);
   const mine = fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
-  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1", ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
+  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1", ...(dungeonLevel ? { spellFxUnlocked } : {}), ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined });

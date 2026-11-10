@@ -28,7 +28,7 @@ export function useSpellFx() {
 }
 
 /** Écran de fin : rejouer le combat avec ou sans effets de sorts (un nouveau combat, nouveau tirage aléatoire). */
-export function ReplayOptions() {
+export function ReplayOptions({ unlocked = true }: { unlocked?: boolean }) {
   const [fx, setFx] = useSpellFx();
-  return <label className="hs-chain"><input type="checkbox" checked={!fx} onChange={(e) => setFx(!e.target.checked)} /> Rejouer sans effets de sorts (plus rapide, le combat reste visible)</label>;
+  return <label className="hs-chain"><input type="checkbox" disabled={!unlocked} checked={unlocked && !fx} onChange={(e) => setFx(!e.target.checked)} /> {unlocked ? "Rejouer sans effets de sorts (plus rapide, le combat reste visible)" : "Gagne cette difficulté pour débloquer le rejeu sans effets de sorts"}</label>;
 }

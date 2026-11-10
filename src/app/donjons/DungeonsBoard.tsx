@@ -59,7 +59,7 @@ export function DungeonsBoard({ dungeon, name, boss, maxLevel, levels, artifacts
     {(battle.loot?.artifacts ?? (battle.loot?.artifact ? [battle.loot.artifact] : [])).map((a, i) => <p key={i}>{artifactRarity(a.rarity).label} · {SLOT_NAMES[a.slot as ArtifactSlot]} · {artifactStatLabel(a.mainStat)} {artifactStatValue(a.mainStat, a.mainValue)}</p>)}
     {battle.loot && Object.values(battle.loot.resources).some(Boolean) && <p>Matériaux : {Object.values(battle.loot.resources).reduce((a, b) => a + b, 0)}</p>}
     <div className="hs-actions"><button type="button" className="bt-btn" onClick={() => setFight(null)}>Retour au donjon</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level, true)}>Rejouer en manuel</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level, false)}>Rejouer en auto</button>{battle.winner === "A" && fight.level < 10 && <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level + 1, true)}>Difficulté suivante</button>}</div>
-    <ReplayOptions />
+    <ReplayOptions unlocked={battle.winner === "A" || battle.spellFxUnlocked === true} />
     {error && <p className="hs-error" role="alert">{error}</p>}
   </div>} /></section>;
   if (prep) {

@@ -31,6 +31,8 @@ export interface PlayerCharacter {
 }
 
 interface Props {
+  /** Première tentative en donjon : les effets restent actifs malgré la préférence globale. */
+  allowDisableSpellFx?: boolean;
   log: BattleEvent[];
   /** characterId → ce qu'il faut pour dessiner la carte */
   characters: Record<number, PlayerCharacter>;
@@ -87,7 +89,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
+export function BattlePlayer({ allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -100,7 +102,8 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
   // Effets de sorts désactivés : pas d'effets visuels des sorts, combat joué deux fois plus vite (v0.3.0)
-  const [spellFx, setSpellFx] = useSpellFx();
+  const [preferredSpellFx, setSpellFx] = useSpellFx();
+  const spellFx = !allowDisableSpellFx || preferredSpellFx;
   const pace = spellFx ? speed : speed * 2;
   // En direct (mode manuel), le journal grandit : rattraper le journal ne veut pas dire que le combat est fini
   const caughtUp = rp.idx >= log.length;
@@ -394,7 +397,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
               ×{speed}
               <small>Vitesse</small>
             </button>
-            <button type="button" className="bt-ico" data-off={!spellFx || undefined} aria-pressed={spellFx} aria-label="Effets de sorts" title={spellFx ? "Effets de sorts : activés" : "Effets de sorts : désactivés (combat plus rapide)"} onClick={() => setSpellFx(!spellFx)}>
+            <button type="button" className="bt-ico" data-off={!spellFx || undefined} aria-pressed={spellFx} aria-label="Effets de sorts" disabled={!allowDisableSpellFx} title={!allowDisableSpellFx ? "Gagne cette difficulté pour débloquer le mode sans effets" : spellFx ? "Effets de sorts : activés" : "Effets de sorts : désactivés (combat plus rapide)"} onClick={() => setSpellFx(!spellFx)}>
               <Icon name="ultime" />
             </button>
             <button type="button" className="bt-ico" data-off={!sfxOn || undefined} aria-pressed={sfxOn} aria-label="Effets sonores" title="Effets sonores" onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>

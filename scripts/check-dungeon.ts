@@ -70,16 +70,21 @@ async function main() {
     check("Donjon Naruto refusé", await rejects(startBattle(uid, dungeonKey(1, "naruto"), false)));
     check("Difficulté 2 verrouillée avant le premier succès", await rejects(startBattle(uid, dungeonKey(2), false)));
     const defeat = await startBattle(uid, dungeonKey(1), false);
+    check("Première défaite : effets obligatoires", defeat.spellFxUnlocked === false);
     check("Défaite sans pénalité ni artefact", defeat.winner !== "A" && !defeat.loot?.artifact);
     check("Défaite sans progression", (await prisma.dungeonProgress.findUnique({ where: { userId_dungeon: { userId: uid, dungeon: "one-piece" } } })) === null);
     await makeTeam("UR");
     const win = await startBattle(uid, dungeonKey(1), false);
     check("Victoire de difficulté 1", win.winner === "A");
+    check("Première victoire : autorisation figée à faux malgré la progression actualisée", win.spellFxUnlocked === false && (await getBattle(uid, win.id)).spellFxUnlocked === false);
     check("Une victoire donne un artefact", Boolean(win.loot?.artifact), win.loot?.artifact ? `${RARITY_NAMES[win.loot.artifact.rarity]} ${win.loot.artifact.slot}` : "aucun");
     const rows = await prisma.artifact.findMany({ where: { userId: uid } });
     check("Artefact inscrit en base une seule fois", rows.length === (win.loot?.artifact ? 1 : 0));
     const levelTwo = await startBattle(uid, dungeonKey(2), false);
     check("Déblocage séquentiel du niveau 2", Boolean(levelTwo));
+    check("Nouvelle difficulté : effets obligatoires", levelTwo.spellFxUnlocked === false);
+    const rematch = await startBattle(uid, dungeonKey(1), false);
+    check("Même difficulté déjà gagnée : mode sans effets autorisé", rematch.spellFxUnlocked === true);
     const team = await getAttackTeam(uid);
     const card = team[0]!;
     const baseAtk = card.character.attack * (1 + card.stars * 0.04);
@@ -139,6 +144,7 @@ async function main() {
       const before = await prisma.artifact.count({ where: { userId: uid, setKey: d.key } });
       let fight = await startBattle(uid, dungeonKey(3, d.key), d.key === "fairy-tail");
       for (let i = 0; i < 100 && fight.status === "RUNNING"; i++) { const choice = fight.choices[0]; fight = await playAction(uid, fight.id, { spell: choice.spell, target: choice.targets[0] }); }
+      check(`${d.universe} première victoire : effets obligatoires en auto comme en manuel`, fight.spellFxUnlocked === false);
       check(`${d.universe} victoire réelle et deux raretés`, fight.winner === "A" && fight.loot?.artifacts?.map((a) => a.rarity).join(",") === "R,N");
       const after = await prisma.artifact.count({ where: { userId: uid, setKey: d.key } });
       check(`${d.universe} deux pièces enregistrées`, after - before === 2);

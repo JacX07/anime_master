@@ -46,7 +46,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
     statusRef.current = next.status;
     setError(null);
     setLog((l) => [...l, ...next.log]);
-    setView((v) => ({ ...v, steps: next.steps, status: next.status, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
+    setView((v) => ({ ...v, steps: next.steps, status: next.status, spellFxUnlocked: next.spellFxUnlocked, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
   };
 
   const send = (call: () => ReturnType<typeof playAutoAction>) => {
@@ -116,6 +116,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
     <BattlePlayer
       key={view.id}
       log={log}
+      allowDisableSpellFx={view.spellFxUnlocked !== false}
       characters={characters}
       names={names}
       title={title}

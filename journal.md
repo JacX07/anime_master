@@ -532,3 +532,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : la requête différée repart dans une microtâche avant que React ait rendu le nouveau `view.steps`. Le verrou réseau protège les requêtes, mais pas cette lecture de l’ancien état.
 - Correctif : synchroniser le compteur et le statut confirmés dans des références dès réception de la réponse ; « Terminer » utilise ces valeurs, y compris avant le prochain rendu.
 - Validation : scénario reproduit puis corrigé sur mobile 390 px avec de vrais clics (sort, cible, « Terminer » immédiat). La victoire et les deux pièces apparaissent ; rechargement sans perte du butin ni erreur JavaScript.
+
+## 2026-11-10 — Sans effets de sorts avant la première victoire en donjon
+- Symptôme : la préférence globale `bt-fx=off`, choisie sur un autre combat, supprime aussi les effets lors de la première tentative d’une difficulté de donjon.
+- Cause : le lecteur applique la préférence sans connaître les victoires précédentes ; le rafraîchissement de progression à la fin peut aussi transformer le premier passage en rejeu pendant sa lecture.
+- Correctif : figer dans la copie serveur du combat si cette difficulté a déjà été vaincue avant le lancement. Le lecteur force les effets et verrouille leur bouton tant que cette autorisation manque, sans effacer la préférence. La case de rejeu reste verrouillée après une première défaite, devient disponible après une victoire ; la difficulté suivante reste indépendante.
+- Validation : `check:dungeon`, typecheck et ESLint ciblé ; navigateur PC 1440 px et mobile 390 px avec préférence déjà désactivée : première victoire verrouillée, rejeu de la même difficulté déverrouillé, difficulté suivante et autre donjon verrouillés ; première défaite avec case désactivée/décochée, puis rechargement et nouvelle tentative toujours avec effets. Préférence conservée, aucune erreur JavaScript.
