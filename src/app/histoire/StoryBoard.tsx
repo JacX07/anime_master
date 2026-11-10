@@ -32,6 +32,8 @@ export interface UniverseView {
   /** Raretés des 4 ennemis de chacun des 15 combats */
   mixes: string[][];
   stars: Record<number, number>;
+  /** Combats gagnés en duo : étoile bonus (v0.3.0) */
+  duo: number[];
   /** Paliers d'étoiles déjà réclamés */
   claimed: number[];
 }

@@ -29,6 +29,11 @@ async function main() {
     check("Palier 2 refusé (15 étoiles)", await rejects(claimStarTier(uid, u.key, 2)));
     check("Palier inconnu refusé", await rejects(claimStarTier(uid, u.key, 99)));
     await prisma.storyStageStar.createMany({ data: Array.from({ length: 15 }, (_, i) => ({ userId: uid, universe: u.key, level: i + 1, stars: 3 })) });
+    check("45 étoiles ordinaires ne débloquent pas le bonus duo", await rejects(claimStarTier(uid, u.key, 5)));
+    await prisma.storyStageStar.updateMany({ where: { userId: uid }, data: { duo: true } });
+    const bonus = await claimStarTier(uid, u.key, 5);
+    check("15 victoires duo : bonus de 15 cristaux", bonus.crystals === 15);
+    check("Bonus duo réclamable une seule fois", await rejects(claimStarTier(uid, u.key, 5)));
     check("Palier 4 accepté à 45 étoiles", (await claimStarTier(uid, u.key, 4)).resources[u.weaponResource] === 3);
   } finally {
     await prisma.user.delete({ where: { id: uid } });

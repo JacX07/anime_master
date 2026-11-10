@@ -36,13 +36,10 @@ export interface Universe {
   rewardFactor: number;
 }
 
-/**
- * Échelle des stats au dernier combat de chaque univers, réglée par `npm run calibrate:story` : une équipe de référence
- * (1 UR + 3 SSR en 5 étoiles, arme +10 % sans passif) vise 95 % de victoires dans le 1er univers, 20 % dans le 15ᵉ.
- */
-const DIFFICULTY = [0.99, 0.86, 1.23, 1.2, 1.18, 1.27, 1.19, 1.14, 1.03, 1.24, 1.29, 1.26, 1.28, 1.55, 1.42];
-/** Échelle du 1er combat : 0,3 pour le tutoriel, 0,75 pour le dernier univers. */
-const START_SCALE = Array.from({ length: 15 }, (_, i) => +(0.3 + (0.45 * i) / 14).toFixed(3));
+/** Courbe continue sur les 225 combats : mêmes bornes que l’ancienne progression, sans retour à un départ facile. */
+const progressionScale = (index: number) => 0.3 * (1.55 / 0.3) ** (index / (15 * LEVELS - 1));
+const DIFFICULTY = Array.from({ length: 15 }, (_, i) => progressionScale((i + 1) * LEVELS - 1));
+const START_SCALE = Array.from({ length: 15 }, (_, i) => progressionScale(i * LEVELS));
 /** Cases de décalage du mélange de raretés : 0 pour le tutoriel, 7 pour le dernier univers. */
 const MIX_SHIFT = Array.from({ length: 15 }, (_, i) => Math.round((7 * i) / 14));
 /** Butin du dernier univers par rapport au premier. */
@@ -71,7 +68,7 @@ const DEFS: Def[] = [
   { key: "nuit-des-maudits", name: "La Nuit des Maudits", kind: "collision", franchiseIds: [20605, 127230, 33, 3588, 4898, 108463, 20613, 16592, 934], resource: "larme-d-ombre", weaponResource: "lame-maudite" },
 ];
 
-/** Les 15 univers, du plus simple au plus difficile : difficulté et butin montent en ligne droite. */
+/** Les 15 univers, du plus simple au plus difficile : difficulté et butin montent de façon continue. */
 export const UNIVERSES: Universe[] = DEFS.map((d, i) => ({
   ...d,
   rank: i + 1,
@@ -113,7 +110,7 @@ export const MIX: Rarity[][] = [
   ["SR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "SSR"], ["SSR", "SSR", "SSR", "UR"], ["SSR", "SSR", "SSR", "UR"],
 ];
 
-/** Échelle des stats d'un combat : de l'échelle de départ de l'univers (niveau 1) à sa difficulté (niveau 15), en ligne droite. */
+/** Échelle des stats d'un combat : de l'échelle de départ de l'univers (niveau 1) à sa difficulté (niveau 15), de façon continue. */
 export const levelScale = (universe: Universe, level: number) => universe.startScale + ((universe.difficulty - universe.startScale) * (level - 1)) / (LEVELS - 1);
 /** Rareté des 4 ennemis d'un combat : le mélange du niveau, décalé vers le haut dans les univers avancés (sans dépasser le dernier mélange). */
 export const mixFor = (universe: Universe, level: number) => MIX[Math.min(LEVELS - 1, level - 1 + universe.mixShift)];

@@ -3,10 +3,11 @@
 // Joueur jetable, supprimé à la fin.
 // Usage : npm run check:story
 
+import { combatPowers } from "../src/lib/combat-power";
 import { startOfDay } from "../src/lib/economy";
 import { BattleError, getBattle, getStoryProgress, playAction, setAttackTeam, startBattle, storyEnemies, storyKey, storyStars, type BattleTeams } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
-import { baseUnits, COMMON_RESOURCE, DAILY_FULL_UNITS, UNIVERSES } from "../src/lib/story";
+import { baseUnits, storyReplayRyo, storyFirstRyo, COMMON_RESOURCE, DAILY_FULL_UNITS, UNIVERSES } from "../src/lib/story";
 
 let failures = 0;
 function check(label: string, ok: boolean, detail = "") {
@@ -18,10 +19,12 @@ const sum = (r: Record<string, number> | undefined) => Object.values(r ?? {}).re
 const OP = UNIVERSES[0], key = (l: number) => storyKey(OP.key, l);
 
 async function main() {
-  check("Défaite : 0 étoile", storyStars(false, [], 4) === 0);
-  check("Victoire sans K.-O. : 2 étoiles", storyStars(true, [], 4) === 2);
-  check("Victoire avec K.-O. : 1 étoile", storyStars(true, [{ kind: "ko", target: "A1" }], 4) === 1);
-  check("Duo de deux personnages : 3 étoiles même avec un K.-O.", storyStars(true, [{ kind: "ko", target: "A1" }], 2) === 3);
+  check("Défaite : 0 étoile", storyStars(false, []) === 0);
+  check("Victoire sans K.-O. : 2 étoiles", storyStars(true, []) === 2);
+  check("Victoire avec K.-O. : 1 étoile", storyStars(true, [{ kind: "ko", target: "A1" }]) === 1);
+  check("Le duo ne contourne pas un K.-O.", storyStars(true, [{ kind: "ko", target: "A1" }]) === 1);
+  check("10 tours sans K.-O. : 3 étoiles", storyStars(true, [{ kind: "end", winner: "A", reason: "ko", hpLeft: { A: 1, B: 0 }, rounds: 10 }]) === 3);
+  check("11 tours sans K.-O. : 2 étoiles", storyStars(true, [{ kind: "end", winner: "A", reason: "ko", hpLeft: { A: 1, B: 0 }, rounds: 11 }]) === 2);
   const uid = `sty-${Date.now()}`;
   const pulls = new Map<number, number>();
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
@@ -54,14 +57,14 @@ async function main() {
 
     // Rejeu
     const b = await startBattle(uid, key(1), false);
-    check("Rejeu : drop simple, sans Ryō ni cristaux", sum(b.loot?.resources) === baseUnits(1) && b.loot?.ryo === 0 && b.loot?.crystals === 0, `${sum(b.loot?.resources)} unités`);
-    check("Rejeu : Ryō inchangés", (await prisma.user.findUniqueOrThrow({ where: { id: uid }, select: { balance: true } })).balance === u1.balance);
+    check("Rejeu : drop simple, petit gain de Ryō, sans cristaux", sum(b.loot?.resources) === baseUnits(1) && b.loot?.ryo === storyReplayRyo(1) && b.loot?.crystals === 0, `${sum(b.loot?.resources)} unités`);
+    check("Rejeu : Ryō ajoutés", (await prisma.user.findUniqueOrThrow({ where: { id: uid }, select: { balance: true } })).balance === u1.balance + storyReplayRyo(1));
 
     // Score de duo, meilleur score conservé, rejeu idempotent
     check("Une sélection d'un personnage est refusée", await rejects(startBattle(uid, key(1), false, new Date(), [cards[0]])));
     const duo = await startBattle(uid, key(1), false, new Date(), cards.slice(0, 2));
     const duoTeams = (await prisma.battle.findUniqueOrThrow({ where: { id: duo.id }, select: { teams: true } })).teams as unknown as BattleTeams;
-    check("Un combat lancé avec exactement deux cartes donne 3 étoiles", duo.storyStars === 3 && duoTeams.A.length === 2);
+    check("Une victoire en duo enregistre le bonus", duo.winner === "A" && duoTeams.A.length === 2 && (await getStoryProgress(uid))[0].duo.includes(1));
     check("Meilleur score de l'étape enregistré", (await prisma.storyStageStar.findUniqueOrThrow({ where: { userId_universe_level: { userId: uid, universe: OP.key, level: 1 } } })).stars === 3);
     await startBattle(uid, key(1), false);
     check("Un rejeu à 4 cartes ne rétrograde pas le meilleur score", (await prisma.storyStageStar.findUniqueOrThrow({ where: { userId_universe_level: { userId: uid, universe: OP.key, level: 1 } } })).stars === 3);
@@ -77,8 +80,11 @@ async function main() {
     check("Plafond atteint : taux réduit (25 %) mais jamais zéro", sum(c.loot?.resources) === Math.round(baseUnits(1) * 0.25) && sum(c.loot?.resources) > 0, `${sum(c.loot?.resources)} unité(s)`);
 
     // Premier passage unique, même avec deux combats simultanés
-    const both = await Promise.all([startBattle(uid, key(2), false), startBattle(uid, key(2), false)]);
-    check("Deux combats simultanés : un seul premier passage", both.filter((x) => (x.loot?.ryo ?? 0) > 0).length === 1);
+    const concurrent = await Promise.allSettled([startBattle(uid, key(2), false), startBattle(uid, key(2), false)]);
+    const both = concurrent.flatMap((r) => r.status === "fulfilled" ? [r.value] : []);
+    check("Concurrence : seul le conflit d’énergie attendu peut refuser une tentative", concurrent.every((r) => r.status === "fulfilled" || (r.reason instanceof BattleError && r.reason.message.includes("Un autre combat vient de démarrer"))));
+    if (both.length === 1) both.push(await startBattle(uid, key(2), false));
+    check("Deux combats simultanés : un seul premier passage", both.filter((x) => x.loot?.ryo === storyFirstRyo(2)).length === 1);
     check("Progression à 2", (await getStoryProgress(uid))[0].maxLevel === 2);
     check("Ancien niveau gagné reste à 1 étoile au minimum", (await getStoryProgress(uid))[0].stars[2] >= 1);
 
@@ -97,9 +103,15 @@ async function main() {
     check("Finir l'univers 1 ouvre le 2 et pas le 3", prog[1].unlocked && !prog[2].unlocked);
     check("Combat de l'univers 2 jouable une fois ouvert", !(await rejects(startBattle(uid, storyKey(UNIVERSES[1].key, 1), false))));
     check("15 univers, un de collision tous les 3", UNIVERSES.length === 15 && UNIVERSES.every((u) => (u.kind === "collision") === (u.rank % 3 === 0)));
-    const strength = async (u: (typeof UNIVERSES)[number], lv: number) => (await storyEnemies(u, lv)).reduce((n, c) => n + c.attack + c.defense, 0);
-    const diff = await Promise.all(UNIVERSES.map((u) => strength(u, 8)));
-    check("Les stats ennemies montent d'un univers à l'autre (même niveau)", diff.every((d, i) => i === 0 || d > diff[i - 1] * 0.9) && diff[14] > diff[0] * 1.3, `${Math.round(diff[0])} → ${Math.round(diff[14])}`);
+    let lastPower = 0;
+    for (const universe of UNIVERSES) {
+      for (let level = 1; level <= 15; level++) {
+        const power = combatPowers(await storyEnemies(universe, level)).reduce((n, p) => n + p, 0);
+        if (power <= lastPower) throw new Error(`Puissance décroissante : ${universe.key}:${level}, ${lastPower} → ${power}`);
+        lastPower = power;
+      }
+    }
+    check("Puissance strictement croissante sur les 225 combats, y compris entre univers", true);
     const boss = await storyEnemies(UNIVERSES[14], 15);
     check("Univers de collision : ennemis de plusieurs anime", new Set(boss.map((c) => c.franchiseId)).size >= 1 && boss[3].boss === true);
     check("Chaque univers fournit 4 ennemis à chaque niveau", (await Promise.all(UNIVERSES.map((u) => storyEnemies(u, 15)))).every((e) => e.length === 4));
@@ -130,7 +142,8 @@ async function main() {
     }
     await setAttackTeam(uid, wc);
     await prisma.storyProgress.update({ where: { userId_universe: { userId: uid, universe: OP.key } }, data: { maxLevel: 11 } });
-    const lost = await startBattle(uid, key(12), false);
+    await prisma.storyProgress.createMany({ data: [UNIVERSES.at(-2)!, UNIVERSES.at(-1)!].map((u, i) => ({ userId: uid, universe: u.key, maxLevel: i === 0 ? 15 : 14 })), skipDuplicates: true });
+    const lost = await startBattle(uid, storyKey(UNIVERSES.at(-1)!.key, 15), false);
     check("Défaite : 0 étoile, aucun butin, aucune pénalité", lost.winner !== "A" && lost.storyStars === 0 && lost.loot === null);
     check("Ressource commune bien nommée", COMMON_RESOURCE in (await stock()) || sum(await stock()) > 0);
   } finally {

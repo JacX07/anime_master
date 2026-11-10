@@ -105,7 +105,7 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
     }
     return rows.find((c) => !used.has(c.id) && c.id !== fixedBoss?.id)!;
   };
-  return mixFor(universe, level).map((want, i) => {
+  const enemies = mixFor(universe, level).map((want, i) => {
     const boss = isBoss(level) && i === 3;
     let c: CharacterRow;
     if (boss && fixedBoss) c = fixedBoss;
@@ -119,14 +119,32 @@ export async function storyEnemies(universe: Universe, level: number): Promise<B
     // Pas de synergie de franchise pour les ennemis : la difficulté vient du niveau et de l'univers (valeurs calibrées sans synergie)
     return { ...toBattleCard(c), franchiseId: null, rarity: want, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), boss, ...(boss ? { speed: 100 } : {}) };
   });
+  // La puissance, plutôt que la rareté ou la vitesse du casting, porte la progression.
+  // Les boss gardent leur avantage relatif sur leurs trois alliés, dans ce budget.
+  const power = (team: BattleCard[]) => combatPowers(team).reduce((sum, n) => sum + n, 0);
+  const reference = (u: Universe, lv: number) => mixFor(u, lv).map((rarity, i) => ({
+    characterId: -i - 1, rarity, type: "COMBAT" as const, power: 0, franchiseId: null, speed: 100,
+    attack: means[rarity].attack * (isBoss(lv) && i === 3 ? BOSS_BONUS : 1),
+    defense: means[rarity].defense * (isBoss(lv) && i === 3 ? BOSS_BONUS : 1),
+  }));
+  const low = power(reference(UNIVERSES[0], 1).map((c) => ({ ...c, attack: c.attack * 0.3, defense: c.defense * 0.3 })));
+  const high = power(reference(UNIVERSES.at(-1)!, LEVELS).map((c) => ({ ...c, attack: c.attack * 1.55, defense: c.defense * 1.55 })));
+  const progress = Math.log(levelScale(universe, level) / 0.3) / Math.log(1.55 / 0.3);
+  const target = low * (high / low) ** progress;
+  // La formule de puissance est affine en ATK/DEF ; isoler son terme de vitesse avant d’ajuster les stats.
+  const speedPower = power(enemies.map((c) => ({ ...c, attack: 0, defense: 0 })));
+  const factor = (target - speedPower) / (power(enemies) - speedPower);
+  return enemies.map((c) => ({ ...c, attack: Math.max(1, Math.round(c.attack * factor)), defense: Math.max(1, Math.round(c.defense * factor)) }));
 }
 
 /** Butin d'une victoire, versé dans la transaction qui enregistre la fin du combat : un combat ne paie qu'une fois. */
-async function settleStory(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, stars: number, now: Date): Promise<Loot> {
+async function settleStory(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, stars: number, now: Date, duo = false): Promise<Loot> {
   const { universe, level } = parseStory(opponent)!;
   if (stars > 0) {
-    await tx.storyStageStar.createMany({ data: [{ userId, universe: universe.key, level, stars }], skipDuplicates: true });
+    await tx.storyStageStar.createMany({ data: [{ userId, universe: universe.key, level, stars, duo }], skipDuplicates: true });
     await tx.storyStageStar.updateMany({ where: { userId, universe: universe.key, level, stars: { lt: stars } }, data: { stars } });
+    // Étoile bonus : une victoire en duo, gardée une fois obtenue (v0.3.0)
+    if (duo) await tx.storyStageStar.updateMany({ where: { userId, universe: universe.key, level, duo: false }, data: { duo: true } });
   }
   // Premier passage : le `updateMany` conditionnel désigne un seul gagnant, même avec deux combats simultanés
   await tx.storyProgress.createMany({ data: [{ userId, universe: universe.key }], skipDuplicates: true });
@@ -353,14 +371,20 @@ export async function getStoryProgress(userId: string) {
   const rows = await prisma.storyProgress.findMany({ where: { userId } });
   const best = await prisma.storyStageStar.findMany({ where: { userId } });
   const max = (key: string) => rows.find((r) => r.universe === key)?.maxLevel ?? 0;
-  return UNIVERSES.map((u, i) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, i === 0 ? 0 : max(UNIVERSES[i - 1].key)), stars: Object.fromEntries(Array.from({ length: LEVELS }, (_, j) => { const level = j + 1; return [level, Math.max(best.find((r) => r.universe === u.key && r.level === level)?.stars ?? 0, level <= max(u.key) ? 1 : 0)]; })) }));
+  return UNIVERSES.map((u, i) => ({ universe: u, maxLevel: max(u.key), unlocked: isUnlocked(u, i === 0 ? 0 : max(UNIVERSES[i - 1].key)),
+    stars: Object.fromEntries(Array.from({ length: LEVELS }, (_, j) => { const level = j + 1; return [level, Math.max(best.find((r) => r.universe === u.key && r.level === level)?.stars ?? 0, level <= max(u.key) ? 1 : 0)]; })),
+    /** Combats gagnés en duo (étoile bonus) */
+    duo: best.filter((r) => r.universe === u.key && r.duo).map((r) => r.level) }));
 }
 
-export function storyStars(won: boolean, events: readonly BattleEvent[], teamSize: number) {
+/** Rounds au-delà desquels le 3ᵉ étoile est perdu (v0.3.0). */
+export const STAR3_MAX_ROUNDS = 10;
+/** 1★ victoire · 2★ aucun K.O. · 3★ aucun K.O. et victoire en 10 tours ou moins. Le duo donne une étoile bonus à part (`settleStory`). */
+export function storyStars(won: boolean, events: readonly BattleEvent[]) {
   if (!won) return 0;
-  if (teamSize === 2) return 3;
-  if (!events.some((event) => event.kind === "ko" && event.target.startsWith("A"))) return 2;
-  return 1;
+  if (events.some((event) => event.kind === "ko" && event.target.startsWith("A"))) return 1;
+  const end = events.findLast((event) => event.kind === "end");
+  return end?.kind === "end" && end.rounds <= STAR3_MAX_ROUNDS ? 3 : 2;
 }
 
 async function checkStoryAccess(userId: string, universe: Universe, level: number) {
@@ -736,8 +760,8 @@ export async function startBattle(userId: string, opponent: string, manual: bool
           if (!energyAfter(u.energy, u.energyUpdatedAt, now, -ENERGY_COST)) await spendEnergy(tx, userId, now);
         }
       }
-      const stars = story ? storyStars(won, result.log, teams.A.length) : null;
-      const loot = story && won ? await settleStory(tx, userId, opponent, seed, stars!, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
+      const stars = story ? storyStars(won, result.log) : null;
+      const loot = story && won ? await settleStory(tx, userId, opponent, seed, stars!, now, teams.A.length === 2) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
       return tx.battle.create({
         data: {
           userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
@@ -814,8 +838,8 @@ export async function playAction(userId: string, battleId: string, action: Actio
       loot = await settleRaid(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     } else if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER" || row.mode === "DUNGEON")) {
-      score = row.mode === "STORY" ? storyStars(true, done.log, teams.A.length) : null;
-      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, score!, now) : row.mode === "TOWER" ? await settleTower(tx, userId, row.opponent, now) : await settleDungeon(tx, userId, row.opponent, row.seed);
+      score = row.mode === "STORY" ? storyStars(true, done.log) : null;
+      loot = row.mode === "STORY" ? await settleStory(tx, userId, row.opponent, row.seed, score!, now, teams.A.length === 2) : row.mode === "TOWER" ? await settleTower(tx, userId, row.opponent, now) : await settleDungeon(tx, userId, row.opponent, row.seed);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot), ...(score !== null ? { storyStars: score } : {}) } });
     } else if (done && row.mode === "STORY") {
       score = 0;

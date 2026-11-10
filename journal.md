@@ -489,3 +489,23 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - **Symptôme** : dans la fiche d'un perso (Squads, `<dialog>` modal), un clic sur une liste déroulante ne montrait rien (filtres d'équipement, niveau visé, sauvegardes).
 - **Cause** : `SelectMenu` remplace la fenêtre native des `<select>` par un menu rendu dans `document.body` ; un `<dialog>` ouvert en modal est dans la couche supérieure et passe par-dessus, le menu s'ouvrait derrière. Les tests par `dispatchEvent('change')` ne le voyaient pas.
 - **Correctif** : le menu est rendu dans le `dialog[open]` le plus proche du `<select>` (`SelectMenu.tsx`). Tester les listes déroulantes avec un vrai clic, pas en changeant la valeur par script.
+
+## 2026-11-10 — Reprise du lot 5 : règles partielles et anciens tests
+- Symptôme : après interruption, les étoiles duo étaient stockées mais absentes de la carte et du résultat ; les tests attendaient encore le doublon obligatoire et 3★ en duo.
+- Cause : interruption pendant l’intégration des appelants et affichages.
+- Correctif : terminer carte, résultat, consignes et tests ; inclure les critiques d’éveil dans les statistiques détaillées. Conserver les anciennes étoiles via migration, sans recalcul des récompenses déjà réclamées.
+
+## 2026-11-10 — Test histoire antérieur à l’énergie
+- Symptôme : `check:story` échoue par intermittence sur deux démarrages simultanés (« Un autre combat vient de démarrer »).
+- Cause : la garde optimiste d’énergie peut refuser le second démarrage ; le test supposait deux démarrages toujours acceptés. Son scénario de défaite visait aussi un niveau devenu plus facile après lissage.
+- Correctif : accepter uniquement le conflit d’énergie identifié, vérifier le premier butin unique sur les combats acceptés et le rejeu ; placer le scénario de défaite au dernier combat.
+
+## 2026-11-10 — Préparation duo avec moins de quatre personnages distincts
+- Symptôme observé pendant les tests du lot 5 : « Composition automatique » ne remplit pas un duo sur un compte avec seulement trois personnages distincts.
+- Cause : l’action partagée recherche toujours une équipe de quatre cartes, même en mode duo. Comportement préexistant, hors lot 5.
+- Contournement validé : choisir manuellement deux compagnons dans la préparation ; le combat fonctionne. À corriger dans la composition automatique.
+
+## 2026-11-10 — Mise à jour AST Graphify sans extracteur SQL
+- Symptôme : `graphify update .` réussit mais signale 53 fichiers SQL ignorés (`tree_sitter_sql` absent) et recrée une vue agrégée au-delà de 5 000 nœuds.
+- Cause : dépendance SQL optionnelle absente ; graphe antérieur moins complet que l’extraction AST actuelle.
+- État : graphe TypeScript actualisé (5 423 nœuds). Les migrations restent couvertes par Prisma et les contrôles sur la base ; le graphe ne décrit pas leur SQL. Fichiers générés et sauvegarde automatique conservés hors commits de fonctionnalité, comme lors de la précédente reprise.

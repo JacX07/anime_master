@@ -22,7 +22,8 @@ export async function claimStarTier(userId: string, universeKey: string, tierNum
   const tier = starTier(tierNumber);
   if (!universe || !tier) throw new BattleError("Palier inconnu.");
   const progress = (await getStoryProgress(userId)).find((p) => p.universe === universe);
-  if (!progress?.unlocked || sumStars(progress.stars) < tier.stars) throw new BattleError("Il te manque des étoiles pour ce palier.");
+  const have = tier.duo ? progress?.duo.length ?? 0 : progress ? sumStars(progress.stars) : 0;
+  if (!progress?.unlocked || have < tier.stars) throw new BattleError(tier.duo ? "Il te manque des étoiles bonus (victoires en duo)." : "Il te manque des étoiles pour ce palier.");
   const loot = starTierLoot(universe, tier);
   try {
     await prisma.$transaction(async (tx) => {

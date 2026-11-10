@@ -788,6 +788,8 @@ model StoryStageStar {
   universe String
   level    Int
   stars    Int    @default(0)
+  /// Étoile bonus (4ᵉ) : combat gagné en duo (v0.3.0)
+  duo      Boolean @default(false)
 
   @@id([userId, universe, level])
 }

@@ -25,6 +25,7 @@ export function BattleVictory({ log, rp, characters, names, end, stars }: {
   const quick = end.rounds <= 8;
   const own = stars !== undefined && stars !== null;
   const count = own ? stars : won ? 1 + (allyDown ? 0 : 1) + (quick ? 1 : 0) : 0;
+  const duo = own && won && ids("A").length === 2;
   const title = end.winner ? (won ? "Victoire" : "Défaite") : "Match nul";
 
   const column = (id: UnitId) => {
@@ -63,6 +64,7 @@ export function BattleVictory({ log, rp, characters, names, end, stars }: {
           </dl>
           {won && (
             <div className="bv-rank">
+              {own && <ul className="bv-crit"><li data-ok>Victoire</li><li data-ok={count >= 2 || undefined}>Aucun K.-O.</li><li data-ok={count >= 3 || undefined}>Aucun K.-O. et 10 tours ou moins</li><li data-ok={duo || undefined}>Étoile bonus : victoire en duo</li></ul>}
               {!own && (
                 <ul className="bv-crit">
                   <li data-ok>Victoire</li>
@@ -70,8 +72,9 @@ export function BattleVictory({ log, rp, characters, names, end, stars }: {
                   <li data-ok={quick || undefined}>En 8 tours ou moins</li>
                 </ul>
               )}
-              <p className="bv-stars" role="img" aria-label={`${count} étoile${count > 1 ? "s" : ""} sur 3`}>
+              <p className="bv-stars" role="img" aria-label={`${count} étoile${count > 1 ? "s" : ""} sur 3${duo ? ", étoile bonus duo obtenue" : ""}`}>
                 {[1, 2, 3].map((n) => <span key={n} data-off={n > count || undefined}>★</span>)}
+                {own && <span data-off={!duo || undefined} title="Étoile bonus : victoire en duo"> ★</span>}
               </p>
             </div>
           )}

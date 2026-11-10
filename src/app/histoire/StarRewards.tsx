@@ -28,13 +28,14 @@ export function StarRewards({ universe, onClaim }: { universe: UniverseView; onC
         {STAR_TIERS.map((t) => {
           const loot = starTierLoot(def, t);
           const done = universe.claimed.includes(t.tier);
-          const ready = !done && universe.unlocked && total >= t.stars;
+          const have = t.duo ? universe.duo.length : total;
+          const ready = !done && universe.unlocked && have >= t.stars;
           return (
-            <li key={t.tier} className={done ? "is-claimed" : ready ? "is-ready" : undefined}>
-              <strong>{t.stars} ★</strong>
+            <li key={t.tier} className={done ? "is-claimed" : ready ? "is-ready" : undefined} data-bonus={t.duo || undefined}>
+              <strong>{t.duo ? `${t.stars} ★ bonus` : `${t.stars} ★`}</strong>
               <span>{loot.ryo} Ryō · {loot.crystals} cristaux</span>
               <span>{Object.entries(loot.resources).map(([k, n]) => <span key={k}><ResourceArt resource={k} /> {n} {RESOURCE_NAMES[k] ?? k} </span>)}</span>
-              <button type="button" className="bt-btn ui-button text-action" disabled={!ready || pending} onClick={() => claim(t.tier)}>{done ? "Réclamé ✓" : ready ? "Réclamer" : `Encore ${t.stars - total} ★`}</button>
+              <button type="button" className="bt-btn ui-button text-action" disabled={!ready || pending} onClick={() => claim(t.tier)}>{done ? "Réclamé ✓" : ready ? "Réclamer" : `Encore ${t.stars - have} ★${t.duo ? " bonus (duo)" : ""}`}</button>
             </li>
           );
         })}

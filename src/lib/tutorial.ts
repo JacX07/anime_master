@@ -25,7 +25,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "squad", phase: "action", title: "Forme ta squad", text: "Ici tu formes ta squad : modifie-la, place quatre cartes puis enregistre. Elle sert de départ dans chaque mode ; avant un combat, tu peux la modifier ou charger une autre squad.",
     page: "/equipe", targets: [".squad-stage", ".eq-slots"], away: [nav("/equipe")] },
   { key: "story", phase: "action", title: "Lance le mode histoire", text: "Ici tu lances le mode histoire. Gagne le premier combat de One Piece pour continuer.",
-    points: ["Jusqu’à 3 étoiles par combat : victoire, aucun allié à terre, 8 tours ou moins", "Les étoiles débloquent des récompenses aux paliers 12, 24, 36 et 45"],
+    points: ["1 étoile pour la victoire, 2 sans K.O., 3 sans K.O. en 10 tours ou moins. Une victoire en duo donne une 4ᵉ étoile bonus", "Les étoiles débloquent des récompenses aux paliers 12, 24, 36 et 45"],
     page: "/histoire", targets: [".hs-map-node.is-current", ".hs-map-hint button"], away: [".mq-mode-card.mq-mode-story", ".mq-play-button"] },
   { key: "dungeons", phase: "modes", title: "Donjons", text: "Un boss unique et difficile qui donne des artefacts pour équiper tes cartes.", targets: [".mq-mode-card.mq-mode-dungeons"], mode: "dungeon" },
   { key: "raids", phase: "modes", title: "Raids", text: "Un boss par semaine, à frapper avec tout le monde. Il donne les cœurs de brèche des étoiles 4 et 5.", targets: [".mq-mode-card.mq-mode-raids"], mode: "raid" },

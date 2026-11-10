@@ -148,7 +148,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 
 ### Réalisation (serveur, 2026-10-31)
 - `src/lib/story.ts` (pur) : univers de lancement, mélange de raretés, échelle, butin. `src/lib/battles.ts` : ennemis par niveau (personnages de la franchise, tirage fixé par univers + niveau), déverrouillage, butin versé dans la transaction de fin de combat (auto et manuel). Clé de combat : `story:<univers>:<niveau>` ; vérifié par `npm run check:story`.
-- Étoiles d'histoire : victoire = 1 ; victoire sans K.-O. allié = 2 ; victoire avec exactement 2 personnages distincts = 3, même si un allié tombe. Le duo est choisi dans l'interface histoire et n'assouplit pas les équipes à 4 des autres modes. `StoryStageStar` conserve le meilleur score par étape dans la transaction de fin ; les anciens niveaux gagnés sont initialisés à 1 étoile. La carte affiche les étoiles par étape et le total parmi les étapes accessibles.
+- Étoiles d'histoire : victoire = 1 ; victoire sans K.-O. allié = 2 ; victoire sans K.-O. en 10 tours ou moins = 3. Une victoire avec exactement 2 personnages distincts donne une 4ᵉ étoile bonus indépendante, même si un allié tombe. Les anciens scores sont conservés ; les anciens 3★ reçoivent le bonus duo. Le duo est choisi dans l'interface histoire et n'assouplit pas les équipes à 4 des autres modes. `StoryStageStar` conserve le meilleur score par étape dans la transaction de fin ; les anciens niveaux gagnés sont initialisés à 1 étoile. La carte affiche les étoiles par étape et le total parmi les étapes accessibles.
 - **Paliers d'étoiles** (codé le 2026-11-01 : `src/lib/story-star-rewards.ts`, `story-star-claims.ts`, `StarRewards.tsx`, `npm run check:story-stars`) : chaque univers a 45 étoiles possibles et 4 paliers **à 12, 24, 36 et 45 étoiles**, à réclamer à la main (une seule fois par palier, table `StoryStarClaim`). Lots de départ *(à équilibrer)* : 150 / 300 / 500 / 1000 Ryō, 2 / 3 / 5 / 10 cristaux, 20 / 40 / 60 / 100 unités de la ressource d'éveil de l'univers (× facteur de butin de l'univers), et 3 unités de ressource d'arme légendaire au dernier palier. Le panneau est affiché au-dessus de la carte pour l'univers en cours de visite. Rejouer un combat pour monter ses étoiles est donc toujours récompensé.
 - Valeurs de départ **non spécifiées**, à équilibrer : Ryō du premier passage `40 + 15 × niveau` (+500 au boss final), et `8 + 2 × niveau` Ryō à chaque rejeu gagné *(v0.3.0 : les Ryō ne venaient presque que de la Tour)*, cristaux 1 / 2 (boss d'acte) / 5 (boss final), 1 unité de ressource d'arme par victoire du boss final. Le plafond quotidien ne compte pas la ressource d'arme.
 - Pas encore fait : cartes boss plus grandes, puissance conseillée, lots de combats auto, histoire racontée, éveil des étoiles 4 et 5 (raid). L'éveil 1 à 3★ est fait (page `/eveil`).
@@ -166,7 +166,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 > Les chiffres marqués *(simulateur)* sont à fixer avec `scripts/simulate-story.ts` étendu au raid.
 
 ### Principe
-- Un **boss de raid** est un monstre énorme sorti d'une brèche majeure. Il tombe et lâche la ressource **rare** : le **cœur de brèche** *(nom proposé, lore des brèches)*. C'est sa **seule source**. Il sert aux étoiles 4 et 5 (avec un doublon du personnage, voir [combat.md](combat.md) §2).
+- Un **boss de raid** est un monstre énorme sorti d'une brèche majeure. Il tombe et lâche la ressource **rare** : le **cœur de brèche** *(nom proposé, lore des brèches)*. C'est sa **seule source**. Il sert aux étoiles 4 et 5 (avec un doublon facultatif pour diviser le coût par deux, voir [combat.md](combat.md) §2).
 - Combat **4 contre 4** avec l'équipe d'attaque, en manuel ou en auto : le boss (carte géante, gros bonus de stats) et 3 sbires.
 - **Solo d'abord.** Le multijoueur viendra après (boss d'événement à PV partagés, classement des contributions).
 
@@ -203,7 +203,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 
   Lecture : le Normal est jouable dès une équipe de SSR et se gagne avec quelques étoiles ; le Difficile demande des UR ou des 5★ ; le Cauchemar est un objectif de fin de jeu, mais il rapporte déjà en le tentant.
 - **Cœurs de brèche par combat, au Normal** : 1 à 25 % des PV adverses retirés, 2 à 50 %, 3 à 75 %, **5 à la victoire** (paliers non cumulés). **Difficile ×2, Cauchemar ×4.**
-- **Coût en cœurs** : SSR **4★ 60, 5★ 120** (+ un doublon chacune) ; UR ×2 (**120 et 240**). N, R et SR n'ont pas de 4★ ni de 5★ à ce stade.
+- **Coût en cœurs** : SSR **4★ 60, 5★ 120** (doublon facultatif : coût divisé par deux) ; UR ×2 (**120 et 240**). N, R et SR n'ont pas de 4★ ni de 5★ à ce stade.
 - **Plafond quotidien doux** : **15 cœurs par jour au taux plein**, puis 25 % (une équipe de SSR 3★ qui joue le Normal en fait environ 3,6 par combat).
 - **Ce que ça donne** : un joueur qui fait ses 4 ou 5 combats par jour en 5★ un SSR en **environ 12 jours** et un UR en **environ 24 jours**. Un gros farmeur (30 combats par jour) gagne environ 40 cœurs par jour grâce au taux réduit : un UR en 10 jours environ. La porte n'est jamais fermée.
 
@@ -217,7 +217,7 @@ Chaque univers regroupe plusieurs anime de taille moyenne (les chiffres sont per
 - Point ouvert : sous 25 % des PV retirés, une défaite ne rapporte aucun cœur (les paliers de la spec commencent à 25 %).
 
 ### Étoiles 4 et 5 *(codé le 2026-11-01 : `src/lib/awakening.ts`, `src/lib/awaken.ts`, page `/eveil`, `npm run check:awakening`)*
-- **SSR et UR seulement** (N, R et SR s'arrêtent à 3★). Coût : SSR 60 puis 120 cœurs de brèche, UR 120 puis 240, plus **un doublon du personnage consommé à chaque étoile**.
+- **SSR et UR seulement** (N, R et SR s'arrêtent à 3★). Coût : SSR 60 puis 120 cœurs de brèche, UR 120 puis 240, **sans doublon obligatoire**. Un doublon facultatif peut être consommé pour diviser le coût en cœurs par deux.
 - Le doublon consommé est le moins avancé, puis le moins précieux (finition normale d'abord). Il ne peut être **ni verrouillé, ni en équipe, ni aux enchères, ni en expédition, ni dans un échange en attente** : une carte protégée n'est jamais détruite.
 
 ### À écrire / à décider
