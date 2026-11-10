@@ -1,7 +1,7 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { ProfileError, setShowcase, setTitle } from "@/lib/profile";
+import { ProfileError, setAvatar, setShowcase, setTitle } from "@/lib/profile";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
 
@@ -24,4 +24,7 @@ export async function setTitleAction(key: string | null) {
 }
 export async function setShowcaseAction(ids: number[]) {
   return run((id) => setShowcase(id, Array.isArray(ids) ? ids.map(Number) : []));
+}
+export async function setAvatarAction(characterId: number | null) {
+  return run((id) => setAvatar(id, characterId === null ? null : Number(characterId)));
 }

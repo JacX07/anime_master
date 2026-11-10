@@ -42,7 +42,8 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
     <div className="vt-inner mq-profile">
       <header className="pf-head mq-profile-hero">
         <div className="pf-avatar" aria-hidden>
-          {profile.username.slice(0, 1).toUpperCase()}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" referrerPolicy="no-referrer" /> : profile.username.slice(0, 1).toUpperCase()}
         </div>
         <div>
           <h1 className="vt-title">{profile.username}</h1>
@@ -110,6 +111,7 @@ async function Profile({ params }: { params: PageProps<"/u/[pseudo]">["params"] 
           titles={done.map((a) => ({ key: a.key, title: a.title }))}
           current={profile.titleKey}
           pinnable={pins.map((c) => ({ id: c.id, name: c.name, imageUrl: c.imageUrl, rarity: c.rarity }))}
+          avatar={profile.avatarCharacterId}
           pinned={profile.showcase.map((e) => e.id)}
           max={SHOWCASE_MAX}
         />

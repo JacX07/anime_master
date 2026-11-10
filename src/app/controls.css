@@ -216,3 +216,18 @@
 /* Menu replié : un point rouge signale une récompense à récupérer dans le tiroir. */
 .mq-navigation:has(.mq-nav-badge) .mq-navigation-toggle { position: relative; }
 .mq-app-shell[class][class] .mq-navigation:has(.mq-nav-badge) .mq-navigation-toggle::before { display: block; content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: #d63a2f; box-shadow: 0 0 6px #d63a2f; }
+
+/* Filtres de personnages et favoris (v0.3.0) */
+.card-filters { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: .5rem 0; }
+.card-filters input[type="search"] { flex: 1 1 180px; min-width: 0; }
+.card-filters :is(input[type="search"], select) { background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .4rem .55rem; font: inherit; font-size: .82rem; }
+.card-filters :is(input, select):focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.card-filters-fav { display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; color: #e3c985; }
+.mq-app-shell[class] button.fav-star { min-width: 0; padding: .1rem .35rem; background: none; border: 0; color: #e3c985; font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.mq-app-shell[class] button.fav-star::after { display: none; }
+.mq-app-shell[class] button.fav-star:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.fav-badge { position: absolute; top: 6px; right: 8px; z-index: 3; color: #f0d79a; font-size: 1rem; text-shadow: 0 0 6px #000; pointer-events: none; }
+
+/* Photo de profil (v0.3.0) : l'image remplit le médaillon */
+:is(.mq-avatar, .pf-avatar, .lb-av) { overflow: hidden; }
+:is(.mq-avatar, .pf-avatar, .lb-av) > img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; border-radius: inherit; display: block; }

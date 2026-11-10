@@ -28,3 +28,4 @@
 }
 .pf-friend { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem; margin-top: .4rem; }
 .pf-friend .fr-msg { flex-basis: 100%; margin: .3rem 0 0; color: #d49b96; font-size: .8rem; }
+.pf-modes { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: .5rem 0; }

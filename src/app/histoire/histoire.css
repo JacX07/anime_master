@@ -250,3 +250,7 @@
 .hs-energy small { color: #8f8b80; }
 .hs-energy-note { width: 100%; }
 .hs-repeat { display: grid; gap: .3rem; margin-top: .5rem; }
+.hs-picker .hs-card-choice { position: relative; }
+.hs-spells { max-width: 640px; }
+.hs-picker .hs-card-choice { position: relative; }
+.hs-spells { max-width: 640px; }

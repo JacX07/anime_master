@@ -18,6 +18,8 @@ export interface BoardRow {
   /** Ligne de détail (texte) */
   detail?: string;
   rarities?: RarityCounts;
+  /** Photo de profil (v0.3.0) */
+  avatarUrl?: string | null;
 }
 export interface Board {
   top: BoardRow[];
@@ -54,6 +56,10 @@ export async function buildBoard(entries: { userId: string; score: number; tie?:
     userId: e.userId, username: who.get(e.userId)!.username, title: titleOf(who.get(e.userId)!.title), guildTag: who.get(e.userId)!.guild?.tag ?? null,
     rank: i + 1, score: e.score, detail: e.detail, rarities: rarities?.get(e.userId),
   }));
+  const { avatarsFor } = await import("./profile");
+  const shown = [...rows.slice(0, top), ...(me ? rows.filter((r) => r.userId === me) : [])];
+  const avatars = await avatarsFor(shown.map((r) => r.userId));
+  for (const r of shown) r.avatarUrl = avatars.get(r.userId) ?? null;
   return { top: rows.slice(0, top), me: me ? rows.find((r) => r.userId === me) ?? null : null, players: rows.length, cutoff: rows.length >= top ? rows[top - 1].score : null };
 }
 

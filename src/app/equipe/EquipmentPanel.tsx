@@ -14,6 +14,8 @@ import { ARTIFACT_MAX_LEVEL, artifactRecycleValue, artifactUpgradeCost } from "@
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { GearPreview } from "./StatisticsPanel";
+import { GearPresets } from "./GearPresets";
+import { ArtifactFilterBar, useArtifactFilter } from "@/components/team/ArtifactFilters";
 import type { TeamCard } from "./TeamBuilder";
 
 type Inventory = Awaited<ReturnType<typeof getPlayerInventory>>;
@@ -41,7 +43,9 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
   const router = useRouter();
   const weapon = weaponDef(card.weaponKey ?? "");
   const artifacts = inventory.items.filter((item) => item.artifact);
-  const visible = slot && slot !== "ARME" ? artifacts.filter((item) => item.artifact!.slot === slot) : [];
+  const inSlot = slot && slot !== "ARME" ? artifacts.filter((item) => item.artifact!.slot === slot) : [];
+  const artifactFilter = useArtifactFilter(inSlot);
+  const visible = artifactFilter.filtered;
   const selected = visible.find((item) => item.key === selectedKey);
   function closeDetails() {
     document.getElementById(`${detailId}-${selectedKey}`)?.focus();
@@ -69,9 +73,11 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
       })}
     </div>
     <p className="cd-gear-balance">{inventory.balance.toLocaleString("fr-FR")} Ryō</p>
+    <GearPresets cardId={card.id} cardName={card.name} />
     {slot && <div className="gear-compatible" id="gear-compatible" onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); if (selected) closeDetails(); else setSlot(null); } }}>
       <header className="gear-picker-head"><h3>{slot === "ARME" ? "Arme du personnage" : `${SLOT_NAMES[slot]} · objets compatibles (${visible.length})`}</h3><button type="button" className="gear-close" onClick={() => { setSlot(null); setSelectedKey(null); setMessage(""); }}>Fermer la liste</button></header>
       {slot === "ARME" ? <div className="gear-weapon"><SlotIcon slot="ARME" /><h4>{weapon?.name ?? "Aucune arme forgée"}</h4><p>{weapon ? weapon.passive : "Les armes légendaires se forgent sur une carte à 5 étoiles et restent liées à cet exemplaire."}</p><Link href={card.stars === 5 ? "/forge" : "/eveil"}>{weapon ? "Voir à la forge" : card.stars === 5 ? "Forger une arme" : "Éveiller cette carte à 5★"}</Link></div> : <>
+        {inSlot.length > 1 && <ArtifactFilterBar filter={artifactFilter} />}
         <div className="gear-workspace">
           <div className="artifact-tile-grid" role="group" aria-label="Artefacts compatibles">{visible.map((item) => <ArtifactTile key={item.key} item={item} selected={selectedKey === item.key} controls={detailId} onSelect={() => {
             setSelectedKey(item.key); setMessage("");
@@ -106,7 +112,8 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
         })() : <p className="gear-detail-placeholder">Sélectionne un artefact pour afficher sa fiche.</p>}
           </aside>
         </div>
-        {!visible.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
+        {!visible.length && artifactFilter.active && <p className="vt-muted">Aucun objet ne correspond aux filtres.</p>}
+        {!inSlot.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
         <p className="gear-help">Stat principale : +2 % par niveau (critique +3,5 %, dégâts critiques +4,5 %, vitesse +2) jusqu’à +16. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ou doublée.</p>
       </>}
       {message && !selected && <p className="gear-message" role="status">{message}</p>}

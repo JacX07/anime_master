@@ -289,3 +289,14 @@ Envoyer 1 à 3 cartes explorer une brèche (1, 6 ou 24 h) ; les types influencen
 - [ ] Achat limité à 25 cristaux par jour, solde de Ryō toujours égal à la somme du journal.
 - [ ] Le cadeau de bienvenue donne 50 cartes, pas plus.
 - [ ] Le calendrier de bienvenue propose une récompense quotidienne pendant 30 jours et reconnaît les paliers de connexion de 7 et 30 jours.
+
+## Gestion d'équipe et profil *(v0.3.0, lot 3)*
+
+- **Rôles** des personnages : Attaque, Défense, Support (buffs, debuffs, soins, contrôle), déduits de leurs sorts par un score (`src/lib/character-roles.ts`) : le rôle dominant, plus ceux qui pèsent au moins 70 % de lui. Les N, R et SR prennent le rôle de leur type (Combat, Magie, Aventure : Attaque ; Mystère : Support ; Cœur : Support et Défense).
+- **Favoris** (`FavoriteCharacter`) : étoile sur la fiche du personnage ; badge ★ sur les cartes ; favoris en premier dans les listes.
+- **Filtres communs** (Squads, choix de compagnon des écrans de préparation) : nom ou anime, rareté, type, rôle, favoris. Le choix d'un compagnon affiche ses rôles et un bouton « Sorts » (multiplicateurs compris).
+- **Échanger les places** dans une squad en modification : glisser une carte sur une autre, ou « ⇄ » puis toucher l'autre carte.
+- **Filtres d'équipement** (Squads, inventaire) : stat principale, sous-stat présente, rareté, set, non équipés.
+- **Sauvegardes d'équipement** (`GearPreset`, 10 au plus) : sur la fiche d'un personnage, enregistrer ce qu'il porte sous un nom, puis l'appliquer sur n'importe quel personnage (les objets quittent leur ancien porteur ; un objet recyclé est ignoré).
+- **Vitrine** : toute la collection est proposée (plus de limite à 150), avec recherche, rareté et « Afficher plus ».
+- **Photo de profil** (`User.avatarCharacterId`) : image d'un personnage possédé, affichée dans le menu, sur le profil et dans les classements ; « Revenir aux initiales » l'enlève.
