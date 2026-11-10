@@ -6,7 +6,7 @@ import { packAudio } from "@/lib/pack-audio";
 export const AUDIO_PREF_EVENT = "am-audio-pref";
 const INTERACTIVE = "a[href], button, summary, [role=button], [role=radio], [role=tab], [role=menuitem], label[for], .flip";
 // Ces éléments jouent leur propre son (ouverture de paquet, retournement des cartes, bouton d'ambiance)
-const OWN_SOUND = ".pk-open, .flip, .ambient-toggle, .ambient-ui";
+const OWN_SOUND = ".pk-open, .flip, .ambient-toggle, .ambient-ui, .awaken-action";
 const PRIMARY = ".pk-open, .vt-btn, .site-cta, .mq-header-cta, .mq-play-button, .bt-play, .daily-bonus, .gear-upgrade, .gear-equip, .mq-sell-button, [type=submit]";
 
 /** Sons du site : musique d'ambiance (démarre au premier clic, se coupe en combat) et sons d'interface (survol, clic, sélection). */

@@ -509,3 +509,12 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : `graphify update .` réussit mais signale 53 fichiers SQL ignorés (`tree_sitter_sql` absent) et recrée une vue agrégée au-delà de 5 000 nœuds.
 - Cause : dépendance SQL optionnelle absente ; graphe antérieur moins complet que l’extraction AST actuelle.
 - État : graphe TypeScript actualisé (5 423 nœuds). Les migrations restent couvertes par Prisma et les contrôles sur la base ; le graphe ne décrit pas leur SQL. Fichiers générés et sauvegarde automatique conservés hors commits de fonctionnalité, comme lors de la précédente reprise.
+
+## 2026-11-10 — Animation d’éveil après rafraîchissement serveur
+- Point à préserver : la liste serveur retire une carte devenue maximale ; une animation portée uniquement par cette ligne disparaîtrait avant d’être visible.
+- Intégration : garder le dernier résultat confirmé dans la liste, sans permettre un nouvel éveil maximal. La fiche et la liste partagent l’effet ; le son ne part qu’au succès.
+- Audio : utiliser le bus et les préférences du site, avec un sous-bus annulable ; ne pas couper l’ambiance pour abréger une animation. Le bouton gère son propre son afin d’éviter le clic générique en plus du carillon.
+
+## 2026-11-10 — Cache Components conserve les effets ponctuels au retour
+- Risque confirmé par les guides locaux Next (`cacheComponents.md`, « Navigation with Activity ») : les routes cachées gardent leur état, mais leurs effets sont recréés au retour. Un effet dépendant seulement de l’étoile gagnée peut donc rejouer un ancien carillon.
+- Correctif pour l’éveil : mémoriser l’étoile après la première frame réellement affichée. Cela évite le rejeu au retour sans supprimer l’animation lors du double montage de développement. Les succès en mouvements réduits ou hors écran sont aussi mémorisés.

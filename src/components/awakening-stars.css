@@ -1,0 +1,10 @@
+.awakening-stars { display: inline-flex; justify-content: center; gap: 5px; position: relative; padding: 8px 0; }
+.awakening-star { position: relative; display: grid; place-items: center; width: 30px; height: 36px; color: #313632; }
+.awakening-star[data-on] { color: var(--gold-light); }
+.awakening-star > .i { width: 100%; height: 100%; overflow: visible; }
+.awakening-burst, .awakening-spark { position: absolute; opacity: 0; color: var(--awakening-color); pointer-events: none; }
+.awakening-burst { inset: -24px; }
+.awakening-spark { inset: 8px; }
+.awakening-burst > .i, .awakening-spark > .i { width: 100%; height: 100%; }
+.awaken-list .card-stars { display: none; }
+.awaken-success, .eq-character-dialog .cd-awaken .awaken-success { color: #8fbfae; }

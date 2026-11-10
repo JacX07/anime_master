@@ -23,6 +23,7 @@ import "@/components/battle/battle.css";
 import "./equipe.css";
 import "./character.css";
 import { closeOnBackdrop } from "@/lib/dialog";
+import { AwakeningStars } from "@/components/AwakeningStars";
 import { STAR_PERK } from "@/lib/awakening";
 import { FavoriteStar, RoleTags } from "@/components/team/CardFilters";
 import { rolesOf } from "@/lib/character-roles";
@@ -176,14 +177,15 @@ function Awakening({ card }: { card: TeamCard }) {
   const shown = info ? (dupOn ? info.cost.map((c) => ({ ...c, quantity: info.discounted!.find((d) => d.key === c.key)?.quantity ?? c.quantity })) : info.cost) : [];
   const ok = !!info && !info.maxed && shown.every((c) => c.have >= c.quantity);
   return <div className="cd-awaken">
-    <span className="card-stars cd-stars" role="img" aria-label={`${card.stars} étoiles sur 5`}>{[1, 2, 3, 4, 5].map((n) => <i key={n} data-on={n <= card.stars || undefined}>★</i>)}</span>
+    <AwakeningStars stars={Math.max(card.stars, paidAt === null ? 0 : paidAt + 1)} rarity={card.rarity} gainedStar={paidAt === null ? 0 : paidAt + 1} />
+    {paidAt !== null && <small className="awaken-success" role="status">Éveil {paidAt + 1}★ réussi. +{Math.round((paidAt + 1) * BATTLE.starBonus * 100)} % ATK, DEF et PV{STAR_PERK[paidAt + 1] ? ` · ${STAR_PERK[paidAt + 1]}` : ""}.</small>}
     {info && !info.maxed && <>
       <ul className="cd-costs" aria-label="Coût de l’éveil">
         {shown.map((c) => <li key={c.key} data-short={c.have < c.quantity || undefined} title={c.name}><ResourceArt resource={c.key} size={26} /><span>{c.have}/{c.quantity}</span></li>)}
       </ul>
       {info.duplicate !== null && <label className="awaken-dup"><input type="checkbox" disabled={!info.duplicate} checked={dupOn} onChange={(e) => setWithDup(e.target.checked)} /> Utiliser un doublon : cœurs −50 % ({info.duplicate} libre{info.duplicate > 1 ? "s" : ""})</label>}
       {STAR_PERK[card.stars + 1] && <small>{card.stars + 1}★ : {STAR_PERK[card.stars + 1]}</small>}
-      <button type="button" className="bt-btn" disabled={!ok || pending || paidAt === card.stars} onClick={() => start(async () => { const r = await awakenCardAction(card.id, card.stars, dupOn); setMsg(r.ok ? "" : r.error); if (r.ok) setPaidAt(card.stars); setVersion((v) => v + 1); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
+      <button type="button" className="bt-btn awaken-action" disabled={!ok || pending || paidAt === card.stars} onClick={() => start(async () => { const r = await awakenCardAction(card.id, card.stars, dupOn); setMsg(r.ok ? "" : r.error); if (r.ok) setPaidAt(card.stars); setVersion((v) => v + 1); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
     </>}
     {info?.maxed && <small>{card.stars >= 5 ? "Éveil maximal" : "Éveil maximal pour cette rareté"}</small>}
     {msg && <small role="alert">{msg}</small>}
@@ -217,7 +219,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
               <RarityTag rarity={card.rarity} />
             </div>
             <p className="cd-meta"><span className="cd-rarity">{RARITY_NAMES[card.rarity]}</span><span><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name}</span><RoleTags roles={rolesOf(card)} /></p>
-            <Awakening card={card} />
+            <Awakening key={card.id} card={card} />
             {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
               {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
             </button>}

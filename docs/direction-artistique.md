@@ -184,6 +184,8 @@ Transitions courtes (.18–.2 s), sans rebond. Pas d'animation continue sur les 
 - **Son de l'éclat** (`packAudio.jingle`, calé sur l'animation) : balayage fin qui monte, tic à chaque losange, frappe de cloche à l'embrasement (UR : double, avec cloche grave), nappe grave, chuintement aigu et petites notes montantes à la sortie de la carte, cloche et choc quand elle se pose.
 - `prefers-reduced-motion` : rouages de fond immobiles, éclat SSR/UR supprimé, invocation sans crans ni éclats ni son (résultat direct).
 
+**Éveil « cran d’étoile »** (validé le 2026-11-10, maquette `docs/maquettes/eveil-animation.html`) : après confirmation serveur, seule l’étoile gagnée du sprite s’allume et marque un cran, avec un éclat de la couleur de rareté et trois petits éclats du même sprite. Séquence de 620 ms, sans rebond. Deux notes métalliques douces (Ré puis La) accompagnent le gain. Les bonus restent affichés, même à l’éveil maximal. Échap abrège l’effet sans annuler l’éveil ; fermeture ou changement d’onglet coupe l’effet et le son. Les préférences audio et le volume général s’appliquent. En mouvements réduits : résultat direct, sans animation ni son. L’éveil de la liste et celui de la fiche personnage partagent ce retour.
+
 ## 7. Mise en page
 Contenu max. 1530 px, marges `48px 4.3vw 70px` (téléphone : `28px 16px 45px`). Vérifier chaque écran à 1280 px et sur téléphone (375 px), sans défilement horizontal.
 

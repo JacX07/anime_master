@@ -179,6 +179,32 @@ class PackAudio {
     [1, 2.76, 5.4, 8.9].forEach((m, i) => this.tone(at, base * m, dur / (1 + i * 0.7), level / (1 + i * 1.3)));
   }
 
+  /** Deux notes d’éveil ; le bus local permet de les couper sans toucher à l’ambiance. */
+  awaken(): () => void {
+    let stop = () => {};
+    if (document.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches || !this.uiWanted || getVolume() === 0) return stop;
+    this.ui((ctx, t) => {
+      const bus = ctx.createGain();
+      bus.connect(this.master);
+      const nodes: OscillatorNode[] = [];
+      for (const [note, delay] of [[587.33, .1], [880, .2]]) {
+        for (const [ratio, volume, decay] of [[1, .055, .38], [2.76, .012, .18]]) {
+          const oscillator = ctx.createOscillator(), gain = ctx.createGain();
+          oscillator.frequency.value = note * ratio;
+          gain.gain.setValueAtTime(.0001, t + delay);
+          gain.gain.exponentialRampToValueAtTime(volume, t + delay + .006);
+          gain.gain.exponentialRampToValueAtTime(.0001, t + delay + decay);
+          oscillator.connect(gain).connect(bus);
+          oscillator.start(t + delay);
+          oscillator.stop(t + delay + decay + .02);
+          nodes.push(oscillator);
+        }
+      }
+      stop = () => { bus.disconnect(); nodes.forEach((node) => { try { node.stop(); } catch { /* Son déjà terminé. */ } }); };
+    });
+    return stop;
+  }
+
   /** Survol : frottement de pierre très bref et étouffé. */
   uiHover() {
     const now = performance.now();
