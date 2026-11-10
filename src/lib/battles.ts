@@ -767,7 +767,8 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
 const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
-export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number): Promise<BattleView> {
+export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number, toEnd = false): Promise<BattleView> {
+  // toEnd : la stratégie automatique joue toutes les actions restantes d'un coup (onglet en arrière-plan, « Terminer » ; v0.3.0)
   // action = null : la stratégie automatique joue à la place du joueur (bouton Auto) ; elle est enregistrée comme un choix du joueur
   if (action && (!isSpell(action.spell) || (action.target !== null && typeof action.target !== "string"))) throw new BattleError("Action invalide.");
   await sweepBattles(now);
@@ -787,6 +788,14 @@ export async function playAction(userId: string, battleId: string, action: Actio
     throw new BattleError("Action impossible.");
   }
   for (let actor = currentActor(st); actor && actor.id.startsWith("B"); actor = currentActor(st)) applyAction(st, autoAction(st));
+  const played: Action[] = [chosen];
+  if (toEnd) {
+    for (let actor = currentActor(st); actor; actor = currentActor(st)) {
+      const next = actor.id.startsWith("A") ? autoAction(st) : null;
+      applyAction(st, next ?? autoAction(st));
+      if (next) played.push(next);
+    }
+  }
   const done = st.result;
   // Verrou : l'écriture n'a lieu que si personne n'a joué entre-temps. Le butin est versé dans la même transaction que la fin du combat ; si le verrou échoue, rien n'est payé
   let loot: Loot | null = null;
@@ -795,8 +804,8 @@ export async function playAction(userId: string, battleId: string, action: Actio
     const saved = await tx.battle.updateMany({
       where: { id: row.id, status: "RUNNING", steps: row.steps },
       data: {
-        actions: toJson([...actions, chosen]),
-        steps: row.steps + 1,
+        actions: toJson([...actions, ...played]),
+        steps: row.steps + played.length,
         ...(done ? { status: "DONE", winner: done.winner, log: toJson(done.log), endedAt: now } : {}),
       },
     });
@@ -814,8 +823,8 @@ export async function playAction(userId: string, battleId: string, action: Actio
     }
     if (done && done.winner !== "A") await refundLost(tx, { id: row.id }, now);
     });
-  if (done) await track("battle_end", userId, { mode: row.mode, opponent: row.opponent, manual: true, winner: done.winner, stars: score, events: done.log.length, steps: row.steps + 1, durationMs: now.getTime() - row.createdAt.getTime(), ryo: (loot as { ryo?: number } | null)?.ryo ?? 0 });
-  return toView({ ...row, steps: row.steps + 1, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
+  if (done) await track("battle_end", userId, { mode: row.mode, opponent: row.opponent, manual: true, winner: done.winner, stars: score, events: done.log.length, steps: row.steps + played.length, durationMs: now.getTime() - row.createdAt.getTime(), ryo: (loot as { ryo?: number } | null)?.ryo ?? 0 });
+  return toView({ ...row, steps: row.steps + played.length, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */

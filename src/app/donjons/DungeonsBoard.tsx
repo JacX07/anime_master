@@ -8,6 +8,7 @@ import { useState } from "react";
 import { getBattlePreviewAction, startBattleAction } from "@/app/battle-actions";
 import { TeamPreparation, type PrepEnemy } from "@/components/team/TeamPreparation";
 import { useModeTeam } from "@/components/team/useModeTeam";
+import { RepeatControls, useRepeatSetting } from "@/components/battle/RepeatControls";
 import type { TeamContext } from "@/lib/team-context";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
@@ -26,6 +27,7 @@ export function DungeonsBoard({ dungeon, name, boss, maxLevel, levels, artifacts
 }) {
   const router = useRouter();
   const squad = useModeTeam(storageKey, context);
+  const loop = useRepeatSetting();
   const { pending, start, error, setError } = squad;
   const [fight, setFight] = useState<{ battle: BattleView; level: number; auto: boolean } | null>(null);
   const [prep, setPrep] = useState<{ level: number; enemies: PrepEnemy[] } | null>(null);
@@ -45,13 +47,14 @@ export function DungeonsBoard({ dungeon, name, boss, maxLevel, levels, artifacts
       const result = await startBattleAction(dungeonKey(level, dungeon.key), manual, squad.selectedIds);
       if (!result.ok) return setError(result.error);
       setPrep(null);
-      setFight({ battle: result.battle, level, auto: !manual || localStorage.getItem("bt-auto") !== "off" });
+      setFight({ battle: result.battle, level, auto: !manual || loop.repeat || localStorage.getItem("bt-auto") !== "off" });
     });
   };
-  if (fight) return <section className="hs-fight"><LiveBattle key={fight.battle.id} initial={fight.battle} initialAuto={fight.auto} names={{ A: "Ton équipe", B: boss?.name ?? name }} title={`${name} — difficulté ${fight.level}`} onExit={() => setFight(null)} abandonOnExit onEnd={() => router.refresh()} renderEnd={(battle) => <div className="hs-result" role="status">
+  if (fight) return <section className="hs-fight"><LiveBattle key={fight.battle.id} initial={fight.battle} initialAuto={fight.auto} instant={loop.repeat && loop.instant} names={{ A: "Ton équipe", B: boss?.name ?? name }} title={`${name} — difficulté ${fight.level}`} onExit={() => setFight(null)} abandonOnExit onEnd={() => router.refresh()} renderEnd={(battle) => <div className="hs-result" role="status">
     <b>{battle.winner === "A" ? "Victoire !" : "Défaite — aucun coût ni butin."}</b>
     {battle.loot?.artifact && <p>{RARITY_NAMES[battle.loot.artifact.rarity]} · {SLOT_NAMES[battle.loot.artifact.slot as ArtifactSlot]} · {artifactStatLabel(battle.loot.artifact.mainStat)} {artifactStatValue(battle.loot.artifact.mainStat, battle.loot.artifact.mainValue)}{battle.loot.resources && Object.values(battle.loot.resources).some(Boolean) ? ` · matériaux : ${Object.values(battle.loot.resources).reduce((a, b) => a + b, 0)}` : ""}</p>}
     <div className="hs-actions"><button type="button" className="bt-btn" onClick={() => setFight(null)}>Retour au donjon</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level, true)}>Rejouer en manuel</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level, false)}>Rejouer en auto</button>{battle.winner === "A" && fight.level < 10 && <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level + 1, true)}>Difficulté suivante</button>}</div>
+    <RepeatControls setting={loop} won={battle.winner === "A"} battleId={battle.id} error={error} onRepeat={() => run(fight.level, true)} />
     {error && <p className="hs-error" role="alert">{error}</p>}
   </div>} /></section>;
   if (prep) {

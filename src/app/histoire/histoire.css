@@ -249,3 +249,4 @@
 .hs-energy[data-empty] b { color: #e07a6c; }
 .hs-energy small { color: #8f8b80; }
 .hs-energy-note { width: 100%; }
+.hs-repeat { display: grid; gap: .3rem; margin-top: .5rem; }

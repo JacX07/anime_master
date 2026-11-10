@@ -9,6 +9,7 @@ import { useModeTeam } from "@/components/team/useModeTeam";
 import type { TeamContext } from "@/lib/team-context";
 import { claimStarTierAction } from "@/app/story-star-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
+import { RepeatControls, useRepeatSetting } from "@/components/battle/RepeatControls";
 import type { BattleView } from "@/lib/battles";
 import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES } from "@/lib/story";
 import { StoryMap } from "./StoryMap";
@@ -72,6 +73,7 @@ function Countdown({ seconds, label, onDone, onCancel }: { seconds: number; labe
 export function StoryBoard({ universes, context, stock, storageKey }: Props) {
   const router = useRouter();
   const team = useModeTeam(storageKey, context, true);
+  const loop = useRepeatSetting();
   const { pending, start, error, setError, selectedIds } = team;
   const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number; auto: boolean } | null>(null);
   // « Enchaîner » : après une victoire, le combat suivant démarre tout seul (réglage gardé d'une visite à l'autre)
@@ -110,7 +112,7 @@ export function StoryBoard({ universes, context, stock, storageKey }: Props) {
       ]);
       setDeparting(false);
       if (!res.ok) return setError(res.error);
-      setFight({ battle: res.battle, universe: u, level, auto: localStorage.getItem("bt-auto") !== "off" });
+      setFight({ battle: res.battle, universe: u, level, auto: loop.repeat || localStorage.getItem("bt-auto") !== "off" });
     });
   }
   if (departing) {
@@ -127,6 +129,7 @@ export function StoryBoard({ universes, context, stock, storageKey }: Props) {
           key={battle.id}
           initial={battle}
           initialAuto={fight.auto}
+          instant={loop.repeat && loop.instant}
           names={{ A: "Ton équipe", B: fu.name }}
           title={`${fu.name} — ${levelTitle(level)}`}
           // La croix abandonne un combat en cours (sans pénalité en histoire) et revient à la liste
@@ -164,7 +167,8 @@ export function StoryBoard({ universes, context, stock, storageKey }: Props) {
               />
               Enchaîner automatiquement les combats gagnés
             </label>
-            {chain && battle.winner === "A" && fight.level < LEVELS && fight.level <= fu.maxLevel + 1 && (
+            <RepeatControls setting={loop} won={battle.winner === "A"} battleId={battle.id} error={error} onRepeat={() => run(fight.level)} />
+            {chain && !loop.repeat && battle.winner === "A" && fight.level < LEVELS && fight.level <= fu.maxLevel + 1 && (
               <Countdown
                 key={battle.id}
                 seconds={4}
