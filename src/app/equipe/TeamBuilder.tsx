@@ -23,7 +23,8 @@ import "@/components/battle/battle.css";
 import "./equipe.css";
 import "./character.css";
 import { closeOnBackdrop } from "@/lib/dialog";
-import { FavoriteStar } from "@/components/team/CardFilters";
+import { FavoriteStar, RoleTags } from "@/components/team/CardFilters";
+import { rolesOf } from "@/lib/character-roles";
 
 export interface TeamCard {
   id: string;
@@ -209,7 +210,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
               <img src={card.imageUrl} alt={card.name} referrerPolicy="no-referrer" />
               <RarityTag rarity={card.rarity} />
             </div>
-            <p className="cd-meta"><span className="cd-rarity">{RARITY_NAMES[card.rarity]}</span><span><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name}</span></p>
+            <p className="cd-meta"><span className="cd-rarity">{RARITY_NAMES[card.rarity]}</span><span><TypeIcon type={card.type} /> {TYPE_LABELS[card.type].name}</span><RoleTags roles={rolesOf(card)} /></p>
             <Awakening card={card} />
             {editable && <button type="button" className="bt-btn" onClick={() => onToggle(card)} disabled={slot < 0 && full}>
               {slot >= 0 ? `Retirer de l'équipe (emplacement ${slot + 1})` : full ? "Équipe pleine : choisis un emplacement" : "Ajouter à l'équipe"}
