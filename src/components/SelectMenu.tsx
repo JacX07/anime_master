@@ -124,6 +124,8 @@ export function SelectMenu() {
     lastRow.current = row;
     if (performance.now() - openedAt.current > 200) packAudio.uiTick();
   };
+  // Dans une fenêtre modale (<dialog> en couche supérieure), le menu doit y être rendu, sinon il s'ouvre derrière elle
+  const host = menu.select.closest("dialog[open]") ?? document.body;
   return createPortal(
     <ul ref={list} className="sm-menu" role="listbox" style={menu.style} onScroll={scrolled}>
       {menu.items.map((item, k) => item.header ? (
@@ -150,6 +152,6 @@ export function SelectMenu() {
         >{item.label}</li>
       ))}
     </ul>,
-    document.body,
+    host,
   );
 }

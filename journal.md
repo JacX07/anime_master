@@ -484,3 +484,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : `.mq-topbar` avait `backdrop-filter: blur(20px)`, ce qui en fait le bloc contenant des descendants `position: fixed` : le tiroir (`inset: 68px auto 0 0`) prenait la hauteur de la barre (68 px) au lieu de l'écran. Lightning CSS a en plus laissé passer seulement `-webkit-backdrop-filter: none` dans un override, donc le `none` ne suffisait pas.
 - Correctif : `backdrop-filter` retiré de `.mq-topbar` sous 1500 px (réservé au bureau, `maquette.css`), fond plus opaque sur mobile.
 - À retenir : pas de `backdrop-filter`, `filter`, `transform` ni `contain` sur un ancêtre d'un élément `position: fixed` censé couvrir l'écran. Vérifier le tiroir ouvert, pas seulement fermé. Occurrences : 1.
+
+## 2026-11-10 — Listes déroulantes invisibles dans les fenêtres modales
+- **Symptôme** : dans la fiche d'un perso (Squads, `<dialog>` modal), un clic sur une liste déroulante ne montrait rien (filtres d'équipement, niveau visé, sauvegardes).
+- **Cause** : `SelectMenu` remplace la fenêtre native des `<select>` par un menu rendu dans `document.body` ; un `<dialog>` ouvert en modal est dans la couche supérieure et passe par-dessus, le menu s'ouvrait derrière. Les tests par `dispatchEvent('change')` ne le voyaient pas.
+- **Correctif** : le menu est rendu dans le `dialog[open]` le plus proche du `<select>` (`SelectMenu.tsx`). Tester les listes déroulantes avec un vrai clic, pas en changeant la valeur par script.
