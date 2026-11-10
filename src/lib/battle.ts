@@ -1209,7 +1209,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   if (reaction) return;
   if (activeSpell && hasCharacterSlots(u.card.rarity) && isSoloBuff(activeSpell)) {
     u.continuingTurn = true;
-    for (const effect of u.fx) effect.fresh = false;
+    // La provocation garde son tour : sinon le tour immédiat la consommerait avant que les ennemis jouent (v0.3.0)
+    for (const effect of u.fx) if (effect.key !== "taunt") effect.fresh = false;
     return;
   }
   finishUnitTurn(st, u);

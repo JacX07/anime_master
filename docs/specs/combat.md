@@ -550,3 +550,17 @@ Fangame gratuit, sans frustration : en jouant assez, on finit toujours par obten
 - Plus d'historique des tours : ordre de passage à gauche, plateau au centre, sorts à droite. Thème du site (pierre sombre, or, biseaux), boutons-texte à soulignement doré.
 - Écran de résultat : ton équipe en colonnes (MVP = plus de dégâts), défense dessous (K.O. en niveaux de gris), statistiques (dégâts infligés/subis, soins, ennemis vaincus, tours) et étoiles à la place d'un rang.
 - Étoiles hors histoire : 1 pour la victoire, +1 si aucun allié n'est à terre à la fin, +1 si le combat dure 8 tours ou moins. L'histoire garde ses propres étoiles.
+
+## Équilibrage et lisibilité *(v0.3.0, lot 4)*
+
+Règles appliquées à tous les sorts de personnage (`src/lib/spell-rules.ts`, appelées par `spellOf` et les catalogues tertiaire et ultime) :
+- **Silence sur une seule cible** : celle du sort s'il vise un ennemi, sinon l'ennemi à l'ATK la plus élevée. Zone conservée sur 5 ultimes : Lelouch, L, Aizawa, Saiki, Aizen.
+- **Soin sur soi plafonné à 35 %** des PV max par sort (Eren : 100 % → 35 %). Les soins d'alliés ne sont pas plafonnés.
+- **Provocation** : 2 tours au plus si c'est le seul effet du sort, 1 tour si elle s'accompagne d'autres effets. Au tour immédiat d'un sort de soutien personnel, la provocation garde son tour (sinon elle expirait avant que les ennemis jouent).
+- Gojo : bouclier de l'attaque de base 8 % (au lieu de 0,08 %, valeur erronée).
+
+Lisibilité :
+- **Ordre** : le bandeau montre les 8 prochains passages (alliés et ennemis).
+- **Effets** : l'événement `status` porte valeur, durée, lanceur et stat ; `fxTurns` donne les tours restants après chaque action. Les icônes affichent les tours restants ; un clic sur une carte ouvre « Effets actifs » (valeur, tours, lanceur, explication) et ses stats de base et actuelles.
+
+Outil : `npm run simulate:balance -- --games 20000` (taux de victoire par personnage, stats égalisées par rareté).
