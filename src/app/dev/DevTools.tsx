@@ -84,6 +84,12 @@ export function DevTools({ universes, dungeons, materials, summary }: {
         {summary.map((s) => <div key={s.label}><dt>{s.label}</dt><dd>{s.value}</dd></div>)}
       </dl>
 
+      <section className="dev-panel" aria-labelledby="dev-unlock">
+        <h2 id="dev-unlock">Tout débloquer</h2>
+        <p className="dev-note">Histoire terminée dans tous les univers (3 étoiles), Tour à l&apos;étage 500, donjons à 10, toutes les difficultés de raid ouvertes, Arpenteur niveau 50.</p>
+        <DevForm op="unlock" submit="Tout débloquer"><></></DevForm>
+      </section>
+
       <section className="dev-panel" aria-labelledby="dev-cards">
         <h2 id="dev-cards">Personnages</h2>
         <CharacterPicker />
@@ -126,6 +132,17 @@ export function DevTools({ universes, dungeons, materials, summary }: {
         <DevForm op="dungeon" submit="Fixer la difficulté">
           <Select name="dungeon" label="Donjon" options={dungeons} />
           <Num name="level" label="Difficulté vaincue (0 à 10)" value={10} min={0} max={10} />
+        </DevForm>
+      </section>
+
+      <section className="dev-panel" aria-labelledby="dev-artifacts">
+        <h2 id="dev-artifacts">Artefacts</h2>
+        <p className="dev-note">Les emplacements tournent (casque, plastron, gants, bottes) : 4 exemplaires = un set complet.</p>
+        <DevForm op="artifacts" submit="Donner les artefacts">
+          <Select name="set" label="Set" options={[{ key: "ALL", name: "Tous les sets" }, ...dungeons]} />
+          <Select name="rarity" label="Rareté" options={rarityOptions()} />
+          <Num name="level" label="Niveau (0 à 16)" value={0} min={0} max={16} />
+          <Num name="count" label="Par set" value={4} min={1} max={50} />
         </DevForm>
       </section>
 
