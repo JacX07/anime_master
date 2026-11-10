@@ -22,7 +22,7 @@ const nav = (href: string) => `.mq-game-nav a[href="${href}"]`;
 export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "invoke", phase: "action", title: "Invoque tes cartes", text: "Ici tu invoques tes premières cartes : un cristal = une carte. Lance un tirage pour continuer.",
     page: "/", targets: [".pk-welcome", ".pk-open"], away: [nav("/")] },
-  { key: "squad", phase: "action", title: "Forme ta squad", text: "Ici tu formes ta squad : modifie-la, place quatre cartes puis enregistre. C’est elle qui combat dans tous les modes.",
+  { key: "squad", phase: "action", title: "Forme ta squad", text: "Ici tu formes ta squad : modifie-la, place quatre cartes puis enregistre. Elle sert de départ dans chaque mode ; avant un combat, tu peux la modifier ou charger une autre squad.",
     page: "/equipe", targets: [".squad-stage", ".eq-slots"], away: [nav("/equipe")] },
   { key: "story", phase: "action", title: "Lance le mode histoire", text: "Ici tu lances le mode histoire. Gagne le premier combat de One Piece pour continuer.",
     points: ["Jusqu’à 3 étoiles par combat : victoire, aucun allié à terre, 8 tours ou moins", "Les étoiles débloquent des récompenses aux paliers 12, 24, 36 et 45"],
