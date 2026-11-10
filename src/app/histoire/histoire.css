@@ -238,3 +238,8 @@
 .hs-node-stars .i.is-on { color: #e3c985; }
 .hs-node-stars .i.is-off { color: #6b6247; }
 @media (max-width: 480px) { .hs-map-hint .hs-star-total-big { font-size: 30px; } .hs-node-stars .i { width: 15px; height: 15px; } }
+
+/* Charger une squad (écran de préparation commun, v0.3.0) */
+.hs-squad-load { display: inline-flex; align-items: center; gap: .5rem; font-size: .8rem; color: #b4b2aa; }
+.hs-squad-load select { background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .35rem .5rem; font: inherit; }
+.hs-squad-load select:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }

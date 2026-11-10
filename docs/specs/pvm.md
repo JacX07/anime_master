@@ -424,3 +424,12 @@ Commande : `npm run calibrate:story -- --games 1000`, neuf étapes de dichotomie
 - Le clic sur un jalon accessible ouvre la préparation, sans créer de combat : quatre emplacements alliés face aux quatre vrais ennemis, grand VS et puissances calculées par le moteur avec éveil, équipement et synergies.
 - Chaque emplacement permet de choisir un compagnon distinct. Les remplacements en mode quatre cartes sont enregistrés comme équipe d’attaque ; le brouillon et le choix du duo sont conservés par compte dans le navigateur. Le duo garde deux emplacements en réserve.
 - « Combattre » déclenche une transition courte, adaptée à la réduction des animations. Les erreurs de lancement restent dans la préparation. Les règles de progression, étoiles, butin et enchaînement restent identiques.
+
+## Écran de préparation commun *(v0.3.0)*
+
+Histoire, Tour, donjons et raids ouvrent le même écran avant le combat (`src/components/team/TeamPreparation.tsx`) : ton équipe face aux ennemis, une carte cliquable par emplacement, « Composition automatique » et « Charger une squad » (les squads nommées de la page Squads).
+
+- **Une composition par mode** : chaque mode garde la sienne, mémorisée dans le navigateur (`story-team`, `tower-team`, `dungeon-team`, `raid-team`), initialisée avec l'équipe d'attaque. La changer ne modifie ni l'équipe d'attaque ni la squad chargée.
+- Le combat part avec la composition affichée (`startBattle(..., cardIds)`) : 4 cartes de personnages différents ; le **duo** (2 cartes) reste réservé à l'histoire.
+- **Ennemis** : visibles pour l'histoire, les donjons et les raids (`getBattlePreview`) ; la Tour ne montre que leurs raretés, comme avant.
+- Donjons : les boutons « Manuel » / « Auto » de chaque difficulté deviennent « Préparer » ; le choix manuel ou auto se fait sur l'écran de préparation.

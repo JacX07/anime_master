@@ -3,14 +3,16 @@
 import { ResourceArt } from "@/components/ResourceArt";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
-import { autoAttackTeamAction, getStoryPreviewAction, setAttackTeamAction, startBattleAction } from "@/app/battle-actions";
+import { useEffect, useRef, useState } from "react";
+import { getStoryPreviewAction, startBattleAction } from "@/app/battle-actions";
+import { useModeTeam } from "@/components/team/useModeTeam";
+import type { TeamContext } from "@/lib/team-context";
 import { claimStarTierAction } from "@/app/story-star-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
 import { isBoss, isFinalBoss, LEVELS, RESOURCE_NAMES } from "@/lib/story";
 import { StoryMap } from "./StoryMap";
-import { StoryPreparation, type StoryCard, type StoryEnemy } from "./StoryPreparation";
+import { StoryPreparation, type StoryEnemy } from "./StoryPreparation";
 import { STORY_ART } from "./story-art";
 import "./histoire.css";
 
@@ -34,8 +36,7 @@ export interface UniverseView {
 }
 interface Props {
   universes: UniverseView[];
-  attackIds: (string | null)[];
-  ownedCards: StoryCard[];
+  context: TeamContext;
   stock: Record<string, number>;
   storageKey: string;
 }
@@ -68,56 +69,22 @@ function Countdown({ seconds, label, onDone, onCancel }: { seconds: number; labe
   );
 }
 
-export function StoryBoard({ universes, attackIds, ownedCards, stock, storageKey }: Props) {
+export function StoryBoard({ universes, context, stock, storageKey }: Props) {
   const router = useRouter();
-  const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const team = useModeTeam(storageKey, context, true);
+  const { pending, start, error, setError, selectedIds } = team;
   const [fight, setFight] = useState<{ battle: BattleView; universe: UniverseView; level: number; auto: boolean } | null>(null);
   // « Enchaîner » : après une victoire, le combat suivant démarre tout seul (réglage gardé d'une visite à l'autre)
   const [chain, setChain] = useState(false);
-  const [duo, setDuo] = useState(false);
-  const [slots, setSlots] = useState(attackIds);
   const [preparation, setPreparation] = useState<{ universe: UniverseView; level: number; enemies: StoryEnemy[] } | null>(null);
   const [departing, setDeparting] = useState(false);
   useEffect(() => {
     try {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setChain(localStorage.getItem("bt-chain") === "on");
-      const saved = JSON.parse(localStorage.getItem(storageKey) ?? "null");
-      if (saved && Array.isArray(saved.slots) && saved.slots.length === 4) {
-        const seen = new Set<number>();
-        setSlots(saved.slots.map((id: unknown) => {
-          const card = ownedCards.find((c) => c.id === id);
-          if (!card || seen.has(card.combat.characterId)) return null;
-          seen.add(card.combat.characterId);
-          return card.id;
-        }));
-        setDuo(saved.duo === true);
-      }
-    } catch { /* Un stockage indisponible ne bloque pas l'équipe enregistrée côté serveur. */ }
-  }, [storageKey, ownedCards]);
-  const selectedIds = slots.slice(0, duo ? 2 : 4).filter((id): id is string => !!id);
+    } catch { /* Réglage d'enchaînement indisponible. */ }
+  }, []);
 
-  function remember(nextSlots: (string | null)[], nextDuo: boolean) {
-    try { localStorage.setItem(storageKey, JSON.stringify({ slots: nextSlots, duo: nextDuo })); } catch { /* Équipe complète sauvegardée côté serveur. */ }
-  }
-  function changeDuo(value: boolean) {
-    setDuo(value);
-    remember(slots, value);
-  }
-  function choose(index: number, id: string) {
-    const next = slots.map((old, i) => i === index ? id : old);
-    setError(null);
-    start(async () => {
-      const ids = next.filter((value): value is string => !!value);
-      if (!duo && ids.length === 4) {
-        const res = await setAttackTeamAction(ids);
-        if (!res.ok) return setError(res.error);
-      }
-      setSlots(next);
-      remember(next, duo);
-    });
-  }
   function prepare(level: number, universe: UniverseView) {
     setError(null);
     start(async () => {
@@ -146,17 +113,6 @@ export function StoryBoard({ universes, attackIds, ownedCards, stock, storageKey
       setFight({ battle: res.battle, universe: u, level, auto: localStorage.getItem("bt-auto") !== "off" });
     });
   }
-  function autoTeam() {
-    setError(null);
-    start(async () => {
-      const res = await autoAttackTeamAction();
-      if (!res.ok) return setError(res.error);
-      setSlots(res.cardIds);
-      remember(res.cardIds, duo);
-      router.refresh();
-    });
-  }
-
   if (departing) {
     const u = preparation?.universe ?? fight?.universe ?? universes[0];
     return <section className="hs-depart" role="status" aria-live="polite" style={{ backgroundImage: `url("${STORY_ART[u.key]?.background ?? `/story-map/${u.key}.svg`}")` }}><div><h2>{u.name}</h2><p>Combat {preparation?.level ?? fight?.level}</p><span className="hs-vs-label">VS</span><p>Entrée dans le combat…</p></div></section>;
@@ -240,7 +196,7 @@ export function StoryBoard({ universes, attackIds, ownedCards, stock, storageKey
           onClaim={async (universe, tier) => { const res = await claimStarTierAction(universe, tier); if (res.ok) router.refresh(); return res; }}
         />
       </div>
-      {preparation && <StoryPreparation universe={freshUniverse(preparation.universe)} level={preparation.level} enemies={preparation.enemies} ownedCards={ownedCards} slots={slots} duo={duo} pending={pending} error={error} onDuo={changeDuo} onChoose={choose} onAuto={autoTeam} onBack={() => { setPreparation(null); setError(null); }} onFight={() => run(preparation.level, freshUniverse(preparation.universe))}/>}
+      {preparation && <StoryPreparation universe={freshUniverse(preparation.universe)} level={preparation.level} enemies={preparation.enemies} team={team} context={context} onBack={() => { setPreparation(null); setError(null); }} onFight={() => run(preparation.level, freshUniverse(preparation.universe))}/>}
     </>
   );
 }

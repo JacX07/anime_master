@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { TeamPreparation } from "@/components/team/TeamPreparation";
+import { useModeTeam } from "@/components/team/useModeTeam";
+import type { TeamContext } from "@/lib/team-context";
 import { startBattleAction } from "@/app/battle-actions";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
@@ -15,7 +17,8 @@ import "./tour.css";
 interface Props {
   maxFloor: number;
   maxPossible: number;
-  team: ({ name: string; imageUrl: string; rarity: Rarity } | null)[];
+  context: TeamContext;
+  storageKey: string;
 }
 
 /** Premier étage où les ennemis montent d'un cran de rareté (tous les 30 étages, voir lib/tower.ts) */
@@ -44,26 +47,29 @@ function Countdown({ seconds, onDone, onCancel }: { seconds: number; onDone: () 
   );
 }
 
-export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
+export function TowerBoard({ maxFloor, maxPossible, context, storageKey }: Props) {
   const router = useRouter();
-  const [pending, start] = useTransition();
+  const squad = useModeTeam(storageKey, context);
+  const { pending, start, error, setError } = squad;
+  const [preparing, setPreparing] = useState(false);
   const next = Math.min(maxFloor + 1, maxPossible);
   const [floor, setFloor] = useState(next);
-  const [error, setError] = useState<string | null>(null);
   const [fight, setFight] = useState<{ battle: BattleView; floor: number; auto: boolean } | null>(null);
   const [chain, setChain] = useState(false);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setChain(localStorage.getItem("bt-chain") === "on");
   }, []);
-  const ready = team.every(Boolean);
+  const ready = squad.ready;
+  const team = squad.slots.map((id) => context.ownedCards.find((c) => c.id === id)).map((c) => c ? { name: c.name, imageUrl: c.imageUrl, rarity: c.combat.rarity as Rarity } : null);
 
   function run(n: number) {
     setError(null);
     start(async () => {
-      const res = await startBattleAction(towerKey(n), true);
+      const res = await startBattleAction(towerKey(n), true, squad.selectedIds);
       if (!res.ok) return setError(res.error);
       setFloor(n);
+      setPreparing(false);
       setFight({ battle: res.battle, floor: n, auto: localStorage.getItem("bt-auto") !== "off" });
     });
   }
@@ -122,6 +128,9 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
       </section>
     );
   }
+
+  if (preparing) return <TeamPreparation title={`Étage ${floor}`} subtitle="La Tour · gardiens inconnus jusqu’au combat" team={squad} context={context} hiddenEnemies={floorRarities(floor)} onBack={() => { setPreparing(false); setError(null); }}
+    footer={<><p className="tw-hint">{floor <= maxFloor ? "Étage déjà passé : pas de récompense." : `Premier passage : ${towerRyo(floor)} Ryō.`}</p><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(floor)}>{pending ? "Chargement…" : floor <= maxFloor ? "Rejouer" : "Combattre"}</button></>} />;
 
   const rarities = floorRarities(floor);
   const top = rarities[rarities.length - 1];
@@ -182,7 +191,7 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
         <section className="tw-col" aria-label="Ascension">
           <h2 className="tw-h">Ascension</h2>
           <div className="tw-menu">
-            <button type="button" className="bt-btn tw-go" disabled={!ready || pending} onClick={() => run(floor)}>
+            <button type="button" className="bt-btn tw-go" disabled={pending} onClick={() => { setError(null); setPreparing(true); }}>
               {floor <= maxFloor ? `Rejouer l’étage ${floor}` : `Affronter l’étage ${floor}`}
             </button>
             <label className="tw-pick">
@@ -197,7 +206,7 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
               <span>1 – {next}</span>
             </label>
             {floor !== next && <button type="button" className="bt-btn" onClick={() => setFloor(next)}>Aller à l&apos;étage {next}</button>}
-            <Link href="/equipe" className="bt-btn">{ready ? "Modifier l’équipe" : "Composer mon équipe"}</Link>
+            <button type="button" className="bt-btn" onClick={() => { setError(null); setPreparing(true); }}>{ready ? "Modifier l’équipe" : "Composer mon équipe"}</button>
             <a href="#classement" className="bt-btn">Classement</a>
           </div>
           {ready ? (
