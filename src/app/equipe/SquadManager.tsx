@@ -7,8 +7,8 @@ import { setAttackTeamAction, setDefenseTeamAction } from "@/app/battle-actions"
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import type { SavedSquad, SquadSlots } from "@/lib/squads";
 import { CardDialog, SpellList, type TeamCard } from "./TeamBuilder";
-import { CardFilterBar, useCardFilter, useFavorites } from "@/components/team/CardFilters";
-import { ROLE_LABELS } from "@/lib/character-roles";
+import { CardFilterBar, RoleTags, useCardFilter, useFavorites } from "@/components/team/CardFilters";
+import { rolesOf } from "@/lib/character-roles";
 import { saveSquadAction } from "./actions";
 import "./squads.css";
 import { closeOnBackdrop } from "@/lib/dialog";
@@ -136,6 +136,7 @@ export function SquadManager({ cards, presets, saved, inventory, favorites = [] 
               {card ? <CharacterCard {...card} /> : <span className="squad-empty">{editing ? "+ Choisir un personnage" : "Emplacement vide"}</span>}
               {card && favs.has(card.characterId) && <span className="fav-badge" aria-hidden="true">★</span>}
             </button>
+            {card && <RoleTags roles={rolesOf(card)} />}
             <small>{index === 0 ? "Leader" : `Poste ${index + 1}`}</small>
             {editing && card && <div className="squad-member-tools">
               <button className="ui-button" disabled={pending} aria-pressed={swapFrom === index} title="Échanger de place : touche ensuite l’autre carte (ou glisse-la)" onClick={() => setSwapFrom(swapFrom === index ? null : index)}>⇄</button>
@@ -156,7 +157,7 @@ export function SquadManager({ cards, presets, saved, inventory, favorites = [] 
     <section className="squad-collection" aria-label="Ma collection">
       <div className="squad-collection-head"><h2>Ma collection <small>{collection.length} / {cards.length} cartes</small></h2></div>
       <CardFilterBar filter={colFilter} onChange={() => setColShown(40)} />
-      <div className="squad-picker-grid squad-collection-grid">{collection.slice(0, colShown).map((card) => <button key={card.id} type="button" className="squad-card" aria-label={`Voir ${card.name}`} onClick={() => setFocusId(card.id)}><CharacterCard {...card} />{favs.has(card.characterId) && <span className="fav-badge" aria-hidden="true">★</span>}</button>)}</div>
+      <div className="squad-picker-grid squad-collection-grid">{collection.slice(0, colShown).map((card) => <div key={card.id} className="squad-pick-item"><button type="button" className="squad-card" aria-label={`Voir ${card.name}`} onClick={() => setFocusId(card.id)}><CharacterCard {...card} />{favs.has(card.characterId) && <span className="fav-badge" aria-hidden="true">★</span>}</button><RoleTags roles={colFilter.roles.get(card.characterId)!} /></div>)}</div>
       {!collection.length && <p className="vt-muted">Aucune carte ne correspond.</p>}
       {colShown < collection.length && <button type="button" className="ui-button" onClick={() => setColShown((n) => n + 40)}>Afficher plus ({collection.length - colShown} restantes)</button>}
     </section>
@@ -176,7 +177,7 @@ export function SquadManager({ cards, presets, saved, inventory, favorites = [] 
           const occupied = slots.some((id, i) => i !== target && id === card.id);
           return <div key={card.id} className="squad-pick-item">
             <button className="squad-card" disabled={occupied} title={occupied ? "Déjà dans la squad" : card.name} aria-label={`Choisir ${card.name}`} onClick={() => { setDraft(slots.map((id, i) => i === target ? card.id : id)); setTarget(null); setMessage(null); }}><CharacterCard {...card} />{favs.has(card.characterId) && <span className="fav-badge" aria-hidden="true">★</span>}{occupied && <small>Déjà dans la squad</small>}</button>
-            <div className="squad-pick-meta"><small>{pickFilter.roles.get(card.characterId)!.map((r) => ROLE_LABELS[r]).join(" · ")}</small><button type="button" className="ui-button" onClick={() => setSpellCard(card)}>Sorts</button></div>
+            <div className="squad-pick-meta"><RoleTags roles={pickFilter.roles.get(card.characterId)!} /><button type="button" className="ui-button" onClick={() => setSpellCard(card)}>Sorts</button></div>
           </div>;
         })}</div>
         {shown < filtered.length && <button className="ui-button" onClick={() => setShown((count) => count + 50)}>Afficher plus ({filtered.length - shown} restantes)</button>}

@@ -60,3 +60,8 @@ export function CardFilterBar({ filter, onChange }: { filter: Pick<CardFilter, "
 export function FavoriteStar({ on, onToggle, name }: { on: boolean; onToggle: () => void; name: string }) {
   return <button type="button" className="fav-star" aria-pressed={on} aria-label={on ? `Retirer ${name} des favoris` : `Ajouter ${name} aux favoris`} title={on ? "Retirer des favoris" : "Ajouter aux favoris"} onClick={onToggle}>{on ? "★" : "☆"}</button>;
 }
+
+/** Pastilles de rôle (Attaque, Défense, Support) sous une carte ou sur une fiche. */
+export function RoleTags({ roles }: { roles: Role[] }) {
+  return <span className="role-tags" aria-label={`Rôle : ${roles.map((r) => ROLE_LABELS[r]).join(", ")}`}>{roles.map((r) => <span key={r} className="role-tag" data-role={r}>{ROLE_LABELS[r]}</span>)}</span>;
+}

@@ -106,3 +106,7 @@
 .eq-character-dialog .cd-costs li { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; color: #d9d4c6; }
 .eq-character-dialog .cd-costs img { border-radius: 3px; object-fit: cover; }
 .eq-character-dialog .cd-costs [data-short] span { color: #ff6b6b; }
+
+/* Filtres d'équipement (v0.3.0) : leur propre rangée, la liste garde l'espace restant et défile */
+.eq-character-dialog .gear-compatible:has(> .artifact-filters) { grid-template-rows: auto auto minmax(0, 1fr); }
+.eq-character-dialog .gear-compatible > .artifact-filters { margin: 0; }

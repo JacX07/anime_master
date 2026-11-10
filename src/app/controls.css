@@ -223,10 +223,15 @@
 .card-filters :is(input[type="search"], select) { background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .4rem .55rem; font: inherit; font-size: .82rem; }
 .card-filters :is(input, select):focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
 .card-filters-fav { display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; color: #e3c985; }
-.mq-app-shell[class] button.fav-star { min-width: 0; padding: .1rem .35rem; background: none; border: 0; color: #e3c985; font-size: 1.2rem; line-height: 1; cursor: pointer; }
-.mq-app-shell[class] button.fav-star::after { display: none; }
-.mq-app-shell[class] button.fav-star:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
-.fav-badge { position: absolute; top: 6px; right: 8px; z-index: 3; color: #f0d79a; font-size: 1rem; text-shadow: 0 0 6px #000; pointer-events: none; }
+.mq-app-shell[class][class][class] button.fav-star { min-width: 0; margin-left: .4rem; padding: .1rem .35rem; background: none; border: 0; color: #f0d79a; font-size: 2rem; line-height: 1; vertical-align: middle; cursor: pointer; text-shadow: 0 0 10px #c4a76d88; }
+.mq-app-shell[class][class][class] button.fav-star::after { display: none; }
+.mq-app-shell[class][class][class] button.fav-star:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.fav-badge { position: absolute; top: 4px; right: 4px; z-index: 3; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: #0b0e0dcc; color: #f0d79a; font-size: 1.35rem; line-height: 1; box-shadow: 0 0 0 1px #c4a76d99; pointer-events: none; }
+.role-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem; margin-top: .25rem; }
+.role-tag { padding: .05rem .45rem; border-radius: 999px; font-size: .66rem; letter-spacing: .04em; color: #0b0e0d; background: #c4a76d; }
+.role-tag[data-role="attack"] { background: #e07a6c; }
+.role-tag[data-role="defense"] { background: #6fa8dc; }
+.role-tag[data-role="support"] { background: #7fd48b; }
 
 /* Photo de profil (v0.3.0) : l'image remplit le médaillon */
 :is(.mq-avatar, .pf-avatar, .lb-av) { overflow: hidden; }
