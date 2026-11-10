@@ -510,6 +510,14 @@ async function equippedCards(userId: string, slots: NonNullable<Awaited<ReturnTy
   return fitted.map((c, index) => ({ ...c, character: { ...c.character, power: powers[index] } }));
 }
 
+/** Équipe figée pour un combat contre un joueur (arène) : 4 cartes avec équipement, ou null si elle est incomplète. */
+export async function teamSnapshot(userId: string, kind: TeamKind): Promise<BattleCard[] | null> {
+  const slots = await getTeam(userId, kind);
+  if (slots.some((c) => !c)) return null;
+  const fitted = await equippedCards(userId, slots as NonNullable<(typeof slots)[number]>[]);
+  return fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
+}
+
 /** Collection de préparation : mêmes équipements et statistiques que le lancement réel. */
 export async function getStoryRoster(userId: string) {
   const cards = await prisma.card.findMany({
@@ -637,7 +645,7 @@ function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleStat
   return st;
 }
 
-async function charactersOf(teams: BattleTeams) {
+export async function charactersOf(teams: Pick<BattleTeams, "A" | "B">) {
   const ids = [...teams.A, ...teams.B].map((c) => c.characterId);
   const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, imageUrl: true, rarity: true, type: true } });
   return Object.fromEntries(rows.map((r) => [r.id, { name: r.name, imageUrl: r.imageUrl, rarity: r.rarity, type: r.type }]));

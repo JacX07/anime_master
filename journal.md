@@ -552,3 +552,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : `setBattleAuto` mémorise l'Auto sur le combat ; `finishAutoBattles` le termine au lancement suivant (avant l'abandon). Fin immédiate aussi au démontage du lecteur.
 - Validation : navigateur PC, compte jetable : combat en Auto laissé par rechargement, puis relancé : l'ancien est DONE (victoire), pas ABANDONED. Non vérifié : fermeture réelle de l'onglet, mobile, site après push.
 - Piège : en test, « Combattre en manuel » démarre déjà en Auto ; cliquer sur l'interrupteur le désactive.
+
+## 2026-11-11 — Arène live : socle serveur
+- Décisions (utilisateur) : 4v4 en direct, sonde courte ~1,5 s (Vercel/Supabase, pas de websocket), chrono 20 s avec l'automatique en relais, file Elo avec fantôme après 30 s. Spec : `docs/specs/pvp.md` « Arène live ».
+- Code : table `ArenaMatch` (migration `20261111100000_arena_live`, appliquée sur la base Supabase du `.env` avec accord explicite), `src/lib/arena.ts`, `scripts/check-arena.ts` (28 vérifications, `npm run check:arena`). Le moteur est inchangé ; le joueur B voit le journal inversé (`swapSides`).
+- Piège : une ligne en file qui en rejoint une autre disparaît ; `arenaEnqueue` renvoie l'identifiant du match de l'adversaire, pas celui qu'il vient de créer.
+- Reste à faire : actions serveur, page `/arene` (file, match live avec BattlePlayer, résultat), classement ; vérification navigateur à deux comptes.

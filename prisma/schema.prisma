@@ -209,6 +209,8 @@ model User {
   /// Duels lancés pendant la journée `duelsStartedDate`
   duelsStartedToday   Int                    @default(0)
   duelsStartedDate    DateTime?
+  arenaAsA            ArenaMatch[]           @relation("ArenaA")
+  arenaAsB            ArenaMatch[]           @relation("ArenaB")
   duelsSent           Duel[]                 @relation("DuelChallenger")
   duelsReceived       Duel[]                 @relation("DuelOpponent")
   duelSlots           DuelSlot[]
@@ -1105,4 +1107,48 @@ model GearPreset {
   createdAt   DateTime @default(now())
 
   @@index([userId])
+}
+
+enum ArenaStatus {
+  QUEUED
+  RUNNING
+  DONE
+  ABANDONED
+}
+
+/// Match d'arène live 4v4 (v0.3.0). A est le joueur qui a lancé la recherche ; B l'adversaire (null : en file, ou fantôme).
+model ArenaMatch {
+  id          String      @id @default(cuid())
+  playerAId   String
+  playerA     User        @relation("ArenaA", fields: [playerAId], references: [id], onDelete: Cascade)
+  playerBId   String?
+  playerB     User?       @relation("ArenaB", fields: [playerBId], references: [id], onDelete: SetNull)
+  /// Adversaire joué par l'automatique (équipe copiée, joueur non prévenu)
+  ghost       Boolean     @default(false)
+  status      ArenaStatus @default(QUEUED)
+  seed        Int
+  /// Équipe de A figée à la mise en file ; équipe de B figée à l'appariement
+  teamA       Json
+  teamB       Json?
+  /// Actions des deux camps dans l'ordre : { spell, target }[]
+  actions     Json        @default("[]")
+  steps       Int         @default(0)
+  /// Fin du chrono de l'action en cours
+  deadline    DateTime?
+  /// Expirations consécutives de chaque camp (3 = forfait)
+  missedA     Int         @default(0)
+  missedB     Int         @default(0)
+  /// "A", "B" ou null (nul)
+  winner      String?
+  eloA        Int?
+  eloB        Int?
+  eloChangeA  Int?
+  eloChangeB  Int?
+  createdAt   DateTime    @default(now())
+  startedAt   DateTime?
+  endedAt     DateTime?
+
+  @@index([status, createdAt])
+  @@index([playerAId, status])
+  @@index([playerBId, status])
 }

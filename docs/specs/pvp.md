@@ -4,7 +4,7 @@
 
 ## Arène (combat 4 contre 4) *(décidé le 2026-10-31)*
 
-> Remplace le duel quiz de l'étape 4 ci-dessous, qui reste codé tant que l'arène ne l'est pas. Le combat lui-même est décrit dans [combat.md](combat.md).
+> Remplace le duel quiz de l'étape 4 ci-dessous, qui reste codé tant que l'arène ne l'est pas. L'arène est désormais **live** (section suivante). Le combat lui-même est décrit dans [combat.md](combat.md).
 
 - **Asynchrone** : on affronte l'équipe de défense d'un joueur absent.
 - **Matchmaking** : appariement automatique par Elo. Le matchmaking en direct viendra peut-être plus tard.
@@ -13,6 +13,18 @@
 - **Récompenses** : prestige et cosmétiques uniquement, jamais de ressource d'éveil.
 - **Défense cachée** jusqu'au début du combat, puis visible dans le replay.
 - Elo : repris de l'étape 4 §5 (départ 1 000, K = 32), sauf décision contraire.
+
+## Arène live *(v0.3.0, décidé le 2026-11-11 : remplace le côté asynchrone ci-dessus)*
+
+- **Format** : 4 contre 4, **en direct**. Chaque joueur joue les 4 cartes de sa propre équipe : quand une de ses cartes agit, il choisit le sort et la cible. Budget d'équipe 24 (voir [combat.md §6](combat.md)). Moteur de combat inchangé, mêmes règles qu'en PvE (le 30ᵉ tour départage aux PV restants, pas de défaite automatique).
+- **File d'attente** : « Chercher un adversaire » place le joueur en file avec son équipe d'attaque figée. Le premier adversaire en file dont l'Elo est proche (±150, élargi de ±50 toutes les 10 s) est apparié. Après **30 s** sans adversaire, le joueur affronte une **équipe fantôme** : l'équipe de défense d'un autre joueur proche en Elo, ou à défaut une équipe générée sous budget. Le fantôme est joué par l'automatique et n'est pas prévenu.
+- **Synchronisation** : sonde courte du navigateur (~1,5 s, seulement pendant la file et un match) ; le serveur reste la seule source de vérité (graine + liste des actions des deux camps, même principe que le mode manuel).
+- **Chrono** : **20 s** par action. Temps écoulé : la stratégie automatique joue à la place du joueur. Un joueur qui laisse le chrono expirer **3 fois de suite** est déclaré forfait.
+- **Perspective** : chaque joueur se voit en bas (camp A à l'écran). Le serveur inverse les camps du journal pour le joueur qui est B dans le moteur.
+- **Abandon** : défaite immédiate. Fermer la page n'abandonne pas : l'automatique prend le relais à chaque expiration du chrono.
+- **Elo** : celui des duels (`User.elo`, K = 32, départ 1 000). Contre un fantôme ou un adversaire déjà affronté dans les 24 h, le gain d'Elo est divisé par 2 ; un fantôme ne fait jamais perdre d'Elo au joueur qui l'affronte au-delà de −16.
+- **Récompenses** : prestige (Elo, classement) uniquement ; pas de Ryō, pas de ressource d'éveil, pas d'énergie.
+- **Hors périmètre du premier lot** : saisons, cosmétiques, replay d'un match passé, spectateurs.
 
 ---
 
