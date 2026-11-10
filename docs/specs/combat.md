@@ -557,7 +557,12 @@ Règles appliquées à tous les sorts de personnage (`src/lib/spell-rules.ts`, a
 - **Silence sur une seule cible** : celle du sort s'il vise un ennemi, sinon l'ennemi à l'ATK la plus élevée. Zone conservée sur 5 ultimes : Lelouch, L, Aizawa, Saiki, Aizen.
 - **Soin sur soi plafonné à 35 %** des PV max par sort (Eren : 100 % → 35 %). Les soins d'alliés ne sont pas plafonnés.
 - **Provocation** : 2 tours au plus si c'est le seul effet du sort, 1 tour si elle s'accompagne d'autres effets. Au tour immédiat d'un sort de soutien personnel, la provocation garde son tour (sinon elle expirait avant que les ennemis jouent).
+- **Une seule provocation par personnage** : elle reste sur son sort le plus fréquent (secondaire, sinon tertiaire) et quitte les autres (18 personnages, liste `TAUNT_STRIP`).
+- **Réduction de dégâts subis divisée par 2** et limitée à 2 tours (ex. ultime de tank −50 % · 3 tours → −25 % · 2 tours).
+- **Ultimes** : bouclier et soin d'équipe plafonnés à 20 % des PV max.
 - Gojo : bouclier de l'attaque de base 8 % (au lieu de 0,08 %, valeur erronée).
+
+Mesure (`simulate:balance`, 20 000 combats par rareté) : les tanks reviennent autour de 50 % (Mikasa 77,6 → 52,3 %, Koyomi 78,7 → 46,1 %) ; UR entre 33 et 66 %.
 
 Lisibilité :
 - **Ordre** : le bandeau montre les 8 prochains passages (alliés et ennemis).
