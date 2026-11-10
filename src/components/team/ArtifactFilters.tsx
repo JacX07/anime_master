@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Rarity } from "@/generated/prisma/enums";
 import { artifactRarity, artifactStatLabel } from "@/lib/artifact-display";
-import { DUNGEONS } from "@/lib/dungeons";
+import { DUNGEONS, MAIN_STATS_BY_SLOT, type ArtifactSlot } from "@/lib/dungeons";
 
 type Filterable = { artifact?: { rarity: Rarity; mainStat: string; subStats: { stat: string }[]; setKey?: string; equippedCard: unknown | null } };
 const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
@@ -29,10 +29,11 @@ export function useArtifactFilter<T extends Filterable>(items: T[]) {
 }
 export type ArtifactFilter = ReturnType<typeof useArtifactFilter>;
 
-export function ArtifactFilterBar({ filter, sets = true }: { filter: Pick<ArtifactFilter, "state" | "set" | "active" | "reset">; sets?: boolean }) {
+export function ArtifactFilterBar({ filter, sets = true, slot }: { filter: Pick<ArtifactFilter, "state" | "set" | "active" | "reset">; sets?: boolean; /** Emplacement affiché : seules ses stats principales possibles sont proposées */ slot?: ArtifactSlot }) {
   const { state, set } = filter;
+  const mains = slot ? STATS.filter((s) => MAIN_STATS_BY_SLOT[slot].includes(s)) : STATS;
   return <div className="card-filters artifact-filters" role="group" aria-label="Filtrer les artefacts">
-    <select aria-label="Stat principale" value={state.main} onChange={(e) => set.setMain(e.target.value)}><option value="">Toute stat principale</option>{STATS.map((s) => <option key={s} value={s}>{label(s)}</option>)}</select>
+    <select aria-label="Stat principale" value={state.main} onChange={(e) => set.setMain(e.target.value)}><option value="">Toute stat principale</option>{mains.map((s) => <option key={s} value={s}>{label(s)}</option>)}</select>
     <select aria-label="Sous-stat" value={state.sub} onChange={(e) => set.setSub(e.target.value)}><option value="">Toute sous-stat</option>{STATS.map((s) => <option key={s} value={s}>{label(s)}</option>)}</select>
     <select aria-label="Rareté" value={state.rarity} onChange={(e) => set.setRarity(e.target.value as Rarity | "")}><option value="">Toutes raretés</option>{RARITIES.map((r) => <option key={r} value={r}>{r} · {artifactRarity(r).label}</option>)}</select>
     {sets && <select aria-label="Set" value={state.set} onChange={(e) => set.setSet(e.target.value)}><option value="">Tous les sets</option>{DUNGEONS.map((d) => <option key={d.key} value={d.key}>{d.universe}</option>)}</select>}

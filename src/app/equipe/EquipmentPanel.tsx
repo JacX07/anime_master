@@ -65,7 +65,7 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
     <div className="gear-slots" role="group" aria-label="Choisir un emplacement d’équipement">
       {(["ARME", ...ARTIFACT_SLOTS] as Slot[]).map((key) => {
         const worn = artifacts.find((item) => item.artifact!.slot === key && item.artifact!.equippedCard?.id === card.id);
-        return <button type="button" key={key} data-rarity={worn?.artifact!.rarity} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(slot === key ? null : key); setSelectedKey(slot === key ? null : worn?.key ?? null); setMessage(""); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
+        return <button type="button" key={key} data-rarity={worn?.artifact!.rarity} aria-pressed={slot === key} aria-controls="gear-compatible" onClick={() => { setSlot(slot === key ? null : key); setSelectedKey(slot === key ? null : worn?.key ?? null); setMessage(""); artifactFilter.reset(); }} title={key === "ARME" ? weapon?.name ?? "Arme non forgée" : worn?.name ?? "Emplacement vide"}>
           {worn?.image ? <Image src={worn.image} width={64} height={64} alt="" /> : <SlotIcon slot={key} />}
           <span><strong>{key === "ARME" ? "Arme" : SLOT_NAMES[key]}</strong>
           <small>{key === "ARME" ? weapon ? "Équipée" : "Vide" : worn ? `+${worn.artifact!.level}` : "Vide"}</small></span>
@@ -77,7 +77,7 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
     {slot && <div className="gear-compatible" id="gear-compatible" onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); if (selected) closeDetails(); else setSlot(null); } }}>
       <header className="gear-picker-head"><h3>{slot === "ARME" ? "Arme du personnage" : `${SLOT_NAMES[slot]} · objets compatibles (${visible.length})`}</h3><button type="button" className="gear-close" onClick={() => { setSlot(null); setSelectedKey(null); setMessage(""); }}>Fermer la liste</button></header>
       {slot === "ARME" ? <div className="gear-weapon"><SlotIcon slot="ARME" /><h4>{weapon?.name ?? "Aucune arme forgée"}</h4><p>{weapon ? weapon.passive : "Les armes légendaires se forgent sur une carte à 5 étoiles et restent liées à cet exemplaire."}</p><Link href={card.stars === 5 ? "/forge" : "/eveil"}>{weapon ? "Voir à la forge" : card.stars === 5 ? "Forger une arme" : "Éveiller cette carte à 5★"}</Link></div> : <>
-        {inSlot.length > 1 && <ArtifactFilterBar filter={artifactFilter} />}
+        {inSlot.length > 1 && <ArtifactFilterBar filter={artifactFilter} slot={slot} />}
         <div className="gear-workspace">
           <div className="artifact-tile-grid" role="group" aria-label="Artefacts compatibles">{visible.map((item) => <ArtifactTile key={item.key} item={item} selected={selectedKey === item.key} controls={detailId} onSelect={() => {
             setSelectedKey(item.key); setMessage("");
