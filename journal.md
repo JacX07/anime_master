@@ -509,6 +509,7 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : `graphify update .` réussit mais signale 53 fichiers SQL ignorés (`tree_sitter_sql` absent) et recrée une vue agrégée au-delà de 5 000 nœuds.
 - Cause : dépendance SQL optionnelle absente ; graphe antérieur moins complet que l’extraction AST actuelle.
 - État : graphe TypeScript actualisé (5 423 nœuds). Les migrations restent couvertes par Prisma et les contrôles sur la base ; le graphe ne décrit pas leur SQL. Fichiers générés et sauvegarde automatique conservés hors commits de fonctionnalité, comme lors de la précédente reprise.
+- Tentative suivante, après la correction du texte d’éveil : arrêt avec le code 143 après extraction AST ; la fin de la régénération du graphe n’est pas confirmée. La cause de cet arrêt n’a pas été identifiée. Le correctif applicatif a été vérifié indépendamment avant et après push.
 
 ## 2026-11-10 — Animation d’éveil après rafraîchissement serveur
 - Point à préserver : la liste serveur retire une carte devenue maximale ; une animation portée uniquement par cette ligne disparaîtrait avant d’être visible.
