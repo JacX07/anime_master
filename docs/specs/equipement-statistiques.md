@@ -52,4 +52,4 @@ Les bonus de set de dégâts magiques préexistants conservent leur règle propr
 - Le taux critique total n'a pas d'autre plafond que 100 %.
 - **Objets existants** : stat principale recalculée selon leur niveau (migration `20261110140000_artifact_main_stats`) ; leurs sous-stats ne changent pas.
 - **Noms et couleurs** alignés sur les personnages : N Commun gris, R Rare bleu, SR Épique violet, SSR Légendaire orange, UR **Mythique** rouge.
-- **Squads** : « Améliorer » a une liste déroulante du niveau visé (paliers ★ à 4, 8, 12, 16) avec le coût cumulé ; bouton « Recycler » sur un objet non équipé.
+- **Squads** : « Améliorer » monte d'un niveau à la fois (pas d'amélioration directe à un palier) ; bouton « Recycler » sur un objet non équipé, confirmé dans la page.

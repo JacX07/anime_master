@@ -10,7 +10,7 @@ import { equipArtifactAction } from "@/app/battle-actions";
 import { recycleArtifactsAction, upgradeArtifactAction } from "@/app/artifact-actions";
 import { ARTIFACT_SLOTS, SLOT_NAMES } from "@/lib/dungeons";
 import { artifactSubstatUpgrades, artifactRarity, artifactStatIcon, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
-import { ARTIFACT_MAX_LEVEL, artifactRecycleValue, artifactUpgradeTotal } from "@/lib/artifact-upgrade";
+import { ARTIFACT_MAX_LEVEL, artifactRecycleValue, artifactUpgradeCost } from "@/lib/artifact-upgrade";
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { GearPreview } from "./StatisticsPanel";
@@ -36,8 +36,6 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
   const detailId = useId();
   const [pending, start] = useTransition();
   const [message, setMessage] = useState("");
-  // Niveau visé par « Améliorer » (liste déroulante) ; par défaut le niveau suivant
-  const [target, setTarget] = useState<{ key: string; level: number } | null>(null);
   // Recyclage en deux clics (sans fenêtre du navigateur, parfois bloquée) : clé de l'objet en attente de confirmation
   const [confirmRecycle, setConfirmRecycle] = useState<string | null>(null);
   const router = useRouter();
@@ -85,8 +83,7 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
           const artifact = item.artifact!;
           const worn = artifact.equippedCard?.id === card.id;
           const max = artifact.level >= ARTIFACT_MAX_LEVEL;
-          const to = target?.key === item.key && target.level > artifact.level ? target.level : artifact.level + 1;
-          const cost = artifactUpgradeTotal(artifact.rarity, artifact.level, Math.min(to, ARTIFACT_MAX_LEVEL));
+          const cost = artifactUpgradeCost(artifact.rarity, artifact.level);
           const recycleValue = artifactRecycleValue(artifact.rarity, artifact.level);
           return <article key={item.key} className="gear-item" data-rarity={artifact.rarity}>
             <header className="gear-detail-heading"><p className="gear-rarity">{artifactRarity(artifact.rarity).label}</p><button type="button" className="gear-close" onClick={closeDetails}>Fermer</button></header>
@@ -97,13 +94,7 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
             </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
             <div className="gear-item-actions">
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
-            {max ? <button type="button" className="gear-upgrade" disabled>Niveau maximum +16</button>
-              : <div className="gear-upgrade gear-upgrade-split" data-disabled={pending || inventory.balance < cost || undefined}>
-                <button type="button" className="gear-upgrade-go" disabled={pending || inventory.balance < cost} onClick={() => { setTarget(null); run(() => upgradeArtifactAction(artifact.id, artifact.level, to), `Objet amélioré au niveau +${to}.`); }}>Améliorer</button>
-                <label className="gear-upgrade-target"><span className="sr-only">Niveau visé</span><select value={to} disabled={pending} onChange={(e) => setTarget({ key: item.key, level: Number(e.target.value) })}>
-                  {Array.from({ length: ARTIFACT_MAX_LEVEL - artifact.level }, (_, i) => artifact.level + 1 + i).map((l) => <option key={l} value={l}>{`+${l}${l % 4 === 0 ? " ★" : ""} · ${artifactUpgradeTotal(artifact.rarity, artifact.level, l).toLocaleString("fr-FR")} Ryō`}</option>)}
-                </select></label>
-              </div>}
+            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button>
             </div>
             {!worn && !artifact.equippedCard && (confirmRecycle === item.key
               ? <div className="gear-recycle-confirm" role="group" aria-label="Confirmer le recyclage"><span>Recycler définitivement contre {recycleValue.toLocaleString("fr-FR")} Ryō ?</span><button type="button" className="ui-button" disabled={pending} onClick={() => { setConfirmRecycle(null); setSelectedKey(null); run(() => recycleArtifactsAction([artifact.id]), `Objet recyclé : +${recycleValue.toLocaleString("fr-FR")} Ryō.`); }}>Confirmer</button><button type="button" className="ui-button" onClick={() => setConfirmRecycle(null)}>Annuler</button></div>
