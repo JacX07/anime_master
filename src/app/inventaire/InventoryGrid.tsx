@@ -1,6 +1,7 @@
 "use client";
 
 import { recycleArtifactsAction, upgradeArtifactAction } from "@/app/artifact-actions";
+import { ArtifactFilterBar, useArtifactFilter } from "@/components/team/ArtifactFilters";
 import { ARTIFACT_MAX_LEVEL, artifactRecycleValue, artifactUpgradeCost } from "@/lib/artifact-upgrade";
 
 import { useRef, useState, useTransition } from "react";
@@ -34,7 +35,8 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
   const [sort, setSort] = useState("quantity");
   const [showEmpty, setShowEmpty] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const visible = filterInventory(items, category, query, universe, showEmpty, sort);
+  const artifactFilter = useArtifactFilter(filterInventory(items, category, query, universe, showEmpty, sort));
+  const visible = artifactFilter.filtered;
   const selected = visible.find((item) => item.key === selectedKey);
   function closeDetails() {
     document.getElementById(`inventory-detail-${selectedKey}`)?.focus();
@@ -82,6 +84,7 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
       <label><span className="sr-only">Trier les objets</span><select value={sort} onChange={(e) => setSort(e.target.value)}><option value="quantity">Quantité décroissante</option><option value="name">Nom de A à Z</option></select></label>
     </div>
     <div className="inventory-options"><p role="status">{visible.length} objet{visible.length > 1 ? "s" : ""} affiché{visible.length > 1 ? "s" : ""}</p><label><input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />Afficher les non possédés</label></div>
+    {(category === "Tout" || category === "Équipement") && items.some((item) => item.artifact) && <ArtifactFilterBar filter={artifactFilter} sets={false} />}
     {(category === "Tout" || category === "Équipement") && items.some((item) => item.artifact) && <div className="inventory-recycle" role="group" aria-label="Recycler des artefacts en lot">
       <span>Recycler les artefacts non équipés jusqu’à</span>
       <select value={recycleMax} onChange={(e) => setRecycleMax(e.target.value as (typeof RANK)[number])} aria-label="Rareté maximale">{RANK.map((r) => <option key={r} value={r}>{r} · {artifactRarity(r).label}</option>)}</select>
