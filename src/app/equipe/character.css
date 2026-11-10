@@ -31,11 +31,11 @@
 .eq-character-dialog .cd-gear-balance { margin: 0; text-align: center; color: var(--gold); font-size: .8rem; }
 
 /* Carte au centre, nom et animé bien visibles au-dessus */
-.eq-character-dialog .cd-hero { margin: 0; align-content: start; display: grid; grid-template-rows: auto auto auto auto; gap: .7rem; min-height: 0; }
+.eq-character-dialog .cd-hero { margin: 0; align-content: start; display: grid; grid-template-rows: max-content minmax(8rem, 1fr) max-content max-content; grid-auto-rows: max-content; gap: .7rem; min-height: 0; min-width: 0; overflow-y: auto; }
 .eq-character-dialog .cd-title { display: grid; gap: .25rem; text-align: center; padding-bottom: .7rem; border-bottom: 1px solid #d5bb7f55; }
 .eq-character-dialog .cd-title b { font: 500 clamp(1.5rem, 2.6vw, 2.1rem)/1.1 var(--font-cinzel), serif; letter-spacing: -.01em; color: var(--gold-hi); }
 .eq-character-dialog .cd-title span { font-size: .85rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
-.eq-character-dialog .cd-hero .eq-art { aspect-ratio: 3 / 4; height: auto; width: 100%; border: 2px solid var(--rarity); border-radius: 8px; background: #030505; }
+.eq-character-dialog .cd-hero .eq-art { aspect-ratio: auto; height: 100%; max-height: 22rem; min-height: 0; width: 100%; border: 2px solid var(--rarity); border-radius: 8px; background: #030505; }
 .eq-character-dialog .cd-hero .eq-art img { object-fit: cover; }
 .eq-character-dialog .cd-hero[data-rarity="N"] { --rarity: var(--rarity-N); }
 .eq-character-dialog .cd-hero[data-rarity="R"] { --rarity: var(--rarity-R); }
@@ -75,6 +75,7 @@
   .mq-app-shell .eq-character-dialog, .eq-character-dialog { height: 94dvh; max-height: 94dvh; overflow-y: auto; overscroll-behavior: contain; }
   .eq-character-dialog .cd { height: auto; grid-template-columns: 1fr; padding-top: 3.8rem; }
   .eq-character-dialog .gear-slots { grid-template-columns: repeat(2, 1fr); }
+  .eq-character-dialog .cd-hero { grid-template-rows: none; overflow: visible; }
   .eq-character-dialog .cd-hero .eq-art { height: 22rem; }
   .eq-character-dialog .cd-side { padding-right: 0; }
   .eq-character-dialog .gear-compatible { position: fixed; inset: 3vh 3vw; left: 3vw; }
