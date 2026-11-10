@@ -68,3 +68,10 @@
 .inventory .mq-inventory-grid { align-items: stretch; }
 .mq-app-shell .inventory .mq-inventory-grid .artifact-tile { width: 100%; height: 100%; min-height: 118px; padding: 14px; }
 .mq-app-shell .inventory .mq-inventory-grid .artifact-tile > :is(img, svg) { max-width: 96px; max-height: 96px; margin: auto; }
+
+/* Recyclage des artefacts (v0.3.0) */
+.inventory-recycle { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin: 0 0 1rem; font-size: .82rem; color: #b4b2aa; }
+.inventory-recycle select { background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .3rem .5rem; font: inherit; }
+.inventory-recycle select:focus-visible, .inventory-recycle input:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.inventory-recycle label { display: inline-flex; align-items: center; gap: .35rem; }
+.inventory-notice { margin: 0 0 1rem; color: #7fd48b; font-size: .85rem; }

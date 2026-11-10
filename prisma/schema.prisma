@@ -370,6 +370,7 @@ model BannerCharacter {
 enum LedgerReason {
   GUILD_CREATE
   ARTIFACT_UPGRADE
+  ARTIFACT_RECYCLE
   QUICK_SELL
   DAILY
   PACK_BUY
