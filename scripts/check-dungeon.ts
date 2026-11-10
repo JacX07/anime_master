@@ -21,8 +21,9 @@ async function main() {
   }
   check("Emplacements accessibles et proches de 25 % sur 80 000 graines", slots.size === 4 && [...slots.values()].every((n) => Math.abs(n / 80_000 - 0.25) < 0.01), [...slots].map(([s, n]) => `${s} ${(100 * n / 80_000).toFixed(1)} %`).join(", "));
   check("Cinq stats de gants équiprobables, compétence magique incluse", gloveStats.size === 5 && gloveStats.has("magicSkill") && [...gloveStats.values()].every((n) => Math.abs(n / (slots.get("GANTS") ?? 1) - 1 / 5) < 0.02), [...gloveStats].map(([s, n]) => `${s} ${(100 * n / (slots.get("GANTS") ?? 1)).toFixed(1)} %`).join(", "));
-  check("Valeurs plates des gants dans les plages documentées", (["N", "R", "SR", "SSR", "UR"] as const).every((rarity) => {
-    const expected = { N: [20, 16, 101], R: [57, 45, 285], SR: [140, 107, 692], SSR: [333, 249, 1628], UR: [653, 436, 3049] }[rarity];
+  // v0.3.0 : la stat principale ne dépend plus de la rareté (seule l'amélioration la fait monter)
+  check("Valeurs plates des gants identiques pour toutes les raretés", (["N", "R", "SR", "SSR", "UR"] as const).every((rarity) => {
+    const expected = [57, 45, 285];
     for (let seed = 0; seed < 20_000; seed++) {
       const main = artifactMainStat("GANTS", rarity, seed);
       if (main.stat === "flatAttack" && main.value !== expected[0]) return false;
@@ -31,10 +32,9 @@ async function main() {
     }
     return true;
   }));
-  check("Valeurs % et critiques restent dans les tables existantes", (["N", "R", "SR", "SSR", "UR"] as const).every((rarity) => {
-    const tier = ["N", "R", "SR", "SSR", "UR"].indexOf(rarity);
-    const expected: Record<string, number[]> = { crit: [0.03, 0.05, 0.08, 0.12, 0.16], critDamage: [0.05, 0.1, 0.17, 0.26, 0.36], attack: [0.025, 0.04, 0.065, 0.11, 0.16], defense: [0.025, 0.04, 0.065, 0.11, 0.16], hp: [0.025, 0.04, 0.065, 0.11, 0.16] };
-    return Array.from({ length: 100 }, (_, seed) => artifactMainStat("GANTS", rarity, seed)).every((main) => expected[main.stat] ? main.value === expected[main.stat][tier] : true);
+  check("Valeurs % et critiques de départ identiques pour toutes les raretés", (["N", "R", "SR", "SSR", "UR"] as const).every((rarity) => {
+    const expected: Record<string, number> = { crit: 0.04, critDamage: 0.08, attack: 0.04, magicSkill: 0.04 };
+    return Array.from({ length: 100 }, (_, seed) => artifactMainStat("GANTS", rarity, seed)).every((main) => expected[main.stat] !== undefined ? main.value === expected[main.stat] : true);
   }));
   check("Les sous-stats excluent la stat principale avec des flux aléatoires séparés", (["CASQUE", "PLASTRON", "GANTS", "BOTTES"] as const).every((slot) => Array.from({ length: 2_000 }, (_, seed) => {
     const main = artifactMainStat(slot, "UR", seed ^ 0x4d3c2b1a).stat;

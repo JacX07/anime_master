@@ -434,9 +434,9 @@ Histoire, Tour, donjons et raids ouvrent le même écran avant le combat (`src/c
 - **Ennemis** : visibles pour l'histoire, les donjons et les raids (`getBattlePreview`) ; la Tour ne montre que leurs raretés, comme avant.
 - Donjons : les boutons « Manuel » / « Auto » de chaque difficulté deviennent « Préparer » ; le choix manuel ou auto se fait sur l'écran de préparation.
 
-## Rejouer en boucle et combats en arrière-plan *(v0.3.0)*
+## Terminer, arrière-plan et effets de sorts *(v0.3.0)*
 
 - **Terminer** : en plein combat, le bouton « fin » du lecteur fait jouer toute la suite en automatique côté serveur (`playAction(..., toEnd)`), sans animation ; l'écran saute au résultat.
 - **Onglet en arrière-plan** : en auto, quand la page passe en arrière-plan (autre onglet), le combat est terminé côté serveur aussitôt (les minuteries des onglets masqués sont ralenties). Un combat déjà résolu saute simplement son animation.
-- **Répéter ce combat** (histoire et donjons, écran de fin) : après une victoire, le même combat est relancé en auto après 3 s ; tout de suite si l'onglet est masqué ou si « Sans animation » est coché (le combat se résout alors sans animation). La boucle s'arrête sur une défaite (énergie rendue) ou quand l'énergie manque. Réglages gardés dans le navigateur (`bt-repeat`, `bt-instant`). En histoire, « Répéter » prime sur « Enchaîner ».
-- Pas de combat éclair : chaque répétition est un vrai combat enregistré.
+- **Effets de sorts** (bouton du lecteur, et case « Rejouer sans effets de sorts » sur l'écran de fin de l'histoire et des donjons) : désactivés, le combat se joue quand même à l'écran (cartes, PV, dégâts) sans les effets visuels des sorts, deux fois plus vite. Réglage gardé dans le navigateur (`bt-fx`).
+- **Rejouer** lance un nouveau combat : mêmes ennemis et même composition, nouveau tirage aléatoire (dégâts, critiques, esquives). Pas de boucle automatique ni de combat éclair.

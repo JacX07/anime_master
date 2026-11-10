@@ -49,7 +49,8 @@ async function main() {
     await startBattle(id, "test", false);
     const after = await prisma.battle.findFirstOrThrow({ where: { userId: id }, orderBy: { createdAt: "desc" } });
     const getStart = (row: typeof before) => (row.log as unknown as { kind: string; units: { id: string; atk: number; maxHp: number; def: number }[] }[]).find((event) => event.kind === "start")!.units.find((u) => u.id === "A1")!;
-    assert(Math.abs(getStart(after).atk - getStart(before).atk - characters[0].attack * .005) < 1e-5);
+    // v0.3.0 : la stat principale passe à la formule fixe du niveau 1 (4 % + 2 %), quelle que soit sa valeur de départ
+    assert(Math.abs(getStart(after).atk - getStart(before).atk - characters[0].attack * (.06 - .1)) < 1e-5);
     assert.equal(getStart(after).def, getStart(before).def);
     assert.equal(getStart(after).maxHp, getStart(before).maxHp);
     console.log("Statistiques vérifiées : bonus séparés, set, valeurs fixes, porteur et effet réel d’une amélioration sur le combat.");

@@ -35,3 +35,21 @@ Les bonus de set de dégâts magiques préexistants conservent leur règle propr
 - Un artefact **non équipé** se recycle contre des Ryō : `{N 10, R 25, SR 60, SSR 150, UR 300}` + **70 %** des Ryō dépensés pour l'améliorer (`artifactRecycleValue`). Définitif, confirmation demandée.
 - Inventaire : bouton « Recycler · +X Ryō » sur la fiche ; barre « Recycler les artefacts non équipés jusqu'à [rareté] », améliorés exclus sauf case cochée, avec le nombre et le total.
 - Journal : une ligne `ARTIFACT_RECYCLE` par objet (migration `20261110130000_artifact_recycle`). Tout ou rien : si un objet est équipé ou a disparu entre-temps, rien n'est recyclé.
+
+## Stats des artefacts et raretés *(v0.3.0, remplace l'échelle par rareté)*
+
+- **Stat principale identique pour toutes les raretés**, seule l'amélioration la fait monter (`ARTIFACT_MAIN`, `mainValueAt`) :
+
+| Stat principale | +0 | par niveau | +16 |
+|---|---|---|---|
+| ATK %, DEF %, PV %, compétence magique | 4 % | +2 % | 36 % |
+| Taux critique | 4 % | +3,5 % | 60 % |
+| Dégâts critiques | 8 % | +4,5 % | 80 % |
+| Vitesse | 8 | +2 | 40 |
+| ATK / DEF / PV fixes | 57 / 45 / 285 | +25 % de la base | ×5 |
+
+- **La rareté ne joue que sur les sous-stats** : nombre (N 0, R 1, SR 2, SSR et UR 3) et valeur ×1 / ×1,25 / ×1,5 / ×1,75 / ×2. Les sous-stats révélées par l'amélioration prennent le multiplicateur de la rareté de l'objet.
+- Le taux critique total n'a pas d'autre plafond que 100 %.
+- **Objets existants** : stat principale recalculée selon leur niveau (migration `20261110140000_artifact_main_stats`) ; leurs sous-stats ne changent pas.
+- **Noms et couleurs** alignés sur les personnages : N Commun gris, R Rare bleu, SR Épique violet, SSR Légendaire orange, UR **Mythique** rouge.
+- **Squads** : « Améliorer » a une liste déroulante du niveau visé (paliers ★ à 4, 8, 12, 16) avec le coût cumulé ; bouton « Recycler » sur un objet non équipé.

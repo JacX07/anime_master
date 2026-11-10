@@ -13,11 +13,12 @@ export const artifactStatValue = (stat: string, value: number) =>
 
 /** Quatre familles visuelles ; les valeurs des anciens grades SSR/UR restent intactes. */
 export const artifactRarity = (rarity: Rarity) => ({
-  N: { label: "Commun", tone: "gray" as const, color: "#a7b4c9" },
-  R: { label: "Rare", tone: "blue" as const, color: "#65b9ff" },
-  SR: { label: "Épique", tone: "violet" as const, color: "#b68bff" },
-  SSR: { label: "Légendaire", tone: "gold" as const, color: "#ffc45c" },
-  UR: { label: "Légendaire", tone: "gold" as const, color: "#ffc45c" },
+  // Mêmes couleurs que les raretés des personnages (--rarity-*) ; l'UR a son propre nom (v0.3.0)
+  N: { label: "Commun", tone: "gray" as const, color: "#94a3b8" },
+  R: { label: "Rare", tone: "blue" as const, color: "#38bdf8" },
+  SR: { label: "Épique", tone: "violet" as const, color: "#a855f7" },
+  SSR: { label: "Légendaire", tone: "gold" as const, color: "#f59e0b" },
+  UR: { label: "Mythique", tone: "gold" as const, color: "#ff3b4a" },
 }[rarity]);
 
 export const ONE_PIECE_ARTIFACT_NAMES: Record<string, string> = {

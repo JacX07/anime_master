@@ -19,6 +19,7 @@ import { SpellsPanel } from "./BattlePanels";
 import { BattleVictory } from "./BattleVictory";
 import "./battle.css";
 import { BattleAudio } from "./sound";
+import { useSpellFx } from "./RepeatControls";
 
 export interface PlayerCharacter {
   name: string;
@@ -97,6 +98,9 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
   const [rp, setRp] = useState<Replay>(() => replayStart(log));
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
+  // Effets de sorts désactivés : pas d'effets visuels des sorts, combat joué deux fois plus vite (v0.3.0)
+  const [spellFx, setSpellFx] = useSpellFx();
+  const pace = spellFx ? speed : speed * 2;
   // En direct (mode manuel), le journal grandit : rattraper le journal ne veut pas dire que le combat est fini
   const caughtUp = rp.idx >= log.length;
   const finished = caughtUp && (!live || rp.end !== null);
@@ -129,12 +133,12 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     if (!playing || caughtUp) return;
     const hold = playbackHold.current;
     const started = performance.now();
-    const t = setTimeout(() => setRp((s) => replayStep(s, log)), hold.remaining / speed);
+    const t = setTimeout(() => setRp((s) => replayStep(s, log)), hold.remaining / pace);
     return () => {
       clearTimeout(t);
-      hold.remaining = Math.max(0, hold.remaining - (performance.now() - started) * speed);
+      hold.remaining = Math.max(0, hold.remaining - (performance.now() - started) * pace);
     };
-  }, [playing, caughtUp, speed, rp.idx, log]);
+  }, [playing, caughtUp, pace, rp.idx, log]);
 
   useEffect(() => {
     if (finished) onEnd?.();
@@ -221,7 +225,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     const ev = log[rp.idx - 1];
     const root = stage.current;
     const controller = vfx.current;
-    if (!controller || !ev || !root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!controller || !ev || !root || !spellFx || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = (id: UnitId) => root.querySelector<HTMLElement>(`[data-unit="${id}"]`);
     if (ev.kind === "action") {
       const a = el(ev.actor);
@@ -288,7 +292,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       );
       if (ev.crit) controller.animate(root,[{ transform: "none" }, { transform: "translate(-6px, 3px)" }, { transform: "translate(5px, -3px)" }, { transform: "none" }], { duration: 300 });
     }
-  }, [rp.idx, rp.info, log]);
+  }, [rp.idx, rp.info, log, spellFx]);
 
   const restart = () => {
     setRp(replayStart(log));
@@ -388,6 +392,9 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
             >
               ×{speed}
               <small>Vitesse</small>
+            </button>
+            <button type="button" className="bt-ico" data-off={!spellFx || undefined} aria-pressed={spellFx} aria-label="Effets de sorts" title={spellFx ? "Effets de sorts : activés" : "Effets de sorts : désactivés (combat plus rapide)"} onClick={() => setSpellFx(!spellFx)}>
+              <Icon name="ultime" />
             </button>
             <button type="button" className="bt-ico" data-off={!sfxOn || undefined} aria-pressed={sfxOn} aria-label="Effets sonores" title="Effets sonores" onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>
               <Icon name="son" />

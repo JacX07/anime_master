@@ -195,7 +195,7 @@ export async function giveArtifacts(userId: string, setKey: string | "ALL", rari
     const seed = Math.floor(Math.random() * 2 ** 31);
     const main = artifactMainStat(slot, rarity, seed);
     let value = main.value, subs = artifactSubStats(slot, rarity, seed ^ 0x7f4a7c15, main.stat);
-    for (let l = 0; l < lv; l++) { value = upgradedMainValue(value, l); subs = upgradedSubStats(subs, l + 1, main.stat); }
+    for (let l = 0; l < lv; l++) { value = upgradedMainValue(main.stat, l); subs = upgradedSubStats(subs, l + 1, main.stat, Math.random, rarity); }
     rows.push({ userId, setKey: set, slot, rarity, level: lv, mainStat: main.stat, mainValue: value, subStats: subs as unknown as object });
   }
   await prisma.artifact.createMany({ data: rows });

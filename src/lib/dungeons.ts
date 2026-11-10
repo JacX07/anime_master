@@ -41,23 +41,30 @@ export const parseDungeonKey = (key: string) => {
   if (level < 1 || level > 10) return null;
   return level;
 };
-export const artifactMainStat = (slot: ArtifactSlot, rarity: Rarity, seed: number) => {
-  const tier = RARITIES.indexOf(rarity);
-  const flatMainValues = { flatAttack: [20, 57, 140, 333, 653], flatDefense: [16, 45, 107, 249, 436], flatHp: [101, 285, 692, 1628, 3049] };
-  const options: Record<string, number> = {
-    flatAttack: flatMainValues.flatAttack[tier], flatDefense: flatMainValues.flatDefense[tier], flatHp: flatMainValues.flatHp[tier],
-    attack: [0.025, 0.04, 0.065, 0.11, 0.16][tier], defense: [0.025, 0.04, 0.065, 0.11, 0.16][tier], hp: [0.025, 0.04, 0.065, 0.11, 0.16][tier],
-    speed: [4, 6, 9, 13, 18][tier], magicSkill: [0.025, 0.04, 0.065, 0.11, 0.16][tier],
-    crit: [0.03, 0.05, 0.08, 0.12, 0.16][tier], critDamage: [0.05, 0.1, 0.17, 0.26, 0.36][tier],
-  };
+/**
+ * Stat principale (v0.3.0) : identique pour toutes les raretés, seule l'amélioration la fait monter (`mainValueAt`).
+ * À +16 : 36 % pour les stats en %, 60 % de critique, 80 % de dégâts critiques, 40 de vitesse, ×5 pour les valeurs fixes.
+ */
+export const ARTIFACT_MAIN: Record<string, { base: number; perLevel: number }> = {
+  attack: { base: 0.04, perLevel: 0.02 }, defense: { base: 0.04, perLevel: 0.02 }, hp: { base: 0.04, perLevel: 0.02 }, magicSkill: { base: 0.04, perLevel: 0.02 },
+  crit: { base: 0.04, perLevel: 0.035 }, critDamage: { base: 0.08, perLevel: 0.045 }, speed: { base: 8, perLevel: 2 },
+  flatAttack: { base: 57, perLevel: 14.25 }, flatDefense: { base: 45, perLevel: 11.25 }, flatHp: { base: 285, perLevel: 71.25 },
+};
+export const mainValueAt = (stat: string, level: number) => {
+  const m = ARTIFACT_MAIN[stat];
+  return m ? Math.round((m.base + m.perLevel * level) * 1e6) / 1e6 : 0;
+};
+export const artifactMainStat = (slot: ArtifactSlot, _rarity: Rarity, seed: number) => {
   const stats = slot === "GANTS" ? ["flatAttack", "attack", "crit", "magicSkill", "critDamage"]
     : slot === "BOTTES" ? ["speed", "flatAttack", "flatDefense", "flatHp", "attack", "defense", "hp"]
     : ["flatHp", "flatDefense", "flatAttack", "hp", "defense", "attack"];
   const stat = stats[Math.floor(randomFor(seed ^ 0xa271)() * stats.length)];
-  return { stat, value: options[stat] };
+  return { stat, value: mainValueAt(stat, 0) };
 };
 export const ARTIFACT_SUBSTAT_BASE: Record<string, number> = { magicSkill: 0.025, hp: 0.025, attack: 0.025, defense: 0.03, flatHp: 90, flatAttack: 18, flatDefense: 18, speed: 2, crit: 0.025, critDamage: 0.05 };
 export type ArtifactSubStat = { stat: string; value: number };
+/** Seule différence entre raretés (v0.3.0) : la valeur des sous-stats, en plus de leur nombre. */
+export const SUBSTAT_RARITY_MULT: Record<Rarity, number> = { N: 1, R: 1.25, SR: 1.5, SSR: 1.75, UR: 2 };
 export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: number, mainStat = artifactMainStat(slot, rarity, seed).stat, count = [0, 1, 2, 3, 3][RARITIES.indexOf(rarity)]): ArtifactSubStat[] => {
   const random = randomFor(seed);
   const choices = ["magicSkill", "hp", "attack", "defense", "flatHp", "flatAttack", "flatDefense", "speed", "crit", "critDamage"].filter((stat) => stat !== mainStat);
@@ -66,7 +73,7 @@ export const artifactSubStats = (slot: ArtifactSlot, rarity: Rarity, seed: numbe
   while (result.length < count && choices.length) {
     const stat = choices.splice(Math.floor(random() * choices.length), 1)[0];
     const quality = [0.8, 0.9, 1][Math.floor(random() * 3)];
-    result.push({ stat, value: Math.round(ARTIFACT_SUBSTAT_BASE[stat] * quality * 10000) / 10000 });
+    result.push({ stat, value: Math.round(ARTIFACT_SUBSTAT_BASE[stat] * quality * SUBSTAT_RARITY_MULT[rarity] * 10000) / 10000 });
   }
   return result;
 };

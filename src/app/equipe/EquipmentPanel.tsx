@@ -7,13 +7,10 @@ import { ArtifactOwner } from "@/components/ArtifactOwner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { equipArtifactAction } from "@/app/battle-actions";
-import { upgradeArtifactAction } from "@/app/artifact-actions";
+import { recycleArtifactsAction, upgradeArtifactAction } from "@/app/artifact-actions";
 import { ARTIFACT_SLOTS, SLOT_NAMES } from "@/lib/dungeons";
 import { artifactSubstatUpgrades, artifactRarity, artifactStatIcon, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
-import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost, artifactUpgradeTotal } from "@/lib/artifact-upgrade";
-
-/** Paliers d'amélioration directe : chacun révèle ou double une sous-stat. */
-const UPGRADE_STEPS = [4, 8, 12, ARTIFACT_MAX_LEVEL];
+import { ARTIFACT_MAX_LEVEL, artifactRecycleValue, artifactUpgradeTotal } from "@/lib/artifact-upgrade";
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { GearPreview } from "./StatisticsPanel";
@@ -39,6 +36,8 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
   const detailId = useId();
   const [pending, start] = useTransition();
   const [message, setMessage] = useState("");
+  // Niveau visé par « Améliorer » (liste déroulante) ; par défaut le niveau suivant
+  const [target, setTarget] = useState<{ key: string; level: number } | null>(null);
   const router = useRouter();
   const weapon = weaponDef(card.weaponKey ?? "");
   const artifacts = inventory.items.filter((item) => item.artifact);
@@ -84,7 +83,9 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
           const artifact = item.artifact!;
           const worn = artifact.equippedCard?.id === card.id;
           const max = artifact.level >= ARTIFACT_MAX_LEVEL;
-          const cost = artifactUpgradeCost(artifact.rarity, artifact.level);
+          const to = target?.key === item.key && target.level > artifact.level ? target.level : artifact.level + 1;
+          const cost = artifactUpgradeTotal(artifact.rarity, artifact.level, Math.min(to, ARTIFACT_MAX_LEVEL));
+          const recycleValue = artifactRecycleValue(artifact.rarity, artifact.level);
           return <article key={item.key} className="gear-item" data-rarity={artifact.rarity}>
             <header className="gear-detail-heading"><p className="gear-rarity">{artifactRarity(artifact.rarity).label}</p><button type="button" className="gear-close" onClick={closeDetails}>Fermer</button></header>
             <h4>{item.name}</h4>
@@ -94,13 +95,13 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
             </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
             <div className="gear-item-actions">
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
-            <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button></div>
-            {!max && <div className="gear-upgrade-jumps" role="group" aria-label="Améliorer directement jusqu’à un palier">
-              {UPGRADE_STEPS.filter((to) => to > artifact.level + 1).map((to) => {
-                const total = artifactUpgradeTotal(artifact.rarity, artifact.level, to);
-                return <button key={to} type="button" className="ui-button" disabled={pending || inventory.balance < total} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level, to), `Objet amélioré au niveau +${to}.`)}>{to === ARTIFACT_MAX_LEVEL ? "Max" : `+${to}`} · {total.toLocaleString("fr-FR")} Ryō</button>;
-              })}
-            </div>}
+            <div className="gear-upgrade-row">
+              {!max && <label className="gear-upgrade-target"><span className="sr-only">Niveau visé</span><select value={to} disabled={pending} onChange={(e) => setTarget({ key: item.key, level: Number(e.target.value) })}>
+                {Array.from({ length: ARTIFACT_MAX_LEVEL - artifact.level }, (_, i) => artifact.level + 1 + i).map((l) => <option key={l} value={l}>{`+${l}${l % 4 === 0 ? " ★" : ""} · ${artifactUpgradeTotal(artifact.rarity, artifact.level, l).toLocaleString("fr-FR")} Ryō`}</option>)}
+              </select></label>}
+              <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => { setTarget(null); run(() => upgradeArtifactAction(artifact.id, artifact.level, to), `Objet amélioré au niveau +${to}.`); }}>{max ? "Niveau maximum +16" : `Améliorer → +${to} · ${cost.toLocaleString("fr-FR")} Ryō`}</button>
+            </div></div>
+            {!worn && !artifact.equippedCard && <button type="button" className="gear-recycle ui-button" disabled={pending} onClick={() => { if (window.confirm(`Recycler ${item.name} +${artifact.level} contre ${recycleValue.toLocaleString("fr-FR")} Ryō ? C’est définitif.`)) { setSelectedKey(null); run(() => recycleArtifactsAction([artifact.id]), `Objet recyclé : +${recycleValue.toLocaleString("fr-FR")} Ryō.`); } }}>Recycler · +{recycleValue.toLocaleString("fr-FR")} Ryō</button>}
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
             {message && <p className="gear-message" role="status">{message}</p>}
             <GearPreview card={card} team={team} inventory={inventory} artifact={artifact} />
@@ -109,7 +110,7 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
           </aside>
         </div>
         {!visible.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
-        <p className="gear-help">+5 % de la stat principale par niveau jusqu’à +16. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ou doublée.</p>
+        <p className="gear-help">Stat principale : +2 % par niveau (critique +3,5 %, dégâts critiques +4,5 %, vitesse +2) jusqu’à +16. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ou doublée.</p>
       </>}
       {message && !selected && <p className="gear-message" role="status">{message}</p>}
     </div>}
