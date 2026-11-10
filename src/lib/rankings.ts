@@ -57,12 +57,14 @@ export async function buildBoard(entries: { userId: string; score: number; tie?:
   return { top: rows.slice(0, top), me: me ? rows.find((r) => r.userId === me) ?? null : null, players: rows.length, cutoff: rows.length >= top ? rows[top - 1].score : null };
 }
 
-/** Puissance de collection : somme des puissances de base de toutes les cartes, doublons compris. */
+/** Puissance de collection : somme des puissances de base de toutes les cartes, doublons compris, plus l'apport de l'équipement. */
 export async function powerBoard(me: string | null) {
+  const { gearPowerBonus } = await import("./gear-power");
+  const gear = await gearPowerBonus();
   const rows = await prisma.$queryRaw<{ userId: string; power: bigint; cards: bigint }[]>`
     SELECT c."ownerId" AS "userId", SUM(ch.power) AS power, COUNT(*) AS cards
     FROM "Card" c JOIN "Character" ch ON ch.id = c."characterId" GROUP BY c."ownerId"`;
-  return buildBoard(rows.map((r) => ({ userId: r.userId, score: Number(r.power), detail: `${Number(r.cards)} cartes` })), me, await rarityCounts());
+  return buildBoard(rows.map((r) => ({ userId: r.userId, score: Number(r.power) + (gear.get(r.userId) ?? 0), detail: `${Number(r.cards)} cartes${gear.get(r.userId) ? ` · équipement +${new Intl.NumberFormat("fr-FR").format(gear.get(r.userId)!)}` : ""}` })), me, await rarityCounts());
 }
 
 /** Histoire : étoiles obtenues (un combat gagné vaut au moins 1 étoile), puis nombre de combats gagnés. */
