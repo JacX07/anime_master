@@ -10,7 +10,10 @@ import { equipArtifactAction } from "@/app/battle-actions";
 import { upgradeArtifactAction } from "@/app/artifact-actions";
 import { ARTIFACT_SLOTS, SLOT_NAMES } from "@/lib/dungeons";
 import { artifactSubstatUpgrades, artifactRarity, artifactStatIcon, artifactStatLabel, artifactStatValue } from "@/lib/artifact-display";
-import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost } from "@/lib/artifact-upgrade";
+import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost, artifactUpgradeTotal } from "@/lib/artifact-upgrade";
+
+/** Paliers d'amélioration directe : chacun révèle ou double une sous-stat. */
+const UPGRADE_STEPS = [4, 8, 12, ARTIFACT_MAX_LEVEL];
 import { weaponDef } from "@/lib/weapons";
 import type { getPlayerInventory } from "@/lib/player-inventory";
 import { GearPreview } from "./StatisticsPanel";
@@ -89,11 +92,18 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
             <div className="gear-item-body"><div><p className="gear-main-stat"><Icon name={artifactStatIcon(artifact.mainStat)} /><strong>{artifactStatLabel(artifact.mainStat)} {artifactStatValue(artifact.mainStat, artifact.mainValue)}</strong></p>
             <ul>{artifact.subStats.map((stat, i) => <li key={`${stat.stat}-${i}`}><Icon name={artifactStatIcon(stat.stat)} />{artifactStatLabel(stat.stat)} {artifactStatValue(stat.stat, stat.value)}{artifactSubstatUpgrades(stat) > 0 && <span className="substat-upgrades" aria-label={`${artifactSubstatUpgrades(stat)} améliorations`}> +{artifactSubstatUpgrades(stat)}</span>}</li>)}</ul>
             </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
-            <GearPreview card={card} team={team} inventory={inventory} artifact={artifact} />
             <div className="gear-item-actions">
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
             <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level), `Objet amélioré au niveau +${artifact.level + 1}.`)}>{max ? "Niveau maximum +16" : `Améliorer · ${cost.toLocaleString("fr-FR")} Ryō`}</button></div>
+            {!max && <div className="gear-upgrade-jumps" role="group" aria-label="Améliorer directement jusqu’à un palier">
+              {UPGRADE_STEPS.filter((to) => to > artifact.level + 1).map((to) => {
+                const total = artifactUpgradeTotal(artifact.rarity, artifact.level, to);
+                return <button key={to} type="button" className="ui-button" disabled={pending || inventory.balance < total} onClick={() => run(() => upgradeArtifactAction(artifact.id, artifact.level, to), `Objet amélioré au niveau +${to}.`)}>{to === ARTIFACT_MAX_LEVEL ? "Max" : `+${to}`} · {total.toLocaleString("fr-FR")} Ryō</button>;
+              })}
+            </div>}
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
+            {message && <p className="gear-message" role="status">{message}</p>}
+            <GearPreview card={card} team={team} inventory={inventory} artifact={artifact} />
           </article>;
         })() : <p className="gear-detail-placeholder">Sélectionne un artefact pour afficher sa fiche.</p>}
           </aside>
@@ -101,7 +111,7 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
         {!visible.length && <div className="gear-empty"><SlotIcon slot={slot} /><p>Aucun objet pour cet emplacement.</p><Link href="/donjons">Chercher des artefacts en donjon</Link></div>}
         <p className="gear-help">+5 % de la stat principale par niveau jusqu’à +16. Aux niveaux 4, 8, 12 et 16, une sous-stat est révélée ou doublée.</p>
       </>}
-      {message && <p className="gear-message" role="status">{message}</p>}
+      {message && !selected && <p className="gear-message" role="status">{message}</p>}
     </div>}
   </section>;
 }

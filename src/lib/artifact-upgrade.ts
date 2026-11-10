@@ -4,6 +4,12 @@ import type { Rarity } from "../generated/prisma/enums";
 export const ARTIFACT_MAX_LEVEL = 16;
 /** Coût réduit (v0.3.0, environ ÷2) pour que les équipements du début restent utiles. */
 export const artifactUpgradeCost = (rarity: Rarity, level: number) => ({ N: 10, R: 15, SR: 25, SSR: 40, UR: 55 }[rarity]) * (level + 1);
+/** Coût total pour passer de `from` à `to` (niveaux successifs, chacun à son prix). */
+export function artifactUpgradeTotal(rarity: Rarity, from: number, to: number) {
+  let total = 0;
+  for (let l = from; l < to; l++) total += artifactUpgradeCost(rarity, l);
+  return total;
+}
 export const upgradedMainValue = (value: number, level: number) => Math.round(value / (1 + level * 0.05) * (1 + (level + 1) * 0.05) * 1e6) / 1e6;
 
 /** Chaque palier découvre une stat distincte ; à quatre stats, il double une valeur. */

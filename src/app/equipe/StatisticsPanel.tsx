@@ -44,12 +44,12 @@ export function GearPreview({ card, team, inventory, artifact }: { card: TeamCar
     ["Puissance", now.power, next.power, n], ["PV", now.hp, next.hp, n], ["ATK", now.atk, next.atk, n], ["DEF", now.def, next.def, n],
     ["Vitesse", now.speed, next.speed, n], ["Critique", now.crit, next.crit, p], ["Dégâts crit.", now.critDamage, next.critDamage, p], ["Esquive", now.dodge, next.dodge, p],
   ];
-  // Valeur actuelle, puis l'écart : vert s'il monte, rouge s'il baisse, rien s'il ne change pas.
+  // Valeur après le changement, puis l'écart : vert s'il monte, rouge s'il baisse, rien s'il ne change pas.
   return <table className="gear-preview"><caption>{worn ? "Si tu retires cet objet" : "Si tu équipes cet objet"}</caption><tbody>
     {rows.map(([label, a, b, f]) => {
       const shown = f(Math.abs(b - a));
       const d = shown === f(0) ? 0 : b - a;
-      return <tr key={label} data-delta={d > 0 ? "up" : d < 0 ? "down" : undefined}><th scope="row">{label}</th><td>{f(a)}</td><td>{d > 0 ? `+${shown}` : d < 0 ? `−${shown}` : ""}</td></tr>;
+      return <tr key={label} data-delta={d > 0 ? "up" : d < 0 ? "down" : undefined}><th scope="row">{label}</th><td>{f(b)}</td><td>{d > 0 ? `+${shown}` : d < 0 ? `−${shown}` : ""}</td></tr>;
     })}
   </tbody></table>;
 }
