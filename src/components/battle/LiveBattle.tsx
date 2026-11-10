@@ -38,8 +38,12 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
   // « Terminer » demandé pendant une requête : relancé dès qu'elle revient
   const finishWanted = useRef(false);
   const [skipNonce, setSkipNonce] = useState(0);
+  const stepsRef = useRef(view.steps);
+  const statusRef = useRef(view.status);
 
   const apply = (next: BattleView) => {
+    stepsRef.current = next.steps;
+    statusRef.current = next.status;
     setError(null);
     setLog((l) => [...l, ...next.log]);
     setView((v) => ({ ...v, steps: next.steps, status: next.status, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
@@ -66,17 +70,16 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
   // Termine tout de suite en automatique (serveur), puis l'écran saute au résultat
   const finishing = useRef(false);
   const finish = () => {
-    if (view.status !== "RUNNING" || finishing.current) return;
+    if (statusRef.current !== "RUNNING" || finishing.current) return;
     finishWanted.current = true;
     if (inflight.current) return;
     finishWanted.current = false;
     finishing.current = true;
     setSkipNonce((n) => n + 1);
-    send(() => finishAutoAction(view.id, view.steps));
+    send(() => finishAutoAction(view.id, stepsRef.current));
   };
   const finishRef = useRef(finish);
-  const statusRef = useRef(view.status);
-  useEffect(() => { finishRef.current = finish; statusRef.current = view.status; });
+  useEffect(() => { finishRef.current = finish; });
 
   // Le jeu continue quand on change d'onglet : en auto, l'onglet masqué termine le combat côté serveur (les minuteries y sont ralenties)
   useEffect(() => {

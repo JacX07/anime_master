@@ -522,3 +522,13 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 ## 2026-11-10 — Cache Components conserve les effets ponctuels au retour
 - Risque confirmé par les guides locaux Next (`cacheComponents.md`, « Navigation with Activity ») : les routes cachées gardent leur état, mais leurs effets sont recréés au retour. Un effet dépendant seulement de l’étoile gagnée peut donc rejouer un ancien carillon.
 - Correctif pour l’éveil : mémoriser l’étoile après la première frame réellement affichée. Cela évite le rejeu au retour sans supprimer l’animation lors du double montage de développement. Les succès en mouvements réduits ou hors écran sont aussi mémorisés.
+
+## 2026-11-10 — Donjons : butin et déblocage des univers de collision
+- Contexte du lot 6 : Fairy Tail n’a pas d’univers d’histoire séparé ; ses personnages sont dans « La Grande Alchimie ». Le déblocage doit suivre cette progression, tout en gardant un set et une progression de donjon indépendants.
+- Texte obsolète repéré : les règles de donjon annonçaient encore « pas de coût d’entrée » depuis l’introduction de l’énergie. Corriger pour annoncer 1 énergie, remboursée à la défaite ou à l’abandon.
+
+## 2026-11-10 — Terminer pendant l’envoi d’une action manuelle
+- Symptôme reproduit dans le navigateur : attaque, puis clic immédiat sur « Terminer » ; `finishAutoAction` reçoit encore le compteur 0 alors que l’action 1 vient d’être enregistrée. Erreur « Action déjà jouée », sans résultat.
+- Cause : la requête différée repart dans une microtâche avant que React ait rendu le nouveau `view.steps`. Le verrou réseau protège les requêtes, mais pas cette lecture de l’ancien état.
+- Correctif : synchroniser le compteur et le statut confirmés dans des références dès réception de la réponse ; « Terminer » utilise ces valeurs, y compris avant le prochain rendu.
+- Validation : scénario reproduit puis corrigé sur mobile 390 px avec de vrais clics (sort, cible, « Terminer » immédiat). La victoire et les deux pièces apparaissent ; rechargement sans perte du butin ni erreur JavaScript.
