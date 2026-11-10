@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
 import { holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
@@ -70,7 +70,8 @@ export interface LiveControl {
   onPlay: (spell: Spell, target: UnitId | null) => void;
   /** Mode auto : la stratégie automatique joue à ta place, on peut revenir au manuel à tout moment */
   auto: boolean;
-  onToggleAuto: () => void;
+  /** Absent : pas d'interrupteur Auto (arène live) */
+  onToggleAuto?: () => void;
   /** Demande au serveur de jouer l'action de la carte qui doit agir */
   onAutoStep: () => void;
   /** « Terminer » : le serveur joue la suite en auto, sans animation */
@@ -79,6 +80,8 @@ export interface LiveControl {
   skipNonce?: number;
   /** Abandon du combat en cours (compté comme perdu) */
   onAbandon?: () => void;
+  /** Affiché à côté de l'interrupteur : chrono de l'arène live */
+  countdown?: ReactNode;
   /** Bouton de l'écran de fin à la place du lien « Nouveau combat » */
   onNext?: () => void;
 }
@@ -410,7 +413,8 @@ export function BattlePlayer({ allowDisableSpellFx = true, log, characters, name
         </div>
         {((live && !end) || (live?.onAbandon && !end)) && (
           <div className="bt-dock-row">
-            {live && !end && (
+            {live?.countdown && !end && live.countdown}
+            {live && !end && live.onToggleAuto && (
               <button type="button" className="bt-sw" role="switch" aria-checked={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
                 <span className="bt-sw-tr" aria-hidden="true" />
                 {live.auto ? "Auto" : "Manuel"}

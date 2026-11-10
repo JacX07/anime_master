@@ -173,7 +173,7 @@ async function isStaff(userId: string): Promise<boolean> {
 async function PlayMenuWithLocks() {
   const user = await getSessionUser();
   const locks: Record<string, string> = {};
-  if (!PVP_AVAILABLE) { locks.pvp = "Pas encore disponible"; locks.live = "Pas encore disponible"; }
+  if (!PVP_AVAILABLE) { locks.pvp = "Pas encore disponible"; }
   if (user) {
     const adventure = await getAdventure(user.id);
     const ids = { expeditions: "expeditions", dungeon: "dungeons", raid: "raids", tower: "tower" } as const;

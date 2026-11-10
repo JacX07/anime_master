@@ -13,7 +13,7 @@ const MODES = [
   { id: "raids", href: "/raid", title: "Raids", tag: "Coopération", description: "Unissez vos forces face aux Titans primordiaux.", symbol: "△" },
   { id: "expeditions", href: "/expeditions", title: "Expéditions", tag: "Exploration", description: "Envoyez vos squads à la recherche de ressources.", symbol: "✦" },
   { id: "pvp", href: "/duels", title: "Arène PvP", tag: "Classé", description: "Mesurez votre deck aux invocateurs du monde entier.", symbol: "×" },
-  { id: "live", href: "/duels", title: "Arène Live", tag: "Temps réel", description: "Des duels directs où chaque décision compte.", symbol: "◉" },
+  { id: "live", href: "/arene", title: "Arène Live", tag: "Temps réel", description: "Des duels directs où chaque décision compte.", symbol: "◉" },
   { id: "tower", href: "/tour", title: "Tour universelle", tag: "Endgame", description: "Gravissez cent étages aux règles changeantes.", symbol: "▥" },
 ] as const;
 

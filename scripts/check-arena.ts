@@ -54,12 +54,12 @@ async function main() {
     const other = mover === p1 ? p2 : p1;
     const choice = first.choices[0];
     let rejected = false;
-    try { await arenaPlay(other, m1, { spell: choice.spell, target: choice.targets[0] }, first.steps, t0); } catch { rejected = true; }
+    try { await arenaPlay(other, m1, { spell: choice.spell, target: choice.targets[0] }, first.steps, 0, t0); } catch { rejected = true; }
     check("Jouer hors de son tour est refusé", rejected);
-    const after = await arenaPlay(mover, m1, { spell: choice.spell, target: choice.targets[0] }, first.steps, t0);
+    const after = await arenaPlay(mover, m1, { spell: choice.spell, target: choice.targets[0] }, first.steps, 0, t0);
     check("Action enregistrée", after.steps > first.steps && after.log.length > 0);
     let stale = false;
-    try { await arenaPlay(mover, m1, { spell: choice.spell, target: choice.targets[0] }, first.steps, t0); } catch { stale = true; }
+    try { await arenaPlay(mover, m1, { spell: choice.spell, target: choice.targets[0] }, first.steps, 0, t0); } catch { stale = true; }
     check("Action rejouée avec une version périmée refusée", stale);
     // Chrono : le joueur qui doit jouer est absent, l'automatique joue à sa place après 20 s
     const late = new Date(t0.getTime() + ARENA_ACTION_MS + 1000);
@@ -89,15 +89,17 @@ async function main() {
     const g = await arenaState(p1, 0, new Date(t2.getTime() + ARENA_GHOST_AFTER_MS + 1));
     check("Après 30 s : équipe fantôme", g?.status === "RUNNING" && g.opponent !== null);
     const ghostRow = await prisma.arenaMatch.findFirstOrThrow({ where: { playerAId: p1, status: "RUNNING" } });
-    check("Match fantôme marqué", ghostRow.ghost && ghostRow.playerBId === p2);
-    check("Le joueur fantôme ne voit pas ce match", (await arenaState(p2, 0, t2)) === null || (await arenaState(p2, 0, t2))?.id !== ghostRow.id);
+    check("Match fantôme marqué", ghostRow.ghost && ghostRow.playerBId !== null && ghostRow.playerBId !== p1);
+    const ghostUser = ghostRow.playerBId!;
+    const ghostBefore = (await prisma.user.findUniqueOrThrow({ where: { id: ghostUser }, select: { elo: true } })).elo;
+    check("Le joueur fantôme ne voit pas ce match", (await arenaState(ghostUser, 0, t2))?.id !== ghostRow.id);
     // Partie complète contre le fantôme : l'automatique joue pour moi si je ne fais rien
     let t = new Date(t2.getTime() + ARENA_GHOST_AFTER_MS + 1);
     let v = await arenaView(p1, ghostRow.id, 0, t);
     for (let i = 0; i < 300 && v.status === "RUNNING"; i++) { t = new Date(t.getTime() + ARENA_ACTION_MS + 1000); v = await arenaView(p1, ghostRow.id, 0, t); }
     check("Joueur absent : le match va à son terme (forfait après 3 expirations)", v.status === "DONE");
-    const ghostElo = await prisma.user.findUniqueOrThrow({ where: { id: p2 }, select: { elo: true } });
-    check("L'Elo du joueur fantôme ne change pas", ghostElo.elo === e2.elo + (rematch.eloChange ?? 0), `${ghostElo.elo}`);
+    const ghostElo = await prisma.user.findUniqueOrThrow({ where: { id: ghostUser }, select: { elo: true } });
+    check("L'Elo du joueur fantôme ne change pas", ghostElo.elo === ghostBefore, `${ghostBefore} → ${ghostElo.elo}`);
     check("Perte d'Elo contre un fantôme plafonnée à 16", (v.eloChange ?? 0) >= -16 && (v.eloChange ?? 0) <= 0, `Δ ${v.eloChange}`);
   } finally {
     await prisma.user.deleteMany({ where: { id: { in: users } } });

@@ -262,6 +262,12 @@ async function viewOf(row: Row, userId: string, from: number, now: Date): Promis
   const base = { id: row.id, status: row.status, steps: row.steps, queuedAt: row.createdAt.toISOString(), serverNow: now.toISOString(), me: meUser, opponent };
   if (row.status === "QUEUED") return { ...base, deadline: null, winner: null, eloChange: null, log: [], actor: null, myTurn: false, choices: [], wait: {}, timeline: [], characters: {} };
   const st = buildState(row);
+  // Forfait ou abandon : le moteur n'a pas écrit de fin, on l'ajoute pour que l'écran affiche le résultat
+  let fullLog: BattleEvent[] = st.log;
+  if (row.status === "DONE" && !st.result) {
+    const hp = (side: Side) => st.teams[side].reduce((n, u) => n + u.hp, 0) / st.teams[side].reduce((n, u) => n + u.maxHp, 0);
+    fullLog = [...st.log, { kind: "end", winner: (row.winner as Side | null) ?? null, reason: "ko", rounds: st.round, hpLeft: { A: hp("A"), B: hp("B") } }];
+  }
   const running = row.status === "RUNNING" && !st.result;
   const actor = running ? currentActor(st) : null;
   const myTurn = !!actor && actor.id[0] === mySide;
@@ -279,7 +285,7 @@ async function viewOf(row: Row, userId: string, from: number, now: Date): Promis
     deadline: running && row.deadline ? row.deadline.toISOString() : null,
     winner: row.status === "DONE" ? mine(winnerEngine) : null,
     eloChange: row.status === "DONE" ? (mySide === "A" ? row.eloChangeA : row.eloChangeB) : null,
-    log: mine(st.log.slice(from)),
+    log: mine(fullLog.slice(from)),
     actor: actor ? mine(actor.id) : null,
     myTurn,
     choices: myTurn ? mine(legalActions(st)) : [],
@@ -305,7 +311,7 @@ export async function arenaView(userId: string, matchId: string, from = 0, now =
 }
 
 /** Le joueur choisit sort et cible pour la carte qui agit. Les identifiants sont ceux de sa vue (lui en A). */
-export async function arenaPlay(userId: string, matchId: string, action: { spell: Spell; target: UnitId | null }, expectedSteps: number, now = new Date()): Promise<ArenaView> {
+export async function arenaPlay(userId: string, matchId: string, action: { spell: Spell; target: UnitId | null }, expectedSteps: number, from = 0, now = new Date()): Promise<ArenaView> {
   if (!isSpell(action?.spell) || (action.target !== null && typeof action.target !== "string")) throw new ArenaError("Action invalide.");
   const found = await prisma.arenaMatch.findFirst({ where: { id: matchId, OR: [{ playerAId: userId }, { playerBId: userId, ghost: false }] } });
   if (!found) throw new ArenaError("Match introuvable.");
@@ -327,7 +333,7 @@ export async function arenaPlay(userId: string, matchId: string, action: { spell
   played.push(...follow.played);
   const forfeit = follow.forfeit;
   if (!(await commit(row, st, played, follow.missed, forfeit, now))) throw new ArenaError("Action déjà jouée, recharge le match.");
-  return arenaView(userId, matchId, 0, now);
+  return arenaView(userId, matchId, from, now);
 }
 
 /** Abandon : défaite immédiate. */
