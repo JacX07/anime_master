@@ -538,3 +538,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : le lecteur applique la préférence sans connaître les victoires précédentes ; le rafraîchissement de progression à la fin peut aussi transformer le premier passage en rejeu pendant sa lecture.
 - Correctif : figer dans la copie serveur du combat si cette difficulté a déjà été vaincue avant le lancement. Le lecteur force les effets et verrouille leur bouton tant que cette autorisation manque, sans effacer la préférence. La case de rejeu reste verrouillée après une première défaite, devient disponible après une victoire ; la difficulté suivante reste indépendante.
 - Validation : `check:dungeon`, typecheck et ESLint ciblé ; navigateur PC 1440 px et mobile 390 px avec préférence déjà désactivée : première victoire verrouillée, rejeu de la même difficulté déverrouillé, difficulté suivante et autre donjon verrouillés ; première défaite avec case désactivée/décochée, puis rechargement et nouvelle tentative toujours avec effets. Préférence conservée, aucune erreur JavaScript.
+
+## 2026-11-10 — Budget d'équipe : fixtures à 4 UR refusées
+- Symptôme : `check:story`, `check:dungeon`, `check:tower` échouaient avec « Budget d'équipe dépassé : 32/24 » après l'ajout du plafond.
+- Cause : ces scripts construisent une équipe de 4 UR (32 points).
+- Correctif : équipes de test en 2 UR + 1 SSR + 1 SR (24). `check:dungeon-universes` échoue déjà sur `/verrouillée/` (le message est « Donjon verrouillé », antérieur à ce chantier).
+- Validation : navigateur PC (compte 4 UR + SSR/SR) : 32/24 bloque le lancement avec message, composition automatique 24/24, combat lancé, aucune erreur JavaScript.
+- Piège : `pkill -f "next dev ..."` dans le même shell tue la commande en cours (code 144) ; arrêter le serveur dans un appel séparé.

@@ -25,7 +25,6 @@ Les titres « Étape N » d'origine sont gardés dans chaque fichier, pour que l
 2. Ensuite, à réordonner : mode histoire, éveil, Tour, arène, raid.
 
 ## Questions ouvertes
-- Budget d'équipe (plus tard).
 - Montants de l'éveil et de l'arme légendaire, à fixer au simulateur.
 - Rythme de progression et tableau des ressources par mode.
 - Mode manuel, ultimes, sorts spéciaux des UR.

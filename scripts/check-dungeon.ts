@@ -57,7 +57,9 @@ async function main() {
     const opening = await prisma.packOpening.create({ data: { userId: uid, lotSize: 5, pityTriggered: "NONE" } });
     let serial = 920000 + Math.floor(Math.random() * 50000);
     const makeTeam = async (rarity: Rarity) => {
-      const chars = await prisma.character.findMany({ where: { disabled: false, rarity }, take: 4, orderBy: { id: "asc" }, select: { id: true } });
+      const chars = rarity === "UR"
+        ? (await Promise.all([["UR", 2], ["SSR", 1], ["SR", 1]].map(([r, take]) => prisma.character.findMany({ where: { disabled: false, rarity: r as Rarity }, take: take as number, orderBy: { id: "asc" }, select: { id: true } })))).flat() // budget 24
+        : await prisma.character.findMany({ where: { disabled: false, rarity }, take: 4, orderBy: { id: "asc" }, select: { id: true } });
       const ids: string[] = [];
       for (const c of chars) ids.push((await prisma.card.create({ data: { ownerId: uid, characterId: c.id, finish: "NORMAL", serial: serial++, rarityAtPull: rarity, packOpeningId: opening.id } })).id);
       await setAttackTeam(uid, ids);

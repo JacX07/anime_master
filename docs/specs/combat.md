@@ -306,7 +306,8 @@ Nouveaux effets de sort (`src/lib/spells.ts`, moteur `battle.ts`) : `arise`, `co
 - **Franchise** : selon le nombre de cartes du même anime dans l'équipe, 2 : +3 %, 3 : +6 %, 4 : +10 % d'ATK, de DEF et de PV.
 - **Passif UR** : chaque UR donne +10 % aux autres cartes de son anime, cumulable entre UR, plafonné à +30 %.
 
-### 6. Budget d'équipe *(proposé, à valider)*
+### 6. Budget d'équipe *(v0.3.0, décidé le 2026-11-10)*
+**Plafond de 24 points** pour une équipe de 4, appliqué à l'histoire (équipe de 4), la Tour, les donjons et l'arène, **pas aux raids** ; un duo d'histoire n'est jamais limité. Coûts : UR 8, SSR 5, SR 3, R 2, N 1 (`src/lib/team-budget.ts`). Le serveur refuse le combat au-dessus du plafond ; l'écran de préparation affiche `Budget x/24`, bloque le lancement et la composition automatique reste sous le plafond. Ancienne proposition (14 points) ci-dessous, remplacée :
 Pour que la rareté ne décide pas tout en arène : N 1, R 2, SR 3, SSR 5, UR 8 points, **14 points maximum** par équipe. Les compositions de même budget s'affrontent entre 33 et 67 % de victoires.
 
 ### 7. Résultats de la simulation (2026-10-31, sans ultimes, 4 000 combats par scénario)
@@ -343,7 +344,6 @@ Chaque fiche est comparée à une copie des mêmes équipes sans capacité perso
 Les trois résultats d'équipe restent dans leur intervalle de confiance autour de 50 %. La jauge de **100** (50 par attaque de base, 34 par sort offensif), donne environ **1,8 à 1,9 ultime par équipe et par combat** ; au moins 98,8 % des combats voient un ultime, vers le 4ᵉ tour. Le détail des 944 fiches et des extrêmes est dans [le rapport de simulation](../reports/character-skills-simulation.md).
 
 ### 8. Reste à décider
-- Budget d'équipe et son plafond : à mettre en place plus tard.
 - Mode manuel : à chaque action, le joueur choisit le sort (base, affilié, secondaire, tertiaire ou ultime chargé) et la cible. En automatique, l'IA privilégie l'ultime prêt, puis le secondaire, le tertiaire et les choix affiliés/de base.
 - Transformer les approximations du catalogue d'ultimes en mécaniques dédiées (passifs déclenchés à la mort, contrôle d'un ennemi qui joue dans l'équipe, exécution conditionnelle, copie, double action et reset de cooldown) ; écrire les cinq techniques distinctes de Midoriya.
 - Combat contre Mystère reste un peu fort (86 % contre ~70 % pour les autres paires du cycle) : à réduire si besoin, par exemple en baissant la pénétration de DEF de Combat contre Mystère.

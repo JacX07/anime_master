@@ -67,7 +67,7 @@ export function TeamPreparation({ title, subtitle, team, context, enemies, hidde
         <button type="button" className="ui-button" disabled={pending} onClick={team.autoTeam}>Composition automatique</button>
       </div>
     </div>
-    <div className="hs-vs-layout"><section aria-label="Ton équipe"><header className="hs-camp-head"><h3>Ton équipe</h3><strong>Puissance {fmt(powers.reduce((sum, n) => sum + n, 0))}</strong></header><div className="hs-prep-cards">{cards.map((card, i) => <button key={i} type="button" className={`hs-card-choice${i >= size ? " is-reserve" : ""}`} disabled={pending || i >= size} aria-label={`${card?.name ?? `Emplacement ${i + 1}`}, ${i >= size ? "en réserve" : "changer ce compagnon"}`} onClick={() => { pick.reset(); setSlot(i); }}>
+    <div className="hs-vs-layout"><section aria-label="Ton équipe"><header className="hs-camp-head"><h3>Ton équipe</h3><strong>Puissance {fmt(powers.reduce((sum, n) => sum + n, 0))}</strong>{team.budget !== null && size === 4 && <strong data-over={team.budgetError ? true : undefined} title="Budget d’équipe : UR 8, SSR 5, SR 3, R 2, N 1">Budget {team.cost}/{team.budget}</strong>}</header><div className="hs-prep-cards">{cards.map((card, i) => <button key={i} type="button" className={`hs-card-choice${i >= size ? " is-reserve" : ""}`} disabled={pending || i >= size} aria-label={`${card?.name ?? `Emplacement ${i + 1}`}, ${i >= size ? "en réserve" : "changer ce compagnon"}`} onClick={() => { pick.reset(); setSlot(i); }}>
       {card ? <Card card={card} power={i < size ? powers[active.indexOf(card)] : undefined}/> : <span className="hs-empty-slot"><Icon name="squads"/><b>{i === 0 ? "Leader" : `Poste ${i + 1}`}</b><span>Choisir un compagnon</span></span>}<small>{i >= size ? "En réserve" : "Changer"}</small>
     </button>)}</div></section><span className="hs-vs-label" aria-label="contre">VS</span><section aria-label="Ennemis"><header className="hs-camp-head"><h3>Ennemis</h3>{enemies && <strong>Puissance {fmt(enemyPowers.reduce((sum, n) => sum + n, 0))}</strong>}</header><div className="hs-prep-cards">
       {enemies ? enemies.map((card, i) => <div key={card.id} className="hs-enemy-card"><Card card={card} power={enemyPowers[i]}/><small>{enemyLabel ? enemyLabel(card, i) : card.combat.boss ? "Boss" : "Sbire"}</small></div>)
@@ -75,8 +75,9 @@ export function TeamPreparation({ title, subtitle, team, context, enemies, hidde
     </div></section></div>
     <p className="hs-team-note" role="status">{pending ? "Chargement…" : "Clique une carte pour la remplacer. Cette composition est propre à ce mode et reste en mémoire."}</p>
     {error && <p className="hs-error" role="alert">{error}</p>}
+    {team.budgetError && <p className="hs-error" role="alert">{team.budgetError}</p>}
     <footer className="hs-prep-footer">{energy && <EnergyMeter energy={context.energy} />}{footer}</footer>
-    {!team.ready && <p className="hs-team-note">Choisis {size} personnages différents pour combattre.</p>}
+    {!team.ready && !team.budgetError && <p className="hs-team-note">Choisis {size} personnages différents pour combattre.</p>}
     {notes}
     <dialog ref={dialog} className="hs-picker" aria-labelledby="hs-picker-title" onCancel={() => setSlot(null)} onClose={() => setSlot(null)} onClick={closeOnBackdrop}><header><h2 id="hs-picker-title">Choisir un compagnon</h2><button type="button" className="ui-button text-action" onClick={() => setSlot(null)}>Fermer</button></header><CardFilterBar filter={pick} /><div className="hs-picker-grid">{pick.filtered.map((card) => {
       const used = cards.some((c, i) => i !== slot && c?.combat.characterId === card.combat.characterId);

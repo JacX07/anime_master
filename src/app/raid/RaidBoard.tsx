@@ -32,7 +32,7 @@ const dateFmt = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeri
 
 export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsLeft, hearts, context, storageKey }: Props) {
   const router = useRouter();
-  const squad = useModeTeam(storageKey, context);
+  const squad = useModeTeam(storageKey, context, false, false);
   const { pending, start, error, setError } = squad;
   const [fight, setFight] = useState<{ battle: BattleView; difficulty: string; auto: boolean } | null>(null);
   const [prep, setPrep] = useState<{ difficulty: string; enemies: PrepEnemy[] } | null>(null);

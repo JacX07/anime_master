@@ -32,7 +32,9 @@ async function main() {
       (await prisma.character.findMany({ where: { disabled: false, rarity }, take, orderBy: { favourites: "desc" }, select: { id: true } })).map((c) => c.id);
     const team = async (rarity: "SR" | "SSR" | "UR") => {
       const ids: string[] = [];
-      for (const c of await top(rarity, 4)) ids.push(await give(c));
+      // budget 24 : l'équipe UR devient 2 UR + 1 SSR + 1 SR
+      const picks = rarity === "UR" ? [...await top("UR", 2), ...await top("SSR", 1), ...await top("SR", 1)] : await top(rarity, 4);
+      for (const c of picks) ids.push(await give(c));
       await setAttackTeam(uid, ids);
     };
 

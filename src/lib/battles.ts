@@ -1,4 +1,5 @@
 import { combatPowers } from "./combat-power";
+import { budgetMessage, overBudget, RARITY_COST, TEAM_BUDGET } from "./team-budget";
 import { track } from "./events";
 import { sumArtifactStats } from "./artifact-stats";
 import { adventureLock } from "./adventure-state";
@@ -455,10 +456,15 @@ export async function autoTeam(userId: string, kind: TeamKind = "ATTACK", save =
   const rank = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 } as const;
   cards.sort((a, b) => rank[b.character.rarity] - rank[a.character.rarity] || b.character.power - a.character.power);
   const picked: string[] = [], seen = new Set<number>();
+  let cost = 0;
   for (const c of cards) {
     if (seen.has(c.characterId) || picked.length >= 4) continue;
+    // Budget d'équipe : chaque place restante coûte au moins 1
+    const price = RARITY_COST[c.character.rarity];
+    if (cost + price + (3 - picked.length) > TEAM_BUDGET) continue;
     seen.add(c.characterId);
     picked.push(c.id);
+    cost += price;
   }
   if (picked.length < 4) throw new BattleError("Il te faut au moins 4 personnages différents.");
   if (save) await setTeam(userId, kind, picked);
@@ -728,6 +734,8 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     storyCards = storyCardIds.map((id) => byId.get(id)).filter((card): card is (typeof owned)[number] => !!card);
     if (storyCards.length !== storyCardIds.length || new Set(storyCards.map((card) => card.character.id)).size !== storyCards.length) throw new BattleError("Choisis des personnages différents qui t'appartiennent.");
   } else if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
+  const chosen = (storyCards ?? slots as NonNullable<typeof slots[number]>[]).map((c) => c.character.rarity);
+  if (!parseRaid(opponent) && overBudget(chosen)) throw new BattleError(budgetMessage(chosen));
   const dungeonLevel = opponent.startsWith(DUNGEON_PREFIX) ? parseDungeonKey(opponent) : null;
   if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");
   if (story) await checkStoryAccess(userId, story.universe, story.level);

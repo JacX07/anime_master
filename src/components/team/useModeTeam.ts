@@ -3,12 +3,13 @@
 import { useEffect, useState, useTransition } from "react";
 import { bestTeamAction } from "@/app/battle-actions";
 import type { TeamContext } from "@/lib/team-context";
+import { budgetMessage, overBudget, teamCost, TEAM_BUDGET } from "@/lib/team-budget";
 
 /**
  * Composition propre à un mode (histoire, Tour, donjon, raid) : mémorisée dans le navigateur sous `storageKey`,
  * initialisée avec l'équipe d'attaque. Charger une squad ne modifie jamais la squad enregistrée.
  */
-export function useModeTeam(storageKey: string, { ownedCards, attackIds }: Pick<TeamContext, "ownedCards" | "attackIds">, allowDuo = false) {
+export function useModeTeam(storageKey: string, { ownedCards, attackIds }: Pick<TeamContext, "ownedCards" | "attackIds">, allowDuo = false, budgetApplies = true) {
   const [slots, setSlots] = useState<(string | null)[]>(attackIds);
   const [duo, setDuo] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +43,13 @@ export function useModeTeam(storageKey: string, { ownedCards, attackIds }: Pick<
   const size = allowDuo && duo ? 2 : 4;
   const selectedIds = slots.slice(0, size).filter((id): id is string => !!id);
   const active = selectedIds.map((id) => ownedCards.find((c) => c.id === id)!).filter(Boolean);
-  const ready = active.length === size && new Set(active.map((c) => c.combat.characterId)).size === size;
+  const rarities = active.map((c) => c.combat.rarity);
+  const cost = teamCost(rarities);
+  const tooExpensive = budgetApplies && overBudget(rarities);
+  const ready = active.length === size && new Set(active.map((c) => c.combat.characterId)).size === size && !tooExpensive;
 
   return {
-    slots, duo: allowDuo && duo, size, selectedIds, ready, error, setError, pending, start,
+    slots, duo: allowDuo && duo, size, cost, budget: budgetApplies ? TEAM_BUDGET : null, budgetError: tooExpensive ? budgetMessage(rarities) : null, selectedIds, ready, error, setError, pending, start,
     changeDuo(value: boolean) { setDuo(value); remember(slots, value); },
     choose(index: number, id: string) {
       const next = slots.map((old, i) => (i === index ? id : old));

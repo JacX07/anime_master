@@ -1,3 +1,4 @@
+import type { Rarity } from "../src/generated/prisma/enums";
 // Vérification du mode histoire côté serveur sur la vraie base (docs/specs/pvm.md) : déverrouillage, butin du premier passage
 // et du rejeu, plafond quotidien, premier passage unique en cas de combats simultanés, ennemis stables, mode manuel.
 // Joueur jetable, supprimé à la fin.
@@ -30,7 +31,7 @@ async function main() {
   await prisma.user.create({ data: { id: uid, name: uid, username: uid, email: `${uid}@test.local` } });
   try {
     const opening = await prisma.packOpening.create({ data: { userId: uid, lotSize: 5, pityTriggered: "NONE" } });
-    const urs = await prisma.character.findMany({ where: { disabled: false, rarity: "UR" }, take: 4, orderBy: { id: "asc" }, select: { id: true } });
+    const urs = (await Promise.all([["UR", 2], ["SSR", 1], ["SR", 1]].map(([rarity, take]) => prisma.character.findMany({ where: { disabled: false, rarity: rarity as Rarity }, take: take as number, orderBy: { id: "asc" }, select: { id: true } })))).flat(); // budget 24 : 2 UR + 1 SSR + 1 SR
     const cards: string[] = [];
     for (const c of urs) {
       const before = await prisma.character.findUniqueOrThrow({ where: { id: c.id }, select: { pullCount: true } });

@@ -10,7 +10,7 @@ async function main() {
   await prisma.adventureRecord.create({data:{userId:id,key:'access:dungeon'}});
   for(const d of DUNGEONS) await prisma.storyProgress.create({data:{userId:id,universe:d.key,maxLevel:10}});
   const opening=await prisma.packOpening.create({data:{userId:id,lotSize:5,pityTriggered:'NONE'}});
-  const characters=await prisma.character.findMany({where:{disabled:false,rarity:'UR'},take:4,orderBy:{id:'asc'}});
+  const characters=(await Promise.all([['UR',2],['SSR',1],['SR',1]].map(([r,t])=>prisma.character.findMany({where:{disabled:false,rarity:r as any},take:t as number,orderBy:{id:'asc'}})))).flat();
   const cards=[];
   for(const c of characters) cards.push(await prisma.card.create({data:{ownerId:id,characterId:c.id,finish:'NORMAL',serial:(await prisma.character.update({where:{id:c.id},data:{pullCount:{increment:1}}})).pullCount,rarityAtPull:'UR',stars:5,packOpeningId:opening.id}}));
   await setAttackTeam(id,cards.map(c=>c.id));
