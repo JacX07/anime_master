@@ -23,6 +23,7 @@ import "@/components/battle/battle.css";
 import "./equipe.css";
 import "./character.css";
 import { closeOnBackdrop } from "@/lib/dialog";
+import { FavoriteStar } from "@/components/team/CardFilters";
 
 export interface TeamCard {
   id: string;
@@ -183,7 +184,7 @@ function Awakening({ card }: { card: TeamCard }) {
 }
 
 /** Fenêtre d’un personnage : portrait, inventaire ciblé, sorts et composition de l’équipe. */
-export function CardDialog({ editable = true, card, slot, full, onClose, onToggle, inventory, team }: { editable?: boolean; team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void }) {
+export function CardDialog({ editable = true, card, slot, full, onClose, onToggle, inventory, team, favorite = false, onFavorite }: { editable?: boolean; team: TeamCard[]; inventory: PlayerInventory; card: TeamCard | null; slot: number; full: boolean; onClose: () => void; onToggle: (card: TeamCard) => void; favorite?: boolean; onFavorite?: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [tab, setTab] = useState("stats");
   useEffect(() => {
@@ -200,7 +201,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
           <EquipmentPanel inventory={inventory} card={card} team={team} />
           <figure className="cd-hero" data-rarity={card.rarity}>
             <figcaption className="cd-title">
-              <b>{card.name}</b>
+              <b>{card.name}{onFavorite && <FavoriteStar on={favorite} onToggle={onFavorite} name={card.name} />}</b>
               <span>{card.series}</span>
             </figcaption>
             <div className="eq-art">

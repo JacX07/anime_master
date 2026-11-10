@@ -86,6 +86,7 @@ model Character {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   showcased      ShowcaseCharacter[]
+  favoritedBy    FavoriteCharacter[]
 
   @@index([rarity])
   @@index([type])
@@ -199,6 +200,10 @@ model User {
   title               String?
   /// Vitrine du profil : personnages épinglés (6 au plus), ignorés s'ils ne sont plus possédés
   showcase            ShowcaseCharacter[]
+  favorites           FavoriteCharacter[]
+  gearPresets         GearPreset[]
+  /// Photo de profil : image d'un personnage possédé (v0.3.0)
+  avatarCharacterId   Int?
   /// Classement Duel (étape 4)
   elo                 Int                    @default(1000)
   /// Duels lancés pendant la journée `duelsStartedDate`
@@ -1075,4 +1080,27 @@ model ChatReport {
 
   @@unique([reporterId, messageId])
   @@index([status, createdAt])
+}
+
+/// Personnages favoris d'un joueur (v0.3.0) : filtre et tri « favoris en premier ».
+model FavoriteCharacter {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@id([userId, characterId])
+}
+
+/// Sauvegarde d'équipement (v0.3.0) : liste d'artefacts à appliquer d'un coup sur un personnage (10 au plus).
+model GearPreset {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  artifactIds Json
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
 }

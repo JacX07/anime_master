@@ -7,6 +7,7 @@ import { getTeam } from "@/lib/battles";
 import { requireUser } from "@/lib/session";
 import { speedOf } from "@/lib/speed";
 import { SquadManager } from "./SquadManager";
+import { getFavoriteIds } from "@/lib/favorites";
 
 export const metadata: Metadata = { title: "Équipe — Anime Masters", robots: { index: false } };
 
@@ -24,7 +25,7 @@ export default function TeamPage() {
 
 async function Builder() {
   const user = await requireUser();
-  const [attack, defense, cards, inventory, squads] = await Promise.all([
+  const [attack, defense, cards, inventory, squads, favorites] = await Promise.all([
     getTeam(user.id, "ATTACK"),
     getTeam(user.id, "DEFENSE"),
     prisma.card.findMany({
@@ -44,6 +45,7 @@ async function Builder() {
     }),
     getPlayerInventory(user.id),
     prisma.squad.findMany({ where: { userId: user.id }, orderBy: { id: "asc" } }),
+    getFavoriteIds(user.id),
   ]);
   const ownPowers = cards.map((c) => teamPowers([{
     ...c, ...c.character, id: c.id, characterId: c.character.id,
@@ -51,6 +53,7 @@ async function Builder() {
   }], inventory.items)[0]);
   return (
     <SquadManager
+      favorites={favorites}
       inventory={inventory}
       cards={cards.map((c, index) => ({
         id: c.id,
