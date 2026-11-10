@@ -75,3 +75,4 @@
 .inventory-recycle select:focus-visible, .inventory-recycle input:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
 .inventory-recycle label { display: inline-flex; align-items: center; gap: .35rem; }
 .inventory-notice { margin: 0 0 1rem; color: #7fd48b; font-size: .85rem; }
+.inventory-recycle-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin: 0 0 1rem; padding: .6rem .8rem; background: #e07a6c14; color: #e9a097; font-size: .85rem; }

@@ -169,9 +169,15 @@ table.gear-preview tr[data-delta="down"] td + td { color: #e07a6c; }
 .eq-spell-help summary { cursor: pointer; color: #d8c48a; font-size: .8rem; }
 .eq-spell-help summary:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 3px; }
 .eq-spell-help ul { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .4rem; font-size: .78rem; line-height: 1.5; color: #b4b2aa; }
-.gear-upgrade-row { display: flex; gap: .5rem; align-items: stretch; min-width: 0; }
-.gear-upgrade-row .gear-upgrade { flex: 1; }
-.gear-upgrade-target select { height: 100%; background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .3rem .4rem; font: inherit; font-size: .8rem; }
-.gear-upgrade-target select:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+/* « Améliorer » et le niveau visé dans un seul bouton (v0.3.0) */
+.mq-app-shell[class] .gear-item-actions > .gear-upgrade-split { display: flex; align-items: stretch; padding: 0; gap: 0; flex: 1 1 240px; }
+.mq-app-shell[class] .gear-upgrade-split > .gear-upgrade-go { flex: 1; min-width: 0; margin: 0; padding: .7rem .9rem; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.mq-app-shell[class] .gear-upgrade-split > .gear-upgrade-go::after { display: none; }
+.mq-app-shell[class] .gear-upgrade-split > .gear-upgrade-go:disabled { cursor: not-allowed; opacity: .55; }
+.gear-upgrade-split .gear-upgrade-target { display: flex; border-left: 1px solid #e6b96555; }
+.gear-upgrade-split .gear-upgrade-target select { appearance: auto; background: transparent; color: inherit; border: 0; padding: 0 .6rem; font: 600 .78rem var(--font-dm), sans-serif; cursor: pointer; }
+.gear-upgrade-split .gear-upgrade-target select option { background: #121614; color: #e9e6dc; }
+.gear-upgrade-split :is(.gear-upgrade-go, select):focus-visible { outline: 2px solid #c4a76d; outline-offset: -3px; }
+.gear-recycle-confirm { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem 1rem; font-size: .8rem; color: #e07a6c; }
 .gear-recycle { align-self: flex-end; font-size: .78rem; }
 .gear-item .gear-message { margin: .5rem 0 0; }
