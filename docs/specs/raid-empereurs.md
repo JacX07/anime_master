@@ -1,20 +1,39 @@
-# Défi des empereurs *(proposé le 2026-11-11, à valider avant de coder)*
+# Défi des empereurs et armes légendaires *(décidé en grande partie le 2026-11-11 ; reste des valeurs à valider)*
 
 [← Index des specs](README.md) · [Raid](pvm.md) · [Combat](combat.md)
 
 Mode de raid permanent : les **quatre empereurs** (Shanks, Big Mom, Kaido, Barbe Blanche) sont tous disponibles en même temps, sans rotation hebdomadaire. Chacun a **deux vagues de sbires avant lui**, et chaque empereur vaincu fait gagner une **clé**. Réunir les quatre clés ouvre le combat final où les quatre empereurs sont présents.
 
-## Interprétation à valider
-1. **Quatre portes**, toujours ouvertes, une par empereur. Un passage = vague 1 (4 sbires) → vague 2 (4 sbires plus forts) → empereur. Trois combats enchaînés, un seul coût d'énergie, aucune récompense avant la fin du passage. Une défaite arrête le passage (pas de pénalité).
-2. **Clé** : vaincre l'empereur donne sa clé (une clé par empereur, cumulables sans limite).
-3. **Combat final « Les Quatre Empereurs »** : consomme **une clé de chaque** ; le joueur affronte l'équipe formée des quatre empereurs en 4 contre 4. Pas de sbires avant.
-4. Les clés servent seulement au combat final ; les passages simples restent rejouables à volonté (butin selon les règles du raid : cœurs de brèche, plafond quotidien).
+## Décisions du 2026-11-11
+- **Quatre portes** toujours ouvertes (Shanks, Big Mom, Kaido, Barbe Blanche), sans rotation. Un passage = **deux vagues de sbires puis l'empereur, en un seul combat à trois phases** (le moteur doit gérer les phases). Les sbires sont les **membres de l'équipage de l'empereur** (One Piece, cohérent avec le lore).
+- **Une fois par jour et par empereur** (remise à zéro à minuit, heure du serveur). **Trois difficultés** : Normal, Difficile, Cauchemar.
+- **Ressource légendaire** : chaque empereur laisse sa ressource, nécessaire à la fabrication de **son arme légendaire**, combinée aux ressources de donjon. Quantité par passage : Normal **1**, Difficile **1 à 2**, Cauchemar **2 à 3**.
+- **Clés** : vaincre un empereur donne sa clé. Les quatre clés ouvrent le **mode Hardcore**.
+- **Mode Hardcore** : les quatre empereurs ensemble en un seul combat (4 contre 4) ; il fait gagner **2 ressources légendaires parmi les 4** (deux empereurs différents tirés au sort).
+- **Quatre armes**, chacune liée à un empereur (ci-dessous). Une seule des quatre est détaillée côté recette : l'épée de Shanks.
+
+## Armes légendaires des empereurs
+Armes dédiées, en plus des cinq armes génériques de `weapons.ts` (une par type). Comme elles, elles ne se portent que sur une carte éveillée à 5 étoiles *(à confirmer : sur n'importe quel perso, ou seulement sur le personnage de l'empereur)*.
+
+| Arme | Empereur | Stats de base | Effet spécial débloqué |
+|---|---|---|---|
+| **Épée de Shanks** | Shanks | ATK, vitesse | **Haki des rois** : chaque adversaire touché reçoit **Peur** pendant 1 tour (il a **1 chance sur 4 de rater** son coup). |
+| **Murakumogiri** | Barbe Blanche | ATK, compétence physique | Chaque coup physique a **50 % de chances d'être doublé**. |
+| **Hassaikai** (massue) | Kaido | DEF, réduction des dégâts subis de 10 % | Chaque attaque de base reçue **réduit les dégâts reçus de 10 %** de plus, cumulable jusqu'à **30 %**. |
+| **Napoléon** | Big Mom | ATK, compétence magique | **Zeus et Prométhée** : les dégâts des sorts de **foudre** et de **feu** sont **doublés** ; les sorts des autres éléments appliquent **à la fois** les effets de foudre et de feu. |
+
+### Recette de l'épée de Shanks *(décidée)*
+- **3 cheveux roux de Shanks** (ressource légendaire du raid) et **5 ressources de donjon One Piece**.
+- La ressource de donjon ne tombe qu'au **niveau 10** du donjon One Piece, avec **10 %** de chance par victoire (change l'actuel butin du donjon, voir [lot-6-donjons-sets.md](lot-6-donjons-sets.md)).
+- Recettes des trois autres armes : **à proposer** (même forme : *n* ressource d'empereur + *m* ressources de donjon One Piece de niveau 10).
 
 ## Questions ouvertes
-- Butin du combat final (cœurs ×?, artefact exclusif, titre de profil, cosmétique) : **à décider**.
-- Budget d'équipe : le raid n'en a pas ; on garde cette règle.
-- Niveau de difficulté : un seul niveau très difficile, ou les trois difficultés du raid ?
-- Les sbires : personnages de l'univers de l'empereur (One Piece pour les quatre), ou sbires génériques de brèche ?
+- **Porteur** des armes dédiées : n'importe quelle carte 5★, ou seulement le personnage correspondant ?
+- **Valeurs** : montant des « stats de base » (ex. +10 % ATK et +10 % vitesse, comme `WEAPON_STAT`), et recettes des trois autres armes.
+- **Hardcore** : une fois par jour ? Un niveau de difficulté propre ? Butin autre que 2 ressources légendaires (cœurs de brèche ?).
+- **Énergie** : un passage ou un Hardcore coûte-t-il de l'énergie (comme histoire et donjons) ou rien (comme les raids actuels) ?
+- **Cœurs de brèche** et plafond quotidien : les passages en donnent-ils comme le raid actuel ?
+- **Clés** : consommées à chaque Hardcore ? (supposé oui, une de chaque)
 
 ## Mécaniques à ajouter au moteur
 | Mécanique | Description |
@@ -47,9 +66,10 @@ Deux modes qui s'enchaînent :
 - **Haki du roi des mers** (passif) : réduit de 25 % les dégâts qu'il subit tant qu'il a plus de 50 % de PV.
 - **Famille** : à chaque mort d'un sbire allié (vagues précédentes exclues), il gagne un **bouclier** de 10 % de ses PV.
 
-## Combat final
+## Combat Hardcore
 Les quatre empereurs ensemble gardent leurs kits ; leurs stats sont réduites (ex. **×0,55**) pour que le 4 contre 4 reste jouable. Mécaniques liées : le Haki des rois de Shanks s'applique au début ; Big Mom récupère les âmes de tous les morts.
 
 ## Modèle de données (esquisse)
-- Clés : `ResourceStock` (une ressource par empereur : `cle-shanks`, `cle-big-mom`, `cle-kaido`, `cle-barbe-blanche`).
-- Passage : trois `Battle` successifs en mode `RAID` (clé `raid:emperor:<boss>:<vague>`) rattachés à un passage ; ou, si le moteur le permet, un seul combat à trois phases (à trancher à l'implémentation).
+- Clés et ressources légendaires : `ResourceStock` (`cle-<empereur>` et une ressource par empereur, ex. `cheveux-roux-de-shanks`).
+- Passage : un `Battle` en mode `RAID` (`raid:emperor:<boss>:<difficulté>`) à trois phases ; passage du jour mémorisé par empereur.
+- Armes dédiées : nouvelles entrées de `WEAPONS`, avec stats de base propres et passifs dédiés (peur, doublement, réduction cumulable, foudre/feu).
