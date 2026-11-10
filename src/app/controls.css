@@ -227,3 +227,7 @@
 .mq-app-shell[class] button.fav-star::after { display: none; }
 .mq-app-shell[class] button.fav-star:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
 .fav-badge { position: absolute; top: 6px; right: 8px; z-index: 3; color: #f0d79a; font-size: 1rem; text-shadow: 0 0 6px #000; pointer-events: none; }
+
+/* Photo de profil (v0.3.0) : l'image remplit le médaillon */
+:is(.mq-avatar, .pf-avatar, .lb-av) { overflow: hidden; }
+:is(.mq-avatar, .pf-avatar, .lb-av) > img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; border-radius: inherit; display: block; }

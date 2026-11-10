@@ -31,7 +31,8 @@ export function Leaderboard({ board, meId, unit, empty, valueLabel = (n: number)
         {podium.map((r) => (
           <div key={r.userId} role="listitem" className={`lb-pc lb-p${r.rank}`} data-me={r.userId === meId || undefined} id={r.userId === meId && r.rank <= 3 ? "my-rank-row" : undefined}>
             <span className="lb-n">{r.rank}</span>
-            <span className="ring-engraved lb-av" aria-hidden>{initials(r.username)}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <span className="ring-engraved lb-av" aria-hidden>{r.avatarUrl ? <img src={r.avatarUrl} alt="" referrerPolicy="no-referrer" /> : initials(r.username)}</span>
             <PlayerName username={r.username} title={null} guildTag={r.guildTag} />
             <span className="lb-value">{valueLabel(r.score)}</span>
             {r.detail && <small>{r.detail}</small>}

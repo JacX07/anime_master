@@ -17,6 +17,9 @@ export interface Profile {
   titleKey: string | null;
   guild: { tag: string; name: string } | null;
   since: Date;
+  /** Photo de profil (image d'un personnage), sinon null */
+  avatarUrl: string | null;
+  avatarCharacterId: number | null;
   unique: number;
   power: number;
   expeditions: number;
@@ -36,7 +39,7 @@ export interface Profile {
 export async function getProfile(username: string): Promise<Profile | null> {
   const user = await prisma.user.findUnique({
     where: { username: username.toLowerCase() },
-    select: { id: true, username: true, title: true, createdAt: true, expeditionsDone: true, guild: { select: { tag: true, name: true } } },
+    select: { id: true, username: true, title: true, createdAt: true, expeditionsDone: true, avatarCharacterId: true, guild: { select: { tag: true, name: true } } },
   });
   if (!user) return null;
   const [cards, power, duelWins, unlocked, pinned, anime, packsOpened, stars, tower] = await Promise.all([
@@ -67,6 +70,8 @@ export async function getProfile(username: string): Promise<Profile | null> {
     titleKey,
     guild: user.guild,
     since: user.createdAt,
+    avatarCharacterId: user.avatarCharacterId,
+    avatarUrl: (await avatarsFor([user.id])).get(user.id) ?? null,
     unique: owned.size,
     power,
     expeditions: user.expeditionsDone,
@@ -111,5 +116,21 @@ export async function pinnable(userId: string) {
   return rows
     .map((r) => r.character)
     .sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity) || b.power - a.power || a.id - b.id)
-    .slice(0, 150);
+}
+
+/** Photo de profil (v0.3.0) : image d'un personnage possédé, ou null pour revenir aux initiales. */
+export async function setAvatar(userId: string, characterId: number | null) {
+  if (characterId !== null) {
+    if (!Number.isSafeInteger(characterId)) throw new ProfileError("Personnage invalide.");
+    if (!(await prisma.card.count({ where: { ownerId: userId, characterId } }))) throw new ProfileError("Tu ne possèdes pas ce personnage.");
+  }
+  await prisma.user.update({ where: { id: userId }, data: { avatarCharacterId: characterId } });
+}
+
+/** Images d'avatar de plusieurs joueurs (classements, en-tête). */
+export async function avatarsFor(userIds: string[]): Promise<Map<string, string>> {
+  const users = await prisma.user.findMany({ where: { id: { in: userIds }, avatarCharacterId: { not: null } }, select: { id: true, avatarCharacterId: true } });
+  const chars = await prisma.character.findMany({ where: { id: { in: users.map((u) => u.avatarCharacterId!) } }, select: { id: true, imageUrl: true } });
+  const img = new Map(chars.map((c) => [c.id, c.imageUrl]));
+  return new Map(users.flatMap((u) => img.has(u.avatarCharacterId!) ? [[u.id, img.get(u.avatarCharacterId!)!] as [string, string]] : []));
 }

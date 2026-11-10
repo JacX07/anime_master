@@ -14,6 +14,7 @@ import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { prisma } from "@/lib/db";
 import { titleOf, unclaimedAchievementCount } from "@/lib/achievements";
+import { avatarsFor } from "@/lib/profile";
 import { DailyBonus } from "../DailyBonus";
 import { NotificationBell } from "../NotificationBell";
 import { NavItem } from "./NavItem";
@@ -107,7 +108,8 @@ async function Account() {
   }
   // Statut « en ligne » des amis : au plus une écriture par minute, après la réponse
   after(() => touchLastSeen(user.id));
-  const [wallet, packs, adventure, title, staff, energy] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id), getEnergy(user.id)]);
+  const [wallet, packs, adventure, title, staff, energy, avatars] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id), getEnergy(user.id), avatarsFor([user.id])]);
+  const avatarUrl = avatars.get(user.id);
   const xpPct = adventure.next === null ? 100 : Math.max(0, Math.min(100, Math.round(((adventure.xp - adventure.floor) / (adventure.next - adventure.floor)) * 100)));
   return (
     <>
@@ -117,7 +119,8 @@ async function Account() {
       <Tutorial />
       <AccountDropdown>
         <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player" aria-label={`Profil de ${user.username}`}>
-          <span className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`}>{user.username.slice(0, 2).toUpperCase()}</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <span className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`}>{avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : user.username.slice(0, 2).toUpperCase()}</span>
           <span className="mq-player-text">
             <b>{user.username}</b>
             {title && <small>{title}</small>}
