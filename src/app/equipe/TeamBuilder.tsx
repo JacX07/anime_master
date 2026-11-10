@@ -178,13 +178,13 @@ function Awakening({ card }: { card: TeamCard }) {
   const ok = !!info && !info.maxed && shown.every((c) => c.have >= c.quantity);
   return <div className="cd-awaken">
     <AwakeningStars stars={Math.max(card.stars, paidAt === null ? 0 : paidAt + 1)} rarity={card.rarity} gainedStar={paidAt === null ? 0 : paidAt + 1} />
-    {paidAt !== null && <small className="awaken-success" role="status">Éveil {paidAt + 1}★ réussi. +{Math.round((paidAt + 1) * BATTLE.starBonus * 100)} % ATK, DEF et PV{STAR_PERK[paidAt + 1] ? ` · ${STAR_PERK[paidAt + 1]}` : ""}.</small>}
+    <small className="awaken-success awaken-result" role="status">{paidAt !== null ? `Éveil ${paidAt + 1}★ réussi.` : ""}</small>
     {info && !info.maxed && <>
       <ul className="cd-costs" aria-label="Coût de l’éveil">
         {shown.map((c) => <li key={c.key} data-short={c.have < c.quantity || undefined} title={c.name}><ResourceArt resource={c.key} size={26} /><span>{c.have}/{c.quantity}</span></li>)}
       </ul>
       {info.duplicate !== null && <label className="awaken-dup"><input type="checkbox" disabled={!info.duplicate} checked={dupOn} onChange={(e) => setWithDup(e.target.checked)} /> Utiliser un doublon : cœurs −50 % ({info.duplicate} libre{info.duplicate > 1 ? "s" : ""})</label>}
-      {STAR_PERK[card.stars + 1] && <small>{card.stars + 1}★ : {STAR_PERK[card.stars + 1]}</small>}
+      {STAR_PERK[card.stars + 1] && <small className="cd-awaken-perk">{card.stars + 1}★ : {STAR_PERK[card.stars + 1]}</small>}
       <button type="button" className="bt-btn awaken-action" disabled={!ok || pending || paidAt === card.stars} onClick={() => start(async () => { const r = await awakenCardAction(card.id, card.stars, dupOn); setMsg(r.ok ? "" : r.error); if (r.ok) setPaidAt(card.stars); setVersion((v) => v + 1); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
     </>}
     {info?.maxed && <small>{card.stars >= 5 ? "Éveil maximal" : "Éveil maximal pour cette rareté"}</small>}

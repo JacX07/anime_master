@@ -8,3 +8,5 @@
 .awakening-burst > .i, .awakening-spark > .i { width: 100%; height: 100%; }
 .awaken-list .card-stars { display: none; }
 .awaken-success, .eq-character-dialog .cd-awaken .awaken-success { color: #8fbfae; }
+.awaken-result { min-block-size: 1.5em; margin: 0; line-height: 1.5; }
+.eq-character-dialog .cd-awaken .cd-awaken-perk { min-block-size: 4.2em; display: flex; align-items: center; justify-content: center; }

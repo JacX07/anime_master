@@ -40,7 +40,7 @@ export function AwakenList({ rows }: { rows: AwakenRow[] }) {
   return (
     <div>
       {message && <p role="alert" className="vt-muted">{message}</p>}
-      {gained && <p className="awaken-success" role="status">{gained.card.name} · Éveil {gained.stars}★ réussi. {pct(gained.stars * BATTLE.starBonus)} ATK, DEF et PV{STAR_PERK[gained.stars] ? ` · ${STAR_PERK[gained.stars]}` : ""}.</p>}
+      <p className="awaken-success awaken-result" role="status">{gained ? `Éveil ${gained.stars}★ réussi.` : ""}</p>
       <ul className="awaken-list" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1.5rem", listStyle: "none", padding: 0 }}>
         {shownRows.map(({ id, cost: fullCost, stars, duplicate, ...card }) => {
           const withDup = !!duplicate && duplicate.available > 0 && useDup.has(id);
