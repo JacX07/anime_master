@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 
-import { abandonBattle, autoTeam, BattleError, bestTeamIds, equipArtifact, getBattle, getBattlePreview, getStoryProgress, getStoryPreview, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, autoTeam, BattleError, bestTeamIds, equipArtifact, getBattle, getBattlePreview, getStoryProgress, getStoryPreview, playAction, setAttackTeam, setBattleAuto, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -66,6 +66,9 @@ export async function playAutoAction(battleId: string, steps: number) {
 export async function finishAutoAction(battleId: string, steps: number) {
   if (!Number.isSafeInteger(steps) || steps < 0) return { ok: false as const, error: "Version du combat invalide." };
   return run(async (id) => ({ battle: await playAction(id, String(battleId), null, new Date(), steps, true) }));
+}
+export async function setBattleAutoAction(battleId: string, auto: boolean) {
+  return run(async (id) => (await setBattleAuto(id, String(battleId), Boolean(auto)), {}));
 }
 export async function abandonBattleAction(battleId: string) {
   return run(async (id) => (await abandonBattle(id, String(battleId)), {}));

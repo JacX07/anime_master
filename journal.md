@@ -545,3 +545,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : équipes de test en 2 UR + 1 SSR + 1 SR (24). `check:dungeon-universes` échoue déjà sur `/verrouillée/` (le message est « Donjon verrouillé », antérieur à ce chantier).
 - Validation : navigateur PC (compte 4 UR + SSR/SR) : 32/24 bloque le lancement avec message, composition automatique 24/24, combat lancé, aucune erreur JavaScript.
 - Piège : `pkill -f "next dev ..."` dans le même shell tue la commande en cours (code 144) ; arrêter le serveur dans un appel séparé.
+\n
+## 2026-11-11 — Combat en Auto interrompu quand on quitte la page
+- Symptôme : le combat s'arrêtait en quittant la page ; relancer un combat l'abandonnait (compté perdu).
+- Cause : l'Auto n'existait que dans le navigateur ; une requête serveur lancée pendant `pagehide` est annulée par le navigateur.
+- Correctif : `setBattleAuto` mémorise l'Auto sur le combat ; `finishAutoBattles` le termine au lancement suivant (avant l'abandon). Fin immédiate aussi au démontage du lecteur.
+- Validation : navigateur PC, compte jetable : combat en Auto laissé par rechargement, puis relancé : l'ancien est DONE (victoire), pas ABANDONED. Non vérifié : fermeture réelle de l'onglet, mobile, site après push.
+- Piège : en test, « Combattre en manuel » démarre déjà en Auto ; cliquer sur l'interrupteur le désactive.

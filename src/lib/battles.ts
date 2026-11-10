@@ -592,6 +592,8 @@ export interface BattleTeams {
   timeout?: "attacker-loses-v1";
   /** Donjon : difficulté déjà vaincue avant le lancement, figée pour toute la lecture. */
   spellFxUnlocked?: boolean;
+  /** Le joueur a laissé le mode Auto : si le combat reste ouvert, le serveur le termine au lieu de l'abandonner. */
+  auto?: boolean;
 }
 
 /** Ce que le navigateur reçoit : le journal (complet ou depuis le dernier envoi) et, en manuel, les choix possibles. */
@@ -754,6 +756,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   const mode: BattleMode = story ? "STORY" : raid ? "RAID" : floor ? "TOWER" : dungeonLevel ? "DUNGEON" : "TEST";
   // Un combat suivi à la fois et par mode. En histoire et dans la Tour, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
   if (manual && (story || floor || raid || dungeonLevel)) {
+    await finishAutoBattles(userId, mode, now);
     const open = await prisma.battle.findMany({ where: { userId, manual: true, status: "RUNNING", mode }, select: { id: true } });
     if (open.length) await prisma.$transaction(async (tx) => {
       await tx.battle.updateMany({ where: { id: { in: open.map((b) => b.id) }, status: "RUNNING" }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
@@ -868,6 +871,24 @@ export async function playAction(userId: string, battleId: string, action: Actio
     });
   if (done) await track("battle_end", userId, { mode: row.mode, opponent: row.opponent, manual: true, winner: done.winner, stars: score, events: done.log.length, steps: row.steps + played.length, durationMs: now.getTime() - row.createdAt.getTime(), ryo: (loot as { ryo?: number } | null)?.ryo ?? 0 });
   return toView({ ...row, steps: row.steps + played.length, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
+}
+
+/** Mémorise que le joueur est en Auto sur ce combat (le serveur pourra le terminer s'il quitte la page). */
+export async function setBattleAuto(userId: string, battleId: string, auto: boolean) {
+  const row = await prisma.battle.findFirst({ where: { id: battleId, userId, manual: true, status: "RUNNING" }, select: { id: true, teams: true } });
+  if (!row) return;
+  const teams = row.teams as unknown as BattleTeams;
+  if (Boolean(teams.auto) === auto) return;
+  await prisma.battle.updateMany({ where: { id: row.id, status: "RUNNING" }, data: { teams: toJson({ ...teams, auto }) } });
+}
+
+/** Combats laissés ouverts en mode Auto : la stratégie automatique les joue jusqu'au bout (récompenses comprises) au lieu de les abandonner. */
+export async function finishAutoBattles(userId: string, mode: BattleMode, now = new Date()) {
+  const open = await prisma.battle.findMany({ where: { userId, manual: true, status: "RUNNING", mode }, select: { id: true, teams: true } });
+  for (const row of open) {
+    if (!(row.teams as unknown as BattleTeams).auto) continue;
+    try { await playAction(userId, row.id, null, now, undefined, true); } catch { /* terminé ailleurs entre-temps */ }
+  }
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */

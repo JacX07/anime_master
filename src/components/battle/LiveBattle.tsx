@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { abandonBattleAction, finishAutoAction, playActionAction, playAutoAction } from "@/app/battle-actions";
+import { abandonBattleAction, finishAutoAction, playActionAction, playAutoAction, setBattleAutoAction } from "@/app/battle-actions";
 import type { Spell, UnitId } from "@/lib/battle";
 import type { BattleView } from "@/lib/battles";
 import { BattlePlayer, type PlayerCharacter } from "./BattlePlayer";
@@ -91,11 +91,32 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
     return () => document.removeEventListener("visibilitychange", onHide);
   }, [auto]);
 
+  // Quitter la page en auto (autre page, fermeture) : le combat se termine côté serveur au lieu de rester ouvert puis d'être abandonné.
+  const autoRef = useRef(auto);
+  const leaving = useRef(false);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => { autoRef.current = auto; });
+  useEffect(() => { clearTimeout(leaveTimer.current); }, [view.id]);
+  useEffect(() => {
+    const finishOnLeave = () => {
+      if (leaving.current || !autoRef.current || statusRef.current !== "RUNNING") return;
+      leaving.current = true;
+      void finishAutoAction(view.id, stepsRef.current);
+    };
+    window.addEventListener("pagehide", finishOnLeave);
+    // Démontage différé : le double montage de React (développement) l'annule aussitôt.
+    return () => { window.removeEventListener("pagehide", finishOnLeave); leaveTimer.current = setTimeout(finishOnLeave, 50); };
+  }, [view.id]);
+
+  // Le serveur retient le réglage Auto : un combat laissé ouvert est alors terminé par le serveur au prochain lancement.
+  useEffect(() => { if (statusRef.current === "RUNNING") void setBattleAutoAction(view.id, auto); }, [auto, view.id]);
+
   const play = (spell: Spell, target: UnitId | null) => send(() => playActionAction(view.id, { spell, target }, view.steps));
   const autoStep = () => send(() => playAutoAction(view.id, view.steps));
 
   const abandon = (then?: () => void) =>
     start(async () => {
+      leaving.current = true;
       const r = await abandonBattleAction(view.id);
       if (r.ok) then?.();
       else setError(r.error);
