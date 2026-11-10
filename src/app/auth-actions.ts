@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { PASSWORD_MIN, USERNAME_MAX, USERNAME_MIN, auth } from "@/lib/auth";
+import { emailConfigured } from "@/lib/email-config";
 
 export interface AuthFormState {
   error?: string;
@@ -62,6 +63,10 @@ export async function signUp(_prev: AuthFormState, form: FormData): Promise<Auth
   } catch (err) {
     return { error: describe(err), values };
   }
+  if (!emailConfigured()) {
+    revalidatePath("/", "layout"); // aucune page du compte précédent ne doit rester en cache
+    redirect("/packs");
+  }
   // Pas de session avant la confirmation de l'e-mail : on invite à ouvrir le lien reçu.
   redirect(`/signup/verification?email=${encodeURIComponent(email)}`);
 }
@@ -101,6 +106,7 @@ export async function resendVerification(email: string): Promise<{ ok: boolean; 
 /** Mot de passe oublié : le message ne dit jamais si l'adresse existe. */
 export async function requestPasswordReset(_prev: AuthFormState, form: FormData): Promise<AuthFormState> {
   const email = field(form, "email").toLowerCase();
+  if (!emailConfigured()) return { error: "La réinitialisation par e-mail n’est pas encore disponible.", values: { email } };
   if (!email) return { error: ERRORS.INVALID_EMAIL, values: { email } };
   try {
     await auth.api.requestPasswordReset({ body: { email, redirectTo: "/reset-password" } });

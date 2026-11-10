@@ -10,6 +10,7 @@ import { APIError, createAuthMiddleware } from "better-auth/api";
 import { authThrottle } from "./auth-throttle";
 import { track } from "./events";
 import { sendEmailInBackground } from "./email";
+import { emailConfigured } from "./email-config";
 import { resetPasswordEmail, verificationEmail } from "./email-templates";
 
 export const USERNAME_MIN = 3;
@@ -40,14 +41,14 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true, minPasswordLength: PASSWORD_MIN,
-    // Connexion refusée tant que l'e-mail n'est pas confirmé (les comptes antérieurs sont marqués confirmés par migration).
-    requireEmailVerification: true,
+    // Connexion refusée tant que l'e-mail n'est pas confirmé, seulement si Resend est configuré (les comptes antérieurs sont marqués confirmés par migration).
+    requireEmailVerification: emailConfigured(),
     resetPasswordTokenExpiresIn: 60 * 60,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => { sendEmailInBackground(resetPasswordEmail(user.email, user.name, url)); },
   },
   emailVerification: {
-    sendOnSignUp: true,
+    sendOnSignUp: emailConfigured(),
     expiresIn: 24 * 60 * 60,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => { sendEmailInBackground(verificationEmail(user.email, user.name, url)); },
