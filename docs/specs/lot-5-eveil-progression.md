@@ -16,3 +16,9 @@ Décisions validées le 2026-11-10 ; intégration reprise après interruption.
 - Navigateur sur le build local, port 3012 : 4★ sans doublon ; 5★ avec doublon et demi-coût ; persistance après rechargement ; victoire duo réelle et résultat 3★ + bonus ; bonus conservé sur la carte ; palier bonus réclamé et conservé après rechargement ; statistiques à 25 % de critique et 170 % de dégâts critiques. Vérifications desktop 1440 px et mobile 390 px, sans débordement de page ni erreur JavaScript.
 - Migration duo appliquée sur la base de développement. Aucune publication en production.
 - Pas de nouvelle simulation des taux de victoire par univers : la garantie testée porte sur la puissance ennemie, les sorts et affinités gardent leur influence. Animation et son restent à maqueter.
+
+## Maquette d’animation proposée (à valider)
+
+[Éveil interactif](../maquettes/eveil-animation.html) : Roy Mustang SSR, passage 3★ → 4★ ; l’étoile avance d’un cran, éclat ambré bref, trois petits éclats du sprite existant, deux notes métalliques synthétisées. La séquence dure 620 ms. Les nouvelles statistiques restent affichées. Son désactivable, rejeu, interruption par Échap, résultat immédiat sans son en mouvements réduits.
+
+La maquette reprend les polices et couleurs du site, le portrait AniList déjà utilisé dans la maquette Histoire et l’étoile de `public/icons/icons.json`. Vérifiée en navigateur à 728, 768 et 390 px, au clavier et avec les mouvements réduits. Aucun parcours du jeu ni aucune ressource ne sont modifiés. L’intégration attend la validation visuelle de l’utilisateur.
