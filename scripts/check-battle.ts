@@ -186,8 +186,18 @@ const unitOf = (c: BattleCard) => {
 const weapon = { stat: 0.05, passive: null };
 const u0 = unitOf(plain), u3 = unitOf({ ...plain, stars: 3 }), u5 = unitOf({ ...plain, stars: 5, weapon });
 const u3w = unitOf({ ...plain, stars: 3, weapon });
-check("Éveil : +4 % d'ATK, de DEF et de PV par étoile", Math.abs(u3.atk - 3000 * (1 + 3 * BATTLE.starBonus)) < 1e-6 && Math.abs(u3.maxHp - BATTLE.hp(3000, 2000) * (1 + 3 * BATTLE.starBonus)) < 1e-6);
+check("Éveil : +6 % d'ATK, de DEF et de PV par étoile", Math.abs(u3.atk - 3000 * (1 + 3 * BATTLE.starBonus)) < 1e-6 && Math.abs(u3.maxHp - BATTLE.hp(3000, 2000) * (1 + 3 * BATTLE.starBonus)) < 1e-6);
 check("Arme : comptée à 5 étoiles, ignorée avant", Math.abs(u5.atk - 3000 * (1 + 5 * BATTLE.starBonus + 0.05)) < 1e-6 && u3w.atk === u3.atk && u0.atk === 3000);
+const awakeningState = createBattle([{ ...plain, stars: 5 }], [{ ...plain, stars: 5 }], () => 0.5);
+check("Éveil 2★ : jauge initiale +25", u0.ultimateGauge === 0 && u3.ultimateGauge === 25);
+check("Éveil 5★ : bouclier initial de 10 %, cumul avec le second camp", Object.values(awakeningState.teams).flat().every((u) => Math.abs(u.shield / u.maxHp - (u.side === (awakeningState.log[0].kind === "start" ? awakeningState.log[0].first : "A") ? 0.1 : 0.25)) < 1e-6));
+const awakeningHit = (stars: number) => {
+  const state = createBattle([{ ...plain, stars }], [{ ...plain, characterId: 900002 }], () => 0.2, { spells: false, combos: false });
+  applyAction(state, { spell: "base", target: "B1" });
+  return state.log.find((e) => e.kind === "damage");
+};
+const hit0 = awakeningHit(0), hit4 = awakeningHit(4);
+check("Éveil 4★ : critique de 25 % et multiplicateur de 170 % appliqués aux dégâts", hit0?.kind === "damage" && hit4?.kind === "damage" && !hit0.crit && hit4.crit && Math.abs(hit4.amount / hit0.amount - 1.24 * 1.7) < 1e-6);
 // Cooldown : à 3 étoiles, le sort affilié (secondaire) revient une action plus tôt ; à 5, le tertiaire aussi.
 const casts = (stars: number) => {
   const s = createBattle([{ ...plain, stars, power: 9 }, filler(12), filler(13), filler(14)], [card({ attack: 100, defense: 90000, franchiseId: 20 }), card({ attack: 100, defense: 90000, franchiseId: 21 }), card({ attack: 100, defense: 90000, franchiseId: 22 }), card({ attack: 100, defense: 90000, franchiseId: 23 })], () => 0.5);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/lib/db";
-import { awakenCost, needsDuplicate, universeOfFranchise } from "@/lib/awakening";
+import { awakenCost, duplicateHelps, universeOfFranchise } from "@/lib/awakening";
 import { duplicateWhere } from "@/lib/awaken";
 import { RESOURCE_NAMES } from "@/lib/story";
 import { requireUser } from "@/lib/session";
@@ -17,7 +17,7 @@ export default function AwakenPage() {
         <header className="pg-head">
           <h1 className="vt-title">Éveil</h1>
           <p className="vt-sub">
-            Chaque étoile ajoute +2 % d&apos;ATK, de DEF et de PV. Les étoiles 1 à 3 coûtent des ressources de l&apos;histoire : la carte d&apos;un univers utilise moitié fragments de signature, moitié ressource de son univers. Les étoiles 4 et 5 (SSR et UR) demandent des cœurs de brèche du raid et un doublon du personnage.
+            Chaque étoile ajoute +6 % d&apos;ATK, de DEF et de PV. Les étoiles 1 à 3 coûtent des ressources de l&apos;histoire : la carte d&apos;un univers utilise moitié fragments de signature, moitié ressource de son univers. Les étoiles 4 et 5 (SSR et UR) demandent des cœurs de brèche du raid. Un doublon facultatif divise leur coût en cœurs par deux.
           </p>
         </header>
         <Suspense fallback={<p className="vt-muted">Chargement…</p>}>
@@ -40,17 +40,19 @@ async function Cards() {
     prisma.resourceStock.findMany({ where: { userId: user.id } }),
   ]);
   const have = (key: string) => stock.find((s) => s.key === key)?.quantity ?? 0;
-  // Doublons libres par carte : nécessaires seulement pour les étoiles 4 et 5
+  // Doublons libres par carte : facultatifs, ils divisent le coût des étoiles 4 et 5 par 2
   const dupes = new Map<string, number>();
-  for (const c of cards.filter((x) => needsDuplicate(x.stars + 1))) {
+  for (const c of cards.filter((x) => duplicateHelps(x.stars + 1))) {
     dupes.set(c.id, await prisma.card.count({ where: duplicateWhere(user.id, c.characterId, c.id) }));
   }
   const rows: AwakenRow[] = cards.map((c) => {
-    const cost = awakenCost(c.character.rarity, c.stars + 1, universeOfFranchise(c.character.mainMedia?.franchiseId ?? c.character.mainMediaId));
+    const universe = universeOfFranchise(c.character.mainMedia?.franchiseId ?? c.character.mainMediaId);
+    const cost = awakenCost(c.character.rarity, c.stars + 1, universe);
+    const discounted = duplicateHelps(c.stars + 1) ? awakenCost(c.character.rarity, c.stars + 1, universe, true) : null;
     return {
       id: c.id, characterId: c.characterId, name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity, type: c.character.type, attack: c.character.attack, defense: c.character.defense, power: c.character.power,
       finish: c.finish, series: c.character.mainMedia ? c.character.mainMedia.titleEnglish ?? c.character.mainMedia.titleRomaji : null, stars: c.stars,
-      duplicate: dupes.has(c.id) ? { available: dupes.get(c.id)! } : null,
+      duplicate: dupes.has(c.id) ? { available: dupes.get(c.id)!, cost: discounted!.map((x) => ({ key: x.key, name: RESOURCE_NAMES[x.key] ?? x.key, quantity: x.quantity, have: have(x.key) })) } : null,
       cost: cost.map((x) => ({ key: x.key, name: RESOURCE_NAMES[x.key] ?? x.key, quantity: x.quantity, have: have(x.key) })),
     };
   });

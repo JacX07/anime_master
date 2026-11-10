@@ -119,8 +119,13 @@ export const BATTLE = {
   passiveCap: 0.3,
   /** Synergie de franchise : bonus ATK/DEF/PV selon le nombre de cartes de la même franchise (indice = nombre) */
   franchiseBonus: [0, 0, 0.03, 0.06, 0.1],
-  /** Éveil : bonus d'ATK, de DEF et de PV par étoile (doublé le 2026-11-01) */
-  starBonus: 0.04,
+  /** Éveil : bonus d'ATK, de DEF et de PV par étoile (0,04 → 0,06 en v0.3.0) */
+  starBonus: 0.06,
+  /** Éveil (v0.3.0) : jauge d'ultime de départ à 2★, critique et dégâts critiques à 4★, bouclier de départ à 5★ */
+  starGaugeStart: 25,
+  starCrit: 0.1,
+  starCritDamage: 0.2,
+  starShield: 0.1,
   /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort secondaire (affilié pour N/R/SR) baisse d'une action */
   secondaryCdStar: 3,
   /** Éveil : à partir de ce nombre d'étoiles, le cooldown du sort tertiaire baisse d'une action */
@@ -338,6 +343,9 @@ export interface BattleState {
 }
 
 const starsOf = (c: BattleCard) => Math.max(0, Math.min(5, c.stars ?? 0));
+/** Critique et dégâts critiques d'éveil (4★ et plus, v0.3.0). */
+export const starCrit = (c: BattleCard) => (starsOf(c) >= 4 ? BATTLE.starCrit : 0);
+export const starCritDamage = (c: BattleCard) => (starsOf(c) >= 4 ? BATTLE.starCritDamage : 0);
 /** L'arme ne compte que sur une carte éveillée 5 étoiles. */
 const weaponOf = (c: BattleCard) => (starsOf(c) === 5 ? c.weapon ?? null : null);
 
@@ -373,7 +381,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
     const rawTertiary = opts.spells && !card.noTertiary ? card.tertiary ?? TERTIARY_SPELLS[card.characterId] ?? null : null;
     return {
       id: `${side}${i + 1}` as UnitId,
-      card, side, speed: Math.max(1, ((card.speed ?? 100) + (card.artifactStats?.speed ?? 0)) * (1 + (card.artifactStats?.speedPct ?? 0))), gauge: 0, maxHp, hp: maxHp, shield: 0,
+      card, side, speed: Math.max(1, ((card.speed ?? 100) + (card.artifactStats?.speed ?? 0)) * (1 + (card.artifactStats?.speedPct ?? 0))), gauge: 0, maxHp, hp: maxHp, shield: starsOf(card) >= 5 ? maxHp * BATTLE.starShield : 0,
       atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
       def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
@@ -386,7 +394,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       tertiary: rawTertiary ? (card.tertiary ? card.tertiary : powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale)) : null,
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
-      ultimateGauge: 0,
+      ultimateGauge: starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0,
       revived: false, master: null, deathCast: false, continuingTurn: false, fx: [],
     };
   });
@@ -420,8 +428,9 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
-    u.shield = u.maxHp * BATTLE.secondShield;
-    st.log.push({ kind: "shield", source: null, target: u.id, amount: u.shield, shield: u.shield });
+    const added = u.maxHp * BATTLE.secondShield;
+    u.shield += added;
+    st.log.push({ kind: "shield", source: null, target: u.id, amount: added, shield: u.shield });
   }
   return st;
 }
@@ -853,8 +862,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     if (opts.combos && u.shield >= u.maxHp * BATTLE.comboShieldThreshold) atk *= 1.15;
     const aff = affinity(u.card.type, t.card.type);
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
-    const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + fxSum(u, "crit"), 0, BATTLE.critCap);
-    if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0);
+    const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit"), 0, BATTLE.critCap);
+    if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card);
     dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0);
     const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
     if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);

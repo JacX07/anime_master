@@ -1,4 +1,4 @@
-import { createBattle, type BattleCard } from "./battle";
+import { createBattle, starCrit, starCritDamage, type BattleCard } from "./battle";
 import { computePower } from "./stats";
 import { isMagicalSpell } from "./magic-skill";
 
@@ -13,7 +13,7 @@ export function combatPowers(cards: BattleCard[]): number[] {
       || isMagicalSpell(card, "ultimate", unit.ultimate);
     return computePower({
       attack: unit.atk, defense: unit.def, hp: unit.maxHp, speed: unit.speed,
-      crit: 0.15 + (gear?.crit ?? 0), critDamage: 1.5 + (gear?.critDamage ?? 0),
+      crit: 0.15 + (gear?.crit ?? 0) + starCrit(card), critDamage: 1.5 + (gear?.critDamage ?? 0) + starCritDamage(card),
       dodge: unit.dodge + (gear?.dodge ?? 0),
       damageBonus: (card.type === "MAGIE" || card.franchiseId === 113415) ? gear?.magicDamage : gear?.physDamage,
       magicSkill: magical ? gear?.magicSkill : 0,

@@ -23,6 +23,7 @@ import "@/components/battle/battle.css";
 import "./equipe.css";
 import "./character.css";
 import { closeOnBackdrop } from "@/lib/dialog";
+import { STAR_PERK } from "@/lib/awakening";
 import { FavoriteStar, RoleTags } from "@/components/team/CardFilters";
 import { rolesOf } from "@/lib/character-roles";
 
@@ -169,15 +170,20 @@ function Awakening({ card }: { card: TeamCard }) {
   // Étoile déjà payée mais carte pas encore rafraîchie : empêche un deuxième clic qui paierait l'étoile suivante
   const [paidAt, setPaidAt] = useState<number | null>(null);
   useEffect(() => { let live = true; awakenInfoAction(card.id).then((r) => { if (live) setInfo(r); }); return () => { live = false; }; }, [card.id, card.stars, version]);
-  const ok = !!info && !info.maxed && info.cost.every((c) => c.have >= c.quantity) && (info.duplicate === null || info.duplicate > 0);
+  // Doublon facultatif (étoiles 4 et 5) : coût en cœurs divisé par 2
+  const [withDup, setWithDup] = useState(false);
+  const dupOn = withDup && !!info?.duplicate && !!info.discounted;
+  const shown = info ? (dupOn ? info.cost.map((c) => ({ ...c, quantity: info.discounted!.find((d) => d.key === c.key)?.quantity ?? c.quantity })) : info.cost) : [];
+  const ok = !!info && !info.maxed && shown.every((c) => c.have >= c.quantity);
   return <div className="cd-awaken">
     <span className="card-stars cd-stars" role="img" aria-label={`${card.stars} étoiles sur 5`}>{[1, 2, 3, 4, 5].map((n) => <i key={n} data-on={n <= card.stars || undefined}>★</i>)}</span>
     {info && !info.maxed && <>
       <ul className="cd-costs" aria-label="Coût de l’éveil">
-        {info.cost.map((c) => <li key={c.key} data-short={c.have < c.quantity || undefined} title={c.name}><ResourceArt resource={c.key} size={26} /><span>{c.have}/{c.quantity}</span></li>)}
-        {info.duplicate !== null && <li data-short={info.duplicate < 1 || undefined} title="Doublon libre consommé">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={card.imageUrl} alt="" referrerPolicy="no-referrer" width={22} height={30} /><span>{Math.min(info.duplicate, 1)}/1</span></li>}
+        {shown.map((c) => <li key={c.key} data-short={c.have < c.quantity || undefined} title={c.name}><ResourceArt resource={c.key} size={26} /><span>{c.have}/{c.quantity}</span></li>)}
       </ul>
-      <button type="button" className="bt-btn" disabled={!ok || pending || paidAt === card.stars} onClick={() => start(async () => { const r = await awakenCardAction(card.id, card.stars); setMsg(r.ok ? "" : r.error); if (r.ok) setPaidAt(card.stars); setVersion((v) => v + 1); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
+      {info.duplicate !== null && <label className="awaken-dup"><input type="checkbox" disabled={!info.duplicate} checked={dupOn} onChange={(e) => setWithDup(e.target.checked)} /> Utiliser un doublon : cœurs −50 % ({info.duplicate} libre{info.duplicate > 1 ? "s" : ""})</label>}
+      {STAR_PERK[card.stars + 1] && <small>{card.stars + 1}★ : {STAR_PERK[card.stars + 1]}</small>}
+      <button type="button" className="bt-btn" disabled={!ok || pending || paidAt === card.stars} onClick={() => start(async () => { const r = await awakenCardAction(card.id, card.stars, dupOn); setMsg(r.ok ? "" : r.error); if (r.ok) setPaidAt(card.stars); setVersion((v) => v + 1); if (r.ok) router.refresh(); })}>Éveiller ({card.stars}★ → {card.stars + 1}★)</button>
     </>}
     {info?.maxed && <small>{card.stars >= 5 ? "Éveil maximal" : "Éveil maximal pour cette rareté"}</small>}
     {msg && <small role="alert">{msg}</small>}

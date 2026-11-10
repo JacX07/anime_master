@@ -1,6 +1,6 @@
 "use client";
 import { combatPowers } from "@/lib/combat-power";
-import { BATTLE, createBattle, type BattleCard } from "@/lib/battle";
+import { BATTLE, createBattle, starCrit, starCritDamage, type BattleCard } from "@/lib/battle";
 import { sumArtifactStats } from "@/lib/artifact-stats";
 import { weaponDef } from "@/lib/weapons";
 import type { TeamCard } from "./TeamBuilder";
@@ -30,7 +30,7 @@ export function gearSnapshot(card: TeamCard, team: TeamCard[], inventory: Inv, w
   const unit = createBattle(battleCards, [], () => 0.5, { spells: false, combos: false }).teams.A[index];
   const gear = battleCards[index].artifactStats!;
   return { power: combatPowers(battleCards)[index], hp: unit.maxHp, atk: unit.atk, def: unit.def, speed: unit.speed,
-    crit: Math.max(0, Math.min(1, BATTLE.critRate + (gear.crit ?? 0))), critDamage: BATTLE.critDamage + (gear.critDamage ?? 0), dodge: Math.max(0, Math.min(1, unit.dodge + (gear.dodge ?? 0))) };
+    crit: Math.max(0, Math.min(1, BATTLE.critRate + starCrit(battleCards[index]) + (gear.crit ?? 0))), critDamage: BATTLE.critDamage + starCritDamage(battleCards[index]) + (gear.critDamage ?? 0), dodge: Math.max(0, Math.min(1, unit.dodge + (gear.dodge ?? 0))) };
 }
 
 /** Avant / après : ce que l'objet sélectionné change sur la fiche du personnage. */
@@ -73,8 +73,8 @@ export function StatisticsPanel({ card, team, inventory }: { card: TeamCard; tea
     ["ATK", number(card.attack), number(unit.atk)],
     ["DEF", number(card.defense), number(unit.def)],
     ["Vitesse", number(card.speed), number(unit.speed)],
-    ["Chance de critique", percent(BATTLE.critRate), percent(clamp(BATTLE.critRate + gear.crit))],
-    ["Dégâts critiques", percent(BATTLE.critDamage), percent(BATTLE.critDamage + gear.critDamage)],
+    ["Chance de critique", percent(BATTLE.critRate), percent(clamp(BATTLE.critRate + starCrit(battleCards[index]) + gear.crit))],
+    ["Dégâts critiques", percent(BATTLE.critDamage), percent(BATTLE.critDamage + starCritDamage(battleCards[index]) + gear.critDamage)],
     ["Esquive", "0 %", percent(clamp(unit.dodge + gear.dodge))],
   ];
   const owned = inventory.items.flatMap((item) => item.artifact ? [item.artifact] : []);

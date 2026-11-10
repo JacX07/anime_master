@@ -1,8 +1,8 @@
 // Éveil d'une carte : débit des ressources et gain d'une étoile dans une seule transaction.
-// Étoiles 1 à 3 : ressources de l'histoire. Étoiles 4 et 5 (SSR, UR) : cœurs de brèche et un doublon consommé.
+// Étoiles 1 à 3 : ressources de l'histoire. Étoiles 4 et 5 (SSR, UR) : cœurs de brèche ; un doublon facultatif en divise le coût par 2.
 
 import type { Prisma } from "../generated/prisma/client";
-import { awakenCost, canAwaken, MAX_STARS, needsDuplicate, universeOfFranchise, type Cost } from "./awakening";
+import { awakenCost, canAwaken, duplicateHelps, MAX_STARS, universeOfFranchise, type Cost } from "./awakening";
 import { BattleError } from "./battles";
 import { prisma } from "./db";
 
@@ -15,7 +15,7 @@ export const duplicateWhere = (userId: string, characterId: number, exceptCardId
 });
 
 /** `expectedStars` : étoiles que l'écran affichait ; un double clic ou un écran périmé ne paie donc jamais une deuxième étoile. */
-export async function awakenCard(userId: string, cardId: string, expectedStars?: number): Promise<{ stars: number; cost: Cost; consumed: boolean }> {
+export async function awakenCard(userId: string, cardId: string, expectedStars?: number, useDuplicate = false): Promise<{ stars: number; cost: Cost; consumed: boolean }> {
   return prisma.$transaction(async (tx) => {
     const card = await tx.card.findUnique({
       where: { id: cardId },
@@ -28,15 +28,16 @@ export async function awakenCard(userId: string, cardId: string, expectedStars?:
     if (card.stars >= MAX_STARS) throw new BattleError("Cette carte est déjà à 5 étoiles.");
     if (!canAwaken(rarity, to)) throw new BattleError("Les cartes N, R et SR s'arrêtent à 3 étoiles.");
     const universe = universeOfFranchise(card.character.mainMedia?.franchiseId ?? card.character.mainMediaId);
-    const cost = awakenCost(rarity, to, universe);
+    const withDuplicate = useDuplicate && duplicateHelps(to);
+    const cost = awakenCost(rarity, to, universe, withDuplicate);
     // Doublon : le moins avancé, puis le moins précieux (finition normale d'abord), puis le plus récent
     let duplicate: string | null = null;
-    if (needsDuplicate(to)) {
+    if (withDuplicate) {
       const dup = await tx.card.findMany({ where: duplicateWhere(userId, card.characterId, cardId), select: { id: true, stars: true, finish: true, serial: true } });
       const rank = { NORMAL: 0, HOLO: 1, GOLD: 2 } as Record<string, number>;
       dup.sort((a, b) => a.stars - b.stars || (rank[a.finish] ?? 0) - (rank[b.finish] ?? 0) || b.serial - a.serial);
       duplicate = dup[0]?.id ?? null;
-      if (!duplicate) throw new BattleError("Il te faut un doublon libre de ce personnage (ni verrouillé, ni en équipe, ni en vente ou en échange).");
+      if (!duplicate) throw new BattleError("Aucun doublon libre de ce personnage (ni verrouillé, ni en équipe, ni en vente ou en échange) : éveille sans doublon.");
     }
     // Étoile d'abord, avec le niveau attendu : deux clics simultanés ne paient qu'une fois.
     const up = await tx.card.updateMany({ where: { id: cardId, ownerId: userId, stars: card.stars }, data: { stars: { increment: 1 } } });

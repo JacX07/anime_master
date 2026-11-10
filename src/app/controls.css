@@ -236,3 +236,5 @@
 /* Photo de profil (v0.3.0) : l'image remplit le médaillon */
 :is(.mq-avatar, .pf-avatar, .lb-av) { overflow: hidden; }
 :is(.mq-avatar, .pf-avatar, .lb-av) > img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; border-radius: inherit; display: block; }
+/* Éveil : doublon facultatif (v0.3.0) */
+.awaken-dup { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: var(--gold-light); }
