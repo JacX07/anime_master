@@ -20,6 +20,7 @@ import { BattleVictory } from "./BattleVictory";
 import "./battle.css";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
+import { EffectsPanel } from "./EffectsPanel";
 
 export interface PlayerCharacter {
   name: string;
@@ -468,6 +469,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     </div>
 
       <SpellsPanel
+        effects={<EffectsPanel unit={rp.info[spellUnit]} state={rp.units[spellUnit]} info={rp.info} characters={characters} />}
         unit={rp.info[spellUnit]}
         character={characters[rp.info[spellUnit].characterId]}
         followsAction={picked === null}
@@ -572,6 +574,7 @@ function Unit({
           .map((k: Status) => (
             <li key={k} data-state={k} data-bad={STATUS_INFO[k].bad || undefined} tabIndex={0} aria-label={`${STATUS_INFO[k].label} : ${STATUS_INFO[k].help}`} onClick={(e) => e.stopPropagation()}>
               <StatusIcon status={k} />
+              {st.fxd?.[k]?.turns !== undefined && <span className="bt-state-turns" aria-hidden="true">{st.fxd[k]!.turns}</span>}
               <span className="bt-tip" role="tooltip">
                 <b>{STATUS_INFO[k].label}</b>
                 {STATUS_INFO[k].help}

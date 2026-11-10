@@ -44,7 +44,7 @@ const PERSONAL: Record<number, BasicAttack> = {
   86: named("Frappe inspirée de Champ A.T.", { kind: "shield", pct: 0.005 }), // Rei Ayanami
   126635: named("Coup de Nue", { kind: "shield", pct: 0.005 }), // Megumi
   127212: named("Coup divergeant", mod("crit", 0.03, "self")), // Yuuji
-  127691: named("Impulsion d'Infini", { kind: "shield", pct: 0.0008 }), // Gojo
+  127691: named("Impulsion d'Infini", { kind: "shield", pct: 0.08 }), // Gojo (8 %, v0.3.0)
   129571: named("Coupe de katana avec Rika", { kind: "heal", pct: 0.02 }), // Yuta
   133699: named("Frappe de fléau", { kind: "poison", pct: 0.005 }), // Getou
   133700: named("Clou résonnant", mod("atk", -0.03, "target")), // Nobara

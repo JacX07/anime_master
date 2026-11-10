@@ -188,7 +188,7 @@ export const BASIC_ATTACK_ROSTER: Record<number, { character: string; attack: Ba
   127221: {"character":"Sakuta Azusagawa","attack":{"name":"Frappe inspirée de Syndrome de l'adolescence","rider":{"kind":"heal","pct":0.02}}},
   127222: {"character":"Mai Sakurajima","attack":{"name":"Frappe inspirée de Charme de lapine","rider":{"kind":"mod","stat":"dodge","amount":0.03,"to":"self"}}},
   127518: {"character":"Nezuko Kamado","attack":{"name":"Frappe inspirée de Forme de démon","rider":{"kind":"heal","pct":0.005}}},
-  127691: {"character":"Satoru Gojou","attack":{"name":"Impulsion d'Infini","rider":{"kind":"shield","pct":0.0008}}},
+  127691: {"character":"Satoru Gojou","attack":{"name":"Impulsion d'Infini","rider":{"kind":"shield","pct":0.08}}},
   128106: {"character":"Chizuru Ichinose","attack":{"name":"Frappe inspirée de Sourire parfait","rider":{"kind":"heal","pct":0.02}}},
   128651: {"character":"Hanako","attack":{"name":"Frappe inspirée de Sceau des légendes","rider":{"kind":"mod","stat":"atk","amount":-0.03,"to":"target"}}},
   129130: {"character":"Inosuke Hashibira","attack":{"name":"Frappe inspirée de Respiration de la bête","rider":{"kind":"mod","stat":"atk","amount":0.03,"to":"self"}}},

@@ -1087,3 +1087,19 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .mq-app-shell[class] .bt-dock-row .bt-quit:hover:not(:disabled) { color: #e0645c; box-shadow: inset 0 -1px 0 #e0645c; }
 @media (max-width: 480px) { .bt-dock-in { padding: .35rem .6rem; gap: .1rem; } .mq-app-shell[class] .bt-dock .bt-ico { min-width: 2.1rem; padding: .4rem; } .mq-app-shell[class] .bt-dock .bt-spd { min-width: 3rem; } }
 @media (prefers-reduced-motion: reduce) { .bt-sw-tr::after { transition: none; } }
+
+/* v0.3.0 : tours restants sur les icônes d'état, panneau des effets actifs */
+.bt-states li { position: relative; }
+.bt-state-turns { position: absolute; right: -25%; bottom: -25%; min-width: 60%; padding: 0 2px; border-radius: 6px; background: #0a1322; color: #fff; font: 700 6.5cqw/1.2 var(--font-dm), sans-serif; text-align: center; pointer-events: none; }
+.bt-effects { margin: 0 0 .7rem; padding: .6rem .7rem; background: #0b1424cc; border-radius: .5rem; font-size: .78rem; color: #dbe6f7; }
+.bt-effects h3 { margin: 0 0 .4rem; font-size: .8rem; color: #a8bddd; }
+.bt-effects ul { list-style: none; margin: 0 0 .5rem; padding: 0; display: grid; gap: .3rem; }
+.bt-effects li { padding-left: .5rem; border-left: 3px solid #4fd6a0; }
+.bt-effects li[data-bad] { border-left-color: #ff7a8a; }
+.bt-effects li em { display: block; font-style: normal; color: #8fa3c2; font-size: .7rem; }
+.bt-effects li small { color: #a8bddd; }
+.bt-effects-none { margin: 0 0 .5rem; color: #8fa3c2; }
+.bt-effects table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.bt-effects th { text-align: left; font-weight: 400; color: #a8bddd; }
+.bt-effects td { text-align: right; padding-left: .5rem; }
+.bt-effects tr[data-changed] td:last-child { color: #ffd166; font-weight: 700; }

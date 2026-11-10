@@ -43,11 +43,15 @@ export function battleReport(log: BattleEvent[]) {
   return { rows: [...rows.values()], unattributed };
 }
 
+/** Longueur du bandeau « Ordre » : un tour complet de 4 contre 4. */
+export const TURN_ORDER_LENGTH = 8;
+
 /** En replay, le journal est l'ordre exact ; en direct rattrapé, la file serveur fait autorité. */
 export function replayTurnOrder(log: BattleEvent[], index: number, current: UnitId | null, info: Partial<Record<UnitId, UnitView>>, dead: (id: UnitId) => boolean, live?: UnitId[], pending: UnitId[] = []) {
   // La prévision doit correspondre à l'action visible, même si le serveur a déjà joué la suite.
   const action = log.slice(0, index).findLast(event => event.kind === "action" && event.actor === current);
   const forecast = action?.kind === "action" ? action.turnOrder : undefined;
   const ids = live ?? (forecast ? [...forecast, ...pending] : [ ...(current ? [current] : []), ...log.slice(index).flatMap((event) => event.kind === "action" || event.kind === "skip" ? [event.actor] : []), ...pending ]);
-  return ids.filter((id) => info[id] && !dead(id)).slice(0, 5);
+  // v0.3.0 : toute la file prévue (alliés et ennemis), pas seulement les 5 prochains
+  return ids.filter((id) => info[id] && !dead(id)).slice(0, TURN_ORDER_LENGTH);
 }

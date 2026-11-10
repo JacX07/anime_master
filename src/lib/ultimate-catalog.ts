@@ -1,4 +1,5 @@
 import type { CharacterSpell, Effect } from "./spells";
+import { withSpellRules } from "./spell-rules";
 import { ULTIMATE_DATA } from "./skill-data";
 import { ULTIMATE_OVERRIDES } from "./skill-overrides";
 
@@ -255,4 +256,4 @@ const LEGACY_ULTIMATE: Record<number, CharacterSpell>  = {
 };
 
 /** Sorts réécrits (skill-data.json) en priorité, ancien catalogue en repli. */
-export const ULTIMATE_CATALOG: Record<number, CharacterSpell> = { ...LEGACY_ULTIMATE, ...ULTIMATE_DATA, ...ULTIMATE_OVERRIDES };
+export const ULTIMATE_CATALOG: Record<number, CharacterSpell> = withSpellRules({ ...LEGACY_ULTIMATE, ...ULTIMATE_DATA, ...ULTIMATE_OVERRIDES }, "ultimate");
