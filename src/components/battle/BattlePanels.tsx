@@ -22,7 +22,10 @@ export function SpellsPanel({
   character,
   followsAction,
   choose,
+  effects,
 }: {
+  /** Panneau des effets actifs de la carte, affiché au-dessus des sorts (v0.3.0) */
+  effects?: React.ReactNode;
   unit: UnitView;
   character?: PlayerCharacter;
   followsAction: boolean;
@@ -94,6 +97,7 @@ export function SpellsPanel({
   }
   return (
     <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`} data-choosing={choose ? "" : undefined}>
+      {effects}
       <h3 className="bt-spells-title">
         {character?.name}{" "}
         <small>

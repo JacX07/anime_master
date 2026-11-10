@@ -231,7 +231,9 @@ export type BattleEvent =
   | { kind: "heal"; source: UnitId; target: UnitId; amount: number; hp: number }
   /** source = null et amount < 0 : le bouclier du second joueur disparaît à la fin du 1er tour */
   | { kind: "shield"; source: UnitId | null; target: UnitId; amount: number; shield: number }
-  | { kind: "status"; target: UnitId; status: Status; on: boolean }
+  | { kind: "status"; target: UnitId; status: Status; on: boolean; /** v0.3.0 : valeur, durée (actions du porteur), lanceur et stat touchée, pour le panneau des effets */ amount?: number; turns?: number; source?: UnitId; stat?: ModStat }
+  /** v0.3.0 : tours restants des effets d'une carte, après son action */
+  | { kind: "fxTurns"; target: UnitId; turns: Partial<Record<Status, number>> }
   /** Perte de PV du poison, à la fin de l'action du porteur */
   | { kind: "poison"; source?: UnitId; target: UnitId; amount: number; hp: number; burn?: boolean; bleed?: boolean }
   /** Une carte morte revient au combat */
@@ -608,6 +610,12 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       st.log.push({ kind: "status", target: u.id, status: effect.key, on: false });
     }
   }
+  // Tours restants (après décompte), pour le panneau des effets
+  const turns: Partial<Record<Status, number>> = {};
+  for (const f of u.fx) if (f.key !== "ignoreDef" && f.key !== "bleed") turns[f.key] = f.turns + (f.fresh ? 1 : 0);
+  if (u.weaken > 0) turns.weaken = u.weaken;
+  if (u.elan > 0) turns.elan = u.elan;
+  if (Object.keys(turns).length) st.log.push({ kind: "fxTurns", target: u.id, turns });
 }
 
 /** Conséquences d'une mort, avant que la carte suivante agisse : disparition des zombies, retour ou exécution des cartes volées, ultime automatique d'Emilia. */
@@ -895,16 +903,15 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     }
     const old = t.fx.find((f) => f.key === key);
     if (old) {
-      if (key === "stun") {
-        old.turns = Math.max(old.turns, turns);
-        return;
-      }
-      if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u, source: u.id });
+      if (key === "stun") old.turns = Math.max(old.turns, turns);
+      else if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u, source: u.id });
       else old.turns = Math.max(old.turns, turns);
+      // Renouvellement : l'écran met à jour la valeur et la durée affichées
+      log.push({ kind: "status", target: t.id, status: key, on: true, amount: old.amount, turns: old.turns, source: old.source, ...(old.stat ? { stat: old.stat } : {}) });
       return;
     }
     t.fx.push({ key, stat, amount, turns, fresh: t === u, source: u.id });
-    log.push({ kind: "status", target: t.id, status: key, on: true });
+    log.push({ kind: "status", target: t.id, status: key, on: true, amount, turns, source: u.id, ...(stat ? { stat } : {}) });
   };
   const dropFx = (t: Unit, f: Fx) => {
     t.fx = t.fx.filter((x) => x !== f);
@@ -1059,7 +1066,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           for (const t of who(e.to)) addFx(t, "poison", e.pct, e.turns);
           break;
         case "silence":
-          for (const t of who(e.to)) addFx(t, "silence", 0, e.turns);
+          for (const t of e.to === "foes" && e.count ? strongestFoes(st, u, e.count) : who(e.to)) addFx(t, "silence", 0, e.turns);
           break;
         case "stun": {
           const targets = strongestFoes(st, u, e.count);

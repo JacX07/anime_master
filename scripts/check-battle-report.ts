@@ -44,11 +44,11 @@ assert.equal(predicted.length, 5);
 assert.equal(predicted[0], currentActor(queueState)!.id);
 assert.equal(new Set(predicted).size, 4);
 assert.equal(JSON.stringify(queueState, (key, value) => key === "rng" ? undefined : value), beforeQueue);
-assert.deepEqual(replayTurnOrder([], 0, "A1", info, () => false, undefined, ["B1", "A1", "B1", "A1", "B1"]), ["A1", "B1", "A1", "B1", "A1"]);
+assert.deepEqual(replayTurnOrder([], 0, "A1", info, () => false, undefined, ["B1", "A1", "B1", "A1", "B1"]), ["A1", "B1", "A1", "B1", "A1", "B1"]);
 console.log("File de cinq passages : projection alternée sans mutation et remplissage pendant le replay conformes.");
 
 const queuedLog: BattleEvent[] = [log[0], {kind: "action", actor: "A1", spell: "base", target: "B1", turnOrder: ["A1", "B1", "A1", "B1", "A1", "B1"]}];
-assert.deepEqual(replayTurnOrder(queuedLog, 2, "A1", info, () => false, undefined, []), ["A1", "B1", "A1", "B1", "A1"]);
-assert.equal(replayTurnOrder(queuedLog, 2, "A1", info, () => false).length, 5);
+assert.deepEqual(replayTurnOrder(queuedLog, 2, "A1", info, () => false, undefined, []), ["A1", "B1", "A1", "B1", "A1", "B1"]);
+assert.equal(replayTurnOrder(queuedLog, 2, "A1", info, () => false).length, 6);
 assert(state.log.some(event => event.kind === "action" && event.turnOrder?.[0] === event.actor));
-console.log("Prévision conservée dans chaque action : cinq portraits même sans suite reçue du serveur.");
+console.log("Prévision conservée dans chaque action : toute la file prévue, même sans suite reçue du serveur.");

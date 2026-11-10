@@ -1,6 +1,7 @@
 // Sort tertiaire SSR/UR : petites techniques liées à la signature de chaque personnage.
 // Catalogue autonome, préparé pour un actif à recharge courte. Les riders restent modestes :
 // un seul effet léger, sans contrôle dur, zone, résurrection ni dégâts extrêmes.
+import { withSpellRules } from "./spell-rules";
 import type { CharacterSpell, Effect } from "./spells";
 import { TERTIARY_DATA } from "./skill-data";
 import { TERTIARY_OVERRIDES } from "./skill-overrides";
@@ -248,4 +249,4 @@ const LEGACY_TERTIARY: Record<number, CharacterSpell> = {
 };
 
 /** Sorts réécrits (skill-data.json) en priorité, ancien catalogue en repli. */
-export const TERTIARY_SPELLS: Record<number, CharacterSpell> = { ...LEGACY_TERTIARY, ...TERTIARY_DATA, ...TERTIARY_OVERRIDES };
+export const TERTIARY_SPELLS: Record<number, CharacterSpell> = withSpellRules({ ...LEGACY_TERTIARY, ...TERTIARY_DATA, ...TERTIARY_OVERRIDES }, "tertiary");

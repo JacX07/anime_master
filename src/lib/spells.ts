@@ -1,6 +1,7 @@
 // Sorts de personnage des SSR et UR (docs/specs/combat.md §4 bis) : des listes d'effets lues par le moteur (battle.ts).
 // Pur : aucune lecture en base. Un SSR ou UR sans sort écrit reçoit un sort générique déduit de son type.
 
+import { applySpellRules } from "./spell-rules";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { SECONDARY_DATA } from "./skill-data";
 import { SECONDARY_OVERRIDES } from "./skill-overrides";
@@ -20,7 +21,7 @@ export type Effect =
   /** Perd `pct` de ses PV max à chaque action du porteur */
   | { k: "poison"; pct: number; turns: number; to: Scope }
   /** Ne peut lancer que le sort de base. Sans effet sur les boss. */
-  | { k: "silence"; turns: number; to: Scope }
+  | { k: "silence"; turns: number; to: Scope; /** Avec `to: "foes"` : seulement les N ennemis à l'ATK la plus élevée */ count?: number }
   | { k: "stun"; turns: number; count: number }
   | { k: "immune"; turns: number; to: Scope }
   | { k: "purge"; to: Scope }
@@ -393,7 +394,7 @@ export const ARCH_SPELLS: Record<number, [Arch, string]> = {
 export function spellOf(characterId: number, rarity: Rarity, type: CardType): CharacterSpell | null {
   if (rarity !== "SSR" && rarity !== "UR") return null;
   const arch = ARCH_SPELLS[characterId];
-  return SECONDARY_OVERRIDES[characterId] ?? SECONDARY_DATA[characterId] ?? CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]);
+  return applySpellRules(characterId, "special", SECONDARY_OVERRIDES[characterId] ?? SECONDARY_DATA[characterId] ?? CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]));
 }
 
 const pct = (x: number) => `${Math.round(Math.abs(x) * 100)} %`;
@@ -426,7 +427,7 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "regen": return `soin sur la durée de ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "shield": return `bouclier de ${pct(e.pct)} des PV max pour ${WHO[e.to]}`;
     case "poison": return `poison : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
-    case "silence": return `silence sur ${WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
+    case "silence": return `silence sur ${e.to === "foes" && e.count ? (e.count === 1 ? "l’ennemi à l’ATK la plus élevée" : `les ${e.count} ennemis à l’ATK la plus élevée`) : WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
     case "stun": return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
     case "immune": return `immunité aux malus pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "purge": return `retire les malus de ${WHO[e.to]}`;

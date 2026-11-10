@@ -4,6 +4,7 @@
 
 import type { CardType } from "../generated/prisma/enums";
 import type { BattleEvent, FxKey, Side, Spell, Status, UnitId, UnitView } from "./battle";
+import type { ModStat } from "./spells";
 import { attackVisual } from "./attack-visual";
 
 export interface UnitState {
@@ -15,7 +16,10 @@ export interface UnitState {
   elan: boolean;
   /** Effets durables des sorts de personnage (bonus, malus, silence, poison…) */
   fx: FxKey[];
+  /** v0.3.0 : détail des effets (valeur, tours restants, lanceur), absent des journaux plus anciens */
+  fxd?: Partial<Record<Status, FxDetail>>;
 }
+export interface FxDetail { amount?: number; turns?: number; source?: UnitId; stat?: ModStat }
 
 /** Élément éphémère posé sur une carte : nombre flottant, effet de type, étiquette d'état. */
 export type Pop =
@@ -146,7 +150,7 @@ export function replayStart(log: BattleEvent[]): Replay {
   const units = {} as Record<UnitId, UnitState>;
   for (const u of start.units) {
     info[u.id] = u;
-    units[u.id] = { hp: u.hp, shield: u.shield, ko: false, exposed: false, weaken: false, elan: false, fx: [] };
+    units[u.id] = { hp: u.hp, shield: u.shield, ko: false, exposed: false, weaken: false, elan: false, fx: [], fxd: {} };
   }
   return { idx: 1, info, units, first: start.first, round: 0, cur: null, pops: [], popSeq: 0, end: null };
 }
@@ -194,11 +198,22 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       patch(ev.target, { shield: ev.shield });
       pop({ unit: ev.target, kind: "shield", amount: ev.amount });
       break;
-    case "status":
-      if (ev.status === "exposed" || ev.status === "weaken" || ev.status === "elan") patch(ev.target, { [ev.status]: ev.on });
-      else patch(ev.target, { fx: ev.on ? [...units[ev.target].fx, ev.status] : units[ev.target].fx.filter((k) => k !== ev.status) });
-      pop({ unit: ev.target, kind: "status", status: ev.status, on: ev.on });
+    case "status": {
+      const fxd = { ...(units[ev.target].fxd ?? {}) };
+      if (ev.on) fxd[ev.status] = { amount: ev.amount, turns: ev.turns, source: ev.source, stat: ev.stat };
+      else delete fxd[ev.status];
+      const renewed = ev.on && (units[ev.target].fx.includes(ev.status as FxKey) || units[ev.target][ev.status as "exposed"] === true);
+      if (ev.status === "exposed" || ev.status === "weaken" || ev.status === "elan") patch(ev.target, { [ev.status]: ev.on, fxd });
+      else patch(ev.target, { fx: ev.on ? (renewed ? units[ev.target].fx : [...units[ev.target].fx, ev.status]) : units[ev.target].fx.filter((k) => k !== ev.status), fxd });
+      if (!renewed) pop({ unit: ev.target, kind: "status", status: ev.status, on: ev.on });
       break;
+    }
+    case "fxTurns": {
+      const fxd = { ...(units[ev.target].fxd ?? {}) };
+      for (const [k, t] of Object.entries(ev.turns)) fxd[k as Status] = { ...(fxd[k as Status] ?? {}), turns: t };
+      patch(ev.target, { fxd });
+      break;
+    }
     case "poison":
       patch(ev.target, { hp: ev.hp });
       pop({ unit: ev.target, kind: "poison", amount: ev.amount, ...(ev.burn ? { burn: true } : {}), ...(ev.bleed ? { bleed: true } : {}) });
@@ -259,6 +274,8 @@ export function holdFor(log: BattleEvent[], i: number): number {
       return next?.kind === "shield" ? 70 : 280;
     case "status":
       return 90;
+    case "fxTurns":
+      return 0;
     case "poison":
       return next?.kind === "ko" ? 150 : 340;
     case "revive":
