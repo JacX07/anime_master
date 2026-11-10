@@ -4,8 +4,11 @@ import { ResourceArt } from "@/components/ResourceArt";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { startBattleAction } from "@/app/battle-actions";
+import { useState } from "react";
+import { getBattlePreviewAction, startBattleAction } from "@/app/battle-actions";
+import { TeamPreparation, type PrepEnemy } from "@/components/team/TeamPreparation";
+import { useModeTeam } from "@/components/team/useModeTeam";
+import type { TeamContext } from "@/lib/team-context";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import type { BattleView } from "@/lib/battles";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
@@ -21,23 +24,36 @@ interface Props {
   difficulties: { key: string; name: string; mult: number; unlocked: boolean; bestShare: number; won: boolean }[];
   fullHeartsLeft: number;
   hearts: number;
-  team: ({ name: string; imageUrl: string; rarity: Rarity } | null)[];
+  context: TeamContext;
+  storageKey: string;
 }
 
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 
-export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsLeft, hearts, team }: Props) {
+export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsLeft, hearts, context, storageKey }: Props) {
   const router = useRouter();
-  const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const squad = useModeTeam(storageKey, context);
+  const { pending, start, error, setError } = squad;
   const [fight, setFight] = useState<{ battle: BattleView; difficulty: string; auto: boolean } | null>(null);
-  const ready = team.every(Boolean);
+  const [prep, setPrep] = useState<{ difficulty: string; enemies: PrepEnemy[] } | null>(null);
+  const ready = squad.ready;
+  const team = squad.slots.map((id) => context.ownedCards.find((c) => c.id === id)).map((c) => c ? { name: c.name, imageUrl: c.imageUrl, rarity: c.combat.rarity as Rarity } : null);
+
+  function prepare(difficulty: string) {
+    setError(null);
+    start(async () => {
+      const res = await getBattlePreviewAction(raidKey(boss.key, difficulty));
+      if (!res.ok) return setError(res.error);
+      setPrep({ difficulty, enemies: res.cards });
+    });
+  }
 
   function run(difficulty: string) {
     setError(null);
     start(async () => {
-      const res = await startBattleAction(raidKey(boss.key, difficulty), true);
+      const res = await startBattleAction(raidKey(boss.key, difficulty), true, squad.selectedIds);
       if (!res.ok) return setError(res.error);
+      setPrep(null);
       setFight({ battle: res.battle, difficulty, auto: localStorage.getItem("bt-auto") !== "off" });
     });
   }
@@ -78,6 +94,12 @@ export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsL
     );
   }
 
+  if (prep) {
+    const d = difficulties.find((x) => x.key === prep.difficulty)!;
+    return <TeamPreparation title={`Raid — ${boss.name}`} subtitle={`Difficulté ${d.name} · cœurs ×${d.mult}`} team={squad} context={context} enemies={prep.enemies} enemyLabel={(c) => c.combat.boss ? "Boss" : "Garde"} onBack={() => { setPrep(null); setError(null); }}
+      footer={<><p className="hs-team-note">Paliers : 25 % des PV → 1 cœur, 50 % → 2, 75 % → 3, victoire → 5 (×{d.mult}).</p><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(prep.difficulty)}>{pending ? "Chargement…" : "Combattre"}</button></>} />;
+  }
+
   return (
     <>
       <section className="rd-boss" aria-label="Boss de la semaine">
@@ -112,7 +134,7 @@ export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsL
         ) : (
           <p className="vt-muted">Il te faut une équipe de 4 cartes pour combattre.</p>
         )}
-        <Link href="/equipe" className="bt-btn">{ready ? "Modifier mon équipe" : "Composer mon équipe"}</Link>
+        <button type="button" className="bt-btn" disabled={pending || !difficulties.some((d) => d.unlocked)} onClick={() => prepare((difficulties.find((d) => d.unlocked) ?? difficulties[0]).key)}>{ready ? "Modifier mon équipe" : "Composer mon équipe"}</button>
       </section>
 
       <section aria-label="Difficultés" className="rd-diffs">
@@ -127,8 +149,8 @@ export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsL
               {d.won ? "Vaincu" : d.bestShare > 0 ? `Meilleur : ${Math.round(d.bestShare * 100)} % des PV` : "Pas encore tenté"}
               {" · "}paliers : 25 % → 1, 50 % → 2, 75 % → 3, victoire → 5 (×{d.mult})
             </small>
-            <button type="button" className="bt-btn" disabled={!ready || !d.unlocked || pending} onClick={() => run(d.key)}>
-              {d.unlocked ? "Combattre" : "Verrouillé"}
+            <button type="button" className="bt-btn" disabled={!d.unlocked || pending} onClick={() => prepare(d.key)}>
+              {d.unlocked ? "Préparer" : "Verrouillé"}
             </button>
           </div>
         ))}

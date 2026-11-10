@@ -418,7 +418,7 @@ export async function setTeam(userId: string, kind: TeamKind, cardIds: string[])
 export const setAttackTeam = (userId: string, cardIds: string[]) => setTeam(userId, "ATTACK", cardIds);
 
 /** Équipe par défaut : les 4 cartes les plus rares du joueur (puis les plus populaires), hors enchères. */
-export async function autoTeam(userId: string, kind: TeamKind = "ATTACK") {
+export async function autoTeam(userId: string, kind: TeamKind = "ATTACK", save = true) {
   const cards = await prisma.card.findMany({
     where: { ownerId: userId, inAuction: false },
     select: { id: true, characterId: true, character: { select: { rarity: true, power: true } } },
@@ -432,10 +432,12 @@ export async function autoTeam(userId: string, kind: TeamKind = "ATTACK") {
     picked.push(c.id);
   }
   if (picked.length < 4) throw new BattleError("Il te faut au moins 4 personnages différents.");
-  await setTeam(userId, kind, picked);
+  if (save) await setTeam(userId, kind, picked);
   return picked;
 }
 export const autoAttackTeam = (userId: string) => autoTeam(userId, "ATTACK");
+/** Composition automatique d'un mode : calculée, jamais enregistrée comme équipe d'attaque. */
+export const bestTeamIds = (userId: string) => autoTeam(userId, "ATTACK", false);
 
 /** Équipe enregistrée, positions 1 à 4 (null = vide). Les cartes qui ont changé de main sont retirées. */
 export async function getTeam(userId: string, kind: TeamKind) {
@@ -484,6 +486,14 @@ export async function getStoryRoster(userId: string) {
   return fitted.map((c) => ({ id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, stars: c.stars, finish: c.finish,
     combat: { ...toBattleCard(c.character, c.stars, c.weaponKey), artifactStats: c.artifactStats },
   }));
+}
+
+/** Aperçu des ennemis d'un donjon ou d'un raid (la Tour garde les siens secrets) : lecture seule, sans contrôle d'accès, rien n'est créé. */
+export async function getBattlePreview(opponent: string) {
+  if (!parseDungeonKey(opponent) && !parseRaid(opponent)) throw new BattleError("Aperçu indisponible pour ce combat.");
+  const cards = await opponentCards(opponent);
+  const characters = await prisma.character.findMany({ where: { id: { in: cards.map((c) => c.characterId) } }, select: { id: true, name: true, imageUrl: true } });
+  return cards.map((combat, i) => ({ ...characters.find((c) => c.id === combat.characterId)!, id: `${combat.characterId}-${i}`, combat }));
 }
 
 /** Lecture seule : l'aperçu ne crée ni combat ni récompense. */
@@ -630,6 +640,7 @@ export async function sweepBattles(now = new Date()) {
 
 /** Lance un combat avec l'équipe d'attaque du joueur. Automatique : calculé en entier. Manuel : un seul en cours à la fois. */
 export async function startBattle(userId: string, opponent: string, manual: boolean, now = new Date(), storyCardIds?: string[]): Promise<BattleView> {
+  // `storyCardIds` : composition choisie à l'écran de préparation (tous les modes depuis la v0.3.0 ; duo en histoire seulement).
   const adventureMode = opponent.startsWith("dungeon:") ? "dungeon" : opponent.startsWith("raid:") ? "raid" : opponent.startsWith("tower:") ? "tower" : null;
   if (adventureMode) {
     const locked = await adventureLock(userId, adventureMode);
@@ -640,11 +651,11 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   const slots = await getAttackTeam(userId);
   let storyCards: NonNullable<typeof slots[number]>[] | null = null;
   if (storyCardIds !== undefined) {
-    if (!story || !Array.isArray(storyCardIds) || ![2, 4].includes(storyCardIds.length) || storyCardIds.some((id) => typeof id !== "string") || new Set(storyCardIds).size !== storyCardIds.length) throw new BattleError("Choisis 2 ou 4 cartes différentes pour l'histoire.");
+    if (!Array.isArray(storyCardIds) || !(story ? [2, 4] : [4]).includes(storyCardIds.length) || storyCardIds.some((id) => typeof id !== "string") || new Set(storyCardIds).size !== storyCardIds.length) throw new BattleError(story ? "Choisis 2 ou 4 cartes différentes pour l'histoire." : "Choisis 4 cartes différentes.");
     const owned = await prisma.card.findMany({ where: { id: { in: storyCardIds }, ownerId: userId, inAuction: false }, select: { id: true, ownerId: true, stars: true, weaponKey: true, finish: true, character: { select: { ...CHARACTER_SELECT, name: true, imageUrl: true } } } });
     const byId = new Map(owned.map((card) => [card.id, card]));
     storyCards = storyCardIds.map((id) => byId.get(id)).filter((card): card is (typeof owned)[number] => !!card);
-    if (storyCards.length !== storyCardIds.length || new Set(storyCards.map((card) => card.character.id)).size !== storyCards.length) throw new BattleError("Choisis deux personnages différents qui t'appartiennent.");
+    if (storyCards.length !== storyCardIds.length || new Set(storyCards.map((card) => card.character.id)).size !== storyCards.length) throw new BattleError("Choisis des personnages différents qui t'appartiennent.");
   } else if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   const dungeonLevel = opponent.startsWith(DUNGEON_PREFIX) ? parseDungeonKey(opponent) : null;
   if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");

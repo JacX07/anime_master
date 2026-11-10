@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 
-import { abandonBattle, autoTeam, BattleError, equipArtifact, getBattle, getStoryProgress, getStoryPreview, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
+import { abandonBattle, autoTeam, BattleError, bestTeamIds, equipArtifact, getBattle, getBattlePreview, getStoryProgress, getStoryPreview, playAction, setAttackTeam, setTeam, startBattle } from "@/lib/battles";
 import type { Action } from "@/lib/battle";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
@@ -26,6 +26,14 @@ export async function setAttackTeamAction(cardIds: string[]) {
 }
 export async function autoAttackTeamAction() {
   return run(async (id) => ({ cardIds: await autoTeam(id, "ATTACK") }));
+}
+/** Composition automatique d'un écran de préparation : ne modifie pas l'équipe d'attaque. */
+export async function bestTeamAction() {
+  return run(async (id) => ({ cardIds: await bestTeamIds(id) }));
+}
+/** Ennemis d'un donjon ou d'un raid, pour l'écran de préparation. */
+export async function getBattlePreviewAction(opponent: string) {
+  return run(async () => ({ cards: await getBattlePreview(String(opponent)) }));
 }
 export async function setDefenseTeamAction(cardIds: string[]) {
   return run(async (id) => (await setTeam(id, "DEFENSE", (cardIds ?? []).map(String)), {}));

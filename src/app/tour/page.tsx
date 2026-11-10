@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { PlayerName } from "@/components/PlayerName";
 import { SceneBody } from "@/components/SceneBody";
-import { getAttackTeam, getTowerFloor, towerLeaderboard } from "@/lib/battles";
+import { getTowerFloor, towerLeaderboard } from "@/lib/battles";
+import { getTeamContext } from "@/lib/team-context";
 import { requireUser } from "@/lib/session";
 import { MAX_FLOOR } from "@/lib/tower";
 import { TowerBoard } from "./TowerBoard";
@@ -26,13 +27,14 @@ async function Tower() {
   const user = await requireUser();
   const locked = await modeLockPanel(user.id, "tower");
   if (locked) return locked;
-  const [maxFloor, team, top] = await Promise.all([getTowerFloor(user.id), getAttackTeam(user.id), towerLeaderboard(10)]);
+  const [maxFloor, context, top] = await Promise.all([getTowerFloor(user.id), getTeamContext(user.id), towerLeaderboard(10)]);
   return (
     <div className="vt-inner">
       <TowerBoard
         maxFloor={maxFloor}
         maxPossible={MAX_FLOOR}
-        team={team.map((c) => (c ? { name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null))}
+        context={context}
+        storageKey={`tower-team:${user.id}`}
       />
       <p className="vt-sub tw-intro">
         Le méta-univers qui relie tous les autres : à chaque étage, 4 personnages tirés au hasard, les mêmes pour tout le monde. Plus tu montes, plus ils sont rares et forts. Une défaite ne coûte rien. Ton équipe vient de la page <Link href="/equipe">Équipe</Link>.

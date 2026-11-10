@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { SceneBody } from "@/components/SceneBody";
 import { prisma } from "@/lib/db";
-import { getAttackTeam, getRaidState } from "@/lib/battles";
+import { getRaidState } from "@/lib/battles";
+import { getTeamContext } from "@/lib/team-context";
 import { nextBossAt } from "@/lib/raid";
 import { requireUser } from "@/lib/session";
 import { RaidBoard } from "./RaidBoard";
@@ -27,7 +28,7 @@ async function Raid() {
   const locked = await modeLockPanel(user.id, "raid");
   if (locked) return locked;
   const now = new Date();
-  const [state, team] = await Promise.all([getRaidState(user.id, now), getAttackTeam(user.id)]);
+  const [state, context] = await Promise.all([getRaidState(user.id, now), getTeamContext(user.id)]);
   const leader = await prisma.character.findFirst({
     where: { disabled: false, rarity: "UR", type: state.boss.type },
     orderBy: [{ favourites: "desc" }, { id: "asc" }],
@@ -48,7 +49,8 @@ async function Raid() {
         difficulties={state.difficulties.map((d) => ({ key: d.key, name: d.name, mult: d.mult, unlocked: d.unlocked, bestShare: d.bestShare, won: d.won }))}
         fullHeartsLeft={state.fullHeartsLeft}
         hearts={state.hearts}
-        team={team.map((c) => (c ? { name: c.character.name, imageUrl: c.character.imageUrl, rarity: c.character.rarity } : null))}
+        context={context}
+        storageKey={`raid-team:${user.id}`}
       />
     </div>
   );
