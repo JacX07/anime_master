@@ -4,7 +4,7 @@ import { refresh } from "next/cache";
 import type { Rarity } from "@/generated/prisma/enums";
 import {
   DevToolError, addCrystals, keepAdventureLevel, addMaterials, addRyo, devToolsEnabled, giveCharacter, giveRandom, searchCharacters,
-  setAdventureLevel, setDungeon, setStars, setStory, setTower, giveArtifacts, unlockAll,
+  setAdventureLevel, setDungeon, setStars, setStory, setTower, giveArtifacts, unlockAll, setEnergy,
 } from "@/lib/dev-tools";
 import { getSessionUser } from "@/lib/session";
 
@@ -71,6 +71,7 @@ export async function devAction(_prev: DevState, fd: FormData): Promise<DevState
         message = `${n} artefact${n > 1 ? "s" : ""} ${text(fd, "rarity")} +${num(fd, "level")} ajouté${n > 1 ? "s" : ""}.`;
         break;
       }
+      case "energy": message = `Énergie fixée à ${await setEnergy(id, num(fd, "amount"))}.`; break;
       case "unlock": {
         await unlockAll(id);
         message = "Tout est débloqué : histoire, Tour, donjons, raids et niveau d'Arpenteur maximum.";

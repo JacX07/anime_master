@@ -56,7 +56,7 @@ export function DungeonsBoard({ dungeon, name, boss, maxLevel, levels, artifacts
   </div>} /></section>;
   if (prep) {
     const d = levels.find((l) => l.level === prep.level)!;
-    return <TeamPreparation title={`${name} — difficulté ${prep.level}`} subtitle={`Set ${dungeon.universe} · ${d.mechanic}`} team={squad} context={context} enemies={prep.enemies} onBack={() => { setPrep(null); setError(null); }}
+    return <TeamPreparation title={`${name} — difficulté ${prep.level}`} subtitle={`Set ${dungeon.universe} · ${d.mechanic}`} team={squad} context={context} enemies={prep.enemies} energy onBack={() => { setPrep(null); setError(null); }}
       footer={<><p className="hs-team-note">1 artefact {RARITY_NAMES[d.rarity]} · 25 % par emplacement{d.resource ? ` · ${d.resource} matériau${d.resource > 1 ? "x" : ""}` : ""}</p><div className="hs-actions"><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(prep.level, true)}>Combattre en manuel</button><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(prep.level, false)}>Combattre en auto</button></div></>} />;
   }
   return <>

@@ -243,3 +243,9 @@
 .hs-squad-load { display: inline-flex; align-items: center; gap: .5rem; font-size: .8rem; color: #b4b2aa; }
 .hs-squad-load select { background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .35rem .5rem; font: inherit; }
 .hs-squad-load select:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.hs-energy { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; margin: 0; font-size: .82rem; color: #d8c48a; }
+.hs-energy svg { width: 16px; height: 16px; }
+.hs-energy b { color: #f0d79a; }
+.hs-energy[data-empty] b { color: #e07a6c; }
+.hs-energy small { color: #8f8b80; }
+.hs-energy-note { width: 100%; }

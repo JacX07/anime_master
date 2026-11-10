@@ -215,3 +215,11 @@ export async function unlockAll(userId: string) {
   }))));
   await setAdventureLevel(userId, MAX_ADVENTURE_LEVEL);
 }
+
+/** Énergie fixée (0 à 999) ; la recharge repart de maintenant. */
+export async function setEnergy(userId: string, amount: number) {
+  guard();
+  const n = clamp(amount, 0, 999);
+  await prisma.user.update({ where: { id: userId }, data: { energy: n, energyUpdatedAt: new Date() } });
+  return n;
+}
