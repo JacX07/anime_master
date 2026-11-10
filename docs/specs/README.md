@@ -18,6 +18,7 @@ Les titres « Étape N » d'origine sont gardés dans chaque fichier, pour que l
 | [social.md](social.md) | Profils, amis, guildes, messagerie, succès | 5 | Succès codés ; social à faire |
 | [admin.md](admin.md) | Rôle admin, statistiques (boosters, combats, économie), actions sur les comptes, journal d'audit | — | Validée, rien codé |
 | [direction-visuelle.md](direction-visuelle.md) | Historique du restyle « Citadelle sombre » ; la référence est [docs/direction-artistique.md](../direction-artistique.md) | — | Remplacé |
+| [raid-empereurs.md](raid-empereurs.md) | Défi des empereurs : 4 boss, 2 vagues chacun, clés et combat final | — | Proposé, à valider |
 | [guide.md](guide.md) | Guide du joueur : page tutoriel en étapes ; scénario de Pew en attente | — | Page simple codée ; Pew en attente |
 
 ## Priorité
