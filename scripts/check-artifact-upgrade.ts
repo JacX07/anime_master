@@ -46,7 +46,7 @@ async function main() {
     for (let level = 1; level < 16; level++) await upgradeArtifact(id, artifact.id, level);
     const upgraded = await prisma.artifact.findUniqueOrThrow({ where: { id: artifact.id } });
     assert.equal(upgraded.level, 16);
-    assert(Math.abs(upgraded.mainValue - 0.144) < 0.00001, "+80 % de la valeur de départ à +16");
+    assert(Math.abs(upgraded.mainValue - 0.36) < 0.00001, "ATK % : 4 % + 2 % par niveau = 36 % à +16 (v0.3.0)");
     assert.equal((upgraded.subStats as unknown[]).length, 4);
     await assert.rejects(upgradeArtifact(id, artifact.id, 16));
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });

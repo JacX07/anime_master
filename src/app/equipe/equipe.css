@@ -86,10 +86,11 @@
 .gear-compatible > h3 { font-size: 1rem; margin: 1.4rem 0 .7rem; }
 .gear-help, .gear-owner, .gear-preview { font-size: .73rem; line-height: 1.7; color: #b4b2aa; }
 .gear-item-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin: 1rem 0; }
-.gear-item { --gear-color: #b4b2aa; display: flex; flex-direction: column; gap: .45rem; border: 1px solid var(--gear-color); border-radius: .8rem; padding: .9rem; background: #171b1a; min-width: 0; }
-.gear-item[data-rarity="R"] { --gear-color: #d5bb7f; }
-.gear-item[data-rarity="SR"] { --gear-color: #b68bff; }
-.gear-item[data-rarity="SSR"], .gear-item[data-rarity="UR"] { --gear-color: #ffc45c; }
+.gear-item { --gear-color: var(--rarity-N); display: flex; flex-direction: column; gap: .45rem; border: 1px solid var(--gear-color); border-radius: .8rem; padding: .9rem; background: #171b1a; min-width: 0; }
+.gear-item[data-rarity="R"] { --gear-color: var(--rarity-R); }
+.gear-item[data-rarity="SR"] { --gear-color: var(--rarity-SR); }
+.gear-item[data-rarity="SSR"] { --gear-color: var(--rarity-SSR); }
+.gear-item[data-rarity="UR"] { --gear-color: var(--rarity-UR); }
 .gear-item-art { position: relative; background: radial-gradient(ellipse, #767b7626, transparent 70%); display: grid; place-items: center; }
 .gear-item-art img { object-fit: contain; max-width: 100%; }
 .gear-item-art > span { position: absolute; bottom: .2rem; right: .1rem; color: var(--gear-color); font-weight: 700; }
@@ -168,5 +169,9 @@ table.gear-preview tr[data-delta="down"] td + td { color: #e07a6c; }
 .eq-spell-help summary { cursor: pointer; color: #d8c48a; font-size: .8rem; }
 .eq-spell-help summary:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 3px; }
 .eq-spell-help ul { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .4rem; font-size: .78rem; line-height: 1.5; color: #b4b2aa; }
-.gear-upgrade-jumps { display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: flex-end; margin-top: .3rem; font-size: .78rem; }
+.gear-upgrade-row { display: flex; gap: .5rem; align-items: stretch; min-width: 0; }
+.gear-upgrade-row .gear-upgrade { flex: 1; }
+.gear-upgrade-target select { height: 100%; background: #121614; color: #e9e6dc; border: 1px solid #3b3a33; padding: .3rem .4rem; font: inherit; font-size: .8rem; }
+.gear-upgrade-target select:focus-visible { outline: 2px solid #c4a76d; outline-offset: 2px; }
+.gear-recycle { align-self: flex-end; font-size: .78rem; }
 .gear-item .gear-message { margin: .5rem 0 0; }

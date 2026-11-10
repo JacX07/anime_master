@@ -14,8 +14,8 @@ export async function upgradeArtifact(userId: string, artifactId: string, expect
     let subStats = artifact.subStats as { stat: string; value: number }[];
     const steps: { level: number; cost: number }[] = [];
     for (let l = expectedLevel; l < targetLevel; l++) {
-      mainValue = upgradedMainValue(mainValue, l);
-      subStats = upgradedSubStats(subStats, l + 1, artifact.mainStat);
+      mainValue = upgradedMainValue(artifact.mainStat, l);
+      subStats = upgradedSubStats(subStats, l + 1, artifact.mainStat, Math.random, artifact.rarity);
       steps.push({ level: l + 1, cost: artifactUpgradeCost(artifact.rarity, l) });
     }
     const cost = steps.reduce((s, x) => s + x.cost, 0);
