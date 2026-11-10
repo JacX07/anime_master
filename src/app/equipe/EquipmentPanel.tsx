@@ -38,6 +38,8 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
   const [message, setMessage] = useState("");
   // Niveau visé par « Améliorer » (liste déroulante) ; par défaut le niveau suivant
   const [target, setTarget] = useState<{ key: string; level: number } | null>(null);
+  // Recyclage en deux clics (sans fenêtre du navigateur, parfois bloquée) : clé de l'objet en attente de confirmation
+  const [confirmRecycle, setConfirmRecycle] = useState<string | null>(null);
   const router = useRouter();
   const weapon = weaponDef(card.weaponKey ?? "");
   const artifacts = inventory.items.filter((item) => item.artifact);
@@ -95,13 +97,17 @@ export function EquipmentPanel({ inventory, card, team = [] }: { inventory: Inve
             </div>{artifact.equippedCard ? <ArtifactOwner character={artifact.equippedCard.character} /> : <span className="gear-owner">Disponible</span>}</div>
             <div className="gear-item-actions">
             <button type="button" className="gear-equip" disabled={pending} onClick={() => run(() => equipArtifactAction(artifact.id, worn ? null : card.id), worn ? "Objet retiré." : `Objet équipé sur ${card.name}.`)}>{worn ? "Retirer" : "Équiper"}</button>
-            <div className="gear-upgrade-row">
-              {!max && <label className="gear-upgrade-target"><span className="sr-only">Niveau visé</span><select value={to} disabled={pending} onChange={(e) => setTarget({ key: item.key, level: Number(e.target.value) })}>
-                {Array.from({ length: ARTIFACT_MAX_LEVEL - artifact.level }, (_, i) => artifact.level + 1 + i).map((l) => <option key={l} value={l}>{`+${l}${l % 4 === 0 ? " ★" : ""} · ${artifactUpgradeTotal(artifact.rarity, artifact.level, l).toLocaleString("fr-FR")} Ryō`}</option>)}
-              </select></label>}
-              <button type="button" className="gear-upgrade" disabled={pending || max || inventory.balance < cost} onClick={() => { setTarget(null); run(() => upgradeArtifactAction(artifact.id, artifact.level, to), `Objet amélioré au niveau +${to}.`); }}>{max ? "Niveau maximum +16" : `Améliorer → +${to} · ${cost.toLocaleString("fr-FR")} Ryō`}</button>
-            </div></div>
-            {!worn && !artifact.equippedCard && <button type="button" className="gear-recycle ui-button" disabled={pending} onClick={() => { if (window.confirm(`Recycler ${item.name} +${artifact.level} contre ${recycleValue.toLocaleString("fr-FR")} Ryō ? C’est définitif.`)) { setSelectedKey(null); run(() => recycleArtifactsAction([artifact.id]), `Objet recyclé : +${recycleValue.toLocaleString("fr-FR")} Ryō.`); } }}>Recycler · +{recycleValue.toLocaleString("fr-FR")} Ryō</button>}
+            {max ? <button type="button" className="gear-upgrade" disabled>Niveau maximum +16</button>
+              : <div className="gear-upgrade gear-upgrade-split" data-disabled={pending || inventory.balance < cost || undefined}>
+                <button type="button" className="gear-upgrade-go" disabled={pending || inventory.balance < cost} onClick={() => { setTarget(null); run(() => upgradeArtifactAction(artifact.id, artifact.level, to), `Objet amélioré au niveau +${to}.`); }}>Améliorer</button>
+                <label className="gear-upgrade-target"><span className="sr-only">Niveau visé</span><select value={to} disabled={pending} onChange={(e) => setTarget({ key: item.key, level: Number(e.target.value) })}>
+                  {Array.from({ length: ARTIFACT_MAX_LEVEL - artifact.level }, (_, i) => artifact.level + 1 + i).map((l) => <option key={l} value={l}>{`+${l}${l % 4 === 0 ? " ★" : ""} · ${artifactUpgradeTotal(artifact.rarity, artifact.level, l).toLocaleString("fr-FR")} Ryō`}</option>)}
+                </select></label>
+              </div>}
+            </div>
+            {!worn && !artifact.equippedCard && (confirmRecycle === item.key
+              ? <div className="gear-recycle-confirm" role="group" aria-label="Confirmer le recyclage"><span>Recycler définitivement contre {recycleValue.toLocaleString("fr-FR")} Ryō ?</span><button type="button" className="ui-button" disabled={pending} onClick={() => { setConfirmRecycle(null); setSelectedKey(null); run(() => recycleArtifactsAction([artifact.id]), `Objet recyclé : +${recycleValue.toLocaleString("fr-FR")} Ryō.`); }}>Confirmer</button><button type="button" className="ui-button" onClick={() => setConfirmRecycle(null)}>Annuler</button></div>
+              : <button type="button" className="gear-recycle ui-button" disabled={pending} onClick={() => setConfirmRecycle(item.key)}>Recycler · +{recycleValue.toLocaleString("fr-FR")} Ryō</button>)}
             {!max && inventory.balance < cost && <small>Ryō insuffisants</small>}
             {message && <p className="gear-message" role="status">{message}</p>}
             <GearPreview card={card} team={team} inventory={inventory} artifact={artifact} />

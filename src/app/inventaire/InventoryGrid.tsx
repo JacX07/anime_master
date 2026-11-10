@@ -47,8 +47,15 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
   const [notice, setNotice] = useState("");
   const recyclable = items.flatMap((item) => item.artifact && !item.artifact.equippedCard && RANK.indexOf(item.artifact.rarity as (typeof RANK)[number]) <= RANK.indexOf(recycleMax) && (recycleLeveled || item.artifact.level === 0) ? [item.artifact] : []);
   const recycleTotal = recyclable.reduce((sum, a) => sum + artifactRecycleValue(a.rarity, a.level), 0);
+  // Confirmation dans la page (les fenêtres du navigateur peuvent être bloquées)
+  const [toRecycle, setToRecycle] = useState<{ ids: string[]; total: number } | null>(null);
   function recycle(ids: string[], total: number) {
-    if (!ids.length || !window.confirm(`Recycler ${ids.length} artefact${ids.length > 1 ? "s" : ""} contre ${number.format(total)} Ryō ? C’est définitif.`)) return;
+    if (ids.length) setToRecycle({ ids, total });
+  }
+  function confirmRecycle() {
+    if (!toRecycle) return;
+    const { ids } = toRecycle;
+    setToRecycle(null);
     setError(""); setNotice("");
     startTransition(async () => {
       try {
@@ -81,6 +88,7 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
       <label><input type="checkbox" checked={recycleLeveled} onChange={(e) => setRecycleLeveled(e.target.checked)} /> y compris les améliorés</label>
       <button type="button" className="ui-button" disabled={pending || !recyclable.length} onClick={() => recycle(recyclable.map((a) => a.id), recycleTotal)}>{recyclable.length ? `Recycler ${recyclable.length} · +${number.format(recycleTotal)} Ryō` : "Rien à recycler"}</button>
     </div>}
+    {toRecycle && <div className="inventory-recycle-confirm" role="alertdialog" aria-label="Confirmer le recyclage"><span>Recycler définitivement {toRecycle.ids.length} artefact{toRecycle.ids.length > 1 ? "s" : ""} contre {number.format(toRecycle.total)} Ryō ?</span><button type="button" className="ui-button" disabled={pending} onClick={confirmRecycle}>Confirmer</button><button type="button" className="ui-button" onClick={() => setToRecycle(null)}>Annuler</button></div>}
     {notice && <p className="inventory-notice" role="status">{notice}</p>}
     <div className="inventory-workspace" data-selected={Boolean(selected)}>
       <div>
