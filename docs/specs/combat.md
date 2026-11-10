@@ -38,7 +38,7 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 2. Les cartes jouent en **alternance par position** : A1, B1, A2, B2, A3, B3, A4, B4, puis un nouveau tour. Une carte à 0 PV ne joue plus.
 3. **Compensation** : l'équipe qui joue en second reçoit un bouclier de 15 % de ses PV max, qui disparaît à la fin du 1er tour.
 4. Un bouclier absorbe les dégâts avant les PV.
-5. **Fin** : une équipe sans carte vivante perd. Au bout de **30 tours**, l'équipe avec le plus haut pourcentage de PV restants gagne ; égalité parfaite : match nul.
+5. **Fin** : une équipe sans carte vivante perd. Au bout de **30 tours**, l'équipe avec le plus haut pourcentage de PV restants gagne ; égalité parfaite : match nul. *(v0.3.0)* En PvE (histoire, Tour, donjons, raids), atteindre le 30ᵉ tour est une **défaite du joueur** : il faut vaincre toute l'équipe adverse (option `timeoutLoser`, marquée `timeout: "attacker-loses-v1"` dans les combats enregistrés pour garder le rejeu des anciens).
 
 ### 4. Sorts
 **Sort de base** : disponible à chaque action. Pour les cartes hors SSR/UR : 1× ATK sur la cible. Les SSR et UR ont une attaque de base personnalisée, définie au §4 ter.

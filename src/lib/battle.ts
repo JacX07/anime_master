@@ -165,6 +165,8 @@ export interface BattleOptions {
   gauge?: boolean;
   /** Effets d'élément du sort secondaire (par défaut : oui ; désactivé pour rejouer les combats enregistrés avant eux). */
   elements?: boolean;
+  /** Camp déclaré perdant si le combat atteint `maxRounds` (PvE : le joueur doit vaincre toute l'équipe adverse). */
+  timeoutLoser?: Side;
 }
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
@@ -316,7 +318,7 @@ const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x
 
 export interface BattleState {
   rng: Random;
-  opts: Required<BattleOptions>;
+  opts: Required<Omit<BattleOptions, "timeoutLoser">> & Pick<BattleOptions, "timeoutLoser">;
   teams: Record<Side, Unit[]>;
   first: Side;
   /** Ordre de jeu dans chaque position : celui qui commence, puis l'autre */
@@ -338,7 +340,7 @@ const starsOf = (c: BattleCard) => Math.max(0, Math.min(5, c.stars ?? 0));
 const weaponOf = (c: BattleCard) => (starsOf(c) === 5 ? c.weapon ?? null : null);
 
 /** Bonus de stats de chaque carte : passif UR, synergie de franchise, éveil, arme. */
-function statBonus(team: BattleCard[], opts: Required<BattleOptions>) {
+function statBonus(team: BattleCard[], opts: BattleState["opts"]) {
   return team.map((c) => {
     const same = team.filter((o) => c.franchiseId != null && o.franchiseId === c.franchiseId);
     const urs = same.filter((o) => o !== c && o.rarity === "UR").length;
@@ -358,7 +360,7 @@ function auraBonus(team: BattleCard[]) {
   );
 }
 
-function makeUnits(team: BattleCard[], side: Side, opts: Required<BattleOptions>): Unit[] {
+function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): Unit[] {
   const bonus = statBonus(team, opts);
   const aura = auraBonus(team);
   return team.map((card, i) => {
@@ -425,7 +427,8 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
 function finish(st: BattleState, timeout: boolean) {
   const hpLeft = (s: Side) => st.teams[s].reduce((n, u) => n + u.hp, 0) / st.teams[s].reduce((n, u) => n + u.maxHp, 0);
   const left = { A: hpLeft("A"), B: hpLeft("B") };
-  const winner: Side | null = left.A === left.B ? null : left.A > left.B ? "A" : "B";
+  const loser = timeout ? st.opts.timeoutLoser : undefined;
+  const winner: Side | null = loser ? enemy(loser) : left.A === left.B ? null : left.A > left.B ? "A" : "B";
   st.log.push({ kind: "end", winner, reason: timeout ? "timeout" : "ko", rounds: st.round, hpLeft: left });
   st.result = { winner, first: st.first, rounds: st.round, timeout, hpLeft: left, log: st.log };
 }

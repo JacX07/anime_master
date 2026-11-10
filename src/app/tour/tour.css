@@ -89,3 +89,10 @@
   .tw-rays, .tw-fog, .tw-pollen i { animation: none; }
   .tw-pollen { display: none; }
 }
+
+/* Récompenses (v0.3.0) */
+.tw-rewards { list-style: none; margin: 0 0 .5rem; padding: 0; display: grid; gap: .35rem; }
+.tw-rewards li { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem .6rem; background: rgba(196, 167, 109, .07); font-size: .82rem; }
+.tw-rewards li b { color: #e3c985; font-weight: 600; white-space: nowrap; }
+.tw-rewards li[data-bonus] b { color: #f0d79a; }
+.tw-rewards li[data-done] b { color: #8f8b80; font-weight: 400; }

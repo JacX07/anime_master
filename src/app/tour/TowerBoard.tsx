@@ -86,7 +86,7 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
             return (
               <div className="hs-result" role="status">
                 <b>{battle.winner === "A" ? "Victoire !" : "Défaite — aucune pénalité."}</b>
-                {battle.loot && battle.loot.ryo > 0 && <ul><li>{battle.loot.ryo} Ryō (premier passage)</li></ul>}
+                {battle.loot && battle.loot.ryo > 0 ? <ul><li>{battle.loot.ryo} Ryō (premier passage)</li></ul> : battle.winner === "A" && <p>Étage déjà passé : pas de récompense en le rejouant.</p>}
                 <div className="hs-actions">
                   <button type="button" className="bt-btn" onClick={() => setFight(null)}>Retour à la Tour</button>
                   <button type="button" className="bt-btn" disabled={pending} onClick={() => run(f)}>Rejouer cet étage</button>
@@ -126,6 +126,8 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
   const rarities = floorRarities(floor);
   const top = rarities[rarities.length - 1];
   const tierMarks = [1, 2, 3, 4].map((k) => ((k * 30) / maxPossible) * 100);
+  const firstMilestone = Math.max(Math.ceil((maxFloor + 1) / 10) * 10, 10);
+  const milestones = [0, 10, 20].map((d) => firstMilestone + d).filter((m) => m <= maxPossible && m !== floor);
   const GUARDS = ["Gardien du seuil", "Veilleur de pierre", "Sentinelle voilée", "Champion déchu"];
   return (
     <div className="tw">
@@ -169,6 +171,12 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
               </li>
             ))}
           </ul>
+          <h2 className="tw-h">Récompenses</h2>
+          <ul className="tw-rewards">
+            <li data-done={floor <= maxFloor || undefined}><span>Étage {floor}</span><b>{floor <= maxFloor ? "Déjà obtenue" : `${towerRyo(floor)} Ryō`}</b></li>
+            {milestones.map((m) => <li key={m} data-bonus><span>Étage {m} · palier</span><b>{towerRyo(m)} Ryō</b></li>)}
+          </ul>
+          <p className="tw-hint">Ryō versés au premier passage de chaque étage ({towerRyo(1)} à l’étage 1, +3 par étage). Tous les 10 étages, un palier ajoute 100 Ryō. Rejouer un étage ne rapporte rien.</p>
         </section>
 
         <section className="tw-col" aria-label="Ascension">
@@ -204,7 +212,7 @@ export function TowerBoard({ maxFloor, maxPossible, team }: Props) {
           ) : (
             <p className="vt-muted">Il te faut une équipe de 4 cartes pour combattre.</p>
           )}
-          <p className="tw-hint">Prochain palier de rareté : <b>étage {nextTier(floor)}</b>. Récompense du premier passage : <b>{towerRyo(floor)} Ryō</b>.</p>
+          <p className="tw-hint">Prochain palier de rareté : <b>étage {nextTier(floor)}</b>.</p>
           {error && <p className="hs-error" role="alert">{error}</p>}
         </section>
       </div>

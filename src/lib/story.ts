@@ -129,6 +129,9 @@ export const REDUCED_RATE = 0.25;
 /** Unités de ressource d'un combat gagné, avant bonus de premier passage. */
 export const baseUnits = (level: number, universe?: Universe) => Math.round((4 + Math.floor(level / 2)) * (universe?.rewardFactor ?? 1));
 
+export const storyFirstRyo = (level: number) => 40 + 15 * level + (isFinalBoss(level) ? 500 : 0);
+export const storyReplayRyo = (level: number) => 8 + 2 * level;
+
 export interface Loot {
   ryo: number;
   crystals: number;
@@ -149,9 +152,9 @@ export function storyLoot(universe: Universe, level: number, firstClear: boolean
     resources[key] = (resources[key] ?? 0) + 1;
   }
   if (isFinalBoss(level)) resources[universe.weaponResource] = (resources[universe.weaponResource] ?? 0) + 1;
-  // Ryō et cristaux : premier passage seulement (valeurs de départ, à équilibrer)
+  // Ryō : gros gain au premier passage, petit gain à chaque rejeu (v0.3.0). Cristaux : premier passage seulement.
   return {
-    ryo: firstClear ? 10 + 5 * level + (isFinalBoss(level) ? 300 : 0) : 0,
+    ryo: firstClear ? storyFirstRyo(level) : storyReplayRyo(level),
     crystals: firstClear ? (isFinalBoss(level) ? 5 : isBoss(level) ? 2 : 1) : 0,
     resources,
   };

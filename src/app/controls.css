@@ -207,6 +207,12 @@
 .mq-app-shell[class] button.claim-button[class]:focus-visible { outline: 2px solid #c4a76d; outline-offset: 3px; }
 .mq-app-shell[class] button.claim-button[class]:disabled { color: #4b4a45; cursor: wait; }
 .mq-app-shell[class] button.claim-button[class]:disabled::after { box-shadow: none; background: #4b4a45; }
-.claim-dot { display: inline-block; width: 7px; height: 7px; margin-right: .5rem; border-radius: 50%; background: currentColor; animation: claim-pulse 1.6s infinite; }
+.claim-dot { display: inline-block; width: 7px; height: 7px; margin-right: .5rem; border-radius: 50%; background: #e0483c; box-shadow: 0 0 8px #e0483c; animation: claim-pulse 1.6s infinite; }
 @keyframes claim-pulse { 50% { transform: scale(1.6); opacity: .4; } }
 @media (prefers-reduced-motion: reduce) { .claim-dot { animation: none; } }
+
+/* Pastille rouge du menu : récompenses à récupérer (v0.3.0) */
+.mq-nav-badge { display: inline-grid; place-items: center; min-width: 17px; height: 17px; margin-left: 6px; padding: 0 5px; border-radius: 9px; background: #d63a2f; color: #fff; font: 700 .62rem/1 var(--font-dm), sans-serif; letter-spacing: 0; vertical-align: 1px; box-shadow: 0 0 8px rgba(214, 58, 47, .6); }
+/* Menu replié : un point rouge signale une récompense à récupérer dans le tiroir. */
+.mq-navigation:has(.mq-nav-badge) .mq-navigation-toggle { position: relative; }
+.mq-app-shell[class][class] .mq-navigation:has(.mq-nav-badge) .mq-navigation-toggle::before { display: block; content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: #d63a2f; box-shadow: 0 0 6px #d63a2f; }

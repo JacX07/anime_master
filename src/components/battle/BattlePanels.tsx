@@ -48,7 +48,7 @@ export function SpellsPanel({
   const boss = unit.boss ? BOSS_SKILLS[unit.characterId] : undefined;
   const basic = boss?.basicAttack ?? basicAttackOf(unit.characterId, unit.rarity, unit.type);
   const spells: { key: Spell; title: React.ReactNode; target: string; text: string; tooltip: string; note: string | null }[] = [
-    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic, false) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
+    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
   ];
   // Les SSR et UR n'ont pas de sort de type : leurs 4 emplacements sont personnalisés
   if (!hasCharacterSlots(unit.rarity)) {
@@ -62,7 +62,7 @@ export function SpellsPanel({
       key: "special" as const,
       title: <>★ {own.name}</>,
       target: SPELL_TARGET_LABEL[own.target ?? "none"],
-      text: [describeSpell(own), element && describeElement(element)].filter(Boolean).join(" "),
+      text: [describeSpell(own, true), element && describeElement(element)].filter(Boolean).join(" "),
       tooltip: [describeSpell(own, true), element && describeElement(element)].filter(Boolean).join(" "),
       note: `Rechargement : ${SPELL_COOLDOWN} tours.`,
     });
@@ -76,7 +76,7 @@ export function SpellsPanel({
       key: "tertiary",
       title: <>◇ {tertiary.name}</>,
       target: SPELL_TARGET_LABEL[tertiary.target ?? "none"],
-      text: describeSpell(tertiary),
+      text: describeSpell(tertiary, true),
       tooltip: describeSpell(tertiary, true),
       note: `Rechargement : ${BATTLE.tertiaryCooldown} tours.`,
     });
@@ -87,7 +87,7 @@ export function SpellsPanel({
       key: "ultimate",
       title: <>✦ {ultimate.name}</>,
       target: SPELL_TARGET_LABEL[ultimate.target ?? "none"],
-      text: describeSpell(ultimate),
+      text: describeSpell(ultimate, true),
       tooltip: describeSpell(ultimate, true),
       note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });

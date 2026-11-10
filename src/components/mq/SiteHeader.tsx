@@ -11,7 +11,7 @@ import { getPackState } from "@/lib/packs";
 import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { prisma } from "@/lib/db";
-import { titleOf } from "@/lib/achievements";
+import { titleOf, unclaimedAchievementCount } from "@/lib/achievements";
 import { DailyBonus } from "../DailyBonus";
 import { NotificationBell } from "../NotificationBell";
 import { NavItem } from "./NavItem";
@@ -71,7 +71,7 @@ export function SiteHeader() {
               <Link href="/leaderboard">Classement</Link>
             </div>
           </div>
-          <NavItem href="/achievements">Succès</NavItem>
+          <NavItem href="/achievements">Succès<Suspense fallback={null}><AchievementBadge /></Suspense></NavItem>
         </div>
       </nav>
       </Navigation>
@@ -82,6 +82,14 @@ export function SiteHeader() {
       </div>
     </header>
   );
+}
+
+/** Pastille rouge : succès débloqués à récupérer. Lit la session : derrière un Suspense. */
+async function AchievementBadge() {
+  const user = await getSessionUser();
+  if (!user) return null;
+  const n = await unclaimedAchievementCount(user.id);
+  return n > 0 ? <span className="mq-nav-badge" aria-label={`${n} succès à récupérer`}>{n}</span> : null;
 }
 
 /** Compte : bonus du jour, notifications, avatar dont le menu rappelle ressources et niveau. Lit la session : derrière un Suspense. */

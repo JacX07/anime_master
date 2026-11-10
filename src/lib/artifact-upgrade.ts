@@ -2,8 +2,8 @@ import { artifactSubStats, type ArtifactSubStat } from "./dungeons";
 import type { Rarity } from "../generated/prisma/enums";
 
 export const ARTIFACT_MAX_LEVEL = 16;
-/** Coût réduit pour rendre la progression jusqu’à +16 accessible. */
-export const artifactUpgradeCost = (rarity: Rarity, level: number) => ({ N: 25, R: 35, SR: 50, SSR: 75, UR: 100 }[rarity]) * (level + 1);
+/** Coût réduit (v0.3.0, environ ÷2) pour que les équipements du début restent utiles. */
+export const artifactUpgradeCost = (rarity: Rarity, level: number) => ({ N: 10, R: 15, SR: 25, SSR: 40, UR: 55 }[rarity]) * (level + 1);
 export const upgradedMainValue = (value: number, level: number) => Math.round(value / (1 + level * 0.05) * (1 + (level + 1) * 0.05) * 1e6) / 1e6;
 
 /** Chaque palier découvre une stat distincte ; à quatre stats, il double une valeur. */

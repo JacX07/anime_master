@@ -108,7 +108,7 @@ export const SPELL_INFO: Record<CardType, { target: string; text: string; detail
   COEUR: { target: "1 allié", text: "Soigne l'allié de 30 % de ses PV max, puis donne à l'équipe un bouclier de 10 % des PV max du lanceur.", details: "Soigne l'allié de 30 % de ses PV max, puis donne à l'équipe un bouclier de 10 % des PV max du lanceur." },
   AVENTURE: { target: "Tous les ennemis", text: "Frappe tous les ennemis. Toute l'équipe gagne l'élan (ATK +10 % pendant 2 tours).", details: "0,6× ATK sur chaque ennemi. Toute l'équipe gagne l'élan (ATK +10 % pendant 2 tours)." },
 };
-export const BASE_SPELL = { name: "Attaque", target: "1 ennemi", text: "Frappe la cible.", details: "1× ATK." };
+export const BASE_SPELL = { name: "Attaque", target: "1 ennemi", text: "Frappe la cible (1× ATK).", details: "1× ATK." };
 export const AFFINITY_COOLDOWN = "Rechargement : 3 tours ; premier lancer au 2ᵉ tour de la carte.";
 
 /** Une action du journal et ses effets, pour l'historique. */

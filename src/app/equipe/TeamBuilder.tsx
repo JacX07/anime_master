@@ -109,7 +109,7 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
     <ul className="eq-spells">
       <li tabIndex={0} title={basic ? describeBasicAttack(basic) : BASE_SPELL.details}>
         <b>{basic?.name ?? BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
-        <p>{basic ? describeBasicAttack(basic, false) : BASE_SPELL.text}</p>
+        <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
       </li>
       {!slots && (
         <li tabIndex={0} title={info.details}>
@@ -121,27 +121,37 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
       {own && (
         <li tabIndex={0} title={describeSpell(own, true)}>
           <b>★ {own.name}</b>{isMagicalSpell(card, "special", own) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
-          <p>{describeSpell(own)}</p>
+          <p>{describeSpell(own, true)}</p>
           <small>Rechargement : {SPELL_COOLDOWN} tours de cette carte.</small>
         </li>
       )}
       {tertiary && (
         <li tabIndex={0} title={describeSpell(tertiary, true)}>
           <b>◇ {tertiary.name}</b>{isMagicalSpell(card, "tertiary", tertiary) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[tertiary.target ?? "none"]}</small>
-          <p>{describeSpell(tertiary)}</p>
+          <p>{describeSpell(tertiary, true)}</p>
           <small>Rechargement : {BATTLE.tertiaryCooldown} tours de cette carte.</small>
         </li>
       )}
       {ultimate && (
         <li tabIndex={0} title={describeSpell(ultimate, true)}>
           <b>✦ {ultimate.name}</b>{isMagicalSpell(card, "ultimate", ultimate) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[ultimate.target ?? "none"]}</small>
-          <p>{describeSpell(ultimate)}</p>
+          <p>{describeSpell(ultimate, true)}</p>
           <small>Jauge de {BATTLE.ultimateGaugeMax} : +{BATTLE.ultimateGaugeBase} par attaque de base réussie, +{BATTLE.ultimateGaugePerHit} par sort offensif réussi, remise à zéro après l&apos;ultime.</small>
         </li>
       )}
       {!slots && (
         <li className="vt-muted"><small>Pas de sorts de personnage (secondaire, tertiaire et ultime sont réservés aux SSR et UR).</small></li>
       )}
+      <li className="eq-spell-help">
+        <details>
+          <summary>Lire les sorts : multiplicateurs, physique et magique</summary>
+          <ul>
+            <li><b>« 1,8× ATK »</b> : le sort inflige 1,8 fois l’ATK du lanceur, avant la DEF de la cible. Plus le chiffre est haut, plus il frappe fort ; sur tous les ennemis, chacun reçoit ce montant.</li>
+            <li><b>Dégâts physiques ou magiques</b> : les cartes de type Magie et celles de Jujutsu Kaisen font des dégâts magiques, toutes les autres des dégâts physiques. Les bonus « dégâts physiques » ou « dégâts magiques » des sets s’appliquent selon ce type.</li>
+            <li><b>Compétence magique</b> : stat d’équipement qui augmente seulement les dégâts des sorts marqués « Magique » (+10 % de compétence = +10 % de dégâts sur ces sorts). Sans sort magique, elle ne sert à rien.</li>
+          </ul>
+        </details>
+      </li>
     </ul>
   );
 }
@@ -187,7 +197,7 @@ export function CardDialog({ editable = true, card, slot, full, onClose, onToggl
       {card && (
         <div className="cd">
           <button type="button" className="cd-close bt-btn" onClick={onClose}>Fermer</button>
-          <EquipmentPanel inventory={inventory} card={card} />
+          <EquipmentPanel inventory={inventory} card={card} team={team} />
           <figure className="cd-hero" data-rarity={card.rarity}>
             <figcaption className="cd-title">
               <b>{card.name}</b>

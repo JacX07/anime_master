@@ -22,3 +22,10 @@ Les bonus de set de dégâts magiques préexistants conservent leur règle propr
 - `check:magic-skill` : sort magique sur une carte Combat, sort physique et sort non marqué sur une carte Magie, attaque de base inchangée, addition des artefacts.
 - `check:artifact-upgrade` : propriété, fonds, rollback, double clic, plafond et journal.
 - Parcours navigateur : compte jetable, inventaire, équipement sur Roy Mustang, améliorations et fonds insuffisants, onglets Statistiques/Sorts, rechargement et vue mobile 390 px.
+
+## v0.3.0 (lot 1)
+
+- **Coût d'amélioration** des artefacts environ divisé par deux : `{N 10, R 15, SR 25, SSR 40, UR 55} × (niveau + 1)` Ryō (avant 25 / 35 / 50 / 75 / 100). Le coût est écrit sur le bouton « Améliorer » (Équipe et Inventaire).
+- **Aperçu avant / après** : la fiche d'un artefact sélectionné montre Puissance, PV, ATK, DEF, Vitesse, critique, dégâts critiques et esquive du personnage, maintenant et avec l'objet (ou sans, s'il le porte déjà). Même calcul que l'onglet Statistiques (`gearSnapshot`).
+- **Classement de puissance** : chaque carte équipée ajoute la différence entre sa puissance de combat avec et sans équipement (artefacts, arme à 5★), calculée seule, sans synergie d'équipe (`src/lib/gear-power.ts`). Le détail « équipement +N » s'affiche dans le classement ; la puissance du menu compte aussi ce bonus.
+- **Sorts** : les multiplicateurs (« 1,1× ATK ») sont écrits dans la description visible (fiche du personnage et panneau de combat), plus seulement au survol. Une aide repliable explique multiplicateur, dégâts physiques / magiques et compétence magique.
