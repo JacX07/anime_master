@@ -62,6 +62,11 @@ export async function playAutoAction(battleId: string, steps: number) {
   if (!Number.isSafeInteger(steps) || steps < 0) return { ok: false as const, error: "Version du combat invalide." };
   return run(async (id) => ({ battle: await playAction(id, String(battleId), null, new Date(), steps) }));
 }
+/** Termine le combat en automatique, sans animation (onglet en arrière-plan ou bouton « Terminer »). */
+export async function finishAutoAction(battleId: string, steps: number) {
+  if (!Number.isSafeInteger(steps) || steps < 0) return { ok: false as const, error: "Version du combat invalide." };
+  return run(async (id) => ({ battle: await playAction(id, String(battleId), null, new Date(), steps, true) }));
+}
 export async function abandonBattleAction(battleId: string) {
   return run(async (id) => (await abandonBattle(id, String(battleId)), {}));
 }

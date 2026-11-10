@@ -151,6 +151,9 @@ export function DevTools({ universes, dungeons, materials, summary }: {
         <DevForm op="ryo" submit="Ajouter des Ryō">
           <Num name="amount" label="Ryō" value={10000} />
         </DevForm>
+        <DevForm op="energy" submit="Fixer l'énergie">
+          <Num name="amount" label="Énergie (0 à 999)" value={20} min={0} max={999} />
+        </DevForm>
         <DevForm op="crystals" submit="Ajouter des cristaux">
           <Num name="amount" label="Cristaux" value={500} />
         </DevForm>

@@ -146,6 +146,9 @@ model User {
   /// Cristaux en stock au moment de `crystalsUpdatedAt` (1 cristal = 1 carte ; recharge calculée à la lecture, SPEC étape 4 bis §1)
   crystals            Int                    @default(30)
   crystalsUpdatedAt   DateTime               @default(now())
+  /// Énergie en stock au moment de `energyUpdatedAt` (1 par combat d'histoire ou de donjon, +1 toutes les 2 min jusqu'à 20 ; v0.3.0)
+  energy              Int                    @default(20)
+  energyUpdatedAt     DateTime               @default(now())
   /// Compteurs de pity, en cartes (SPEC étape 4 bis §4)
   cardsSinceSSR       Int                    @default(0)
   cardsSinceUR        Int                    @default(0)
@@ -367,6 +370,7 @@ model BannerCharacter {
 enum LedgerReason {
   GUILD_CREATE
   ARTIFACT_UPGRADE
+  ARTIFACT_RECYCLE
   QUICK_SELL
   DAILY
   PACK_BUY
@@ -732,6 +736,8 @@ model Battle {
   userId    String
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   mode      BattleMode
+  /// Énergie payée au lancement ; rendue (remise à 0) si le combat est perdu ou abandonné
+  energy    Int          @default(0)
   /// Ennemi PvM (clé définie dans le code) ou identifiant du joueur adverse
   opponent  String
   manual    Boolean

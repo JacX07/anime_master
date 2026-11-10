@@ -10,6 +10,9 @@ export function artifactUpgradeTotal(rarity: Rarity, from: number, to: number) {
   for (let l = from; l < to; l++) total += artifactUpgradeCost(rarity, l);
   return total;
 }
+/** Recyclage (v0.3.0) : valeur de base selon la rareté, plus 70 % des Ryō dépensés pour l'améliorer. */
+export const ARTIFACT_RECYCLE_BASE = { N: 10, R: 25, SR: 60, SSR: 150, UR: 300 } as const;
+export const artifactRecycleValue = (rarity: Rarity, level: number) => ARTIFACT_RECYCLE_BASE[rarity] + Math.floor(artifactUpgradeTotal(rarity, 0, level) * 0.7);
 export const upgradedMainValue = (value: number, level: number) => Math.round(value / (1 + level * 0.05) * (1 + (level + 1) * 0.05) * 1e6) / 1e6;
 
 /** Chaque palier découvre une stat distincte ; à quatre stats, il double une valeur. */

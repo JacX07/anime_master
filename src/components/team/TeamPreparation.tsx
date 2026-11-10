@@ -11,6 +11,7 @@ import type { Rarity } from "@/generated/prisma/enums";
 import { closeOnBackdrop } from "@/lib/dialog";
 import type { ModeTeam } from "./useModeTeam";
 import "@/app/histoire/histoire.css";
+import { EnergyMeter } from "./EnergyMeter";
 
 export type PrepCard = TeamContext["ownedCards"][number];
 export type PrepEnemy = { id: string; name: string; imageUrl: string; combat: BattleCard };
@@ -24,11 +25,11 @@ function Card({ card, power }: { card: PrepEnemy | PrepCard; power?: number }) {
  * Écran de préparation commun à l'histoire, la Tour, les donjons et les raids : ton équipe contre les ennemis,
  * cartes à remplacer, squads à charger, composition automatique. Chaque mode garde sa propre composition (`useModeTeam`).
  */
-export function TeamPreparation({ title, subtitle, team, context, enemies, hiddenEnemies, enemyLabel, allowDuo = false, footer, notes, onBack }: {
+export function TeamPreparation({ title, subtitle, team, context, enemies, hiddenEnemies, enemyLabel, allowDuo = false, energy = false, footer, notes, onBack }: {
   title: string; subtitle: string; team: ModeTeam; context: TeamContext;
   /** Ennemis connus ; sinon `hiddenEnemies` (raretés seulement, Tour). */
   enemies?: PrepEnemy[]; hiddenEnemies?: Rarity[]; enemyLabel?: (card: PrepEnemy, i: number) => string;
-  allowDuo?: boolean; footer: ReactNode; notes?: ReactNode; onBack: () => void;
+  allowDuo?: boolean; /** Le combat coûte 1 énergie (histoire, donjons) */ energy?: boolean; footer: ReactNode; notes?: ReactNode; onBack: () => void;
 }) {
   const { ownedCards, squads } = context;
   const { slots, size, pending, error } = team;
@@ -67,7 +68,7 @@ export function TeamPreparation({ title, subtitle, team, context, enemies, hidde
     </div></section></div>
     <p className="hs-team-note" role="status">{pending ? "Chargement…" : "Clique une carte pour la remplacer. Cette composition est propre à ce mode et reste en mémoire."}</p>
     {error && <p className="hs-error" role="alert">{error}</p>}
-    <footer className="hs-prep-footer">{footer}</footer>
+    <footer className="hs-prep-footer">{energy && <EnergyMeter energy={context.energy} />}{footer}</footer>
     {!team.ready && <p className="hs-team-note">Choisis {size} personnages différents pour combattre.</p>}
     {notes}
     <dialog ref={dialog} className="hs-picker" aria-labelledby="hs-picker-title" onCancel={() => setSlot(null)} onClose={() => setSlot(null)} onClick={closeOnBackdrop}><header><h2 id="hs-picker-title">Choisir un compagnon</h2><button type="button" className="ui-button text-action" onClick={() => setSlot(null)}>Fermer</button></header><label className="hs-picker-search">Rechercher un personnage<input value={search} onChange={(e) => setSearch(e.target.value)} type="search"/></label><div className="hs-picker-grid">{ownedCards.filter((c) => c.name.toLocaleLowerCase("fr").includes(search.toLocaleLowerCase("fr"))).map((card) => {

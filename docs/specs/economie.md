@@ -135,3 +135,13 @@ Total sur un compte qui débloque tout : **550 cristaux** (29 succès). Barème 
 - Récupération manuelle et idempotente (`claimPeriodicQuest`), une fois l'objectif atteint.
 - Récompense : **2 cristaux** par quête quotidienne, **10 cristaux** par quête hebdomadaire. Pas de Ryō : le journal Ryō n'a pas de motif « quête » ; l'ajouter demande un changement de schéma (`LedgerReason`).
 - Pour l'instant, les cristaux de quête et de succès ne sont pas journalisés (comme ceux des combats et des expéditions).
+
+## Énergie *(v0.3.0)*
+
+Plafonne le farm sans jamais punir un essai.
+
+- Réserve de **20**, **+1 toutes les 2 minutes** jusqu'à 20 (stock calculé à la lecture comme les cristaux : `User.energy`, `energyUpdatedAt`, `src/lib/energy.ts`).
+- **1 énergie par combat d'histoire ou de donjon**. La Tour est gratuite ; les raids gardent leurs propres règles (cœurs de brèche).
+- **Une défaite ou un abandon rend l'énergie** (`Battle.energy` remis à 0 une seule fois). En auto, seule la victoire est débitée, après vérification de la réserve.
+- Réserve vide : le combat est refusé avec le délai avant la prochaine unité.
+- Affichage : compteur `x/20` dans le menu du compte, coût et compte à rebours sur l'écran de préparation de l'histoire et des donjons. Outil `/dev` : fixer l'énergie.

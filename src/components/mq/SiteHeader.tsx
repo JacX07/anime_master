@@ -8,6 +8,8 @@ import { signOut } from "@/app/auth-actions";
 import { getAdventure } from "@/lib/adventure-state";
 import { MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { getPackState } from "@/lib/packs";
+import { getEnergy } from "@/lib/battles";
+import { MAX_ENERGY } from "@/lib/energy";
 import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { prisma } from "@/lib/db";
@@ -105,7 +107,7 @@ async function Account() {
   }
   // Statut « en ligne » des amis : au plus une écriture par minute, après la réponse
   after(() => touchLastSeen(user.id));
-  const [wallet, packs, adventure, title, staff] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id)]);
+  const [wallet, packs, adventure, title, staff, energy] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id), getEnergy(user.id)]);
   const xpPct = adventure.next === null ? 100 : Math.max(0, Math.min(100, Math.round(((adventure.xp - adventure.floor) / (adventure.next - adventure.floor)) * 100)));
   return (
     <>
@@ -123,6 +125,7 @@ async function Account() {
             <span className="mq-wallet" aria-label="Ressources">
               <span className="mq-wallet-ryo"><Icon name="ryo" />{num.format(wallet.balance)}<em>Ryō</em></span>
               <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" />{packs.available}</span>
+              <span className="mq-wallet-energy" title={`Énergie : 1 par combat d’histoire ou de donjon, +1 toutes les 2 min (max ${MAX_ENERGY})`}><Icon name="recharge" />{energy.available}/{MAX_ENERGY}</span>
             </span>
             <span className="mq-xp" role="progressbar" aria-label="Expérience d'Arpenteur" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xpPct}>
               <em>NIV {adventure.level}</em>

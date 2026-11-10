@@ -1,7 +1,7 @@
 "use client";
 
-import { upgradeArtifactAction } from "@/app/artifact-actions";
-import { ARTIFACT_MAX_LEVEL, artifactUpgradeCost } from "@/lib/artifact-upgrade";
+import { recycleArtifactsAction, upgradeArtifactAction } from "@/app/artifact-actions";
+import { ARTIFACT_MAX_LEVEL, artifactRecycleValue, artifactUpgradeCost } from "@/lib/artifact-upgrade";
 
 import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
@@ -40,6 +40,26 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
     document.getElementById(`inventory-detail-${selectedKey}`)?.focus();
     setSelectedKey(null); setError("");
   }
+  // Recyclage en lot : artefacts non équipés jusqu'à une rareté donnée (améliorés seulement si demandé)
+  const RANK = ["N", "R", "SR", "SSR", "UR"] as const;
+  const [recycleMax, setRecycleMax] = useState<(typeof RANK)[number]>("R");
+  const [recycleLeveled, setRecycleLeveled] = useState(false);
+  const [notice, setNotice] = useState("");
+  const recyclable = items.flatMap((item) => item.artifact && !item.artifact.equippedCard && RANK.indexOf(item.artifact.rarity as (typeof RANK)[number]) <= RANK.indexOf(recycleMax) && (recycleLeveled || item.artifact.level === 0) ? [item.artifact] : []);
+  const recycleTotal = recyclable.reduce((sum, a) => sum + artifactRecycleValue(a.rarity, a.level), 0);
+  function recycle(ids: string[], total: number) {
+    if (!ids.length || !window.confirm(`Recycler ${ids.length} artefact${ids.length > 1 ? "s" : ""} contre ${number.format(total)} Ryō ? C’est définitif.`)) return;
+    setError(""); setNotice("");
+    startTransition(async () => {
+      try {
+        const r = await recycleArtifactsAction(ids);
+        if (!r.ok) return setError(r.error);
+        setNotice(`${r.count} artefact${r.count > 1 ? "s" : ""} recyclé${r.count > 1 ? "s" : ""} : +${number.format(r.ryo)} Ryō.`);
+        setSelectedKey(null);
+        router.refresh();
+      } catch { setError("Le recyclage a échoué, réessaie."); }
+    });
+  }
   function selectItem(key: string) {
     setSelectedKey(key); setError("");
     if (window.matchMedia("(max-width: 700px)").matches) requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
@@ -55,6 +75,13 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
       <label><span className="sr-only">Trier les objets</span><select value={sort} onChange={(e) => setSort(e.target.value)}><option value="quantity">Quantité décroissante</option><option value="name">Nom de A à Z</option></select></label>
     </div>
     <div className="inventory-options"><p role="status">{visible.length} objet{visible.length > 1 ? "s" : ""} affiché{visible.length > 1 ? "s" : ""}</p><label><input type="checkbox" checked={showEmpty} onChange={(e) => setShowEmpty(e.target.checked)} />Afficher les non possédés</label></div>
+    {(category === "Tout" || category === "Équipement") && items.some((item) => item.artifact) && <div className="inventory-recycle" role="group" aria-label="Recycler des artefacts en lot">
+      <span>Recycler les artefacts non équipés jusqu’à</span>
+      <select value={recycleMax} onChange={(e) => setRecycleMax(e.target.value as (typeof RANK)[number])} aria-label="Rareté maximale">{RANK.map((r) => <option key={r} value={r}>{r} · {artifactRarity(r).label}</option>)}</select>
+      <label><input type="checkbox" checked={recycleLeveled} onChange={(e) => setRecycleLeveled(e.target.checked)} /> y compris les améliorés</label>
+      <button type="button" className="ui-button" disabled={pending || !recyclable.length} onClick={() => recycle(recyclable.map((a) => a.id), recycleTotal)}>{recyclable.length ? `Recycler ${recyclable.length} · +${number.format(recycleTotal)} Ryō` : "Rien à recycler"}</button>
+    </div>}
+    {notice && <p className="inventory-notice" role="status">{notice}</p>}
     <div className="inventory-workspace" data-selected={Boolean(selected)}>
       <div>
         {visible.length ? <div className="inventory-grid mq-inventory-grid" role="group" aria-label="Choisir un objet">
@@ -95,6 +122,7 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
               } catch { setError("L’amélioration a échoué, réessaie."); }
             });
           }}>{selected.artifact.level >= ARTIFACT_MAX_LEVEL ? "Niveau maximum +16" : `Améliorer · ${artifactUpgradeCost(selected.artifact.rarity, selected.artifact.level).toLocaleString("fr-FR")} Ryō`}</button>}
+          {selected.artifact && <button type="button" className="inventory-equip-target" disabled={pending || !!selected.artifact.equippedCard} title={selected.artifact.equippedCard ? "Retire-le d’abord de la carte" : undefined} onClick={() => recycle([selected.artifact!.id], artifactRecycleValue(selected.artifact!.rarity, selected.artifact!.level))}>{selected.artifact.equippedCard ? "Équipé : recyclage impossible" : `Recycler · +${number.format(artifactRecycleValue(selected.artifact.rarity, selected.artifact.level))} Ryō`}</button>}
           {error && <p role="alert" className="hs-error">{error}</p>}
           <div className="inventory-actions">{selected.links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}</div>
         </> : <div className="inventory-detail-placeholder"><span aria-hidden="true">◇</span><p>Sélectionne un objet pour découvrir ses détails.</p></div>}

@@ -203,9 +203,10 @@
 /* En-tête : Ryō, cristaux, barre d'XP et roue dentée ; modes fermés du menu « Jouer » (maquette validée le 2026-11-03) */
 .mq-player-text { display: block; max-width: 210px; }
 .mq-wallet { display: flex; align-items: center; gap: 12px; margin-top: 7px; }
-.mq-wallet-ryo, .mq-wallet-crystal { display: inline-flex; align-items: center; gap: 6px; font: 700 17px/1 var(--font-dm), sans-serif; font-variant-numeric: tabular-nums; }
+.mq-wallet-ryo, .mq-wallet-crystal, .mq-wallet-energy { display: inline-flex; align-items: center; gap: 6px; font: 700 17px/1 var(--font-dm), sans-serif; font-variant-numeric: tabular-nums; }
 .mq-wallet-ryo { color: #e6c36a; }
 .mq-wallet-crystal { color: #7fc4e6; font-size: 14px; }
+.mq-wallet-energy { color: #9fd68a; font-size: 14px; }
 .mq-wallet .i { width: 16px; height: 16px; flex: none; }
 .mq-wallet-ryo em { color: #8d887a; font: 400 10px var(--font-dm), sans-serif; font-style: normal; letter-spacing: .1em; text-transform: uppercase; }
 .mq-xp { display: flex; align-items: center; gap: 7px; margin-top: 7px; }

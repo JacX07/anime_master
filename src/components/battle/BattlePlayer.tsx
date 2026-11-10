@@ -69,6 +69,10 @@ export interface LiveControl {
   onToggleAuto: () => void;
   /** Demande au serveur de jouer l'action de la carte qui doit agir */
   onAutoStep: () => void;
+  /** « Terminer » : le serveur joue la suite en auto, sans animation */
+  onFinish?: () => void;
+  /** Incrémenté quand l'écran doit sauter au résultat dès que le journal contient la fin */
+  skipNonce?: number;
   /** Abandon du combat en cours (compté comme perdu) */
   onAbandon?: () => void;
   /** Bouton de l'écran de fin à la place du lien « Nouveau combat » */
@@ -291,6 +295,15 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
     setPlaying(true);
   };
   const skip = () => setRp({ ...replayAll(log), pops: [] });
+  // Saut au résultat demandé par le combat en direct (« Terminer », onglet en arrière-plan) : dès que la fin est dans le journal
+  const skipped = useRef(0);
+  useEffect(() => {
+    const nonce = live?.skipNonce ?? 0;
+    if (nonce > skipped.current && log[log.length - 1]?.kind === "end") {
+      skipped.current = nonce;
+      setRp({ ...replayAll(log), pops: [] });
+    }
+  }, [live?.skipNonce, log]);
 
   const end = rp.end;
   const actor = rp.cur && !finished ? rp.info[rp.cur.actor] : null;
@@ -350,7 +363,7 @@ export function BattlePlayer({ log, characters, names = { A: "Équipe A", B: "É
       <div className="bt-controls">
         <div className="bt-dock">
           <div className="bt-dock-in">
-            <button type="button" className="bt-ico" onClick={skip} disabled={finished} aria-label="Aller à la fin" title="Aller à la fin">
+            <button type="button" className="bt-ico" onClick={live?.onFinish && !rp.end ? live.onFinish : skip} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
               <Icon name="fin" />
             </button>
             <button

@@ -29,3 +29,9 @@ Les bonus de set de dégâts magiques préexistants conservent leur règle propr
 - **Aperçu avant / après** : la fiche d'un artefact sélectionné montre Puissance, PV, ATK, DEF, Vitesse, critique, dégâts critiques et esquive du personnage, maintenant et avec l'objet (ou sans, s'il le porte déjà). Même calcul que l'onglet Statistiques (`gearSnapshot`).
 - **Classement de puissance** : chaque carte équipée ajoute la différence entre sa puissance de combat avec et sans équipement (artefacts, arme à 5★), calculée seule, sans synergie d'équipe (`src/lib/gear-power.ts`). Le détail « équipement +N » s'affiche dans le classement ; la puissance du menu compte aussi ce bonus.
 - **Sorts** : les multiplicateurs (« 1,1× ATK ») sont écrits dans la description visible (fiche du personnage et panneau de combat), plus seulement au survol. Une aide repliable explique multiplicateur, dégâts physiques / magiques et compétence magique.
+
+## Recyclage des artefacts *(v0.3.0)*
+
+- Un artefact **non équipé** se recycle contre des Ryō : `{N 10, R 25, SR 60, SSR 150, UR 300}` + **70 %** des Ryō dépensés pour l'améliorer (`artifactRecycleValue`). Définitif, confirmation demandée.
+- Inventaire : bouton « Recycler · +X Ryō » sur la fiche ; barre « Recycler les artefacts non équipés jusqu'à [rareté] », améliorés exclus sauf case cochée, avec le nombre et le total.
+- Journal : une ligne `ARTIFACT_RECYCLE` par objet (migration `20261110130000_artifact_recycle`). Tout ou rien : si un objet est équipé ou a disparu entre-temps, rien n'est recyclé.

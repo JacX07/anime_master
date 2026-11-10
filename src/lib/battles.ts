@@ -15,6 +15,7 @@ import {
 } from "./battle";
 import { prisma } from "./db";
 import { afterGain } from "./crystal-stock";
+import { ENERGY_COST, ENERGY_MODES, energyAfter, energyStock } from "./energy";
 import { startOfDay } from "./economy";
 import {
   baseUnits, BOSS_BONUS, DAILY_FULL_UNITS, isBoss, isFinalBoss, isUnlocked, levelScale, LEVELS, mixFor, storyLoot,
@@ -632,10 +633,47 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
 
 /** Abandonne les combats manuels restés ouverts trop longtemps (balayage paresseux). */
 export async function sweepBattles(now = new Date()) {
-  await prisma.battle.updateMany({
-    where: { status: "RUNNING", createdAt: { lt: new Date(now.getTime() - ABANDON_AFTER_MS) } },
-    data: { status: "ABANDONED", winner: "B", endedAt: now },
+  const where = { status: "RUNNING" as const, createdAt: { lt: new Date(now.getTime() - ABANDON_AFTER_MS) } };
+  const stale = await prisma.battle.findMany({ where, select: { id: true } });
+  if (!stale.length) return;
+  await prisma.$transaction(async (tx) => {
+    await tx.battle.updateMany({ where: { id: { in: stale.map((b) => b.id) }, status: "RUNNING" }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+    await refundLost(tx, { id: { in: stale.map((b) => b.id) } }, now);
   });
+}
+
+// ── Énergie (v0.3.0) ─────────────────────────────────────────────────────────
+
+const usesEnergy = (mode: BattleMode) => (ENERGY_MODES as readonly string[]).includes(mode);
+
+/** Débite 1 énergie ; erreur lisible si la réserve est vide. Écriture conditionnelle : deux lancements simultanés ne paient pas deux fois la même unité. */
+async function spendEnergy(tx: Prisma.TransactionClient, userId: string, now: Date) {
+  const u = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { energy: true, energyUpdatedAt: true } });
+  const next = energyAfter(u.energy, u.energyUpdatedAt, now, -ENERGY_COST);
+  if (!next) {
+    const at = energyStock(u.energy, u.energyUpdatedAt, now).nextAt;
+    const wait = at ? Math.max(1, Math.ceil((at.getTime() - now.getTime()) / 1000)) : 0;
+    throw new BattleError(`Plus d'énergie : la prochaine arrive dans ${Math.floor(wait / 60)} min ${String(wait % 60).padStart(2, "0")} s.`);
+  }
+  const done = await tx.user.updateMany({ where: { id: userId, energy: u.energy, energyUpdatedAt: u.energyUpdatedAt }, data: next });
+  if (done.count !== 1) throw new BattleError("Un autre combat vient de démarrer, réessaie.");
+}
+
+/** Rend l'énergie des combats perdus ou abandonnés (une seule fois : `energy` repasse à 0). */
+async function refundLost(tx: Prisma.TransactionClient, where: Prisma.BattleWhereInput, now: Date) {
+  const rows = await tx.battle.findMany({ where: { ...where, energy: { gt: 0 }, status: { not: "RUNNING" }, NOT: { winner: "A" } }, select: { id: true, userId: true, energy: true } });
+  for (const b of rows) {
+    if ((await tx.battle.updateMany({ where: { id: b.id, energy: { gt: 0 } }, data: { energy: 0 } })).count !== 1) continue;
+    const u = await tx.user.findUniqueOrThrow({ where: { id: b.userId }, select: { energy: true, energyUpdatedAt: true } });
+    await tx.user.update({ where: { id: b.userId }, data: energyAfter(u.energy, u.energyUpdatedAt, now, b.energy)! });
+  }
+}
+
+/** Réserve affichée (menu, écrans de préparation). */
+export async function getEnergy(userId: string, now = new Date()) {
+  const u = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { energy: true, energyUpdatedAt: true } });
+  const s = energyStock(u.energy, u.energyUpdatedAt, now);
+  return { available: s.available, nextAt: s.nextAt?.toISOString() ?? null };
 }
 
 /** Lance un combat avec l'équipe d'attaque du joueur. Automatique : calculé en entier. Manuel : un seul en cours à la fois. */
@@ -672,7 +710,14 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   if (floor && floor > (await getTowerFloor(userId)) + 1) throw new BattleError("Étage verrouillé : gagne le précédent.");
   const mode: BattleMode = story ? "STORY" : raid ? "RAID" : floor ? "TOWER" : dungeonLevel ? "DUNGEON" : "TEST";
   // Un combat suivi à la fois et par mode. En histoire et dans la Tour, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
-  if (manual && (story || floor || raid || dungeonLevel)) await prisma.battle.updateMany({ where: { userId, manual: true, status: "RUNNING", mode }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+  if (manual && (story || floor || raid || dungeonLevel)) {
+    const open = await prisma.battle.findMany({ where: { userId, manual: true, status: "RUNNING", mode }, select: { id: true } });
+    if (open.length) await prisma.$transaction(async (tx) => {
+      await tx.battle.updateMany({ where: { id: { in: open.map((b) => b.id) }, status: "RUNNING" }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+      await refundLost(tx, { id: { in: open.map((b) => b.id) } }, now);
+    });
+  }
+  const paysEnergy = usesEnergy(mode);
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const fitted = await equippedCards(userId, storyCards ?? slots as NonNullable<typeof slots[number]>[]);
@@ -683,6 +728,14 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined });
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
+      // Une défaite est remboursée aussitôt : on ne débite que les victoires, après avoir vérifié la réserve.
+      if (paysEnergy) {
+        if (won) await spendEnergy(tx, userId, now);
+        else {
+          const u = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { energy: true, energyUpdatedAt: true } });
+          if (!energyAfter(u.energy, u.energyUpdatedAt, now, -ENERGY_COST)) await spendEnergy(tx, userId, now);
+        }
+      }
       const stars = story ? storyStars(won, result.log, teams.A.length) : null;
       const loot = story && won ? await settleStory(tx, userId, opponent, seed, stars!, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
       return tx.battle.create({
@@ -695,7 +748,10 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     await track("battle_end", userId, { mode, opponent, manual: false, winner: result.winner, stars: row.storyStars, events: result.log.length, ryo: (row.loot as { ryo?: number } | null)?.ryo ?? 0 });
     return toView(row, null);
   }
-  const row = await prisma.battle.create({ data: { userId, mode, opponent, manual, seed, teams: toJson(teams) } });
+  const row = await prisma.$transaction(async (tx) => {
+    if (paysEnergy) await spendEnergy(tx, userId, now);
+    return tx.battle.create({ data: { userId, mode, opponent, manual, seed, teams: toJson(teams), energy: paysEnergy ? ENERGY_COST : 0 } });
+  });
   return toView(row, replay(teams, seed, []));
 }
 
@@ -711,7 +767,8 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
 const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
-export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number): Promise<BattleView> {
+export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number, toEnd = false): Promise<BattleView> {
+  // toEnd : la stratégie automatique joue toutes les actions restantes d'un coup (onglet en arrière-plan, « Terminer » ; v0.3.0)
   // action = null : la stratégie automatique joue à la place du joueur (bouton Auto) ; elle est enregistrée comme un choix du joueur
   if (action && (!isSpell(action.spell) || (action.target !== null && typeof action.target !== "string"))) throw new BattleError("Action invalide.");
   await sweepBattles(now);
@@ -731,6 +788,14 @@ export async function playAction(userId: string, battleId: string, action: Actio
     throw new BattleError("Action impossible.");
   }
   for (let actor = currentActor(st); actor && actor.id.startsWith("B"); actor = currentActor(st)) applyAction(st, autoAction(st));
+  const played: Action[] = [chosen];
+  if (toEnd) {
+    for (let actor = currentActor(st); actor; actor = currentActor(st)) {
+      const next = actor.id.startsWith("A") ? autoAction(st) : null;
+      applyAction(st, next ?? autoAction(st));
+      if (next) played.push(next);
+    }
+  }
   const done = st.result;
   // Verrou : l'écriture n'a lieu que si personne n'a joué entre-temps. Le butin est versé dans la même transaction que la fin du combat ; si le verrou échoue, rien n'est payé
   let loot: Loot | null = null;
@@ -739,8 +804,8 @@ export async function playAction(userId: string, battleId: string, action: Actio
     const saved = await tx.battle.updateMany({
       where: { id: row.id, status: "RUNNING", steps: row.steps },
       data: {
-        actions: toJson([...actions, chosen]),
-        steps: row.steps + 1,
+        actions: toJson([...actions, ...played]),
+        steps: row.steps + played.length,
         ...(done ? { status: "DONE", winner: done.winner, log: toJson(done.log), endedAt: now } : {}),
       },
     });
@@ -756,16 +821,18 @@ export async function playAction(userId: string, battleId: string, action: Actio
       score = 0;
       await tx.battle.update({ where: { id: row.id }, data: { storyStars: 0 } });
     }
+    if (done && done.winner !== "A") await refundLost(tx, { id: row.id }, now);
     });
-  if (done) await track("battle_end", userId, { mode: row.mode, opponent: row.opponent, manual: true, winner: done.winner, stars: score, events: done.log.length, steps: row.steps + 1, durationMs: now.getTime() - row.createdAt.getTime(), ryo: (loot as { ryo?: number } | null)?.ryo ?? 0 });
-  return toView({ ...row, steps: row.steps + 1, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
+  if (done) await track("battle_end", userId, { mode: row.mode, opponent: row.opponent, manual: true, winner: done.winner, stars: score, events: done.log.length, steps: row.steps + played.length, durationMs: now.getTime() - row.createdAt.getTime(), ryo: (loot as { ryo?: number } | null)?.ryo ?? 0 });
+  return toView({ ...row, steps: row.steps + played.length, status: done ? "DONE" : "RUNNING", loot, storyStars: score ?? row.storyStars }, st, from);
 }
 
 /** Abandon d'un combat manuel en cours : compté comme perdu. */
 export async function abandonBattle(userId: string, battleId: string, now = new Date()) {
-  const res = await prisma.battle.updateMany({
-    where: { id: battleId, userId, status: "RUNNING" },
-    data: { status: "ABANDONED", winner: "B", endedAt: now },
+  const res = await prisma.$transaction(async (tx) => {
+    const r = await tx.battle.updateMany({ where: { id: battleId, userId, status: "RUNNING" }, data: { status: "ABANDONED", winner: "B", endedAt: now } });
+    if (r.count === 1) await refundLost(tx, { id: battleId }, now);
+    return r;
   });
   if (res.count !== 1) throw new BattleError("Combat introuvable ou déjà terminé.");
   await track("battle_abandon", userId, { battleId });
