@@ -54,10 +54,15 @@ export const mainValueAt = (stat: string, level: number) => {
   const m = ARTIFACT_MAIN[stat];
   return m ? Math.round((m.base + m.perLevel * level) * 1e6) / 1e6 : 0;
 };
+/** Stats principales possibles par emplacement (filtres et tirage). */
+export const MAIN_STATS_BY_SLOT: Record<ArtifactSlot, string[]> = {
+  CASQUE: ["flatHp", "flatDefense", "flatAttack", "hp", "defense", "attack"],
+  PLASTRON: ["flatHp", "flatDefense", "flatAttack", "hp", "defense", "attack"],
+  GANTS: ["flatAttack", "attack", "crit", "magicSkill", "critDamage"],
+  BOTTES: ["speed", "flatAttack", "flatDefense", "flatHp", "attack", "defense", "hp"],
+};
 export const artifactMainStat = (slot: ArtifactSlot, _rarity: Rarity, seed: number) => {
-  const stats = slot === "GANTS" ? ["flatAttack", "attack", "crit", "magicSkill", "critDamage"]
-    : slot === "BOTTES" ? ["speed", "flatAttack", "flatDefense", "flatHp", "attack", "defense", "hp"]
-    : ["flatHp", "flatDefense", "flatAttack", "hp", "defense", "attack"];
+  const stats = MAIN_STATS_BY_SLOT[slot];
   const stat = stats[Math.floor(randomFor(seed ^ 0xa271)() * stats.length)];
   return { stat, value: mainValueAt(stat, 0) };
 };
