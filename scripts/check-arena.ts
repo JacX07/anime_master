@@ -97,10 +97,12 @@ async function main() {
     let t = new Date(t2.getTime() + ARENA_GHOST_AFTER_MS + 1);
     let v = await arenaView(p1, ghostRow.id, 0, t);
     for (let i = 0; i < 300 && v.status === "RUNNING"; i++) { t = new Date(t.getTime() + ARENA_ACTION_MS + 1000); v = await arenaView(p1, ghostRow.id, 0, t); }
-    check("Joueur absent : le match va à son terme (forfait après 3 expirations)", v.status === "DONE");
+    check("Joueur absent : l'automatique mène le match à son terme, sans forfait", v.status === "DONE");
+    const endedRow = await prisma.arenaMatch.findUniqueOrThrow({ where: { id: ghostRow.id } });
+    check("Pas de forfait : la fin vient du combat (au moins une action jouée par chaque camp)", endedRow.steps > 6, `${endedRow.steps} actions, ${endedRow.missedA} expirations`);
     const ghostElo = await prisma.user.findUniqueOrThrow({ where: { id: ghostUser }, select: { elo: true } });
     check("L'Elo du joueur fantôme ne change pas", ghostElo.elo === ghostBefore, `${ghostBefore} → ${ghostElo.elo}`);
-    check("Perte d'Elo contre un fantôme plafonnée à 16", (v.eloChange ?? 0) >= -16 && (v.eloChange ?? 0) <= 0, `Δ ${v.eloChange}`);
+    check("Perte d'Elo contre un fantôme plafonnée à 16", (v.eloChange ?? 0) >= -16, `Δ ${v.eloChange}`);
   } finally {
     await prisma.user.deleteMany({ where: { id: { in: users } } });
   }

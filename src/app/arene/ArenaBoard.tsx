@@ -7,6 +7,7 @@ import type { BattleEvent, Spell, UnitId } from "@/lib/battle";
 import { arenaJoinAction, arenaLeaveAction, arenaPlayAction, arenaPollAction } from "./arena-actions";
 
 const POLL_MS = 1500;
+const HIDDEN_POLL_MS = 5000;
 
 interface Props {
   initial: ArenaView | null;
@@ -62,7 +63,14 @@ export function ArenaBoard({ initial, elo, name, team, budget }: Props) {
   const active = view?.status === "QUEUED" || view?.status === "RUNNING";
   useEffect(() => {
     if (!active) return;
-    const id = setInterval(() => { if (!document.hidden) void poll(); }, POLL_MS);
+    // Onglet masqué : on sonde plus lentement (le serveur fait jouer l'automatique à la place d'un absent, mais seule une sonde le déclenche)
+    let last = 0;
+    const id = setInterval(() => {
+      const now = Date.now();
+      if (document.hidden && now - last < HIDDEN_POLL_MS) return;
+      last = now;
+      void poll();
+    }, POLL_MS);
     return () => clearInterval(id);
   }, [active, poll]);
 

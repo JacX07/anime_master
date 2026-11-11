@@ -15,7 +15,9 @@ import type { Rarity, CardType } from "../generated/prisma/enums";
 
 export const ARENA_ACTION_MS = 20_000;
 export const ARENA_GHOST_AFTER_MS = 30_000;
-export const ARENA_MISS_LIMIT = 3;
+/** Un joueur absent n'est jamais déclaré forfait : l'automatique joue pour lui. Après 2 expirations de suite, son chrono tombe à 4 s pour ne pas faire attendre l'adversaire. */
+export const ARENA_AWAY_AFTER = 2;
+export const ARENA_AWAY_MS = 4_000;
 const ELO_WINDOW = 150;
 const ELO_WINDOW_STEP = 50;
 const ELO_WINDOW_STEP_MS = 10_000;
@@ -140,7 +142,7 @@ function advance(st: BattleState, row: Row, now: Date) {
   const played: Action[] = [];
   const missed = { A: row.missedA, B: row.missedB };
   let deadline = row.deadline;
-  let forfeit: Side | null = null;
+  const forfeit: Side | null = null;
   for (let actor = currentActor(st); actor && !st.result; actor = currentActor(st)) {
     const side = actor.id[0] as Side;
     if (row.ghost && side === "B") { const a = autoAction(st); applyAction(st, a); played.push(a); continue; }
@@ -149,10 +151,16 @@ function advance(st: BattleState, row: Row, now: Date) {
     const a = autoAction(st);
     applyAction(st, a);
     played.push(a);
-    deadline = new Date(now.getTime() + ARENA_ACTION_MS);
-    if (missed[side] >= ARENA_MISS_LIMIT) { forfeit = side; break; }
+    deadline = new Date(now.getTime() + (missed[side] >= ARENA_AWAY_AFTER ? ARENA_AWAY_MS : ARENA_ACTION_MS));
   }
   return { played, missed, forfeit, deadline };
+}
+
+/** Chrono de la prochaine carte : 20 s, ou 4 s si son joueur est absent depuis deux actions. */
+function nextDeadline(st: BattleState, missed: { A: number; B: number }, now: Date) {
+  const next = currentActor(st);
+  const away = next && missed[next.id[0] as Side] >= ARENA_AWAY_AFTER;
+  return new Date(now.getTime() + (away ? ARENA_AWAY_MS : ARENA_ACTION_MS));
 }
 
 /** Écrit l'avancement (verrou sur `steps`) et, à la fin, le résultat et l'Elo dans la même transaction. */
@@ -168,7 +176,7 @@ async function commit(row: Row, st: BattleState, played: Action[], missed: { A: 
         steps: row.steps + played.length,
         missedA: missed.A,
         missedB: missed.B,
-        deadline: finished ? null : turnChanged ? new Date(now.getTime() + ARENA_ACTION_MS) : row.deadline,
+        deadline: finished ? null : turnChanged ? nextDeadline(st, missed, now) : row.deadline,
         ...(finished ? { status: "DONE" as const, winner, endedAt: now } : {}),
       },
     });
