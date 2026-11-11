@@ -2485,3 +2485,11 @@
 @media (min-width: 1500px) and (max-width: 1599px) {
   .mq-app-shell[class][class][class] .mq-topbar .mq-game-nav .mq-nav-side > a, .mq-app-shell[class][class][class] .mq-topbar .mq-game-nav .mq-nav-dropdown > a { font-size: 10px; letter-spacing: .06em; }
 }
+
+/* Fond de l'accueil : la salle de l'Horloge brisée (public/images/backgrounds/accueil.webp), assombrie pour garder le texte lisible */
+.mq-app-shell:has(.mq-home-main) {
+  background:
+    linear-gradient(180deg, rgb(8 10 10 / .42), rgb(8 10 10 / .74)),
+    url("/images/backgrounds/accueil.webp") center top / cover no-repeat fixed,
+    #0b0e0f;
+}

@@ -4,10 +4,10 @@
 export type MusicTrack = "theme" | "combat" | "raid" | "pvp";
 
 export const MUSIC_URLS: Record<MusicTrack, string> = {
-  theme: "/audio/music/soliloquy.mp3",
-  combat: "/audio/music/combat.mp3",
-  raid: "/audio/music/raid.mp3",
-  pvp: "/audio/music/pvp.mp3",
+  theme: "/audio/music/soliloquy.m4a",
+  combat: "/audio/music/combat.m4a",
+  raid: "/audio/music/raid.m4a",
+  pvp: "/audio/music/pvp.m4a",
 };
 
 export interface LoopMusic {

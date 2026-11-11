@@ -1,5 +1,6 @@
 Musiques du jeu (fournies par le créateur du jeu ; auteurs et licences à renseigner) :
-- soliloquy.mp3  « Soliloquy »            : thème principal du site
-- combat.mp3     « battleThemeA »         : combats en général (histoire, Tour, donjons)
-- raid.mp3       « Heroic Demise (New) »  : combats de raid et du Défi des empereurs
-- pvp.mp3        « Battle in the winter » : combats PvP (arène live)
+- soliloquy.m4a  « Soliloquy »            : thème principal du site
+- combat.m4a     « battleThemeA »         : combats en général (histoire, Tour, donjons)
+- raid.m4a       « Heroic Demise (New) »  : combats de raid et du Défi des empereurs
+- pvp.m4a        « Battle in the winter » : combats PvP (arène live)
+Format : AAC 128 kb/s, niveau égalisé à -16 LUFS (ffmpeg loudnorm). Les MP3 d'origine ne sont pas dans le dépôt.

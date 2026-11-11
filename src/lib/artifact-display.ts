@@ -28,6 +28,16 @@ export const ONE_PIECE_ARTIFACT_NAMES: Record<string, string> = {
   BOTTES: "Bottes de Grand Line",
 };
 
+/** Noms et illustrations des pièces de set (public/images/artifacts/sets/<set>/<emplacement>.webp) ; les sets sans entrée gardent un nom générique et aucune image. */
+export const SET_ARTIFACTS: Record<string, Record<string, string>> = {
+  "one-piece": ONE_PIECE_ARTIFACT_NAMES,
+  naruto: { CASQUE: "Bandeau de Konoha", PLASTRON: "Veste de shinobi", GANTS: "Gants de shinobi", BOTTES: "Sandales de ninja" },
+  "jujutsu-kaisen": { CASQUE: "Bandeau de l'Infini", PLASTRON: "Veste de sorcier", GANTS: "Gants de l'Infini", BOTTES: "Bottes de sorcier" },
+  "dragon-ball": { CASQUE: "Scouter saiyan", PLASTRON: "Kimono de combat", GANTS: "Poignets d'entraînement", BOTTES: "Bottes saiyan" },
+};
+const SLOT_FILES: Record<string, string> = { CASQUE: "helmet", PLASTRON: "breastplate", GANTS: "gauntlets", BOTTES: "boots" };
+export const artifactImage = (setKey: string, slot: string) => (SET_ARTIFACTS[setKey] && SLOT_FILES[slot] ? `/images/artifacts/sets/${setKey}/${SLOT_FILES[slot]}.webp` : undefined);
+
 /** Les tirages valent 80–100 % de la base ; chaque amélioration double cette valeur. */
 export function artifactSubstatUpgrades(sub: { stat: string; value: number }) {
   const base = ARTIFACT_SUBSTAT_BASE[sub.stat];

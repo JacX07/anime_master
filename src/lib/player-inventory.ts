@@ -1,4 +1,4 @@
-import { artifactRarity, ONE_PIECE_ARTIFACT_NAMES } from "./artifact-display";
+import { artifactImage, artifactRarity, SET_ARTIFACTS } from "./artifact-display";
 import { prisma } from "./db";
 import { inventoryResources, type InventoryItem } from "./inventory";
 import { weaponDef } from "./weapons";
@@ -24,11 +24,10 @@ export async function getPlayerInventory(userId: string) {
     const dungeon = dungeonOf(artifact.setKey);
     const universe = dungeon?.universe ?? artifact.setKey;
     const slot = SLOT_NAMES[artifact.slot as ArtifactSlot] ?? artifact.slot;
-    const file = ({ CASQUE: "helmet", PLASTRON: "breastplate", GANTS: "gauntlets", BOTTES: "boots" } as const)[artifact.slot as ArtifactSlot];
     return {
-      key: `artifact:${artifact.id}`, equippedBy: artifact.equippedCard ? { id: artifact.equippedCard.id, name: artifact.equippedCard.character.name } : undefined, name: artifact.setKey === "one-piece" ? ONE_PIECE_ARTIFACT_NAMES[artifact.slot] ?? `${slot} des profondeurs` : `${slot} · ${universe}`, quantity: 1, categories: ["Équipement"], universe: artifact.setKey,
+      key: `artifact:${artifact.id}`, equippedBy: artifact.equippedCard ? { id: artifact.equippedCard.id, name: artifact.equippedCard.character.name } : undefined, name: SET_ARTIFACTS[artifact.setKey]?.[artifact.slot] ?? (artifact.setKey === "one-piece" ? `${slot} des profondeurs` : `${slot} · ${universe}`), quantity: 1, categories: ["Équipement"], universe: artifact.setKey,
       source: `Donjon ${universe}`, description: `Artefact ${slot.toLocaleLowerCase("fr")} du set ${universe}. Niveau ${artifact.level}. ${artifact.equippedCard ? `Équipé sur ${artifact.equippedCard.character.name}.` : "À équiper sur une carte."}`,
-      icon: "artifact", tone: artifactRarity(artifact.rarity).tone, image: artifact.setKey === "one-piece" ? `/images/artifacts/one-piece-${file ?? "helmet"}-anime.png` : undefined, links: [{ href: `/donjons?set=${artifact.setKey}`, label: `Donjon ${universe}` }],
+      icon: "artifact", tone: artifactRarity(artifact.rarity).tone, image: artifactImage(artifact.setKey, artifact.slot), links: [{ href: `/donjons?set=${artifact.setKey}`, label: `Donjon ${universe}` }],
       artifact: { setKey: artifact.setKey, id: artifact.id, slot: artifact.slot, rarity: artifact.rarity, mainStat: artifact.mainStat, mainValue: artifact.mainValue, subStats: artifact.subStats as { stat: string; value: number }[], level: artifact.level, equippedCard: artifact.equippedCard },
     };
   });
