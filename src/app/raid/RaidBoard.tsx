@@ -66,6 +66,7 @@ export function RaidBoard({ boss, changesAt, tutorial, difficulties, fullHeartsL
           key={fight.battle.id}
           initial={fight.battle}
           initialAuto={fight.auto}
+          music="raid"
           names={{ A: "Ton équipe", B: boss.name }}
           title={`Raid — ${boss.name} (${d.name})`}
           onExit={() => setFight(null)}

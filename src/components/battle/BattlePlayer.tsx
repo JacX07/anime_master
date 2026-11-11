@@ -18,6 +18,7 @@ import { replayTurnOrder } from "@/lib/battle-report";
 import { SpellsPanel } from "./BattlePanels";
 import { BattleVictory } from "./BattleVictory";
 import "./battle.css";
+import type { MusicTrack } from "@/lib/track-music";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
 import { EffectsPanel } from "./EffectsPanel";
@@ -31,6 +32,8 @@ export interface PlayerCharacter {
 }
 
 interface Props {
+  /** Musique du combat : général (par défaut), raid ou PvP */
+  music?: MusicTrack;
   /** Première tentative en donjon : les effets restent actifs malgré la préférence globale. */
   allowDisableSpellFx?: boolean;
   log: BattleEvent[];
@@ -92,7 +95,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
+export function BattlePlayer({ music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -160,7 +163,8 @@ export function BattlePlayer({ allowDisableSpellFx = true, log, characters, name
 
   // Son : effets sur chaque événement, musique pendant la lecture. Le navigateur ne laisse jouer qu'après un geste (voir onPointerDown).
   const audio = useRef<BattleAudio | null>(null);
-  const getAudio = () => (audio.current ??= new BattleAudio());
+  const track = useRef(music);
+  const getAudio = () => (audio.current ??= new BattleAudio(track.current));
   const [sfxOn, setSfxOn] = useState(true);
   const [musicOn, setMusicOn] = useState(true);
   useEffect(() => {

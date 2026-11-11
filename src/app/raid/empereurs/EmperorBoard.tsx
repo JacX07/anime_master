@@ -50,6 +50,7 @@ export function EmperorBoard({ state, portraits, context, storageKey }: { state:
         key={fight.battle.id}
         initial={fight.battle}
         initialAuto={fight.auto}
+        music="raid"
         names={{ A: "Ton équipe", B: fight.target.name }}
         title={`${fight.target.name} (${diffName(fight.target.difficulty)})`}
         onExit={() => setFight(null)}

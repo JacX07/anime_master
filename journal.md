@@ -604,3 +604,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Outil : `npm run simulate:emperors` avec `--scale`, `--per`, `--boss`, `--crew1`, `--crew2`, `--hardcore-scale`, `--teams`, `--bosses`, `--hardcore`.
 - `check:emperor-raid` fixe des ennemis faibles pour tester butin et accès (la difficulté réelle est simulée à part).
 - Hypothèse : le niveau d'équipement des joueurs (moyen / fort) est estimé à la main ; à recaler quand on aura de vraies données.
+
+## 2026-11-11 — Musiques du jeu
+- Fichiers fournis par l'utilisateur, copiés dans `public/audio/music/` (31 Mo, MP3 tels quels, ffmpeg absent) : `soliloquy.mp3` (thème principal), `combat.mp3` (battleThemeA : combats en général), `raid.mp3` (Heroic Demise : raid et Défi des empereurs), `pvp.mp3` (Battle in the winter : arène live). `CREDITS.txt` : auteurs et licences **à renseigner** (inconnus).
+- Code : `src/lib/track-music.ts` (lecture en flux par un élément `<audio>` branché sur WebAudio, reprend où elle s'est arrêtée, pas de décodage complet en mémoire). `BattleAudio(track)` remplace la boucle générée `combat.ogg` ; prop `music` sur `BattlePlayer`/`LiveBattle`. Le thème principal remplace l'ambiance synthétisée de `pack-audio.ts` (même préférence `am-packs-ambience`, mêmes règles : démarre au premier geste, s'efface quand un combat est à l'écran). Réglage « Musique » dans Paramètres.
+- Validation : navigateur PC (autoplay autorisé), compte jetable : thème en lecture à l'accueil ; raid : thème coupé et `raid.mp3` en lecture ; donjon : `combat.mp3` ; retour à l'accueil : thème repris ; aucune erreur JavaScript. Non vérifié : `pvp.mp3` à l'écran (même chemin de code), le niveau sonore des morceaux (gain 1,0 × niveau musique des combats), la lecture avec le blocage d'autoplay réel, le site après push.
+- Ancien `BattleMusic` (boucle générée) et `public/audio/battle/combat.ogg` : plus utilisés, laissés en place.

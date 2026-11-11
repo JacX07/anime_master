@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { abandonBattleAction, finishAutoAction, playActionAction, playAutoAction, setBattleAutoAction } from "@/app/battle-actions";
 import type { Spell, UnitId } from "@/lib/battle";
+import type { MusicTrack } from "@/lib/track-music";
 import type { BattleView } from "@/lib/battles";
 import { BattlePlayer, type PlayerCharacter } from "./BattlePlayer";
 
@@ -11,6 +12,8 @@ interface Props {
   initial: BattleView;
   /** Réglage de départ : l'équipe joue seule */
   initialAuto: boolean;
+  /** Musique du combat (raid, PvP) ; général par défaut */
+  music?: MusicTrack;
   names: { A: string; B: string };
   title?: string;
   /** Appelé quand la lecture arrive au bout du combat, avec le combat final (butin compris) */
@@ -27,7 +30,7 @@ interface Props {
 }
 
 /** Combat suivi par le serveur : chaque choix du joueur (ou l'action automatique) est enregistré, l'écran rejoue les nouveaux événements. */
-export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEnd, exitHref, onExit, abandonOnExit, onNext }: Props) {
+export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, renderEnd, exitHref, onExit, abandonOnExit, onNext }: Props) {
   const [view, setView] = useState(initial);
   const [log, setLog] = useState(initial.log);
   const [auto, setAuto] = useState(initialAuto);
@@ -137,6 +140,7 @@ export function LiveBattle({ initial, initialAuto, names, title, onEnd, renderEn
   return (
     <BattlePlayer
       key={view.id}
+      music={music}
       log={log}
       allowDisableSpellFx={view.spellFxUnlocked !== false}
       characters={characters}

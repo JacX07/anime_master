@@ -29,8 +29,8 @@ export function AudioSettings() {
         <label className="settings-volume"><input type="range" min={0} max={100} step={5} value={volume} aria-label="Volume général" onChange={(e) => changeVolume(Number(e.target.value))} onPointerUp={() => packAudio.uiConfirm()} onKeyUp={() => packAudio.uiConfirm()} /><output>{volume} %</output></label>
       </li>
       <li>
-        <span><b>Ambiances</b><small>Musique d’ambiance du site. Elle s’efface pendant les combats.</small></span>
-        <button type="button" className="ambient-toggle" aria-pressed={music} onClick={() => change("music")}>{music ? "♪ Ambiance activée" : "♪ Muet"}</button>
+        <span><b>Musique</b><small>Thème principal du site. Il s’efface pendant les combats, qui ont leur propre musique.</small></span>
+        <button type="button" className="ambient-toggle" aria-pressed={music} onClick={() => change("music")}>{music ? "♪ Musique activée" : "♪ Muet"}</button>
       </li>
       <li>
         <span><b>Effets</b><small>Sons des boutons, du survol et des sélections.</small></span>

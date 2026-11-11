@@ -7,7 +7,8 @@ import { suspendWhenHidden } from "@/lib/audio-visibility";
 import type { BattleEvent } from "@/lib/battle";
 import type { CardType } from "@/generated/prisma/enums";
 import type { AttackElement } from "@/lib/attack-element";
-import { BattleMusic, BattleResultMusic } from "./music";
+import { BattleResultMusic } from "./music";
+import { MUSIC_URLS, TrackMusic, type LoopMusic, type MusicTrack } from "@/lib/track-music";
 
 const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
 // Même niveau que la maquette validée à 65 % (gain logarithmique).
@@ -23,12 +24,14 @@ type GeneratedSfx = typeof GENERATED_SFX[number];
 export interface ActorSound { element: AttackElement | null; magic: boolean }
 
 export class BattleAudio {
+  /** Morceau du combat : général, raid ou PvP */
+  constructor(private readonly track: MusicTrack = "combat") {}
   sfxOn = true;
   musicOn = true;
   private ctx: AudioContext | null = null;
   private sfx!: GainNode;
   private music!: GainNode;
-  private musicEngine: BattleMusic | null = null;
+  private musicEngine: LoopMusic | null = null;
   private resultMusic: BattleResultMusic | null = null;
   private generated = new Map<GeneratedSfx, AudioBuffer>();
   private generatedRequest: AbortController | null = null;
@@ -65,7 +68,7 @@ export class BattleAudio {
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     suspendWhenHidden(ctx);
     this.ctx = ctx;
-    this.musicEngine = new BattleMusic(ctx, this.music);
+    this.musicEngine = new TrackMusic(ctx, this.music, MUSIC_URLS[this.track]);
     this.resultMusic = new BattleResultMusic(ctx, master);
     void this.loadGenerated(ctx);
     void this.loadBlade(ctx);

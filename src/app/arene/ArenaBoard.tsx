@@ -139,6 +139,7 @@ export function ArenaBoard({ initial, elo, name, team, budget }: Props) {
   const mine = view.myTurn;
   return <BattlePlayer
     key={view.id}
+    music="pvp"
     log={log}
     characters={characters}
     names={{ A: name, B: view.opponent?.name ?? "Adversaire" }}

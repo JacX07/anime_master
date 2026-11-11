@@ -1,4 +1,5 @@
 import { getVolume, onVolumeChange } from "./audio-volume";
+import { MUSIC_URLS, TrackMusic } from "./track-music";
 import { suspendWhenHidden } from "./audio-visibility";
 // Sons de la salle des invocations, synthétisés en WebAudio (aucun fichier) :
 // carte qui sort du paquet et carte retournée (papier), mécanisme d'invocation, ambiance de salle (nappe lente + cloche rare).
@@ -9,6 +10,8 @@ const midi = (n: number) => 440 * 2 ** ((n - 69) / 12);
 const BASE_GAIN = 1.4;
 const STORE = "am-packs-ambience";
 const STORE_UI = "am-ui-sfx";
+/** Niveau du thème principal (le volume général s'applique par-dessus). */
+const THEME_LEVEL = 0.8;
 
 class PackAudio {
   private ctx: AudioContext | null = null;
@@ -17,6 +20,7 @@ class PackAudio {
   private ambience!: GainNode;
   private noise!: AudioBuffer;
   private stopAmbience: (() => void) | null = null;
+  private theme: TrackMusic | null = null;
 
   /** Le contexte n'existe qu'après un geste de l'utilisateur (règle des navigateurs). */
   private init(): AudioContext {
@@ -414,68 +418,19 @@ class PackAudio {
     this.swish(t, 0.35, 400, 5000, 0.4);
   }
 
-  /** Harpe de cristal : notes pincées éparses avec écho sur une nappe discrète ; coupée en fondu. */
+  /** Thème principal du site (Soliloquy) : lu en boucle, reprend où il s'est arrêté, fondu à l'entrée et à la sortie. */
   startAmbience() {
     if (this.stopAmbience) return;
     const ctx = this.ready();
-    const nodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
-    // Écho : un retard rebouclé et filtré, qui fait traîner chaque note pincée.
-    const echo = ctx.createGain();
-    const delay = ctx.createDelay(2);
-    delay.delayTime.value = 0.42;
-    const feedback = ctx.createGain();
-    feedback.gain.value = 0.45;
-    const damp = ctx.createBiquadFilter();
-    damp.type = "lowpass";
-    damp.frequency.value = 1600;
-    echo.connect(this.ambience);
-    echo.connect(delay);
-    delay.connect(damp);
-    damp.connect(feedback).connect(delay);
-    damp.connect(this.ambience);
-    // Nappe presque inaudible (quinte), pour que le silence entre les notes reste habité
-    for (const [freq, level] of [[220, 0.035], [330.4, 0.025]] as const) {
-      const o = ctx.createOscillator();
-      o.frequency.value = freq;
-      const g = ctx.createGain();
-      g.gain.value = level;
-      o.connect(g).connect(this.ambience);
-      o.start();
-      nodes.push(o);
-    }
+    this.theme ??= new TrackMusic(ctx, this.ambience, MUSIC_URLS.theme);
+    const theme = this.theme;
     this.ambience.gain.cancelScheduledValues(ctx.currentTime);
-    this.ambience.gain.setTargetAtTime(1, ctx.currentTime, 0.8);
-    // Notes pincées éparses (gamme pentatonique de do, sol4 à sol5), espacées de 1,4 à 3,8 s au hasard
-    const scale = [67, 69, 72, 74, 76, 79];
-    const pluck = (freq: number, dur: number, level: number, type: OscillatorType) => {
-      const at = ctx.currentTime;
-      const o = ctx.createOscillator();
-      o.type = type;
-      o.frequency.value = freq;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, at);
-      g.gain.exponentialRampToValueAtTime(level, at + 0.004);
-      g.gain.exponentialRampToValueAtTime(0.0001, at + 0.004 + dur);
-      o.connect(g).connect(echo);
-      o.start(at);
-      o.stop(at + dur + 0.1);
-    };
-    let timer = 0;
-    const next = () => {
-      const f = midi(scale[Math.floor(Math.random() * scale.length)]);
-      pluck(f, 1.6, 0.09, "triangle");
-      pluck(f * 2, 0.6, 0.015, "sine");
-      timer = window.setTimeout(next, 1400 + Math.random() * 2400);
-    };
-    timer = window.setTimeout(next, 500);
+    this.ambience.gain.setTargetAtTime(THEME_LEVEL, ctx.currentTime, 0.8);
+    theme.start();
     this.stopAmbience = () => {
-      window.clearTimeout(timer);
-      this.ambience.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
-      window.setTimeout(() => {
-        nodes.forEach((n) => { try { n.stop(); } catch { /* déjà arrêté */ } });
-        echo.disconnect();
-        damp.disconnect();
-      }, 2000);
+      this.ambience.gain.cancelScheduledValues(ctx.currentTime);
+      this.ambience.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
+      window.setTimeout(() => { if (!this.stopAmbience) theme.stop(); }, 1200);
       this.stopAmbience = null;
     };
   }
@@ -506,6 +461,8 @@ class PackAudio {
 
   dispose() {
     this.stopAmbience?.();
+    this.theme?.dispose();
+    this.theme = null;
     const ctx = this.ctx;
     this.ctx = null;
     if (ctx) window.setTimeout(() => void ctx.close(), 2200);
