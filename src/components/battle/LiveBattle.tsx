@@ -84,22 +84,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
   const finishRef = useRef(finish);
   useEffect(() => { finishRef.current = finish; });
 
-  // Le jeu continue quand on change d'onglet (les minuteries y sont ralenties) : en auto, l'onglet masqué termine le combat côté serveur tout de suite ;
-  // en manuel, après 15 secondes sans revenir, l'automatique prend le relais. Dans les deux cas rien n'est abandonné.
-  useEffect(() => {
-    // Combat déjà résolu (lancé en auto) : on saute simplement l'animation
-    const hurry = () => (statusRef.current === "RUNNING" ? finishRef.current() : setSkipNonce((n) => n + 1));
-    let waiting: ReturnType<typeof setTimeout> | undefined;
-    const onVisibility = () => {
-      clearTimeout(waiting);
-      if (!document.hidden) return;
-      if (auto) hurry();
-      else waiting = setTimeout(() => { if (document.hidden) hurry(); }, 15_000);
-    };
-    onVisibility();
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => { clearTimeout(waiting); document.removeEventListener("visibilitychange", onVisibility); };
-  }, [auto]);
+  // Changer d'onglet ne change rien : l'animation continue à son rythme (minuterie d'arrière-plan du lecteur) et le serveur joue action par action.
 
   // Quitter la page (autre page, fermeture, croix) : le combat se termine côté serveur au lieu d'être abandonné.
   const leaving = useRef(false);

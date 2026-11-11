@@ -442,7 +442,8 @@ Histoire, Tour, donjons et raids ouvrent le même écran avant le combat (`src/c
 - **Rejouer** lance un nouveau combat : mêmes ennemis et même composition, nouveau tirage aléatoire (dégâts, critiques, esquives). Pas de boucle automatique ni de combat éclair.
 
 ## Quitter un combat *(v0.3.0, révisé le 2026-11-11 : « ça ne doit jamais abandonner »)*
-- Quitter la page, fermer l'onglet, changer d'onglet ou cliquer sur la **croix** n'abandonne plus : l'automatique joue le combat jusqu'au bout côté serveur, victoire et butin compris. En manuel, un onglet masqué plus de 15 secondes passe en automatique.
+- **Changer d'onglet ou de fenêtre ne change rien** *(2026-11-11)* : le combat continue de se jouer à l'écran, animations comprises, au même rythme (minuterie d'arrière-plan, `src/lib/background-timer.ts`) ; rien n'est expédié côté serveur. En manuel, il attend simplement ton choix.
+- Quitter la page, fermer l'onglet ou cliquer sur la **croix** n'abandonne plus : l'automatique joue alors le combat jusqu'au bout côté serveur, victoire et butin compris.
 - Seul le bouton **Abandonner** (avec confirmation) compte le combat comme perdu. Un combat laissé ouvert est terminé par l'automatique au prochain lancement du même mode (et jamais abandonné), ou abandonné seulement après 24 h.
 
 ## Combat laissé en Auto *(v0.3.0)*

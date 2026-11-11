@@ -19,6 +19,7 @@ import { SpellsPanel } from "./BattlePanels";
 import { BattleVictory } from "./BattleVictory";
 import "./battle.css";
 import type { MusicTrack } from "@/lib/track-music";
+import { backgroundTimeout } from "@/lib/background-timer";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
 import { EffectsPanel } from "./EffectsPanel";
@@ -143,9 +144,10 @@ export function BattlePlayer({ music = "combat", allowDisableSpellFx = true, log
     if (!playing || caughtUp) return;
     const hold = playbackHold.current;
     const started = performance.now();
-    const t = setTimeout(() => setRp((s) => replayStep(s, log)), hold.remaining / pace);
+    // Minuterie d'arrière-plan : l'animation continue au même rythme quand on change d'onglet
+    const cancel = backgroundTimeout(() => setRp((s) => replayStep(s, log)), hold.remaining / pace);
     return () => {
-      clearTimeout(t);
+      cancel();
       hold.remaining = Math.max(0, hold.remaining - (performance.now() - started) * pace);
     };
   }, [playing, caughtUp, pace, rp.idx, log]);
