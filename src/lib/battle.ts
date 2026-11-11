@@ -182,6 +182,10 @@ export function affinity(attacker: CardType, defender: CardType) {
 }
 
 export interface BattleOptions {
+  /** Vagues suivantes du camp B : quand le camp B est vaincu, la vague suivante entre en scène (raids à vagues) */
+  waves?: BattleCard[][];
+  /** Nombre de tours avant la fin du combat (30 par défaut ; plus pour les combats à vagues) */
+  maxRounds?: number;
   passive?: boolean;
   franchise?: boolean;
   combos?: boolean;
@@ -232,6 +236,8 @@ export interface UnitView {
  */
 export type BattleEvent =
   | { kind: "start"; first: Side; units: UnitView[] }
+  /** Le camp B est remplacé par la vague suivante (même identifiants B1 à B4) */
+  | { kind: "wave"; index: number; total: number; units: UnitView[] }
   | { kind: "round"; round: number }
   /** Une carte agit ; target = null pour la zone d'Aventure. name personnalise le sort spécial ou l'attaque de base. */
   | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string; turnOrder?: UnitId[] }
@@ -372,6 +378,10 @@ export interface BattleState {
   roundOpen: boolean;
   gaugeTicks: number;
   gaugeActor: UnitId | null;
+  /** Vagues du camp B encore à venir, et numéro de la vague en cours (1 = première) */
+  waves: BattleCard[][];
+  waveIndex: number;
+  waveTotal: number;
   /** Cartes actuellement volées (Makima) : active le calcul des camps par carte */
   stolen: number;
   log: BattleEvent[];
@@ -456,12 +466,12 @@ const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.h
 const strongestFoes = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
-  const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, elements: true, ...options, startingSide: options.startingSide ?? null };
+  const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, elements: true, waves: [] as BattleCard[][], maxRounds: BATTLE.maxRounds, ...options, startingSide: options.startingSide ?? null };
   const teams: Record<Side, Unit[]> = { A: makeUnits(a, "A", opts), B: makeUnits(b, "B", opts) };
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
-    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, stolen: 0, log: [], result: null,
+    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, log: [], result: null,
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
@@ -552,7 +562,7 @@ export function timeline(st: BattleState, n: number): UnitId[] {
     if (!ready.length) {
       const ticks = Math.min(...living.map((u) => Math.ceil((GAUGE_THRESHOLD - u.gauge) / speed(u))));
       gaugeTicks += ticks;
-      if (gaugeTicks > BATTLE.maxRounds * GAUGE_TICKS_PER_ROUND) break;
+      if (gaugeTicks > st.opts.maxRounds * GAUGE_TICKS_PER_ROUND) break;
       for (const u of living) u.gauge += ticks * speed(u);
       ready = living.filter((u) => u.gauge >= GAUGE_THRESHOLD);
     }
@@ -567,9 +577,18 @@ export function timeline(st: BattleState, n: number): UnitId[] {
   return actors;
 }
 
+/** Le camp B est vaincu mais il reste des vagues : la suivante entre en scène (mêmes emplacements B1 à B4, jauges à zéro). */
+function spawnWave(st: BattleState) {
+  const next = st.waves.shift()!;
+  st.waveIndex++;
+  st.teams.B = makeUnits(next, "B", st.opts);
+  st.log.push({ kind: "wave", index: st.waveIndex, total: st.waveTotal, units: st.teams.B.map(view) });
+}
+
 function gaugeActor(st: BattleState): Unit | null {
   while (!st.result) {
     processDeaths(st);
+    if (!alive(st, "B").length && alive(st, "A").length && st.waves.length) { spawnWave(st); continue; }
     if (!alive(st, "A").length || !alive(st, "B").length) {
       finish(st, false);
       return null;
@@ -596,7 +615,7 @@ function gaugeActor(st: BattleState): Unit | null {
     for (const u of [...st.teams.A, ...st.teams.B]) if (u.hp > 0) u.gauge += ticks * effectiveSpeed(u);
     const nextTick = st.gaugeTicks + ticks;
     while (Math.floor(nextTick / GAUGE_TICKS_PER_ROUND) > st.round) {
-      if (st.round >= BATTLE.maxRounds) {
+      if (st.round >= st.opts.maxRounds) {
         finish(st, true);
         return null;
       }
@@ -605,7 +624,7 @@ function gaugeActor(st: BattleState): Unit | null {
       st.log.push({ kind: "round", round: st.round });
     }
     st.gaugeTicks = nextTick;
-    if (st.round >= BATTLE.maxRounds && st.gaugeTicks >= BATTLE.maxRounds * GAUGE_TICKS_PER_ROUND && ![...st.teams.A, ...st.teams.B].some((u) => u.hp > 0 && u.gauge >= GAUGE_THRESHOLD)) {
+    if (st.round >= st.opts.maxRounds && st.gaugeTicks >= st.opts.maxRounds * GAUGE_TICKS_PER_ROUND && ![...st.teams.A, ...st.teams.B].some((u) => u.hp > 0 && u.gauge >= GAUGE_THRESHOLD)) {
       finish(st, true);
       return null;
     }
@@ -791,7 +810,7 @@ export function currentActor(st: BattleState): UnitView | null {
       break;
     }
     if (!st.roundOpen) {
-      if (st.round >= BATTLE.maxRounds) {
+      if (st.round >= st.opts.maxRounds) {
         finish(st, true);
         break;
       }

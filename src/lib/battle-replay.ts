@@ -131,7 +131,7 @@ export interface HistoryEntry {
   /** Nom du sort de personnage */
   name?: string;
   target: UnitId | null;
-  effects: Exclude<BattleEvent, { kind: "start" | "round" | "action" | "skip" | "ultimateGauge" | "end" }>[];
+  effects: Exclude<BattleEvent, { kind: "start" | "wave" | "round" | "action" | "skip" | "ultimateGauge" | "end" }>[];
 }
 
 /** Historique des actions déjà jouées (événements `log[0..upto[`). */
@@ -142,7 +142,7 @@ export function historyOf(log: BattleEvent[], upto: number): HistoryEntry[] {
     if (ev.kind === "round") round = ev.round;
     else if (ev.kind === "action") out.push({ n: out.length + 1, round, actor: ev.actor, spell: ev.spell, name: ev.name, target: ev.target, effects: [] });
     else if (ev.kind === "skip") out.push({ n: out.length + 1, round, actor: ev.actor, spell: "base", name: "Étourdissement : tour passé", target: null, effects: [] });
-    else if (ev.kind !== "start" && ev.kind !== "end" && ev.kind !== "ultimateGauge" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
+    else if (ev.kind !== "start" && ev.kind !== "wave" && ev.kind !== "end" && ev.kind !== "ultimateGauge" && out.length && !(ev.kind === "shield" && ev.source === null)) out[out.length - 1].effects.push(ev);
   }
   return out;
 }
@@ -235,6 +235,15 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       // Une carte tombée perd ses états : le moteur ne les retire pas du journal
       patch(ev.target, { hp: 0, ko: true, exposed: false, weaken: false, elan: false, fx: [] });
       break;
+    case "wave":
+      // La vague suivante remplace tout le camp B
+      info = { ...state.info };
+      for (const u of ev.units) {
+        info[u.id] = u;
+        units[u.id] = { hp: u.hp, shield: u.shield, ko: false, exposed: false, weaken: false, elan: false, fx: [], fxd: {} };
+      }
+      cur = null;
+      break;
     case "end":
       end = ev;
       break;
@@ -259,6 +268,8 @@ export function holdFor(log: BattleEvent[], i: number): number {
       return 900;
     case "round":
       return 450;
+    case "wave":
+      return 1500;
     case "action":
       // Le temps de l'élan vers la cible, avant l'impact
       return 480;

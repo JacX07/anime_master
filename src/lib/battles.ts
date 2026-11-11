@@ -600,6 +600,9 @@ export interface BattleTeams {
   timeout?: "attacker-loses-v1";
   /** Donjon : difficulté déjà vaincue avant le lancement, figée pour toute la lecture. */
   spellFxUnlocked?: boolean;
+  /** Raid à vagues : cartes des vagues suivantes du camp B, et nombre de tours maximal du combat */
+  waves?: BattleCard[][];
+  maxRounds?: number;
   /** Le joueur a laissé le mode Auto : si le combat reste ouvert, le serveur le termine au lieu de l'abandonner. */
   auto?: boolean;
 }
@@ -631,9 +634,11 @@ export interface BattleView {
   characters: Record<number, { name: string; imageUrl: string; rarity: Rarity; type: CardType }>;
 }
 
+const wavesOf = (teams: BattleTeams) => (teams.waves?.length ? { waves: teams.waves, ...(teams.maxRounds ? { maxRounds: teams.maxRounds } : {}) } : {});
+
 /** Rejoue un combat manuel : choix enregistrés pour A, stratégie automatique pour B, jusqu'au prochain choix de A. */
 function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleState {
-  const st = createBattle(teams.A, teams.B, seededRandom(seed), { gauge: teams.scheduler === "gauge-v1", elements: teams.elements === "elements-v1", timeoutLoser: teams.timeout ? "A" : undefined });
+  const st = createBattle(teams.A, teams.B, seededRandom(seed), { gauge: teams.scheduler === "gauge-v1", elements: teams.elements === "elements-v1", timeoutLoser: teams.timeout ? "A" : undefined, ...wavesOf(teams) });
   let next = 0;
   for (let actor = currentActor(st); actor; actor = currentActor(st)) {
     if (actor.id.startsWith("A")) {
@@ -645,8 +650,8 @@ function replay(teams: BattleTeams, seed: number, actions: Action[]): BattleStat
   return st;
 }
 
-export async function charactersOf(teams: Pick<BattleTeams, "A" | "B">) {
-  const ids = [...teams.A, ...teams.B].map((c) => c.characterId);
+export async function charactersOf(teams: Pick<BattleTeams, "A" | "B" | "waves">) {
+  const ids = [...teams.A, ...teams.B, ...(teams.waves ?? []).flat()].map((c) => c.characterId);
   const rows = await prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, imageUrl: true, rarity: true, type: true } });
   return Object.fromEntries(rows.map((r) => [r.id, { name: r.name, imageUrl: r.imageUrl, rarity: r.rarity, type: r.type }]));
 }
@@ -779,7 +784,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1", ...(dungeonLevel ? { spellFxUnlocked } : {}), ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
-    const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined });
+    const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined, ...wavesOf(teams) });
     const row = await prisma.$transaction(async (tx) => {
       const won = result.winner === "A";
       // Une défaite est remboursée aussitôt : on ne débite que les victoires, après avoir vérifié la réserve.

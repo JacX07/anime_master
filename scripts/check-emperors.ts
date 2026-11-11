@@ -1,5 +1,6 @@
 // Mécaniques de boss des empereurs (docs/specs/raid-empereurs.md) : sommeil, marque dévorante, âmes, phases, jauge de départ. Sans base.
 // Usage : npm run check:emperors
+import { replayAll } from "../src/lib/battle-replay";
 import { applyAction, autoAction, battle, createBattle, currentActor, seededRandom, type BattleCard, type BattleEvent, type BattleState } from "../src/lib/battle";
 import { BOSS_SKILLS, EMPEROR_IDS } from "../src/lib/boss-skills";
 import type { CharacterSpell } from "../src/lib/spells";
@@ -116,6 +117,25 @@ const ofKind = <K extends BattleEvent["kind"]>(log: BattleEvent[], kind: K) => l
   const shields = ofKind(evs(st), "shield").filter((e) => e.source === "B1" && e.target === "B1" && e.amount > 0);
   const deaths = ofKind(evs(st), "ko").filter((e) => e.target.startsWith("B") && e.target !== "B1").length;
   check("Barbe Blanche : un bouclier par allié tombé", deaths > 0 && shields.length >= Math.min(deaths, 1), `${shields.length} boucliers, ${deaths} alliés tombés`);
+}
+
+// Vagues : deux vagues d'équipage puis l'empereur dans un même combat
+{
+  const crew = (base: number) => [0, 1, 2, 3].map((i) => card(base + i, { attack: 600, defense: 500, power: 1 }));
+  const mine = team(4, { attack: 5000, defense: 4000 });
+  const run = () => battle(mine, crew(700), seededRandom(31), { gauge: true, waves: [crew(710), [boss(EMPEROR_IDS.kaido, { attack: 1500, defense: 1500 })]], maxRounds: 60 });
+  const a = run();
+  const waves = ofKind(a.log, "wave");
+  check("Vagues : deux changements puis fin", waves.length === 2 && waves[0].index === 2 && waves[1].index === 3 && waves[1].total === 3 && a.winner === "A", `${waves.length} vagues, vainqueur ${a.winner}`);
+  check("Vagues : l'ordre des événements est cohérent (wave après les K.O. du camp B)", (() => {
+    let lastKo = -1;
+    return a.log.every((e, i) => { if (e.kind === "ko" && e.target.startsWith("B")) lastKo = i; return e.kind !== "wave" || lastKo >= 0 && i > lastKo; });
+  })());
+  check("Vagues : déterministe", JSON.stringify(a.log) === JSON.stringify(run().log));
+  const final = replayAll(a.log);
+  check("Vagues : le lecteur affiche l'empereur de la dernière vague", final.info.B1.characterId === EMPEROR_IDS.kaido && final.end?.winner === "A");
+  const stuck = battle(team(4, { attack: 1 }), crew(700), seededRandom(32), { gauge: true, waves: [crew(710)], maxRounds: 4 });
+  check("Vagues : la limite de tours s'applique à tout le combat", stuck.timeout === true || stuck.winner !== "A", `fin au tour ${stuck.rounds}`);
 }
 
 // Kits : tous les empereurs jouent un combat complet sans erreur et de façon déterministe

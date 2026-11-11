@@ -128,8 +128,9 @@ export function ArenaBoard({ initial, elo, name, team, budget }: Props) {
 
   const characters: Record<number, PlayerCharacter> = {};
   const first = log[0];
+  const startedUnits = log.flatMap((e) => (e.kind === "start" || e.kind === "wave" ? e.units : []));
   if (first?.kind === "start") {
-    for (const u of first.units) {
+    for (const u of startedUnits) {
       const c = view.characters[u.characterId];
       characters[u.characterId] = { name: c?.name ?? "?", imageUrl: c?.imageUrl ?? "", rarity: u.rarity, type: u.type };
     }

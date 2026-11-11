@@ -12,6 +12,11 @@ export function battleReport(log: BattleEvent[]) {
       rows.set(unit.id, { id: unit.id, characterId: unit.characterId, dealt: 0, taken: 0, absorbed: 0, healing: 0, shields: 0, actions: 0, kos: 0 });
       hp.set(unit.id, unit.hp);
     }
+    if (event.kind === "wave") for (const unit of event.units) {
+      // Les emplacements B sont réutilisés : la nouvelle vague repart avec ses PV, les totaux restent cumulés
+      hp.set(unit.id, unit.hp);
+      pendingKO.delete(unit.id);
+    }
     if (event.kind === "action") { const row = rows.get(event.actor); if (row) row.actions++; }
     if (event.kind === "damage" || event.kind === "poison") {
       const lost = Math.max(0, (hp.get(event.target) ?? event.hp) - event.hp);
