@@ -34,6 +34,27 @@ export const WEAPONS: WeaponDef[] = [
   aura("MAGIE", "Grimoire des Éclats", "grimoire-des-eclats"),
   aura("COEUR", "Talisman des Signatures", "talisman-des-signatures"),
   aura("AVENTURE", "Boussole des Horizons", "boussole-des-horizons"),
+  // Armes des empereurs (docs/specs/raid-empereurs.md) : statistiques dédiées, +10 % comme les armes génériques, sans limite de porteur
+  {
+    key: "griffon", name: "Griffon", type: "COMBAT",
+    passive: "Haki des rois : chaque adversaire touché a peur 1 tour et rate son coup une fois sur quatre.",
+    weapon: { stat: 0, stats: { attack: WEAPON_STAT, speed: WEAPON_STAT }, passive: { kind: "fear", missChance: 0.25 } },
+  },
+  {
+    key: "murakumogiri", name: "Murakumogiri", type: "COMBAT",
+    passive: "Chaque coup physique a 50 % de chances d'être doublé.",
+    weapon: { stat: 0, stats: { attack: WEAPON_STAT, physDamage: WEAPON_STAT }, passive: { kind: "doubleStrike", chance: 0.5 } },
+  },
+  {
+    key: "hassaikai", name: "Hassaikai", type: "AVENTURE",
+    passive: "Chaque attaque de base reçue réduit de 10 % de plus les dégâts subis, jusqu'à 30 %.",
+    weapon: { stat: 0, stats: { defense: WEAPON_STAT, reduce: WEAPON_STAT }, passive: { kind: "guardStack", step: 0.1, max: 0.3 } },
+  },
+  {
+    key: "napoleon", name: "Napoléon", type: "MAGIE",
+    passive: "Zeus et Prométhée : les sorts de foudre et de feu font deux fois plus de dégâts ; les autres éléments appliquent aussi foudre et feu.",
+    weapon: { stat: 0, stats: { attack: WEAPON_STAT, magicDamage: WEAPON_STAT }, passive: { kind: "stormFire" } },
+  },
 ];
 export const weaponDef = (key: string) => WEAPONS.find((w) => w.key === key);
 

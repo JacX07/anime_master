@@ -76,11 +76,23 @@ export interface BattleCard {
 }
 
 /** Passif d'arme : esquive des sorts affiliés adverses, ou renfort de l'ATK des alliés d'un type (porteur compris). */
-export type WeaponPassive = { kind: "dodge"; chance: number } | { kind: "typeAura"; type: CardType; bonus: number };
+export type WeaponPassive =
+  | { kind: "dodge"; chance: number }
+  | { kind: "typeAura"; type: CardType; bonus: number }
+  /** Griffon : chaque adversaire touché reçoit Peur 1 tour (`missChance` de rater son coup) */
+  | { kind: "fear"; missChance: number }
+  /** Murakumogiri : un coup physique est doublé avec cette chance */
+  | { kind: "doubleStrike"; chance: number }
+  /** Hassaikai : chaque attaque de base reçue réduit les dégâts reçus de `step`, jusqu'à `max` */
+  | { kind: "guardStack"; step: number; max: number }
+  /** Napoléon : sorts de foudre et de feu doublés ; les autres éléments appliquent aussi foudre et feu */
+  | { kind: "stormFire" };
 
 export interface Weapon {
   /** Bonus d'ATK, de DEF et de PV (0,05 = +5 %) */
   stat: number;
+  /** Armes dédiées : bonus sur des statistiques précises, à la place de `stat` */
+  stats?: { attack?: number; defense?: number; speed?: number; physDamage?: number; magicDamage?: number; reduce?: number };
   passive: WeaponPassive | null;
 }
 
@@ -177,7 +189,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -280,6 +292,8 @@ interface Unit {
   spellIn: number;
   /** Actions pendant lesquelles Combat a gardé son sort prêt */
   held: number;
+  /** Hassaikai : réduction de dégâts accumulée */
+  guard: number;
   /** Exposé par Mystère : le prochain sort de Combat sur cette cible est renforcé, puis l'exposition disparaît */
   exposed: boolean;
   /** Affaibli : ATK −20 % ; Élan : ATK +10 % (actions restantes) */
@@ -315,7 +329,7 @@ interface Fx {
   fresh: boolean;
   stacks?: number;
 }
-const MALUS = new Set<string>(["earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
+const MALUS = new Set<string>(["fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -380,19 +394,20 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
   return team.map((card, i) => {
     if (card.boss && BOSS_SKILLS[card.characterId]) card = { ...card, ...BOSS_SKILLS[card.characterId] };
     const maxHp = BATTLE.hp(card.attack, card.defense) * (1 + bonus[i] + (card.artifactStats?.hp ?? 0)) + (card.artifactStats?.flatHp ?? 0);
-    const p = weaponOf(card)?.passive;
+    const w = weaponOf(card);
+    const p = w?.passive;
     const rawSecondary = opts.spells && !card.noSpell ? card.spell ?? spellOf(card.characterId, card.rarity, card.type) : null;
     const rawTertiary = opts.spells && !card.noTertiary ? card.tertiary ?? TERTIARY_SPELLS[card.characterId] ?? null : null;
     return {
       id: `${side}${i + 1}` as UnitId,
-      card, side, speed: Math.max(1, ((card.speed ?? 100) + (card.artifactStats?.speed ?? 0)) * (1 + (card.artifactStats?.speedPct ?? 0))), gauge: 0, maxHp, hp: maxHp, shield: starsOf(card) >= 5 ? maxHp * BATTLE.starShield : 0,
-      atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
-      def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
+      card, side, speed: Math.max(1, ((card.speed ?? 100) + (card.artifactStats?.speed ?? 0)) * (1 + (card.artifactStats?.speedPct ?? 0) + (w?.stats?.speed ?? 0))), gauge: 0, maxHp, hp: maxHp, shield: starsOf(card) >= 5 ? maxHp * BATTLE.starShield : 0,
+      atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0) + (w?.stats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
+      def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0) + (w?.stats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       tertiaryCd: BATTLE.tertiaryCooldown - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
-      spellIn: 2, held: 0, exposed: false, weaken: 0, elan: 0,
+      spellIn: 2, held: 0, guard: 0, exposed: false, weaken: 0, elan: 0,
       spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
       pIn: SPELL_FIRST,
       tertiary: rawTertiary ? (card.tertiary ? card.tertiary : powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale)) : null,
@@ -880,6 +895,12 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       log.push({ kind: "dodge", source: u.id, target: t.id });
       return 0;
     }
+    // Peur (Griffon) : l'attaquant effrayé peut rater son coup
+    const fear = fxKeySum(u, "fear");
+    if (fear > 0 && rng() < fear) {
+      log.push({ kind: "dodge", source: u.id, target: t.id });
+      return 0;
+    }
     const def = t.def * (1 + clamp(fxSum(t, "def"), -BATTLE.statCap, BATTLE.statCap)) * (1 - ignoreDef);
     let atk = u.atk * (1 + (u.elan > 0 ? 0.1 : 0) - (u.weaken > 0 ? 0.2 : 0) + clamp(fxSum(u, "atk"), -BATTLE.statCap, BATTLE.statCap));
     // Combo Cœur : un bouclier couvrant au moins 10 % des PV max renforce les attaques.
@@ -888,14 +909,23 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
     const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit"), 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card);
-    dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0);
+    dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0)
+      + ((damageKind(u.card) === "magic" ? weaponOf(u.card)?.stats?.magicDamage : weaponOf(u.card)?.stats?.physDamage) ?? 0);
+    const wp = weaponOf(u.card)?.passive;
+    // Murakumogiri : un coup physique peut être doublé
+    if (wp?.kind === "doubleStrike" && damageKind(u.card) === "physical" && rng() < wp.chance) dmg *= 2;
+    // Napoléon : les sorts de foudre et de feu sont doublés
+    if (wp?.kind === "stormFire" && action.spell === "special" && opts.elements && !u.card.noElement) {
+      const el = effectElement(u.card.characterId);
+      if (el === "foudre" || el === "feu") dmg *= 2;
+    }
     if (action.spell === "special" && opts.elements && !u.card.noElement && effectElement(u.card.characterId)) dmg *= 1 + (u.card.artifactStats?.elementalDamage ?? 0);
     const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
     if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 + fxKeySum(t, "vulnerable");
-    dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan"), 0, BATTLE.reduceCap);
+    dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan") + (weaponOf(t.card)?.stats?.reduce ?? 0) + t.guard, 0, BATTLE.reduceCap);
     const absorbed = pierce ? 0 : Math.min(t.shield, dmg);
     t.shield -= absorbed;
     t.titanShield = Math.max(0, t.titanShield - absorbed);
@@ -905,6 +935,10 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
     if (dmg > 0) { landedHit = true; struck.add(t); }
+    // Griffon : Peur sur l'adversaire touché ; Hassaikai : la garde du porteur grandit à chaque attaque de base reçue
+    if (dmg > 0 && t.hp > 0 && wp?.kind === "fear") addFx(t, "fear", wp.missChance, 1);
+    const wt = weaponOf(t.card)?.passive;
+    if (dmg > 0 && wt?.kind === "guardStack" && action.spell === "base") t.guard = Math.min(wt.max, t.guard + wt.step);
     triggerTitan(st, t, t === u);
     if (t.hp === 0) log.push({ kind: "ko", target: t.id });
     else if (t.side !== u.side) {
@@ -966,9 +1000,14 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
 
   /** Effet d'élément du sort secondaire (attack-element.ts) : sur les cibles touchées, ou sur le lanceur et ses alliés. */
   const applyElement = () => {
-    const element = opts.elements && !u.card.noElement ? effectElement(u.card.characterId) : null;
+    const own = opts.elements && !u.card.noElement ? effectElement(u.card.characterId) : null;
+    if (!own) return;
+    // Napoléon : les autres éléments appliquent à la fois foudre et feu
+    const stormFire = weaponOf(u.card)?.passive?.kind === "stormFire" && own !== "foudre" && own !== "feu";
+    for (const element of stormFire ? (["foudre", "feu"] as const) : [own]) applyOneElement(element);
+  };
+  const applyOneElement = (element: NonNullable<ReturnType<typeof effectElement>>) => {
     const r = ELEMENT_RIDER;
-    if (!element) return;
     const hitFoes = [...struck].filter((t) => t.hp > 0 && t.side !== u.side);
     const consumed = new Set<Unit>();
     if (opts.combos) for (const t of hitFoes) {

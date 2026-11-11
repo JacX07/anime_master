@@ -561,3 +561,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Validation : deux comptes jetables dans deux navigateurs (PC 1440 px) : file, appariement, chrono, 6 actions croisées, rechargement en cours de match (reprise), abandon : défaite -13/-16 et victoire côté adversaire, aucune erreur JavaScript. Non vérifié : mobile, chrono qui expire à l'écran, fantôme à l'écran, site après push.
 - Piège : un forfait n'écrit pas d'événement `end` dans le moteur ; `viewOf` l'ajoute pour que le lecteur affiche le résultat, et la sonde suit le match par identifiant (sinon un match terminé renvoie « aucun match » et l'écran retourne au lobby).
 - Piège : les équipes fantômes viennent de vrais comptes de la base partagée (défense, puis attaque) ; `check:arena` ne suppose donc pas quel joueur sert de fantôme.
+
+## 2026-11-11 — Empereurs, étape 1 : armes légendaires dans le moteur
+- Fait : quatre armes dédiées (`griffon`, `murakumogiri`, `hassaikai`, `napoleon`) dans `weapons.ts`, nouveaux passifs et statistiques dédiées dans `battle.ts` (statut `fear`, coup doublé, garde cumulable, foudre/feu). Aucun tirage aléatoire ajouté sans l'arme : `check:battle`, `check:weapons`, `check:battles` inchangés. Nouveau `check:emperor-weapons`.
+- Pas encore branché : fabrication (forge), ressources, boss, passages, Hardcore, interface. Les armes ne sont donc pas encore obtenables.
+- Piège : `forge.ts` choisit l'arme d'une carte par `WEAPONS.find(type)` ; les armes dédiées sont placées après les génériques pour ne pas les remplacer, mais la forge devra les traiter à part.

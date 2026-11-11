@@ -77,7 +77,8 @@
     "production:publish": "tsx scripts/publish-production.ts",
     "check:publication": "tsx scripts/check-publication.ts",
     "art:export": "tsx scripts/export-illustrations.ts",
-    "check:arena": "tsx scripts/check-arena.ts"
+    "check:arena": "tsx scripts/check-arena.ts",
+    "check:emperor-weapons": "tsx scripts/check-emperor-weapons.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
