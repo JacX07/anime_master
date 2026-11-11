@@ -23,6 +23,10 @@ export type Effect =
   /** Ne peut lancer que le sort de base. Sans effet sur les boss. */
   | { k: "silence"; turns: number; to: Scope; /** Avec `to: "foes"` : seulement les N ennemis à l'ATK la plus élevée */ count?: number }
   | { k: "stun"; turns: number; count: number }
+  /** Endort les ennemis (leur coup les réveille) ; `weaker` : seulement ceux dont l'ATK est inférieure à celle du lanceur */
+  | { k: "sleep"; turns: number; weaker?: boolean }
+  /** Marque un ennemi : sans `threshold` × PV max de dégâts avant l'échéance, il est avalé */
+  | { k: "devour"; turns: number; threshold: number }
   | { k: "immune"; turns: number; to: Scope }
   | { k: "purge"; to: Scope }
   /** Réanime l'allié mort ciblé, une fois par combat */
@@ -429,6 +433,8 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "poison": return `poison : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "silence": return `silence sur ${e.to === "foes" && e.count ? (e.count === 1 ? "l’ennemi à l’ATK la plus élevée" : `les ${e.count} ennemis à l’ATK la plus élevée`) : WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
     case "stun": return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
+    case "sleep": return `endort ${e.weaker ? "les ennemis dont l'ATK est inférieure à celle du lanceur" : "tous les ennemis"} ${nx(e.turns)} ; un coup réveille ; sans effet sur les boss`;
+    case "devour": return `marque un ennemi : si l'équipe ne lui inflige pas ${pct(e.threshold)} de ses PV max d'ici ${nx(e.turns)}, il est avalé et le lanceur gagne un de ses sorts`;
     case "immune": return `immunité aux malus pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "purge": return `retire les malus de ${WHO[e.to]}`;
     case "revive": return `réanime un allié mort avec ${pct(e.pct)} de ses PV max (une fois par combat)`;

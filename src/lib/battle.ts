@@ -73,6 +73,12 @@ export interface BattleCard {
   tertiary?: CharacterSpell;
   /** Attaque de base imposée pour le Spell Builder. */
   basicAttack?: BasicAttack;
+  /** Boss : jauge d'ultime au départ (lancer le premier sort dès la première action) */
+  startGauge?: number;
+  /** Big Mom : chaque mort d'un ennemi donne une âme (PV max et dégâts finaux) */
+  soulPocket?: { hp: number; dmg: number };
+  /** Kaido : changement de mode quand les PV tombent sous `at` (part des PV max) */
+  phase?: { at: number; atk: number; speed: number; name: string; basicAttack?: BasicAttack; spell?: CharacterSpell; tertiary?: CharacterSpell; ultimate?: CharacterSpell };
 }
 
 /** Passif d'arme : esquive des sorts affiliés adverses, ou renfort de l'ATK des alliés d'un type (porteur compris). */
@@ -189,7 +195,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -294,6 +300,13 @@ interface Unit {
   held: number;
   /** Hassaikai : réduction de dégâts accumulée */
   guard: number;
+  /** Big Mom : âmes récupérées et bonus de dégâts finaux */
+  souls: number;
+  finalBonus: number;
+  /** Âme déjà comptée / avalé par une marque / mode de phase atteint */
+  soulTaken: boolean;
+  devoured: boolean;
+  phased: boolean;
   /** Exposé par Mystère : le prochain sort de Combat sur cette cible est renforcé, puis l'exposition disparaît */
   exposed: boolean;
   /** Affaibli : ATK −20 % ; Élan : ATK +10 % (actions restantes) */
@@ -329,7 +342,7 @@ interface Fx {
   fresh: boolean;
   stacks?: number;
 }
-const MALUS = new Set<string>(["fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
+const MALUS = new Set<string>(["sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -407,13 +420,13 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       tertiaryCd: BATTLE.tertiaryCooldown - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
-      spellIn: 2, held: 0, guard: 0, exposed: false, weaken: 0, elan: 0,
+      spellIn: 2, held: 0, guard: 0, souls: 0, finalBonus: 0, soulTaken: false, devoured: false, phased: false, exposed: false, weaken: 0, elan: 0,
       spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
       pIn: SPELL_FIRST,
       tertiary: rawTertiary ? (card.tertiary ? card.tertiary : powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale)) : null,
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
-      ultimateGauge: starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0,
+      ultimateGauge: (starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0) + (card.startGauge ?? 0),
       revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [],
     };
   });
@@ -495,7 +508,7 @@ export function timeline(st: BattleState, n: number): UnitId[] {
   if (st.result || !Number.isInteger(n) || n <= 0) return [];
   if (!st.opts.gauge) {
     // Projection des tours alternés, sans appliquer de dégâts ni modifier le combat.
-    const units = Object.fromEntries([...st.teams.A, ...st.teams.B].map(u => [u.id, { hp: u.hp, stun: u.fx.filter(f => f.key === "stun").map(f => f.turns + (f.fresh ? 1 : 0)) }]));
+    const units = Object.fromEntries([...st.teams.A, ...st.teams.B].map(u => [u.id, { hp: u.hp, stun: u.fx.filter(f => f.key === "stun" || f.key === "sleep").map(f => f.turns + (f.fresh ? 1 : 0)) }]));
     const actors: UnitId[] = [];
     const slots = BATTLE.teamSize * 2;
     for (let offset = 0; actors.length < n && offset < slots * (n + 100); offset++) {
@@ -542,7 +555,7 @@ export function timeline(st: BattleState, n: number): UnitId[] {
     ready.sort((a, b) => b.gauge - a.gauge || slotOf(a) - slotOf(b));
     const actor = ready[0];
     actor.gauge -= GAUGE_THRESHOLD;
-    if (actor.fx.some((fx) => fx.key === "stun")) { consume(actor); continue; }
+    if (actor.fx.some((fx) => fx.key === "stun" || fx.key === "sleep")) { consume(actor); continue; }
     actors.push(actor.id);
     consume(actor);
   }
@@ -564,7 +577,7 @@ function gaugeActor(st: BattleState): Unit | null {
       const u = ready[0];
       u.gauge -= GAUGE_THRESHOLD;
       st.gaugeActor = u.id;
-      if (hasFx(u, "stun")) {
+      if (hasFx(u, "stun") || hasFx(u, "sleep")) {
         st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
         advanceCooldowns(u);
         finishUnitTurn(st, u);
@@ -645,6 +658,19 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       if (u.hp > before) st.log.push({ kind: "heal", source: effect.source ?? u.id, target: u.id, amount: u.hp - before, hp: u.hp });
     }
     if (effect.key === "bleed") continue;
+    if (effect.key === "devour" && effect.turns <= 1) {
+      // Échéance de la marque : sans assez de dégâts, la cible est avalée et le lanceur gagne un de ses sorts
+      u.fx = u.fx.filter((fx) => fx !== effect);
+      st.log.push({ kind: "status", target: u.id, status: "devour", on: false });
+      if (u.hp > 0 && effect.amount > 0) {
+        u.hp = 0; u.shield = 0; u.titanShield = 0; u.devoured = true;
+        st.log.push({ kind: "ko", target: u.id });
+        const eater = effect.source ? unit(st, effect.source) : null;
+        const stolen = u.spell ?? u.tertiary;
+        if (eater && eater.hp > 0 && stolen) { eater.tertiary = stolen; eater.tIn = 1; }
+      }
+      continue;
+    }
     if (--effect.turns <= 0) {
       if (effect.key === "titan") {
         const lost = Math.min(u.shield, u.titanShield);
@@ -669,6 +695,36 @@ function processDeaths(st: BattleState) {
   const all = () => [...st.teams.A, ...st.teams.B];
   for (let changed = true; changed; ) {
     changed = false;
+    for (const x of all()) {
+      // Big Mom : l'âme d'un ennemi mort (hors avalé) agrandit ses PV max et ses dégâts finaux
+      if (x.hp <= 0 && !x.soulTaken && !x.devoured) {
+        x.soulTaken = true;
+        for (const y of alive(st, enemy(x.side))) {
+          const pocket = y.card.soulPocket;
+          if (!pocket) continue;
+          y.souls++;
+          y.finalBonus += pocket.dmg;
+          const gain = y.maxHp * pocket.hp;
+          y.maxHp += gain;
+          y.hp += gain;
+          st.log.push({ kind: "heal", source: y.id, target: y.id, amount: gain, hp: y.hp });
+        }
+      }
+      // Kaido : changement de mode sous le seuil de PV
+      const phase = x.card.phase;
+      if (phase && !x.phased && x.hp > 0 && x.hp <= x.maxHp * phase.at) {
+        x.phased = true;
+        x.fx.push({ key: "atkUp", stat: "atk", amount: phase.atk, turns: 99, fresh: false, source: x.id });
+        st.log.push({ kind: "status", target: x.id, status: "atkUp", on: true, amount: phase.atk, turns: 99, source: x.id, stat: "atk" });
+        x.fx.push({ key: "speedUp", stat: "speed", amount: phase.speed, turns: 99, fresh: false, source: x.id });
+        st.log.push({ kind: "status", target: x.id, status: "speedUp", on: true, amount: phase.speed, turns: 99, source: x.id, stat: "speed" });
+        if (phase.basicAttack) x.card = { ...x.card, basicAttack: phase.basicAttack };
+        if (phase.spell) { x.spell = phase.spell; x.pIn = 1; }
+        if (phase.tertiary) { x.tertiary = phase.tertiary; x.tIn = 1; }
+        if (phase.ultimate) { x.ultimate = phase.ultimate; x.ultimateGauge = BATTLE.ultimateGaugeMax; st.log.push({ kind: "ultimateGauge", target: x.id, amount: BATTLE.ultimateGaugeMax, current: BATTLE.ultimateGaugeMax, max: BATTLE.ultimateGaugeMax }); }
+        changed = true;
+      }
+    }
     for (const x of all()) {
       if (x.hp > 0 && x.master && unit(st, x.master).hp <= 0) {
         x.hp = 0;
@@ -730,7 +786,7 @@ export function currentActor(st: BattleState): UnitView | null {
     }
     const u = st.teams[st.order[st.slot % 2]][Math.floor(st.slot / 2)];
     if (u && u.hp > 0) {
-      if (!hasFx(u, "stun")) return view(u);
+      if (!hasFx(u, "stun") && !hasFx(u, "sleep")) return view(u);
       st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
       advanceCooldowns(u);
       finishUnitTurn(st, u);
@@ -923,6 +979,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
     if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
+    dmg *= 1 + u.finalBonus;
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 + fxKeySum(t, "vulnerable");
     dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan") + (weaponOf(t.card)?.stats?.reduce ?? 0) + t.guard, 0, BATTLE.reduceCap);
@@ -935,6 +992,18 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
     if (dmg > 0) { landedHit = true; struck.add(t); }
+    // Un coup réveille l'endormi
+    if (dmg > 0) {
+      const sleep = t.fx.find((f) => f.key === "sleep");
+      if (sleep) dropFx(t, sleep);
+      // Big Mom : les dégâts qu'elle subit libèrent ses marques (seuil atteint, ou elle meurt)
+      for (const y of [...st.teams.A, ...st.teams.B]) {
+        const mark = y.fx.find((f) => f.key === "devour" && f.source === t.id);
+        if (!mark) continue;
+        mark.amount -= dmg - absorbed;
+        if (mark.amount <= 0 || t.hp <= 0) dropFx(y, mark);
+      }
+    }
     // Griffon : Peur sur l'adversaire touché ; Hassaikai : la garde du porteur grandit à chaque attaque de base reçue
     if (dmg > 0 && t.hp > 0 && wp?.kind === "fear") addFx(t, "fear", wp.missChance, 1);
     const wt = weaponOf(t.card)?.passive;
@@ -967,13 +1036,13 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       log.push({ kind: "resist", target: t.id });
       return;
     }
-    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun" || key === "seal") && t.card.boss))) {
+    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun" || key === "seal" || key === "sleep") && t.card.boss))) {
       log.push({ kind: "resist", target: t.id });
       return;
     }
     const old = t.fx.find((f) => f.key === key);
     if (old) {
-      if (key === "stun") old.turns = Math.max(old.turns, turns);
+      if (key === "stun" || key === "sleep") old.turns = Math.max(old.turns, turns);
       else if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u, source: u.id });
       else old.turns = Math.max(old.turns, turns);
       // Renouvellement : l'écran met à jour la valeur et la durée affichées
@@ -1143,6 +1212,17 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         case "silence":
           for (const t of e.to === "foes" && e.count ? strongestFoes(st, u, e.count) : who(e.to)) addFx(t, "silence", 0, e.turns);
           break;
+        case "sleep":
+          // Haki des rois : seuls les ennemis à l'ATK plus faible que celle du lanceur s'endorment
+          for (const foe of alive(st, enemy(u.side))) if (!e.weaker || foe.atk < u.atk) addFx(foe, "sleep", 0, e.turns);
+          break;
+        case "devour": {
+          const foes = alive(st, enemy(u.side));
+          if (!foes.length) break;
+          const victim = foes[Math.floor(rng() * foes.length)];
+          addFx(victim, "devour", victim.maxHp * e.threshold, e.turns);
+          break;
+        }
         case "stun": {
           const targets = strongestFoes(st, u, e.count);
           for (const foe of targets) addFx(foe, "stun", 0, e.turns);

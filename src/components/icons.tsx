@@ -55,7 +55,7 @@ const STATUS_ICONS: Record<Status, string> = {
   exposed: "mystere", weaken: "banner-down", elan: "banner-up",
   atkUp: "atk", atkDown: "atk", defUp: "def", defDown: "broken-shield",
   critUp: "eveil", critDown: "eveil", dodgeUp: "speed", dodgeDown: "speed",
-  speedUp: "speed", speedDown: "speed", silence: "silence", stun: "etourdi", fear: "silence",
+  speedUp: "speed", speedDown: "speed", silence: "silence", stun: "etourdi", fear: "silence", sleep: "etourdi", devour: "sang",
   immune: "immune", earth: "aventure", swept: "wave", broken: "broken-shield",
   vulnerable: "banner-down", bleed: "sang", poison: "poison", taunt: "squads",
   counter: "ultime", seal: "chain", controlled: "chain", bloodlust: "coeur",

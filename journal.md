@@ -566,3 +566,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Fait : quatre armes dédiées (`griffon`, `murakumogiri`, `hassaikai`, `napoleon`) dans `weapons.ts`, nouveaux passifs et statistiques dédiées dans `battle.ts` (statut `fear`, coup doublé, garde cumulable, foudre/feu). Aucun tirage aléatoire ajouté sans l'arme : `check:battle`, `check:weapons`, `check:battles` inchangés. Nouveau `check:emperor-weapons`.
 - Pas encore branché : fabrication (forge), ressources, boss, passages, Hardcore, interface. Les armes ne sont donc pas encore obtenables.
 - Piège : `forge.ts` choisit l'arme d'une carte par `WEAPONS.find(type)` ; les armes dédiées sont placées après les génériques pour ne pas les remplacer, mais la forge devra les traiter à part.
+
+## 2026-11-11 — Empereurs, étape 2 : mécaniques de boss et kits dans le moteur
+- Fait : statuts `sleep` (Haki des rois, ATK inférieure à celle du lanceur, un coup réveille, boss immunisés) et `devour` (marque : libérée si Big Mom subit assez de dégâts ou meurt, sinon la cible est avalée et Big Mom gagne son sort en tertiaire), âmes de Big Mom (`soulPocket`, +10 % PV max et +25 % de dégâts finaux par âme), phases (`phase`, Kaido sous 50 % de PV), jauge de départ (`startGauge`). Kits des quatre empereurs dans `boss-skills.ts`. `npm run check:emperors`.
+- Décisions provisoires : dégâts critiques +50 % de Shanks remplacés par rien (pas de statistique de sort pour cela) ; saignement de Kaido remplacé par du poison ; Barbe Blanche sans bouclier sur mort d'allié. À reprendre à l'équilibrage.
+- **Big Mom n'existe pas dans la base** (aucune ligne « Charlotte Linlin ») : `EMPEROR_IDS.bigMom = 5` est un identifiant provisoire. Il faudra créer/importer le personnage (nom, image) avant le raid. Shanks (727, SR), Kaido (46109, N) et Newgate (2751, SR) existent.
+- Piège (corrigé) : la marque se libère par les dégâts subis par **Big Mom**, pas par la marquée ; la spec disait « de la marquée » pour le seuil seulement.
+- Reste : vagues d'équipage dans un même combat (le lecteur suppose huit cartes fixes), passages quotidiens, Hardcore, forge, interface.

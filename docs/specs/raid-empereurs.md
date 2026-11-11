@@ -55,7 +55,7 @@ Chaque empereur est une carte de boss avec les stats du raid (échelle de diffic
 - **Voix de l'empereur** : renforce son équipe pour 3 tours : **+30 % de taux critique, +50 % de dégâts critiques, +50 % d'ATK**.
 
 ### Big Mom
-- **Pacte de l'âme** (début du combat) : marque un ennemi. Après **2 tours** elle le **dévore**, sauf si l'équipe lui inflige au moins **40 % des PV maximum de la marquée** en dégâts d'ici là (la marquée est alors libérée). Si elle l'avale, elle gagne **un de ses sorts**.
+- **Pacte de l'âme** (début du combat) : marque un ennemi. Après **2 tours** elle le **dévore**, sauf si l'équipe **inflige à Big Mom** au moins **40 % des PV maximum de la marquée** en dégâts d'ici là (la marquée est alors libérée ; si Big Mom meurt, elle l'est aussi). Si elle l'avale, elle gagne **un de ses sorts**.
 - **Zeus** : foudre sur tous les ennemis, **2× ATK**.
 - **Passif Soul Pocket** : quand un ennemi meurt, il laisse une âme que Big Mom récupère : **+PV maximum (soignés) et +25 % de dégâts finaux** par âme.
 

@@ -47,6 +47,8 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
   poison: { label: "Poison", fields: [pctField("% PV max / action", 0.05, 0.3), turns(3), scope("target")] },
   silence: { label: "Silence", fields: [turns(2), scope("target")] },
   stun: { label: "Étourdissement", fields: [{ key: "turns", label: "Tours passés", type: "number", min: 1, max: 2, step: 1, def: 1 }, { key: "count", label: "Nombre d'ennemis (ATK la plus élevée)", type: "number", min: 1, max: 2, step: 1, def: 2 }] },
+  sleep: { label: "Sommeil (ennemis plus faibles)", fields: [turns(2)] },
+  devour: { label: "Marque dévorante", fields: [turns(2), { key: "threshold", label: "Seuil (part des PV max)", type: "number", min: 0.05, max: 1, step: 0.05, def: 0.4 }] },
   immune: { label: "Immunité aux malus", fields: [turns(2), scope("team")] },
   purge: { label: "Purge des malus", fields: [scope("team")] },
   revive: { label: "Réanimation", fields: [pctField("% PV max", 0.2)] },

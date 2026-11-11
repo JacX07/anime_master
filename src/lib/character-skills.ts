@@ -56,6 +56,8 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "seal":
       case "steal":
       case "counter":
+      case "sleep":
+      case "devour":
       case "reduce": return effect;
     }
   });
