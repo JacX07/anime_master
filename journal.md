@@ -570,6 +570,13 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 ## 2026-11-11 — Empereurs, étape 2 : mécaniques de boss et kits dans le moteur
 - Fait : statuts `sleep` (Haki des rois, ATK inférieure à celle du lanceur, un coup réveille, boss immunisés) et `devour` (marque : libérée si Big Mom subit assez de dégâts ou meurt, sinon la cible est avalée et Big Mom gagne son sort en tertiaire), âmes de Big Mom (`soulPocket`, +10 % PV max et +25 % de dégâts finaux par âme), phases (`phase`, Kaido sous 50 % de PV), jauge de départ (`startGauge`). Kits des quatre empereurs dans `boss-skills.ts`. `npm run check:emperors`.
 - Décisions provisoires : dégâts critiques +50 % de Shanks remplacés par rien (pas de statistique de sort pour cela) ; saignement de Kaido remplacé par du poison ; Barbe Blanche sans bouclier sur mort d'allié. À reprendre à l'équilibrage.
-- **Big Mom n'existe pas dans la base** (aucune ligne « Charlotte Linlin ») : `EMPEROR_IDS.bigMom = 5` est un identifiant provisoire. Il faudra créer/importer le personnage (nom, image) avant le raid. Shanks (727, SR), Kaido (46109, N) et Newgate (2751, SR) existent.
+- (Résolu plus bas) Big Mom n'était pas dans la base ; l'identifiant provisoire 5 était celui d'Ichigo.
 - Piège (corrigé) : la marque se libère par les dégâts subis par **Big Mom**, pas par la marquée ; la spec disait « de la marquée » pour le seuil seulement.
 - Reste : vagues d'équipage dans un même combat (le lecteur suppose huit cartes fixes), passages quotidiens, Hardcore, forge, interface.
+
+## 2026-11-11 — Empereurs : import de Big Mom, raretés SSR, écarts de spec comblés
+- Import : Big Mom = AniList **54495**, nommée « Linlin Charlotte » (216 favoris, hors du top 5 000 de l'import de masse, d'où l'absence). Script `scripts/import-character.ts <ids>` (importe si absent, applique `RARITY_OVERRIDES`, recalcule seulement ces personnages). Exécuté sur la base Supabase à la demande de l'utilisateur : Linlin, Shanks (727), Newgate (2751) et Kaido (46109) passent en SSR ; stats recalculées ; `RARITY_OVERRIDES` mis à jour pour survivre aux réimports.
+- Piège : l'identifiant 5 est **Ichigo** (`BLADE_USERS`) ; ne jamais utiliser un identifiant sans l'avoir vérifié dans la base. `EMPEROR_IDS.bigMom = 54495`.
+- Comblé : dégâts critiques +50 % (nouvelle statistique de sort `critDamage`), saignement de Kaido (`BLADE_USERS`, seulement avant sa phase Dragon), réduction de Kaido sous 70 % et de Barbe Blanche au-dessus de 50 % (`guard`), bouclier de Barbe Blanche à la mort d'un allié (`allyDeathShield`).
+- Effets de bord : la carte Kaido de la collection saigne aussi (il est dans `BLADE_USERS`) ; Newgate (1 carte possédée) et les trois autres changent de rareté dans les collections et les tirages.
+- `scripts/seed-checks.ts` échoue avec « Chargement du catalogue de test impossible » avec ou sans ces changements (non lié).

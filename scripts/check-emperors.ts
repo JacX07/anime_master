@@ -76,6 +76,48 @@ const ofKind = <K extends BattleEvent["kind"]>(log: BattleEvent[], kind: K) => l
   check("Le Dragon lance ses sorts de phase", names.includes("Souffle du dragon") || names.includes("Boro Breath") || !k.phased);
 }
 
+// Voix de l'empereur : critiques, dégâts critiques et ATK
+{
+  const seen = new Set<string>();
+  for (let seed = 1; seed <= 20; seed++) {
+    const st = createBattle(team(4, { attack: 1500 }), [boss(EMPEROR_IDS.shanks, { attack: 4000 })], seededRandom(seed), { gauge: true });
+    play(st, 120);
+    for (const e of ofKind(evs(st), "status")) if (e.on && e.target === "B1") seen.add(e.status);
+  }
+  check("Shanks : critique, dégâts critiques et ATK montent", seen.has("critUp") && seen.has("critDamageUp") && seen.has("atkUp"), [...seen].join(","));
+}
+
+// Kaido : saignement en mode homme-bête, réduction sous 70 % de PV
+{
+  let bleeds = 0;
+  const high: number[] = [], low: number[] = [];
+  for (let seed = 1; seed <= 40; seed++) {
+    const st = createBattle(team(4, { attack: 2500, defense: 1000 }), [boss(EMPEROR_IDS.kaido, { attack: 2500, defense: 5000 })], seededRandom(seed), { gauge: true });
+    play(st, 160);
+    const log = evs(st);
+    bleeds += ofKind(log, "status").filter((e) => e.status === "bleed" && e.on && e.target.startsWith("A")).length;
+    let hp = st.teams.B[0].maxHp;
+    const max0 = hp;
+    for (const e of log) if (e.kind === "damage" && e.target === "B1" && e.source.startsWith("A") && e.crit === false) {
+      (hp / max0 > 0.7 ? high : low).push(e.amount);
+      hp = e.hp;
+    } else if (e.kind === "heal" && e.target === "B1") hp = e.hp;
+  }
+  const m = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length);
+  check("Kaido : ses frappes font saigner (mode homme-bête)", bleeds > 20, `${bleeds} saignements`);
+  check("Kaido : dégâts reçus réduits sous 70 % de PV", low.length > 20 && m(low) / m(high) < 0.9, `×${(m(low) / m(high)).toFixed(2)}`);
+}
+
+// Barbe Blanche : bouclier quand un allié tombe
+{
+  const crew = [boss(EMPEROR_IDS.whitebeard, { attack: 5000 }), card(901, { attack: 500, defense: 300 }), card(902, { attack: 500, defense: 300 }), card(903, { attack: 500, defense: 300 })];
+  const st = createBattle(team(4, { attack: 3000 }), crew, seededRandom(21), { gauge: true });
+  play(st, 200);
+  const shields = ofKind(evs(st), "shield").filter((e) => e.source === "B1" && e.target === "B1" && e.amount > 0);
+  const deaths = ofKind(evs(st), "ko").filter((e) => e.target.startsWith("B") && e.target !== "B1").length;
+  check("Barbe Blanche : un bouclier par allié tombé", deaths > 0 && shields.length >= Math.min(deaths, 1), `${shields.length} boucliers, ${deaths} alliés tombés`);
+}
+
 // Kits : tous les empereurs jouent un combat complet sans erreur et de façon déterministe
 for (const [name, id] of Object.entries(EMPEROR_IDS)) {
   const a = battle(team(), [boss(id)], seededRandom(11), { gauge: true });

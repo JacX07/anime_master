@@ -8,7 +8,7 @@ import { SECONDARY_OVERRIDES } from "./skill-overrides";
 
 /** Qui reçoit un effet : la cible choisie, le lanceur, son équipe, ou tous les ennemis. */
 export type Scope = "target" | "self" | "team" | "foes";
-export type ModStat = "atk" | "def" | "crit" | "dodge" | "speed";
+export type ModStat = "atk" | "def" | "crit" | "critDamage" | "dodge" | "speed";
 
 export type Effect =
   /** Dégâts × ATK ; `zone` touche tous les ennemis ; `drain` rend au lanceur cette part des dégâts ; `pierce` traverse les boucliers (et l'esquive) ; `ramp` (avec `zone`) : la cible choisie d'abord, puis les autres, +`ramp` de dégâts à chaque cible ; `hits` : nombre de frappes ; `extraHit` : une frappe de plus si la cible a de la DEF en moins */
@@ -404,7 +404,7 @@ export function spellOf(characterId: number, rarity: Rarity, type: CardType): Ch
 const pct = (x: number) => `${Math.round(Math.abs(x) * 100)} %`;
 const nx = (n: number) => `${n} tour${n > 1 ? "s" : ""}`;
 const WHO: Record<Scope, string> = { target: "la cible", self: "le lanceur", team: "l'équipe", foes: "tous les ennemis" };
-const STAT_NAMES: Record<ModStat, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive", speed: "vitesse" };
+const STAT_NAMES: Record<ModStat, string> = { atk: "ATK", def: "DEF", crit: "critique", critDamage: "dégâts critiques", dodge: "esquive", speed: "vitesse" };
 /** crit et esquive se comptent en points de pourcentage (plafond 100 %), ATK et DEF en part de la stat */
 const amountText = (stat: ModStat, amount: number) => `${amount > 0 ? "+" : "−"}${Math.round(Math.abs(amount) * 100)}${stat === "crit" || stat === "dodge" ? " points" : " %"}`;
 

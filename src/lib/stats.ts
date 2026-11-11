@@ -19,6 +19,11 @@ export const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 /** Raretés imposées par le design, quels que soient les favoris (survivent aux réimports). */
 export const RARITY_OVERRIDES: Record<number, Rarity> = {
   129928: "UR", // Jin-U Seong (Solo Leveling)
+  // Empereurs du Défi (docs/specs/raid-empereurs.md)
+  727: "SSR", // Shanks
+  2751: "SSR", // Barbe Blanche (Newgate Edward)
+  46109: "SSR", // Kaido
+  54495: "SSR", // Big Mom (Linlin Charlotte)
 };
 
 /** Classe par favoris décroissants (égalité : plus petit id d'abord) et attribue les raretés. */

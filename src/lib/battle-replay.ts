@@ -70,6 +70,8 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   defUp: { label: "DEF +", glyph: "⛨", help: "Sa DEF est augmentée.", bad: false },
   defDown: { label: "DEF −", glyph: "⛨", help: "Sa DEF est réduite.", bad: true },
   critUp: { label: "Critique +", glyph: "✦", help: "Sa chance de coup critique est augmentée.", bad: false },
+  critDamageUp: { label: "Dégâts critiques +", glyph: "✦", help: "Ses coups critiques font plus de dégâts.", bad: false },
+  critDamageDown: { label: "Dégâts critiques −", glyph: "✦", help: "Ses coups critiques font moins de dégâts.", bad: true },
   critDown: { label: "Critique −", glyph: "✦", help: "Sa chance de coup critique est réduite.", bad: true },
   dodgeUp: { label: "Esquive", glyph: "≈", help: "Elle a une chance d'esquiver les coups.", bad: false },
   dodgeDown: { label: "Esquive −", glyph: "≈", help: "Sa chance d'esquiver est réduite.", bad: true },

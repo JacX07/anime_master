@@ -75,6 +75,10 @@ export interface BattleCard {
   basicAttack?: BasicAttack;
   /** Boss : jauge d'ultime au départ (lancer le premier sort dès la première action) */
   startGauge?: number;
+  /** Passif de réduction des dégâts reçus tant que les PV sont au-dessus (`above`) ou au-dessous (`below`) du seuil `at` (part des PV max) */
+  guard?: { when: "above" | "below"; at: number; reduce: number };
+  /** Barbe Blanche : bouclier (part de ses PV max) à chaque mort d'un allié */
+  allyDeathShield?: number;
   /** Big Mom : chaque mort d'un ennemi donne une âme (PV max et dégâts finaux) */
   soulPocket?: { hp: number; dmg: number };
   /** Kaido : changement de mode quand les PV tombent sous `at` (part des PV max) */
@@ -305,6 +309,7 @@ interface Unit {
   finalBonus: number;
   /** Âme déjà comptée / avalé par une marque / mode de phase atteint */
   soulTaken: boolean;
+  shieldTaken: boolean;
   devoured: boolean;
   phased: boolean;
   /** Exposé par Mystère : le prochain sort de Combat sur cette cible est renforcé, puis l'exposition disparaît */
@@ -420,7 +425,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       specialCd: SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
       tertiaryCd: BATTLE.tertiaryCooldown - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
-      spellIn: 2, held: 0, guard: 0, souls: 0, finalBonus: 0, soulTaken: false, devoured: false, phased: false, exposed: false, weaken: 0, elan: 0,
+      spellIn: 2, held: 0, guard: 0, souls: 0, finalBonus: 0, soulTaken: false, shieldTaken: false, devoured: false, phased: false, exposed: false, weaken: 0, elan: 0,
       spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
       pIn: SPELL_FIRST,
       tertiary: rawTertiary ? (card.tertiary ? card.tertiary : powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale)) : null,
@@ -710,6 +715,16 @@ function processDeaths(st: BattleState) {
           st.log.push({ kind: "heal", source: y.id, target: y.id, amount: gain, hp: y.hp });
         }
       }
+      // Barbe Blanche : un allié qui tombe lui donne un bouclier
+      if (x.hp <= 0 && !x.shieldTaken) {
+        x.shieldTaken = true;
+        for (const y of alive(st, x.side)) {
+          if (y === x || !y.card.allyDeathShield) continue;
+          const added = y.maxHp * y.card.allyDeathShield;
+          y.shield += added;
+          st.log.push({ kind: "shield", source: y.id, target: y.id, amount: added, shield: y.shield });
+        }
+      }
       // Kaido : changement de mode sous le seuil de PV
       const phase = x.card.phase;
       if (phase && !x.phased && x.hp > 0 && x.hp <= x.maxHp * phase.at) {
@@ -964,7 +979,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     const aff = affinity(u.card.type, t.card.type);
     let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
     const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit"), 0, BATTLE.critCap);
-    if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card);
+    if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card) + fxSum(u, "critDamage");
     dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0)
       + ((damageKind(u.card) === "magic" ? weaponOf(u.card)?.stats?.magicDamage : weaponOf(u.card)?.stats?.physDamage) ?? 0);
     const wp = weaponOf(u.card)?.passive;
@@ -982,7 +997,9 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     dmg *= 1 + u.finalBonus;
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 + fxKeySum(t, "vulnerable");
-    dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan") + (weaponOf(t.card)?.stats?.reduce ?? 0) + t.guard, 0, BATTLE.reduceCap);
+    const g = t.card.guard;
+    const passiveGuard = g && (g.when === "above" ? t.hp > t.maxHp * g.at : t.hp <= t.maxHp * g.at) ? g.reduce : 0;
+    dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan") + (weaponOf(t.card)?.stats?.reduce ?? 0) + t.guard + passiveGuard, 0, BATTLE.reduceCap);
     const absorbed = pierce ? 0 : Math.min(t.shield, dmg);
     t.shield -= absorbed;
     t.titanShield = Math.max(0, t.titanShield - absorbed);
@@ -1331,7 +1348,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       for (const x of allies) setStatus(x, "elan", BATTLE.statusTurns);
     }
   }
-  if (BLADE_USERS.has(u.card.characterId)) {
+  if (BLADE_USERS.has(u.card.characterId) && !u.phased) {
     for (const t of struck) {
       if (t.side === u.side || t.hp <= 0 || hasFx(t, "immune")) continue;
       const stacks = Math.min(5, (t.fx.find((f) => f.key === "bleed")?.stacks ?? 0) + 1);

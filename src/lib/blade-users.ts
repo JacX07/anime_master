@@ -1,5 +1,6 @@
 /** Personnages dont les attaques utilisent une épée ou un sabre (identifiants AniList). */
 export const BLADE_USERS = new Set([
+  46109, // Kaido (mode homme-bête : sa massue fait saigner)
   5, // Ichigo
   6, // Rukia
   62, // Zoro

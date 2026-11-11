@@ -138,7 +138,7 @@ export function basicAttackOf(characterId: number, rarity: Rarity, type: CardTyp
   return SKILL_OVERRIDES[characterId]?.base ?? BASIC_ATTACK_ROSTER[characterId]?.attack ?? createBasicAttack(characterId, rarity, type);
 }
 
-const statName: Record<Exclude<ModStat, "speed">, string> = { atk: "ATK", def: "DEF", crit: "critique", dodge: "esquive" };
+const statName: Record<Exclude<ModStat, "speed">, string> = { atk: "ATK", def: "DEF", crit: "critique", critDamage: "dégâts critiques", dodge: "esquive" };
 const percent = (n: number) => `${Number.isInteger(n * 100) ? n * 100 : (n * 100).toLocaleString("fr-FR")} %`;
 
 export function describeBasicRider(rider: BasicRider): string {
