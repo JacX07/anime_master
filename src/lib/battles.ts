@@ -1,5 +1,6 @@
 import { combatPowers } from "./combat-power";
 import { budgetMessage, overBudget, RARITY_COST, TEAM_BUDGET } from "./team-budget";
+import { ALL_KEYS, clearRecordKey, DUNGEON_MATERIAL_CHANCE, DUNGEON_MATERIAL_LEVEL, EMPERORS, HARDCORE_KEY, HARDCORE_SCALE, hardcoreDrops, legendaryAmount, parseEmperorKey, type EmperorTarget } from "./emperors";
 import { track } from "./events";
 import { sumArtifactStats } from "./artifact-stats";
 import { adventureLock } from "./adventure-state";
@@ -246,7 +247,10 @@ async function settleDungeon(tx: Prisma.TransactionClient, userId: string, oppon
     await tx.artifact.create({ data: { userId, setKey: dungeon.key, slot, rarity, mainStat: main.stat, mainValue: main.value, subStats: toJson(subStats) } });
     artifacts.push({ slot, rarity, mainStat: main.stat, mainValue: main.value, subStats });
   }
-  const material = levelReward(level).resource;
+  // One Piece : le matériau de fabrication des armes des empereurs ne tombe qu'au niveau 10, une victoire sur dix
+  const material = dungeon.key === DUNGEON_KEY
+    ? (level === DUNGEON_MATERIAL_LEVEL && seededRandom(seed ^ 0x2c1b3c6d)() < DUNGEON_MATERIAL_CHANCE ? 1 : 0)
+    : levelReward(level).resource;
   if (material) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: dungeon.resource } }, create: { userId, key: dungeon.resource, quantity: material }, update: { quantity: { increment: material } } });
   return { ryo: 0, crystals: 0, resources: material ? { [dungeon.resource]: material } : {}, artifact: artifacts[0], artifacts };
 }
@@ -273,6 +277,12 @@ async function checkRaidAccess(userId: string, boss: RaidBoss, difficulty: RaidD
 /** Cœurs de brèche versés à la fin d'un combat de raid, qu'il soit gagné ou perdu (la part de PV retirée compte). Une seule fois par combat. */
 async function settleRaid(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, share: number, won: boolean, now: Date): Promise<Loot> {
   const { boss, difficulty } = parseRaid(opponent)!;
+  return raidProgress(tx, userId, boss.key, difficulty, seed, share, won, now);
+}
+
+/** Cœurs de brèche, plafond quotidien et meilleur score : commun au raid de la semaine et au Défi des empereurs (boss = `emperor:<clé>`). */
+async function raidProgress(tx: Prisma.TransactionClient, userId: string, bossKey: string, difficulty: RaidDifficulty, seed: number, share: number, won: boolean, now: Date): Promise<Loot> {
+  const boss = { key: bossKey };
   const day = startOfDay(now);
   const daily = await tx.dailyGain.findUnique({ where: { userId_day_source: { userId, day, source: "RAID" } } });
   const { hearts, full } = raidHearts(share, won, difficulty, DAILY_FULL_HEARTS - (daily?.units ?? 0), seededRandom(seed ^ 0xbea7));
@@ -288,6 +298,69 @@ async function settleRaid(tx: Prisma.TransactionClient, userId: string, opponent
   if (won) await tx.raidBest.updateMany({ where: { userId, boss: boss.key, difficulty: difficulty.key, won: false }, data: { won: true, updatedAt: now } });
   if (hearts) await tx.resourceStock.upsert({ where: { userId_key: { userId, key: RAID_RESOURCE } }, create: { userId, key: RAID_RESOURCE, quantity: hearts }, update: { quantity: { increment: hearts } } });
   return { ryo: 0, crystals: 0, resources: hearts ? { [RAID_RESOURCE]: hearts } : {}, share };
+}
+
+// ── Défi des empereurs : ennemis, accès et butin ─────────────────────────────
+
+/** Équipage (deux vagues) puis l'empereur ; ou les quatre empereurs ensemble pour le Hardcore. Stats = moyenne de la rareté × échelle de la difficulté. */
+async function emperorFoes(target: EmperorTarget): Promise<{ first: BattleCard[]; waves: BattleCard[][] }> {
+  const means = await meanStats();
+  const ids = target.kind === "emperor" ? [...target.emperor.crew.flat(), target.emperor.characterId] : EMPERORS.map((e) => e.characterId);
+  const rows = await prisma.character.findMany({ where: { id: { in: ids }, disabled: false }, select: CHARACTER_SELECT });
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const row = (id: number) => { const r = byId.get(id); if (!r) throw new BattleError("Équipage indisponible : un personnage manque."); return r; };
+  const mk = (id: number, rarity: Rarity, k: number, isBoss: boolean): BattleCard => {
+    const m = means[rarity];
+    return { ...toBattleCard(row(id)), rarity, franchiseId: null, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), ...(isBoss ? { boss: true, speed: 100 } : {}) };
+  };
+  const s = target.difficulty.scale;
+  const bossK = s * RAID_BOSS_BONUS * 1.1;
+  if (target.kind === "hardcore") return { first: EMPERORS.map((e) => mk(e.characterId, "SSR", bossK * HARDCORE_SCALE, true)), waves: [] };
+  const { crew, characterId } = target.emperor;
+  return {
+    first: crew[0].map((id) => mk(id, "SR", s * 0.9, false)),
+    waves: [crew[1].map((id) => mk(id, "SSR", s, false)), [...crew[0].slice(0, 3).map((id) => mk(id, "SR", s * 0.9, false)), mk(characterId, "SSR", bossK, true)]],
+  };
+}
+
+async function checkEmperorAccess(userId: string, target: EmperorTarget, now: Date) {
+  const { tutorial, open } = await raidUnlocked(userId);
+  if (!tutorial) throw new BattleError("Raid verrouillé : termine d'abord le tutoriel de l'histoire.");
+  if (!open.includes(target.difficulty.key)) throw new BattleError("Difficulté verrouillée : bats la précédente au raid.");
+  const bossKey = target.kind === "hardcore" ? HARDCORE_KEY : target.emperor.key;
+  if (await prisma.adventureRecord.findUnique({ where: { userId_key: { userId, key: clearRecordKey(bossKey, startOfDay(now)) } }, select: { key: true } }))
+    throw new BattleError("Déjà vaincu aujourd'hui : reviens demain.");
+  if (target.kind === "hardcore") {
+    const stock = await prisma.resourceStock.findMany({ where: { userId, key: { in: ALL_KEYS }, quantity: { gte: 1 } }, select: { key: true } });
+    if (stock.length < ALL_KEYS.length) throw new BattleError("Il te faut une clé de chaque empereur pour le Hardcore.");
+  }
+}
+
+/** Cœurs comme au raid ; une victoire (la première du jour) donne en plus la clé et la ressource légendaire, ou, au Hardcore, deux ressources légendaires pour quatre clés. */
+async function settleEmperor(tx: Prisma.TransactionClient, userId: string, opponent: string, seed: number, share: number, won: boolean, now: Date): Promise<Loot> {
+  const target = parseEmperorKey(opponent)!;
+  const bossKey = target.kind === "hardcore" ? HARDCORE_KEY : target.emperor.key;
+  const base = await raidProgress(tx, userId, `emperor:${bossKey}`, target.difficulty, seed, share, won, now);
+  if (!won) return base;
+  const claimed = await tx.adventureRecord.createMany({ data: [{ userId, key: clearRecordKey(bossKey, startOfDay(now)) }], skipDuplicates: true });
+  if (claimed.count !== 1) return base;
+  const rand = seededRandom(seed ^ 0xe3b3);
+  const resources: Record<string, number> = { ...base.resources };
+  const add = async (key: string, quantity: number) => {
+    await tx.resourceStock.upsert({ where: { userId_key: { userId, key } }, create: { userId, key, quantity }, update: { quantity: { increment: quantity } } });
+    resources[key] = (resources[key] ?? 0) + quantity;
+  };
+  if (target.kind === "hardcore") {
+    for (const key of ALL_KEYS) {
+      const used = await tx.resourceStock.updateMany({ where: { userId, key, quantity: { gte: 1 } }, data: { quantity: { decrement: 1 } } });
+      if (used.count !== 1) throw new BattleError("Il te faut une clé de chaque empereur pour le Hardcore.");
+    }
+    for (const drop of hardcoreDrops(rand)) await add(drop, 1);
+  } else {
+    await add(target.emperor.keyResource, 1);
+    await add(target.emperor.resource, legendaryAmount(target.difficulty.key, rand));
+  }
+  return { ...base, resources };
 }
 
 /** État du raid pour la page : boss de la semaine, difficultés ouvertes, meilleurs résultats, cœurs au taux plein restants. */
@@ -750,7 +823,9 @@ export async function startBattle(userId: string, opponent: string, manual: bool
     if (storyCards.length !== storyCardIds.length || new Set(storyCards.map((card) => card.character.id)).size !== storyCards.length) throw new BattleError("Choisis des personnages différents qui t'appartiennent.");
   } else if (slots.some((s) => !s)) throw new BattleError("Ton équipe d'attaque doit compter 4 cartes.");
   const chosen = (storyCards ?? slots as NonNullable<typeof slots[number]>[]).map((c) => c.character.rarity);
-  if (!parseRaid(opponent) && overBudget(chosen)) throw new BattleError(budgetMessage(chosen));
+  const emperor = parseEmperorKey(opponent);
+  if (opponent.startsWith("emperor:") && !emperor) throw new BattleError("Défi inconnu.");
+  if (!parseRaid(opponent) && !emperor && overBudget(chosen)) throw new BattleError(budgetMessage(chosen));
   const dungeonLevel = opponent.startsWith(DUNGEON_PREFIX) ? parseDungeonKey(opponent) : null;
   if (opponent.startsWith(DUNGEON_PREFIX) && dungeonLevel === null) throw new BattleError("Difficulté de donjon inconnue.");
   if (story) await checkStoryAccess(userId, story.universe, story.level);
@@ -764,11 +839,12 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   }
   const raid = parseRaid(opponent);
   if (raid) await checkRaidAccess(userId, raid.boss, raid.difficulty, now);
+  if (emperor) await checkEmperorAccess(userId, emperor, now);
   const floor = parseTower(opponent);
   if (floor && floor > (await getTowerFloor(userId)) + 1) throw new BattleError("Étage verrouillé : gagne le précédent.");
-  const mode: BattleMode = story ? "STORY" : raid ? "RAID" : floor ? "TOWER" : dungeonLevel ? "DUNGEON" : "TEST";
+  const mode: BattleMode = story ? "STORY" : raid || emperor ? "RAID" : floor ? "TOWER" : dungeonLevel ? "DUNGEON" : "TEST";
   // Un combat suivi à la fois et par mode. En histoire et dans la Tour, une défaite ne coûte rien : un combat laissé ouvert est abandonné pour en lancer un autre.
-  if (manual && (story || floor || raid || dungeonLevel)) {
+  if (manual && (story || floor || raid || emperor || dungeonLevel)) {
     await finishAutoBattles(userId, mode, now);
     const open = await prisma.battle.findMany({ where: { userId, manual: true, status: "RUNNING", mode }, select: { id: true } });
     if (open.length) await prisma.$transaction(async (tx) => {
@@ -776,12 +852,13 @@ export async function startBattle(userId: string, opponent: string, manual: bool
       await refundLost(tx, { id: { in: open.map((b) => b.id) } }, now);
     });
   }
-  const paysEnergy = usesEnergy(mode);
+  const paysEnergy = usesEnergy(mode) || !!emperor;
   if (manual && (await prisma.battle.count({ where: { userId, manual: true, status: "RUNNING", mode } })))
     throw new BattleError("Tu as déjà un combat en cours : termine-le ou abandonne-le.");
   const fitted = await equippedCards(userId, storyCards ?? slots as NonNullable<typeof slots[number]>[]);
   const mine = fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
-  const teams: BattleTeams = { A: mine, B: await opponentCards(opponent), scheduler: "gauge-v1", elements: "elements-v1", ...(dungeonLevel ? { spellFxUnlocked } : {}), ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
+  const foes = emperor ? await emperorFoes(emperor) : null;
+  const teams: BattleTeams = { A: mine, B: foes ? foes.first : await opponentCards(opponent), ...(foes?.waves.length ? { waves: foes.waves, maxRounds: BATTLE.maxRounds * (foes.waves.length + 1) } : {}), scheduler: "gauge-v1", elements: "elements-v1", ...(dungeonLevel ? { spellFxUnlocked } : {}), ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
   const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined, ...wavesOf(teams) });
@@ -796,7 +873,7 @@ export async function startBattle(userId: string, opponent: string, manual: bool
         }
       }
       const stars = story ? storyStars(won, result.log) : null;
-      const loot = story && won ? await settleStory(tx, userId, opponent, seed, stars!, now, teams.A.length === 2) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
+      const loot = story && won ? await settleStory(tx, userId, opponent, seed, stars!, now, teams.A.length === 2) : emperor ? await settleEmperor(tx, userId, opponent, seed, shareOf(result.log), won, now) : raid ? await settleRaid(tx, userId, opponent, seed, shareOf(result.log), won, now) : floor && won ? await settleTower(tx, userId, opponent, now) : dungeonLevel && won ? await settleDungeon(tx, userId, opponent, seed) : null;
       return tx.battle.create({
         data: {
           userId, mode, opponent, manual, seed, teams: toJson(teams), status: "DONE", winner: result.winner,
@@ -870,7 +947,9 @@ export async function playAction(userId: string, battleId: string, action: Actio
     });
     if (saved.count !== 1) throw new BattleError("Action déjà jouée, recharge le combat.");
     if (done && row.mode === "RAID") {
-      loot = await settleRaid(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now);
+      loot = parseEmperorKey(row.opponent)
+        ? await settleEmperor(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now)
+        : await settleRaid(tx, userId, row.opponent, row.seed, shareOf(done.log), done.winner === "A", now);
       await tx.battle.update({ where: { id: row.id }, data: { loot: toJson(loot) } });
     } else if (done?.winner === "A" && (row.mode === "STORY" || row.mode === "TOWER" || row.mode === "DUNGEON")) {
       score = row.mode === "STORY" ? storyStars(true, done.log) : null;

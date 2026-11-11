@@ -79,7 +79,8 @@
     "art:export": "tsx scripts/export-illustrations.ts",
     "check:arena": "tsx scripts/check-arena.ts",
     "check:emperor-weapons": "tsx scripts/check-emperor-weapons.ts",
-    "check:emperors": "tsx scripts/check-emperors.ts"
+    "check:emperors": "tsx scripts/check-emperors.ts",
+    "check:emperor-raid": "tsx scripts/check-emperor-raid.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

@@ -97,6 +97,8 @@ export const RESOURCE_NAMES: Record<string, string> = {
   "larme-d-ombre": "Larme d'ombre", "lame-maudite": "Lame maudite",
   "coeur-de-breche": "Cœur de brèche",
   "materiau-donjon-one-piece": "Éclat du Trône",
+  "cheveux-roux-de-shanks": "Cheveux roux de Shanks", "meche-de-big-mom": "Mèche de Big Mom", "ecaille-de-kaido": "Écaille de Kaido", "moustache-de-barbe-blanche": "Moustache de Barbe Blanche",
+  "cle-shanks": "Clé de Shanks", "cle-big-mom": "Clé de Big Mom", "cle-kaido": "Clé de Kaido", "cle-barbe-blanche": "Clé de Barbe Blanche",
 };
 
 export const universeOf = (key: string) => UNIVERSES.find((u) => u.key === key);

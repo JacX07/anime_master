@@ -580,3 +580,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Comblé : dégâts critiques +50 % (nouvelle statistique de sort `critDamage`), saignement de Kaido (`BLADE_USERS`, seulement avant sa phase Dragon), réduction de Kaido sous 70 % et de Barbe Blanche au-dessus de 50 % (`guard`), bouclier de Barbe Blanche à la mort d'un allié (`allyDeathShield`).
 - Effets de bord : la carte Kaido de la collection saigne aussi (il est dans `BLADE_USERS`) ; Newgate (1 carte possédée) et les trois autres changent de rareté dans les collections et les tirages.
 - `scripts/seed-checks.ts` échoue avec « Chargement du catalogue de test impossible » avec ou sans ces changements (non lié).
+
+## 2026-11-11 — Empereurs, étape 3 : vagues et serveur du Défi
+- Moteur : événement `wave` (le camp B est remplacé par la vague suivante, mêmes emplacements B1 à B4), option `waves` et `maxRounds` (90 tours pour trois phases), lecteur et bilan adaptés. Le combat d'un empereur = équipage 1, équipage 2, empereur + 3 membres d'équipage.
+- Serveur (`src/lib/emperors.ts`, `battles.ts`) : clés `emperor:<empereur>:<difficulté>` et `emperor:hardcore:<difficulté>` (mode `RAID`, énergie 1, cœurs comme au raid, difficultés débloquées comme au raid). Une victoire par jour et par empereur (enregistrement `emperor-clear:<clé>:<date>` dans `AdventureRecord`, une défaite ne le consomme pas). Victoire : clé + ressource légendaire (Normal 1, Difficile 1 à 2, Cauchemar 2 à 3). Hardcore : une clé de chaque consommée à la victoire, deux ressources légendaires différentes.
+- Donjon One Piece : le matériau (`materiau-donjon-one-piece`) ne tombe plus qu'au niveau 10, 10 % par victoire (avant : de façon garantie dès le niveau 7).
+- Noms provisoires des ressources : mèche de Big Mom, écaille de Kaido, moustache de Barbe Blanche (Shanks : cheveux roux, choisi par l'utilisateur).
+- `npm run check:emperor-raid` (22 vérifications, en conditions réelles sur la base).
+- Reste : forge des quatre armes, page du Défi, aperçu des ennemis, équilibrage.
