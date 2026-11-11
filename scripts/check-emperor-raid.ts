@@ -4,6 +4,8 @@ import { BattleError, getBattle, setAttackTeam, startBattle } from "../src/lib/b
 import { prisma } from "../src/lib/db";
 import { ALL_KEYS, ALL_LEGENDARY_RESOURCES, EMPERORS, HARDCORE_KEY, emperorKey, legendaryAmount, hardcoreDrops } from "../src/lib/emperors";
 import { seededRandom } from "../src/lib/battle";
+import { DUNGEON_RESOURCE } from "../src/lib/dungeons";
+import { forgeEmperorWeapon } from "../src/lib/forge";
 import { LEVELS, UNIVERSES } from "../src/lib/story";
 
 let failures = 0;
@@ -66,6 +68,15 @@ async function main() {
       check("Hardcore gagné : deux ressources légendaires", ALL_LEGENDARY_RESOURCES.reduce((n, k) => n + (after[k] ?? 0), 0) - legendaryBefore === 2);
       check("Hardcore : une seule fois par jour", await rejects(startBattle(uid, `emperor:${HARDCORE_KEY}:normal`, false), /aujourd'hui|clé/));
     } else check("Hardcore perdu : clés conservées", ALL_KEYS.every((k) => after[k] === st[k]), "l'équipe de test n'a pas battu le Hardcore (voir l'équilibrage)");
+    // Forge : 3 ressources de l'empereur + 5 Éclats du Trône
+    check("Forge refusée sans assez de ressources", await rejects(forgeEmperorWeapon(uid, ids[0], "griffon"), /insuffisant/));
+    await prisma.resourceStock.upsert({ where: { userId_key: { userId: uid, key: DUNGEON_RESOURCE } }, create: { userId: uid, key: DUNGEON_RESOURCE, quantity: 5 }, update: { quantity: 5 } });
+    await prisma.resourceStock.upsert({ where: { userId_key: { userId: uid, key: "cheveux-roux-de-shanks" } }, create: { userId: uid, key: "cheveux-roux-de-shanks", quantity: 3 }, update: { quantity: 3 } });
+    check("Forge de Griffon", (await forgeEmperorWeapon(uid, ids[0], "griffon")) === "griffon" && (await prisma.card.findUniqueOrThrow({ where: { id: ids[0] } })).weaponKey === "griffon");
+    const left = await stock();
+    check("Forge : 3 cheveux et 5 éclats consommés", left["cheveux-roux-de-shanks"] === 0 && left[DUNGEON_RESOURCE] === 0, JSON.stringify([left["cheveux-roux-de-shanks"], left[DUNGEON_RESOURCE]]));
+    check("Une carte n'a qu'une arme", await rejects(forgeEmperorWeapon(uid, ids[0], "griffon"), /possède déjà/));
+    check("Arme inconnue refusée", await rejects(forgeEmperorWeapon(uid, ids[1], "excalibur"), /inconnue/));
     const replay = await getBattle(uid, first.id);
     check("Le combat est relisible", replay.status === "DONE" && replay.log.some((e) => e.kind === "wave"));
   } finally { await prisma.user.deleteMany({ where: { id: uid } }); }
