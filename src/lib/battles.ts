@@ -363,6 +363,27 @@ async function settleEmperor(tx: Prisma.TransactionClient, userId: string, oppon
   return { ...base, resources };
 }
 
+/** État du Défi des empereurs pour la page : par empereur, clé et ressource possédées, victoire du jour ; difficultés ouvertes. */
+export async function getEmperorState(userId: string, now = new Date()) {
+  const day = startOfDay(now);
+  const keys = [...ALL_KEYS, ...EMPERORS.map((e) => e.resource)];
+  const [{ tutorial, open }, stock, records, daily] = await Promise.all([
+    raidUnlocked(userId),
+    prisma.resourceStock.findMany({ where: { userId, key: { in: keys } } }),
+    prisma.adventureRecord.findMany({ where: { userId, key: { in: [...EMPERORS.map((e) => e.key), HARDCORE_KEY].map((k) => clearRecordKey(k, day)) } }, select: { key: true } }),
+    prisma.dailyGain.findUnique({ where: { userId_day_source: { userId, day, source: "RAID" } } }),
+  ]);
+  const owned = (key: string) => stock.find((s) => s.key === key)?.quantity ?? 0;
+  const cleared = (boss: string) => records.some((r) => r.key === clearRecordKey(boss, day));
+  return {
+    tutorial,
+    difficulties: DIFFICULTIES.map((d) => ({ key: d.key, name: d.name, mult: d.mult, unlocked: open.includes(d.key) })),
+    emperors: EMPERORS.map((e) => ({ key: e.key, name: e.name, blurb: e.blurb, characterId: e.characterId, keyName: e.keyName, keys: owned(e.keyResource), resource: e.resource, resourceName: e.resourceName, resources: owned(e.resource), clearedToday: cleared(e.key), weapon: e.weapon })),
+    hardcore: { keys: Math.min(...ALL_KEYS.map(owned)), clearedToday: cleared(HARDCORE_KEY) },
+    fullHeartsLeft: Math.max(0, DAILY_FULL_HEARTS - (daily?.units ?? 0)),
+  };
+}
+
 /** État du raid pour la page : boss de la semaine, difficultés ouvertes, meilleurs résultats, cœurs au taux plein restants. */
 export async function getRaidState(userId: string, now = new Date()) {
   const boss = bossOfWeek(now);
@@ -606,8 +627,11 @@ export async function getStoryRoster(userId: string) {
 
 /** Aperçu des ennemis d'un donjon ou d'un raid (la Tour garde les siens secrets) : lecture seule, sans contrôle d'accès, rien n'est créé. */
 export async function getBattlePreview(opponent: string) {
-  if (!parseDungeonKey(opponent) && !parseRaid(opponent)) throw new BattleError("Aperçu indisponible pour ce combat.");
-  const cards = await opponentCards(opponent);
+  const emperor = parseEmperorKey(opponent);
+  if (!parseDungeonKey(opponent) && !parseRaid(opponent) && !emperor) throw new BattleError("Aperçu indisponible pour ce combat.");
+  // Empereur : on montre la dernière vague (l'empereur et son escorte) ; Hardcore : les quatre empereurs
+  const foes = emperor ? await emperorFoes(emperor) : null;
+  const cards = foes ? (foes.waves.at(-1) ?? foes.first) : await opponentCards(opponent);
   const characters = await prisma.character.findMany({ where: { id: { in: cards.map((c) => c.characterId) } }, select: { id: true, name: true, imageUrl: true } });
   return cards.map((combat, i) => ({ ...characters.find((c) => c.id === combat.characterId)!, id: `${combat.characterId}-${i}`, combat }));
 }

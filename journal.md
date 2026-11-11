@@ -588,3 +588,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Noms provisoires des ressources : mèche de Big Mom, écaille de Kaido, moustache de Barbe Blanche (Shanks : cheveux roux, choisi par l'utilisateur).
 - `npm run check:emperor-raid` (22 vérifications, en conditions réelles sur la base).
 - Reste : forge des quatre armes, page du Défi, aperçu des ennemis, équilibrage.
+
+## 2026-11-11 — Empereurs, étape 4 : forge et page du Défi
+- Forge : `forgeEmperorWeapon` (3 ressources de l'empereur + 5 éclats du Trône, n'importe quelle carte 5★ sans arme) ; page `/forge` listant les quatre armes dédiées. Page `/raid/empereurs` (quatre empereurs, trois difficultés, Hardcore, résultats avec ressources gagnées), lien depuis `/raid`. Aperçu des ennemis (`getBattlePreview`) = dernière vague.
+- Validation : navigateur PC 1440 px et mobile 390 px, compte jetable (tutoriel fini, 4 UR 5★) : liste, préparation, combat à trois phases (équipage vu à l'écran), « Terminer », résultat, rechargement (« Vaincu aujourd'hui », clé et ressource affichées), pas de débordement mobile, aucune erreur JavaScript. Non vérifié : le changement de vague à l'écran image par image, le Hardcore à l'écran, la forge à l'écran (testée côté serveur), le site après push.
+- Écran de victoire : « Ennemis vaincus » compte maintenant toutes les vagues (12 / 12 au lieu de 12 / 4).
+- Équilibrage : équipage et empereurs utilisent les moyennes SR/SSR × échelle du raid ; à régler avec de vraies équipes.

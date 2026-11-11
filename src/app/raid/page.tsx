@@ -41,6 +41,7 @@ async function Raid() {
         <p className="vt-sub">
           Un monstre sorti d&apos;une brèche majeure, un par semaine. Tu es payé en <b>cœurs de brèche</b> selon la part de ses PV que tu retires, même en cas de défaite ; la victoire rapporte le plus. Ils servent aux étoiles 4 et 5. Ton équipe vient de la page <Link href="/equipe">Équipe</Link>.
         </p>
+        <p className="vt-sub"><Link href="/raid/empereurs">Défi des empereurs : Shanks, Big Mom, Kaido, Barbe Blanche, avec armes légendaires →</Link></p>
       </header>
       <RaidBoard
         boss={{ key: state.boss.key, name: state.boss.name, blurb: state.boss.blurb, type: state.boss.type, imageUrl: leader?.imageUrl ?? null, leaderName: leader?.name ?? null }}

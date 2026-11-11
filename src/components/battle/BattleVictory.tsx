@@ -59,7 +59,7 @@ export function BattleVictory({ log, rp, characters, names, end, stars }: {
             <div><dt>Dégâts infligés</dt><dd>{num.format(sum("A", "dealt"))}</dd></div>
             <div><dt>Dégâts subis</dt><dd>{num.format(sum("A", "taken"))}</dd></div>
             <div><dt>Soins</dt><dd>{num.format(sum("A", "healing"))}</dd></div>
-            <div><dt>Ennemis vaincus</dt><dd>{sum("A", "kos")} / {ids("B").length}</dd></div>
+            <div><dt>Ennemis vaincus</dt><dd>{sum("A", "kos")} / {ids("B").length * (1 + log.filter((e) => e.kind === "wave").length)}</dd></div>
             <div><dt>Tours</dt><dd>{end.rounds}</dd></div>
           </dl>
           {won && (
