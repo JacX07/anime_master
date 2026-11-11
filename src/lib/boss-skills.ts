@@ -13,8 +13,9 @@ const EMPERORS: Record<number, Pick<BattleCard, "basicAttack" | "spell" | "ultim
     startGauge: 100,
     ultimate: spell("Haki des rois", null, { k: "sleep", turns: 2, weaker: true }),
     spell: spell("Divine Departure", null, { k: "damage", mult: 2.1, zone: true, ignoreDef: 0.5 }),
-    // Critiques +30 %, dégâts critiques +50 %, ATK +50 %
-    tertiary: spell("Voix de l'empereur", null, { k: "mod", stat: "crit", amount: 0.3, turns: 3, to: "team" }, { k: "mod", stat: "critDamage", amount: 0.5, turns: 3, to: "team" }, { k: "mod", stat: "atk", amount: 0.5, turns: 3, to: "team" }),
+    // Duel : lui seul est atteignable par la cible désignée pendant 2 tours, et la Voix de l'empereur renforce son équipe
+    // (critiques +30 %, dégâts critiques +50 %, ATK +50 %)
+    tertiary: spell("Duel de l'empereur", "foe", { k: "duel", turns: 2 }, { k: "mod", stat: "crit", amount: 0.3, turns: 3, to: "team" }, { k: "mod", stat: "critDamage", amount: 0.5, turns: 3, to: "team" }, { k: "mod", stat: "atk", amount: 0.5, turns: 3, to: "team" }),
   },
   [EMPEROR_IDS.bigMom]: {
     // Pacte de l'âme dès le début ; le sort tertiaire est celui que l'avalé laisse

@@ -203,7 +203,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -352,14 +352,21 @@ interface Fx {
   turns: number;
   fresh: boolean;
   stacks?: number;
+  /** Duel : le seul ennemi qui peut encore atteindre le porteur */
+  foe?: UnitId;
 }
 const MALUS = new Set<string>(["sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
+/** Ennemis vivants que `u` peut atteindre : une carte en duel n'est atteignable que par son adversaire désigné. */
+const reachableFoes = (st: BattleState, u: Unit): Unit[] =>
+  alive(st, enemy(u.side)).filter((f) => !f.fx.some((x) => x.key === "duel" && x.foe && x.foe !== u.id));
+/** Tous les ennemis vivants sont en duel avec un autre : la carte ne peut atteindre personne et passe son tour. */
+const cutOffByDuel = (st: BattleState, u: Unit) => alive(st, enemy(u.side)).length > 0 && reachableFoes(st, u).length === 0;
 /** Ennemis qu'une attaque à cible unique peut viser : seuls les provocateurs vivants s'il y en a */
 const foesFor = (st: BattleState, u: Unit): Unit[] => {
-  const foes = alive(st, enemy(u.side));
+  const foes = reachableFoes(st, u);
   const taunters = foes.filter((f) => hasFx(f, "taunt"));
   return taunters.length ? taunters : foes;
 };
@@ -463,7 +470,7 @@ const DEATH_CAST = new Set([88572]);
 const unit = (st: BattleState, id: UnitId) => st.teams[id[0] as Side][Number(id.slice(1)) - 1];
 const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m));
 const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.hp / m.maxHp ? x : m));
-const strongestFoes = (st: BattleState, u: Unit, count: number) => alive(st, enemy(u.side)).sort((first, second) => second.atk - first.atk).slice(0, count);
+const strongestFoes = (st: BattleState, u: Unit, count: number) => reachableFoes(st, u).sort((first, second) => second.atk - first.atk).slice(0, count);
 
 export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, options: BattleOptions = {}): BattleState {
   const opts = { passive: true, franchise: true, combos: true, spells: true, gauge: false, elements: true, waves: [] as BattleCard[][], maxRounds: BATTLE.maxRounds, ...options, startingSide: options.startingSide ?? null };
@@ -601,7 +608,7 @@ function gaugeActor(st: BattleState): Unit | null {
       const u = ready[0];
       u.gauge -= GAUGE_THRESHOLD;
       st.gaugeActor = u.id;
-      if (hasFx(u, "stun") || hasFx(u, "sleep")) {
+      if (hasFx(u, "stun") || hasFx(u, "sleep") || cutOffByDuel(st, u)) {
         st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
         advanceCooldowns(u);
         finishUnitTurn(st, u);
@@ -734,6 +741,12 @@ function processDeaths(st: BattleState) {
           st.log.push({ kind: "heal", source: y.id, target: y.id, amount: gain, hp: y.hp });
         }
       }
+      // Fin du duel quand l'adversaire désigné tombe
+      for (const d of x.fx.filter((f) => f.key === "duel" && f.foe && unit(st, f.foe).hp <= 0)) {
+        x.fx = x.fx.filter((f) => f !== d);
+        st.log.push({ kind: "status", target: x.id, status: "duel", on: false });
+        changed = true;
+      }
       // Barbe Blanche : un allié qui tombe lui donne un bouclier
       if (x.hp <= 0 && !x.shieldTaken) {
         x.shieldTaken = true;
@@ -820,7 +833,7 @@ export function currentActor(st: BattleState): UnitView | null {
     }
     const u = st.teams[st.order[st.slot % 2]][Math.floor(st.slot / 2)];
     if (u && u.hp > 0) {
-      if (!hasFx(u, "stun") && !hasFx(u, "sleep")) return view(u);
+      if (!hasFx(u, "stun") && !hasFx(u, "sleep") && !cutOffByDuel(st, u)) return view(u);
       st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
       advanceCooldowns(u);
       finishUnitTurn(st, u);
@@ -1209,11 +1222,11 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     if (action.spell === "special") u.pIn = u.specialCd;
     if (action.spell === "tertiary") u.tIn = u.tertiaryCd;
     const who = (scope: Scope): Unit[] =>
-      scope === "self" ? [u] : scope === "team" ? alive(st, u.side) : scope === "foes" ? alive(st, enemy(u.side)) : target && target.hp > 0 ? [target] : [];
+      scope === "self" ? [u] : scope === "team" ? alive(st, u.side) : scope === "foes" ? reachableFoes(st, u) : target && target.hp > 0 ? [target] : [];
     for (const e of activeSpell!.effects) {
       switch (e.k) {
         case "damage": {
-          const foes = alive(st, enemy(u.side));
+          const foes = reachableFoes(st, u);
           // Chaîne (Kanmuru) : la cible choisie d'abord, puis tous les autres ennemis
           const targets = e.zone ? (e.ramp && target && target.hp > 0 ? [target, ...foes.filter((f) => f !== target)] : foes) : target ? [target] : [];
           let total = 0;
@@ -1252,6 +1265,14 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           // Haki des rois : seuls les ennemis à l'ATK plus faible que celle du lanceur s'endorment
           for (const foe of alive(st, enemy(u.side))) if (!e.weaker || foe.atk < u.atk) addFx(foe, "sleep", 0, e.turns);
           break;
+        case "duel": {
+          // Duel : la cible choisie est la seule à pouvoir atteindre le lanceur
+          if (!target || target.hp <= 0) break;
+          addFx(u, "duel", 0, e.turns);
+          const duel = u.fx.find((f) => f.key === "duel");
+          if (duel) duel.foe = target.id;
+          break;
+        }
         case "devour": {
           const foes = alive(st, enemy(u.side));
           if (!foes.length) break;
@@ -1336,7 +1357,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   } else {
     u.spellIn = u.cooldown;
     u.held = 0;
-    const foes = alive(st, enemy(u.side));
+    const foes = reachableFoes(st, u);
     const allies = alive(st, u.side);
     const t = u.card.type;
     if (t === "COMBAT") {

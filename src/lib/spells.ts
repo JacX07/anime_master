@@ -25,6 +25,8 @@ export type Effect =
   | { k: "stun"; turns: number; count: number }
   /** Endort les ennemis (leur coup les réveille) ; `weaker` : seulement ceux dont l'ATK est inférieure à celle du lanceur */
   | { k: "sleep"; turns: number; weaker?: boolean }
+  /** Duel : la cible choisie est la seule à pouvoir atteindre le lanceur, pendant `turns` actions du lanceur */
+  | { k: "duel"; turns: number }
   /** Marque un ennemi : sans `threshold` × PV max de dégâts avant l'échéance, il est avalé */
   | { k: "devour"; turns: number; threshold: number }
   | { k: "immune"; turns: number; to: Scope }
@@ -434,6 +436,7 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "silence": return `silence sur ${e.to === "foes" && e.count ? (e.count === 1 ? "l’ennemi à l’ATK la plus élevée" : `les ${e.count} ennemis à l’ATK la plus élevée`) : WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
     case "stun": return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
     case "sleep": return `endort ${e.weaker ? "les ennemis dont l'ATK est inférieure à celle du lanceur" : "tous les ennemis"} ${nx(e.turns)} ; un coup réveille ; sans effet sur les boss`;
+    case "duel": return `provoque un ennemi en duel : lui seul peut atteindre le lanceur, ${nx(e.turns)}`;
     case "devour": return `marque un ennemi : si l'équipe ne lui inflige pas ${pct(e.threshold)} de ses PV max d'ici ${nx(e.turns)}, il est avalé et le lanceur gagne un de ses sorts`;
     case "immune": return `immunité aux malus pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "purge": return `retire les malus de ${WHO[e.to]}`;

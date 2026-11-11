@@ -85,7 +85,25 @@ const ofKind = <K extends BattleEvent["kind"]>(log: BattleEvent[], kind: K) => l
     play(st, 120);
     for (const e of ofKind(evs(st), "status")) if (e.on && e.target === "B1") seen.add(e.status);
   }
-  check("Shanks : critique, dégâts critiques et ATK montent", seen.has("critUp") && seen.has("critDamageUp") && seen.has("atkUp"), [...seen].join(","));
+  check("Shanks : critique, dégâts critiques et ATK montent (Duel de l'empereur)", seen.has("critUp") && seen.has("critDamageUp") && seen.has("atkUp"), [...seen].join(","));
+}
+
+// Duel : seule la cible désignée peut atteindre Shanks pendant le duel
+{
+  let duels = 0, leaks = 0, ended = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const st = createBattle(team(4, { attack: 1500, defense: 1500 }), [boss(EMPEROR_IDS.shanks, { attack: 2500, defense: 6000 })], seededRandom(seed), { gauge: true });
+    play(st, 140);
+    let foe: string | null = null;
+    for (const e of st.log) {
+      if (e.kind === "action" && e.actor === "B1" && e.name === "Duel de l'empereur" && e.target) { foe = e.target; duels++; }
+      else if (e.kind === "status" && e.target === "B1" && e.status === "duel" && !e.on) { foe = null; ended++; }
+      else if (foe && e.kind === "damage" && e.target === "B1" && e.source.startsWith("A") && e.source !== foe) leaks++;
+    }
+  }
+  check("Duel : lancé par Shanks", duels > 5, `${duels} duels`);
+  check("Duel : personne d'autre que l'adversaire désigné ne l'atteint", leaks === 0, `${leaks} coups d'un autre ennemi`);
+  check("Duel : il prend fin", ended > 0, `${ended} fins`);
 }
 
 // Kaido : saignement en mode homme-bête, réduction sous 70 % de PV

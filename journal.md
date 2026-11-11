@@ -594,3 +594,7 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Validation : navigateur PC 1440 px et mobile 390 px, compte jetable (tutoriel fini, 4 UR 5★) : liste, préparation, combat à trois phases (équipage vu à l'écran), « Terminer », résultat, rechargement (« Vaincu aujourd'hui », clé et ressource affichées), pas de débordement mobile, aucune erreur JavaScript. Non vérifié : le changement de vague à l'écran image par image, le Hardcore à l'écran, la forge à l'écran (testée côté serveur), le site après push.
 - Écran de victoire : « Ennemis vaincus » compte maintenant toutes les vagues (12 / 12 au lieu de 12 / 4).
 - Équilibrage : équipage et empereurs utilisent les moyennes SR/SSR × échelle du raid ; à régler avec de vraies équipes.
+
+## 2026-11-11 — Shanks : Duel de l'empereur
+- Nouveau statut `duel` et effet de sort `{ k: "duel", turns }` : le lanceur n'est atteignable que par l'ennemi désigné (`reachableFoes`) ; les autres ennemis passent leur tour s'ils n'ont personne d'autre à viser (`cutOffByDuel`). Fin du duel si l'adversaire tombe. Fusionné avec la Voix de l'empereur dans le sort tertiaire de Shanks (pas de quatrième emplacement de sort).
+- Piège corrigé : un premier essai avec repli « atteindre quand même si personne n'est atteignable » faisait fuir les coups contre un boss seul ; il faut faire passer le tour.

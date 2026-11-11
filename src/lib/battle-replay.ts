@@ -78,6 +78,7 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   speedUp: { label: "Vitesse +", glyph: "↟", help: "Sa jauge se remplit plus vite, jusqu'à +60 %.", bad: false },
   speedDown: { label: "Vitesse −", glyph: "↡", help: "Sa jauge se remplit moins vite, jusqu'à −60 %.", bad: true },
   silence: { label: "Silence", glyph: "✕", help: "Ne peut lancer que son sort de base.", bad: true },
+  duel: { label: "En duel", glyph: "⚔", help: "Seul son adversaire désigné peut l'atteindre.", bad: false },
   sleep: { label: "Endormi", glyph: "z", help: "Ne peut pas agir ; un coup reçu le réveille.", bad: true },
   devour: { label: "Marqué", glyph: "◉", help: "Sera avalé à l'échéance si l'équipe ne lui inflige pas assez de dégâts.", bad: true },
   fear: { label: "Peur", glyph: "☠", help: "Chaque coup de cette carte peut rater (une chance sur quatre) pendant la peur.", bad: true },

@@ -52,7 +52,7 @@ Chaque empereur est une carte de boss avec les stats du raid (échelle de diffic
 ### Shanks
 - **Haki des rois** (passif, début du combat) : tous les personnages dont l'ATK est inférieure à celle de Shanks sont **endormis** (2 tours, brisé par un coup subi).
 - **Divine Departure** : frappe tous les ennemis à **2,1× ATK**, en **ignorant 50 % de la DEF**.
-- **Voix de l'empereur** : renforce son équipe pour 3 tours : **+30 % de taux critique, +50 % de dégâts critiques, +50 % d'ATK**.
+- **Duel de l'empereur** *(décidé le 2026-11-11)* : défie un ennemi en **duel pendant 2 tours** : lui seul peut atteindre Shanks (les autres ennemis, y compris les attaques de zone, ne le touchent pas et passent leur tour s'ils n'ont personne d'autre à viser). Le duel s'arrête si l'ennemi désigné tombe. Ce sort contient aussi la **Voix de l'empereur** : son équipe gagne 3 tours de **+30 % de taux critique, +50 % de dégâts critiques, +50 % d'ATK**.
 
 ### Big Mom
 - **Pacte de l'âme** (début du combat) : marque un ennemi. Après **2 tours** elle le **dévore**, sauf si l'équipe **inflige à Big Mom** au moins **40 % des PV maximum de la marquée** en dégâts d'ici là (la marquée est alors libérée ; si Big Mom meurt, elle l'est aussi). Si elle l'avale, elle gagne **un de ses sorts**.
