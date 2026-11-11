@@ -13,27 +13,30 @@ Mode de raid permanent : les **quatre empereurs** (Shanks, Big Mom, Kaido, Barbe
 - **Quatre armes**, chacune liée à un empereur (ci-dessous). Une seule des quatre est détaillée côté recette : l'épée de Shanks.
 
 ## Armes légendaires des empereurs
-Armes dédiées, en plus des cinq armes génériques de `weapons.ts` (une par type). Comme elles, elles ne se portent que sur une carte éveillée à 5 étoiles *(à confirmer : sur n'importe quel perso, ou seulement sur le personnage de l'empereur)*.
+Armes dédiées, en plus des cinq armes génériques de `weapons.ts` (une par type). Comme elles, elles se portent sur **n'importe quelle carte éveillée à 5 étoiles** *(décidé le 2026-11-11)*.
 
 | Arme | Empereur | Stats de base | Effet spécial débloqué |
 |---|---|---|---|
-| **Épée de Shanks** | Shanks | ATK, vitesse | **Haki des rois** : chaque adversaire touché reçoit **Peur** pendant 1 tour (il a **1 chance sur 4 de rater** son coup). |
+| **Griffon** (épée de Shanks) | Shanks | ATK, vitesse | **Haki des rois** : chaque adversaire touché reçoit **Peur** pendant 1 tour (il a **1 chance sur 4 de rater** son coup). |
 | **Murakumogiri** | Barbe Blanche | ATK, compétence physique | Chaque coup physique a **50 % de chances d'être doublé**. |
 | **Hassaikai** (massue) | Kaido | DEF, réduction des dégâts subis de 10 % | Chaque attaque de base reçue **réduit les dégâts reçus de 10 %** de plus, cumulable jusqu'à **30 %**. |
 | **Napoléon** | Big Mom | ATK, compétence magique | **Zeus et Prométhée** : les dégâts des sorts de **foudre** et de **feu** sont **doublés** ; les sorts des autres éléments appliquent **à la fois** les effets de foudre et de feu. |
 
-### Recette de l'épée de Shanks *(décidée)*
+### Recette de Griffon, l'épée de Shanks *(décidée)*
 - **3 cheveux roux de Shanks** (ressource légendaire du raid) et **5 ressources de donjon One Piece**.
 - La ressource de donjon ne tombe qu'au **niveau 10** du donjon One Piece, avec **10 %** de chance par victoire (change l'actuel butin du donjon, voir [lot-6-donjons-sets.md](lot-6-donjons-sets.md)).
-- Recettes des trois autres armes : **à proposer** (même forme : *n* ressource d'empereur + *m* ressources de donjon One Piece de niveau 10).
+- **Même recette pour les quatre armes** : 3 ressources de l'empereur + 5 ressources de donjon One Piece de niveau 10.
+- **Stats de base** : mêmes valeurs que les armes génériques (`WEAPON_STAT`, +10 %) sur les deux statistiques indiquées (Hassaikai : DEF et réduction de dégâts de 10 %).
 
-## Questions ouvertes
-- **Porteur** des armes dédiées : n'importe quelle carte 5★, ou seulement le personnage correspondant ?
-- **Valeurs** : montant des « stats de base » (ex. +10 % ATK et +10 % vitesse, comme `WEAPON_STAT`), et recettes des trois autres armes.
-- **Hardcore** : une fois par jour ? Un niveau de difficulté propre ? Butin autre que 2 ressources légendaires (cœurs de brèche ?).
-- **Énergie** : un passage ou un Hardcore coûte-t-il de l'énergie (comme histoire et donjons) ou rien (comme les raids actuels) ?
-- **Cœurs de brèche** et plafond quotidien : les passages en donnent-ils comme le raid actuel ?
-- **Clés** : consommées à chaque Hardcore ? (supposé oui, une de chaque)
+## Réponses du 2026-11-11
+- **Porteur** : toute carte 5★. **Valeurs et recettes** : identiques pour les quatre armes (ci-dessus).
+- **Hardcore** : **une fois par jour**, **difficulté propre**, butin en plus des deux ressources légendaires (cœurs de brèche).
+- **Énergie et cœurs** : un passage (et le Hardcore) coûte **1 énergie** (rendue en cas de défaite, comme histoire et donjons) et donne des **cœurs de brèche** selon les règles du raid.
+- **Clés** : un Hardcore consomme **une clé de chaque** empereur.
+
+## Reste à fixer à l'implémentation
+- Montant des cœurs de brèche des passages et du Hardcore, et difficulté du Hardcore (échelle des stats).
+- Condition exacte de libération de la marque de Big Mom (40 % des PV max proposés).
 
 ## Mécaniques à ajouter au moteur
 | Mécanique | Description |
