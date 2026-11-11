@@ -441,6 +441,10 @@ Histoire, Tour, donjons et raids ouvrent le même écran avant le combat (`src/c
 - **Effets de sorts** (bouton du lecteur, et case « Rejouer sans effets de sorts » sur l'écran de fin de l'histoire et des donjons) : désactivés, le combat se joue quand même à l'écran (cartes, PV, dégâts) sans les effets visuels des sorts, deux fois plus vite. Réglage gardé dans le navigateur (`bt-fx`). En donjon, cette préférence ne s’applique qu’aux difficultés déjà vaincues avant le lancement. Le serveur fige cette autorisation dans la copie du combat : les premières tentatives gardent les effets actifs et le bouton verrouillé, même après le rafraîchissement de progression. Une première défaite ne débloque pas la case de rejeu ; une victoire la débloque pour cette difficulté seulement.
 - **Rejouer** lance un nouveau combat : mêmes ennemis et même composition, nouveau tirage aléatoire (dégâts, critiques, esquives). Pas de boucle automatique ni de combat éclair.
 
+## Quitter un combat *(v0.3.0, révisé le 2026-11-11 : « ça ne doit jamais abandonner »)*
+- Quitter la page, fermer l'onglet, changer d'onglet ou cliquer sur la **croix** n'abandonne plus : l'automatique joue le combat jusqu'au bout côté serveur, victoire et butin compris. En manuel, un onglet masqué plus de 15 secondes passe en automatique.
+- Seul le bouton **Abandonner** (avec confirmation) compte le combat comme perdu. Un combat laissé ouvert est terminé par l'automatique au prochain lancement du même mode (et jamais abandonné), ou abandonné seulement après 24 h.
+
 ## Combat laissé en Auto *(v0.3.0)*
 - Le réglage Auto est mémorisé sur le combat en cours (`teams.auto`). Si le joueur quitte la page sans l'abandonner (autre page, fermeture), le combat reste ouvert ; au prochain lancement du même mode (histoire, Tour, donjon, raid), le serveur le **joue jusqu'au bout** avec la stratégie automatique, récompenses comprises, au lieu de l'abandonner. Quitter par la croix reste un abandon volontaire.
 - En quittant par changement de page sans rechargement, le client demande aussi la fin immédiate.

@@ -998,11 +998,10 @@ export async function setBattleAuto(userId: string, battleId: string, auto: bool
   await prisma.battle.updateMany({ where: { id: row.id, status: "RUNNING" }, data: { teams: toJson({ ...teams, auto }) } });
 }
 
-/** Combats laissés ouverts en mode Auto : la stratégie automatique les joue jusqu'au bout (récompenses comprises) au lieu de les abandonner. */
+/** Combats laissés ouverts (page quittée, onglet fermé, croix) : la stratégie automatique les joue jusqu'au bout, récompenses comprises, au lieu de les abandonner. */
 export async function finishAutoBattles(userId: string, mode: BattleMode, now = new Date()) {
-  const open = await prisma.battle.findMany({ where: { userId, manual: true, status: "RUNNING", mode }, select: { id: true, teams: true } });
+  const open = await prisma.battle.findMany({ where: { userId, manual: true, status: "RUNNING", mode }, select: { id: true } });
   for (const row of open) {
-    if (!(row.teams as unknown as BattleTeams).auto) continue;
     try { await playAction(userId, row.id, null, now, undefined, true); } catch { /* terminé ailleurs entre-temps */ }
   }
 }

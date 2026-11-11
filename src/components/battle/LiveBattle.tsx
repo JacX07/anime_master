@@ -84,25 +84,30 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
   const finishRef = useRef(finish);
   useEffect(() => { finishRef.current = finish; });
 
-  // Le jeu continue quand on change d'onglet : en auto, l'onglet masqué termine le combat côté serveur (les minuteries y sont ralenties)
+  // Le jeu continue quand on change d'onglet (les minuteries y sont ralenties) : en auto, l'onglet masqué termine le combat côté serveur tout de suite ;
+  // en manuel, après 15 secondes sans revenir, l'automatique prend le relais. Dans les deux cas rien n'est abandonné.
   useEffect(() => {
     // Combat déjà résolu (lancé en auto) : on saute simplement l'animation
     const hurry = () => (statusRef.current === "RUNNING" ? finishRef.current() : setSkipNonce((n) => n + 1));
-    const onHide = () => { if (document.hidden && auto) hurry(); };
-    if (document.hidden && auto) hurry();
-    document.addEventListener("visibilitychange", onHide);
-    return () => document.removeEventListener("visibilitychange", onHide);
+    let waiting: ReturnType<typeof setTimeout> | undefined;
+    const onVisibility = () => {
+      clearTimeout(waiting);
+      if (!document.hidden) return;
+      if (auto) hurry();
+      else waiting = setTimeout(() => { if (document.hidden) hurry(); }, 15_000);
+    };
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { clearTimeout(waiting); document.removeEventListener("visibilitychange", onVisibility); };
   }, [auto]);
 
-  // Quitter la page en auto (autre page, fermeture) : le combat se termine côté serveur au lieu de rester ouvert puis d'être abandonné.
-  const autoRef = useRef(auto);
+  // Quitter la page (autre page, fermeture, croix) : le combat se termine côté serveur au lieu d'être abandonné.
   const leaving = useRef(false);
   const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => { autoRef.current = auto; });
   useEffect(() => { clearTimeout(leaveTimer.current); }, [view.id]);
   useEffect(() => {
     const finishOnLeave = () => {
-      if (leaving.current || !autoRef.current || statusRef.current !== "RUNNING") return;
+      if (leaving.current || statusRef.current !== "RUNNING") return;
       leaving.current = true;
       void finishAutoAction(view.id, stepsRef.current);
     };
@@ -116,6 +121,14 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
 
   const play = (spell: Spell, target: UnitId | null) => send(() => playActionAction(view.id, { spell, target }, view.steps));
   const autoStep = () => send(() => playAutoAction(view.id, view.steps));
+
+  // Croix : on quitte l'écran sans abandonner ; l'automatique termine le combat (victoire et butin possibles)
+  const leaveRunning = (then?: () => void) =>
+    start(async () => {
+      leaving.current = true;
+      await finishAutoAction(view.id, stepsRef.current);
+      then?.();
+    });
 
   const abandon = (then?: () => void) =>
     start(async () => {
@@ -147,7 +160,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
       names={names}
       title={title}
       exitHref={exitHref}
-      onExit={onExit ? () => (abandonOnExit && running ? abandon(onExit) : onExit()) : undefined}
+      onExit={onExit ? () => (abandonOnExit && running ? leaveRunning(onExit) : onExit()) : undefined}
       onEnd={onEnd ? () => onEnd(view) : undefined}
       onNext={onNext}
       endExtra={renderEnd ? renderEnd(view) : undefined}
