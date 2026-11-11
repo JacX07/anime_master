@@ -2,7 +2,7 @@
 // Usage : npm run check:emperor-raid (Node 24)
 import { BattleError, getBattle, setAttackTeam, startBattle } from "../src/lib/battles";
 import { prisma } from "../src/lib/db";
-import { ALL_KEYS, ALL_LEGENDARY_RESOURCES, EMPERORS, HARDCORE_KEY, emperorKey, legendaryAmount, hardcoreDrops } from "../src/lib/emperors";
+import { ALL_KEYS, ALL_LEGENDARY_RESOURCES, EMPEROR_TUNING, EMPERORS, HARDCORE_KEY, emperorKey, legendaryAmount, hardcoreDrops } from "../src/lib/emperors";
 import { seededRandom } from "../src/lib/battle";
 import { DUNGEON_RESOURCE } from "../src/lib/dungeons";
 import { forgeEmperorWeapon } from "../src/lib/forge";
@@ -13,6 +13,9 @@ function check(label: string, ok: boolean, detail = "") { if (!ok) failures++; c
 const rejects = (p: Promise<unknown>, re?: RegExp) => p.then(() => false, (e) => e instanceof BattleError && (!re || re.test(e.message)));
 
 async function main() {
+  // Ces vérifications portent sur le butin et les accès, pas sur la difficulté : ennemis faibles (la difficulté réelle est simulée par simulate-emperors.ts)
+  Object.assign(EMPEROR_TUNING.scale, { normal: 0.4, difficile: 0.5, cauchemar: 0.6 });
+  EMPEROR_TUNING.hardcore = 0.4;
   // Règles pures
   const rand = seededRandom(7);
   const amounts = (d: string) => Array.from({ length: 400 }, () => legendaryAmount(d, rand));

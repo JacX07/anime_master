@@ -57,8 +57,23 @@ export const EMPEROR_RECIPE = { legendary: 3, dungeon: 5 };
 export const DUNGEON_MATERIAL_CHANCE = 0.1;
 export const DUNGEON_MATERIAL_LEVEL = 10;
 
-/** Le Hardcore affronte les quatre empereurs ensemble ; leurs stats sont réduites pour rester jouables. */
-export const HARDCORE_SCALE = 0.55;
+
+/**
+ * Réglages d'équilibrage du Défi (simulés par `scripts/simulate-emperors.ts`) : échelle de chaque difficulté, puis coefficients
+ * de l'équipage (vague 1 et 2, en SR et SSR) et de l'empereur (en SSR), tous multipliés par l'échelle de la difficulté.
+ */
+export const EMPEROR_TUNING = {
+  // Simulé le 2026-11-11 (équipes de 4 UR 5★ avec arme, `npm run simulate:emperors`) : avec un équipement fort, environ 55 % de victoires
+  // au Normal, 10 % au Difficile et 1 à 3 % au Cauchemar ; avec un équipement moyen, 5 à 20 % au Normal et presque rien au-delà.
+  scale: { normal: 2.5, difficile: 3.2, cauchemar: 3.7 } as Record<string, number>,
+  crew1: 0.9,
+  crew2: 1,
+  boss: 1.76,
+  /** Coefficient propre à chaque empereur (leurs kits n'ont pas le même poids) */
+  emperor: { shanks: 1, "big-mom": 1.12, kaido: 1.12, "barbe-blanche": 1.08 } as Record<string, number>,
+  /** Le Hardcore affronte les quatre empereurs ensemble : leurs stats sont réduites pour rester jouables (le plus dur des modes). */
+  hardcore: 0.58,
+};
 
 export type EmperorTarget = { kind: "emperor"; emperor: Emperor; difficulty: RaidDifficulty } | { kind: "hardcore"; difficulty: RaidDifficulty };
 

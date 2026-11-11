@@ -76,3 +76,16 @@ Les quatre empereurs ensemble gardent leurs kits ; leurs stats sont réduites (e
 - Clés et ressources légendaires : `ResourceStock` (`cle-<empereur>` et une ressource par empereur, ex. `cheveux-roux-de-shanks`).
 - Passage : un `Battle` en mode `RAID` (`raid:emperor:<boss>:<difficulté>`) à trois phases ; passage du jour mémorisé par empereur.
 - Armes dédiées : nouvelles entrées de `WEAPONS`, avec stats de base propres et passifs dédiés (peur, doublement, réduction cumulable, foudre/feu).
+
+## Équilibrage *(2026-11-11 : « les boss doivent être vraiment durs »)*
+Réglages dans `EMPEROR_TUNING` (`src/lib/emperors.ts`), mesurés avec `npm run simulate:emperors` : équipes de 4 UR 5★ avec arme, 60 à 100 combats par case, personnages tirés au hasard (un joueur qui choisit ses personnages fait mieux). « Équipement moyen » = quatre pièces UR non améliorées ; « fort » = pièces améliorées (hypothèse à recaler sur le jeu réel).
+
+| Équipe | Normal | Difficile | Cauchemar |
+|---|---|---|---|
+| 4 UR 5★ + équipement fort | 55 à 60 % | 6 à 13 % | 1 à 3 % |
+| 4 UR 5★ + équipement moyen | 5 à 20 % | 0 % | 0 à 3 % |
+| 4 SSR 5★ avec arme, sans équipement | ~0 % | 0 % | 0 % |
+| Hardcore (équipement fort) | 27 % | 0 % | 0 % |
+
+- Échelle des difficultés : 2,5 / 3,2 / 3,7 (contre 0,85 / 1,15 / 1,5 au raid de la semaine). Coefficients par empereur : Shanks 1, Big Mom 1,12, Kaido 1,12, Barbe Blanche 1,08. Hardcore : stats × 0,58 par empereur.
+- À surveiller : si le Cauchemar est jugé impossible, remonter l'échelle de 3,7 vers 3,3 ; si le Normal est trop facile pour les joueurs outillés, la monter. Les chiffres réels dépendent des équipements des joueurs (à relire après une semaine de jeu).

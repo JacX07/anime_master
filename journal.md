@@ -598,3 +598,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 ## 2026-11-11 — Shanks : Duel de l'empereur
 - Nouveau statut `duel` et effet de sort `{ k: "duel", turns }` : le lanceur n'est atteignable que par l'ennemi désigné (`reachableFoes`) ; les autres ennemis passent leur tour s'ils n'ont personne d'autre à viser (`cutOffByDuel`). Fin du duel si l'adversaire tombe. Fusionné avec la Voix de l'empereur dans le sort tertiaire de Shanks (pas de quatrième emplacement de sort).
 - Piège corrigé : un premier essai avec repli « atteindre quand même si personne n'est atteignable » faisait fuir les coups contre un boss seul ; il faut faire passer le tour.
+
+## 2026-11-11 — Empereurs : équilibrage « vraiment dur »
+- Avant : avec les réglages du raid (échelle 0,85 / 1,15 / 1,5), quatre UR 5★ sans équipement battaient les quatre empereurs à 78-100 % au Normal et 75-100 % au Cauchemar. Après : échelle 2,5 / 3,2 / 3,7, coefficients par empereur, Hardcore ×0,58 (voir la spec).
+- Outil : `npm run simulate:emperors` avec `--scale`, `--per`, `--boss`, `--crew1`, `--crew2`, `--hardcore-scale`, `--teams`, `--bosses`, `--hardcore`.
+- `check:emperor-raid` fixe des ennemis faibles pour tester butin et accès (la difficulté réelle est simulée à part).
+- Hypothèse : le niveau d'équipement des joueurs (moyen / fort) est estimé à la main ; à recaler quand on aura de vraies données.

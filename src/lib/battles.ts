@@ -1,6 +1,6 @@
 import { combatPowers } from "./combat-power";
 import { budgetMessage, overBudget, RARITY_COST, TEAM_BUDGET } from "./team-budget";
-import { ALL_KEYS, clearRecordKey, DUNGEON_MATERIAL_CHANCE, DUNGEON_MATERIAL_LEVEL, EMPERORS, HARDCORE_KEY, HARDCORE_SCALE, hardcoreDrops, legendaryAmount, parseEmperorKey, type EmperorTarget } from "./emperors";
+import { EMPEROR_TUNING, ALL_KEYS, clearRecordKey, DUNGEON_MATERIAL_CHANCE, DUNGEON_MATERIAL_LEVEL, EMPERORS, HARDCORE_KEY, hardcoreDrops, legendaryAmount, parseEmperorKey, type EmperorTarget } from "./emperors";
 import { track } from "./events";
 import { sumArtifactStats } from "./artifact-stats";
 import { adventureLock } from "./adventure-state";
@@ -303,7 +303,7 @@ async function raidProgress(tx: Prisma.TransactionClient, userId: string, bossKe
 // ── Défi des empereurs : ennemis, accès et butin ─────────────────────────────
 
 /** Équipage (deux vagues) puis l'empereur ; ou les quatre empereurs ensemble pour le Hardcore. Stats = moyenne de la rareté × échelle de la difficulté. */
-async function emperorFoes(target: EmperorTarget): Promise<{ first: BattleCard[]; waves: BattleCard[][] }> {
+export async function emperorFoes(target: EmperorTarget): Promise<{ first: BattleCard[]; waves: BattleCard[][] }> {
   const means = await meanStats();
   const ids = target.kind === "emperor" ? [...target.emperor.crew.flat(), target.emperor.characterId] : EMPERORS.map((e) => e.characterId);
   const rows = await prisma.character.findMany({ where: { id: { in: ids }, disabled: false }, select: CHARACTER_SELECT });
@@ -313,13 +313,13 @@ async function emperorFoes(target: EmperorTarget): Promise<{ first: BattleCard[]
     const m = means[rarity];
     return { ...toBattleCard(row(id)), rarity, franchiseId: null, attack: Math.round(m.attack * k), defense: Math.round(m.defense * k), ...(isBoss ? { boss: true, speed: 100 } : {}) };
   };
-  const s = target.difficulty.scale;
-  const bossK = s * RAID_BOSS_BONUS * 1.1;
-  if (target.kind === "hardcore") return { first: EMPERORS.map((e) => mk(e.characterId, "SSR", bossK * HARDCORE_SCALE, true)), waves: [] };
+  const s = (EMPEROR_TUNING.scale[target.difficulty.key] ?? target.difficulty.scale) * (target.kind === "emperor" ? EMPEROR_TUNING.emperor[target.emperor.key] ?? 1 : 1);
+  const bossK = s * EMPEROR_TUNING.boss;
+  if (target.kind === "hardcore") return { first: EMPERORS.map((e) => mk(e.characterId, "SSR", bossK * EMPEROR_TUNING.hardcore, true)), waves: [] };
   const { crew, characterId } = target.emperor;
   return {
-    first: crew[0].map((id) => mk(id, "SR", s * 0.9, false)),
-    waves: [crew[1].map((id) => mk(id, "SSR", s, false)), [...crew[0].slice(0, 3).map((id) => mk(id, "SR", s * 0.9, false)), mk(characterId, "SSR", bossK, true)]],
+    first: crew[0].map((id) => mk(id, "SR", s * EMPEROR_TUNING.crew1, false)),
+    waves: [crew[1].map((id) => mk(id, "SSR", s * EMPEROR_TUNING.crew2, false)), [...crew[0].slice(0, 3).map((id) => mk(id, "SR", s * EMPEROR_TUNING.crew1, false)), mk(characterId, "SSR", bossK, true)]],
   };
 }
 
