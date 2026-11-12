@@ -92,3 +92,6 @@ Réglages dans `EMPEROR_TUNING` (`src/lib/emperors.ts`), mesurés avec `npm run 
 
 ## Le raid = le Défi des empereurs (2026-11-12)
 Le boss hebdomadaire (La Reine des Éclats) n'est plus proposé : `/raid` redirige vers `/raid/empereurs`. Les cœurs de brèche (éveil étoiles 4 et 5, forge) viennent des empereurs (même plafond quotidien de cœurs au taux plein). Une victoire d'empereur valide la quête « première victoire de raid ». Le code du boss hebdo (`RaidBoard`, `getRaidState`) est conservé, inutilisé.
+
+## Forge en sous-onglet de l'Inventaire (2026-11-12)
+Inventaire a trois sous-onglets : Objets, Éveil, Forge (`InventoryTabs`). La forge liste chaque recette avec « possédé / requis » (en rouge s'il en manque) : arme de type = 20 ressources d'arme de boss final + 50 cœurs de brèche ; arme d'empereur = 3 ressources de l'empereur + 5 Éclats du Trône. Images des quatre armes (`public/images/weapons/`) et icônes **provisoires** dessinées pour les quatre ressources d'empereur (`public/images/materials/`), à remplacer.

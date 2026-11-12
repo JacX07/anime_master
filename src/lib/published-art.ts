@@ -13,6 +13,16 @@ export const MATERIAL_ART: Readonly<Record<string, string>> = {
   "materiau-donjon-one-piece": "/images/materials/materiau-donjon-one-piece.webp", // Éclat du Trône
   "metal-a-chakra": "/images/materials/metal-a-chakra.webp",
   "outil-maudit": "/images/materials/outil-maudit.webp",
+  // Ressources légendaires des empereurs : icônes provisoires dessinées, à remplacer par des illustrations
+  "cheveux-roux-de-shanks": "/images/materials/cheveux-roux-de-shanks.webp",
+  "meche-de-big-mom": "/images/materials/meche-de-big-mom.webp",
+  "ecaille-de-kaido": "/images/materials/ecaille-de-kaido.webp",
+  "moustache-de-barbe-blanche": "/images/materials/moustache-de-barbe-blanche.webp",
+  // Armes légendaires des empereurs (clés d'arme)
+  griffon: "/images/weapons/griffon.webp",
+  napoleon: "/images/weapons/napoleon.webp",
+  hassaikai: "/images/weapons/hassaikai.webp",
+  murakumogiri: "/images/weapons/murakumogiri.webp",
 };
 export function publishedResources() {
   const resources: Record<string, string> = {};

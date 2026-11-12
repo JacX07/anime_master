@@ -2,6 +2,7 @@ import { getPlayerInventory } from "@/lib/player-inventory";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { requireUser } from "@/lib/session";
+import { InventoryTabs } from "@/components/InventoryTabs";
 import { InventoryGrid } from "./InventoryGrid";
 import "./inventory-grid.css";
 
@@ -9,6 +10,7 @@ export const metadata: Metadata = { title: "Inventaire — Anime Masters", robot
 
 export default function InventoryPage() {
   return <main className="vt inventory-page"><div className="vt-inner">
+    <InventoryTabs current="/inventaire" />
     <Suspense fallback={<p className="vt-muted">Ouverture de l’inventaire…</p>}><Items /></Suspense>
   </div></main>;
 }

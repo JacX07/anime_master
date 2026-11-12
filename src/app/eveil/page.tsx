@@ -5,6 +5,7 @@ import { awakenCost, duplicateHelps, universeOfFranchise } from "@/lib/awakening
 import { duplicateWhere } from "@/lib/awaken";
 import { RESOURCE_NAMES } from "@/lib/story";
 import { requireUser } from "@/lib/session";
+import { InventoryTabs } from "@/components/InventoryTabs";
 import { AwakenList, type AwakenRow } from "./AwakenList";
 import "../inventaire/inventaire.css";
 
@@ -14,6 +15,7 @@ export default function AwakenPage() {
   return (
     <main className="vt">
       <div className="vt-inner">
+        <InventoryTabs current="/eveil" />
         <header className="pg-head">
           <h1 className="vt-title">Éveil</h1>
           <p className="vt-sub">
