@@ -95,3 +95,6 @@ Le boss hebdomadaire (La Reine des Éclats) n'est plus proposé : `/raid` rediri
 
 ## Forge en sous-onglet de l'Inventaire (2026-11-12)
 Inventaire a trois sous-onglets : Objets, Éveil, Forge (`InventoryTabs`). La forge liste chaque recette avec « possédé / requis » (en rouge s'il en manque) : arme de type = 20 ressources d'arme de boss final + 50 cœurs de brèche ; arme d'empereur = 3 ressources de l'empereur + 5 Éclats du Trône. Images des quatre armes (`public/images/weapons/`) et icônes **provisoires** dessinées pour les quatre ressources d'empereur (`public/images/materials/`), à remplacer.
+
+## Forge en carrousel (2026-11-12)
+La forge n'affiche qu'une arme légendaire d'empereur en grand ; flèches (ou ← →) et vignettes pour changer, transition de glissement. La recette (ressources possédées / requises) est affichée une seule fois, sous l'arme, avec la carte 5★ à équiper. Les armes « de type » (Boussole, Lame de la Brèche, Voile d'ombre…) ne sont plus proposées dans l'interface de forge (l'action serveur existe toujours). Images fournies par l'utilisateur pour les armes, le cœur de brèche et les quatre ressources d'empereur.
