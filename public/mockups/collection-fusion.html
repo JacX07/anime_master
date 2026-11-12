@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — Collection fusionnée</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0e0f;--panel:#111514;--panel2:#161b1a;--gold:#c4a76d;--gold-l:#d5bb7f;--txt:#e9e4d8;--muted:#8d8b84;--UR:#ff3b4a;--SSR:#f59e0b;--SR:#a855f7;--R:#38bdf8;--N:#94a3b8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1000px 500px at 60% -10%,#1d1a12,transparent 60%),var(--bg);color:var(--txt);font:400 14px/1.5 "DM Sans",sans-serif}
+h1,h2,b.c{font-family:Cinzel,serif;font-weight:500;margin:0}
+.note{max-width:1500px;margin:0 auto;padding:14px 16px 0;color:var(--gold);font-size:12px;letter-spacing:.08em}
+.layout{max-width:1500px;margin:0 auto;padding:12px 16px 60px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:24px;align-items:start}
+/* --- colonne des collections --- */
+aside{position:sticky;top:12px;max-height:calc(100vh - 24px);display:flex;flex-direction:column;background:#101413e6;border-radius:10px;overflow:hidden}
+aside .head{padding:14px 14px 10px}
+aside .head h2{font-size:15px;letter-spacing:.04em;color:var(--gold-l)}
+aside .head input{width:100%;margin-top:10px;padding:8px 10px;border:0;border-radius:6px;background:#0b0e0f;color:var(--txt);font:inherit}
+aside .sorts{display:flex;gap:10px;padding:0 14px 8px;font-size:11px;color:var(--muted)}
+aside .sorts button{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:2px 0}
+aside .sorts button[aria-pressed=true]{color:var(--gold-l);box-shadow:inset 0 -1px var(--gold-l)}
+aside ul{list-style:none;margin:0;padding:4px 8px 10px;overflow:auto;scrollbar-width:thin}
+aside li button{width:100%;display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;padding:7px 8px;border:0;border-radius:8px;background:none;color:var(--txt);text-align:left;font:inherit;cursor:pointer;transition:background .2s,transform .2s}
+aside li button:hover{background:#1a201e;transform:translateX(2px)}
+aside li button[aria-current=true]{background:linear-gradient(90deg,#2a2416,#161b1a);box-shadow:inset 2px 0 var(--gold-l)}
+aside li img,aside li .all{width:38px;height:50px;border-radius:5px;object-fit:cover;background:#1a201e}
+aside li .all{display:grid;place-items:center;font:600 18px Cinzel;color:var(--gold-l)}
+aside li .t{font-size:13px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+aside li .bar{height:3px;border-radius:2px;background:#262c2a;margin-top:5px;overflow:hidden}
+aside li .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l))}
+aside li .k{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+aside li .done .k{color:#8fd19e}
+/* --- contenu --- */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:6px 0 12px}
+.top h1{font-size:clamp(22px,2.2vw,30px)}
+.top .sub{color:var(--muted);font-size:13px}
+.top .stat{margin-left:auto;font-size:12px;color:var(--muted)}.top .stat b{font:600 22px Cinzel;color:var(--gold-l);margin-right:6px}
+.banner{position:relative;height:120px;border-radius:10px;overflow:hidden;margin-bottom:12px;display:none}
+.banner.on{display:block;animation:fade .4s}
+.banner .bg{position:absolute;inset:-20px;background-size:cover;background-position:center 30%;filter:blur(14px) brightness(.45)}
+.banner .in{position:relative;display:flex;gap:16px;align-items:center;height:100%;padding:0 18px}
+.banner img{height:96px;border-radius:6px;box-shadow:0 8px 20px #000a}
+.banner h2{font-size:22px}.banner p{margin:4px 0 0;color:#cfc9bb;font-size:13px}
+.banner .big{margin-left:auto;text-align:right}.banner .big b{font:600 30px Cinzel;color:var(--gold-l)}
+.filters{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:10px 14px;background:#101413e6;border-radius:10px;margin-bottom:14px}
+.filters input{flex:1 1 200px;min-width:0;padding:8px 10px;border:0;border-radius:6px;background:#0b0e0f;color:var(--txt);font:inherit}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chips button{background:none;border:0;color:var(--muted);font:500 12px "DM Sans";padding:6px 8px;cursor:pointer}
+.chips button[aria-pressed=true]{color:var(--gold-l);box-shadow:inset 0 -2px var(--gold-l)}
+.chips .UR{color:var(--UR)}.chips .SSR{color:var(--SSR)}.chips .SR{color:var(--SR)}.chips .R{color:var(--R)}.chips .N{color:var(--N)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+.card{--r:var(--UR);position:relative;aspect-ratio:5/7;border-radius:10px;overflow:hidden;background:#141818;box-shadow:0 0 0 1.5px var(--r),0 10px 22px #0008;animation:in .45s cubic-bezier(.2,.9,.2,1) both;transition:transform .2s}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;height:100%;object-fit:cover}
+.card.miss img{filter:blur(8px) grayscale(1) brightness(.35)}
+.card.miss::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;font:600 46px Cinzel;color:#ffffff40}
+.card .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 8px;background:linear-gradient(transparent,#000d)}
+.card .cap b{display:block;font:600 12px Cinzel}.card .cap small{color:#bdb7a8;font-size:10px}
+.card .rar{position:absolute;top:6px;right:6px;font:700 10px "DM Sans";padding:1px 6px;border-radius:4px;background:var(--r);color:#fff}
+.card.SSR{--r:var(--SSR)}.card.SR{--r:var(--SR)}
+@keyframes in{from{opacity:0;transform:translateY(12px) scale(.96)}}
+@keyframes fade{from{opacity:0}}
+.empty{color:var(--muted);padding:30px 0}
+.mobile-toggle{display:none}
+@media (max-width:900px){
+ .layout{grid-template-columns:1fr}
+ aside{position:fixed;inset:0 25% 0 0;max-height:none;z-index:20;border-radius:0;transform:translateX(-102%);transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+ aside.open{transform:none;box-shadow:20px 0 60px #000c}
+ .mobile-toggle{display:inline-block;background:none;border:0;color:var(--gold-l);font:600 12px Cinzel;letter-spacing:.1em;padding:8px 0;cursor:pointer}
+ .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<p class="note">MAQUETTE · Collection fusionnée : la liste des animes à gauche remplace la page des mondes. Clique un anime, les filtres restent.</p>
+<div class="layout">
+<aside id="side" aria-label="Collections">
+  <div class="head"><h2>Collections</h2><input id="aq" placeholder="Chercher un anime"></div>
+  <div class="sorts"><button aria-pressed="true" data-s="size">Taille</button><button aria-pressed="false" data-s="comp">Complétion</button><button aria-pressed="false" data-s="alpha">A → Z</button></div>
+  <ul id="alist"></ul>
+</aside>
+<main>
+  <button class="mobile-toggle" id="mt">☰ Collections</button>
+  <div class="top"><h1>Ma collection</h1><span class="sub" id="sub">Toutes tes cartes et ta progression par anime.</span><span class="stat"><b id="own">0</b>cartes possédées sur <span id="tot">4 718</span></span></div>
+  <div class="banner" id="banner"><div class="bg" id="bbg"></div><div class="in"><img id="bimg" alt=""><div><h2 id="bt"></h2><p id="bp"></p></div><div class="big"><b id="bpct"></b><p>complété</p></div></div></div>
+  <div class="filters">
+    <input placeholder="Rechercher un personnage">
+    <div class="chips" data-g="own"><button aria-pressed="true">Tous</button><button aria-pressed="false">Possédés</button><button aria-pressed="false">Manquants</button><button aria-pressed="false">Doublons</button></div>
+    <div class="chips" data-g="rar"><button class="UR" aria-pressed="false">UR</button><button class="SSR" aria-pressed="false">SSR</button><button class="SR" aria-pressed="false">SR</button><button class="R" aria-pressed="false">R</button><button class="N" aria-pressed="false">N</button></div>
+    <div class="chips" data-g="sort"><button aria-pressed="true">Puissance</button><button aria-pressed="false">Popularité</button><button aria-pressed="false">A → Z</button></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+</div>
+<script>
+const D={"anime": [{"t": "ONE PIECE", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx21-ELSYx3yMPcKM.jpg", "n": 60, "o": 60}, {"t": "Bleach", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx269-d2GmRkJbMopq.png", "n": 40, "o": 19}, {"t": "Naruto", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx20-dE6UHbFFg1A5.jpg", "n": 38, "o": 6}, {"t": "Hunter x Hunter (2011)", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx11061-y5gsT1hoHuHw.png", "n": 36, "o": 25}, {"t": "Black Clover", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx97940-fyh8o7gNbha0.png", "n": 32, "o": 30}, {"t": "Fairy Tail", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b6702-KI4qgSMyI8Pm.png", "n": 28, "o": 4}, {"t": "Holo no Graffiti", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx118123-xqn5fYsjKXJU.png", "n": 27, "o": 2}, {"t": "My Hero Academia", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx21459-nYh85uj2Fuwr.jpg", "n": 24, "o": 2}, {"t": "JUJUTSU KAISEN", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx113415-LHBAeoZDIsnF.jpg", "n": 23, "o": 0}, {"t": "Demon Slayer: Kimetsu no Yaiba", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx101922-WBsBl0ClmgYL.jpg", "n": 23, "o": 12}, {"t": "HAIKYU!!", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx20464-ooZUyBe4ptp9.png", "n": 20, "o": 17}, {"t": "Tokyo Revengers", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx120120-cWDmnmeEntSe.jpg", "n": 20, "o": 9}, {"t": "Fullmetal Alchemist: Brotherhood", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx5114-nSWCgQlmOMtj.jpg", "n": 20, "o": 1}, {"t": "COLORFUL STAGE! The Movie: A Miku Who Can't Sing", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx179878-jG5GTXhe2vou.jpg", "n": 18, "o": 7}, {"t": "Attack on Titan", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16498-buvcRTBx4NSm.jpg", "n": 18, "o": 16}, {"t": "Dragon Ball Z", "c": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx813-ZhnFNOeCU5dQ.png", "n": 18, "o": 17}], "chars": [{"n": "Satoru Gojou", "r": "UR", "i": "/api/illustrations/character-127691?v=83ea914c-15af-473d-948d-c08c89f195e8", "t": "MAGIE", "p": 13350, "s": "JUJUTSU KAISEN", "o": true}, {"n": "Levi", "r": "UR", "i": "/api/illustrations/character-45627?v=583e433d-b721-422c-976f-1c62c1cc4a1d", "t": "COMBAT", "p": 13713, "s": "Attack on Titan Season 3", "o": false}, {"n": "Luffy Monkey", "r": "UR", "i": "/api/illustrations/character-40?v=b952ad85-e441-412b-b453-cb661ae6e16a", "t": "AVENTURE", "p": 13091, "s": "ONE PIECE", "o": false}, {"n": "Killua Zoldyck", "r": "UR", "i": "/api/illustrations/character-27?v=907edec6-7dcb-4788-92b1-47dd3321898c", "t": "MYSTERE", "p": 13456, "s": "Hunter x Hunter (2011)", "o": true}, {"n": "Eren Yeager", "r": "UR", "i": "/api/illustrations/character-40882?v=22480f59-a7cd-4091-9536-001e9bcc396b", "t": "AVENTURE", "p": 12222, "s": "Attack on Titan", "o": false}, {"n": "Zoro Roronoa", "r": "UR", "i": "/api/illustrations/character-62?v=62721f9f-fbca-4e96-999e-f27461eddd85", "t": "AVENTURE", "p": 11946, "s": "ONE PIECE", "o": true}, {"n": "Lelouch Lamperouge", "r": "UR", "i": "/api/illustrations/character-417?v=0ceb7a4e-d835-408f-a555-22e2b4146104", "t": "MYSTERE", "p": 11114, "s": "Code Geass: Lelouch of the Rebellion", "o": false}, {"n": "Emilia", "r": "UR", "i": "/api/illustrations/character-88572?v=8e1ee6c4-7569-4e14-bc17-75a4be85871a", "t": "MYSTERE", "p": 11231, "s": "Re:ZERO -Starting Life in Another World-", "o": true}, {"n": "L Lawliet", "r": "UR", "i": "https://s4.anilist.co/file/anilistcdn/character/large/b71-1W4panC53vfs.png", "t": "MYSTERE", "p": 11197, "s": "Death Note", "o": true}, {"n": "Ken Kaneki", "r": "UR", "i": "https://s4.anilist.co/file/anilistcdn/character/large/b87275-mb13EWZBdbh3.png", "t": "MYSTERE", "p": 11589, "s": "Tokyo Ghoul", "o": true}, {"n": "Mikasa Ackerman", "r": "UR", "i": "/api/illustrations/character-40881?v=c0e7684a-c926-4de7-85cd-65661505af3a", "t": "AVENTURE", "p": 12415, "s": "Attack on Titan", "o": true}, {"n": "Arataka Reigen", "r": "UR", "i": "https://s4.anilist.co/file/anilistcdn/character/large/b89334-OPj1hCzvrt7X.png", "t": "MAGIE", "p": 11259, "s": "Mob Psycho 100", "o": false}, {"n": "Guts", "r": "UR", "i": "/api/illustrations/character-422?v=a092574a-d762-4afd-94f6-b07baedcdbee", "t": "AVENTURE", "p": 10032, "s": "Berserk", "o": false}, {"n": "Maomao", "r": "UR", "i": "/api/illustrations/character-126824?v=941e6e40-4420-4f19-891b-e3dfcfbef8d7", "t": "MYSTERE", "p": 10872, "s": "The Apothecary Diaries", "o": false}, {"n": "Frieren", "r": "UR", "i": "/api/illustrations/character-176754?v=ab91d21f-d06c-4097-9db8-a54f6b71627f", "t": "AVENTURE", "p": 10639, "s": "Frieren: Beyond Journey’s End", "o": true}, {"n": "Kurisu Makise", "r": "UR", "i": "https://s4.anilist.co/file/anilistcdn/character/large/b34470-Jw2LXZBL5R8i.png", "t": "MYSTERE", "p": 10973, "s": "Steins;Gate", "o": false}]};let cur=null,sort="size";
+const fmt=new Intl.NumberFormat("fr-FR");
+function list(){const q=document.getElementById("aq").value.toLowerCase();let a=D.anime.filter(x=>x.t.toLowerCase().includes(q));
+ if(sort==="comp")a=[...a].sort((x,y)=>y.o/y.n-x.o/x.n);if(sort==="alpha")a=[...a].sort((x,y)=>x.t.localeCompare(y.t));
+ const own=D.anime.reduce((s,x)=>s+x.o,0),tot=D.anime.reduce((s,x)=>s+x.n,0);
+ const row=(x,i)=>`<li><button aria-current="${cur===x.t}" data-t="${x.t.replace(/"/g,"&quot;")}" class="${x.o===x.n?"done":""}"><img src="${x.c}" alt="" loading="lazy"><span><span class="t">${x.t}</span><span class="bar"><i style="width:${x.o/x.n*100}%"></i></span></span><span class="k">${x.o===x.n?"✓ ":""}${x.o}/${x.n}</span></button></li>`;
+ document.getElementById("alist").innerHTML=`<li><button aria-current="${cur===null}" data-t=""><span class="all">∞</span><span><span class="t">Tous les animes</span><span class="bar"><i style="width:${own/tot*100}%"></i></span></span><span class="k">${own}/${tot}</span></button></li>`+a.map(row).join("");
+ document.querySelectorAll("#alist button").forEach(b=>b.onclick=()=>{cur=b.dataset.t||null;document.getElementById("side").classList.remove("open");render();});
+ document.getElementById("own").textContent=fmt.format(own);document.getElementById("tot").textContent=fmt.format(tot);}
+function render(){list();const a=D.anime.find(x=>x.t===cur);const ban=document.getElementById("banner");
+ if(a){ban.classList.remove("on");void ban.offsetWidth;ban.classList.add("on");document.getElementById("bbg").style.backgroundImage=`url(${a.c})`;document.getElementById("bimg").src=a.c;document.getElementById("bt").textContent=a.t;document.getElementById("bp").textContent=`${a.o} cartes possédées sur ${a.n}`;document.getElementById("bpct").textContent=Math.round(a.o/a.n*100)+" %";}
+ else ban.classList.remove("on");
+ document.getElementById("sub").textContent=a?"Filtré sur cet anime. Clique « Tous les animes » pour revenir.":"Toutes tes cartes et ta progression par anime.";
+ const cs=a?D.chars.filter(c=>c.s===a.t):D.chars;
+ document.getElementById("grid").innerHTML=cs.length?cs.map((c,i)=>`<div class="card ${c.r} ${c.o?"":"miss"}" style="animation-delay:${i*35}ms"><img src="${c.i}" alt="" loading="lazy"><span class="rar">${c.r}</span><span class="cap"><b>${c.n}</b><small>${c.s}</small></span></div>`).join(""):`<p class="empty">Dans la maquette, seuls 16 personnages sont chargés : sur le site, cet anime afficherait toutes ses cartes.</p>`;}
+document.getElementById("aq").oninput=list;
+document.querySelectorAll(".sorts button").forEach(b=>b.onclick=()=>{sort=b.dataset.s;document.querySelectorAll(".sorts button").forEach(x=>x.setAttribute("aria-pressed",x===b));list();});
+document.querySelectorAll(".chips").forEach(g=>g.querySelectorAll("button").forEach(b=>b.onclick=()=>{if(g.dataset.g!=="rar")g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));else b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");}));
+document.getElementById("mt").onclick=()=>document.getElementById("side").classList.add("open");
+render();
+</script></body></html>
