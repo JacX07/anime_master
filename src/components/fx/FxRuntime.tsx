@@ -106,5 +106,38 @@ export function FxRuntime() {
     return () => removeEventListener("pointerdown", down, true);
   }, []);
 
+  // Lot 2 : les cartes s'inclinent en 3D et prennent un reflet qui suit la souris (hors combat)
+  useEffect(() => {
+    let current: HTMLElement | null = null;
+    let frame = 0;
+    const release = () => {
+      if (!current) return;
+      current.classList.remove("fx-tilt");
+      current.style.removeProperty("transform");
+      current = null;
+    };
+    const move = (e: PointerEvent) => {
+      if (reduce() || e.pointerType === "touch") return;
+      const card = (e.target as Element | null)?.closest<HTMLElement>(".card");
+      if (card !== current) release();
+      if (!card || card.closest(".bt-layout, .hs-fight, .pk-stage, [data-no-tilt]")) return;
+      current = card;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width;
+        const y = (e.clientY - r.top) / r.height;
+        card.classList.add("fx-tilt");
+        card.style.transform = `perspective(900px) rotateY(${(x - 0.5) * 16}deg) rotateX(${(0.5 - y) * 16}deg) translateZ(0)`;
+        card.style.setProperty("--gx", `${x * 100}%`);
+        card.style.setProperty("--gy", `${y * 100}%`);
+      });
+    };
+    addEventListener("pointermove", move, { passive: true });
+    addEventListener("pointerleave", release);
+    addEventListener("scroll", release, { capture: true, passive: true });
+    return () => { cancelAnimationFrame(frame); release(); removeEventListener("pointermove", move); removeEventListener("pointerleave", release); removeEventListener("scroll", release, { capture: true }); };
+  }, []);
+
   return <div ref={layer} className="fx-layer" aria-hidden="true" />;
 }

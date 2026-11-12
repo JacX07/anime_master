@@ -49,3 +49,19 @@ html.fx-tabs-on .mq-app-shell[class][class] .mq-game-nav .mq-active::after { opa
 .fx-ripple { position: absolute; border-radius: 50%; background: radial-gradient(circle, #f3dfae66, #d5bb7f00 70%); transform: scale(0); animation: fx-ripple .6s ease-out forwards; }
 @keyframes fx-ripple { to { transform: scale(3.2); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .fx-tabbar { transition: none; } .mq-page.fx-enter > * { animation: none; } }
+
+/* ---- Lot 2 : cartes ---- */
+.mq-app-shell .card { transition: transform .35s cubic-bezier(.2,.9,.3,1), box-shadow .3s; will-change: transform; }
+.mq-app-shell .card.fx-tilt { transition: transform .08s linear, box-shadow .3s; box-shadow: 0 0 0 1px #0006, 0 22px 40px #000a, 0 0 26px -6px var(--rarity); }
+/* Reflet lumineux + éclat holographique qui suivent la souris */
+.mq-app-shell .card::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; border-radius: inherit; opacity: 0; transition: opacity .3s;
+  background:
+    radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), #ffffff45, transparent 42%),
+    linear-gradient(115deg, transparent 30%, #ff4d6d26 40%, #ffd16626 47%, #4ade8026 54%, #38bdf826 61%, #c084fc26 68%, transparent 78%) var(--gx, 50%) 50% / 250% 250%;
+  mix-blend-mode: overlay; }
+.mq-app-shell .card.fx-tilt::before { opacity: 1; }
+.mq-app-shell .card[data-missing]::before { background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), #ffffff22, transparent 45%); }
+/* Les UR possédées pulsent doucement */
+.mq-app-shell .card[data-rarity="UR"]:not([data-missing]) { animation: fx-ur-pulse 2.8s ease-in-out infinite; }
+@keyframes fx-ur-pulse { 50% { box-shadow: 0 0 0 1px #0006, 0 12px 30px #0008, 0 0 26px 0 color-mix(in srgb, var(--rarity-UR) 55%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .mq-app-shell .card { transition: none; animation: none !important; } }
