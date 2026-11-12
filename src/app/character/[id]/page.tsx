@@ -15,6 +15,7 @@ import { wishesFor } from "@/lib/wishlist";
 import { speedOf } from "@/lib/speed";
 import { WishButton } from "./WishButton";
 import { CopyActions } from "./CopyActions";
+import { SpellList } from "@/app/equipe/TeamBuilder";
 
 const parseId = (raw: string) => (/^\d{1,9}$/.test(raw) ? Number(raw) : null);
 
@@ -92,6 +93,11 @@ async function Character({ params }: { params: PageProps<"/character/[id]">["par
             </div>
           ))}
         </dl>
+
+        <section>
+          <h2 className="mb-2 text-lg font-bold">Sorts</h2>
+          <SpellList card={{ characterId: c.id, rarity: c.rarity, type: c.type }} />
+        </section>
 
         {user && (
           <section>
