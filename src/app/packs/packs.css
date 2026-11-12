@@ -218,7 +218,7 @@
 .pk-stack .flip:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; }
 .pk-stack .flip-inner { transition: transform 450ms cubic-bezier(.22,1,.36,1); }
 .pk-stack .flip-front { overflow: hidden; }
-.pk-stage { background: var(--panel); }
+.pk-stage { background: transparent; }
 .pk-head .vt-title { font: 500 clamp(34px, 4vw, 52px)/1.05 var(--font-display); letter-spacing: -.025em; }
 @media (prefers-reduced-motion: reduce) {
   .pk-stack .flip-inner, .pk-banner-face { transition: none; }
