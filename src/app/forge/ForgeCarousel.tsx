@@ -38,6 +38,7 @@ export function ForgeCarousel({ weapons, cards }: { weapons: ForgeWeapon[]; card
   return (
     <section className="fg" style={{ "--accent": weapon.accent } as React.CSSProperties} aria-roledescription="carrousel" aria-label="Armes légendaires">
       <div className="fg-glow" aria-hidden="true" />
+      <div className="fg-left">
       <div className="fg-stage">
         <button type="button" className="fg-arrow" onClick={() => go(index - 1)} aria-label="Arme précédente">
           <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -49,6 +50,17 @@ export function ForgeCarousel({ weapons, cards }: { weapons: ForgeWeapon[]; card
         <button type="button" className="fg-arrow" onClick={() => go(index + 1)} aria-label="Arme suivante">
           <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
+      </div>
+
+      <div className="fg-thumbs" role="tablist" aria-label="Choisir une arme">
+        {weapons.map((w, i) => (
+          <button key={w.key} type="button" role="tab" aria-selected={i === index} aria-label={w.name} data-active={i === index || undefined}
+            style={{ "--accent": w.accent } as React.CSSProperties} onClick={() => go(i)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/images/weapons/${w.key}.webp`} alt="" />
+          </button>
+        ))}
+      </div>
       </div>
 
       <div className="fg-info" data-dir={dir} key={`info-${weapon.key}`} aria-live="polite">
@@ -82,15 +94,6 @@ export function ForgeCarousel({ weapons, cards }: { weapons: ForgeWeapon[]; card
         )}
       </div>
 
-      <div className="fg-thumbs" role="tablist" aria-label="Choisir une arme">
-        {weapons.map((w, i) => (
-          <button key={w.key} type="button" role="tab" aria-selected={i === index} aria-label={w.name} data-active={i === index || undefined}
-            style={{ "--accent": w.accent } as React.CSSProperties} onClick={() => go(i)}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/images/weapons/${w.key}.webp`} alt="" />
-          </button>
-        ))}
-      </div>
     </section>
   );
 }

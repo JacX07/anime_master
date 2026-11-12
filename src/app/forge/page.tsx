@@ -16,8 +16,8 @@ const ACCENT: Record<string, string> = { griffon: "#d9b650", napoleon: "#e0609c"
 export default function ForgePage() {
   return <main className="vt"><div className="vt-inner">
     <InventoryTabs current="/forge" />
-    <header className="pg-head"><h1 className="vt-title">Forge légendaire</h1>
-      <p className="vt-sub">Une arme par carte 5★ : +10 % d’ATK, de DEF et de PV, plus un passif. L’arme reste attachée à cet exemplaire, même lors d’un échange.</p>
+    <header className="fg-head"><h1>Forge légendaire</h1>
+      <p>Une arme par carte 5★ : +10 % d’ATK, de DEF et de PV, plus un passif. Elle reste attachée à cet exemplaire, même lors d’un échange.</p>
     </header>
     <Suspense fallback={<p>Chargement…</p>}><Forge /></Suspense>
   </div></main>;
