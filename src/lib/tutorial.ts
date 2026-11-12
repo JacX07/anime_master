@@ -28,7 +28,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     points: ["1 étoile pour la victoire, 2 sans K.O., 3 sans K.O. en 10 tours ou moins. Une victoire en duo donne une 4ᵉ étoile bonus", "Les étoiles débloquent des récompenses aux paliers 12, 24, 36 et 45"],
     page: "/histoire", targets: [".hs-map-node.is-current", ".hs-map-hint button"], away: [".mq-mode-card.mq-mode-story", ".mq-play-button"] },
   { key: "dungeons", phase: "modes", title: "Donjons", text: "Un boss unique et difficile qui donne des artefacts pour équiper tes cartes.", targets: [".mq-mode-card.mq-mode-dungeons"], mode: "dungeon" },
-  { key: "raids", phase: "modes", title: "Raids", text: "Un boss par semaine, à frapper avec tout le monde. Il donne les cœurs de brèche des étoiles 4 et 5.", targets: [".mq-mode-card.mq-mode-raids"], mode: "raid" },
+  { key: "raids", phase: "modes", title: "Raids", text: "Le Défi des empereurs : Shanks, Big Mom, Kaido et Barbe Blanche, chacun gardé par deux vagues d’équipage. Ils donnent les cœurs de brèche des étoiles 4 et 5 et les ressources des armes légendaires.", targets: [".mq-mode-card.mq-mode-raids"], mode: "raid" },
   { key: "expeditions", phase: "modes", title: "Expéditions", text: "Envoie une à trois cartes explorer une brèche pendant quelques heures, puis reviens chercher le butin.", targets: [".mq-mode-card.mq-mode-expeditions"], mode: "expeditions" },
   { key: "pvp", phase: "modes", title: "Arène", text: "Affronte les squads des autres joueurs.", targets: [".mq-mode-card.mq-mode-pvp"] },
   { key: "tower", phase: "modes", title: "Tour", text: "Monte étage par étage et compare-toi aux autres au classement.", targets: [".mq-mode-card.mq-mode-tower"], mode: "tower" },

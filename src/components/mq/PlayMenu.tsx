@@ -10,7 +10,7 @@ import { Icon } from "../icons";
 const MODES = [
   { id: "story", href: "/histoire", title: "Mode histoire", tag: "Campagne", description: "Traversez les royaumes et dévoilez les origines de la Faille.", symbol: "◇" },
   { id: "dungeons", href: "/donjons", title: "Donjons", tag: "1–3 joueurs", description: "Affrontez des gardiens et récupérez des reliques rares.", symbol: "⌁" },
-  { id: "raids", href: "/raid", title: "Raids", tag: "Coopération", description: "Unissez vos forces face aux Titans primordiaux.", symbol: "△" },
+  { id: "raids", href: "/raid", title: "Raids", tag: "Coopération", description: "Défi des empereurs : Shanks, Big Mom, Kaido, Barbe Blanche.", symbol: "△" },
   { id: "expeditions", href: "/expeditions", title: "Expéditions", tag: "Exploration", description: "Envoyez vos squads à la recherche de ressources.", symbol: "✦" },
   { id: "pvp", href: "/duels", title: "Arène PvP", tag: "Classé", description: "Mesurez votre deck aux invocateurs du monde entier.", symbol: "×" },
   { id: "live", href: "/arene", title: "Arène Live", tag: "Temps réel", description: "Des duels directs où chaque décision compte.", symbol: "◉" },

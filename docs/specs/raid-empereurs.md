@@ -89,3 +89,6 @@ Réglages dans `EMPEROR_TUNING` (`src/lib/emperors.ts`), mesurés avec `npm run 
 
 - Échelle des difficultés : 2,5 / 3,2 / 3,7 (contre 0,85 / 1,15 / 1,5 au raid de la semaine). Coefficients par empereur : Shanks 1, Big Mom 1,12, Kaido 1,12, Barbe Blanche 1,08. Hardcore : stats × 0,58 par empereur.
 - À surveiller : si le Cauchemar est jugé impossible, remonter l'échelle de 3,7 vers 3,3 ; si le Normal est trop facile pour les joueurs outillés, la monter. Les chiffres réels dépendent des équipements des joueurs (à relire après une semaine de jeu).
+
+## Le raid = le Défi des empereurs (2026-11-12)
+Le boss hebdomadaire (La Reine des Éclats) n'est plus proposé : `/raid` redirige vers `/raid/empereurs`. Les cœurs de brèche (éveil étoiles 4 et 5, forge) viennent des empereurs (même plafond quotidien de cœurs au taux plein). Une victoire d'empereur valide la quête « première victoire de raid ». Le code du boss hebdo (`RaidBoard`, `getRaidState`) est conservé, inutilisé.

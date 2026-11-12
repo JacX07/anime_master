@@ -5,7 +5,7 @@ import { ADVENTURE_MODES, adventureLevel, adventureQuests, modeUnlocked, rankFor
 
 /** Reconstitue les objectifs depuis les données réelles, puis conserve définitivement XP et récompenses. */
 async function loadAdventure(userId: string) {
-  const [story, achievements, team, awakened, equipped, user, expedition, tower, dungeon, raid, battles] = await Promise.all([
+  const [story, achievements, team, awakened, equipped, user, expedition, tower, dungeon, raid, battles, emperorWin] = await Promise.all([
     prisma.storyProgress.findMany({ where: { userId } }),
     prisma.userAchievement.findMany({ where: { userId }, select: { key: true } }),
     prisma.battleTeam.findUnique({ where: { userId_kind: { userId, kind: "ATTACK" } }, include: { slots: { include: { card: { select: { ownerId: true } } } } } }),
@@ -18,11 +18,13 @@ async function loadAdventure(userId: string) {
     prisma.raidBest.findMany({ where: { userId } }),
     // groupBy : dédoublonné par Postgres (distinct de Prisma relisait tous les combats du joueur)
     prisma.battle.groupBy({ by: ["mode"], where: { userId, mode: { in: ["RAID", "TOWER", "DUNGEON"] } } }),
+    // Le Défi des empereurs est le raid : une victoire d'empereur (clé du jour enregistrée) compte comme première victoire de raid
+    prisma.adventureRecord.count({ where: { userId, key: { startsWith: "emperor-clear:" } } }),
   ]);
   const earned = new Set(achievements.map((a) => a.key));
   const quests = adventureQuests({ story, achievements: ACHIEVEMENTS.map((a) => ({ ...a, done: earned.has(a.key) })), team: team?.slots.filter((s) => s.card.ownerId === userId).length === 4,
     awakened: awakened > 0, equipped: equipped > 0, expedition: user.expeditionsDone > 0, towerFloor: tower?.maxFloor ?? 0,
-    dungeonLevel: Math.max(0, ...dungeon.map((d) => d.maxLevel)), raidWon: raid.some((r) => r.won) });
+    dungeonLevel: Math.max(0, ...dungeon.map((d) => d.maxLevel)), raidWon: raid.some((r) => r.won) || emperorWin > 0 });
   const legacy = new Set<AdventureMode>();
   if (expedition > 0) legacy.add("expeditions");
   if (tower || battles.some((b) => b.mode === "TOWER")) legacy.add("tower");

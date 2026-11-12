@@ -17,7 +17,7 @@ const STEPS: { title: string; where: string; href: string; what: string; done?: 
   { title: "Lancer une expédition", where: "JOUER › Expéditions", href: "/expeditions", what: "Envoie une à trois cartes explorer une brèche pendant quelques heures, puis reviens chercher le butin.", done: (f) => quest(f, "discovery:expedition"), mode: "expeditions" },
   { title: "Vaincre un donjon", where: "JOUER › Donjons", href: "/donjons", what: "Un boss unique et difficile qui donne des artefacts de son set.", done: (f) => quest(f, "discovery:dungeon:1"), mode: "dungeon" },
   { title: "Gravir la Tour", where: "JOUER › Tour universelle", href: "/tour", what: "Monte étage par étage pour le classement.", done: (f) => quest(f, "discovery:tower:1"), mode: "tower" },
-  { title: "Battre un boss de raid", where: "JOUER › Raids", href: "/raid", what: "Un boss par semaine. Il donne les cœurs de brèche des étoiles 4 et 5.", done: (f) => quest(f, "discovery:raid"), mode: "raid" },
+  { title: "Battre un empereur", where: "JOUER › Raids", href: "/raid", what: "Le Défi des empereurs : un combat par empereur et par jour. Il donne les cœurs de brèche des étoiles 4 et 5 et de quoi forger des armes légendaires.", done: (f) => quest(f, "discovery:raid"), mode: "raid" },
   { title: "Vendre ou acheter à la Bourse", where: "Marché › Bourse", href: "/market", what: "Les enchères entre joueurs : mets tes doublons en vente ou enchéris sur une carte." },
   { title: "Échanger avec un joueur", where: "Marché › Échanges", href: "/trades", what: "Propose un échange de cartes ou de Ryō à un autre joueur." },
   { title: "Noter tes souhaits", where: "Collection › Souhaits", href: "/wishlist", what: "Liste les personnages que tu cherches pour les retrouver plus vite à la Bourse." },
