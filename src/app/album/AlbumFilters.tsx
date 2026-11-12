@@ -44,7 +44,7 @@ function Chip({ href, active, children, color, title }: { href: string; active: 
 }
 
 /** Filtres de l'album : des pastilles qu'on active et désactive d'un clic, la recherche reste un champ simple. */
-export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; anime: AnimeOptions; sortable?: boolean }) {
+export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; anime: AnimeOptions | null; sortable?: boolean }) {
   return (
     <div className="vt-filters album-filters">
       <div className="vt-row">
@@ -64,9 +64,11 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
           ))}
         </div>
       </div>
-      <div className="vt-row">
-        <AnimeSelect {...anime} />
-      </div>
+      {anime && (
+        <div className="vt-row">
+          <AnimeSelect {...anime} />
+        </div>
+      )}
       {sortable && (
         <div className="vt-chips" role="group" aria-label="Tri des mondes">
           {SORTS.map(([v, label]) => (

@@ -61,7 +61,7 @@ Les pages sans mode (collection, inventaire, profil…) gardent la palette neutr
 
 ## 3. Typographie
 - **Cinzel** : logo, titres de page, titres de bloc, gros chiffres, boutons d'action.
-  - Titre de page : `500 clamp(34px, 4vw, 52px)/1.05`, approche `-.025em` (34 px sur téléphone).
+  - Titre de page : compact, `500 clamp(22px, 2.2vw, 30px)/1.1`, approche `-.01em` (validé le 2026-11-13 : le titre ne doit pas prendre la place du contenu ; accueil 34 px max).
   - Titre de bloc : `500 14–22px`.
 - **DM Sans 400** : tout le reste. Texte courant 13 px, interligne 1.5. Onglets et contrôles textuels 11 px.
 - **Sur-titre** (`.mq-eyebrow`) au-dessus de chaque titre de page : 9 px, capitales, espacement `.28em`, gras, or sourd.
@@ -168,6 +168,15 @@ Onglet « En ligne » du chat (après Guilde, Général, Privé), avec pastille 
 ### 4.19 Connexion, inscription et mot de passe (validé le 2026-11-10)
 Pages `/login`, `/signup`, `/signup/verification`, `/forgot-password`, `/reset-password` (`AuthForm.tsx`, `auth.css`) : carte `#111514` aux coins coupés de 10 px, sur-titre doré, titre Cinzel 26 px, champs sur fond `#0b0e0f` à filet bas (doré au focus), bouton `ui-button`, liens d'aide soulignés or. Messages : erreur `#e8a29c` sur fond rouge à 12 %, information `#8fbfae` sur vert-de-gris à 14 %. Les e-mails (`email-templates.ts`) reprennent l'en-tête sombre « ANIMA CLASH » et un bouton or.
 
+### 4.20 Collection fusionnée (validé le 2026-11-13, maquette `public/mockups/collection-fusion.html`)
+Une seule page Collection : colonne « Collections » à gauche (290 px, collante) avec « Tous les animes » puis chaque anime (portrait de son personnage le plus populaire, titre, barre de progression vert-de-gris, or quand complet, « possédées/total »), recherche et tri Taille / Complétion / A → Z ; à droite le bandeau de l'anime choisi (portrait flouté), les filtres et la grille. La vue « mondes » (tuiles 01, 02…) est retirée. Téléphone : bouton « ◆ Collections » qui ouvre la colonne en tiroir.
+
+### 4.21 Boutons colorés par rôle (validé le 2026-11-13)
+Classe `fx-btn` + `data-tone` (`src/app/fx.css`) : petit bouton teinté avec losange, fond de la teinte à 16 %, filet bas, reflet qui passe et lueur au survol. Teintes : `gold` `#c4a76d` (action principale), `ember` `#d9774a` (vente, sacrifice), `jade` `#6fbfa0` (récompense, information), `azure` `#6fa8d9` (social, achat), `violet` `#a98bd9` (galeries, spécial). `data-tone` s'applique aussi aux `ui-button`. Les couleurs de rareté restent réservées à l'information.
+
+### 4.22 Effets visuels de la refonte (validé le 2026-11-13, maquette `public/mockups/refonte-fx.html`)
+Assouplit §1, §6 et §9 pour ces effets précis : soulignement d'onglet qui glisse, pages qui entrent en fondu léger, boutons avec reflet et onde au clic ; cartes inclinées en 3D avec reflet et éclat holographique au survol, UR qui pulse ; particules dorées sur l'accueil, compteurs qui défilent, cartes de modes qui se soulèvent avec un filet doré tournant, mode verrouillé qui refuse en tremblant ; flash, secousse et étincelles dorées à la forge et aux récompenses, objets qui apparaissent un par un, notifications qui glissent. Toujours coupés par `prefers-reduced-motion`.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -219,4 +228,5 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
 - 2026-11-09 : onglet « En ligne » dans le chat (§4.18).
 - 2026-11-09 : tutoriel plus explicatif (listes de points, phases accueil, raccourcis et combat), Guide du jeu à 22 étapes (§4.6).
+- 2026-11-13 : titres de page compacts (§3), collection fusionnée (§4.20), boutons colorés par rôle (§4.21), effets visuels de la refonte (§4.22).
 - 2026-11-10 : pages de connexion, inscription et mot de passe oublié remises dans la DA, e-mails de confirmation (§4.19).

@@ -40,9 +40,8 @@ export function DuplicateSale({ initialRarities, initialPreview }: { initialRari
 
   return (
     <section className="vt-sale">
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center justify-between font-bold">
-        Vendre mes doublons
-        <span className="text-muted">{open ? "−" : "+"}</span>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="fx-btn" data-tone="ember">
+        Vendre mes doublons {open ? "−" : "+"}
       </button>
       {open && (
         <div className="mt-4 flex flex-col gap-3 text-sm">

@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BuyCrystalsButton } from "@/components/BuyCrystalsButton";
-import { Stat, TypeIcon } from "@/components/icons";
+import { Stat } from "@/components/icons";
 import { SceneBody } from "@/components/SceneBody";
-import { TYPE_LABELS } from "@/lib/labels";
-import { getAlbum, parseAlbumFilters, RARITY_ORDER, TYPE_ORDER } from "@/lib/album";
+import { getAlbum, parseAlbumFilters, RARITY_ORDER } from "@/lib/album";
 import { getPackState } from "@/lib/packs";
 import { requireUser } from "@/lib/session";
 import { previewDuplicateSale } from "@/lib/wallet";
 import { AlbumFilters, albumHref } from "./AlbumFilters";
 import { InfiniteList } from "./InfiniteList";
-import { CardItem, World } from "./items";
+import { CardItem } from "./items";
 import { DuplicateSale } from "./DuplicateSale";
+import { CollectionsSidebar } from "./CollectionsSidebar";
 import "./album.css";
 
 export const metadata: Metadata = { title: "Album — Anime Masters" };
@@ -34,9 +34,11 @@ export default function AlbumPage({ searchParams }: PageProps<"/album">) {
 
 async function Album({ searchParams }: { searchParams: PageProps<"/album">["searchParams"] }) {
   const user = await requireUser();
-  const filters = parseAlbumFilters(await searchParams);
+  const parsed = parseAlbumFilters(await searchParams);
+  // Plus de vue « mondes » : la grille montre toujours des cartes, les animes sont dans la colonne de gauche
+  const filters = { ...parsed, owned: parsed.owned ?? "all" as const };
   // Le défilement continu remplace les pages : on charge toujours la première, la suite arrive au fil du scroll
-  const album = await getAlbum(user.id, { ...filters, page: 1 });
+  const album = await getAlbum(user.id, { ...filters, page: 1 }, { covers: true });
   const listKey = albumHref(filters);
   const packs = await getPackState(user.id);
   const saleRarities = ["N", "R"] as const;
@@ -48,9 +50,8 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
       <div className="vt-inner album-inner">
         <header className="mq-page-heading mq-standard-heading album-heading">
           <div>
-            <p className="mq-eyebrow">Archives des invocateurs</p>
             <h1 className="mq-collection-title">Ma collection</h1>
-            <p>Toutes tes cartes, leur progression et tes exemplaires.</p>
+            <p>{album.anime.selected ? "Filtré sur cet anime. « Tous les animes » pour revenir." : "Toutes tes cartes et ta progression par anime."}</p>
           </div>
           <div className="mq-collection-count">
             <b>{num.format(progress.owned)}</b>
@@ -58,50 +59,35 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
           </div>
         </header>
 
-        <div className="album-toolbar">
-          <AlbumFilters filters={filters} sortable={album.worlds !== null} anime={{ listed: album.anime.listed, blocks: album.anime.blocks, value: filters.anime }} />
-          <Link href="/album/ur" className="album-ur-link">Galerie UR</Link>
-        </div>
-
-        {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
-        <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
-
-        <ul className="vt-legend" aria-label="Légende des types">
-          {TYPE_ORDER.map((t) => (
-            <li key={t}>
-              <TypeIcon type={t} /> {TYPE_LABELS[t].name}
-            </li>
-          ))}
-        </ul>
-
-        {album.worlds ? (
-          <>
+        <div className="album-layout">
+          <CollectionsSidebar
+            items={[...album.anime.listed, ...album.anime.blocks].map((a) => ({ key: a.key, title: a.title, owned: a.owned, total: a.total, cover: a.cover, href: albumHref(filters, { anime: a.key }) }))}
+            current={filters.anime}
+            allHref={albumHref(filters, { anime: "" })}
+            owned={progress.owned}
+            total={progress.total}
+          />
+          <div className="album-main">
+            {album.anime.selected && <AnimeHeader anime={album.anime.selected} />}
+            <div className="album-toolbar">
+              <AlbumFilters filters={filters} anime={null} />
+              <Link href="/album/ur" className="fx-btn" data-tone="violet">Galerie UR</Link>
+              <DuplicateSale initialRarities={[...saleRarities]} initialPreview={salePreview} />
+            </div>
             <p className="vt-count">
-              {album.matching} monde{album.matching > 1 ? "s" : ""} relevé{album.matching > 1 ? "s" : ""}
-              {album.worlds.unknown > 0 && ` · ${album.worlds.unknown} encore inconnus`}
+              {num.format(album.matching)} personnage{album.matching > 1 ? "s" : ""}
             </p>
-            <InfiniteList key={listKey} as="div" className="wd-list" pages={album.pages} filters={filters}>
-              {album.worlds.bands.map((w) => (
-                <World key={w.key} world={w} filters={filters} />
-              ))}
-            </InfiniteList>
-          </>
-        ) : (
-          <p className="vt-count">
-            {album.matching} personnage{album.matching > 1 ? "s" : ""}
-          </p>
-        )}
-
-        {album.worlds ? null : album.entries.length === 0 ? (
-          <p className="vt-empty">Aucun personnage ne correspond à ces filtres.</p>
-        ) : (
-          <InfiniteList key={listKey} as="ul" className="vt-grid" pages={album.pages} filters={filters}>
-            {album.entries.map((e) => (
-              <CardItem key={e.id} entry={e} />
-            ))}
-          </InfiniteList>
-        )}
-
+            {album.entries.length === 0 ? (
+              <p className="vt-empty">Aucun personnage ne correspond à ces filtres.</p>
+            ) : (
+              <InfiniteList key={listKey} as="ul" className="vt-grid" pages={album.pages} filters={filters}>
+                {album.entries.map((e) => (
+                  <CardItem key={e.id} entry={e} />
+                ))}
+              </InfiniteList>
+            )}
+          </div>
+        </div>
       </div>
 
       <footer className="vt-status" aria-label="Ta collection">
@@ -137,6 +123,7 @@ function AnimeHeader({ anime }: { anime: NonNullable<Awaited<ReturnType<typeof g
   const done = anime.total > 0 && anime.owned === anime.total;
   return (
     <section className="vt-anime" aria-label={`Progression : ${anime.title}`}>
+      {anime.cover && <span className="vt-anime-bg" style={{ backgroundImage: `url("${anime.cover}")` }} aria-hidden="true" />}
       <h2>{anime.title}</h2>
       <div className="vt-progress">
         <span>

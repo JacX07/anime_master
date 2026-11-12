@@ -102,6 +102,8 @@ export interface AnimeProgress {
   total: number;
   /** Pour un bloc « Autres anime » : les anime qu'il regroupe, chacun avec sa propre progression */
   members?: { title: string; owned: number; total: number }[];
+  /** Portrait du personnage le plus populaire de l'anime (liste des collections), si demandé */
+  cover?: string;
 }
 
 /** Un album de monde : progression et puissance possédée. */
@@ -152,7 +154,7 @@ export async function entriesFor(userId: string, ids: number[]): Promise<AlbumEn
   return loadEntries(ids, await ownershipMap(userId));
 }
 
-export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPage> {
+export async function getAlbum(userId: string, f: AlbumFilters, opts: { covers?: boolean } = {}): Promise<AlbumPage> {
   const [owned, animeIndex] = await Promise.all([ownershipMap(userId), loadAnimeIndex()]);
 
   // Index léger de tous les personnages (quelques milliers) : tri par rareté puis favoris en mémoire,
@@ -178,6 +180,17 @@ export async function getAlbum(userId: string, f: AlbumFilters): Promise<AlbumPa
   const selected = [...listed, ...blocks].find((a) => a.key === f.anime) ?? null;
 
   const rank = new Map(all.map((c) => [c.id, c]));
+
+  // Colonne des collections : un portrait par anime (son personnage le plus populaire)
+  if (opts.covers) {
+    const top = (ids: number[]) => ids.reduce<number | null>((best, id) => ((rank.get(id)?.favourites ?? -1) > (best === null ? -1 : rank.get(best)?.favourites ?? -1) ? id : best), null);
+    const topOf = new Map<string, number>();
+    for (const a of animeIndex.listed) { const t = top(a.characterIds); if (t !== null) topOf.set(String(a.key), t); }
+    for (const b of animeIndex.blocks) { const t = top(b.animes.flatMap((a) => a.characterIds)); if (t !== null) topOf.set(b.key, t); }
+    const images = await prisma.character.findMany({ where: { id: { in: [...topOf.values()] } }, select: { id: true, imageUrl: true } });
+    const imageOf = new Map(images.map((c) => [c.id, c.imageUrl]));
+    for (const a of [...listed, ...blocks] as AnimeProgress[]) a.cover = imageOf.get(topOf.get(a.key) ?? -1);
+  }
 
 
   if (!selected && !f.q && !f.rarity && !f.type && f.owned === null) {
