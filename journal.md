@@ -634,3 +634,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Les navigateurs bornent les `setTimeout` d'un onglet masqué (≥ 1 s, puis 1/min) : l'animation aurait rampé. `BattlePlayer` utilise maintenant `backgroundTimeout` (`src/lib/background-timer.ts`, minuterie dans un Worker, repli sur `setTimeout`).
 - Gardé : quitter la page / fermer l'onglet / croix → l'automatique termine côté serveur ; arène : plus de forfait pour absence (entrée précédente).
 - Validation : navigateur (visibilité simulée par `document.hidden`), donjon : 4 s « masqué » → combat toujours RUNNING (pas expédié), un Worker créé, le combat se joue puis se termine à l'écran (DONE). **Non vérifié : le vrai bridage d'un onglet en arrière-plan** (le navigateur de test ne bride pas) ; à confirmer en changeant vraiment d'onglet. L'audio est coupé quand l'onglet est masqué (`suspendWhenHidden`).
+
+## 2026-11-12 — Fond d'accueil sur d'autres pages, tutoriel qui ne mène pas à l'accueil
+- Symptôme : le fond de l'accueil apparaissait parfois sur les autres pages ; les étapes « L'accueil » du tutoriel (Ryō, Cristaux…) ne menaient pas à la page quand on était ailleurs (sous 1500 px la cible est le bouton Menu, qui n'ouvre qu'un tiroir).
+- Cause : la règle CSS `.mq-app-shell:has(.mq-home-main)` ; avec Cache Components l'accueil reste caché dans le DOM après navigation, donc `:has()` matche encore. Côté tutoriel, seule la cible entourée ramenait à la page.
+- Correctif : fond piloté par `.mq-app-shell[data-page="home"]` (URL) ; la bulle affiche un bouton « Y aller » (router.push) quand l'étape est hors de sa page. À retenir : ne pas utiliser `:has()` sur le contenu d'une page pour piloter l'habillage global.

@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./tutorial.css";
@@ -23,6 +23,7 @@ const firstVisible = (selectors: string[]) => {
 /** Tutoriel en infobulles (docs/specs/guide.md, style : docs/direction-artistique.md §4.6–4.7). */
 export function Tutorial() {
   const pathname = usePathname();
+  const router = useRouter();
   const [state, setState] = useState<TutorialState>({ step: 0, locks: {} });
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [hidden, setHidden] = useState(false);
@@ -137,7 +138,9 @@ export function Tutorial() {
         {error && <p role="alert">{error}</p>}
         <div className="tuto-row">
           <button type="button" className="tuto-skip" onClick={skip} disabled={pending}>{step.phase === "end" ? "Fermer" : "Passer le tutoriel"}</button>
-          {step.phase === "action"
+          {awayHint && step.page
+            ? <button type="button" className="ui-button" onClick={() => router.push(step.page!)}>Y aller</button>
+            : step.phase === "action"
             ? <span className="tuto-wait">En attente</span>
             : <button type="button" className="ui-button" onClick={next} disabled={pending}>{step.phase === "end" ? "Terminer" : "Suivant"}</button>}
         </div>
