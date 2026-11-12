@@ -22,6 +22,7 @@ import { NavItem } from "./NavItem";
 import { PlayMenu } from "./PlayMenu";
 import { Tutorial } from "../Tutorial";
 import { Navigation } from "./Navigation";
+import { MiniBar } from "./MiniBar";
 import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
 import { PVP_AVAILABLE } from "@/lib/feature-flags";
@@ -31,6 +32,8 @@ const num = new Intl.NumberFormat("fr-FR");
 /** Barre du haut de la maquette : marque, navigation (Jouer au centre), saison et compte. */
 export function SiteHeader() {
   return (
+    <>
+    <MiniBar account={<Suspense fallback={null}><MiniAccount /></Suspense>} />
     <header className="mq-topbar">
       <Link href="/" className="mq-brand" aria-label="Anima Clash, accueil">
         <Image className="mq-brand-logo" src="/images/brand/anima-clash-logo.png" alt="Anima Clash" width={480} height={344} unoptimized />
@@ -85,6 +88,21 @@ export function SiteHeader() {
         </Suspense>
       </div>
     </header>
+    </>
+  );
+}
+
+/** Ressources et avatar de la mini-barre. Lit la session : derrière un Suspense. */
+async function MiniAccount() {
+  const user = await getSessionUser();
+  if (!user) return <Link href="/login" className="mq-mini-login">Connexion</Link>;
+  const [wallet, packs] = await Promise.all([getWallet(user.id), getPackState(user.id)]);
+  return (
+    <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-mini-account" aria-label={`Profil de ${user.username}`}>
+      <span><Icon name="ryo" /><CountUp value={wallet.balance} id="mini-ryo" /></span>
+      <span><Icon name="cristal" /><CountUp value={packs.available} id="mini-crystals" /></span>
+      <span className="mq-mini-avatar">{user.username.slice(0, 2).toUpperCase()}</span>
+    </Link>
   );
 }
 

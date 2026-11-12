@@ -35,8 +35,7 @@
 .fx-layer { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
 .fx-tabbar { position: absolute; left: 0; top: 0; height: 2px; opacity: 0; background: linear-gradient(90deg, transparent, #d5bb7f 18%, #f3dfae 50%, #d5bb7f 82%, transparent); box-shadow: 0 0 10px #c4a76d99; transition: transform .45s cubic-bezier(.2,.9,.2,1), width .45s cubic-bezier(.2,.9,.2,1), opacity .2s; }
 /* L'ancien soulignement de l'onglet actif s'efface quand la barre glissante est là */
-html.fx-tabs-on .mq-app-shell[class][class] :is(.mq-game-nav, .pg-tabs nav, .mq-section-tabs, .inventory-tabs, .eq-tabs, .quest-filters, .mq-market-tabs, .album-filters .vt-chips, .cs-sorts) :is(a, button):is(.mq-active, [aria-current="page"], [aria-current="true"], [aria-selected="true"], [aria-pressed="true"], [data-active="true"]) { border-bottom-color: transparent; box-shadow: none; }
-html.fx-tabs-on .mq-app-shell[class][class] .mq-game-nav .mq-active::after { opacity: 0; }
+html.fx-tabs-on .mq-app-shell[class][class] :is(.pg-tabs nav, .mq-section-tabs, .inventory-tabs, .eq-tabs, .quest-filters, .mq-market-tabs, .album-filters .vt-chips, .cs-sorts) :is(a, button):is(.mq-active, [aria-current="page"], [aria-current="true"], [aria-selected="true"], [aria-pressed="true"], [data-active="true"]) { border-bottom-color: transparent; box-shadow: none; }
 
 /* Entrée de page : fondu (pas de transform, pour ne pas casser les éléments fixes) */
 .mq-page.fx-enter > :not(.mq-head-dial) { animation: fx-page-in .38s ease-out both; }
@@ -102,3 +101,26 @@ html.fx-tabs-on .mq-app-shell[class][class] .mq-game-nav .mq-active::after { opa
 @keyframes fx-toast-in { from { opacity: 0; transform: translateX(60px) scale(.92); } }
 @keyframes fx-toast-out { to { opacity: 0; transform: translateX(60px); } }
 @media (prefers-reduced-motion: reduce) { .fx-toast, .fx-toast.fx-out, .mq-page.fx-shake, .fx-flash { animation: none; } }
+
+/* ---- Barre escamotable, variante B (validée le 2026-11-13) : mini-barre de 38 px, barre complète au survol ---- */
+.mq-minibar { display: none; }
+@media (min-width: 1500px) {
+  .mq-app-shell[class] .mq-minibar { position: sticky; top: 0; z-index: 25; display: flex; align-items: center; gap: 18px; height: 38px; padding: 0 16px; background: #0b0e0fe6; backdrop-filter: blur(12px); box-shadow: 0 1px 0 #c4a76d33; }
+  .mq-mini-brand { font: 600 15px var(--font-cinzel), serif; letter-spacing: .06em; color: #d5bb7f; text-decoration: none; }
+  .mq-mini-page { color: #d5bb7f; font: 500 11px var(--font-cinzel), serif; letter-spacing: .16em; text-transform: uppercase; }
+  .mq-mini-hint { flex: 1; text-align: center; color: #717772; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; transition: color .2s; }
+  .mq-minibar:hover .mq-mini-hint { color: #d5bb7f; }
+  .mq-app-shell[class][class] .mq-mini-play { padding: 6px 20px; min-height: 0; background: linear-gradient(180deg, #e2c98c, #b8964f); color: #1a1408; font: 600 11px var(--font-cinzel), serif; letter-spacing: .2em; border: 0; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
+  .mq-app-shell[class][class] .mq-mini-play:hover { filter: brightness(1.12); }
+  .mq-mini-account { display: flex; align-items: center; gap: 12px; color: #d5bb7f; font: 700 12px var(--font-dm), sans-serif; text-decoration: none; }
+  .mq-mini-account > span { display: inline-flex; align-items: center; gap: 4px; }
+  .mq-mini-account svg { width: 14px; height: 14px; }
+  .mq-mini-avatar { width: 26px; height: 26px; justify-content: center; border-radius: 50%; background: radial-gradient(#2b2f2c, #0f1211); box-shadow: 0 0 0 1.5px #c4a76d; color: #f0dca0; font: 600 10px var(--font-cinzel), serif; }
+  .mq-mini-login { color: #d5bb7f; font-size: 12px; }
+
+  /* La barre complète sort du flux et se cache au-dessus de l'écran ; elle descend au survol, au focus et pendant le tutoriel */
+  .mq-app-shell[class][class] .mq-topbar { position: fixed; inset: 0 0 auto; z-index: 30; transform: translateY(calc(-100% - 2px)); transition: transform .3s cubic-bezier(.2,.9,.2,1) .45s; box-shadow: 0 18px 40px #0009; }
+  .mq-app-shell[class][class] :is(.mq-minibar:hover ~ .mq-topbar, .mq-topbar:hover, .mq-topbar:focus-within) { transform: none; transition-delay: 0s; }
+  body:has(.tuto-layer) .mq-app-shell[class][class] .mq-topbar { transform: none; }
+}
+@media (min-width: 1500px) and (prefers-reduced-motion: reduce) { .mq-app-shell[class][class] .mq-topbar { transition: none; } }

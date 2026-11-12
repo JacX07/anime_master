@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
  * l'onglet actif, fondu d'entrée des pages, onde au clic des boutons. Tout est dessiné dans un calque à part
  * (jamais dans le DOM des composants, ce qui casserait l'hydratation de React).
  */
-const GROUPS = ".mq-game-nav, .pg-tabs nav, .mq-section-tabs, .inventory-tabs, .eq-tabs, .quest-filters, .mq-market-tabs, .album-filters .vt-chips[aria-label='Possession'], .cs-sorts";
+const GROUPS = ".pg-tabs nav, .mq-section-tabs, .inventory-tabs, .eq-tabs, .quest-filters, .mq-market-tabs, .album-filters .vt-chips[aria-label='Possession'], .cs-sorts";
 const ACTIVE = ":is(.mq-active, [aria-current='page'], [aria-current='true'], [aria-selected='true'], [aria-pressed='true'], [data-active='true'])";
 const RIPPLE = ".ui-button, .fx-btn, .mq-play-button, .pk-open, .claim-button";
 

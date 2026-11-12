@@ -405,3 +405,4 @@
 }
 @media (prefers-reduced-motion: reduce) { .cs-row, .cs, .cs-bar i, .album-page .vt-anime { transition: none; animation: none; } }
 .album-page .vt-sale:has(> div) { flex: 1 1 100%; padding: 10px 12px; background: #0e1211; border-radius: 5px; }
+@media (min-width: 1500px) { .cs-wrap { top: 50px; } .cs { max-height: calc(100vh - 66px); } }

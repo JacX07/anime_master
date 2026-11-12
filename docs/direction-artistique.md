@@ -117,6 +117,7 @@ Un champ reste identifiable comme champ (fond distinct `#171b1a`, texte clair, f
 
 ### 4.10 Barre du haut
 Onglet actif souligné d'or (2 px) et texte or clair ; menus déroulants au survol ; bouton **JOUER** central. Sur mobile, bouton « Menu ».
+- **Escamotable, variante B** (validée le 2026-11-13, maquette `public/mockups/barre-nav-auto.html`), à partir de 1500 px : une mini-barre de 38 px reste visible (logo, page courante, « ◆ Menu », JOUER, Ryō, cristaux, avatar ; `MiniBar.tsx`). La barre complète est cachée au-dessus de l'écran et descend par-dessus au survol de la mini-barre ; elle reste ouverte tant que la souris est dessus (menus compris) ou qu'elle a le focus clavier, remonte 0,45 s après, et reste ouverte pendant le tutoriel.
 
 ### 4.11 Anneau gravé (avatars et emblèmes ronds)
 Validé le 2026-11-04 (maquette « A · Anneau gravé »). Classe partagée `ring-engraved` (`src/app/reference.css`), appliquée d'office à l'avatar de l'en-tête (`.mq-avatar`) et à l'avatar du profil (`.pf-avatar`) ; à réutiliser pour tout **élément rond** qui représente une personne ou un groupe (emblème de guilde, futurs avatars d'amis dans le chat).
@@ -228,5 +229,6 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
 - 2026-11-09 : onglet « En ligne » dans le chat (§4.18).
 - 2026-11-09 : tutoriel plus explicatif (listes de points, phases accueil, raccourcis et combat), Guide du jeu à 22 étapes (§4.6).
+- 2026-11-13 : barre du haut escamotable avec mini-barre (§4.10).
 - 2026-11-13 : titres de page compacts (§3), collection fusionnée (§4.20), boutons colorés par rôle (§4.21), effets visuels de la refonte (§4.22).
 - 2026-11-10 : pages de connexion, inscription et mot de passe oublié remises dans la DA, e-mails de confirmation (§4.19).
