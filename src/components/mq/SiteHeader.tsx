@@ -10,6 +10,7 @@ import { MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { getPackState } from "@/lib/packs";
 import { getEnergy } from "@/lib/battles";
 import { MAX_ENERGY } from "@/lib/energy";
+import { CountUp } from "@/components/fx/CountUp";
 import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { prisma } from "@/lib/db";
@@ -126,8 +127,8 @@ async function Account() {
             {title && <small>{title}</small>}
             <small>Puissance {num.format(packs.collectionPower)}</small>
             <span className="mq-wallet" aria-label="Ressources">
-              <span className="mq-wallet-ryo"><Icon name="ryo" />{num.format(wallet.balance)}<em>Ryō</em></span>
-              <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" />{packs.available}</span>
+              <span className="mq-wallet-ryo"><Icon name="ryo" /><CountUp value={wallet.balance} id="ryo" /><em>Ryō</em></span>
+              <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" /><CountUp value={packs.available} id="crystals" /></span>
               <span className="mq-wallet-energy" title={`Énergie : 1 par combat d’histoire ou de donjon, +1 toutes les 2 min (max ${MAX_ENERGY})`}><Icon name="recharge" />{energy.available}/{MAX_ENERGY}</span>
             </span>
             <span className="mq-xp" role="progressbar" aria-label="Expérience d'Arpenteur" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xpPct}>

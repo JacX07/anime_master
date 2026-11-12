@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GoldDust } from "@/components/fx/GoldDust";
 import { Suspense } from "react";
 import { ACHIEVEMENTS, listAchievements } from "@/lib/achievements";
 import { PackOpener } from "./packs/PackOpener";
@@ -22,6 +23,7 @@ export const maxDuration = 60;
 export default function Home() {
   return (
     <main className="mq-main mq-home-main">
+      <GoldDust />
       {/* Pas la page visiteur en attendant : un joueur connecté qui revient sur l'accueil voyait « Créer un compte » sans ses boosters */}
       <Suspense fallback={<p className="vt-inner vt-muted">Chargement de la Faille…</p>}>
         <Content />
