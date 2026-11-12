@@ -85,7 +85,7 @@ export function ForgeCarousel({ weapons, cards }: { weapons: ForgeWeapon[]; card
                 {free.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
               </select>
             </label>
-            <ForgeForm key={`${weapon.key}-${cardId}`} cardId={cardId} weapon={weapon.key} label={`Forger ${weapon.name}`} disabled={!card || card.busy || missing} />
+            <ForgeForm key={`${weapon.key}-${cardId}`} cardId={cardId} weapon={weapon.key} label={`Forger ${weapon.name}`} weaponName={weapon.name} disabled={!card || card.busy || missing} />
             {missing && <p className="fg-hint">Il te manque des ressources pour cette arme.</p>}
             {card?.busy && <p className="fg-hint">Cette carte est en vente ou en expédition.</p>}
           </div>

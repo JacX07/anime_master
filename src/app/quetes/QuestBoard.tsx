@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { getAdventure } from "@/lib/adventure-state";
 import { Icon } from "@/components/icons";
 import { claimPeriodicQuestAction } from "./actions";
+import { fxReward } from "@/lib/fx";
 
 /** Quête quotidienne ou hebdomadaire, prête à afficher (dates déjà résolues côté serveur). */
 export type PeriodicQuestView = {
@@ -30,10 +31,15 @@ export function QuestBoard({ state, quests }: { state: Awaited<ReturnType<typeof
 
   const claim = (keys: string[]) => start(async () => {
     setError(null);
+    // Le bouton cliqué a le focus : les étincelles partent de lui
+    const at = document.activeElement instanceof HTMLButtonElement ? document.activeElement.getBoundingClientRect() : undefined;
+    let got = 0;
     for (const key of keys) {
       const r = await claimPeriodicQuestAction(key);
       if (!r.ok) { setError(r.error); break; }
+      got++;
     }
+    if (got) fxReward(at, got > 1 ? `${got} quêtes récupérées` : "Quête récupérée", "Récompenses ajoutées.");
     router.refresh();
   });
 
