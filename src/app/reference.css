@@ -295,3 +295,16 @@
   .mq-account-panel > button[type="submit"] { color: #e0645c; border-left-color: #e0645c; }
 }
 @media (prefers-reduced-motion: reduce) { .mq-app-shell[class][class] .mq-navigation-content { transition: none; } }
+
+/* Titres de page compacts (demande du 2026-11-13) : le titre ne doit plus prendre la place du contenu.
+   Remplace l'échelle 34–52 px de la maquette de référence. */
+.mq-app-shell[class] .mq-page-heading h1,
+.mq-app-shell[class] .vt-title,
+.mq-app-shell[class] .mq-simple-page > h1 { font-size: clamp(22px, 2.2vw, 30px); line-height: 1.1; letter-spacing: -.01em; }
+.mq-app-shell[class] .mq-home-intro h1 { font-size: clamp(24px, 2.6vw, 34px); }
+.mq-app-shell[class] .mq-page-heading { margin-bottom: 14px; gap: 12px; }
+.mq-app-shell[class] .mq-page-heading p { margin-top: 4px; }
+.mq-app-shell[class] .mq-page-heading .mq-eyebrow { margin-bottom: 2px; font-size: 10px; }
+.mq-app-shell[class] .vt-inner { padding-top: 24px; }
+.mq-app-shell[class] .pg-head { padding-bottom: .6rem; align-items: center; }
+@media (max-width: 700px) { .mq-app-shell[class] .vt-inner { padding-top: 16px; } }
