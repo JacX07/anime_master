@@ -29,3 +29,23 @@
 .mq-app-shell[class][class] .mq-page .ui-button[data-tone]:hover:not(:disabled) { background: color-mix(in srgb, var(--tone) 32%, transparent); box-shadow: inset 0 -2px 0 var(--tone), 0 0 20px -6px var(--tone); }
 
 @media (prefers-reduced-motion: reduce) { .mq-app-shell[class][class] .fx-btn, .mq-app-shell[class][class] .fx-btn::before, .mq-app-shell[class][class] .fx-btn::after { transition: none; } }
+
+/* ---- Lot 1 : navigation ---- */
+/* Calque des effets (FxRuntime) : barres d'onglets et ondes, au-dessus de tout, sans capter la souris */
+.fx-layer { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
+.fx-tabbar { position: absolute; left: 0; top: 0; height: 2px; opacity: 0; background: linear-gradient(90deg, transparent, #d5bb7f 18%, #f3dfae 50%, #d5bb7f 82%, transparent); box-shadow: 0 0 10px #c4a76d99; transition: transform .45s cubic-bezier(.2,.9,.2,1), width .45s cubic-bezier(.2,.9,.2,1), opacity .2s; }
+/* L'ancien soulignement de l'onglet actif s'efface quand la barre glissante est là */
+html.fx-tabs-on .mq-app-shell[class][class] :is(.mq-game-nav, .pg-tabs nav, .mq-section-tabs, .inventory-tabs, .eq-tabs, .quest-filters, .mq-market-tabs, .album-filters .vt-chips, .cs-sorts) :is(a, button):is(.mq-active, [aria-current="page"], [aria-current="true"], [aria-selected="true"], [aria-pressed="true"], [data-active="true"]) { border-bottom-color: transparent; box-shadow: none; }
+html.fx-tabs-on .mq-app-shell[class][class] .mq-game-nav .mq-active::after { opacity: 0; }
+
+/* Entrée de page : fondu (pas de transform, pour ne pas casser les éléments fixes) */
+.mq-page.fx-enter > :not(.mq-head-dial) { animation: fx-page-in .38s ease-out both; }
+@keyframes fx-page-in { from { opacity: 0; } }
+
+/* Boutons d'action : reflet qui passe au survol, onde au clic (dans le calque) */
+.mq-app-shell[class][class] .mq-page :is(.ui-button, .pk-open) { background-image: linear-gradient(110deg, transparent 40%, #ffffff1f 50%, transparent 60%); background-size: 250% 100%; background-position: 160% 0; background-repeat: no-repeat; transition: background-position .7s ease, background-color .2s, box-shadow .2s, transform .2s, color .2s; }
+.mq-app-shell[class][class] .mq-page :is(.ui-button, .pk-open):hover:not(:disabled) { background-position: -60% 0; text-shadow: 0 0 12px #d5bb7f66; }
+.fx-ripple-clip { position: fixed; overflow: hidden; border-radius: 3px; pointer-events: none; }
+.fx-ripple { position: absolute; border-radius: 50%; background: radial-gradient(circle, #f3dfae66, #d5bb7f00 70%); transform: scale(0); animation: fx-ripple .6s ease-out forwards; }
+@keyframes fx-ripple { to { transform: scale(3.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fx-tabbar { transition: none; } .mq-page.fx-enter > * { animation: none; } }
