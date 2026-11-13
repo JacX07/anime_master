@@ -14,6 +14,7 @@ import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
 import { TypeIcon } from "../icons";
+import { SpellHand, UltimateEmblem, ULT_COLOR, type HandCard } from "./SpellHand";
 import type { PlayerCharacter } from "./BattlePlayer";
 
 const num = new Intl.NumberFormat("fr-FR");
@@ -47,18 +48,19 @@ export function SpellsPanel({
   };
 }) {
   const [inspected, setInspected] = useState<{ unit: UnitId; spell: Spell } | null>(null);
+  const [hover, setHover] = useState<Spell | null>(null);
   const affinity = SPELL_INFO[unit.type];
   const types = Object.keys(TYPE_LABELS) as CardType[];
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
   const weakVs = types.find((t) => typeAffinity(unit.type, t) < 1)!;
   const boss = unit.boss ? BOSS_SKILLS[unit.characterId] : undefined;
   const basic = boss?.basicAttack ?? basicAttackOf(unit.characterId, unit.rarity, unit.type);
-  const spells: { key: Spell; title: React.ReactNode; target: string; text: string; tooltip: string; note: string | null }[] = [
-    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
+  const spells: { key: Spell; title: React.ReactNode; name: string; kind: string; cost: string; accent: string; target: string; text: string; tooltip: string; note: string | null }[] = [
+    { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, name: basic?.name ?? BASE_SPELL.name, kind: "Attaque de base", cost: "0", accent: "#c4a76d", target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
   ];
   // Les SSR et UR n'ont pas de sort de type : leurs 4 emplacements sont personnalisés
   if (!hasCharacterSlots(unit.rarity)) {
-    spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, target: affinity.target, text: affinity.text, tooltip: affinity.details, note: AFFINITY_COOLDOWN });
+    spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, name: SPELL_NAMES[unit.type], kind: "Affinité", cost: String(BATTLE.spellCooldown), accent: "#d1bd8e", target: affinity.target, text: affinity.text, tooltip: affinity.details, note: AFFINITY_COOLDOWN });
   }
   const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
   const element = effectElement(unit.characterId);
@@ -66,7 +68,7 @@ export function SpellsPanel({
   if (own) {
     spells.push({
       key: "special" as const,
-      title: <>★ {own.name}</>,
+      title: <>★ {own.name}</>, name: own.name, kind: "★ Secondaire", cost: String(SPELL_COOLDOWN), accent: "#5aa9ff",
       target: SPELL_TARGET_LABEL[own.target ?? "none"],
       text: [describeSpell(own, true), element && describeElement(element)].filter(Boolean).join(" "),
       tooltip: [describeSpell(own, true), element && describeElement(element)].filter(Boolean).join(" "),
@@ -80,7 +82,7 @@ export function SpellsPanel({
   if (tertiary) {
     spells.push({
       key: "tertiary",
-      title: <>◇ {tertiary.name}</>,
+      title: <>◇ {tertiary.name}</>, name: tertiary.name, kind: "◇ Tertiaire", cost: String(BATTLE.tertiaryCooldown), accent: "#a98bd9",
       target: SPELL_TARGET_LABEL[tertiary.target ?? "none"],
       text: describeSpell(tertiary, true),
       tooltip: describeSpell(tertiary, true),
@@ -91,14 +93,23 @@ export function SpellsPanel({
   if (ultimate) {
     spells.push({
       key: "ultimate",
-      title: <>✦ {ultimate.name}</>,
+      title: <>✦ {ultimate.name}</>, name: ultimate.name, kind: "✦ Ultime", cost: "", accent: ULT_COLOR[unit.type],
       target: SPELL_TARGET_LABEL[ultimate.target ?? "none"],
       text: describeSpell(ultimate, true),
       tooltip: describeSpell(ultimate, true),
       note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });
   }
-  const detail = spells.find((s) => s.key === (choose?.spell ?? (inspected?.unit === unit.id ? inspected.spell : "base"))) ?? spells[0];
+  const detail = spells.find((s) => s.key === (hover ?? choose?.spell ?? (inspected?.unit === unit.id ? inspected.spell : "base"))) ?? spells[0];
+  const ultimateSpell = spells.find((s) => s.key === "ultimate");
+  const handSpells = spells.filter((s) => s.key !== "ultimate");
+  const waitOf = (key: Spell) => (key === "special" ? choose?.waitSpecial ?? 0 : key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0);
+  const cards: HandCard[] = handSpells.map((s) => ({
+    key: s.key, name: s.name, kind: s.kind, cost: s.cost, text: s.text, accent: s.accent,
+    ready: !choose || choose.choices.some((c) => c.spell === s.key), wait: waitOf(s.key),
+    selected: choose?.spell === s.key,
+  }));
+  const choose_ = (key: Spell) => { setInspected({ unit: unit.id, spell: key }); choose?.onSpell(key); };
   return (
     <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`} data-choosing={choose ? "" : undefined}>
       <h3 className="bt-spells-title">
@@ -123,52 +134,14 @@ export function SpellsPanel({
           {choose.error}
         </p>
       )}
-      <div className="bt-spell-list">
-        {spells.map((s) => {
-          const wait = s.key === "special" ? choose?.waitSpecial ?? 0 : s.key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0;
-          const ready = !choose || choose.choices.some((c) => c.spell === s.key);
-          const turnsWait = s.key === "affinity" || s.key === "special" || s.key === "tertiary";
-          const charge = Math.min(100, Math.max(0, ultimateGauge / ultimateGaugeMax * 100));
-          const body = (
-            <>
-              {s.key === "ultimate" && <span className="bt-ultimate-charge" role="progressbar" aria-label="Charge de l’ultime" aria-valuemin={0} aria-valuemax={ultimateGaugeMax} aria-valuenow={ultimateGauge} data-ready={charge >= 100 || undefined}>
-                <svg viewBox="0 0 64 64" aria-hidden="true"><circle className="bt-charge-track" cx="32" cy="32" r="27" /><circle className="bt-charge-fill" cx="32" cy="32" r="27" pathLength="100" strokeDasharray={`${charge} 100`} /></svg>
-                <span>{charge >= 100 ? "Prêt" : `${Math.round(charge)}%`}</span>
-              </span>}
-              <div className="bt-spell-copy">
-              <b>{s.title}</b>
-              <em>{s.target}</em>
-              <p>{s.text}</p>
-              {s.note && <small>{choose && !ready && turnsWait ? `Prêt dans ${wait} tour${wait > 1 ? "s" : ""}.` : s.note}</small>}
-              {choose && !ready && turnsWait && s.key !== "base" && wait > 0 && (
-                <span className="bt-wait" aria-hidden>
-                  {wait}
-                </span>
-              )}
-              <span id={`bt-spell-detail-${unit.id}-${s.key}`} hidden>{s.tooltip}</span>
-              </div>
-            </>
-          );
-          return choose ? (
-            <button
-              key={s.key}
-              type="button"
-              className="bt-spell"
-              title={s.tooltip}
-              aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`}
-              data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}
-              aria-pressed={choose.spell === s.key}
-              disabled={!ready || choose.busy}
-              onClick={() => { setInspected({ unit: unit.id, spell: s.key }); choose.onSpell(s.key); }}
-            >
-              {body}
-            </button>
-          ) : (
-            <div key={s.key} className="bt-spell" role="button" tabIndex={0} onClick={() => setInspected({ unit: unit.id, spell: s.key })} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setInspected({ unit: unit.id, spell: s.key }); } }} title={s.tooltip} aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`} data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}>
-              {body}
-            </div>
-          );
-        })}
+      <div className="bt-hand-zone">
+        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} onHover={(k) => setHover(k as Spell | null)}
+          onChoose={(k) => (choose ? choose_(k as Spell) : setInspected({ unit: unit.id, spell: k as Spell }))} />
+        {ultimateSpell && (
+          <UltimateEmblem gauge={ultimateGauge} max={ultimateGaugeMax} name={ultimateSpell.name} portrait={character?.imageUrl} color="#ff4d6d"
+            interactive={!!choose} ready={!choose || choose.choices.some((c) => c.spell === "ultimate")} armed={choose?.spell === "ultimate"} busy={!!choose?.busy}
+            onClick={() => (choose ? choose_("ultimate") : setInspected({ unit: unit.id, spell: "ultimate" }))} />
+        )}
       </div>
       <p className="bt-selected-description" aria-live="polite">{detail.text}</p>
       <details className="bt-inspect-details" onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>

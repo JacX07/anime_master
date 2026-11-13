@@ -207,6 +207,12 @@ Variante A de `docs/maquettes/combat-dispositions.html`, retenue par l’utilisa
 
 Sur PC, alliés en diagonale à gauche et ennemis à droite, avec un espace d'action central. Sur les arènes larges, la formation reste centrée dans un rectangle de ratio 9:5 (maximum 1440×800 px) : les positions et portraits partagent la même échelle, sans étirement horizontal sur les écrans ultra-larges. Le fond reste plein écran. Sur téléphone, nouvelle référence fournie par l’utilisateur : ennemis en haut à droite, alliés en bas à gauche, les deux équipes descendant en diagonale. Largeur des portraits limitée à la fois par la largeur et la hauteur de l'arène pour garder les PV et les commandes dans l'écran. Le panneau détaillé s'ouvre au-dessus des sorts, défile indépendamment et se ferme avec son résumé ou Échap. Les règles de ciblage et les restrictions du mode sans effets sont conservées. Cette disposition remplace les colonnes plateau/sorts et les rangées mobiles du §4.15.
 
+### 4.27 Main de sorts et ultime (validée le 2026-11-13)
+
+Maquette `public/mockups/sorts-cartes.html` : sorts en éventail, carte agrandie au survol, au focus ou lorsqu'elle attend une cible ; halo de sa couleur. Au lancement manuel, elle se désagrège en particules qui rejoignent le portrait du lanceur, puis le lecteur montre l'attaque. La requête de jeu part immédiatement, sans attendre l'animation. Vitesse de lecture et mode sans effets conservés ; nettoyage à l'interruption et au démontage.
+
+Option 3 retenue pour l'ultime : portrait du personnage recadré dans un disque teinté rouge, texture de liquide statique dont seul le niveau suit la jauge, arc de charge et indication « Prêt ». Le nom de l'ultime et du lanceur apparaît au centre à son exécution, pour les deux camps. En mouvements réduits, pas de particules, halo ou flash animé ; annonce brève sans mouvement. Les descriptions intégrales restent dans le panneau des détails. Les commandes et l'accès aux effets restent devant l'éventail, même lorsqu'une carte est relevée. Largeur de carte 132 px sur PC, 92 px sur téléphone ; place réservée à l'emblème sur mobile.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 

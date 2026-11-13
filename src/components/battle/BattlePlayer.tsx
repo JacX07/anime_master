@@ -19,11 +19,14 @@ import { replayTurnOrder } from "@/lib/battle-report";
 import { SpellsPanel } from "./BattlePanels";
 import { BattleVictory } from "./BattleVictory";
 import "./battle.css";
+import "./spell-hand.css";
 import type { MusicTrack } from "@/lib/track-music";
 import { backgroundTimeout } from "@/lib/background-timer";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
 import { EffectsPanel } from "./EffectsPanel";
+import { ULT_COLOR } from "./SpellHand";
+import { fxStream } from "@/lib/fx";
 
 export interface PlayerCharacter {
   name: string;
@@ -136,15 +139,41 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const autoOn = !!live?.auto;
   const autoBusy = !!live?.busy;
   const autoFailed = !!live?.error;
-  useEffect(() => {
-    // En auto, dès que l'écran a rattrapé le journal, le serveur joue l'action suivante
-    if (ready && autoOn && !autoBusy && !autoFailed && playing) autoStep?.();
-  }, [ready, autoOn, autoBusy, autoFailed, playing, autoStep, rp.idx]);
   const choice = awaiting ? live?.choices.find((c) => c.spell === spell) : undefined;
+  // Sort lancé : la carte se désagrège en particules qui filent vers le lanceur, il les « consomme », puis le coup part (maquette sorts-cartes)
+  const [consuming, setConsuming] = useState(false);
+  const cancelCast = useRef<(() => void) | null>(null);
+  useEffect(() => () => cancelCast.current?.(), []);
   const play = (s: Spell, target: UnitId | null) => {
+    if (consuming) return;
     setSelection(null);
+    const root = document.querySelector(".mq-battle-overlay");
+    const caster = live?.actor ? root?.querySelector<HTMLElement>(`[data-unit="${live.actor}"]`) : null;
+    const source = root?.querySelector<HTMLElement>(s === "ultimate" ? ".bt-ult" : `.bt-hand-card[data-spell="${s}"]`);
+    const color = source ? getComputedStyle(source).getPropertyValue(s === "ultimate" ? "--ult" : "--accent").trim() || "#c4a76d" : "#c4a76d";
+    const stream = spellFx && source && caster ? fxStream(source, caster, [color], s === "ultimate" ? 320 : 220, speed) : null;
+    if (stream && source && caster) {
+      if (s !== "ultimate") source.classList.add("bt-gone");
+      setConsuming(true);
+      caster.style.setProperty("--charge", color);
+      const absorb = setTimeout(() => caster.classList.add("bt-absorb"), stream.duration * .65);
+      const finish = setTimeout(() => cancelCast.current?.(), stream.duration);
+      cancelCast.current = () => {
+        clearTimeout(absorb); clearTimeout(finish); stream.cancel();
+        caster.classList.remove("bt-absorb"); source.classList.remove("bt-gone");
+        caster.style.removeProperty("--charge");
+        cancelCast.current = null;
+        setConsuming(false);
+      };
+    }
+    // L'action est envoyée immédiatement ; seul le lecteur attend l'absorption visuelle.
     live?.onPlay(s, target);
   };
+  useEffect(() => {
+    // En auto, dès que l'écran a rattrapé le journal, le serveur joue l'action suivante
+    if (ready && autoOn && !autoBusy && !autoFailed && playing && !consuming) autoStep?.();
+  }, [ready, autoOn, autoBusy, autoFailed, playing, consuming, autoStep, rp.idx]);
+
   // Carte dont les sorts sont affichés sous le plateau : celle qu'on a touchée, sinon celle qui joue
   const [picked, setPicked] = useState<UnitId | null>(null);
 
@@ -152,7 +181,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const playbackHold = useRef({ idx: rp.idx, remaining: holdFor(log, rp.idx - 1) });
   useEffect(() => {
     if (playbackHold.current.idx !== rp.idx) playbackHold.current = { idx: rp.idx, remaining: holdFor(log, rp.idx - 1) };
-    if (!playing || caughtUp) return;
+    if (!playing || caughtUp || consuming) return;
     const hold = playbackHold.current;
     const started = performance.now();
     // Minuterie d'arrière-plan : l'animation continue au même rythme quand on change d'onglet
@@ -161,7 +190,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       cancel();
       hold.remaining = Math.max(0, hold.remaining - (performance.now() - started) * pace);
     };
-  }, [playing, caughtUp, pace, rp.idx, log]);
+  }, [playing, caughtUp, consuming, pace, rp.idx, log]);
 
   useEffect(() => {
     if (finished) onEnd?.();
@@ -319,15 +348,17 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   }, [rp.idx, rp.info, log, spellFx]);
 
   const restart = () => {
+    cancelCast.current?.();
     setRp(replayStart(log));
     setPlaying(true);
   };
-  const skip = () => setRp({ ...replayAll(log), pops: [] });
+  const skip = () => { cancelCast.current?.(); setRp({ ...replayAll(log), pops: [] }); };
   // Saut au résultat demandé par le combat en direct (« Terminer », onglet en arrière-plan) : dès que la fin est dans le journal
   const skipped = useRef(0);
   useEffect(() => {
     const nonce = live?.skipNonce ?? 0;
     if (nonce > skipped.current && log[log.length - 1]?.kind === "end") {
+      cancelCast.current?.();
       skipped.current = nonce;
       setRp({ ...replayAll(log), pops: [] });
     }
@@ -342,6 +373,14 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
 
   return (
     <div className="bt-layout bt-layout-with-order bt-layout-diagonal" onPointerDown={() => getAudio().unlock()}>
+      <div className="fx-layer" aria-hidden="true" />
+      {/* Ultime lancé (par n'importe quel camp) : son nom s'écrit au milieu de l'écran */}
+      {spellFx && rp.cur?.spell === "ultimate" && !finished && (
+        <div key={rp.cur.n} className="bt-ult-wrap" style={{ "--spd": speed, "--ult": ULT_COLOR[rp.cur.type] } as React.CSSProperties} aria-hidden="true">
+          <div className="bt-ult-flash" />
+          <div className="bt-ult-banner"><small>Ultime · {characters[rp.info[rp.cur.actor].characterId]?.name ?? ""}</small>{rp.cur.name}</div>
+        </div>
+      )}
       {/* Bandeau tout en haut (titre, tour, croix), puis l'ordre de combat (disposition validée le 2026-11-13) */}
       <div className="bt-head" aria-live="polite">
         {title && <b className="bt-title">{title}</b>}
@@ -454,7 +493,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
                 wait: live.wait[spellUnit] ?? 0,
                 waitSpecial: live.wait[`${spellUnit}:special`] ?? 0,
                 waitTertiary: live.wait[`${spellUnit}:tertiary`] ?? 0,
-                busy: live.busy,
+                busy: live.busy || consuming,
                 error: live.error,
                 onSpell: (s) => {
                   const c = live.choices.find((x) => x.spell === s);
@@ -469,13 +508,13 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       <div className="bt-controls">
         <div className="bt-dock">
           <div className="bt-dock-in">
-            <button type="button" className="bt-ico" onClick={live?.onFinish && !rp.end ? live.onFinish : skip} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
+            <button type="button" className="bt-ico" onClick={() => { cancelCast.current?.(); if (live?.onFinish && !rp.end) live.onFinish(); else skip(); }} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
               <Icon name="fin" />
             </button>
             <button
               type="button"
               className="bt-big"
-              onClick={() => (finished ? restart() : setPlaying((p) => !p))}
+              onClick={() => { cancelCast.current?.(); if (finished) restart(); else setPlaying((p) => !p); }}
               aria-label={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
               title={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
             >

@@ -1,0 +1,89 @@
+/* Sorts en main de cartes et emblème d'ultime (maquette public/mockups/sorts-cartes.html, validée le 2026-11-13) */
+.bt-hand-zone { position: relative; height: clamp(88px, 13vh, 118px); margin-top: .1rem; }
+.bt-hand { position: absolute; left: 50%; bottom: 0; width: min(760px, 100%); height: 100%; transform: translateX(-50%); }
+.mq-app-shell[class][class] .bt-hand-card {
+  --accent: #c4a76d; position: absolute; left: 50%; bottom: -62px; width: var(--w, 132px); height: calc(var(--w, 132px) * 1.4); padding: 0; border: 0; border-radius: 9px; background: none;
+  transform-origin: 50% 120%; transition: transform .35s cubic-bezier(.2,.9,.2,1), filter .3s, opacity .3s; cursor: pointer; will-change: transform; text-align: center; color: inherit;
+}
+.mq-app-shell[class][class] .bt-hand-card:is(:hover, :focus-visible, [data-hot]) { border-bottom: 0; background: none; }
+.mq-app-shell[class][class] .bt-hand-card:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 4px; }
+.bt-hand-face { position: absolute; inset: 0; overflow: hidden; border-radius: 9px; display: block; background: linear-gradient(170deg, color-mix(in srgb, var(--accent) 34%, #141917), #0c100f 70%); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent) 75%, #000), 0 14px 28px #000c; }
+.bt-hand-art { position: absolute; left: 7%; right: 7%; top: 17%; bottom: 33%; border-radius: 4px; background: var(--img) center 18% / cover; filter: saturate(1.1); box-shadow: inset 0 0 0 1px #0008; }
+.bt-hand-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 40%, color-mix(in srgb, var(--accent) 45%, transparent)); mix-blend-mode: screen; }
+.bt-hand-title { position: absolute; left: 21%; right: 4%; top: 4%; font: 600 11px/1.15 var(--font-cinzel), serif; color: #f0e6cc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bt-hand-cost { position: absolute; left: 4%; top: 2.5%; width: 18%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: #0b0e0f; box-shadow: 0 0 0 1.5px var(--accent); font: 700 10px var(--font-dm), sans-serif; color: var(--accent); }
+.bt-hand-kind { position: absolute; left: 50%; bottom: 26%; transform: translateX(-50%); padding: 1px 7px; border-radius: 3px; background: #0b0e0fd9; color: var(--accent); font: 700 8px var(--font-dm), sans-serif; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.bt-hand-text { position: absolute; left: 6%; right: 6%; bottom: 4%; height: 21%; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; padding: 2px 4px; border-radius: 4px; background: #0b0e0fb3; font: 400 9px/1.25 var(--font-dm), sans-serif; color: #d9d4c8; }
+.bt-hand-card[data-cd] .bt-hand-face { filter: grayscale(.85) brightness(.55); }
+.bt-hand-card[data-cd]::after { content: attr(data-cd); position: absolute; inset: 0; display: grid; place-items: center; font: 700 40px var(--font-cinzel), serif; color: #fff; text-shadow: 0 0 16px #000; pointer-events: none; }
+.bt-hand-card:disabled { cursor: not-allowed; opacity: .55; }
+.bt-hand-card[data-cd]:disabled { opacity: 1; }
+@property --bt-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.bt-hand-halo { position: absolute; inset: -7px; border-radius: 14px; opacity: 0; pointer-events: none; transition: opacity .25s; padding: 3px; filter: drop-shadow(0 0 8px var(--accent)); animation: bt-spin 2.2s linear infinite;
+  background: conic-gradient(from var(--bt-a), transparent 0 18%, var(--accent) 30%, #fff8dc 36%, var(--accent) 42%, transparent 55% 68%, var(--accent) 80%, #fff8dc 85%, var(--accent) 90%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.bt-hand-glow { position: absolute; inset: -18px; border-radius: 24px; opacity: 0; pointer-events: none; transition: opacity .25s; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 45%, transparent), transparent); animation: bt-pulse 1.6s ease-in-out infinite; }
+.bt-hand-card[data-hot]:not([data-cd]) :is(.bt-hand-halo, .bt-hand-glow), .bt-hand-card[data-armed] :is(.bt-hand-halo, .bt-hand-glow) { opacity: 1; }
+.bt-hand-card.bt-gone { opacity: 0; pointer-events: none; transition: opacity .12s; }
+@keyframes bt-spin { to { --bt-a: 360deg; } }
+@keyframes bt-pulse { 50% { transform: scale(1.06); opacity: .8; } }
+
+/* Emblème d'ultime, en bas à droite */
+.mq-app-shell[class][class] .bt-ult { position: absolute; right: .4rem; bottom: -.2rem; z-index: 5; width: clamp(84px, 9vw, 116px); padding: 0; border: 0; border-radius: 50%; background: none; display: grid; justify-items: center; gap: 0; cursor: pointer; filter: drop-shadow(0 8px 14px #000c); transition: transform .25s; }
+.mq-app-shell[class][class] .bt-ult:is(:hover, :focus-visible):not(:disabled) { border-bottom: 0; background: none; transform: scale(1.06); }
+.mq-app-shell[class][class] .bt-ult:focus-visible { outline: 2px solid #d5bb7f; outline-offset: 4px; }
+.bt-ult:disabled { cursor: default; }
+.bt-ult svg { width: 100%; height: auto; overflow: visible; }
+.bt-ult-pct { margin-top: -.9rem; font: 700 .65rem var(--font-dm), sans-serif; letter-spacing: .08em; color: #fff; text-shadow: 0 1px 4px #000; }
+.bt-ult[data-full] svg { animation: bt-ult-ready 1.4s ease-in-out infinite; }
+.bt-ult[data-full] .bt-ult-pct { color: #fff; text-shadow: 0 0 10px var(--ult); }
+.bt-ult[data-armed] svg { filter: drop-shadow(0 0 14px var(--ult)); }
+.bt-ult-run { transform-origin: 100px 110px; animation: bt-ult-run 3s linear infinite; }
+@keyframes bt-ult-ready { 50% { filter: drop-shadow(0 0 16px var(--ult)); } }
+@keyframes bt-ult-run { to { transform: rotate(360deg); } }
+
+/* Nom de l'ultime au centre de l'écran, quand il est lancé (par n'importe quel camp) */
+.bt-ult-flash { position: fixed; inset: 0; z-index: 70; pointer-events: none; background: radial-gradient(circle at 50% 50%, #ffe3e8, color-mix(in srgb, var(--ult, #ff4d6d) 33%, transparent) 30%, #000a 75%); opacity: 0; animation: bt-ult-flash calc(1.9s / var(--spd, 1)) ease-out; }
+.bt-ult-banner { position: fixed; left: 0; right: 0; top: 50%; z-index: 71; transform: translateY(-50%); pointer-events: none; padding: .3em 1.2em; text-align: center; opacity: 0; color: #fff; font: 700 clamp(26px, 5vw, 60px) var(--font-cinzel), serif; letter-spacing: .06em; text-shadow: 0 0 30px var(--ult, #ff4d6d), 0 4px 0 #000;
+  background: linear-gradient(90deg, transparent, #14070acc 18%, #14070acc 82%, transparent); animation: bt-ult-name calc(2s / var(--spd, 1)) ease-out; }
+.bt-ult-banner small { display: block; font: 600 .26em var(--font-dm), sans-serif; letter-spacing: .4em; color: #ffd9df; text-shadow: none; text-transform: uppercase; }
+@keyframes bt-ult-flash { 10% { opacity: 1; } 70% { opacity: .75; } 100% { opacity: 0; } }
+@keyframes bt-ult-name { 0% { opacity: 0; transform: translateY(-50%) scale(1.6); letter-spacing: .3em; } 14% { opacity: 1; transform: translateY(-50%) scale(1); letter-spacing: .06em; } 80% { opacity: 1; transform: translateY(-50%) scale(1.03); } 100% { opacity: 0; transform: translateY(-50%) scale(1.08); } }
+
+@media (max-width: 640px) {
+  .bt-hand-zone { height: 78px; }
+  .mq-app-shell[class][class] .bt-hand-card { bottom: -52px; }
+  .mq-app-shell[class][class] .bt-ult { width: 70px; right: .25rem; }
+  .bt-ult-pct { font-size: .55rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bt-hand-halo, .bt-hand-glow, .bt-ult[data-full] svg, .bt-ult-run, .bt-ult-flash, .bt-ult-banner { animation: none; }
+  .bt-ult-flash { display: none; }
+  .bt-ult-banner { opacity: 1; }
+  .bt-hand-card { transition: none; }
+}
+
+/* Le lanceur absorbe la carte : un éclat de la couleur du sort */
+.bt-unit.bt-absorb .bt-card { animation: bt-absorb calc(.5s / var(--spd, 1)) ease-out; }
+@keyframes bt-absorb { 35% { box-shadow: 0 0 0 3px #fff8dc, 0 0 46px 10px var(--charge, #c4a76d); filter: brightness(1.5); scale: 1.07; } }
+
+.bt-ult-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
+@media (prefers-reduced-motion: reduce) {
+  .bt-unit.bt-absorb .bt-card { animation: none; }
+  .bt-ult-banner { animation: bt-ult-still 1.5s step-end forwards; }
+  .bt-ult g, .bt-ult circle { transition: none !important; }
+}
+@keyframes bt-ult-still { from { opacity: 1; } to { opacity: 0; } }
+
+.bt-hand-halo, .bt-hand-glow { animation-play-state: paused; }
+.bt-hand-card[data-hot]:not([data-cd]) :is(.bt-hand-halo, .bt-hand-glow), .bt-hand-card[data-armed] :is(.bt-hand-halo, .bt-hand-glow) { animation-play-state: running; }
+@media (max-width: 640px) {
+  .bt-hand { left: calc(50% - 35px); width: calc(100% - 80px); }
+}
+/* Les descriptions et l'accès aux effets restent lisibles devant les cartes au repos. */
+.bt-layout-diagonal .bt-selected-description { position: relative; z-index: 21; pointer-events: none; background: #111514; }
+.bt-layout-diagonal .bt-inspect-details > summary { z-index: 31; background: #111514; }
+@media (max-width: 700px) and (orientation: portrait) {
+  .bt-layout-diagonal .bt-inspect-details > summary { position: relative; width: fit-content; }
+}
+.bt-layout-diagonal .bt-controls { position: relative; z-index: 40; }

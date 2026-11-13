@@ -5,6 +5,7 @@ Une section par version, la plus récente en haut. Chaque version correspond à 
 ## À venir
 
 ### Nouveautés
+- **Sorts en éventail** : cartes de compétence relevées au survol ou au toucher, particules absorbées par le lanceur, ultime en portrait avec jauge texturée et annonce du sort au centre de l’écran.
 - **Plateau de combat** : équipes en diagonales face à face, davantage de place pour les portraits et quatre sorts compacts sous l’arène. Descriptions complètes, affinités et effets consultables dans un panneau dépliable ; commandes toujours accessibles.
 - **Fond de combat commun** : la citadelle et son arène habillent tous les combats, y compris Dragon Ball.
 - **Combat mobile** : commandes de vitesse toujours accessibles, panneau des sorts défilant et résultat au premier plan ; l'en-tête et le pied de page ne recouvrent plus le titre de victoire.
