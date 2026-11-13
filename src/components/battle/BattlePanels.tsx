@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import type { CardType } from "@/generated/prisma/enums";
 import { affinity as typeAffinity, BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { TYPE_LABELS } from "@/lib/labels";
@@ -24,7 +26,7 @@ export function SpellsPanel({
   choose,
   effects,
 }: {
-  /** Panneau des effets actifs de la carte, affiché au-dessus des sorts (v0.3.0) */
+  /** Panneau des effets actifs, accessible dans les détails */
   effects?: React.ReactNode;
   unit: UnitView;
   character?: PlayerCharacter;
@@ -44,6 +46,7 @@ export function SpellsPanel({
     onSpell: (spell: Spell) => void;
   };
 }) {
+  const [inspected, setInspected] = useState<{ unit: UnitId; spell: Spell } | null>(null);
   const affinity = SPELL_INFO[unit.type];
   const types = Object.keys(TYPE_LABELS) as CardType[];
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
@@ -95,6 +98,7 @@ export function SpellsPanel({
       note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });
   }
+  const detail = spells.find((s) => s.key === (choose?.spell ?? (inspected?.unit === unit.id ? inspected.spell : "base"))) ?? spells[0];
   return (
     <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`} data-choosing={choose ? "" : undefined}>
       <h3 className="bt-spells-title">
@@ -114,14 +118,6 @@ export function SpellsPanel({
               : "Touche à nouveau la carte pour suivre le tour"}
         </small>
       </h3>
-      <p className="bt-legend">
-        <span data-aff="strong">
-          ▲ ×1,1 sur <TypeIcon type={strongVs} /> {TYPE_LABELS[strongVs].name}
-        </span>
-        <span data-aff="weak">
-          ▼ ×0,95 sur <TypeIcon type={weakVs} /> {TYPE_LABELS[weakVs].name} <small>(qui le frappe ×1,1)</small>
-        </span>
-      </p>
       {choose?.error && (
         <p className="bt-error" role="alert">
           {choose.error}
@@ -163,18 +159,35 @@ export function SpellsPanel({
               data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}
               aria-pressed={choose.spell === s.key}
               disabled={!ready || choose.busy}
-              onClick={() => choose.onSpell(s.key)}
+              onClick={() => { setInspected({ unit: unit.id, spell: s.key }); choose.onSpell(s.key); }}
             >
               {body}
             </button>
           ) : (
-            <div key={s.key} className="bt-spell" tabIndex={0} title={s.tooltip} aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`} data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}>
+            <div key={s.key} className="bt-spell" role="button" tabIndex={0} onClick={() => setInspected({ unit: unit.id, spell: s.key })} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setInspected({ unit: unit.id, spell: s.key }); } }} title={s.tooltip} aria-describedby={`bt-spell-detail-${unit.id}-${s.key}`} data-type={s.key === "affinity" ? unit.type : undefined} data-special={s.key === "special" || s.key === "tertiary" || s.key === "ultimate" || undefined} data-ultimate={s.key === "ultimate" || undefined} data-charged={s.key === "ultimate" && charge >= 100 || undefined}>
               {body}
             </div>
           );
         })}
       </div>
-      {effects}
+      <p className="bt-selected-description" aria-live="polite">{detail.text}</p>
+      <details className="bt-inspect-details" onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>
+        <summary>Sorts, effets et statistiques</summary>
+        <div className="bt-inspect-content">
+          <p>ATK {num.format(Math.round(unit.atk))} · DEF {num.format(Math.round(unit.def))} · VIT {num.format(Math.round(unit.speed))} · PV {num.format(Math.round(unit.maxHp))}</p>
+          <p className="bt-legend">
+            <span data-aff="strong">
+              ▲ ×1,1 sur <TypeIcon type={strongVs} /> {TYPE_LABELS[strongVs].name}
+            </span>
+            <span data-aff="weak">
+              ▼ ×0,95 sur <TypeIcon type={weakVs} /> {TYPE_LABELS[weakVs].name} <small>(qui le frappe ×1,1)</small>
+            </span>
+          </p>
+
+          {spells.map((s) => <div key={s.key} className="bt-spell-detail"><b>{s.title}</b><small>{s.target}</small><p>{s.text}</p>{s.note && <small>{s.note}</small>}</div>)}
+          {effects}
+        </div>
+      </details>
     </section>
   );
 }

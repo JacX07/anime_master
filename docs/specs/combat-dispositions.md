@@ -1,6 +1,6 @@
 # Dispositions du combat — propositions du 13 novembre 2026
 
-Statut : maquettes proposées, choix utilisateur attendu. Aucune modification du lecteur du jeu.
+Statut : variante A validée et intégrée le 13 novembre 2026. B reste une proposition non retenue.
 
 Maquette autonome : `docs/maquettes/combat-dispositions.html`. Palette, polices, portraits, icônes et fond de la citadelle repris des assets du jeu.
 
@@ -21,9 +21,9 @@ Maquette autonome : `docs/maquettes/combat-dispositions.html`. Palette, polices,
 
 ## Téléphone et interactions
 
-- Deux rangées de quatre cartes légèrement décalées, sans superposition des portraits ni des PV. Un écart central accueille VS et la consigne de ciblage.
+- Référence mobile corrigée par l’utilisateur après la proposition : ennemis en diagonale en haut à droite, alliés en diagonale en bas à gauche. Le centre reste ouvert ; les PV sont alignés à gauche pour rester visibles malgré le chevauchement des portraits.
 - Choix A/B et aperçu PC/mobile interactifs ; sélection d'allié, de sort puis de cible, détails dépliables, vitesse, modes et résultat de démonstration.
 - Valeurs et résultat illustratifs ; aucun appel serveur ni effet sur un compte. Pas de persistance des commandes du prototype.
-- La maquette se consulte par défilement ; elle ne valide pas encore la tenue du lecteur réel dans toutes les hauteurs de fenêtre ni ses VFX.
+- La maquette se consulte par défilement. Dans le lecteur intégré, l’arène utilise la hauteur restante, les sorts et commandes restent dans la fenêtre ; les détails défilent dans leur propre panneau.
 
 Vérifications : Chromium à 1600, 728, 390 et 320 px, deux variantes ; images chargées, cartes contenues dans le plateau, absence de débordement horizontal, interactions et fermeture des détails par Échap. Inspection visuelle PC et téléphone.

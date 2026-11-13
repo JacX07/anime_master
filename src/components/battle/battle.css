@@ -1123,3 +1123,121 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .bt-effects th { text-align: left; font-weight: 400; color: #a8bddd; }
 .bt-effects td { text-align: right; padding-left: .5rem; }
 .bt-effects tr[data-changed] td:last-child { color: #ffd166; font-weight: 700; }
+
+/* Disposition A : l'arène occupe la largeur, les sorts et commandes restent dessous. */
+.bt-layout-diagonal {
+  height: 100dvh;
+  padding: .5rem .75rem;
+  gap: .35rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "turns" "stage" "spells" "controls";
+}
+.bt-layout-diagonal .bt-turn-order { padding: .2rem; display: flex; align-items: center; gap: .7rem; overflow-x: auto; overflow-y: hidden; }
+.bt-layout-diagonal .bt-turn-order h2 { flex: none; margin: 0; }
+.bt-layout-diagonal .bt-turn-order ol { flex-direction: row; gap: .45rem; }
+.bt-layout-diagonal .bt-turn-order li { width: 36px; flex: none; }
+.bt-layout-diagonal .bt-turn-order button { padding: 0; clip-path: none; }
+.bt-layout-diagonal .bt-turn-order img, .bt-layout-diagonal .bt-turn-fallback { width: 36px; height: 36px; }
+.bt-layout-diagonal .bt-turn-name, .bt-layout-diagonal .bt-turn-now { display: none; }
+.bt-layout-diagonal .bt { width: 100%; height: 100%; min-height: 0; max-height: none; align-self: stretch; gap: .25rem; padding: 0; overflow: visible; }
+.bt-layout-diagonal .bt-head { flex: none; min-height: 30px; padding: .15rem .35rem; border: 0; border-image: none; }
+.bt-layout-diagonal .bt-title { font-size: 1rem; }
+.bt-layout-diagonal .bt-line { font-size: .7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bt-layout-diagonal .bt-arena { position: relative; flex: 1; min-height: 0; container-type: size; }
+.bt-layout-diagonal .bt-team, .bt-layout-diagonal .bt-row { display: contents; }
+.bt-layout-diagonal .bt-team-name { position: absolute; left: .5rem; bottom: .25rem; margin: 0; font-size: .65rem; z-index: 1; max-width: 40%; }
+.bt-layout-diagonal .bt-team[data-side="B"] .bt-team-name { left: auto; right: .5rem; bottom: auto; top: .25rem; }
+.bt-layout-diagonal .bt-team-name::after { display: none; }
+.bt-layout-diagonal .bt-unit { --slot: 0; position: absolute; width: min(14cqw, 27cqh, 210px); gap: 2px; left: calc(2% + var(--slot) * 10%); top: calc(22% + var(--slot) * 10%); }
+.bt-layout-diagonal .bt-unit:nth-child(2) { --slot: 1; }
+.bt-layout-diagonal .bt-unit:nth-child(3) { --slot: 2; }
+.bt-layout-diagonal .bt-unit:nth-child(4) { --slot: 3; }
+.bt-layout-diagonal .bt-team[data-side="B"] .bt-unit { left: calc(55% + var(--slot) * 10%); top: calc(4% + var(--slot) * 10%); }
+.bt-layout-diagonal .bt-card { flex: none; min-height: 0; aspect-ratio: 5 / 7; }
+.bt-layout-diagonal .bt-unit[data-acting] .bt-card { translate: 0 -2%; scale: 1.03; }
+.bt-layout-diagonal .bt-versus { position: absolute; top: 45%; left: 45%; width: 10%; text-align: center; font: 500 clamp(18px, 3cqw, 32px) var(--font-cinzel), Georgia, serif; color: var(--g); pointer-events: none; }
+.bt-layout-diagonal > .bt-spells { position: relative; align-self: stretch; min-height: 0; max-height: none; overflow: visible; padding: .5rem .65rem; clip-path: none; box-shadow: none; background: #111514f5; }
+.bt-layout-diagonal .bt-spells-title { margin: 0 0 .3rem; padding-right: 13rem; font-size: .9rem; gap: .2rem .8rem; }
+.bt-layout-diagonal .bt-spells-title small { font-size: .65rem; }
+.bt-layout-diagonal .bt-spells-title small:last-child { margin-left: auto; }
+.bt-layout-diagonal .bt-spell-list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+.bt-layout-diagonal .bt-spell, .bt-layout-diagonal .bt-spell[data-ultimate] { display: block; grid-column: auto; min-height: 0; padding: .4rem .6rem; border: 0; border-radius: 3px; clip-path: none; box-shadow: none; background: #1b201d; }
+.bt-layout-diagonal .bt-spell b, .bt-layout-diagonal .bt-spell[data-ultimate] b { margin: 0; padding-right: 1rem; font-size: .75rem; line-height: 1.25; }
+.bt-layout-diagonal .bt-spell-copy { display: grid; gap: .15rem; }
+.bt-layout-diagonal .bt-spell-copy p { display: none; }
+.bt-layout-diagonal .bt-spell-copy em, .bt-layout-diagonal .bt-spell-copy > small { display: block; margin: 0; font-size: .6rem; }
+.bt-layout-diagonal .bt-spell[data-ultimate] .bt-spell-copy > small { display: none; }
+.bt-layout-diagonal .bt-spell[aria-pressed="true"] { background: #2a2b20; box-shadow: inset 0 -2px var(--g); }
+.bt-layout-diagonal .bt-ultimate-charge, .bt-layout-diagonal .bt-ultimate-charge svg { width: 28px; height: 28px; }
+.bt-layout-diagonal .bt-ultimate-charge { float: right; margin-left: .3rem; }
+.bt-layout-diagonal .bt-ultimate-charge > span { font-size: 8px; }
+.bt-layout-diagonal .bt-wait { top: .25rem; right: .25rem; min-width: 1rem; height: 1rem; font-size: .6rem; border: 0; }
+.bt-selected-description { margin: .35rem 0 0; color: #b4b2aa; font-size: .7rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bt-inspect-details > summary { position: absolute; right: .65rem; top: .45rem; color: var(--g); font-size: .65rem; cursor: pointer; padding: .25rem; }
+.bt-inspect-details > summary:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
+.bt-inspect-content { position: absolute; z-index: 30; bottom: 100%; right: 0; width: min(100%, 620px); max-height: 60dvh; overflow-y: auto; overscroll-behavior: contain; padding: 1rem; background: #171b1afa; box-shadow: 0 -10px 30px #0008; }
+.bt-inspect-content > p { font-size: .75rem; color: #b4b2aa; }
+.bt-spell-detail { margin-bottom: .75rem; font-size: .75rem; }
+.bt-spell-detail > b { display: block; color: var(--g); }
+.bt-spell-detail > small { color: #b4b2aa; }
+.bt-spell-detail > p { margin: .25rem 0; }
+.bt-layout-diagonal .bt-controls { grid-area: controls; padding: 0; border: 0; border-image: none; display: flex; flex-direction: row; flex-wrap: wrap; gap: .2rem 1rem; }
+.bt-layout-diagonal .bt-dock, .bt-layout-diagonal .bt-dock-in { background: #0b0e0ff0; clip-path: none; padding: .1rem .35rem; }
+.mq-app-shell[class] .bt-layout-diagonal .bt-dock .bt-big { width: 38px; height: 38px; }
+.mq-app-shell[class] .bt-layout-diagonal .bt-dock .bt-spd { font-size: 1rem; }
+.bt-layout-diagonal .bt-dock .bt-spd small { font-size: .5rem; }
+@media (max-width: 700px) and (orientation: portrait) {
+  .bt-layout-diagonal { padding: .25rem; gap: .2rem; }
+  .bt-layout-diagonal .bt-turn-order { gap: .4rem; }
+  .bt-layout-diagonal .bt-turn-order li { width: 27px; }
+  .bt-layout-diagonal .bt-turn-order img, .bt-layout-diagonal .bt-turn-fallback { width: 27px; height: 27px; }
+  .bt-layout-diagonal .bt-turn-order h2 { font-size: .55rem; }
+  .bt-layout-diagonal .bt-head { gap: .4rem; flex-wrap: wrap; }
+  .bt-layout-diagonal .bt-title { flex: 1; font-size: .75rem; }
+  .bt-layout-diagonal .bt-line { order: 4; flex-basis: 100%; font-size: .6rem; min-height: .85rem; }
+  .bt-layout-diagonal .bt-round { font-size: .55rem; }
+  .bt-layout-diagonal .bt-head .bt-exit { margin-left: 0; padding: .2rem; }
+  .bt-layout-diagonal .bt-unit { width: min(24cqw, 19cqh); gap: 1px; left: calc(2% + var(--slot) * 13%); top: calc(32% + var(--slot) * 11%); }
+  .bt-layout-diagonal .bt-team[data-side="B"] .bt-unit { left: calc(36% + var(--slot) * 13%); top: calc(3% + var(--slot) * 11%); }
+  .bt-layout-diagonal .bt-name { text-align: left; padding: 2cqw 3cqw; font-size: max(8px, 9cqw); max-width: 64%; }
+  .bt-layout-diagonal .bt-hpnum { text-align: left; font-size: 9px; line-height: 12px; }
+  .bt-layout-diagonal .bt-shnum { display: block; }
+  .bt-layout-diagonal .bt-bars { gap: 1px; }
+  .bt-layout-diagonal .bt-hp { height: 3px; }
+  .bt-layout-diagonal .bt-shield { height: 2px; }
+  .bt-layout-diagonal .bt-team-name { font-size: .5rem; letter-spacing: .08em; }
+  .bt-layout-diagonal .bt-team-name span { display: none; }
+  .bt-layout-diagonal .bt-versus { left: 45%; top: 48%; font-size: 18px; }
+  .bt-layout-diagonal .bt-spells { padding: .35rem; }
+  .bt-layout-diagonal .bt-spells-title { padding-right: 0; margin-bottom: .2rem; font-size: .72rem; }
+  .bt-layout-diagonal .bt-spells-title small { display: none; }
+  .bt-layout-diagonal .bt-spell-list { gap: .2rem; }
+  .bt-layout-diagonal .bt-spell, .bt-layout-diagonal .bt-spell[data-ultimate] { padding: .3rem; }
+  .bt-layout-diagonal .bt-spell b, .bt-layout-diagonal .bt-spell[data-ultimate] b { font-size: .6rem; padding-right: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .bt-layout-diagonal .bt-spell-copy em { font-size: .5rem; }
+  .bt-layout-diagonal .bt-spell-copy > small { display: none; }
+  .bt-layout-diagonal .bt-ultimate-charge { float: none; width: auto; height: 12px; margin: 0 0 2px; }
+  .bt-layout-diagonal .bt-ultimate-charge svg { display: none; }
+  .bt-layout-diagonal .bt-ultimate-charge span { font-size: 9px; position: static; display: block; }
+  .bt-selected-description { font-size: .6rem; }
+  .bt-inspect-details > summary { position: static; padding: .2rem 0 0; font-size: .6rem; }
+  .bt-layout-diagonal .bt-controls { gap: 0; }
+  .bt-layout-diagonal .bt-dock-in { padding: 0 .15rem; }
+  .bt-layout-diagonal .bt-dock-row { gap: 0 .5rem; }
+  .mq-app-shell[class] .bt-layout-diagonal .bt-dock .bt-ico { min-width: 36px; min-height: 36px; padding: .35rem; }
+  .mq-app-shell[class] .bt-layout-diagonal .bt-dock-row .bt-sw, .mq-app-shell[class] .bt-layout-diagonal .bt-dock-row .bt-quit { padding: .25rem; font-size: .6rem; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .bt-layout-diagonal { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "turns" "stage" "spells" "controls"; gap: .1rem; padding: .15rem .4rem; }
+  .bt-layout-diagonal .bt-turn-order li, .bt-layout-diagonal .bt-turn-order img { width: 22px; height: 22px; }
+  .bt-layout-diagonal .bt-head { min-height: 20px; padding: 0; }
+  .bt-layout-diagonal .bt-spells { padding: .2rem .4rem; }
+  .bt-layout-diagonal .bt-spells-title { margin-bottom: .1rem; font-size: .7rem; }
+  .bt-layout-diagonal .bt-spells-title small { display: none; }
+  .bt-layout-diagonal .bt-spell { padding: .15rem .3rem; }
+  .bt-layout-diagonal .bt-spell-copy em, .bt-layout-diagonal .bt-spell-copy > small { display: none; }
+  .bt-layout-diagonal .bt-spell b { font-size: .65rem; }
+  .bt-layout-diagonal .bt-selected-description { margin-top: .1rem; font-size: .6rem; -webkit-line-clamp: 1; }
+  .bt-layout-diagonal .bt-unit { width: min(14cqw, 21cqh); }
+}

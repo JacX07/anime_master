@@ -198,6 +198,12 @@ Inventaire : toutes les familles partagent des cases carrées, quatre colonnes s
 
 Illustrations fournies : les quatre pièces Fairy Tail et Bleach utilisent leurs images dédiées. Fond commun des combats (demande explicite du 2026-11-13) : arène de la citadelle fournie par l'utilisateur, `public/images/battle/citadelle.webp`, centrée en couverture et assombrie derrière les cartes. Appliquée au lecteur partagé, y compris histoire, donjons, raids, tour, arène et démonstration. Remplace les trois décors DBZ précédemment retenus ; leurs fichiers restent conservés.
 
+### 4.26 Combat en diagonales — disposition A (validée le 2026-11-13)
+
+Variante A de `docs/maquettes/combat-dispositions.html`, retenue par l’utilisateur : plateau sur toute la largeur, ordre des tours horizontal, quatre sorts compacts sous l'arène puis commandes regroupées. Une description sélectionnée reste visible ; les descriptions intégrales, affinités, effets et statistiques sont accessibles dans un panneau dépliable sans réserver une colonne vide.
+
+Sur PC, alliés en diagonale à gauche et ennemis à droite, avec un espace d'action central. Sur téléphone, nouvelle référence fournie par l’utilisateur : ennemis en haut à droite, alliés en bas à gauche, les deux équipes descendant en diagonale. Largeur des portraits limitée à la fois par la largeur et la hauteur de l'arène pour garder les PV et les commandes dans l'écran. Le panneau détaillé s'ouvre au-dessus des sorts, défile indépendamment et se ferme avec son résumé ou Échap. Les règles de ciblage et les restrictions du mode sans effets sont conservées. Cette disposition remplace les colonnes plateau/sorts et les rangées mobiles du §4.15.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 

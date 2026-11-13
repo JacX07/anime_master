@@ -341,7 +341,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
-    <div className="bt-layout bt-layout-with-order" onPointerDown={() => getAudio().unlock()}>
+    <div className="bt-layout bt-layout-with-order bt-layout-diagonal" onPointerDown={() => getAudio().unlock()}>
       <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">
@@ -367,6 +367,8 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
         )}
       </div>
 
+      <div className="bt-arena">
+      <span className="bt-versus" aria-hidden="true">VS</span>
       {(["B", "A"] as const).map((side) => (
         <section key={side} className="bt-team" data-side={side} data-result={end ? (end.winner === side ? "win" : end.winner ? "lose" : "draw") : undefined}>
           <h3 className="bt-team-name">
@@ -387,64 +389,9 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
           </div>
         </section>
       ))}
-
-      <div className="bt-controls">
-        <div className="bt-dock">
-          <div className="bt-dock-in">
-            <button type="button" className="bt-ico" onClick={live?.onFinish && !rp.end ? live.onFinish : skip} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
-              <Icon name="fin" />
-            </button>
-            <button
-              type="button"
-              className="bt-big"
-              onClick={() => (finished ? restart() : setPlaying((p) => !p))}
-              aria-label={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
-              title={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
-            >
-              <Icon name={!finished && playing ? "pause" : "lecture"} />
-            </button>
-            <button
-              type="button"
-              className="bt-spd"
-              onClick={() => {
-                const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
-                setSpeed(next);
-                localStorage.setItem("bt-speed", String(next));
-              }}
-              aria-label={`Vitesse ×${speed}, cliquer pour changer`}
-              title="Changer la vitesse (×1, ×2, ×4)"
-            >
-              ×{speed}
-              <small>Vitesse</small>
-            </button>
-            <button type="button" className="bt-ico" data-off={!spellFx || undefined} aria-pressed={spellFx} aria-label="Effets de sorts" disabled={!allowDisableSpellFx} title={!allowDisableSpellFx ? "Gagne cette difficulté pour débloquer le mode sans effets" : spellFx ? "Effets de sorts : activés" : "Effets de sorts : désactivés (combat plus rapide)"} onClick={() => setSpellFx(!spellFx)}>
-              <Icon name="ultime" />
-            </button>
-            <button type="button" className="bt-ico" data-off={!sfxOn || undefined} aria-pressed={sfxOn} aria-label="Effets sonores" title="Effets sonores" onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>
-              <Icon name="son" />
-            </button>
-            <button type="button" className="bt-ico" data-off={!musicOn || undefined} aria-pressed={musicOn} aria-label="Musique" title="Musique" onClick={() => toggle("bt-music", !musicOn, setMusicOn)}>
-              <Icon name="musique" />
-            </button>
-          </div>
-        </div>
-        {((live && !end) || (live?.onAbandon && !end)) && (
-          <div className="bt-dock-row">
-            {live?.countdown && !end && live.countdown}
-            {live && !end && live.onToggleAuto && (
-              <button type="button" className="bt-sw" role="switch" aria-checked={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
-                <span className="bt-sw-tr" aria-hidden="true" />
-                {live.auto ? "Auto" : "Manuel"}
-              </button>
-            )}
-            {live?.onAbandon && !end && (
-              <button type="button" className="bt-quit" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
-                <Icon name="fermer" /> Abandonner
-              </button>
-            )}
-          </div>
-        )}
       </div>
+
+
 
       {end && (
         <div className="bt-end" role="region" aria-label="Résultat du combat" data-winner={end.winner ?? "draw"}>
@@ -517,6 +464,63 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             : undefined
         }
       />
+      <div className="bt-controls">
+        <div className="bt-dock">
+          <div className="bt-dock-in">
+            <button type="button" className="bt-ico" onClick={live?.onFinish && !rp.end ? live.onFinish : skip} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
+              <Icon name="fin" />
+            </button>
+            <button
+              type="button"
+              className="bt-big"
+              onClick={() => (finished ? restart() : setPlaying((p) => !p))}
+              aria-label={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
+              title={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
+            >
+              <Icon name={!finished && playing ? "pause" : "lecture"} />
+            </button>
+            <button
+              type="button"
+              className="bt-spd"
+              onClick={() => {
+                const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+                setSpeed(next);
+                localStorage.setItem("bt-speed", String(next));
+              }}
+              aria-label={`Vitesse ×${speed}, cliquer pour changer`}
+              title="Changer la vitesse (×1, ×2, ×4)"
+            >
+              ×{speed}
+              <small>Vitesse</small>
+            </button>
+            <button type="button" className="bt-ico" data-off={!spellFx || undefined} aria-pressed={spellFx} aria-label="Effets de sorts" disabled={!allowDisableSpellFx} title={!allowDisableSpellFx ? "Gagne cette difficulté pour débloquer le mode sans effets" : spellFx ? "Effets de sorts : activés" : "Effets de sorts : désactivés (combat plus rapide)"} onClick={() => setSpellFx(!spellFx)}>
+              <Icon name="ultime" />
+            </button>
+            <button type="button" className="bt-ico" data-off={!sfxOn || undefined} aria-pressed={sfxOn} aria-label="Effets sonores" title="Effets sonores" onClick={() => toggle("bt-sfx", !sfxOn, setSfxOn)}>
+              <Icon name="son" />
+            </button>
+            <button type="button" className="bt-ico" data-off={!musicOn || undefined} aria-pressed={musicOn} aria-label="Musique" title="Musique" onClick={() => toggle("bt-music", !musicOn, setMusicOn)}>
+              <Icon name="musique" />
+            </button>
+          </div>
+        </div>
+        {((live && !end) || (live?.onAbandon && !end)) && (
+          <div className="bt-dock-row">
+            {live?.countdown && !end && live.countdown}
+            {live && !end && live.onToggleAuto && (
+              <button type="button" className="bt-sw" role="switch" aria-checked={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
+                <span className="bt-sw-tr" aria-hidden="true" />
+                {live.auto ? "Auto" : "Manuel"}
+              </button>
+            )}
+            {live?.onAbandon && !end && (
+              <button type="button" className="bt-quit" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
+                <Icon name="fermer" /> Abandonner
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
