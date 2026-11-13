@@ -1,11 +1,26 @@
 # Journal des agents
 
+## 2026-11-13 — Intégration des cinq onglets mobiles
+- Symptômes : le chat ne recevait pas Échap après ouverture depuis l’en-tête ; la page Invocation dépassait la largeur mobile.
+- Causes : focus resté sur le bouton extérieur au panneau ; conteneur `vt-inner` hérité en flex avec largeur minimale intrinsèque des bannières.
+- Correctifs : placer le focus sur la fermeture du chat ; contraindre le conteneur Invocation et ses enfants. Conserver aussi les cibles du tutoriel des invocations sur l’accueil desktop.
+- Le parcours Collection → Accueil → Collection conservait la recherche mais revenait en haut : mémoriser aussi le défilement par destination et le restaurer lorsque le contenu est disponible.
+- Validation : lint des fichiers TS/TSX modifiés et build Next (TypeScript inclus) réussis ; `graphify update .` terminé. Deux typechecks autonomes antérieurs ont atteint 60 s (code 124), sans diagnostic.
+- Navigateur sur le build local, compte de test : cinq destinations ; accueil/personnage choisi persistant après rechargement ; album trois colonnes, recherche conservée et défilement restauré (1 100 px) ; accès squads/inventaire/menu/marché ; Jouer → Histoire → préparation ; taux, tirage de cinq cartes et révélation ; chat ouvert, Échap et retour du focus. Largeurs contrôlées : 320, 375, 390, 430, 768 et 1440 px selon les écrans. Accueil et Invocation sans débordement aux six largeurs ; album mobile en trois colonnes.
+- Limites : aucun test sur appareil physique ni campagne de tous les combats/modes ; aucun moteur métier modifié. Pas de publication production.
+
+## 2026-11-13 — Client Prisma local antérieur au schéma courant
+- Symptôme : le serveur relancé dans `anime_master-postgres` refuse `User.energy` dans `getEnergy` alors que le champ existe dans `prisma/schema.prisma`.
+- Cause : client Prisma généré localement antérieur au code courant, non versionné.
+- Contournement : régénérer le client avec `npm run db:generate` sous Node 24, puis redémarrer le serveur ; aucune migration ni modification de schéma pour ce problème local.
+
 ## 2026-11-03 — Ancien CSS servi après intégration du dos de carte
 
 - Symptôme : sur le serveur dev 3012, le navigateur affiche encore le fond rayé malgré le nouveau CSS présent dans le worktree et l'image accessible en HTTP 200.
 - Cause : état périmé du serveur de développement ; origine exacte non isolée. Toucher le fichier CSS ne suffit pas.
 - Correctif : redémarrer Next dans `anime_master-postgres`, sous Node 24 sur le port 3012. Parcours navigateur desktop/mobile, retournement au clavier, révélation complète et rechargement ensuite réussis.
-- Occurrences : 1.
+- Occurrences : 2 (2026-11-03, 2026-11-13).
+- 2026-11-13 : pendant l’intégration mobile, le serveur 3012 servait encore l’ancienne interface. `/proc/<pid>/cwd` identifie cette fois `anime_master-v030`, distinct de la copie modifiée `anime_master-postgres`. Arrêter ce serveur puis relancer dans la bonne copie avant les vérifications ; un HTTP 200 ne prouve pas le checkout servi.
 - Statut : corrigé.
 
 ## 2026-11-02 — Décision de dépôt privé non encore appliquée

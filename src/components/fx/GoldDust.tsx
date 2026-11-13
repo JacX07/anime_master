@@ -8,6 +8,7 @@ export function GoldDust({ count = 60 }: { count?: number }) {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const desktop = matchMedia("(min-width: 701px)");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const dpr = Math.min(2, devicePixelRatio || 1);
@@ -38,13 +39,14 @@ export function GoldDust({ count = 60 }: { count?: number }) {
       frame = requestAnimationFrame(tick);
     };
     // En arrière-plan, on arrête de dessiner
-    const vis = () => { running = !document.hidden; cancelAnimationFrame(frame); if (running) frame = requestAnimationFrame(tick); };
+    const vis = () => { running = !document.hidden && desktop.matches; cancelAnimationFrame(frame); if (running) frame = requestAnimationFrame(tick); };
     size();
-    frame = requestAnimationFrame(tick);
+    vis();
     addEventListener("resize", size);
     addEventListener("pointermove", move, { passive: true });
     document.addEventListener("visibilitychange", vis);
-    return () => { running = false; cancelAnimationFrame(frame); removeEventListener("resize", size); removeEventListener("pointermove", move); document.removeEventListener("visibilitychange", vis); };
+    desktop.addEventListener("change", vis);
+    return () => { running = false; cancelAnimationFrame(frame); removeEventListener("resize", size); removeEventListener("pointermove", move); document.removeEventListener("visibilitychange", vis); desktop.removeEventListener("change", vis); };
   }, [count]);
   return <canvas ref={ref} className="fx-dust" aria-hidden="true" />;
 }

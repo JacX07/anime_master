@@ -15,6 +15,8 @@ function visible(el: Element | null): el is HTMLElement {
   const r = el.getBoundingClientRect();
   return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden";
 }
+const atStepPage = (page: string | undefined, pathname: string) => pathname === page || (page === "/packs" && pathname === "/" && typeof window !== "undefined" && window.matchMedia("(min-width: 701px)").matches);
+
 const firstVisible = (selectors: string[]) => {
   for (const s of selectors) for (const el of document.querySelectorAll(s)) if (visible(el)) return el;
   return null;
@@ -61,9 +63,11 @@ export function Tutorial() {
 
   // Présentation des modes : le menu JOUER reste ouvert.
   useEffect(() => {
-    const open = step?.phase === "modes" && !hidden;
+    const mobile = window.matchMedia("(max-width: 700px)").matches;
+    const open = step?.phase === "modes" && !hidden && !mobile;
+    if (mobile && step?.phase === "modes" && !hidden && pathname !== "/jouer") router.push("/jouer");
     window.dispatchEvent(new CustomEvent("tutorial:play", { detail: { open } }));
-  }, [state.step, step?.phase, hidden, pathname]);
+  }, [state.step, step?.phase, hidden, pathname, router]);
 
   // Suivi de l'élément ciblé (défilement, redimensionnement, menus qui s'ouvrent).
   useEffect(() => {
@@ -71,12 +75,12 @@ export function Tutorial() {
     let last = "";
     let viewport = "";
     const track = () => {
-      const fighting = !!document.querySelector(".hs-fight, .bt-layout, .pk-stage[data-revealing]") || pathname.startsWith("/combat");
+      const fighting = !!firstVisible([".hs-fight", ".bt-layout", ".pk-stage[data-revealing]"]) || pathname.startsWith("/combat");
       setHidden(fighting);
-      const away = (step.phase === "action" || step.phase === "home") && pathname !== step.page;
+      const away = (step.phase === "action" || step.phase === "home") && !atStepPage(step.page, pathname);
       const selectors = away ? step.away ?? [] : step.targets;
       // Menu replié (petits écrans) : on cible le bouton Menu à la place de l'onglet.
-      const el = firstVisible(selectors) ?? (away || step.phase === "tabs" || step.key === "play" ? firstVisible([".mq-navigation-toggle"]) : null);
+      const el = firstVisible(selectors) ?? (away || step.phase === "tabs" || step.key === "play" ? firstVisible(['.mobile-bottom-nav a[data-section="menu"]', ".mq-navigation-toggle"]) : null);
       const size = `${innerWidth},${innerHeight}`;
       if (el !== target.current || size !== viewport) {
         viewport = size;
@@ -100,7 +104,7 @@ export function Tutorial() {
     if (step?.phase !== "action") return;
     const down = (e: PointerEvent) => {
       const el = target.current;
-      if (el && el.contains(e.target as Node) && pathname === step.page) setEngagedOn(here);
+      if (el && el.contains(e.target as Node) && atStepPage(step.page, pathname)) setEngagedOn(here);
     };
     addEventListener("pointerdown", down, true);
     return () => removeEventListener("pointerdown", down, true);
@@ -127,7 +131,7 @@ export function Tutorial() {
   const { index, total } = phaseProgress(state.step);
   const EYEBROW: Record<string, string> = { action: "TUTORIEL", home: "L’ACCUEIL", modes: "LES MODES DE JEU", tabs: "LES ONGLETS", shortcuts: "LES RACCOURCIS", combat: "LE COMBAT" };
   const eyebrow = step.phase === "end" ? "TUTORIEL" : `${EYEBROW[step.phase]} · ${index} / ${total}`;
-  const awayHint = (step.phase === "action" || step.phase === "home") && pathname !== step.page;
+  const awayHint = (step.phase === "action" || step.phase === "home") && !atStepPage(step.page, pathname);
   const lock = step.mode ? state.locks[step.mode] : undefined;
 
   // Rendu dans <body> : la barre du haut (flou d'arrière-plan) piégerait les positions fixes.

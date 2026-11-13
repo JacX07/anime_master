@@ -31,6 +31,11 @@ const time = (iso: string) => new Date(iso).toLocaleTimeString("fr-FR", { hour: 
 /** Bouton et panneau de chat en bas à droite : Guilde, Général, Privé (docs/specs/social.md §4). */
 export function ChatDock({ userId }: { userId: string }) {
   const [openRaw, setOpenRaw] = useStored("chat-open", "0");
+  useEffect(() => {
+    const show = () => setOpenRaw("1");
+    window.addEventListener("chat:open", show);
+    return () => window.removeEventListener("chat:open", show);
+  }, [setOpenRaw]);
   const [tabRaw, setTabRaw] = useStored("chat-tab", "general");
   const [hideRaw, setHideRaw] = useStored("chat-hide-general", "0");
   const open = openRaw === "1";
@@ -43,7 +48,11 @@ export function ChatDock({ userId }: { userId: string }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const panel = useRef<HTMLElement>(null);
   const list = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open && window.matchMedia("(max-width: 700px)").matches) panel.current?.querySelector<HTMLButtonElement>(".chat-close")?.focus();
+  }, [open]);
   const last = useRef<string | null>(null);
   const busy = useRef(false);
 
@@ -113,7 +122,12 @@ export function ChatDock({ userId }: { userId: string }) {
     );
   }
   return (
-    <section className="chat-panel" aria-label="Chat">
+    <section ref={panel} className="chat-panel" aria-label="Chat" onKeyDown={(event) => {
+      if (event.key === "Escape") {
+        toggle(false);
+        document.querySelector<HTMLButtonElement>(".mobile-chat-trigger")?.focus();
+      }
+    }}>
       <div className="chat-tabs" role="tablist">
         {state?.guild && <button role="tab" type="button" aria-selected={tab === "guild"} onClick={() => pick("guild")}>Guilde{state.guild.unread > 0 && <i>{state.guild.unread}</i>}</button>}
         {!hideGeneral && <button role="tab" type="button" aria-selected={tab === "general"} onClick={() => pick("general")}>Général{(state?.general.unread ?? 0) > 0 && <i>{state?.general.unread}</i>}</button>}

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, DM_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { AmbientSound } from "@/components/AmbientSound";
@@ -15,6 +15,7 @@ import "./identity.css";
 import "./ambiance.css";
 import "./ornaments.css";
 import "./fx.css";
+import "./mobile.css";
 import "@/components/changelog/changelog.css";
 
 // Les deux polices du jeu (direction « Citadelle sombre ») : Cinzel pour le logo, les titres et les gros chiffres, DM Sans pour l'interface
@@ -25,6 +26,8 @@ export const metadata: Metadata = {
   title: "Anime Masters",
   description: "Collectionne les personnages d'anime en ouvrant des paquets de cartes.",
 };
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

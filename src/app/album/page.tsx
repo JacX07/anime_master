@@ -44,6 +44,32 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
   const saleRarities = ["N", "R"] as const;
   const salePreview = await previewDuplicateSale(user.id, [...saleRarities]);
   const { progress } = album;
+  const status = <>
+
+        <div className="vt-progress">
+          <span>
+            {num.format(progress.owned)} / {num.format(progress.total)}
+          </span>
+          <span className="vt-bar" role="img" aria-label={`${pct(progress.owned, progress.total)} % de complétion`}>
+            <i style={{ width: `${pct(progress.owned, progress.total)}%` }} />
+          </span>
+          <span className="vt-muted">{pct(progress.owned, progress.total)} %</span>
+        </div>
+        <ul className="vt-rarities">
+          {RARITY_ORDER.map((r) => (
+            <li key={r}>
+              <b style={{ color: `var(--rarity-${r})` }}>{r}</b> {progress.byRarity[r].owned}/{progress.byRarity[r].total}
+            </li>
+          ))}
+        </ul>
+        <span className="vt-power" title="Puissance totale de la collection">
+          <Stat icon="puissance" accent="currentColor">
+            {num.format(packs.collectionPower)}
+          </Stat>
+        </span>
+        <BuyCrystalsButton price={packs.crystalPrice} left={packs.crystalsLeft} balance={packs.balance} available={packs.available} />
+
+  </>;
 
   return (
     <>
@@ -58,6 +84,10 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
             <span>cartes possédées<br />sur {num.format(progress.total)}</span>
           </div>
         </header>
+        <details className="mobile-album-progress">
+          <summary>{num.format(progress.owned)} / {num.format(progress.total)} découvertes · {pct(progress.owned, progress.total)} %</summary>
+          <div className="mobile-album-status">{status}</div>
+        </details>
 
         <div className="album-layout">
           <CollectionsSidebar
@@ -90,30 +120,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
         </div>
       </div>
 
-      <footer className="vt-status" aria-label="Ta collection">
-        <div className="vt-progress">
-          <span>
-            {num.format(progress.owned)} / {num.format(progress.total)}
-          </span>
-          <span className="vt-bar" role="img" aria-label={`${pct(progress.owned, progress.total)} % de complétion`}>
-            <i style={{ width: `${pct(progress.owned, progress.total)}%` }} />
-          </span>
-          <span className="vt-muted">{pct(progress.owned, progress.total)} %</span>
-        </div>
-        <ul className="vt-rarities">
-          {RARITY_ORDER.map((r) => (
-            <li key={r}>
-              <b style={{ color: `var(--rarity-${r})` }}>{r}</b> {progress.byRarity[r].owned}/{progress.byRarity[r].total}
-            </li>
-          ))}
-        </ul>
-        <span className="vt-power" title="Puissance totale de la collection">
-          <Stat icon="puissance" accent="currentColor">
-            {num.format(packs.collectionPower)}
-          </Stat>
-        </span>
-        <BuyCrystalsButton price={packs.crystalPrice} left={packs.crystalsLeft} balance={packs.balance} available={packs.available} />
-      </footer>
+      <footer className="vt-status desktop-album-status" aria-label="Ta collection">{status}</footer>
     </>
   );
 }

@@ -1,0 +1,203 @@
+/* Mobile navigation approved from /tmp/anima-mobile-v2/index.html, 2026-11-13.
+   Existing desktop layouts and game rules stay independent of the mobile shell. */
+.mobile-bottom-nav, .mobile-collection-tabs, .mobile-home, .mobile-chat-trigger, .mobile-guest-brand, .mobile-album-progress { display: none; }
+
+/* The two new destinations also remain usable through a direct desktop link. */
+.mobile-hub { max-width: 1100px; display: block; }
+.mobile-hub > section { margin-top: 24px; }
+.mobile-hub > section > h2 { font-size: 18px; margin-bottom: 12px; }
+.mobile-mode-grid, .mobile-menu-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.mq-app-shell .mobile-mode { display: flex; align-items: center; gap: 16px; min-height: 112px; padding: 20px; background: var(--panel); border-radius: 5px; }
+.mobile-mode > .i { width: 30px; height: 30px; color: var(--gold); flex-shrink: 0; }
+.mobile-mode-copy { min-width: 0; flex: 1; }
+.mobile-mode h2 { font-size: 20px; }
+.mobile-mode p { margin-top: 6px; color: #b4b2aa; font-size: 13px; line-height: 1.5; }
+.mobile-mode small { display: block; margin-top: 8px; color: var(--info, #9fd2c3); font-size: 12px; }
+.mobile-mode[data-locked] small { color: #d9a46b; }
+.mobile-mode-status { font-size: 12px; color: var(--gold); flex-shrink: 0; }
+.mq-app-shell .mobile-mode-story { min-height: 220px; margin-bottom: 24px; background: linear-gradient(0deg, #0a0910eb, #0a091066), url('/images/backgrounds/accueil.webp') center / cover; }
+.mobile-mode-story h2 { font-size: 28px; }
+.mobile-mode-story .mobile-mode-copy > small { color: var(--info); margin: 0 0 8px; }
+.mobile-hub > .ui-button, .mobile-hub > form { margin-top: 24px; }
+.mobile-menu-group { padding: 20px; background: var(--panel); border-radius: 5px; }
+.mobile-menu-group > h2 { font-size: 16px; color: #b4b2aa; margin-bottom: 8px; }
+.mobile-menu-link { display: flex; min-height: 48px; align-items: center; gap: 12px; }
+.mobile-menu-link > .i { width: 22px; height: 22px; color: var(--gold); flex-shrink: 0; }
+.mobile-menu-link > span:first-of-type { flex: 1; }
+.mobile-menu-link > span:last-of-type { color: var(--info); }
+.invocation-page .vt-inner { display: block; }
+.invocation-page .pk, .invocation-page .pk-main, .invocation-page .pk-banner-panel { min-width: 0; width: 100%; }
+.invocation-page .pk-main { grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); }
+.invocation-page .pk-main > .pk-stage { grid-column: 1; }
+.invocation-page .pk-main > .pk-banner-panel { grid-column: 2; }
+
+@media (max-width: 700px) {
+  :root {
+    --background: #0a0910;
+    --foreground: #efecf4;
+    --panel: #18152a;
+    --panel-raised: #231d34;
+    --gold: #e6cb92;
+    --gold-light: #e6cb92;
+    --mobile-header-height: calc(112px + env(safe-area-inset-top));
+    --mobile-nav-height: calc(76px + env(safe-area-inset-bottom));
+  }
+  body { background: var(--background); }
+  .mq-app-shell[class] { --panel: #18152a; --panel-raised: #231d34; --info: #9fd2c3; --info-bar: #6f9a8d; --mech: #8f80c8; background: var(--background); }
+  .mq-app-shell[class]::before, .mq-app-shell[class] .mq-page-mythology, .mq-app-shell[class] .mq-ambient-fx, .mq-app-shell[class] .mq-mech, .mq-home-main > .fx-dust { display: none; }
+  .mq-app-shell .mq-page { padding-bottom: var(--mobile-nav-height); }
+  .mq-app-shell .mq-page > footer { padding-bottom: 24px; }
+  .mq-app-shell[class][class] .mq-head-dial,
+  .mq-app-shell[class][class] .mq-page-heading::after,
+  .mq-app-shell[class][class] .mq-page-heading::before,
+  .mq-app-shell[class][class] .pg-head::after,
+  .mq-app-shell[class][class] .pg-head::before,
+  .mq-app-shell[class][class] .album-toolbar::after { display: none; }
+  .mq-app-shell[class][class] .mq-page-heading,
+  .mq-app-shell[class][class] .pg-head { margin-bottom: 16px; padding-bottom: 0; }
+  .mq-app-shell[class][class] .mq-page-heading .mq-eyebrow { display: none; }
+  .mq-app-shell[class][class] .mq-page-heading h1 { font-size: 26px; line-height: 1.12; }
+  .mobile-album-progress { display: block; margin-bottom: 12px; }
+  .mobile-album-progress > summary { min-height: 44px; padding: 12px; font-size: 12px; color: var(--info); cursor: pointer; background: var(--panel); border-radius: 3px; }
+  .mobile-album-status { display: flex; flex-direction: column; gap: 12px; padding: 14px; background: var(--panel); font-size: 12px; }
+  .mobile-album-status .vt-rarities { display: flex; flex-wrap: wrap; gap: 10px; }
+  .mobile-album-status button { min-height: 44px; }
+  .mq-app-shell[class][class] .desktop-album-status { display: none; }
+  .mq-app-shell[class][class] .album-toolbar { background: var(--panel); }
+  .mq-app-shell[class][class] .album-page .vt-search input { background: var(--panel-raised); }
+  .desktop-home { display: none; }
+  .mobile-home { display: block; }
+  .mq-app-shell[class][class][class] .mq-topbar {
+    display: flex; align-items: flex-start; position: sticky; top: 0; height: var(--mobile-header-height); min-height: var(--mobile-header-height);
+    padding: calc(12px + env(safe-area-inset-top)) 16px 0; background: var(--background); z-index: 70; overflow: visible; box-shadow: none;
+  }
+  .mq-app-shell[class][class][class] .mq-topbar::before { display: none; }
+  .mq-app-shell[class][class][class] .mq-topbar > .mq-navigation { display: none; }
+  .mq-app-shell[class][class][class] .mq-topbar > .mq-header-actions { display: flex; align-items: center; gap: 4px; justify-content: flex-end; width: 100%; height: 48px; margin: 0; position: static; }
+  .mq-app-shell[class][class] .mq-header-actions > .mq-account { order: -1; margin-right: auto; position: static; }
+  .mq-app-shell[class][class] .mq-player { gap: 12px; padding: 0; position: static; }
+  .mq-app-shell[class][class] .mq-player .mq-avatar { width: 38px; height: 38px; font-size: 13px; }
+  .mq-app-shell[class][class] .mq-player-text { display: block !important; position: static; max-width: none; }
+  .mq-app-shell[class][class] .mq-player-text > b { max-width: calc(100vw - 180px); font-size: 15px; }
+  .mq-app-shell[class][class] .mq-player-text > small { display: none; }
+  .mq-app-shell[class][class] .mq-xp { display: block; padding: 0; margin: 4px 0 0; height: auto; background: none; }
+  .mq-app-shell[class][class] .mq-xp > em { position: static; font: 400 11px var(--font-dm), sans-serif; color: #b4b2aa; letter-spacing: 0; }
+  .mq-app-shell[class][class] .mq-xp > :is(i, small) { display: none; }
+  .mq-app-shell[class][class] .mq-wallet { position: absolute; left: 16px; bottom: 12px; display: flex; gap: 18px; margin: 0; font: 400 13px var(--font-dm), sans-serif; letter-spacing: 0; }
+  .mq-app-shell[class][class] .mq-wallet > span { display: inline-flex; align-items: center; gap: 5px; font: inherit; color: var(--foreground); }
+  .mq-app-shell[class][class] .mq-wallet .mq-wallet-energy { display: none; }
+  .mq-app-shell[class][class] .mq-wallet-ryo em { font-size: 11px; letter-spacing: 0; text-transform: none; color: #b4b2aa; }
+  .mq-app-shell[class][class] .mq-header-actions > .mq-energy-reserve { position: absolute; right: 16px; bottom: 9px; display: flex; align-items: center; gap: 5px; padding: 0; }
+  .mq-app-shell[class][class] .mq-energy-reserve > .i { width: 17px; height: 17px; }
+  .mq-app-shell[class][class] .mq-energy-reserve > span { font-size: 11px; display: flex; gap: 5px; color: #b4b2aa; }
+  .mq-app-shell[class][class] .mq-energy-reserve b { font-size: 13px; color: var(--foreground); font-weight: 400; }
+  .mq-app-shell[class][class] .mq-header-actions > .mq-energy-reserve > small { display: none; }
+  .mq-app-shell[class][class] .mq-header-actions .bell { position: relative; width: 44px; min-height: 44px; display: grid; place-items: center; margin: 0; padding: 0; }
+  .mq-app-shell[class][class] .mq-header-actions .bell .album-badge { position: absolute; top: 0; right: 0; margin: 0; font-size: 10px; min-width: 15px; height: 15px; padding: 0 3px; line-height: 15px; }
+  .mq-app-shell[class][class] .mq-header-actions .bell .i { width: 22px; height: 22px; }
+  .mq-app-shell[class][class] .mobile-chat-trigger { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2px; width: 44px; min-height: 44px; padding: 0; color: var(--gold); font: 400 10px var(--font-dm), sans-serif; }
+  .mobile-chat-trigger .i { width: 20px; height: 20px; }
+  .mq-app-shell[class][class] .mq-account-panel { top: calc(64px + env(safe-area-inset-top)); max-height: calc(100dvh - var(--mobile-nav-height) - 80px); overflow: auto; background: var(--panel); }
+  .mobile-guest-brand { display: block; margin-right: auto; font: 500 16px var(--font-cinzel), serif; color: var(--gold); }
+
+  .mq-app-shell[class][class] .mobile-bottom-nav {
+    position: fixed; inset: auto 0 0; z-index: 80; height: var(--mobile-nav-height); padding: 6px max(8px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: stretch; background: #100d1a;
+  }
+  .mobile-bottom-nav a { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; min-width: 0; min-height: 54px; padding: 2px 0 6px; color: #b4b2aa; font: 400 11px var(--font-dm), sans-serif; position: relative; }
+  .mobile-bottom-nav .i { width: 23px; height: 23px; color: currentColor; }
+  .mobile-bottom-nav a[data-section="play"] { color: var(--gold); font-family: var(--font-cinzel), serif; font-size: 12px; }
+  .mobile-bottom-nav a[data-section="play"] .i { width: 30px; height: 30px; }
+  .mobile-bottom-nav a[aria-current="page"] { color: var(--gold); }
+  .mobile-bottom-nav a[aria-current="page"]::after { content: ''; position: absolute; inset: auto 26% 0; height: 2px; background: var(--gold); }
+  .mobile-bottom-nav a:focus-visible, .mobile-collection-tabs a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .mq-app-shell[class][class] .mobile-collection-tabs { display: flex; position: sticky; top: var(--mobile-header-height); z-index: 60; background: var(--background); padding: 0 16px; }
+  .mobile-collection-tabs a { min-height: 46px; flex: 1; display: grid; place-items: center; color: #b4b2aa; font-size: 12px; position: relative; }
+  .mobile-collection-tabs a[aria-current] { color: var(--gold); }
+  .mobile-collection-tabs a[aria-current]::after { content: ''; position: absolute; inset: auto 20% 0; background: var(--gold); height: 2px; }
+
+  .mq-app-shell[class][class] .mq-home-main { padding: 0; }
+  .mobile-home { padding: 0 16px 20px; }
+  .mobile-home-hero { position: relative; height: 300px; margin: 0 -16px; overflow: hidden; background: var(--panel); }
+  .mobile-home-art { width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; mask-image: linear-gradient(90deg, transparent, #000 25%), linear-gradient(#000 65%, transparent); mask-composite: intersect; }
+  .mobile-home-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, var(--background), transparent 60%); pointer-events: none; }
+  .mobile-home-copy { position: absolute; bottom: 28px; left: 20px; z-index: 1; max-width: calc(100% - 120px); }
+  .mobile-home-copy h1 { font-size: clamp(24px, 7.6vw, 34px); line-height: 1.12; margin: 5px 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+  .mobile-home-copy small { color: #b4b2aa; font-size: 11px; }
+  .mobile-home-rarity { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+  .mobile-home-rarity .gem { width: 15px; height: 15px; }
+  .mq-app-shell[class][class] .mobile-home-change { position: absolute; right: 16px; bottom: 22px; z-index: 2; display: flex; gap: 6px; align-items: center; min-height: 44px; padding: 4px 0; background: none; color: var(--gold); font: 400 12px var(--font-dm), sans-serif; }
+  .mobile-home-change .i { width: 16px; height: 16px; }
+  .mq-app-shell[class][class] .mobile-home-resume { position: relative; z-index: 1; margin-top: -4px; padding: 16px; border-radius: 5px; background: var(--panel); }
+  .mobile-home-resume .line { display: flex; justify-content: space-between; color: var(--info); font-size: 11px; }
+  .mobile-home-resume .line > :last-child { color: #b4b2aa; }
+  .mobile-home-resume h2 { font-size: 21px; margin-top: 5px; }
+  .mobile-home-resume p { margin-top: 8px; font-size: 12px; line-height: 1.5; color: #b4b2aa; }
+  .mobile-home-resume .ui-button { margin-top: 14px; width: 100%; min-height: 44px; }
+  .mobile-home-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .mq-app-shell .mobile-home-quick > a { display: flex; align-items: center; gap: 10px; padding: 14px 12px; min-height: 80px; background: var(--panel); border-radius: 5px; }
+  .mobile-home-quick .i { width: 23px; height: 23px; flex-shrink: 0; color: var(--gold); }
+  .mobile-home-quick b { display: block; font-size: 13px; font-weight: 500; }
+  .mobile-home-quick small { display: block; color: var(--info); font-size: 11px; margin-top: 4px; }
+  .mobile-home-event { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 14px; font-size: 12px; color: #b4b2aa; }
+  .mobile-home-event a { display: inline-flex; gap: 5px; align-items: center; min-height: 44px; color: var(--gold); }
+  .mobile-home-event .i { width: 16px; height: 16px; }
+  .mobile-character-picker { position: fixed; inset: 0; margin: auto; width: min(94vw, 520px); max-height: calc(100dvh - 32px); padding: 18px; border: 0; border-radius: 7px; background: var(--panel); color: var(--foreground); overflow: auto; }
+  .mobile-character-picker::backdrop { background: #040606d1; }
+  .mobile-character-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .mobile-character-head h2 { font-size: 20px; }
+  .mobile-character-picker p { margin: 12px 0; font-size: 13px; color: #b4b2aa; }
+  .mobile-character-picker input { width: 100%; min-height: 44px; padding: 12px; margin-bottom: 16px; border: 0; background: var(--panel-raised); color: var(--foreground); font-size: 16px; }
+  .mobile-character-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; }
+  .mq-app-shell[class][class] .mobile-character-grid button { display: block; min-width: 0; padding: 0; text-align: left; background: none; }
+  .mobile-character-grid img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 3px; }
+  .mobile-character-grid b { display: block; font: 400 11px var(--font-dm), sans-serif; margin-top: 6px; overflow-wrap: anywhere; }
+  .mobile-character-grid small { display: block; color: var(--info); font-size: 10px; }
+  .mobile-character-grid button[aria-pressed="true"] { color: var(--gold); background: var(--panel-raised); }
+
+  .mobile-mode-grid, .mobile-menu-groups { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .mq-app-shell .mobile-mode { gap: 12px; padding: 16px 12px; min-height: 96px; }
+  .mobile-mode > .i { width: 24px; height: 24px; }
+  .mobile-mode h2 { font-size: 18px; }
+  .mobile-mode-status { font-size: 11px; }
+  .mq-app-shell .mobile-mode-story { min-height: 210px; flex-wrap: wrap; margin-bottom: 18px; }
+  .mobile-mode-story h2 { font-size: 25px; }
+  .mobile-mode-story .mobile-mode-status { flex-basis: 100%; padding-left: 36px; }
+  .invocation-page .pk-main { display: flex; flex-direction: column; }
+  .invocation-page .pk-main > .pk-banner-panel { order: 0; padding: 14px; background: var(--panel); }
+  .invocation-page .pk-main > .pk-stage { order: 1; background: var(--panel); }
+  .invocation-page .pk-banners { display: flex; flex-direction: row; overflow-x: auto; gap: 10px; scroll-snap-type: x proximity; }
+  .invocation-page .pk-banner { flex: 0 0 240px; min-width: 0; scroll-snap-align: start; background: var(--panel-raised); }
+  .invocation-page .pk-banner-panel h2 { font-size: 18px; }
+  .invocation-page .pk-head { gap: 12px; }
+  .invocation-page .pk-rates summary { min-height: 44px; padding-block: 12px; }
+  .mobile-menu-group { padding: 12px; }
+  .mobile-menu-link { min-height: 50px; font-size: 14px; }
+  .chat-fab { display: none; }
+  .chat-panel { top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); bottom: calc(var(--mobile-nav-height) + 12px); left: max(12px, env(safe-area-inset-left)); width: auto; height: auto; max-height: 680px; z-index: 90; background: var(--panel); clip-path: none; border-radius: 7px; }
+  .chat-tabs button[role="tab"] { min-height: 44px; font-size: 11px; letter-spacing: 0; }
+  .chat-close { min-width: 44px; min-height: 44px; }
+  .chat-input input { min-height: 44px; font-size: 16px; }
+  .lb-dock { bottom: var(--mobile-nav-height); }
+  /* Burst/loot/battle overlays already occupy a higher layer than the navigation. */
+  .mq-app-shell .mq-page .vt-status { bottom: var(--mobile-nav-height); }
+  .mq-app-shell[class][class] .vt-inner { padding-bottom: 28px; }
+  .mq-app-shell[class][class] .album-page .vt-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px; }
+  .mq-app-shell[class][class] .album-page .vt-grid .card-deco { display: none; }
+  .mq-app-shell[class][class] input:is([type="search"], [type="text"], [type="email"], [type="password"]) { font-size: 16px; }
+}
+
+@media (min-width: 701px) and (max-width: 980px) {
+  .invocation-page .pk-main { grid-template-columns: minmax(0, 1fr); }
+  .invocation-page .pk-main > .pk-banner-panel { grid-column: 1; grid-row: 2; }
+}
+
+@media (max-width: 359px) {
+  .mq-app-shell[class][class] .mq-wallet { gap: 10px; font-size: 12px; }
+  .mq-app-shell[class][class] .mq-energy-reserve > span { gap: 3px; font-size: 10px; }
+  .mq-app-shell[class][class] .mq-energy-reserve b { font-size: 12px; }
+  .mobile-home-hero { height: 270px; }
+  .mobile-home-quick { gap: 8px; }
+  .mq-app-shell .mobile-home-quick > a { gap: 7px; padding: 12px 8px; }
+  .mobile-home-quick b { font-size: 12px; }
+}

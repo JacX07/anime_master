@@ -8,6 +8,7 @@ import { readyCount } from "@/lib/expeditions";
 import { WELCOME_CRYSTALS, WELCOME_DRAWS } from "@/lib/crystal-stock";
 import { getSessionUser } from "@/lib/session";
 import { getPlayerSummary } from "@/lib/summary";
+import { MobileHome } from "@/components/mq/MobileHome";
 
 /** Progression d'un succès à seuil (personnages différents) ; les autres sont tout ou rien. */
 function progress(key: string, unique: number) {
@@ -91,7 +92,7 @@ function Home_({ guest }: { guest?: boolean }) {
 
 async function Content() {
   const user = await getSessionUser();
-  if (!user) return <Home_ guest />;
+  if (!user) return <><div className="desktop-home"><Home_ guest /></div><MobileHome user={null} /></>;
   const s = await getPlayerSummary(user.id);
   const [achievements, banners, standardPool, ready] = await Promise.all([listAchievements(user.id), listBanners(s.packs), poolCounts(), readyCount(user.id)]);
   const done = achievements.filter((a) => a.unlockedAt).length;
@@ -103,7 +104,7 @@ async function Content() {
   const available = s.packs.available;
 
   return (
-    <div className="mq-home-page mq-home-compact">
+    <><div className="desktop-home"><div className="mq-home-page mq-home-compact">
       <section className="mq-home-intro">
         <p className="mq-eyebrow">BIENVENUE, {user.username.toUpperCase()}</p>
         <h1>La Faille vous appelle.</h1>
@@ -120,6 +121,6 @@ async function Content() {
         </aside>
         }
       />
-    </div>
+    </div></div><MobileHome user={user} available={available} expeditionsReady={ready} /></>
   );
 }

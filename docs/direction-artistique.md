@@ -213,6 +213,18 @@ Maquette `public/mockups/sorts-cartes.html` : sorts en éventail, carte agrandie
 
 Option 3 retenue pour l'ultime : portrait du personnage recadré dans un disque teinté rouge, texture de liquide statique dont seul le niveau suit la jauge, arc de charge et indication « Prêt ». Le nom de l'ultime et du lanceur apparaît au centre à son exécution, pour les deux camps. En mouvements réduits, pas de particules, halo ou flash animé ; annonce brève sans mouvement. Les descriptions intégrales restent dans le panneau des détails. Les commandes et l'accès aux effets restent devant l'éventail, même lorsqu'une carte est relevée. Largeur de carte 132 px sur PC, 92 px sur téléphone ; place réservée à l'emblème sur mobile.
 
+### 4.28 Navigation mobile à cinq destinations — Violet nuit (validée le 2026-11-13)
+
+Maquette validée dans la conversation : accueil centré sur un personnage, collection dédiée et navigation inférieure **Accueil · Collection · Jouer · Invocation · Menu**, avec **Jouer au centre**. Ces règles remplacent le tiroir principal du §4.14 sur téléphone (jusqu’à 700 px) ; tablette et bureau conservent leur navigation existante.
+
+- **Palette mobile sur toutes les pages** : fond `#0a0910`, panneau `#18152a`, panneau relevé `#231d34`, texte `#efecf4`, or d’action `#e6cb92`, jade d’information `#9fd2c3`, ornement violet `#8f80c8`. Couleurs de rareté inchangées, jamais utilisées comme décor. Cinzel et DM Sans conservées.
+- **En-tête** : avatar, pseudo et niveau à gauche ; notifications et bouton Chat à droite ; Ryō, cristaux et énergie sur la seconde ligne. Chat mobile ouvert depuis cet en-tête ; plus de bouton flottant sur la barre inférieure. Le panneau reste au-dessus de la navigation.
+- **Barre inférieure** : labels toujours visibles, zones tactiles de 44 px minimum, actif souligné d’or ; safe areas et place réservée dans le contenu. Les expériences de combat et récompenses plein écran restent au-dessus de la navigation. Retour d’une section vers sa dernière URL, filtres de collection compris.
+- **Collection** : trois colonnes mobiles retenues. Sous-navigation Cartes / Squads / Inventaire, réutilisant les pages et filtres existants. Éveil et Forge restent accessibles depuis l’inventaire et le Menu.
+- **Accueil mobile** : illustration choisie parmi les personnages possédés, mémorisée dans le navigateur par compte (indépendante de l’avatar), action Continuer vers l’histoire et raccourcis aux quêtes/expéditions. Aucune progression ou récompense fictive. Bureau : accueil existant conservé.
+- **Invocation** : `/packs` devient une destination réelle, avec le moteur et les animations existants ; aucun changement aux coûts, garanties ou taux.
+- **Jouer** : histoire prioritaire, accès aux autres modes et conditions réelles. **Menu** : progression, amis/guildes, Marché et Échanges, guide, réglages et mises à jour. Guide et tutoriel suivent ces accès.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 

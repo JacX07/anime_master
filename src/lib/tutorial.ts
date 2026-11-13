@@ -1,3 +1,5 @@
+import { mobileSection } from "./mobile-navigation";
+
 /** Tutoriel en infobulles (docs/specs/guide.md). Étapes numérotées à partir de 1 ; 0 = terminé ou passé. */
 export type TutorialPhase = "action" | "home" | "modes" | "tabs" | "shortcuts" | "combat" | "end";
 export type TutorialStep = {
@@ -17,29 +19,29 @@ export type TutorialStep = {
   mode?: string;
 };
 
-const nav = (href: string) => `.mq-game-nav a[href="${href}"]`;
+const nav = (href: string) => `.mobile-collection-tabs a[href="${href}"], .mobile-menu-link[href="${href}"], .mobile-bottom-nav a[data-section="${mobileSection(href)}"], .mq-game-nav a[href="${href}"]`;
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "invoke", phase: "action", title: "Invoque tes cartes", text: "Ici tu invoques tes premières cartes : un cristal = une carte. Lance un tirage pour continuer.",
-    page: "/", targets: [".pk-welcome", ".pk-open"], away: [nav("/")] },
+    page: "/packs", targets: [".pk-welcome", ".pk-open"], away: [nav("/packs")] },
   { key: "squad", phase: "action", title: "Forme ta squad", text: "Ici tu formes ta squad : modifie-la, place quatre cartes puis enregistre. Elle sert de départ dans chaque mode ; avant un combat, tu peux la modifier ou charger une autre squad.",
     page: "/equipe", targets: [".squad-stage", ".eq-slots"], away: [nav("/equipe")] },
   { key: "story", phase: "action", title: "Lance le mode histoire", text: "Ici tu lances le mode histoire. Gagne le premier combat de One Piece pour continuer.",
     points: ["1 étoile pour la victoire, 2 sans K.O., 3 sans K.O. en 10 tours ou moins. Une victoire en duo donne une 4ᵉ étoile bonus", "Les étoiles débloquent des récompenses aux paliers 12, 24, 36 et 45"],
-    page: "/histoire", targets: [".hs-map-node.is-current", ".hs-map-hint button"], away: [".mq-mode-card.mq-mode-story", ".mq-play-button"] },
-  { key: "dungeons", phase: "modes", title: "Donjons", text: "Un boss unique et difficile qui donne des artefacts pour équiper tes cartes.", targets: [".mq-mode-card.mq-mode-dungeons"], mode: "dungeon" },
-  { key: "raids", phase: "modes", title: "Raids", text: "Le Défi des empereurs : Shanks, Big Mom, Kaido et Barbe Blanche, chacun gardé par deux vagues d’équipage. Ils donnent les cœurs de brèche des étoiles 4 et 5 et les ressources des armes légendaires.", targets: [".mq-mode-card.mq-mode-raids"], mode: "raid" },
-  { key: "expeditions", phase: "modes", title: "Expéditions", text: "Envoie une à trois cartes explorer une brèche pendant quelques heures, puis reviens chercher le butin.", targets: [".mq-mode-card.mq-mode-expeditions"], mode: "expeditions" },
-  { key: "pvp", phase: "modes", title: "Arène", text: "Affronte les squads des autres joueurs.", targets: [".mq-mode-card.mq-mode-pvp"] },
-  { key: "tower", phase: "modes", title: "Tour", text: "Monte étage par étage et compare-toi aux autres au classement.", targets: [".mq-mode-card.mq-mode-tower"], mode: "tower" },
+    page: "/histoire", targets: [".hs-map-node.is-current", ".hs-map-hint button"], away: [".mobile-mode-story", ".mq-mode-card.mq-mode-story", nav("/jouer"), ".mq-play-button"] },
+  { key: "dungeons", phase: "modes", title: "Donjons", text: "Un boss unique et difficile qui donne des artefacts pour équiper tes cartes.", targets: ['[data-mobile-mode="dungeon"]', ".mq-mode-card.mq-mode-dungeons"], mode: "dungeon" },
+  { key: "raids", phase: "modes", title: "Raids", text: "Le Défi des empereurs : Shanks, Big Mom, Kaido et Barbe Blanche, chacun gardé par deux vagues d’équipage. Ils donnent les cœurs de brèche des étoiles 4 et 5 et les ressources des armes légendaires.", targets: ['[data-mobile-mode="raid"]', ".mq-mode-card.mq-mode-raids"], mode: "raid" },
+  { key: "expeditions", phase: "modes", title: "Expéditions", text: "Envoie une à trois cartes explorer une brèche pendant quelques heures, puis reviens chercher le butin.", targets: ['[data-mobile-mode="expeditions"]', ".mq-mode-card.mq-mode-expeditions"], mode: "expeditions" },
+  { key: "pvp", phase: "modes", title: "Arène", text: "Affronte les squads des autres joueurs.", targets: ['[data-mobile-mode="pvp"]', ".mq-mode-card.mq-mode-pvp"] },
+  { key: "tower", phase: "modes", title: "Tour", text: "Monte étage par étage et compare-toi aux autres au classement.", targets: ['[data-mobile-mode="tower"]', ".mq-mode-card.mq-mode-tower"], mode: "tower" },
   { key: "crystals", phase: "home", title: "Cristaux", text: "Un cristal = une carte tirée.",
-    points: ["Le stock est de 50 au maximum et se recharge avec le temps", "Tu peux en acheter avec des Ryō (+5, +25)"], page: "/", targets: [".pk-wallet > div:first-child"], away: [nav("/")] },
+    points: ["Le stock est de 50 au maximum et se recharge avec le temps", "Tu peux en acheter avec des Ryō (+5, +25)"], page: "/packs", targets: [".pk-wallet > div:first-child"], away: [nav("/packs")] },
   { key: "ryo", phase: "home", title: "Ryō", text: "La monnaie du jeu.",
-    points: ["Tu en gagnes en combat, aux quêtes et en vendant des doublons", "Elle sert à acheter des cristaux et à la Bourse"], page: "/", targets: [".pk-wallet > div:last-child"], away: [nav("/")] },
+    points: ["Tu en gagnes en combat, aux quêtes et en vendant des doublons", "Elle sert à acheter des cristaux et à la Bourse"], page: "/packs", targets: [".pk-wallet > div:last-child"], away: [nav("/packs")] },
   { key: "banners", phase: "home", title: "Bannières et taux", text: "Choisis ce que tu invoques.",
-    points: ["Permanent : tout le catalogue", "Les bannières d’événement mettent des cartes en avant", "« Taux et garanties » donne les probabilités et la pitié SSR / UR"], page: "/", targets: [".pk-banner-panel"], away: [nav("/")] },
+    points: ["Permanent : tout le catalogue", "Les bannières d’événement mettent des cartes en avant", "« Taux et garanties » donne les probabilités et la pitié SSR / UR"], page: "/packs", targets: [".pk-banner-panel"], away: [nav("/packs")] },
   { key: "lots", phase: "home", title: "Lot ×5 ou ×10", text: "Choisis combien de cartes ouvrir d’un coup.",
-    points: ["×5 coûte 5 cristaux, ×10 en coûte 10", "Découpe le haut du booster ou clique dessus pour l’ouvrir"], page: "/", targets: [".pk-lots"], away: [nav("/")] },
+    points: ["×5 coûte 5 cristaux, ×10 en coûte 10", "Découpe le haut du booster ou clique dessus pour l’ouvrir"], page: "/packs", targets: [".pk-lots"], away: [nav("/packs")] },
   { key: "collection", phase: "tabs", title: "Collection", text: "Ton album de cartes, et tes souhaits pour retrouver les personnages que tu cherches.",
     points: ["Album : filtres par rareté et type, doublons à vendre", "Souhaits : les personnages que tu cherches"], targets: [nav("/album")] },
   { key: "inventory", phase: "tabs", title: "Inventaire", text: "Tes ressources, artefacts et armes. C’est aussi là que tu éveilles et forges.",
@@ -52,7 +54,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "achievements", phase: "tabs", title: "Succès", text: "Chaque succès rapporte de l’expérience et parfois un titre.", targets: [nav("/achievements")] },
   { key: "settings", phase: "tabs", title: "Paramètres", text: "Son, affichage et compte.", targets: [".mq-gear", nav("/parametres")] },
   { key: "play", phase: "shortcuts", title: "Bouton JOUER", text: "Il ouvre la liste des modes de combat.",
-    points: ["Un mode grisé indique ce qu’il faut pour l’ouvrir"], targets: [".mq-play-button"] },
+    points: ["Un mode grisé indique ce qu’il faut pour l’ouvrir"], targets: [nav("/jouer"), ".mq-play-button"] },
   { key: "bell", phase: "shortcuts", title: "Notifications", text: "La cloche te prévient de ce qui se passe.",
     points: ["Enchères gagnées, échanges, demandes d’amis", "Le nombre de notifications non lues s’affiche dessus"], targets: ['a[href="/notifications"]'] },
   { key: "chat", phase: "shortcuts", title: "Chat et joueurs en ligne", text: "Parle aux autres joueurs.",
@@ -66,7 +68,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     points: ["Magique : les cartes de type Magie et celles de Jujutsu Kaisen", "Physique : toutes les autres", "Les bonus d’équipement et de set s’appliquent selon ce type"], targets: [] },
   { key: "statuses", phase: "combat", title: "Saignement et altérations", text: "Des effets continuent de blesser ou de gêner la cible après le coup.",
     points: ["Saignement : les porteurs de lame le cumulent (5 max), 2 % des PV actuels par cumul à chaque action ; seul un soin l’efface", "Poison et brûlure : des PV perdus à la fin de l’action de la cible", "Les purges retirent ces malus, l’immunité les bloque"], targets: [] },
-  { key: "end", phase: "end", title: "Tutoriel terminé", text: "Tu connais l’essentiel. Tu peux revoir chaque étape dans Quêtes › Guide du jeu.", targets: [] },
+  { key: "end", phase: "end", title: "Tutoriel terminé", text: "Tu connais l’essentiel. Tu peux revoir chaque étape dans Menu › Guide du jeu.", targets: [] },
 ];
 
 export const TUTORIAL_LENGTH = TUTORIAL_STEPS.length;

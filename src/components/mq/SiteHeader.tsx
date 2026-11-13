@@ -27,6 +27,7 @@ import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
 import { PVP_AVAILABLE } from "@/lib/feature-flags";
 import { ReleaseAnnouncement } from "../changelog/ReleaseAnnouncement";
+import { MobileChatButton } from "../chat/MobileChatButton";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -122,6 +123,7 @@ async function Account() {
   if (!user) {
     return (
       <>
+        <Link href="/" className="mobile-guest-brand">Anima Clash</Link>
         <Link href="/login" className="mq-header-link">Connexion</Link>
         <Link href="/signup" className="mq-header-cta">Créer un compte</Link>
       </>
@@ -138,6 +140,7 @@ async function Account() {
       <Suspense fallback={null}>
         <NotificationBell userId={user.id} />
       </Suspense>
+      <MobileChatButton />
       <Tutorial />
       <Suspense fallback={null}><ReleaseAnnouncement userId={user.id} /></Suspense>
       <AccountDropdown>
