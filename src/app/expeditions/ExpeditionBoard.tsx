@@ -8,6 +8,8 @@ import { RarityGem, TypeIcon } from "@/components/icons";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { FAVORED_BONUS, MAX_TEAM, type Breach } from "@/lib/expedition-rules";
 import { TYPE_LABELS } from "@/lib/labels";
+import { CHEST_NAMES } from "@/lib/chests";
+import { UNIVERSES } from "@/lib/story";
 
 const num = new Intl.NumberFormat("fr-FR");
 interface Card { id: string; name: string; rarity: Rarity; type: CardType; power: number; imageUrl: string }
@@ -60,7 +62,10 @@ export function ExpeditionBoard({ slots, done, nextSlotAt, breaches, cards, open
   });
   const claim = (id: string) => start(async () => {
     const r = await claimExpeditionAction(id);
-    if (r.ok) { setReport(`${r.breach} — ${OUTCOME[r.outcome as keyof typeof OUTCOME]} : +${num.format(r.ryo)} Ryō${r.crystals ? `, +${r.crystals} cristal${r.crystals > 1 ? "ux" : ""}` : ""}.`); setError(null); router.refresh(); } else setError(r.error);
+    if (r.ok) {
+      const chests = r.chests.length ? `${r.chests.length} coffre${r.chests.length > 1 ? "s" : ""} (${r.chests.map((c) => CHEST_NAMES[c]).join(", ")}) à ouvrir plus haut` : `+${num.format(r.ryo)} Ryō${r.crystals ? `, +${r.crystals} cristal${r.crystals > 1 ? "ux" : ""}` : ""}`;
+      setReport(`${r.breach} — ${OUTCOME[r.outcome as keyof typeof OUTCOME]} : ${chests}.`); setError(null); router.refresh(); window.scrollTo({ top: 0, behavior: "smooth" });
+    } else setError(r.error);
   });
 
   return (
@@ -91,7 +96,7 @@ export function ExpeditionBoard({ slots, done, nextSlotAt, breaches, cards, open
                 <b>{b.name}</b>
                 <small>{b.lore}</small>
                 <span className="exp-meta">
-                  Puissance conseillée {num.format(b.threshold)} ·{" "}
+                  {UNIVERSES.find((u) => u.key === b.universe)?.name} · {b.tier === "Faille" ? "1 coffre" : b.tier === "Brèche" ? "2 coffres" : "3 coffres"} · Puissance conseillée {num.format(b.threshold)} ·{" "}
                   {b.favored.map((t) => <TypeIcon key={t} type={t} title={`${TYPE_LABELS[t].name} favorisé`} />)}
                 </span>
               </button>
@@ -144,7 +149,7 @@ export function ExpeditionBoard({ slots, done, nextSlotAt, breaches, cards, open
           <ul className="exp-history">
             {history.map((h) => (
               <li key={h.id}>
-                <b>{breaches.find((b) => b.id === h.breachId)?.name}</b> — {OUTCOME[h.outcome as keyof typeof OUTCOME] ?? "?"} : +{num.format(h.ryo)} Ryō{h.crystals ? `, +${h.crystals} cristaux` : ""}
+                <b>{breaches.find((b) => b.id === h.breachId)?.name}</b> — {OUTCOME[h.outcome as keyof typeof OUTCOME] ?? "?"}{h.ryo || h.crystals ? ` : +${num.format(h.ryo)} Ryō${h.crystals ? `, +${h.crystals} cristaux` : ""}` : " : coffres"}
               </li>
             ))}
           </ul>

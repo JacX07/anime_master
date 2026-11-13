@@ -3,6 +3,7 @@ import { RAID_RESOURCE } from "./raid";
 import type { Rarity } from "@/generated/prisma/enums";
 import { artifactRarity, artifactStatLabel, artifactStatValue } from "./artifact-display";
 import { RARITY_NAMES } from "./labels";
+import { CHEST_ITEMS, CHEST_NAMES, FREE_BOOSTER, parseChestKey } from "./chests";
 
 export const INVENTORY_CATEGORIES = ["Tout", "Éveil", "Forge", "Équipement", "Consommables"] as const;
 export type InventoryCategory = typeof INVENTORY_CATEGORIES[number];
@@ -36,7 +37,19 @@ export type InventoryItem = {
 export function inventoryResources(stock: { key: string; quantity: number }[]): InventoryItem[] {
   const quantities = new Map(stock.map((row) => [row.key, row.quantity]));
   const keys = new Set([COMMON_RESOURCE, RAID_RESOURCE, ...UNIVERSES.flatMap((u) => [u.resource, u.weaponResource]), ...quantities.keys()]);
-  return [...keys].map((key) => {
+  return [...keys].map((key): InventoryItem => {
+    // Coffres d'expédition et cartes offertes : des consommables
+    const chest = parseChestKey(key);
+    if (chest) {
+      const from = UNIVERSES.find((u) => u.key === chest.universe);
+      return { key, resource: key, name: `Coffre ${CHEST_NAMES[chest.tier]}${from ? ` · ${from.name}` : ""}`, quantity: quantities.get(key) ?? 0, categories: ["Consommables"], universe: from?.key ?? "common",
+        source: "Expéditions", description: `${CHEST_ITEMS[chest.tier]} objets au hasard : Ryō, cristaux, boosters, matériaux, artefacts, cartes… Les matériaux viennent de ${from?.name ?? "son univers"}.`,
+        icon: "crystal", tone: chest.tier === "legendaire" ? "violet" : chest.tier === "or" ? "gold" : chest.tier === "argent" ? "blue" : "gray", links: [{ href: "/expeditions", label: "Ouvrir aux expéditions" }] };
+    }
+    if (key === FREE_BOOSTER) {
+      return { key, resource: key, name: "Cartes offertes", quantity: quantities.get(key) ?? 0, categories: ["Consommables"], universe: "common", source: "Coffres d'expédition",
+        description: "Cartes gratuites : utilisées automatiquement avant les cristaux à l'invocation.", icon: "crystal", tone: "gold", links: [{ href: "/", label: "Invoquer" }] };
+    }
     const universe = UNIVERSES.find((u) => u.resource === key || u.weaponResource === key);
     const heart = key === RAID_RESOURCE;
     const forge = universe?.weaponResource === key;

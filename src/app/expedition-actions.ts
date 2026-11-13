@@ -1,7 +1,7 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { claimExpedition, ExpeditionError, startExpedition } from "@/lib/expeditions";
+import { claimExpedition, ExpeditionError, openChest, startExpedition } from "@/lib/expeditions";
 import { getSessionUser } from "@/lib/session";
 import type { ActionResult } from "./economy-actions";
 
@@ -25,6 +25,9 @@ export async function startExpeditionAction(breachId: string, cardIds: string[])
 export async function claimExpeditionAction(expeditionId: string) {
   return run(async (id) => {
     const r = await claimExpedition(id, String(expeditionId));
-    return { outcome: r.outcome, ryo: r.ryo, crystals: r.crystals, breach: r.breach.name };
+    return { outcome: r.outcome, ryo: r.ryo, crystals: r.crystals, breach: r.breach.name, chests: r.chests };
   });
+}
+export async function openChestAction(key: string) {
+  return run(async (id) => openChest(id, String(key)));
 }

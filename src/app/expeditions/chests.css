@@ -1,0 +1,59 @@
+/* Coffres d'expédition (maquette public/mockups/coffres-expedition.html, validée le 2026-11-13) */
+.chs { display: grid; gap: 12px; }
+.chs-head { display: flex; align-items: center; gap: 16px; }
+.chs-shelf { list-style: none; margin: 0; padding: 18px 0 6px; display: flex; flex-wrap: wrap; gap: 26px; }
+.mq-app-shell[class][class] .chs-btn { display: grid; justify-items: center; gap: 8px; padding: 6px; border: 0; background: none; color: #e9e5dc; cursor: pointer; transition: transform .25s; }
+.mq-app-shell[class][class] .chs-btn:hover:not(:disabled) { transform: translateY(-6px); }
+.chs-btn b { font: 600 12px var(--font-cinzel), serif; letter-spacing: .14em; text-transform: uppercase; }
+.chs-btn b em { margin-left: 6px; font-style: normal; color: #d5bb7f; }
+.chs-btn small { color: #8a8f8a; font-size: 11px; }
+
+.ch { --c1: #b07a45; --c2: #6b4422; --glow: #d08a4a; position: relative; display: block; width: 96px; height: 80px; filter: drop-shadow(0 10px 16px #000c) drop-shadow(0 0 14px color-mix(in srgb, var(--glow) 45%, transparent)); animation: ch-idle 3s ease-in-out infinite; }
+.ch[data-t="argent"] { --c1: #cfd6dc; --c2: #6c757d; --glow: #dfe7ee; }
+.ch[data-t="or"] { --c1: #f2d27a; --c2: #9a6b1f; --glow: #ffd36b; }
+.ch[data-t="legendaire"] { --glow: #b98bff; }
+.ch i { position: absolute; display: block; }
+.ch-body { left: 0; right: 0; bottom: 0; height: 60%; border-radius: 4px 4px 8px 8px; background: linear-gradient(180deg, var(--c1), var(--c2)); }
+.ch-lid { left: -3px; right: -3px; top: 3px; height: 44%; border-radius: 34px 34px 4px 4px; background: linear-gradient(180deg, var(--c1), var(--c2)); transform-origin: 50% 100%; transition: transform .5s cubic-bezier(.2,1.6,.4,1); }
+.ch[data-t="legendaire"] :is(.ch-body, .ch-lid) { background: linear-gradient(120deg, #ff4d6d, #ffd166, #4ade80, #38bdf8, #c084fc, #ff4d6d); background-size: 300% 100%; animation: ch-rainbow 3s linear infinite; }
+.ch-band { top: 3px; bottom: 0; width: 10px; background: #0006; border-radius: 2px; }
+.ch-band.l { left: 18px; } .ch-band.r { right: 18px; }
+.ch-lock { left: 50%; top: 42%; width: 18px; height: 22px; transform: translateX(-50%); border-radius: 3px; background: linear-gradient(180deg, #fff3c4, var(--c2)); box-shadow: 0 0 12px var(--glow); }
+@keyframes ch-idle { 50% { transform: translateY(-4px); } }
+@keyframes ch-rainbow { to { background-position: 300% 0; } }
+
+.chs-stage { position: fixed; inset: 0; z-index: 85; display: grid; justify-items: center; align-content: center; gap: 18px; padding: 16px; overflow: hidden; background: radial-gradient(circle at 50% 40%, #1b1710ee, #050606f7 70%); backdrop-filter: blur(6px); animation: chs-in .3s ease-out; }
+@keyframes chs-in { from { opacity: 0; } }
+.chs-rays { position: absolute; left: 50%; top: 32%; width: 900px; height: 900px; margin: -450px 0 0 -450px; border-radius: 50%; pointer-events: none; opacity: 0; transform: scale(.3);
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--glow) 35%, transparent) 0 6deg, transparent 6deg 18deg);
+  -webkit-mask: radial-gradient(circle, #000 0, transparent 60%); mask: radial-gradient(circle, #000 0, transparent 60%); }
+.chs-stage[data-burst] .chs-rays { animation: chs-rays 2.2s ease-out forwards, chs-spin 12s linear infinite; }
+@keyframes chs-rays { 20% { opacity: 1; transform: scale(1); } 100% { opacity: .45; transform: scale(1.1); } }
+@keyframes chs-spin { to { rotate: 360deg; } }
+.chs-label { position: relative; z-index: 2; margin: 0 0 40px; font: 600 15px var(--font-cinzel), serif; letter-spacing: .2em; text-transform: uppercase; color: #d5bb7f; }
+.chs-big { position: relative; margin: 70px 0 60px; transform: scale(2.3); }
+.chs-big .ch { animation: none; }
+.chs-big.s1 { animation: chs-sh .32s linear 2; } .chs-big.s2 { animation: chs-sh .22s linear 3; } .chs-big.s3 { animation: chs-sh .12s linear 6; }
+@keyframes chs-sh { 25% { transform: scale(2.3) rotate(-6deg) translateX(-3px); } 75% { transform: scale(2.3) rotate(6deg) translateX(3px); } }
+.chs-stage[data-burst] .ch-lid { transform: translateY(-28px) rotate(-28deg); }
+.chs-stage[data-burst] .ch-lock { opacity: 0; transition: opacity .2s; }
+.chs-loot { position: relative; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; min-height: 180px; max-width: 1000px; perspective: 900px; }
+.chi { --r: var(--rarity-N); position: relative; width: 128px; aspect-ratio: 3 / 4; animation: chi-fly .55s cubic-bezier(.2,1.3,.3,1) both; }
+@keyframes chi-fly { from { opacity: 0; transform: translateY(-120px) scale(.3) rotate(-12deg); } }
+.chi-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.3,1.4,.4,1); }
+.chi[data-flip] .chi-inner { transform: rotateY(180deg); }
+.chi-face { position: absolute; inset: 0; display: grid; justify-items: center; align-content: center; gap: 6px; padding: 10px; border-radius: 6px; text-align: center; backface-visibility: hidden; }
+.chi-back { background: #0c0f10 url(/images/cards/anima-clash-back.webp) center / cover; box-shadow: 0 0 0 1.5px #c4a76d88; }
+.chi-front { transform: rotateY(180deg); background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--r) 35%, #141818), #0c0f10 75%); box-shadow: 0 0 0 1.5px var(--r), 0 0 24px -4px var(--r); }
+.chi-front img { width: 70px; height: 70px; object-fit: contain; filter: drop-shadow(0 6px 10px #000a); margin: 0 !important; }
+.chi-front > em { position: absolute; top: 6px; right: 6px; padding: 1px 5px; border-radius: 3px; background: var(--r); color: #fff; font: 700 9px var(--font-dm), sans-serif; font-style: normal; }
+.chi-front b { font: 600 12px/1.2 var(--font-cinzel), serif; color: #f0e6cc; }
+.chi-front small { color: #cfc9bb; font: 700 12px var(--font-dm), sans-serif; }
+.chi-ico { display: grid; place-items: center; width: 70px; height: 70px; color: var(--r); font: 700 34px var(--font-cinzel), serif; }
+.chi-ico svg { width: 46px; height: 46px; }
+.chi[data-jackpot] .chi-front { animation: chi-jack 1.6s ease-in-out 1s infinite; }
+@keyframes chi-jack { 50% { box-shadow: 0 0 0 1.5px var(--r), 0 0 44px 6px var(--r); } }
+.chs-next { position: relative; }
+.chs-hint { position: relative; margin: 0; color: #8a8f8a; font-size: 12px; }
+@media (max-width: 600px) { .chs-big { transform: scale(1.6); margin: 40px 0 30px; } .chi { width: 100px; } }
+@media (prefers-reduced-motion: reduce) { .ch, .chs-stage, .chs-stage[data-burst] .chs-rays, .chs-big, .chi, .chi-inner, .chi[data-jackpot] .chi-front { animation: none !important; transition: none !important; } }

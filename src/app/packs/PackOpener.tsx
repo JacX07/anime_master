@@ -77,7 +77,9 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
   const pool = banner?.pool ?? standardPool;
   const locked = banner?.costKind === "WELCOME" && state.welcomeBannerId !== null && state.welcomeBannerId !== banner.id;
   const waitingReveal = pack !== null && !revealed.every(Boolean);
-  const canOpen = !pending && !locked && wallet >= lot && (!pack || summary);
+  // Cartes offertes par les coffres d'expédition : utilisées avant les cristaux (hors bannière de bienvenue)
+  const free = kind !== "WELCOME" && (state.freeCards ?? 0) >= lot;
+  const canOpen = !pending && !locked && (free || wallet >= lot) && (!pack || summary);
 
   function open(welcomeBooster = false) {
     if (welcomeBooster ? (pending || (pack !== null && !summary)) : !canOpen) return;
@@ -310,10 +312,10 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
             </div>
             <button type="button" className="pk-open ui-button" onClick={() => open()} disabled={!canOpen} data-lot={lot}>
               <span className="pk-open-main">{pending ? "Ouverture…" : `Ouvrir ${lot} cartes`}</span>
-              {!pending && <small className="pk-open-cost">{lot} {lot > 1 ? unitPlural : unit}</small>}
+              {!pending && <small className="pk-open-cost">{free ? `Booster offert · ${state.freeCards} carte${state.freeCards > 1 ? "s" : ""} offerte${state.freeCards > 1 ? "s" : ""}` : `${lot} ${lot > 1 ? unitPlural : unit}`}</small>}
             </button>
             {locked && <p className="pk-note">Tu as déjà choisi une autre bannière de bienvenue.</p>}
-            {!locked && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}
+            {!locked && !free && wallet < lot && <p className="pk-note">Il te manque {lot - wallet} {lot - wallet > 1 ? unitPlural : unit}.</p>}
             {kind === "NORMAL" && <p className="pk-note">Garantie : SSR dans {SSR_PITY - state.cardsSinceSSR} cartes · UR dans {UR_PITY - state.cardsSinceUR}</p>}
             {error && <p role="alert" className="pk-error">{error}</p>}
           </div>

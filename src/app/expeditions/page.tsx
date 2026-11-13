@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SceneBody } from "@/components/SceneBody";
 import { prisma } from "@/lib/db";
-import { BREACHES, expeditionState, MAX_TEAM, SLOTS } from "@/lib/expeditions";
+import { BREACHES, chestStock, expeditionState, MAX_TEAM, SLOTS } from "@/lib/expeditions";
+import { Chests } from "./Chests";
 import { requireUser } from "@/lib/session";
 import { ExpeditionBoard } from "./ExpeditionBoard";
 
@@ -24,7 +25,7 @@ async function Expeditions() {
   const user = await requireUser();
   const locked = await modeLockPanel(user.id, "expeditions");
   if (locked) return locked;
-  const [state, cards] = await Promise.all([
+  const [state, cards, chests] = await Promise.all([
     expeditionState(user.id),
     prisma.card.findMany({
       where: { ownerId: user.id, inExpedition: false, inAuction: false },
@@ -32,6 +33,7 @@ async function Expeditions() {
       orderBy: { character: { power: "desc" } },
       take: 400,
     }),
+    chestStock(user.id),
   ]);
   const toIso = (d: Date | null) => d?.toISOString() ?? null;
   return (
@@ -39,9 +41,10 @@ async function Expeditions() {
       <header className="pg-head">
         <h1 className="vt-title">Expéditions</h1>
         <p className="vt-sub">
-          Envoie jusqu&apos;à {MAX_TEAM} cartes explorer une brèche. Plus l&apos;équipe est puissante, plus le butin est riche, et un échec ne coûte rien. Les cartes parties sont indisponibles (vente, échange, enchère) jusqu&apos;au retour.
+          Envoie jusqu&apos;à {MAX_TEAM} cartes explorer une brèche. Au retour, l&apos;équipe rapporte des coffres : plus la brèche est dure et l&apos;équipe puissante, plus ils sont nombreux et rares. Un échec ne coûte rien. Les cartes parties sont indisponibles (vente, échange, enchère) jusqu&apos;au retour.
         </p>
       </header>
+      <Chests chests={chests.map((c) => ({ key: c.key, tier: c.tier, universeName: c.universeName, quantity: c.quantity }))} />
       <ExpeditionBoard
         slots={state.slots}
         done={state.done}

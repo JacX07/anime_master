@@ -12,25 +12,31 @@ export interface Breach {
   hours: number;
   /** Puissance d'équipe demandée */
   threshold: number;
+  /** Seuil d'avant le 2026-11-13 : les expéditions lancées avant les coffres gardent l'ancien calcul */
+  legacyThreshold: number;
+  /** Univers de la brèche (src/lib/story.ts) : les matériaux des coffres en sortent */
+  universe: string;
   favored: CardType[];
   ryo: number;
   crystals: number;
 }
 
-// Équilibrage validé le 2026-10-17 (simulation par équipes types) : une Faille est à la portée de 3 N une fois sur deux,
+// Seuils du 2026-11-13 (puissances moyennes : N 3 200, R 4 700, SR 6 500, SSR 8 700, UR 11 000) : une Faille est à la portée de 3 N
+// une fois sur deux, une Brèche de 1 SR + 2 R, un Gouffre de 1 UR + 2 SSR. L'expédition rapporte des coffres (src/lib/chests.ts).
+// Ancien équilibrage du 2026-10-17 (simulation par équipes types) : une Faille est à la portée de 3 N une fois sur deux,
 // une Brèche de 1 SR + 2 R, un Gouffre de 1 SSR + 2 SR environ deux fois sur trois. Repères de puissance : R ≈ 1 100, SR ≈ 4 500, SSR ≈ 16 000, UR ≈ 49 000.
 export const BREACHES: Breach[] = [
-  { id: "faille-echo", name: "Lycée Jujutsu de Tokyo", tier: "Faille", hours: 1, threshold: 650, favored: ["MAGIE"], ryo: 10, crystals: 0,
+  { id: "faille-echo", name: "Lycée Jujutsu de Tokyo", tier: "Faille", hours: 1, threshold: 9500, legacyThreshold: 650, universe: "jujutsu-kaisen", favored: ["MAGIE"], ryo: 10, crystals: 0,
     lore: "Les élèves du lycée y exorcisent leurs premières malédictions. Une sortie d'entraînement qui peut mal tourner." },
-  { id: "faille-neon", name: "Tenkaichi Budokai", tier: "Faille", hours: 1, threshold: 650, favored: ["COMBAT"], ryo: 10, crystals: 0,
+  { id: "faille-neon", name: "Tenkaichi Budokai", tier: "Faille", hours: 1, threshold: 9500, legacyThreshold: 650, universe: "dragon-ball", favored: ["COMBAT"], ryo: 10, crystals: 0,
     lore: "Le grand tournoi d'arts martiaux : un ring, des poings et un public qui hurle." },
-  { id: "breche-archives", name: "Porte de la Vérité", tier: "Brèche", hours: 6, threshold: 6000, favored: ["MYSTERE", "MAGIE"], ryo: 70, crystals: 1,
+  { id: "breche-archives", name: "Porte de la Vérité", tier: "Brèche", hours: 6, threshold: 16000, legacyThreshold: 6000, universe: "grande-alchimie", favored: ["MYSTERE", "MAGIE"], ryo: 70, crystals: 1,
     lore: "Un seuil d'où personne ne revient intact. L'échange équivalent se paie toujours." },
-  { id: "breche-horizon", name: "Grand Line", tier: "Brèche", hours: 6, threshold: 6000, favored: ["AVENTURE", "COEUR"], ryo: 70, crystals: 1,
+  { id: "breche-horizon", name: "Grand Line", tier: "Brèche", hours: 6, threshold: 16000, legacyThreshold: 6000, universe: "one-piece", favored: ["AVENTURE", "COEUR"], ryo: 70, crystals: 1,
     lore: "La route la plus dangereuse de la mer : des îles folles, des rivaux et un trésor au bout." },
-  { id: "gouffre-signal", name: "Royaume des Fourmis-Chimères", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["COMBAT", "AVENTURE"], ryo: 200, crystals: 3,
+  { id: "gouffre-signal", name: "Royaume des Fourmis-Chimères", tier: "Gouffre", hours: 24, threshold: 29000, legacyThreshold: 24000, universe: "hunter-x-hunter", favored: ["COMBAT", "AVENTURE"], ryo: 200, crystals: 3,
     lore: "Un royaume de monstres qui évolue à chaque victime. Seuls des chasseurs hors pair en reviennent." },
-  { id: "gouffre-nexus", name: "Sous-sol de Shiganshina", tier: "Gouffre", hours: 24, threshold: 24000, favored: ["MYSTERE", "COEUR"], ryo: 200, crystals: 3,
+  { id: "gouffre-nexus", name: "Sous-sol de Shiganshina", tier: "Gouffre", hours: 24, threshold: 29000, legacyThreshold: 24000, universe: "attack-on-titan", favored: ["MYSTERE", "COEUR"], ryo: 200, crystals: 3,
     lore: "La cave où dort la vérité sur les Titans. Y entrer, c'est apprendre ce qu'on aurait préféré ignorer." },
 ];
 export const breachById = (id: string) => BREACHES.find((b) => b.id === id);
@@ -44,6 +50,8 @@ export const FAIL_SHARE = 0.25;
 export const LUCK = 0.3;
 export const DAILY_RYO_CAP = 600; // SPEC §4 : ~600 Ryō par jour d'expéditions
 export const DAILY_CRYSTAL_CAP = 10;
+/** Les expéditions lancées depuis l'arrivée des coffres ont une graine négative : elles rapportent des coffres et suivent les nouveaux seuils. */
+export const isChestExpedition = (seed: number) => seed < 0;
 
 /** Générateur déterministe (mulberry32) : la graine du lancement suffit à rejouer le résultat. */
 export function seeded(seed: number) {

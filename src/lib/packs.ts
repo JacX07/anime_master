@@ -1,5 +1,6 @@
 // Ouverture d'un paquet côté serveur (SPEC étape 2, §6).
 
+import { FREE_BOOSTER } from "./chests";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import type { Prisma } from "../generated/prisma/client";
 import { getCollectionPower } from "./collection";
@@ -67,6 +68,8 @@ export interface PlayerPackState {
   welcomeBannerId: string | null;
   /** Booster de bienvenue ×10 encore à récupérer */
   welcomeBoosterAvailable: boolean;
+  /** Cartes offertes par les coffres d'expédition : utilisées avant les cristaux (FREE_BOOSTER) */
+  freeCards: number;
 }
 
 export interface OpenedPack {
@@ -90,8 +93,12 @@ const USER_PACK_FIELDS = {
   welcomeBoosterClaimedAt: true,
 } as const;
 
+const freeCardsOf = async (userId: string, db: Pick<Prisma.TransactionClient, "resourceStock"> = prisma) =>
+  (await db.resourceStock.findUnique({ where: { userId_key: { userId, key: FREE_BOOSTER } }, select: { quantity: true } }))?.quantity ?? 0;
+
 export async function getPackState(userId: string, now = new Date()): Promise<PlayerPackState> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: USER_PACK_FIELDS });
+  const freeCards = await freeCardsOf(userId);
   const stock = crystalStock(user.crystals, user.crystalsUpdatedAt, now);
   return {
     available: stock.available,
@@ -105,6 +112,7 @@ export async function getPackState(userId: string, now = new Date()): Promise<Pl
     welcomeDraws: user.welcomeDraws,
     welcomeBannerId: user.welcomeBannerId,
     welcomeBoosterAvailable: user.welcomeBoosterClaimedAt === null,
+    freeCards,
   };
 }
 
@@ -140,8 +148,12 @@ async function openLot(userId: string, size: LotSize, rng: Random, bannerId: str
       if (user.welcomeDraws < size) throw new BannerError(`Il te reste ${user.welcomeDraws} tirage${user.welcomeDraws > 1 ? "s" : ""} de bienvenue.`);
       payment = { welcomeDraws: user.welcomeDraws - size, welcomeBannerId: banner.id };
     } else {
-      if (crystalStock(user.crystals, user.crystalsUpdatedAt, now).available < size) throw new NoPackAvailableError();
-      payment = afterSpend(user.crystals, user.crystalsUpdatedAt, now, size);
+      // Cartes offertes par les coffres d'expédition : elles passent avant les cristaux
+      const free = await tx.resourceStock.updateMany({ where: { userId, key: FREE_BOOSTER, quantity: { gte: size } }, data: { quantity: { decrement: size } } });
+      if (free.count === 0) {
+        if (crystalStock(user.crystals, user.crystalsUpdatedAt, now).available < size) throw new NoPackAvailableError();
+        payment = afterSpend(user.crystals, user.crystalsUpdatedAt, now, size);
+      }
     }
 
     const roll = rollLot(user, size, rng, welcomeBooster);
@@ -251,6 +263,7 @@ async function openLot(userId: string, size: LotSize, rng: Random, bannerId: str
         welcomeDraws: (payment.welcomeDraws as number | undefined) ?? user.welcomeDraws,
         welcomeBannerId: (payment.welcomeBannerId as string | undefined) ?? user.welcomeBannerId,
         welcomeBoosterAvailable: user.welcomeBoosterClaimedAt === null && !welcomeBooster,
+        freeCards: await freeCardsOf(userId, tx),
       },
     };
   });

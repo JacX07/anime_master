@@ -450,11 +450,11 @@ Histoire, Tour, donjons et raids ouvrent le même écran avant le combat (`src/c
 - Le réglage Auto est mémorisé sur le combat en cours (`teams.auto`). Si le joueur quitte la page sans l'abandonner (autre page, fermeture), le combat reste ouvert ; au prochain lancement du même mode (histoire, Tour, donjon, raid), le serveur le **joue jusqu'au bout** avec la stratégie automatique, récompenses comprises, au lieu de l'abandonner. Quitter par la croix reste un abandon volontaire.
 - En quittant par changement de page sans rechargement, le client demande aussi la fin immédiate.
 
-### v0.3.0 — Coffres et rééquilibrage *(proposition du 2026-11-13, à valider ; maquette `public/mockups/coffres-expedition.html`)*
+### v0.3.0 — Coffres et rééquilibrage *(validé et codé le 2026-11-13 ; maquette `public/mockups/coffres-expedition.html`)*
 
 **Constat.** Les puissances ont été recalibrées depuis l'équilibrage du 2026-10-17 (moyennes actuelles : N 3 200, R 4 700, SR 6 500, SSR 8 700, UR 11 000). Une seule carte suffit à réussir une Faille (650) ou une Brèche (6 000). Le butin se limite aux Ryō et à quelques cristaux.
 
-**1. Seuils (mêmes intentions qu'en octobre).** Faille 650 → **9 000** (3 N une fois sur deux) ; Brèche 6 000 → **17 000** (1 SR + 2 R) ; Gouffre 24 000 → **27 000** (1 UR + 2 SSR, ou des SSR des bons types). Chaque brèche appartient à un univers (Lycée Jujutsu → Jujutsu Kaisen, Tenkaichi → Dragon Ball, Porte de la Vérité → Grande Alchimie, Grand Line → One Piece, Fourmis-Chimères → Hunter x Hunter, Shiganshina → Attack on Titan) : ses matériaux sortent de cet univers.
+**1. Seuils (mêmes intentions qu'en octobre, ajustés par simulation).** Faille 650 → **9 500** (3 N : 55 %) ; Brèche 6 000 → **16 000** (1 SR + 2 R : 47 %) ; Gouffre 24 000 → **29 000** (1 UR + 2 SSR : 97 %, 3 UR triomphent 31 %). Chaque brèche appartient à un univers (Lycée Jujutsu → Jujutsu Kaisen, Tenkaichi → Dragon Ball, Porte de la Vérité → Grande Alchimie, Grand Line → One Piece, Fourmis-Chimères → Hunter x Hunter, Shiganshina → Attack on Titan) : ses matériaux sortent de cet univers.
 
 **2. L'expédition rapporte des coffres** (plus de Ryō ni de cristaux en direct, ni de plafond quotidien).
 
@@ -486,4 +486,6 @@ Gros lot du Légendaire : booster ×10, artefact SSR, carte SSR (5 % : UR), ou 2
 
 **4. Ouverture « hype »** : le coffre tremble de plus en plus fort, s'illumine de sa couleur (bronze, argent, or, arc-en-ciel), le couvercle saute dans un éclair, des rayons et des étincelles jaillissent, puis les objets sortent un par un en cartes qui se retournent (contour à la couleur de leur rareté). Légendaire : suspense plus long, flash plein écran et secousse. Un clic ou Échap abrège ; coupé en mouvements réduits.
 
-Tout est tiré côté serveur à l'ouverture. Les expéditions déjà lancées gardent l'ancien calcul.
+Tout est tiré côté serveur à l'ouverture. Les expéditions déjà lancées gardent l'ancien calcul (seuil et Ryō/cristaux) : les nouvelles ont une graine négative.
+
+**Code** : règles `src/lib/chests.ts` (rangs, table, gros lot), coffres en stock dans `ResourceStock` (`coffre-<rang>:<univers>`), ouverture `openChest` (`src/lib/expeditions.ts`, une transaction ; cartes, artefacts, ressources, énergie, Ryō avec journal `EXPEDITION`). Les boosters offerts deviennent des **cartes offertes** (`booster-offert`) utilisées automatiquement avant les cristaux à l'invocation (hors bannière de bienvenue). Scène d'ouverture : `src/app/expeditions/Chests.tsx`.

@@ -178,6 +178,9 @@ Classe `fx-btn` + `data-tone` (`src/app/fx.css`) : petit bouton teinté avec los
 ### 4.22 Effets visuels de la refonte (validé le 2026-11-13, maquette `public/mockups/refonte-fx.html`)
 Assouplit §1, §6 et §9 pour ces effets précis : soulignement d'onglet qui glisse, pages qui entrent en fondu léger, boutons avec reflet et onde au clic ; cartes inclinées en 3D avec reflet et éclat holographique au survol, UR qui pulse ; particules dorées sur l'accueil, compteurs qui défilent, cartes de modes qui se soulèvent avec un filet doré tournant, mode verrouillé qui refuse en tremblant ; flash, secousse et étincelles dorées à la forge et aux récompenses, objets qui apparaissent un par un, notifications qui glissent. Toujours coupés par `prefers-reduced-motion`.
 
+### 4.23 Coffres d'expédition (validé le 2026-11-13, maquette `public/mockups/coffres-expedition.html`)
+Coffres dessinés en CSS (`Chests.tsx`, `chests.css`) : Bronze `#b07a45`, Argent `#cfd6dc`, Or `#f2d27a`, Légendaire arc-en-ciel animé, avec halo de leur couleur. Ouverture plein écran : tremblements croissants (2 à 4), couvercle qui saute, rayons tournants de la couleur du coffre, étincelles ; flash pour l'Or, flash et secousse pour le Légendaire ; objets qui tombent face cachée (dos de carte) puis se retournent, contour à la couleur de leur rareté, gros lot qui pulse. Clic ou Échap abrège.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
@@ -229,6 +232,7 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-09 : étoiles du mode histoire plus visibles, compteur à paliers et étoiles du sprite (§4.17).
 - 2026-11-09 : onglet « En ligne » dans le chat (§4.18).
 - 2026-11-09 : tutoriel plus explicatif (listes de points, phases accueil, raccourcis et combat), Guide du jeu à 22 étapes (§4.6).
+- 2026-11-13 : coffres d'expédition et leur ouverture (§4.23).
 - 2026-11-13 : barre du haut escamotable avec mini-barre (§4.10).
 - 2026-11-13 : titres de page compacts (§3), collection fusionnée (§4.20), boutons colorés par rôle (§4.21), effets visuels de la refonte (§4.22).
 - 2026-11-10 : pages de connexion, inscription et mot de passe oublié remises dans la DA, e-mails de confirmation (§4.19).
