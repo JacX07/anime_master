@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { prisma } from '../src/lib/db';
+import type { Rarity } from '../src/generated/prisma/enums';
 import { DUNGEONS, dungeonKey, parseDungeonKey } from '../src/lib/dungeons';
 import { getDungeonState, setAttackTeam, startBattle, getBattle, equipArtifact } from '../src/lib/battles';
 import { getPlayerInventory } from '../src/lib/player-inventory';
@@ -8,9 +9,9 @@ async function main() {
  await prisma.user.create({data:{id,name:id,username:id,email:`${id}@test.local`}});
  try {
   await prisma.adventureRecord.create({data:{userId:id,key:'access:dungeon'}});
-  for(const d of DUNGEONS) await prisma.storyProgress.create({data:{userId:id,universe:d.key,maxLevel:10}});
+  for(const d of DUNGEONS) await prisma.storyProgress.create({data:{userId:id,universe:d.storyKey,maxLevel:10}});
   const opening=await prisma.packOpening.create({data:{userId:id,lotSize:5,pityTriggered:'NONE'}});
-  const characters=(await Promise.all([['UR',2],['SSR',1],['SR',1]].map(([r,t])=>prisma.character.findMany({where:{disabled:false,rarity:r as any},take:t as number,orderBy:{id:'asc'}})))).flat();
+  const characters=(await Promise.all(([['UR',2],['SSR',1],['SR',1]] as [Rarity,number][]).map(([r,t])=>prisma.character.findMany({where:{disabled:false,rarity:r},take:t,orderBy:{id:'asc'}})))).flat();
   const cards=[];
   for(const c of characters) cards.push(await prisma.card.create({data:{ownerId:id,characterId:c.id,finish:'NORMAL',serial:(await prisma.character.update({where:{id:c.id},data:{pullCount:{increment:1}}})).pullCount,rarityAtPull:'UR',stars:5,packOpeningId:opening.id}}));
   await setAttackTeam(id,cards.map(c=>c.id));
