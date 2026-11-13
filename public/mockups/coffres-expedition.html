@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — Coffres d'expédition</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0e0f;--gold:#c4a76d;--gold-l:#d5bb7f;--txt:#e9e5dc;--muted:#8a8f8a;--R:#38bdf8;--SR:#a855f7;--SSR:#f59e0b;--UR:#ff3b4a;--N:#94a3b8}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1100px 600px at 50% 10%,#1f1b12,transparent 60%),var(--bg);color:var(--txt);font:400 14px/1.5 "DM Sans",sans-serif;overflow-x:hidden}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 60px}
+h1{font:500 clamp(22px,2.2vw,30px) Cinzel;margin:0}
+.sub{color:var(--muted);margin:4px 0 20px}
+.report{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:14px 16px;border-radius:7px;background:#111514;box-shadow:inset 3px 0 0 #8fbfae;margin-bottom:18px}
+.report b{font:600 16px Cinzel;color:#8fbfae}
+.report span{color:#b4b2aa}
+.shelf{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;padding:30px 0 10px}
+.chest-btn{background:none;border:0;padding:0;cursor:pointer;display:grid;justify-items:center;gap:10px;color:var(--txt);font:600 12px Cinzel;letter-spacing:.14em;text-transform:uppercase;transition:transform .25s}
+.chest-btn:hover{transform:translateY(-6px)}
+.chest-btn:focus-visible{outline:2px solid var(--gold);outline-offset:6px;border-radius:8px}
+.chest-btn.done{opacity:.3;pointer-events:none}
+.chest-btn small{font:400 11px "DM Sans";letter-spacing:.04em;text-transform:none;color:var(--muted)}
+.chest{--c1:#b07a45;--c2:#6b4422;--glow:#d08a4a;width:120px;height:100px;position:relative;filter:drop-shadow(0 10px 18px #000c) drop-shadow(0 0 16px color-mix(in srgb,var(--glow) 45%,transparent));animation:idle 3s ease-in-out infinite}
+.chest[data-t=argent]{--c1:#cfd6dc;--c2:#6c757d;--glow:#dfe7ee}
+.chest[data-t=or]{--c1:#f2d27a;--c2:#9a6b1f;--glow:#ffd36b}
+.chest[data-t=legendaire]{--c1:#ff7ad9;--c2:#5b2bd9;--glow:#b98bff}
+.chest[data-t=legendaire] .body,.chest[data-t=legendaire] .lid{background:linear-gradient(120deg,#ff4d6d,#ffd166,#4ade80,#38bdf8,#c084fc,#ff4d6d);background-size:300% 100%;animation:rainbow 3s linear infinite}
+.chest .body{position:absolute;left:0;right:0;bottom:0;height:60%;border-radius:4px 4px 8px 8px;background:linear-gradient(180deg,var(--c1),var(--c2))}
+.chest .lid{position:absolute;left:-4px;right:-4px;top:4px;height:44%;border-radius:40px 40px 4px 4px;background:linear-gradient(180deg,var(--c1),var(--c2));transform-origin:50% 100%;transition:transform .5s cubic-bezier(.2,1.6,.4,1)}
+.chest .band{position:absolute;top:4px;bottom:0;width:12px;background:#0006;border-radius:2px}
+.chest .band.l{left:22px}.chest .band.r{right:22px}
+.chest .lock{position:absolute;left:50%;top:42%;width:22px;height:26px;transform:translateX(-50%);border-radius:4px;background:linear-gradient(180deg,#fff3c4,var(--c2));box-shadow:0 0 12px var(--glow);z-index:2}
+.chest .lock::after{content:"";position:absolute;left:50%;top:9px;width:5px;height:9px;transform:translateX(-50%);background:#0009;border-radius:2px}
+@keyframes idle{50%{transform:translateY(-4px)}}
+@keyframes rainbow{to{background-position:300% 0}}
+
+/* scène d'ouverture */
+.stage{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:radial-gradient(circle at 50% 45%,#1b1710ee,#050606f7 70%);backdrop-filter:blur(6px)}
+.stage.on{display:grid}
+.stage .center{position:relative;display:grid;justify-items:center;gap:22px;width:min(1100px,100vw);padding:0 16px}
+.stage .big{transform:scale(2.2);margin:90px 0 70px}
+.stage .big .chest{animation:none}
+.rays{position:absolute;left:50%;top:150px;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--glow,#ffd36b) 35%,transparent) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 60%);mask:radial-gradient(circle,#000 0,transparent 60%);opacity:0;transform:scale(.3);pointer-events:none}
+.stage.burst .rays{animation:rays 2.2s ease-out forwards,spin 12s linear infinite}
+@keyframes rays{20%{opacity:1;transform:scale(1)}100%{opacity:.45;transform:scale(1.1)}}
+@keyframes spin{to{rotate:360deg}}
+.shake1{animation:sh .32s linear 2}.shake2{animation:sh .22s linear 3}.shake3{animation:sh .12s linear 6}
+@keyframes sh{25%{transform:rotate(-6deg) translateX(-4px)}75%{transform:rotate(6deg) translateX(4px)}}
+.stage.burst .big .lid{transform:translateY(-34px) rotate(-28deg)}
+.stage.burst .big .lock{opacity:0;transition:opacity .2s}
+.label{font:600 15px Cinzel;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-l);text-shadow:0 0 18px #000}
+.loot{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;min-height:190px;perspective:900px}
+.item{--r:var(--N);width:132px;aspect-ratio:3/4;position:relative;transform-style:preserve-3d;animation:fly .55s cubic-bezier(.2,1.3,.3,1) both}
+.item .face{position:absolute;inset:0;border-radius:8px;backface-visibility:hidden;display:grid;justify-items:center;align-content:center;gap:8px;padding:10px;text-align:center}
+.item .back{background:#0c0f10 url(/images/cards/anima-clash-back.webp) center/cover;box-shadow:0 0 0 1.5px #c4a76d88}
+.item .front{transform:rotateY(180deg);background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--r) 35%,#141818),#0c0f10 75%);box-shadow:0 0 0 1.5px var(--r),0 0 24px -4px var(--r)}
+.item.flip .inner{transform:rotateY(180deg)}
+.item .inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.3,1.4,.4,1)}
+.item img{width:70px;height:70px;object-fit:contain;filter:drop-shadow(0 6px 10px #000a)}
+.item .ico{width:70px;height:70px;display:grid;place-items:center;font:700 34px Cinzel;color:var(--r)}
+.item b{font:600 12px Cinzel;line-height:1.2}
+.item small{color:#cfc9bb;font-size:12px;font-weight:700}
+.item .tag{position:absolute;top:6px;right:6px;font:700 9px "DM Sans";padding:1px 5px;border-radius:3px;background:var(--r);color:#fff}
+.item.jackpot{animation:fly .55s cubic-bezier(.2,1.3,.3,1) both,jack 1.6s ease-in-out 1s infinite}
+@keyframes jack{50%{box-shadow:0 0 40px 6px var(--r);border-radius:8px}}
+@keyframes fly{from{opacity:0;transform:translateY(-120px) scale(.3) rotate(-12deg)}}
+.actions{display:flex;gap:18px;justify-content:center}
+.btn{background:rgb(205 170 99 / 20%);border:0;box-shadow:inset 0 -2px 0 #c4a76d;color:#edd49a;font:600 12px Cinzel;letter-spacing:.1em;text-transform:uppercase;padding:12px 18px;border-radius:3px;cursor:pointer}
+.btn:hover{background:rgb(205 170 99 / 32%)}
+.btn.ghost{background:none;box-shadow:none;color:var(--muted)}
+.hint{color:var(--muted);font-size:12px}
+.flash{position:fixed;inset:0;z-index:70;pointer-events:none;background:radial-gradient(circle,#fff,#fff0 70%);opacity:0}
+.flash.on{animation:fl .7s ease-out}
+@keyframes fl{10%{opacity:1}100%{opacity:0}}
+#sparks{position:fixed;inset:0;z-index:60;pointer-events:none}
+.screen-shake{animation:ss .5s}
+@keyframes ss{20%{transform:translate(-8px,3px)}40%{transform:translate(7px,-4px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-1px)}}
+.tiers{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:26px}
+.note{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="flash" id="flash"></div><canvas id="sparks"></canvas>
+<div class="wrap" id="wrap">
+  <h1>Retour d'expédition</h1>
+  <p class="sub">MAQUETTE · Clique un coffre pour l'ouvrir. Les contenus sont tirés au hasard à chaque ouverture, selon la table de la spec.</p>
+  <div class="report"><b>Royaume des Fourmis-Chimères · Triomphe</b><span>Killua, Gon et Netero reviennent avec 4 coffres.</span></div>
+  <div class="shelf" id="shelf"></div>
+  <div class="actions"><button class="btn" id="all">Tout ouvrir</button><button class="btn ghost" id="reset">Recommencer</button></div>
+  <p class="note">Essayer un coffre précis :</p>
+  <div class="tiers"><button class="btn ghost" data-try="bronze">Bronze</button><button class="btn ghost" data-try="argent">Argent</button><button class="btn ghost" data-try="or">Or</button><button class="btn ghost" data-try="legendaire">Légendaire</button></div>
+</div>
+<div class="stage" id="stage" role="dialog" aria-label="Ouverture du coffre">
+  <div class="center">
+    <div class="rays" id="rays"></div>
+    <div class="label" id="slabel"></div>
+    <div class="big" id="big"></div>
+    <div class="loot" id="loot"></div>
+    <div class="actions"><button class="btn" id="next">Continuer</button></div>
+    <p class="hint">Un clic ou Échap accélère l'animation.</p>
+  </div>
+</div>
+<script>
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NAMES={bronze:"Bronze",argent:"Argent",or:"Or",legendaire:"Légendaire"};
+const COUNT={bronze:2,argent:3,or:4,legendaire:6};
+const GLOW={bronze:"#d08a4a",argent:"#dfe7ee",or:"#ffd36b",legendaire:"#b98bff"};
+const IDX={bronze:0,argent:1,or:2,legendaire:3};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+// table d'objets : [nom, image ou symbole, quantités par coffre (null = absent), rareté affichée par coffre]
+const TABLE=[
+ ["Ryō","◎",[60,150,400,1000],["N","R","SR","SSR"]],
+ ["Cristaux","◆",[2,5,10,25],["R","R","SR","SSR"]],
+ ["Booster offert","/images/boosters/standard.png",[null,"×5","×5","×10"],[null,"SR","SR","UR"]],
+ ["Licence de Hunter","✦",[3,8,15,30],["N","R","SR","SSR"]],
+ ["Fragments de signature","✧",[4,10,20,40],["N","N","R","SR"]],
+ ["Carte de Greed Island","▣",[null,1,2,5],[null,"R","SR","SSR"]],
+ ["Cœurs de brèche","/images/materials/coeur-de-breche.webp",[null,null,3,8],[null,null,"SR","SSR"]],
+ ["Énergie","⚡",["+5","+10","+20","+40"],["N","R","R","SR"]],
+ ["Artefact","/images/artifacts/sets/one-piece/breastplate.webp",[null,"SR","SR/SSR","SSR"],[null,"SR","SSR","SSR"]],
+ ["Carte : Netero","/images/artifacts/sets/naruto/helmet.webp",[null,"R","SR","SSR"],[null,"R","SR","SSR"]],
+ ["Ressource d'empereur","/images/materials/ecaille-de-kaido.webp",[null,null,null,1],[null,null,null,"UR"]],
+];
+const JACKPOT=[["Booster offert","/images/boosters/standard.png","×10","UR"],["Artefact SSR","/images/artifacts/sets/dragon-ball/gauntlets.webp","1","SSR"],["Carte UR : Meruem","/images/artifacts/sets/jujutsu-kaisen/boots.webp","1","UR"],["Ressources d'empereur","/images/materials/cheveux-roux-de-shanks.webp","×2","UR"]];
+function roll(t){const i=IDX[t],pool=TABLE.filter(r=>r[2][i]!==null),out=[];
+ for(let k=0;k<COUNT[t]-(t==="legendaire"?1:0);k++){const r=pick(pool);out.push({n:r[0],img:r[1],q:r[2][i],r:r[3][i]});}
+ if(t==="legendaire"){const j=pick(JACKPOT);out.push({n:j[0],img:j[1],q:j[2],r:j[3],jackpot:true});}
+ return out;}
+const chestHTML=t=>`<div class="chest" data-t="${t}"><div class="body"></div><span class="band l"></span><span class="band r"></span><div class="lid"></div><span class="lock"></span></div>`;
+let shelf=["argent","or","or","legendaire"];
+function drawShelf(){document.getElementById("shelf").innerHTML=shelf.map((t,i)=>`<button class="chest-btn" data-i="${i}">${chestHTML(t)}<span>${NAMES[t]}</span><small>${COUNT[t]} objets</small></button>`).join("");
+ document.querySelectorAll(".chest-btn").forEach(b=>b.onclick=()=>open(shelf[+b.dataset.i],b));}
+drawShelf();
+// étincelles
+const cv=document.getElementById("sparks"),cx=cv.getContext("2d");let S=[];
+function fit(){cv.width=innerWidth;cv.height=innerHeight}fit();addEventListener("resize",fit);
+function burst(x,y,n,col){if(reduce)return;const idle=!S.length;for(let i=0;i<n;i++){const a=Math.random()*7,v=Math.random()*9+3;S.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,l:1,r:Math.random()*2.5+1,c:col});}if(idle)requestAnimationFrame(loop)}
+function loop(){cx.clearRect(0,0,cv.width,cv.height);for(const s of S){s.x+=s.vx;s.y+=s.vy;s.vy+=.2;s.vx*=.98;s.l-=.014;cx.globalAlpha=Math.max(0,s.l);cx.fillStyle=s.l>.6?"#fff8dc":s.c;cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();}S=S.filter(s=>s.l>0);if(S.length)requestAnimationFrame(loop);else cx.clearRect(0,0,cv.width,cv.height)}
+// ouverture
+let skip=false,queue=[],busy=false;
+const wait=ms=>new Promise(r=>setTimeout(r,skip||reduce?0:ms));
+async function open(t,btn){if(busy){queue.push([t,btn]);return}busy=true;skip=false;
+ const st=document.getElementById("stage"),big=document.getElementById("big"),loot=document.getElementById("loot");
+ st.classList.remove("burst");st.style.setProperty("--glow",GLOW[t]);document.getElementById("rays").style.setProperty("--glow",GLOW[t]);
+ document.getElementById("slabel").textContent="Coffre "+NAMES[t];big.innerHTML=chestHTML(t);loot.innerHTML="";st.classList.add("on");document.getElementById("next").style.visibility="hidden";
+ const ch=big.firstElementChild;
+ const steps=t==="legendaire"?["shake1","shake2","shake3","shake3"]:t==="or"?["shake1","shake2","shake3"]:["shake1","shake2"];
+ for(const s of steps){ch.classList.remove("shake1","shake2","shake3");void ch.offsetWidth;ch.classList.add(s);await wait(s==="shake1"?650:s==="shake2"?700:750);}
+ const r=big.getBoundingClientRect();
+ if(t==="legendaire"||t==="or"){const f=document.getElementById("flash");f.classList.remove("on");void f.offsetWidth;f.classList.add("on");}
+ if(t==="legendaire"){const w=document.getElementById("stage");w.classList.remove("screen-shake");void w.offsetWidth;w.classList.add("screen-shake");}
+ st.classList.add("burst");burst(r.left+r.width/2,r.top+r.height/3,t==="legendaire"?220:t==="or"?140:80,GLOW[t]);
+ await wait(500);
+ const items=roll(t);
+ for(const it of items){const d=document.createElement("div");d.className="item"+(it.jackpot?" jackpot":"");d.style.setProperty("--r",`var(--${it.r})`);
+  const vis=it.img.startsWith("/")?`<img src="${it.img}" alt="">`:`<span class="ico">${it.img}</span>`;
+  d.innerHTML=`<div class="inner"><div class="face back"></div><div class="face front"><span class="tag">${it.r}</span>${vis}<b>${it.n}</b><small>${it.q}</small></div></div>`;
+  loot.appendChild(d);await wait(it.jackpot?700:260);d.classList.add("flip");
+  if(it.r==="SSR"||it.r==="UR"){const b=d.getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,it.r==="UR"?90:45,it.r==="UR"?"#ff3b4a":"#f59e0b");}
+  await wait(it.jackpot?600:200);}
+ document.getElementById("next").style.visibility="visible";if(btn)btn.classList.add("done");busy=false;}
+document.getElementById("next").onclick=()=>{document.getElementById("stage").classList.remove("on");if(queue.length){const [t,b]=queue.shift();open(t,b);}};
+document.getElementById("stage").addEventListener("click",e=>{if(e.target.id!=="next")skip=true});
+addEventListener("keydown",e=>{if(e.key==="Escape")skip=true});
+document.getElementById("all").onclick=()=>{const bs=[...document.querySelectorAll(".chest-btn:not(.done)")];bs.forEach((b,i)=>i?queue.push([shelf[+b.dataset.i],b]):0);if(bs[0])open(shelf[+bs[0].dataset.i],bs[0]);};
+document.getElementById("reset").onclick=()=>{queue=[];drawShelf()};
+document.querySelectorAll("[data-try]").forEach(b=>b.onclick=()=>open(b.dataset.try,null));
+</script></body></html>
