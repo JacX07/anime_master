@@ -33,6 +33,8 @@ export interface PlayerCharacter {
 }
 
 interface Props {
+  /** Décor du mode, fourni depuis l'identifiant du combat. */
+  background?: string;
   /** Musique du combat : général (par défaut), raid ou PvP */
   music?: MusicTrack;
   /** Première tentative en donjon : les effets restent actifs malgré la préférence globale. */
@@ -96,7 +98,7 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
+export function BattlePlayer({ background, music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -330,7 +332,7 @@ export function BattlePlayer({ music = "combat", allowDisableSpellFx = true, log
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
-    <div className="bt-layout bt-layout-with-order" onPointerDown={() => getAudio().unlock()}>
+    <div className="bt-layout bt-layout-with-order" data-background={background ? true : undefined} style={background ? { "--battle-background": `url("${background}")` } as React.CSSProperties : undefined} onPointerDown={() => getAudio().unlock()}>
       <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">

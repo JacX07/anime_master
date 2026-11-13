@@ -34,6 +34,8 @@ export const SET_ARTIFACTS: Record<string, Record<string, string>> = {
   naruto: { CASQUE: "Bandeau de Konoha", PLASTRON: "Veste de shinobi", GANTS: "Gants de shinobi", BOTTES: "Sandales de ninja" },
   "jujutsu-kaisen": { CASQUE: "Bandeau de l'Infini", PLASTRON: "Veste de sorcier", GANTS: "Gants de l'Infini", BOTTES: "Bottes de sorcier" },
   "dragon-ball": { CASQUE: "Scouter saiyan", PLASTRON: "Kimono de combat", GANTS: "Poignets d'entraînement", BOTTES: "Bottes saiyan" },
+  "fairy-tail": { CASQUE: "Diadème de Fairy Tail", PLASTRON: "Manteau de Fairy Tail", GANTS: "Gants de Fairy Tail", BOTTES: "Bottes de Fairy Tail" },
+  bleach: { CASQUE: "Masque de Hollow", PLASTRON: "Shihakushō de capitaine", GANTS: "Brassards de shinigami", BOTTES: "Bottes de shinigami" },
 };
 const SLOT_FILES: Record<string, string> = { CASQUE: "helmet", PLASTRON: "breastplate", GANTS: "gauntlets", BOTTES: "boots" };
 export const artifactImage = (setKey: string, slot: string) => (SET_ARTIFACTS[setKey] && SLOT_FILES[slot] ? `/images/artifacts/sets/${setKey}/${SLOT_FILES[slot]}.webp` : undefined);

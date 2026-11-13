@@ -1,4 +1,5 @@
 /* Lecteur de combat 4 contre 4 (BattlePlayer). --spd : vitesse de lecture (1, 2 ou 4), appliquée aux transitions. */
+.bt-layout[data-background] { background-image: linear-gradient(#04060680, #040606b3), var(--battle-background); background-size: cover; background-position: center; }
 
 /* Plein écran : par-dessus le menu du site pour l'immersion.
    Grand écran : ordre | plateau | sorts. Téléphone : plateau, puis sorts. */
