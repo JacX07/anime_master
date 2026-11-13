@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maquette — Sorts en cartes et ultime en fiole</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#c4a76d;--gold-l:#d5bb7f;--txt:#e9e5dc;--muted:#8a8f8a;--ult:#7fd8ff;--ult2:#3a7bd5}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;color:var(--txt);font:400 13px/1.4 "DM Sans",sans-serif;background:linear-gradient(#04060666,#040606cc),url(/images/battle/citadelle.webp) center/cover #0b0e0f}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* Panneau des réglages de la maquette */
+.mk{position:fixed;left:12px;top:12px;z-index:50;display:grid;gap:6px;padding:10px 12px;border-radius:7px;background:#151918f0;box-shadow:0 12px 30px #000a;max-width:min(340px,calc(100vw - 24px))}
+.mk b{font:600 12px Cinzel,serif;color:var(--gold-l);letter-spacing:.06em}
+.mk p{margin:0;color:var(--muted);font-size:11px}
+.mk .row{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center}
+.mk .row small{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;min-width:52px}
+.mk .row button{padding:3px 6px;font-size:11px;color:var(--muted);border-bottom:2px solid transparent}
+.mk .row button[aria-pressed=true]{color:var(--txt);border-bottom-color:var(--gold)}
+
+/* Plateau réduit : juste de quoi viser */
+.arena{position:fixed;inset:0 0 230px 0;pointer-events:none}
+.unit{position:absolute;width:clamp(70px,9vw,140px);aspect-ratio:5/7;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1.5px var(--r,#f59e0b),0 12px 24px #000b;pointer-events:auto;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.unit img{width:100%;height:100%;object-fit:cover;object-position:top}
+.unit[data-side=B]{--r:#ff3b4a}
+.unit[data-target]{box-shadow:0 0 0 2.5px #f0dca0,0 0 28px #f0dca099,0 12px 24px #000b}
+.unit[data-target]::after{content:"Cible";position:absolute;left:50%;top:6px;transform:translateX(-50%);padding:1px 8px;border-radius:9px;background:#f0dca0;color:#1a1408;font:700 10px "DM Sans"}
+.unit.hit{animation:hit .45s}
+@keyframes hit{20%{transform:translateX(-8px) rotate(-2deg);filter:brightness(2)}60%{transform:translateX(5px)}}
+.dmg{position:fixed;z-index:30;font:700 28px Cinzel,serif;color:#fff3c4;text-shadow:0 0 12px #ff7a3d,0 2px 0 #000;pointer-events:none;animation:dmg 1.1s ease-out forwards}
+@keyframes dmg{0%{transform:translate(-50%,0) scale(.5);opacity:0}20%{transform:translate(-50%,-20px) scale(1.25);opacity:1}100%{transform:translate(-50%,-70px) scale(1);opacity:0}}
+
+/* ---------- Main de cartes ---------- */
+.hand{position:fixed;left:50%;bottom:-40px;z-index:10;height:270px;width:min(760px,96vw);transform:translateX(-50%)}
+.card{--i:0;--n:4;--rot:0deg;--x:0px;--y:0px;--accent:#c4a76d;position:absolute;left:50%;bottom:0;width:150px;height:210px;margin-left:-75px;border-radius:10px;transform-origin:50% 120%;
+  transform:translate(var(--x),var(--y)) rotate(var(--rot));transition:transform .35s cubic-bezier(.2,.9,.2,1),filter .3s,opacity .3s;cursor:pointer;will-change:transform}
+.card .face{position:absolute;inset:0;border-radius:10px;overflow:hidden;background:linear-gradient(170deg,color-mix(in srgb,var(--accent) 34%,#141917),#0c100f 70%);box-shadow:0 0 0 1.5px color-mix(in srgb,var(--accent) 75%,#000),0 14px 28px #000c}
+.card .art{position:absolute;inset:34px 10px 70px;border-radius:5px;background:var(--img) center 18%/cover;filter:saturate(1.1);box-shadow:inset 0 0 0 1px #0008}
+.card .art::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,color-mix(in srgb,var(--accent) 45%,transparent));mix-blend-mode:screen}
+.card .ttl{position:absolute;left:28px;right:6px;top:7px;font:600 12px/1.15 Cinzel,serif;color:#f0e6cc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .cost{position:absolute;left:5px;top:4px;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#0b0e0f;box-shadow:0 0 0 1.5px var(--accent);font:700 11px "DM Sans";color:var(--accent)}
+.card .kind{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);padding:1px 8px;border-radius:3px;background:#0b0e0fd9;color:var(--accent);font:700 9px "DM Sans";letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.card .txt{position:absolute;left:8px;right:8px;bottom:8px;height:40px;display:grid;place-items:center;text-align:center;font-size:10.5px;line-height:1.25;color:#d9d4c8;background:#0b0e0fb3;border-radius:4px;padding:2px 4px}
+.card[data-cd] .face{filter:grayscale(.85) brightness(.55)}
+.card[data-cd]::after{content:attr(data-cd);position:absolute;inset:0;display:grid;place-items:center;font:700 44px Cinzel,serif;color:#fff;text-shadow:0 0 16px #000;pointer-events:none}
+.card[data-cd]{cursor:not-allowed}
+/* halo animé autour de la carte survolée */
+@property --a{syntax:"<angle>";inherits:false;initial-value:0deg}
+.card .halo{position:absolute;inset:-7px;border-radius:15px;opacity:0;pointer-events:none;transition:opacity .25s;
+  background:conic-gradient(from var(--a),transparent 0 18%,var(--accent) 30%,#fff8dc 36%,var(--accent) 42%,transparent 55% 68%,var(--accent) 80%,#fff8dc 85%,var(--accent) 90%,transparent);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:3px;filter:drop-shadow(0 0 8px var(--accent));animation:spin 2.2s linear infinite}
+.card .glow{position:absolute;inset:-18px;border-radius:24px;opacity:0;pointer-events:none;background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 45%,transparent),transparent);transition:opacity .25s;animation:pulse 1.6s ease-in-out infinite}
+@keyframes spin{to{--a:360deg}}
+@keyframes pulse{50%{transform:scale(1.06);opacity:.8}}
+.card.hot:not([data-cd]) .halo,.card.hot:not([data-cd]) .glow{opacity:1}
+.card.gone{opacity:0;pointer-events:none;transition:opacity .15s}
+.card.back{animation:back .5s cubic-bezier(.2,1.3,.3,1)}
+@keyframes back{from{opacity:0;translate:0 80px}}
+/* bulle d'aide sous la main */
+.tip{position:fixed;left:50%;bottom:236px;z-index:9;transform:translateX(-50%);padding:5px 12px;border-radius:5px;background:#151918e6;color:var(--muted);font-size:11px;white-space:nowrap;transition:opacity .3s}
+
+/* ---------- Ultime : fiole / orbe qui se remplit ---------- */
+.ult{position:fixed;right:clamp(14px,3vw,40px);bottom:clamp(14px,3vh,34px);z-index:12;display:grid;justify-items:center;gap:6px;cursor:pointer}
+.ult svg{width:clamp(110px,11vw,150px);height:auto;overflow:visible;filter:drop-shadow(0 10px 18px #000c)}
+.ult .lbl{font:600 11px Cinzel,serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-l);text-shadow:0 2px 6px #000}
+.ult .pct{font:700 12px "DM Sans";color:#dff6ff;text-shadow:0 1px 3px #000}
+.ult[data-ready] svg{animation:ready 1.4s ease-in-out infinite}
+@keyframes ready{50%{filter:drop-shadow(0 0 18px var(--ult)) drop-shadow(0 10px 18px #000c)}}
+.ult[data-ready] .lbl{color:#fff;text-shadow:0 0 10px var(--ult)}
+.ult:hover svg{transform:scale(1.05)}
+.ult svg{transition:transform .25s}
+.wave{animation:wave 3.2s linear infinite}
+.wave2{animation:wave 4.6s linear infinite reverse;opacity:.55}
+@keyframes wave{to{transform:translateX(-200px)}}
+.bub{animation:bub 2.4s ease-in infinite}
+@keyframes bub{from{transform:translateY(0);opacity:0}15%{opacity:.9}to{transform:translateY(-70px);opacity:0}}
+.ring-run{animation:ringrun 3s linear infinite;transform-origin:100px 100px}
+@keyframes ringrun{to{transform:rotate(360deg)}}
+
+#fx{position:fixed;inset:0;z-index:20;pointer-events:none}
+.flash{position:fixed;inset:0;z-index:40;pointer-events:none;background:radial-gradient(circle at 80% 85%,#bfefff,#7fd8ff55 30%,transparent 65%);opacity:0}
+.flash.on{animation:fl .9s ease-out}
+@keyframes fl{12%{opacity:1}100%{opacity:0}}
+.ultname{position:fixed;left:50%;top:38%;z-index:41;transform:translate(-50%,-50%);font:700 clamp(26px,5vw,60px) Cinzel,serif;letter-spacing:.06em;color:#fff;text-shadow:0 0 30px var(--ult),0 4px 0 #000;opacity:0;pointer-events:none;white-space:nowrap}
+.ultname.on{animation:un 1.6s ease-out}
+@keyframes un{0%{opacity:0;transform:translate(-50%,-50%) scale(1.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%)}}
+
+@media (max-width:640px){.hand{height:200px;bottom:-34px}.card{width:104px;height:146px;margin-left:-52px}.card .art{inset:28px 7px 48px}.card .txt{display:none}.card .kind{bottom:8px}.tip{bottom:166px}.arena{bottom:170px}.ult{bottom:180px;right:10px}.ult svg{width:70px}.ult .lbl{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<aside class="mk" aria-label="Réglages de la maquette">
+  <b>Maquette · Sorts et ultime</b>
+  <p>Survole la main, clique une carte pour lancer le sort sur la cible. La fiole se remplit à chaque sort ; pleine, clique-la.</p>
+  <div class="row"><small>Main</small><button data-hand="fan" aria-pressed="true">Éventail</button><button data-hand="row" aria-pressed="false">Rangée</button></div>
+  <div class="row"><small>Ultime</small><button data-ult="flask" aria-pressed="true">Fiole</button><button data-ult="orb" aria-pressed="false">Orbe (façon HSR)</button></div>
+  <div class="row"><small>Jauge</small><button id="plus">+25 %</button><button id="full">Pleine</button><button id="empty">Vide</button></div>
+</aside>
+
+<div class="arena" id="arena"></div>
+<p class="tip" id="tip">Survole tes sorts</p>
+<div class="hand" id="hand" aria-label="Sorts"></div>
+<button class="ult" id="ult" aria-label="Ultime"><span id="vase"></span><span class="pct" id="pct">0 %</span><span class="lbl">Extension du territoire</span></button>
+<canvas id="fx"></canvas><div class="flash" id="flash"></div><div class="ultname" id="ultname">Extension du territoire</div>
+
+<script>
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const GOJO="/api/illustrations/character-127691?v=83ea914c-15af-473d-948d-c08c89f195e8";
+const UNITS=[["A",GOJO,"#ff3b4a",.10,.48],["A","/api/illustrations/character-40?v=b952ad85-e441-412b-b453-cb661ae6e16a","#f59e0b",.24,.30],
+ ["B","/api/illustrations/character-422?v=a092574a-d762-4afd-94f6-b07baedcdbee","#ff3b4a",.66,.22],["B","https://s4.anilist.co/file/anilistcdn/character/large/b87275-mb13EWZBdbh3.png","#f59e0b",.80,.42]];
+const SPELLS=[
+ {t:"Impulsion d'Infini",k:"Attaque de base",c:"0",acc:"#c4a76d",img:GOJO,txt:"1× ATK. Bouclier de 8 % des PV max.",dmg:3120,cd:0},
+ {t:"Bleu",k:"★ Secondaire",c:"5",acc:"#5aa9ff",img:GOJO,txt:"1,1× ATK. DEF −20 % pour la cible, 2 tours.",dmg:4480,cd:0},
+ {t:"Infini",k:"◇ Tertiaire",c:"7",acc:"#a98bd9",img:GOJO,txt:"Équipe : dégâts subis −18 %, esquive +40.",dmg:0,cd:0},
+ {t:"Rouge",k:"★ Secondaire",c:"5",acc:"#ff6b6b",img:GOJO,txt:"Prêt dans 2 tours.",dmg:0,cd:2},
+];
+// plateau
+const arena=document.getElementById("arena");let target=2;
+UNITS.forEach((u,i)=>{const d=document.createElement("button");d.className="unit";d.dataset.side=u[0];d.style.setProperty("--r",u[2]);d.style.left=`${u[3]*100}%`;d.style.top=`${u[4]*100}%`;d.innerHTML=`<img src="${u[1]}" alt="" referrerpolicy="no-referrer">`;if(u[0]==="B")d.onclick=()=>{target=i;mark()};arena.appendChild(d)});
+const mark=()=>[...arena.children].forEach((d,i)=>d.toggleAttribute("data-target",i===target));mark();
+
+// main de cartes
+const hand=document.getElementById("hand");let layout="fan",hot=-1,over=false;
+SPELLS.forEach((s,i)=>{const c=document.createElement("button");c.className="card";c.style.setProperty("--accent",s.acc);c.style.setProperty("--img",`url("${s.img}")`);if(s.cd)c.dataset.cd=s.cd;
+ c.innerHTML=`<span class="glow"></span><span class="halo"></span><span class="face"><span class="art"></span><span class="cost">${s.c}</span><span class="ttl">${s.t}</span><span class="kind">${s.k}</span><span class="txt">${s.txt}</span></span>`;
+ c.setAttribute("aria-label",`${s.t} : ${s.txt}`);
+ c.onpointerenter=()=>{hot=i;place()};c.onfocus=()=>{hot=i;over=true;place()};
+ c.onclick=()=>cast(i,c);hand.appendChild(c)});
+hand.onpointerenter=()=>{over=true;place();document.getElementById("tip").style.opacity=0};
+hand.onpointerleave=()=>{over=false;hot=-1;place();document.getElementById("tip").style.opacity=1};
+function place(){const cards=[...hand.children],n=cards.length,small=innerWidth<=640,w=small?104:150;
+ cards.forEach((c,i)=>{const m=i-(n-1)/2;let x,y,r,z=i;
+  if(layout==="fan"){
+   // repos : cartes serrées et abaissées ; survol de la main : elles s'écartent et remontent
+   const room=(Math.min(innerWidth,760)-w-12)/(n-1);const gap=Math.min(over?w*.92:w*.55,room), lift=over?-30:28;
+   x=m*gap;y=lift+Math.abs(m)*m*0+Math.abs(m)*(over?10:14);r=m*(over?5:8);
+  }else{const room=(Math.min(innerWidth,760)-w-12)/(n-1);const gap=Math.min(over?w*1.06:w*.9,room);x=m*gap;y=over?-24:32;r=0}
+  if(over&&hot===i){y-=small?36:62;r=0;z=20;x+=0}
+  else if(over&&hot>=0){x+=(i<hot?-1:1)*(small?10:22)} // les voisines s'écartent de la carte survolée
+  c.style.setProperty("--x",x+"px");c.style.setProperty("--y",y+"px");c.style.setProperty("--rot",r+"deg");c.style.zIndex=z;
+  c.style.scale=over&&hot===i?(small?"1.12":"1.18"):"1";c.classList.toggle("hot",over&&hot===i)});}
+place();addEventListener("resize",place);
+
+// particules
+const cv=document.getElementById("fx"),cx=cv.getContext("2d");let P=[];const dpr=Math.min(2,devicePixelRatio||1);
+const fit=()=>{cv.width=innerWidth*dpr;cv.height=innerHeight*dpr};fit();addEventListener("resize",fit);
+function loop(){cx.clearRect(0,0,cv.width,cv.height);for(const p of P){
+  if(p.to){const dx=p.to.x-p.x,dy=p.to.y-p.y;p.vx+=dx*.0045*p.k;p.vy+=dy*.0045*p.k;p.vx*=.9;p.vy*=.9;}else{p.vy+=.06;p.vx*=.98}
+  p.x+=p.vx;p.y+=p.vy;p.l-=p.d;cx.globalAlpha=Math.max(0,p.l);cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x*dpr,p.y*dpr,p.r*dpr,0,7);cx.fill();}
+ P=P.filter(p=>p.l>0);if(P.length)requestAnimationFrame(loop);else cx.clearRect(0,0,cv.width,cv.height)}
+const spawn=(list)=>{const idle=!P.length;P.push(...list);if(idle)requestAnimationFrame(loop)};
+
+// lancer un sort : la carte se dissout en particules qui filent vers la cible
+let gauge=0,busy=false;
+function cast(i,card){const s=SPELLS[i];if(busy||s.cd)return;busy=true;const r=card.getBoundingClientRect();const tg=arena.children[target].getBoundingClientRect();const to={x:tg.left+tg.width/2,y:tg.top+tg.height/2};
+ const ally=s.dmg===0; const dest=ally?(()=>{const g=arena.children[0].getBoundingClientRect();return{x:g.left+g.width/2,y:g.top+g.height/2}})():to;
+ if(!reduce){const list=[];for(let k=0;k<420;k++){const x=r.left+Math.random()*r.width,y=r.top+Math.random()*r.height;
+  list.push({x,y,vx:(Math.random()-.5)*3,vy:-Math.random()*3-1,r:Math.random()*2.2+.8,c:Math.random()<.35?"#fff8dc":s.acc,l:1.4,d:.011+Math.random()*.006,k:.6+Math.random()*.8,to:null,t:k});}
+  spawn(list);setTimeout(()=>list.forEach(p=>p.to=dest),260);}
+ card.classList.add("gone");
+ setTimeout(()=>{const u=arena.children[ally?0:target];u.classList.remove("hit");void u.offsetWidth;u.classList.add("hit");
+  const n=document.createElement("span");n.className="dmg";n.textContent=ally?"Bouclier d'équipe":new Intl.NumberFormat("fr-FR").format(s.dmg);n.style.left=dest.x+"px";n.style.top=(dest.y-40)+"px";document.body.appendChild(n);setTimeout(()=>n.remove(),1200);
+  setGauge(gauge+(i===0?25:34));},reduce?50:900);
+ setTimeout(()=>{card.classList.remove("gone");card.classList.add("back");setTimeout(()=>card.classList.remove("back"),520);busy=false;},reduce?200:1500);}
+
+// ultime : fiole ou orbe qui se remplit comme de l'eau
+let ultStyle="flask";
+function vaseSVG(){
+ const clip=ultStyle==="flask"
+  ?`<path d="M80 18h40v38c34 10 56 40 56 76 0 46-34 74-76 74S24 178 24 132c0-36 22-66 56-76z"/>`
+  :`<circle cx="100" cy="110" r="84"/>`;
+ const outline=ultStyle==="flask"
+  ?`<path d="M80 18h40v38c34 10 56 40 56 76 0 46-34 74-76 74S24 178 24 132c0-36 22-66 56-76z" fill="none" stroke="#d5bb7f" stroke-width="4"/><rect x="72" y="8" width="56" height="14" rx="3" fill="#2a2416" stroke="#d5bb7f" stroke-width="3"/><path d="M48 120c0-22 14-40 32-48" fill="none" stroke="#ffffff55" stroke-width="5" stroke-linecap="round"/>`
+  :`<circle cx="100" cy="110" r="84" fill="none" stroke="#d5bb7f" stroke-width="4"/><circle class="ring-run" cx="100" cy="110" r="94" fill="none" stroke="#7fd8ff" stroke-width="3" stroke-dasharray="40 30" opacity=".0" id="ring" style="transform-origin:100px 110px"/><path d="M44 96c6-24 26-42 50-46" fill="none" stroke="#ffffff55" stroke-width="5" stroke-linecap="round"/>`;
+ return `<svg viewBox="0 0 200 210" aria-hidden="true"><defs><clipPath id="vc">${clip}</clipPath>
+ <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ee6ff"/><stop offset="1" stop-color="#2a5fb5"/></linearGradient></defs>
+ <g clip-path="url(#vc)"><rect x="0" y="0" width="200" height="210" fill="#0b1218e6"/>
+  <g id="lvl" style="transition:transform 1s cubic-bezier(.2,.9,.2,1)">
+   <path class="wave2" d="M0 0 Q25 -8 50 0 T100 0 T150 0 T200 0 T250 0 T300 0 T350 0 T400 0 V260 H0Z" fill="#5fb4ff"/>
+   <path class="wave" d="M0 4 Q25 -6 50 4 T100 4 T150 4 T200 4 T250 4 T300 4 T350 4 T400 4 V260 H0Z" fill="url(#water)"/>
+   <circle class="bub" cx="80" cy="40" r="3" fill="#dff6ff" style="animation-delay:.2s"/><circle class="bub" cx="118" cy="56" r="2.2" fill="#dff6ff" style="animation-delay:1.1s"/><circle class="bub" cx="100" cy="70" r="2.6" fill="#dff6ff" style="animation-delay:1.8s"/>
+  </g>
+  <path d="M100 82 l14 22 -14 22 -14 -22z" fill="#ffffffcc" opacity=".85"/><path d="M100 92 l7 12 -7 12 -7 -12z" fill="#2a2416"/>
+ </g>${outline}</svg>`;}
+const ult=document.getElementById("ult");
+function drawVase(){document.getElementById("vase").innerHTML=vaseSVG();setGauge(gauge,true)}
+function setGauge(v,instant){gauge=Math.max(0,Math.min(100,v));const lvl=document.getElementById("lvl");
+ const top=ultStyle==="flask"?28:26,bottom=ultStyle==="flask"?206:194;const y=bottom-(bottom-top)*gauge/100;
+ if(instant)lvl.style.transition="none";lvl.style.transform=`translateY(${y}px)`;if(instant){void lvl.offsetWidth;lvl.style.transition=""}
+ document.getElementById("pct").textContent=`${Math.round(gauge)} %`;ult.toggleAttribute("data-ready",gauge>=100);const ring=document.getElementById("ring");if(ring)ring.style.opacity=gauge>=100?".9":"0";}
+ult.onclick=()=>{if(gauge<100||busy)return;busy=true;const f=document.getElementById("flash"),t=document.getElementById("ultname");f.classList.remove("on");t.classList.remove("on");void f.offsetWidth;f.classList.add("on");t.classList.add("on");
+ const r=ult.getBoundingClientRect();if(!reduce){const list=[];for(let k=0;k<520;k++){list.push({x:r.left+r.width/2+(Math.random()-.5)*60,y:r.top+r.height*.45+(Math.random()-.5)*60,vx:(Math.random()-.5)*10,vy:(Math.random()-.5)*10-4,r:Math.random()*2.6+1,c:Math.random()<.4?"#ffffff":"#7fd8ff",l:1.6,d:.009+Math.random()*.006,k:.5+Math.random(),to:null})}spawn(list);
+  setTimeout(()=>{[2,3].forEach(i=>{const g=arena.children[i].getBoundingClientRect();list.forEach((p,j)=>{if(j%2===i-2)p.to={x:g.left+g.width/2,y:g.top+g.height/2}})})},380);}
+ setTimeout(()=>{[2,3].forEach(i=>{const u=arena.children[i];u.classList.remove("hit");void u.offsetWidth;u.classList.add("hit")});setGauge(0);busy=false},reduce?100:1300);};
+drawVase();
+
+// réglages
+document.querySelectorAll("[data-hand]").forEach(b=>b.onclick=()=>{layout=b.dataset.hand;document.querySelectorAll("[data-hand]").forEach(x=>x.setAttribute("aria-pressed",x===b));place()});
+document.querySelectorAll("[data-ult]").forEach(b=>b.onclick=()=>{ultStyle=b.dataset.ult;document.querySelectorAll("[data-ult]").forEach(x=>x.setAttribute("aria-pressed",x===b));drawVase()});
+document.getElementById("plus").onclick=()=>setGauge(gauge+25);document.getElementById("full").onclick=()=>setGauge(100);document.getElementById("empty").onclick=()=>setGauge(0);
+</script></body></html>
