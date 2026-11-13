@@ -77,5 +77,8 @@ for (const fx of FX) for (const key of KEYS[fx.name]) STATUS_FX[key] = { apply: 
 const STATUS_ALIASES: Partial<Record<Status, Status>> = {
   titan: "reduce", counter: "defUp", zombie: "regen", bloodlust: "regen", seal: "silence", controlled: "silence",
   earth: "speedDown", swept: "wet", broken: "defDown", vulnerable: "exposed", bleed: "poison",
+  // Empereurs et kits v0.3.0
+  critDamageUp: "critUp", critDamageDown: "critDown", fear: "silence", sleep: "stun", devour: "poison", duel: "taunt",
+  intangible: "dodgeUp", charged: "atkUp",
 };
 for (const [key, source] of Object.entries(STATUS_ALIASES)) STATUS_FX[key as Status] = STATUS_FX[source];
