@@ -8,7 +8,7 @@ const LABELS: Record<string, string> = {
   "": "Accueil", album: "Collection", wishlist: "Souhaits", character: "Personnage", packs: "Invocation", inventaire: "Inventaire", eveil: "Éveil", forge: "Forge",
   equipe: "Squads", quetes: "Quêtes", guide: "Guide", market: "Bourse", trades: "Échanges", friends: "Amis", guilds: "Guildes", leaderboard: "Classement",
   achievements: "Succès", histoire: "Histoire", donjons: "Donjons", raid: "Raid", expeditions: "Expéditions", arene: "Arène", duels: "Arène", tour: "Tour",
-  u: "Profil", parametres: "Paramètres", notifications: "Notifications", combat: "Combat",
+  u: "Profil", parametres: "Paramètres", notifications: "Notifications", combat: "Combat", changelog: "Mises à jour",
 };
 
 /**
