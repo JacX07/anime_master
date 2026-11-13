@@ -705,3 +705,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Demande : croix tout en haut, ordre sous le titre, commandes au-dessus des sorts, sorts tout en bas ; trop de vide sur les côtés ; plus de cartes superposées.
 - Cause du vide et des superpositions : le plafonnement 9:5 / 1440 px de la formation (commit 8d57eaa) resserrait les cartes (14cqw de large pour un pas de 10 %).
 - Correctif : plafond relevé à 3,6:1, carte limitée à 9,4 % de la largeur de la formation (inférieur au pas), disposition portrait par requête de conteneur. Détail dans `docs/specs/combat-dispositions.md`.
+
+## 2026-11-13 — Quitter un combat enregistrait une victoire
+- Symptôme : quitter un combat (croix, autre page, fermeture) donnait une victoire au serveur sans que le joueur l'ait finie.
+- Cause : fonctionnalité du 2026-11-11 (« quitter n'abandonne pas ») : `LiveBattle` appelait `finishAutoAction` à la sortie, et `startBattle` faisait jouer en automatique tous les combats ouverts (`finishAutoBattles`) avant de lancer le suivant.
+- Correctif : plus aucune résolution automatique à la sortie ; panneau de confirmation, puis abandon (défaite, énergie rendue). `finishAutoBattles` supprimée. Vérifié en base : combat `ABANDONED`, vainqueur B, énergie 20/20.

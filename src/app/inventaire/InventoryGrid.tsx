@@ -82,6 +82,8 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
     <div className="inventory-toolbar">
       <label className="inventory-search"><span className="sr-only">Rechercher un objet</span><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6" /><path d="m15 15 6 6" /></svg><input type="search" placeholder="Rechercher un objet…" value={query} onChange={(e) => setQuery(e.target.value)} /></label>
     </div>
+    <div className="inventory-layout" data-selected={Boolean(selected)}>
+      <div className="inventory-side">
     <MobileFilters active={!!(universe || showEmpty || artifactFilter.active || sort !== "quantity")}>
     <div className="inventory-toolbar">
       <label><span className="sr-only">Filtrer par univers</span><select value={universe} onChange={(e) => setUniverse(e.target.value)}><option value="">Tous les univers</option><option value="common">Commun</option>{UNIVERSES.map((u) => <option key={u.key} value={u.key}>{u.name}</option>)}</select></label>
@@ -96,18 +98,6 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
       <button type="button" className="ui-button" disabled={pending || !recyclable.length} onClick={() => recycle(recyclable.map((a) => a.id), recycleTotal)}>{recyclable.length ? `Recycler ${recyclable.length} · +${number.format(recycleTotal)} Ryō` : "Rien à recycler"}</button>
     </div>}
     </MobileFilters>
-    <p className="inventory-result-count" role="status">{visible.length} objet{visible.length > 1 ? "s" : ""} affiché{visible.length > 1 ? "s" : ""}</p>
-    {toRecycle && <div className="inventory-recycle-confirm" role="alertdialog" aria-label="Confirmer le recyclage"><span>Recycler définitivement {toRecycle.ids.length} artefact{toRecycle.ids.length > 1 ? "s" : ""} contre {number.format(toRecycle.total)} Ryō ?</span><button type="button" className="ui-button" disabled={pending} onClick={confirmRecycle}>Confirmer</button><button type="button" className="ui-button" onClick={() => setToRecycle(null)}>Annuler</button></div>}
-    {notice && <p className="inventory-notice" role="status">{notice}</p>}
-    <div className="inventory-workspace" data-selected={Boolean(selected)}>
-      <div>
-        {visible.length ? <div className="inventory-grid mq-inventory-grid" role="group" aria-label="Choisir un objet">
-          {visible.map((item) => item.artifact ? <ArtifactTile key={item.key} item={item} label selected={selected?.key === item.key} controls="inventory-detail" onSelect={() => selectItem(item.key)} /> : <button type="button" key={item.key} id={`inventory-detail-${item.key}`} className="inventory-slot mq-inventory-item" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls={selected ? "inventory-detail" : undefined} aria-label={`${item.name}, ${number.format(item.quantity)} en stock${item.equippedBy ? `, équipé sur ${item.equippedBy.name}` : ""}`} title={`${item.name}${item.equippedBy ? ` · Équipé sur ${item.equippedBy.name}` : ` · ${number.format(item.quantity)}`}`} onClick={() => selectItem(item.key)}>
-            <span className={`mq-item-gem mq-gem-${["gold", "blue", "gray", "green", "violet"].indexOf(item.tone) % 5}`}><ItemIcon item={item} size={36} /></span><div className="inventory-item-copy"><h3>{item.name}</h3><p>{item.categories.join(" / ") || "Ressource"}</p></div>{item.equippedBy && <span className="inventory-equipped-badge" title={`Équipé sur ${item.equippedBy.name}`}>✓ {item.equippedBy.name}</span>}<b className="inventory-quantity">×{number.format(item.quantity)}</b>
-          </button>)}
-        </div> : <div className="inventory-empty"><h3>{category === "Consommables" ? "Aucun consommable pour le moment" : "Aucun objet à afficher"}</h3><p>{query || universe ? "Essaie un autre nom ou un autre univers." : "Tes prochains butins apparaîtront ici. Tu peux aussi afficher les objets non possédés."}</p><Link href="/histoire">Explorer l’histoire</Link></div>}
-        <p className="inventory-hint">Sélectionne un objet pour voir sa provenance et ses utilisations.</p>
-      </div>
       {selected && <aside ref={detailRef} className="inventory-detail" data-artifact={Boolean(selected.artifact)} style={selected.artifact ? { borderColor: artifactRarity(selected.artifact.rarity).color } : undefined} id="inventory-detail" aria-label="Détails de l’objet" onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeDetails(); } }}>
         {selected ? <><button type="button" className="gear-close inventory-detail-close" onClick={closeDetails}>Fermer</button><div className="inventory-art" data-tone={selected.tone}><ItemIcon item={selected} size={170} />{selected.artifact && <span className="artifact-level">+{selected.artifact.level}</span>}</div>
           <p className="inventory-category">{selected.categories.join(" / ") || "Ressource"}{selected.artifact && <> · <span style={{ color: artifactRarity(selected.artifact.rarity).color }}>{artifactRarity(selected.artifact.rarity).label}</span></>}</p><h3>{selected.name}</h3>
@@ -144,6 +134,20 @@ export function InventoryGrid({ items, cards, balance = 0 }: { balance?: number;
           <div className="inventory-actions">{selected.links.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}</div>
         </> : <div className="inventory-detail-placeholder"><span aria-hidden="true">◇</span><p>Sélectionne un objet pour découvrir ses détails.</p></div>}
       </aside>}
+      </div>
+      <div className="inventory-main">
+    <p className="inventory-result-count" role="status">{visible.length} objet{visible.length > 1 ? "s" : ""} affiché{visible.length > 1 ? "s" : ""}</p>
+    {toRecycle && <div className="inventory-recycle-confirm" role="alertdialog" aria-label="Confirmer le recyclage"><span>Recycler définitivement {toRecycle.ids.length} artefact{toRecycle.ids.length > 1 ? "s" : ""} contre {number.format(toRecycle.total)} Ryō ?</span><button type="button" className="ui-button" disabled={pending} onClick={confirmRecycle}>Confirmer</button><button type="button" className="ui-button" onClick={() => setToRecycle(null)}>Annuler</button></div>}
+    {notice && <p className="inventory-notice" role="status">{notice}</p>}
+      <div className="inventory-grid-block">
+        {visible.length ? <div className="inventory-grid mq-inventory-grid" role="group" aria-label="Choisir un objet">
+          {visible.map((item) => item.artifact ? <ArtifactTile key={item.key} item={item} label selected={selected?.key === item.key} controls="inventory-detail" onSelect={() => selectItem(item.key)} /> : <button type="button" key={item.key} id={`inventory-detail-${item.key}`} className="inventory-slot mq-inventory-item" data-tone={item.tone} data-empty={item.quantity === 0 || undefined} aria-pressed={selected?.key === item.key} aria-controls={selected ? "inventory-detail" : undefined} aria-label={`${item.name}, ${number.format(item.quantity)} en stock${item.equippedBy ? `, équipé sur ${item.equippedBy.name}` : ""}`} title={`${item.name}${item.equippedBy ? ` · Équipé sur ${item.equippedBy.name}` : ` · ${number.format(item.quantity)}`}`} onClick={() => selectItem(item.key)}>
+            <span className={`mq-item-gem mq-gem-${["gold", "blue", "gray", "green", "violet"].indexOf(item.tone) % 5}`}><ItemIcon item={item} size={36} /></span><div className="inventory-item-copy"><h3>{item.name}</h3><p>{item.categories.join(" / ") || "Ressource"}</p></div>{item.equippedBy && <span className="inventory-equipped-badge" title={`Équipé sur ${item.equippedBy.name}`}>✓ {item.equippedBy.name}</span>}<b className="inventory-quantity">×{number.format(item.quantity)}</b>
+          </button>)}
+        </div> : <div className="inventory-empty"><h3>{category === "Consommables" ? "Aucun consommable pour le moment" : "Aucun objet à afficher"}</h3><p>{query || universe ? "Essaie un autre nom ou un autre univers." : "Tes prochains butins apparaîtront ici. Tu peux aussi afficher les objets non possédés."}</p><Link href="/histoire">Explorer l’histoire</Link></div>}
+        <p className="inventory-hint">Sélectionne un objet pour voir sa provenance et ses utilisations.</p>
+      </div>
+      </div>
     </div>
   </section></>;
 }

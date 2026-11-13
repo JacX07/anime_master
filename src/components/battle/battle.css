@@ -1255,3 +1255,12 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
   .bt-layout-diagonal .bt-selected-description { margin-top: .1rem; font-size: .6rem; -webkit-line-clamp: 1; }
   .bt-layout-diagonal .bt-unit { width: min(9.4cqw, 21cqh); }
 }
+/* Panneau « Quitter le combat ? » (confirmation avant d'abandonner) */
+.bt-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; width: min(92vw, 28rem); padding: 1.25rem 1.4rem; border: 0; border-radius: 7px; background: #151918f7; color: #e9e5dc; box-shadow: 0 30px 80px #000c, inset 3px 0 0 #c4a76d; }
+.bt-confirm::backdrop { background: #040606d9; backdrop-filter: blur(6px); }
+.bt-confirm h2 { margin: 0 0 .5rem; font: 500 1.2rem var(--font-cinzel), serif; color: #edd49a; }
+.bt-confirm p { margin: 0 0 1rem; font-size: .85rem; line-height: 1.5; color: #b4b2aa; }
+.bt-confirm p b { color: #e9e5dc; }
+.bt-confirm-row { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: flex-end; }
+.mq-app-shell[class] .bt-confirm-leave { color: #e0897d; }
+.mq-app-shell[class] .bt-confirm-leave:hover:not(:disabled) { border-bottom-color: #e0645c; color: #ffb4aa; }

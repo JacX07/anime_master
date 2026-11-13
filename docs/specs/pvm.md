@@ -489,3 +489,7 @@ Gros lot du Légendaire : booster ×10, artefact SSR, carte SSR (5 % : UR), ou 2
 Tout est tiré côté serveur à l'ouverture. Les expéditions déjà lancées gardent l'ancien calcul (seuil et Ryō/cristaux) : les nouvelles ont une graine négative.
 
 **Code** : règles `src/lib/chests.ts` (rangs, table, gros lot), coffres en stock dans `ResourceStock` (`coffre-<rang>:<univers>`), ouverture `openChest` (`src/lib/expeditions.ts`, une transaction ; cartes, artefacts, ressources, énergie, Ryō avec journal `EXPEDITION`). Les boosters offerts deviennent des **cartes offertes** (`booster-offert`) utilisées automatiquement avant les cristaux à l'invocation (hors bannière de bienvenue). Scène d'ouverture : `src/app/expeditions/Chests.tsx`.
+
+
+### Quitter un combat en cours (2026-11-13)
+Quitter ne **résout** jamais le combat. La croix ou « Abandonner » ouvre un panneau « Quitter le combat ? » : confirmer abandonne le combat (défaite, aucun butin, énergie rendue) ; « Rester » le garde. Fermer l'onglet déclenche l'avertissement du navigateur. Un combat laissé ouvert (navigation, plantage) est abandonné au prochain lancement du même mode. Fin des anciens comportements « la croix ou la fermeture termine le combat en automatique », qui enregistraient une victoire sans avoir joué.

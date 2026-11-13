@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { abandonBattleAction, finishAutoAction, playActionAction, playAutoAction, setBattleAutoAction } from "@/app/battle-actions";
+import { useRouter } from "next/navigation";
+import { abandonBattleAction, finishAutoAction, playActionAction, playAutoAction } from "@/app/battle-actions";
 import type { Spell, UnitId } from "@/lib/battle";
 import type { MusicTrack } from "@/lib/track-music";
 import type { BattleView } from "@/lib/battles";
@@ -20,17 +21,19 @@ interface Props {
   onEnd?: (view: BattleView) => void;
   /** Écran de fin fourni par la page (résultat, butin, boutons) ; sinon l'écran par défaut avec « Nouveau combat » */
   renderEnd?: (view: BattleView) => React.ReactNode;
-  /** Croix « Quitter » : lien (le combat reste ouvert, on le reprend plus tard) */
+  /** Croix « Quitter » : lien ; sur un combat en cours, un panneau demande confirmation (le combat est alors abandonné) */
   exitHref?: string;
-  /** Croix « Quitter » : fonction ; abandonne d'abord le combat s'il est en cours si `abandonOnExit` */
+  /** Croix « Quitter » : fonction, appelée après confirmation si le combat est en cours */
   onExit?: () => void;
+  /** Conservé pour les pages : quitter un combat en cours demande toujours confirmation */
   abandonOnExit?: boolean;
   /** « Nouveau combat » de l'écran de fin par défaut, et retour après un abandon */
   onNext?: () => void;
 }
 
 /** Combat suivi par le serveur : chaque choix du joueur (ou l'action automatique) est enregistré, l'écran rejoue les nouveaux événements. */
-export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, renderEnd, exitHref, onExit, abandonOnExit, onNext }: Props) {
+export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, renderEnd, exitHref, onExit, onNext }: Props) {
+  const router = useRouter();
   const [view, setView] = useState(initial);
   const [log, setLog] = useState(initial.log);
   const [auto, setAuto] = useState(initialAuto);
@@ -86,42 +89,26 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
 
   // Changer d'onglet ne change rien : l'animation continue à son rythme (minuterie d'arrière-plan du lecteur) et le serveur joue action par action.
 
-  // Quitter la page (autre page, fermeture, croix) : le combat se termine côté serveur au lieu d'être abandonné.
-  const leaving = useRef(false);
-  const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => { clearTimeout(leaveTimer.current); }, [view.id]);
+  // Quitter le combat ne le résout jamais : fermer l'onglet demande confirmation au navigateur, la croix ouvre notre panneau.
+  // Un combat laissé ouvert est abandonné (défaite, sans butin) au prochain lancement.
   useEffect(() => {
-    const finishOnLeave = () => {
-      if (leaving.current || statusRef.current !== "RUNNING") return;
-      leaving.current = true;
-      void finishAutoAction(view.id, stepsRef.current);
-    };
-    window.addEventListener("pagehide", finishOnLeave);
-    // Démontage différé : le double montage de React (développement) l'annule aussitôt.
-    return () => { window.removeEventListener("pagehide", finishOnLeave); leaveTimer.current = setTimeout(finishOnLeave, 50); };
+    const warn = (e: BeforeUnloadEvent) => { if (statusRef.current === "RUNNING") { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
   }, [view.id]);
-
-  // Le serveur retient le réglage Auto : un combat laissé ouvert est alors terminé par le serveur au prochain lancement.
-  useEffect(() => { if (statusRef.current === "RUNNING") void setBattleAutoAction(view.id, auto); }, [auto, view.id]);
 
   const play = (spell: Spell, target: UnitId | null) => send(() => playActionAction(view.id, { spell, target }, view.steps));
   const autoStep = () => send(() => playAutoAction(view.id, view.steps));
 
-  // Croix : on quitte l'écran sans abandonner ; l'automatique termine le combat (victoire et butin possibles)
-  const leaveRunning = (then?: () => void) =>
-    start(async () => {
-      leaving.current = true;
-      await finishAutoAction(view.id, stepsRef.current);
-      then?.();
-    });
-
+  // Demande de sortie (croix ou « Abandonner ») : panneau de confirmation, puis abandon côté serveur
+  const [confirming, setConfirming] = useState<null | (() => void)>(null);
   const abandon = (then?: () => void) =>
     start(async () => {
-      leaving.current = true;
       const r = await abandonBattleAction(view.id);
-      if (r.ok) then?.();
-      else setError(r.error);
+      if (r.ok) { setConfirming(null); then?.(); }
+      else { setConfirming(null); setError(r.error); }
     });
+  const leave = onExit ?? (exitHref ? () => router.push(exitHref) : undefined);
 
   // Rareté et type viennent du journal ; nom et image de la base
   const characters: Record<number, PlayerCharacter> = {};
@@ -136,6 +123,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
 
   const running = view.status === "RUNNING";
   return (
+    <>
     <BattlePlayer
       key={view.id}
       music={music}
@@ -145,7 +133,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
       names={names}
       title={title}
       exitHref={exitHref}
-      onExit={onExit ? () => (abandonOnExit && running ? leaveRunning(onExit) : onExit()) : undefined}
+      onExit={leave ? () => (running ? setConfirming(() => leave) : leave()) : undefined}
       onEnd={onEnd ? () => onEnd(view) : undefined}
       onNext={onNext}
       endExtra={renderEnd ? renderEnd(view) : undefined}
@@ -158,7 +146,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
         busy: pending,
         error,
         onPlay: play,
-        onAbandon: running ? () => abandon(onExit ?? onNext) : undefined,
+        onAbandon: running ? () => setConfirming(() => (onExit ?? onNext ?? (() => {}))) : undefined,
         auto,
         onToggleAuto: () => {
           // Le réglage est gardé pour le combat suivant
@@ -171,5 +159,28 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
         skipNonce,
       }}
     />
+    <LeaveConfirm open={!!confirming} busy={pending} onStay={() => setConfirming(null)} onLeave={() => abandon(confirming ?? undefined)} />
+    </>
+  );
+}
+
+/** Panneau « Quitter le combat ? » : le combat n'est pas résolu, il est abandonné (défaite, aucun butin). */
+function LeaveConfirm({ open, busy, onStay, onLeave }: { open: boolean; busy: boolean; onStay: () => void; onLeave: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) d.showModal();
+    if (!open && d.open) d.close();
+  }, [open]);
+  return (
+    <dialog ref={ref} className="bt-confirm" onClose={onStay} aria-labelledby="bt-confirm-title">
+      <h2 id="bt-confirm-title">Quitter le combat ?</h2>
+      <p>Le combat ne sera <b>pas résolu</b> : il est abandonné, compté comme une défaite, sans butin ni victoire. Ton énergie est rendue.</p>
+      <div className="bt-confirm-row">
+        <button type="button" className="bt-btn" onClick={onStay} disabled={busy} autoFocus>Rester dans le combat</button>
+        <button type="button" className="bt-btn bt-confirm-leave" onClick={onLeave} disabled={busy}>{busy ? "…" : "Quitter le combat"}</button>
+      </div>
+    </dialog>
   );
 }
