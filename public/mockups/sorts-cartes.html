@@ -66,6 +66,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .ult .lbl{font:600 11px Cinzel,serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-l);text-shadow:0 2px 6px #000}
 .ult .pct{font:700 12px "DM Sans";color:#dff6ff;text-shadow:0 1px 3px #000}
 .ult[data-ready] svg{animation:ready 1.4s ease-in-out infinite}
+.ult[data-ready] #emb{animation:emb 1.4s ease-in-out infinite}
+@keyframes emb{50%{filter:drop-shadow(0 0 8px #fff)}}
 @keyframes ready{50%{filter:drop-shadow(0 0 18px var(--ult)) drop-shadow(0 10px 18px #000c)}}
 .ult[data-ready] .lbl{color:#fff;text-shadow:0 0 10px var(--ult)}
 .ult:hover svg{transform:scale(1.05)}
@@ -93,7 +95,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
   <b>Maquette · Sorts et ultime</b>
   <p>Survole la main, clique une carte pour lancer le sort sur la cible. La fiole se remplit à chaque sort ; pleine, clique-la.</p>
   <div class="row"><small>Main</small><button data-hand="fan" aria-pressed="true">Éventail</button><button data-hand="row" aria-pressed="false">Rangée</button></div>
-  <div class="row"><small>Ultime</small><button data-ult="flask" aria-pressed="true">Fiole</button><button data-ult="orb" aria-pressed="false">Orbe (façon HSR)</button></div>
+  <div class="row"><small>Ultime</small><button data-ult="emblem" aria-pressed="true">Emblème</button><button data-ult="flask" aria-pressed="false">Fiole</button><button data-ult="orb" aria-pressed="false">Orbe</button></div>
   <div class="row"><small>Jauge</small><button id="plus">+25 %</button><button id="full">Pleine</button><button id="empty">Vide</button></div>
 </aside>
 
@@ -164,8 +166,33 @@ function cast(i,card){const s=SPELLS[i];if(busy||s.cd)return;busy=true;const r=c
  setTimeout(()=>{card.classList.remove("gone");card.classList.add("back");setTimeout(()=>card.classList.remove("back"),520);busy=false;},reduce?200:1500);}
 
 // ultime : fiole ou orbe qui se remplit comme de l'eau
-let ultStyle="flask";
-function vaseSVG(){
+let ultStyle="emblem";
+/* Emblème (validé comme direction le 2026-11-13, réf. Honkai Star Rail) : disque sombre teinté, anneau fin lumineux,
+   eau de la couleur du personnage qui monte, emblème blanc au centre. */
+const EMB="#ff4d6d";
+function emblemSVG(){return `<svg viewBox="0 0 200 210" aria-hidden="true"><defs>
+ <clipPath id="vc"><circle cx="100" cy="110" r="78"/></clipPath>
+ <radialGradient id="disc" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#5a1420" stop-opacity=".85"/><stop offset="1" stop-color="#14070a" stop-opacity=".95"/></radialGradient>
+ <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${EMB}" stop-opacity=".95"/><stop offset="1" stop-color="#8a1028" stop-opacity=".95"/></linearGradient>
+ <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+ <circle id="aura" cx="100" cy="110" r="90" fill="${EMB}" opacity=".18" filter="url(#soft)"/>
+ <circle cx="100" cy="110" r="78" fill="url(#disc)"/>
+ <g clip-path="url(#vc)"><g id="lvl" style="transition:transform 1s cubic-bezier(.2,.9,.2,1)">
+   <path class="wave2" d="M0 0 Q25 -8 50 0 T100 0 T150 0 T200 0 T250 0 T300 0 T350 0 T400 0 V260 H0Z" fill="${EMB}" opacity=".45"/>
+   <path class="wave" d="M0 4 Q25 -6 50 4 T100 4 T150 4 T200 4 T250 4 T300 4 T350 4 T400 4 V260 H0Z" fill="url(#water)" opacity=".8"/>
+   <circle class="bub" cx="78" cy="40" r="2.6" fill="#ffd9df" style="animation-delay:.3s"/><circle class="bub" cx="124" cy="58" r="2" fill="#ffd9df" style="animation-delay:1.2s"/></g>
+   <circle cx="100" cy="110" r="78" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="10"/></g>
+ <!-- emblème : l'Infini de Gojo, blanc cerné de rouge -->
+ <g id="emb" transform="translate(100 110)">
+   <path d="M-34 0c0-12 9-20 19-20 12 0 19 12 30 20 11 8 18 20 30 20 10 0 19-8 19-20s-9-20-19-20c-12 0-19 12-30 20-11 8-18 20-30 20-10 0-19-8-19-20z" fill="none" stroke="#2a0a10" stroke-width="12" stroke-linejoin="round"/>
+   <path d="M-34 0c0-12 9-20 19-20 12 0 19 12 30 20 11 8 18 20 30 20 10 0 19-8 19-20s-9-20-19-20c-12 0-19 12-30 20-11 8-18 20-30 20-10 0-19-8-19-20z" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>
+   <path d="M0 -40l8 12-8 12-8-12z" fill="#fff" stroke="#2a0a10" stroke-width="2.5"/><path d="M0 16l8 12-8 12-8-12z" fill="#fff" stroke="#2a0a10" stroke-width="2.5"/>
+   <circle cx="-15" cy="0" r="4" fill="${EMB}"/><circle cx="45" cy="0" r="4" fill="${EMB}"/></g>
+ <circle cx="100" cy="110" r="80" fill="none" stroke="${EMB}" stroke-width="2.5" opacity=".9"/>
+ <circle id="arc" cx="100" cy="110" r="86" fill="none" stroke="#ffd9df" stroke-width="3" stroke-linecap="round" stroke-dasharray="0 541" transform="rotate(-90 100 110)" style="transition:stroke-dasharray 1s cubic-bezier(.2,.9,.2,1)"/>
+ <circle id="ring" class="ring-run" cx="100" cy="110" r="94" fill="none" stroke="${EMB}" stroke-width="2" stroke-dasharray="6 14" opacity="0" style="transform-origin:100px 110px"/>
+ </svg>`;}
+function vaseSVG(){if(ultStyle==="emblem")return emblemSVG();
  const clip=ultStyle==="flask"
   ?`<path d="M80 18h40v38c34 10 56 40 56 76 0 46-34 74-76 74S24 178 24 132c0-36 22-66 56-76z"/>`
   :`<circle cx="100" cy="110" r="84"/>`;
@@ -185,9 +212,10 @@ function vaseSVG(){
 const ult=document.getElementById("ult");
 function drawVase(){document.getElementById("vase").innerHTML=vaseSVG();setGauge(gauge,true)}
 function setGauge(v,instant){gauge=Math.max(0,Math.min(100,v));const lvl=document.getElementById("lvl");
- const top=ultStyle==="flask"?28:26,bottom=ultStyle==="flask"?206:194;const y=bottom-(bottom-top)*gauge/100;
+ const top=ultStyle==="flask"?28:ultStyle==="emblem"?30:26,bottom=ultStyle==="flask"?206:ultStyle==="emblem"?190:194;const y=bottom-(bottom-top)*gauge/100;
  if(instant)lvl.style.transition="none";lvl.style.transform=`translateY(${y}px)`;if(instant){void lvl.offsetWidth;lvl.style.transition=""}
- document.getElementById("pct").textContent=`${Math.round(gauge)} %`;ult.toggleAttribute("data-ready",gauge>=100);const ring=document.getElementById("ring");if(ring)ring.style.opacity=gauge>=100?".9":"0";}
+ document.getElementById("pct").textContent=`${Math.round(gauge)} %`;ult.toggleAttribute("data-ready",gauge>=100);const ring=document.getElementById("ring");if(ring)ring.style.opacity=gauge>=100?".9":"0";
+ const arc=document.getElementById("arc");if(arc)arc.setAttribute("stroke-dasharray",`${(541*gauge/100).toFixed(1)} 541`);const aura=document.getElementById("aura");if(aura)aura.setAttribute("opacity",(.18+.5*gauge/100).toFixed(2));}
 ult.onclick=()=>{if(gauge<100||busy)return;busy=true;const f=document.getElementById("flash"),t=document.getElementById("ultname");f.classList.remove("on");t.classList.remove("on");void f.offsetWidth;f.classList.add("on");t.classList.add("on");
  const r=ult.getBoundingClientRect();if(!reduce){const list=[];for(let k=0;k<520;k++){list.push({x:r.left+r.width/2+(Math.random()-.5)*60,y:r.top+r.height*.45+(Math.random()-.5)*60,vx:(Math.random()-.5)*10,vy:(Math.random()-.5)*10-4,r:Math.random()*2.6+1,c:Math.random()<.4?"#ffffff":"#7fd8ff",l:1.6,d:.009+Math.random()*.006,k:.5+Math.random(),to:null})}spawn(list);
   setTimeout(()=>{[2,3].forEach(i=>{const g=arena.children[i].getBoundingClientRect();list.forEach((p,j)=>{if(j%2===i-2)p.to={x:g.left+g.width/2,y:g.top+g.height/2}})})},380);}
