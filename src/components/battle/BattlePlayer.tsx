@@ -34,8 +34,6 @@ export interface PlayerCharacter {
 }
 
 interface Props {
-  /** Décor du mode, fourni depuis l'identifiant du combat. */
-  background?: string;
   /** Musique du combat : général (par défaut), raid ou PvP */
   music?: MusicTrack;
   /** Première tentative en donjon : les effets restent actifs malgré la préférence globale. */
@@ -109,7 +107,7 @@ export function BattlePlayer(props: Props) {
   return host ? createPortal(<div className="mq-app-shell mq-battle-overlay"><BattlePlayerContent {...props} /></div>, host) : null;
 }
 
-function BattlePlayerContent({ background, music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
+function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;
@@ -343,7 +341,7 @@ function BattlePlayerContent({ background, music = "combat", allowDisableSpellFx
   const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
 
   return (
-    <div className="bt-layout bt-layout-with-order" data-background={background ? true : undefined} style={background ? { "--battle-background": `url("${background}")` } as React.CSSProperties : undefined} onPointerDown={() => getAudio().unlock()}>
+    <div className="bt-layout bt-layout-with-order" onPointerDown={() => getAudio().unlock()}>
       <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-head" aria-live="polite">

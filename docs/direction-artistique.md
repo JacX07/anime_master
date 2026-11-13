@@ -196,7 +196,7 @@ Maquette `docs/maquettes/mobile-compact.html` : collection sur trois colonnes, i
 
 Inventaire : toutes les familles partagent des cases carrées, quatre colonnes sous 700 px avec intervalles de 8 px ; grille adaptative au-delà. Illustrations contenues à 54 % de la case, nom en 11 px, quantité ou niveau en haut à droite en 10 px ; sélection par le fond relevé. Statistiques, propriétaire et actions complets dans les détails au toucher. Les filtres avancés et le recyclage sont regroupés avec les autres filtres sur téléphone.
 
-Illustrations fournies : les quatre pièces Fairy Tail et Bleach utilisent leurs images dédiées. Combat DBZ : décors tournoi, Namek et Enfer, assombris derrière le plateau pour garder les cartes et contrôles lisibles. Histoire : un décor par acte ; donjon : difficultés 1–3, 4–6 et 7–10. Aucun décor DBZ appliqué aux autres univers.
+Illustrations fournies : les quatre pièces Fairy Tail et Bleach utilisent leurs images dédiées. Fond commun des combats (demande explicite du 2026-11-13) : arène de la citadelle fournie par l'utilisateur, `public/images/battle/citadelle.webp`, centrée en couverture et assombrie derrière les cartes. Appliquée au lecteur partagé, y compris histoire, donjons, raids, tour, arène et démonstration. Remplace les trois décors DBZ précédemment retenus ; leurs fichiers restent conservés.
 
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.

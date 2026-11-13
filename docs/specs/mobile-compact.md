@@ -9,6 +9,7 @@ Demande du 13 novembre 2026. Maquette validée par « oui c mieux ». Interface 
 - Collection mobile : trois cartes par ligne, portraits plus petits, noms et raretés lisibles ; conserver l'accès aux fiches et à tous les filtres. Regrouper les filtres pour remonter les cartes dans l'écran.
 - Inventaire : cases carrées homogènes pour les ressources, armes et artefacts ; quatre colonnes sur téléphone, quantité ou niveau dans un coin. Détails et actions complets au toucher. Conserver filtres, équipement, amélioration et confirmation du recyclage.
 - Ajouter les trois images DBZ aux décors de combat de cet univers : Namek, tournoi des arts martiaux et Enfer.
+- Nouvelle demande du 13 novembre : l'image d'arène de la citadelle remplace ensuite les décors dans tous les combats, DBZ compris. Le fond est appliqué directement au lecteur partagé, sans condition par mode ou univers.
 - Illustrer les quatre emplacements des sets Fairy Tail et Bleach avec les huit images fournies.
 
 ## Maquette

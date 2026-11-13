@@ -6,7 +6,6 @@ import type { Spell, UnitId } from "@/lib/battle";
 import type { MusicTrack } from "@/lib/track-music";
 import type { BattleView } from "@/lib/battles";
 import { BattlePlayer, type PlayerCharacter } from "./BattlePlayer";
-import { battleBackground } from "@/lib/battle-background";
 
 interface Props {
   /** Combat déjà créé côté serveur (lancé en mode suivi : Auto et Manuel sont un simple réglage) */
@@ -140,7 +139,6 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
     <BattlePlayer
       key={view.id}
       music={music}
-      background={battleBackground(view.opponent)}
       log={log}
       allowDisableSpellFx={view.spellFxUnlocked !== false}
       characters={characters}
