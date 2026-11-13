@@ -655,3 +655,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Contexte manquant à la fin des correctifs : `main` et sa CI étaient à jour, mais le changelog et la version du paquet restaient à 0.2.2 ; aucun tag v0.3.0 local ou distant.
 - À la demande de l'utilisateur : notes v0.3.0 rédigées depuis les commits livrés et les règles implémentées, versions de `package.json` et du verrou alignées à 0.3.0, préparation d'un tag annoté sur le commit de release de `main`.
 - Le changelog liste les sept migrations ajoutées depuis v0.2.2, dont le recalcul des artefacts et la reprise des étoiles duo. La migration du schéma ne synchronise pas les personnages et raretés du catalogue. La publication vers `production` reste une action humaine distincte du tag.
+
+## 2026-11-13 — Historique des mises à jour et annonce à l'arrivée
+- Contexte : les notes sont versionnées dans `CHANGELOG.md`, mais aucun onglet du jeu ni suivi de lecture par joueur ne les expose. Demande utilisateur : consulter toutes les mises à jour et voir automatiquement la nouvelle version à l'arrivée.
+- Préparation : spécification dans `docs/specs/changelog.md`, maquette autonome avec les cinq versions réelles et une fenêtre de nouveautés dans `docs/maquettes/changelog.html`. Les notes de déploiement restent hors de la lecture joueur.
+- Intégration visuelle en attente de l'accord demandé par `docs/direction-artistique.md`, section 8. La mémorisation prévue est par compte et par version ; une migration additive sera nécessaire. Le tag v0.3.0 existant reste inchangé.
+- Maquette vérifiée à 728 et 390 px : sélection de chacune des versions, ouverture de l'annonce, lien vers l'historique, fermeture par Échap et « C'est lu, jouer », sans débordement horizontal ni erreur JavaScript. Il s'agit d'une preview autonome, pas d'une validation du parcours sur le site ; persistance et affichage automatique restent à implémenter après accord.
