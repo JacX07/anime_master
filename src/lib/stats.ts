@@ -32,6 +32,12 @@ export const RARITY_OVERRIDES: Record<number, Rarity> = {
   73935: "UR", 133701: "UR", 129571: "UR", 23277: "UR", 4004: "UR", 719: "UR", 162722: "UR", 136837: "UR", 12064: "UR",
   58: "UR", 424: "UR", 5115: "UR", 434: "UR", 89224: "UR", 2514: "UR", 1086: "UR", 53901: "UR", 14489: "UR",
 };
+/**
+ * Raretés changées le 2026-11-13 : la popularité AniList les mettrait au bord de leur nouvelle plage (un ancien UR devient le SSR
+ * le plus fort, un nouveau UR le plus faible des UR, au même niveau). Elles sont placées au milieu de leur nouvelle rareté.
+ */
+export const RARITY_MIDDLE = new Set([27, 40, 40881, 62, 87275, 14, 10138, 127212, 85, 89334, 88572, 71, 28, 34470, 11, 127222, 138102, 17, 130102, 88892,
+  137079, 126071, 89220, 126635, 672, 6356, 5, 500, 89361, 73935, 133701, 129571, 23277, 4004, 719, 162722, 136837, 12064, 58, 424, 5115, 434, 89224, 2514, 1086, 53901, 14489]);
 
 /** Classe par favoris décroissants (égalité : plus petit id d'abord) et attribue les raretés. */
 export function assignRarities<T extends { id: number; favourites: number }>(
@@ -202,7 +208,7 @@ export function computeStats(
 
   const logMin = Math.log(b.min + 1);
   const logMax = Math.log(b.max + 1);
-  const t = logMax > logMin ? (Math.log(c.favourites + 1) - logMin) / (logMax - logMin) : 0.5;
+  const t = RARITY_MIDDLE.has(c.id) ? 0.5 : logMax > logMin ? (Math.log(c.favourites + 1) - logMin) / (logMax - logMin) : 0.5;
   const power = Math.round(lo + Math.min(1, Math.max(0, t)) * (hi - lo));
 
   const baseShare = c.role === "MAIN" ? 0.6 : 0.45;

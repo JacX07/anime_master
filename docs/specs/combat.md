@@ -588,4 +588,5 @@ Moteur (`battle.ts`) : statuts `intangible` et `charged`, compteur `hitsTaken`, 
 **Raretés** (`RARITY_OVERRIDES`, stats recalculées par `scripts/import-character.ts`, type conservé) :
 - UR → SSR : Killua, Luffy, Mikasa, Zoro, Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Sakura Matou, Megumin (Yor et Ichigo étaient déjà SSR).
 - → UR : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Touji, Cid Kagenou, Taiga, Chrollo, Griffith, Antispiral (importé, AniList 5115), Onizuka, All Might (Toshinori Yagi), Gilgamesh, Aizen, Madara et Netero (SR → UR).
+- Stats : ces 47 personnages sont placés **au milieu de leur nouvelle rareté** (`RARITY_MIDDLE`) ; sinon la popularité AniList mettait les anciens UR en haut des SSR et les nouveaux UR en bas des UR, au même niveau. Appliqué en base le 2026-11-13 (UR 9 869–13 713, moyenne 11 073 ; SSR 7 268–10 741, moyenne 8 773).
 - Les cartes déjà tirées suivent (décision du joueur) ; `rarityAtPull` garde l'historique. Madara, Netero et Antispiral n'ont pas encore de kit propre (sorts génériques de leur type).
