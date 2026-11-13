@@ -342,8 +342,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
 
   return (
     <div className="bt-layout bt-layout-with-order bt-layout-diagonal" onPointerDown={() => getAudio().unlock()}>
-      <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
-    <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
+      {/* Bandeau tout en haut (titre, tour, croix), puis l'ordre de combat (disposition validée le 2026-11-13) */}
       <div className="bt-head" aria-live="polite">
         {title && <b className="bt-title">{title}</b>}
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
@@ -366,7 +365,8 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
           </Link>
         )}
       </div>
-
+      <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
+    <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-arena">
       <div className="bt-formation">
       <span className="bt-versus" aria-hidden="true">VS</span>

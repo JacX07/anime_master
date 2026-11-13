@@ -44,3 +44,12 @@ Formation : chaque carte a un emplacement calculé (centre et taille en part de 
 - **C · Lignes droites** : quatre cartes de même taille alignées, inclinées vers le centre.
 
 Vérifié dans Chromium, 4 dispositions × 9 tailles (320×568 à 3440×950) : aucun chevauchement, aucune carte hors de l'arène, zones dans l'ordre demandé, sorts collés au bas de l'écran, pas de défilement horizontal.
+
+## Décision du 13 novembre 2026 (soir) — codée
+
+Le joueur garde les **diagonales parallèles sur toute la largeur** (l'état d'avant le plafonnement 9:5), avec les nouvelles zones.
+
+- Zones, de haut en bas : bandeau (titre, tour, action en cours, croix à droite) · ordre de combat · arène · commandes · sorts. Le bandeau est sorti du plateau (`BattlePlayer.tsx`) pour passer au-dessus de l'ordre.
+- Formation : pas horizontal de 10 % par carte, largeur de carte `min(9.4cqw, 27cqh, 260px)` : une carte n'est jamais plus large que le pas, donc aucune superposition. La formation occupe toute la largeur jusqu'au ratio 3,6:1 ; au-delà (ultra-large) elle reste centrée.
+- Arène plus haute que large (ratio ≤ 6:5, requête de conteneur) : ennemis en diagonale en haut, alliés en diagonale en bas, une colonne par carte.
+- Vérifié dans le jeu (`/combat/test`) de 320×568 à 3440×950 : aucun chevauchement, aucune carte hors de l'arène, zones dans l'ordre, croix en haut à droite, pas de défilement horizontal.

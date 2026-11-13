@@ -1130,9 +1130,11 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
   padding: .5rem .75rem;
   gap: .35rem;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "turns" "stage" "spells" "controls";
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head" "turns" "stage" "controls" "spells";
 }
+.bt-layout-diagonal > .bt-head { grid-area: head; }
+.bt-layout-diagonal > .bt-head .bt-exit { margin-left: auto; }
 .bt-layout-diagonal .bt-turn-order { padding: .2rem; display: flex; align-items: center; gap: .7rem; overflow-x: auto; overflow-y: hidden; }
 .bt-layout-diagonal .bt-turn-order h2 { flex: none; margin: 0; }
 .bt-layout-diagonal .bt-turn-order ol { flex-direction: row; gap: .45rem; }
@@ -1147,14 +1149,15 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .bt-layout-diagonal .bt-arena { position: relative; flex: 1; min-height: 0; container: battle-arena / size; display: grid; place-items: center; }
 .bt-layout-diagonal .bt-formation { position: relative; width: 100%; height: 100%; container-type: size; }
 /* Les positions et les portraits partagent la même échelle, même sur un écran ultra-large. */
-@container battle-arena (min-aspect-ratio: 9 / 5) {
-  .bt-layout-diagonal .bt-formation { width: min(100%, 180cqh, 1440px); height: min(100%, 55.555556cqw, 800px); }
+/* La formation occupe toute la largeur (validé le 2026-11-13) ; au-delà de 3,6:1 (ultra-large) elle reste centrée pour que les camps se fassent encore face. */
+@container battle-arena (min-aspect-ratio: 18 / 5) {
+  .bt-layout-diagonal .bt-formation { width: min(100%, 360cqh); }
 }
 .bt-layout-diagonal .bt-team, .bt-layout-diagonal .bt-row { display: contents; }
 .bt-layout-diagonal .bt-team-name { position: absolute; left: .5rem; bottom: .25rem; margin: 0; font-size: .65rem; z-index: 1; max-width: 40%; }
 .bt-layout-diagonal .bt-team[data-side="B"] .bt-team-name { left: auto; right: .5rem; bottom: auto; top: .25rem; }
 .bt-layout-diagonal .bt-team-name::after { display: none; }
-.bt-layout-diagonal .bt-unit { --slot: 0; position: absolute; width: min(14cqw, 27cqh, 210px); gap: 2px; left: calc(2% + var(--slot) * 10%); top: calc(22% + var(--slot) * 10%); }
+.bt-layout-diagonal .bt-unit { --slot: 0; position: absolute; width: min(9.4cqw, 27cqh, 260px); gap: 2px; left: calc(2% + var(--slot) * 10%); top: calc(22% + var(--slot) * 10%); }
 .bt-layout-diagonal .bt-unit:nth-child(2) { --slot: 1; }
 .bt-layout-diagonal .bt-unit:nth-child(3) { --slot: 2; }
 .bt-layout-diagonal .bt-unit:nth-child(4) { --slot: 3; }
@@ -1192,6 +1195,13 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .mq-app-shell[class] .bt-layout-diagonal .bt-dock .bt-big { width: 38px; height: 38px; }
 .mq-app-shell[class] .bt-layout-diagonal .bt-dock .bt-spd { font-size: 1rem; }
 .bt-layout-diagonal .bt-dock .bt-spd small { font-size: .5rem; }
+/* Arène plus haute que large (téléphone ou tablette tenus droits) : ennemis en diagonale en haut, alliés en diagonale en bas,
+   une colonne par carte : aucune superposition. */
+@container battle-arena (max-aspect-ratio: 6 / 5) {
+  .bt-layout-diagonal .bt-unit { width: min(21.5cqw, 18cqh); left: calc(2.5% + var(--slot) * 24.5%); top: calc(48% + var(--slot) * 5%); }
+  .bt-layout-diagonal .bt-team[data-side="B"] .bt-unit { left: calc(2.5% + var(--slot) * 24.5%); top: calc(3% + var(--slot) * 5%); }
+  .bt-layout-diagonal .bt-versus { top: 43%; }
+}
 @media (max-width: 700px) and (orientation: portrait) {
   .bt-layout-diagonal { padding: .25rem; gap: .2rem; }
   .bt-layout-diagonal .bt-turn-order { gap: .4rem; }
@@ -1202,9 +1212,8 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
   .bt-layout-diagonal .bt-title { flex: 1; font-size: .75rem; }
   .bt-layout-diagonal .bt-line { order: 4; flex-basis: 100%; font-size: .6rem; min-height: .85rem; }
   .bt-layout-diagonal .bt-round { font-size: .55rem; }
-  .bt-layout-diagonal .bt-head .bt-exit { margin-left: 0; padding: .2rem; }
-  .bt-layout-diagonal .bt-unit { width: min(24cqw, 19cqh); gap: 1px; left: calc(2% + var(--slot) * 13%); top: calc(32% + var(--slot) * 11%); }
-  .bt-layout-diagonal .bt-team[data-side="B"] .bt-unit { left: calc(36% + var(--slot) * 13%); top: calc(3% + var(--slot) * 11%); }
+  .bt-layout-diagonal .bt-head .bt-exit { padding: .2rem; }
+  .bt-layout-diagonal .bt-unit { gap: 1px; }
   .bt-layout-diagonal .bt-name { text-align: left; padding: 2cqw 3cqw; font-size: max(8px, 9cqw); max-width: 64%; }
   .bt-layout-diagonal .bt-hpnum { text-align: left; font-size: 9px; line-height: 12px; }
   .bt-layout-diagonal .bt-shnum { display: block; }
@@ -1213,7 +1222,7 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
   .bt-layout-diagonal .bt-shield { height: 2px; }
   .bt-layout-diagonal .bt-team-name { font-size: .5rem; letter-spacing: .08em; }
   .bt-layout-diagonal .bt-team-name span { display: none; }
-  .bt-layout-diagonal .bt-versus { left: 45%; top: 48%; font-size: 18px; }
+  .bt-layout-diagonal .bt-versus { left: 45%; top: 43%; font-size: 18px; }
   .bt-layout-diagonal .bt-spells { padding: .35rem; }
   .bt-layout-diagonal .bt-spells-title { padding-right: 0; margin-bottom: .2rem; font-size: .72rem; }
   .bt-layout-diagonal .bt-spells-title small { display: none; }
@@ -1234,7 +1243,7 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
   .mq-app-shell[class] .bt-layout-diagonal .bt-dock-row .bt-sw, .mq-app-shell[class] .bt-layout-diagonal .bt-dock-row .bt-quit { padding: .25rem; font-size: .6rem; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  .bt-layout-diagonal { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "turns" "stage" "spells" "controls"; gap: .1rem; padding: .15rem .4rem; }
+  .bt-layout-diagonal { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto auto; grid-template-areas: "head" "turns" "stage" "controls" "spells"; gap: .1rem; padding: .15rem .4rem; }
   .bt-layout-diagonal .bt-turn-order li, .bt-layout-diagonal .bt-turn-order img { width: 22px; height: 22px; }
   .bt-layout-diagonal .bt-head { min-height: 20px; padding: 0; }
   .bt-layout-diagonal .bt-spells { padding: .2rem .4rem; }
@@ -1244,5 +1253,5 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
   .bt-layout-diagonal .bt-spell-copy em, .bt-layout-diagonal .bt-spell-copy > small { display: none; }
   .bt-layout-diagonal .bt-spell b { font-size: .65rem; }
   .bt-layout-diagonal .bt-selected-description { margin-top: .1rem; font-size: .6rem; -webkit-line-clamp: 1; }
-  .bt-layout-diagonal .bt-unit { width: min(14cqw, 21cqh); }
+  .bt-layout-diagonal .bt-unit { width: min(9.4cqw, 21cqh); }
 }
