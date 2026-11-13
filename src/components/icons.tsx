@@ -60,7 +60,7 @@ const STATUS_ICONS: Record<Status, string> = {
   vulnerable: "banner-down", bleed: "sang", poison: "poison", taunt: "squads",
   counter: "ultime", seal: "chain", controlled: "chain", bloodlust: "coeur",
   zombie: "revive", titan: "def", reduce: "def", regen: "hp", burn: "brulure", wet: "wave",
-  ignoreDef: "broken-shield",
+  ignoreDef: "broken-shield", intangible: "immune", charged: "atk",
 };
 
 export function StatusIcon({ status }: { status: Status }) {

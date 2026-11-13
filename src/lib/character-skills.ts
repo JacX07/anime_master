@@ -56,6 +56,10 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "seal":
       case "steal":
       case "counter":
+      case "intangible":
+      case "charge":
+      case "copyUltimate":
+      case "gauge":
       case "sleep":
       case "duel":
       case "devour":

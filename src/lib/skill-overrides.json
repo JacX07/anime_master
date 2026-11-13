@@ -155,21 +155,14 @@
       "final": true
     },
     "ultimate": {
-      "name": "Foudre divine Kanmuru",
+      "name": "Godspeed — Éclair en chaîne",
       "target": "foe",
       "effects": [
         {
-          "k": "mod",
-          "stat": "speed",
-          "amount": 0.3,
-          "turns": 2,
-          "to": "self"
-        },
-        {
           "k": "damage",
-          "mult": 1.4,
+          "mult": 0.75,
           "zone": true,
-          "ramp": 0.1
+          "ramp": 0.25
         }
       ],
       "final": true
@@ -237,8 +230,17 @@
           "k": "resetCd"
         },
         {
+          "k": "gauge",
+          "amount": 35,
+          "to": "team"
+        },
+        {
           "k": "heal",
-          "pct": 0.3,
+          "pct": 0.2,
+          "to": "team"
+        },
+        {
+          "k": "purge",
           "to": "team"
         }
       ],
@@ -281,51 +283,13 @@
   },
   "89616": {
     "ultimate": {
-      "name": "100 % : ???",
-      "target": null,
+      "name": "???% — Explosion",
+      "target": "foe",
       "effects": [
         {
           "k": "damage",
-          "mult": 0.3,
-          "zone": true
-        },
-        {
-          "k": "mod",
-          "stat": "def",
-          "amount": -0.15,
-          "turns": 2,
-          "to": "foes"
-        },
-        {
-          "k": "damage",
-          "mult": 0.3,
-          "zone": true
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.15,
-          "turns": 2,
-          "to": "foes"
-        },
-        {
-          "k": "damage",
-          "mult": 0.3,
-          "zone": true
-        },
-        {
-          "k": "mod",
-          "stat": "dodge",
-          "amount": -0.25,
-          "turns": 2,
-          "to": "foes"
-        },
-        {
-          "k": "mod",
-          "stat": "speed",
-          "amount": -0.2,
-          "turns": 2,
-          "to": "foes"
+          "mult": 1.2,
+          "perHitTaken": 0.1
         }
       ],
       "final": true
@@ -371,6 +335,83 @@
           "k": "immune",
           "turns": 3,
           "to": "self"
+        }
+      ],
+      "final": true
+    }
+  },
+  "45627": {
+    "ultimate": {
+      "name": "Tourbillon de lames — Tueur de titans",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.5,
+          "ignoreDef": 0.3,
+          "hpPct": 0.08
+        }
+      ],
+      "final": true
+    }
+  },
+  "85": {
+    "ultimate": {
+      "name": "Sharingan : Copie",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "copyUltimate"
+        },
+        {
+          "k": "damage",
+          "mult": 1.6,
+          "pierce": true
+        }
+      ],
+      "final": true
+    }
+  },
+  "417": {
+    "ultimate": {
+      "name": "Geass : Obéis-moi",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "steal",
+          "turns": 2
+        }
+      ],
+      "final": true
+    }
+  },
+  "176754": {
+    "ultimate": {
+      "name": "Zoltraak céleste",
+      "target": null,
+      "effects": [
+        {
+          "k": "intangible",
+          "turns": 1
+        },
+        {
+          "k": "damage",
+          "mult": 1.1,
+          "zone": true,
+          "pierce": true
+        }
+      ],
+      "final": true
+    }
+  },
+  "30": {
+    "ultimate": {
+      "name": "Jajanken — Pierre chargée",
+      "target": null,
+      "effects": [
+        {
+          "k": "charge",
+          "mult": 2.0
         }
       ],
       "final": true

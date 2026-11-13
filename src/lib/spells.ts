@@ -12,7 +12,11 @@ export type ModStat = "atk" | "def" | "crit" | "critDamage" | "dodge" | "speed";
 
 export type Effect =
   /** Dégâts × ATK ; `zone` touche tous les ennemis ; `drain` rend au lanceur cette part des dégâts ; `pierce` traverse les boucliers (et l'esquive) ; `ramp` (avec `zone`) : la cible choisie d'abord, puis les autres, +`ramp` de dégâts à chaque cible ; `hits` : nombre de frappes ; `extraHit` : une frappe de plus si la cible a de la DEF en moins */
-  | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; ignoreMissing?: number; pierce?: boolean; drain?: number; critSure?: boolean; ramp?: number; hits?: number; extraHit?: boolean }
+  | { k: "damage"; mult: number; zone?: boolean; ignoreDef?: number; ignoreMissing?: number; pierce?: boolean; drain?: number; critSure?: boolean; ramp?: number; hits?: number; extraHit?: boolean;
+      /** Dégâts en plus : cette part des PV max de la cible (Levi, tueur de boss), plafonnée à HP_PCT_CAP × ATK */
+      hpPct?: number;
+      /** +cette part de dégâts par coup reçu depuis le début du combat (Mob), 30 coups au plus */
+      perHitTaken?: number }
   /** Bonus ou malus (amount négatif) de la stat, en part (0,2 = +20 %, ou +20 points de critique) */
   | { k: "mod"; stat: ModStat; amount: number; turns: number; to: Scope; count?: number }
   | { k: "heal"; pct: number; to: Scope }
@@ -48,7 +52,15 @@ export type Effect =
   /** Ressuscite tous les alliés morts en zombies (`pct` de leurs PV max) ; ils disparaissent si le lanceur meurt. Une fois par combat. */
   | { k: "arise"; pct: number }
   /** Contre-attaque du lanceur : chaque fois qu'un ennemi le frappe et qu'il survit, une ombre riposte (`mult` × ATK du lanceur), pendant `turns` tours */
-  | { k: "counter"; mult: number; turns: number };
+  | { k: "counter"; mult: number; turns: number }
+  /** Le lanceur est intouchable (ni ciblé ni touché par les zones) pendant `turns` tours */
+  | { k: "intangible"; turns: number }
+  /** Concentration (Gon) : la prochaine attaque de base frappe à `mult` × ATK, ignore toute la DEF et ne s'esquive pas */
+  | { k: "charge"; mult: number }
+  /** Copie (Kakashi) : rejoue aussitôt le dernier ultime lancé dans le combat, allié ou ennemi ; sinon, les autres effets du sort */
+  | { k: "copyUltimate" }
+  /** Ajoute `amount` à la jauge d'ultime des alliés (pas du lanceur) */
+  | { k: "gauge"; amount: number; to: Scope };
 
 export interface CharacterSpell {
   /** Nature explicite du sort ; indépendante du type de la carte. */
@@ -426,6 +438,8 @@ export function describeEffect(e: Effect, detailed = false): string {
         e.extraHit && "une frappe de plus si la cible a de la DEF en moins",
         e.ramp && `la cible choisie d'abord, puis les autres : +${pct(e.ramp)} de dégâts à chaque cible`,
         e.drain && `rend ${pct(e.drain)} des dégâts en PV`,
+        e.hpPct && `+${pct(e.hpPct)} des PV max de la cible en dégâts (tueur de boss)`,
+        e.perHitTaken && `+${pct(e.perHitTaken)} de dégâts par coup reçu depuis le début du combat (30 coups au plus)`,
       ].filter(Boolean).join(", ");
     case "mod":
       return `${STAT_NAMES[e.stat]} ${amountText(e.stat, e.amount)} pour ${e.to === "foes" && e.count ? `les ${e.count} ennemis vivants à l’ATK la plus élevée` : WHO[e.to]}, ${nx(e.turns)}`;
@@ -448,6 +462,10 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "seal": return `scelle l'ennemi : s'il lance un sort (hors attaque de base) pendant ${nx(e.turns)}, il meurt ; sans effet sur les boss`;
     case "steal": return `vole un ennemi : il joue dans votre camp, ${nx(e.turns)} ; s'il est le dernier survivant de son camp, il est exécuté ; sans effet sur les boss`;
     case "arise": return `ressuscite tous les alliés morts en zombies avec ${pct(e.pct)} de leurs PV max (une fois par combat) ; ils disparaissent si le lanceur meurt`;
+    case "intangible": return `le lanceur devient intouchable : aucun ennemi ne peut le viser ni le toucher, ${nx(e.turns)}`;
+    case "charge": return `concentration : la prochaine attaque de base frappe à ${String(e.mult).replace(".", ",")}× ATK, ignore toute la DEF et ne peut pas être esquivée`;
+    case "copyUltimate": return "copie le dernier ultime lancé dans le combat (allié ou ennemi) et le joue aussitôt ; s'il n'y en a pas encore :";
+    case "gauge": return `+${e.amount} à la jauge d'ultime de ${e.to === "team" ? "ses alliés" : WHO[e.to]}`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;
   }
 }

@@ -102,6 +102,8 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   burn: { label: "Brûlure", glyph: "♨", help: "Perd 5 % de ses PV max à la fin de chacun de ses tours.", bad: true },
   wet: { label: "Trempé", glyph: "≋", help: "Un sort de foudre l'étourdira (son prochain tour).", bad: true },
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
+  intangible: { label: "Intouchable", glyph: "◌", help: "Aucun ennemi ne peut le viser ni le toucher.", bad: false },
+  charged: { label: "Concentration", glyph: "✊", help: "Sa prochaine attaque de base frappe très fort, ignore la DEF et ne s'esquive pas.", bad: false },
 };
 
 /** Nom du sort joué : attaque, affinité, secondaire, tertiaire ou ultime. */

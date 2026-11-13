@@ -569,3 +569,23 @@ Lisibilité :
 - **Effets** : l'événement `status` porte valeur, durée, lanceur et stat ; `fxTurns` donne les tours restants après chaque action. Les icônes affichent les tours restants ; un clic sur une carte ouvre « Effets actifs » (valeur, tours, lanceur, explication) et ses stats de base et actuelles.
 
 Outil : `npm run simulate:balance -- --games 20000` (taux de victoire par personnage, stats égalisées par rareté).
+
+## Kits et raretés : retouches du 2026-11-13
+
+**Ultimes** (`src/lib/skill-overrides.json`, valeurs finales) :
+- **Levi** — Tourbillon de lames, Tueur de titans : 1,5× ATK, ignore 30 % de DEF, **+8 % des PV max de la cible** (plafonné à 6× ATK) : fait pour les boss.
+- **Killua** — Godspeed, Éclair en chaîne : frappe la cible puis tous les autres ennemis, 0,75× ATK **+25 % à chaque cible** (0,75 → 1 → 1,25 → 1,5).
+- **Gojo** — passif **Infini** : intouchable (ni visé ni touché, zones comprises) jusqu'à la fin de son premier tour.
+- **Kakashi** — Sharingan, Copie : **rejoue aussitôt le dernier ultime lancé** dans le combat, allié ou ennemi (« Copie : … ») ; s'il n'y en a pas encore, 1,6× ATK qui traverse les boucliers.
+- **Lelouch** — Geass, Obéis-moi : **contrôle un ennemi 2 tours**, comme Makima (sans effet sur les boss).
+- **Rintarou Okabe** — Time Leap : remet les recharges de l'équipe à zéro, **+35 à la jauge d'ultime des alliés**, soigne l'équipe de 20 %, retire les malus. *Bug corrigé* : l'ancien Time Leap (recharges + soin) ne faisait souvent rien de visible.
+- **Shigeo Kageyama (Mob)** — ???% : 1,2× ATK, **+10 % par coup reçu** depuis le début du combat (30 coups au plus).
+- **Frieren** — Zoltraak céleste : s'élève dans le ciel, **intouchable 1 tour**, et frappe tous les ennemis à 1,1× ATK en traversant les boucliers.
+- **Gon** — Jajanken, Pierre chargée : **concentration** ; sa prochaine attaque de base frappe à **2× ATK, ignore toute la DEF et ne s'esquive pas** (en auto, il frappe au tour suivant).
+
+Moteur (`battle.ts`) : statuts `intangible` et `charged`, compteur `hitsTaken`, options de dégâts `hpPct` et `perHitTaken`, effets `intangible`, `charge`, `copyUltimate`, `gauge`, passifs de départ `START_PASSIVES`.
+
+**Raretés** (`RARITY_OVERRIDES`, stats recalculées par `scripts/import-character.ts`, type conservé) :
+- UR → SSR : Killua, Luffy, Mikasa, Zoro, Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Sakura Matou, Megumin (Yor et Ichigo étaient déjà SSR).
+- → UR : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Touji, Cid Kagenou, Taiga, Chrollo, Griffith, Antispiral (importé, AniList 5115), Onizuka, All Might (Toshinori Yagi), Gilgamesh, Aizen, Madara et Netero (SR → UR).
+- Les cartes déjà tirées suivent (décision du joueur) ; `rarityAtPull` garde l'historique. Madara, Netero et Antispiral n'ont pas encore de kit propre (sorts génériques de leur type).

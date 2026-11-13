@@ -49,18 +49,20 @@ async function importOne(id: number) {
 async function main() {
   const ids = process.argv.slice(2).map(Number).filter(Number.isInteger);
   if (!ids.length) throw new Error("Donne au moins un identifiant AniList.");
-  for (const id of ids) if (!(await prisma.character.findUnique({ where: { id }, select: { id: true } }))) await importOne(id);
+  // Les personnages déjà en base gardent leur type : seuls la rareté et les stats sont recalculées
+  const fresh = new Set<number>();
+  for (const id of ids) if (!(await prisma.character.findUnique({ where: { id }, select: { id: true } }))) { await importOne(id); fresh.add(id); }
   // Bornes de favoris par rareté, sur toute la base (les raretés imposées n'y comptent pas)
   const all = await prisma.character.findMany({ select: { id: true, favourites: true, rarity: true } });
   const bounds = favouriteBounds(all);
   for (const id of ids) {
-    const c = await prisma.character.findUniqueOrThrow({ where: { id }, select: { id: true, favourites: true, mainRole: true, rarity: true, mainMedia: { select: { genres: true, tags: true } } } });
+    const c = await prisma.character.findUniqueOrThrow({ where: { id }, select: { id: true, favourites: true, mainRole: true, rarity: true, type: true, mainMedia: { select: { genres: true, tags: true } } } });
     const rarity = RARITY_OVERRIDES[id] ?? c.rarity;
     const genres = Array.isArray(c.mainMedia?.genres) ? (c.mainMedia.genres as string[]) : [];
     const tags = Array.isArray(c.mainMedia?.tags) ? (c.mainMedia.tags as unknown as MediaTag[]) : [];
     const { attack, defense } = computeStats({ id, favourites: c.favourites, rarity, role: c.mainRole }, bounds);
     const power = computePower({ attack, defense, speed: speedOf(id) });
-    const updated = await prisma.character.update({ where: { id }, data: { rarity, type: assignType(genres, tags), attack, defense, power }, select: { name: true, rarity: true, type: true, attack: true, defense: true, power: true } });
+    const updated = await prisma.character.update({ where: { id }, data: { rarity, type: fresh.has(id) ? assignType(genres, tags) : c.type, attack, defense, power }, select: { name: true, rarity: true, type: true, attack: true, defense: true, power: true } });
     console.log(`${updated.name} : ${c.rarity} → ${updated.rarity}, ${updated.type}, ATK ${updated.attack}, DEF ${updated.defense}, puissance ${updated.power}`);
   }
 }

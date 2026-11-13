@@ -24,6 +24,13 @@ export const RARITY_OVERRIDES: Record<number, Rarity> = {
   2751: "SSR", // Barbe Blanche (Newgate Edward)
   46109: "SSR", // Kaido
   54495: "SSR", // Big Mom (Linlin Charlotte)
+  // Rééquilibrage du 2026-11-13 (demande du joueur) : UR → SSR
+  27: "SSR", 40: "SSR", 40881: "SSR", 62: "SSR", 87275: "SSR", 14: "SSR", 10138: "SSR", 127212: "SSR", 85: "SSR", 89334: "SSR",
+  88572: "SSR", 71: "SSR", 28: "SSR", 34470: "SSR", 11: "SSR", 127222: "SSR", 138102: "SSR", 17: "SSR", 130102: "SSR", 88892: "SSR",
+  137079: "SSR", 126071: "SSR", 89220: "SSR", 126635: "SSR", 672: "SSR", 6356: "SSR", 5: "SSR", 500: "SSR", 89361: "SSR",
+  // … et SSR/SR → UR (Antispiral 5115 importé pour l'occasion)
+  73935: "UR", 133701: "UR", 129571: "UR", 23277: "UR", 4004: "UR", 719: "UR", 162722: "UR", 136837: "UR", 12064: "UR",
+  58: "UR", 424: "UR", 5115: "UR", 434: "UR", 89224: "UR", 2514: "UR", 1086: "UR", 53901: "UR", 14489: "UR",
 };
 
 /** Classe par favoris décroissants (égalité : plus petit id d'abord) et attribue les raretés. */

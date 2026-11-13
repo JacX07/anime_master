@@ -134,6 +134,8 @@ export const BATTLE = {
   tertiaryDamageScale: 1.7,
   /** Jauge personnelle d'ultime : trois actions offensives réussies la chargent presque entièrement. */
   ultimateGaugeMax: 100,
+  /** Tueur de boss (Levi) : la part de PV max ajoutée ne dépasse pas ce multiple de l'ATK */
+  hpPctCap: 6,
   ultimateGaugePerHit: 34,
   /** Jauge gagnée par une attaque de base qui touche (les SSR/UR n'ont plus de sort de type : la base est leur coup régulier) */
   ultimateGaugeBase: 50,
@@ -203,7 +205,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 
 /** Choix d'une carte : son sort et sa cible (ennemi, ou allié pour le soin de Cœur ; null pour la zone d'Aventure). */
@@ -330,6 +332,8 @@ interface Unit {
   tIn: number;
   ultimate: CharacterSpell | null;
   ultimateGauge: number;
+  /** Coups reçus depuis le début du combat (ultime de Mob) */
+  hitsTaken: number;
   revived: boolean;
   /** Maître d'un zombie (Arise) : le zombie disparaît quand son maître tombe */
   master: UnitId | null;
@@ -361,7 +365,7 @@ const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ?
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
 /** Ennemis vivants que `u` peut atteindre : une carte en duel n'est atteignable que par son adversaire désigné. */
 const reachableFoes = (st: BattleState, u: Unit): Unit[] =>
-  alive(st, enemy(u.side)).filter((f) => !f.fx.some((x) => x.key === "duel" && x.foe && x.foe !== u.id));
+  alive(st, enemy(u.side)).filter((f) => !f.fx.some((x) => (x.key === "duel" && x.foe && x.foe !== u.id) || x.key === "intangible"));
 /** Tous les ennemis vivants sont en duel avec un autre : la carte ne peut atteindre personne et passe son tour. */
 const cutOffByDuel = (st: BattleState, u: Unit) => alive(st, enemy(u.side)).length > 0 && reachableFoes(st, u).length === 0;
 /** Ennemis qu'une attaque à cible unique peut viser : seuls les provocateurs vivants s'il y en a */
@@ -391,6 +395,8 @@ export interface BattleState {
   waveTotal: number;
   /** Cartes actuellement volées (Makima) : active le calcul des camps par carte */
   stolen: number;
+  /** Dernier ultime lancé dans le combat (copie de Kakashi) */
+  lastUltimate: CharacterSpell | null;
   log: BattleEvent[];
   result: BattleResult | null;
 }
@@ -449,7 +455,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: (starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0) + (card.startGauge ?? 0),
-      revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [],
+      revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [], hitsTaken: 0,
     };
   });
 }
@@ -478,7 +484,7 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
-    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, log: [], result: null,
+    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, lastUltimate: null, log: [], result: null,
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
@@ -486,8 +492,20 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
     u.shield += added;
     st.log.push({ kind: "shield", source: null, target: u.id, amount: added, shield: u.shield });
   }
+  // Passifs de départ (Gojo : Infini, intouchable jusqu'à la fin de son premier tour)
+  for (const u of [...teams.A, ...teams.B]) {
+    const p = START_PASSIVES[u.card.characterId];
+    if (!p || !st.opts.spells || u.card.noUltimate) continue;
+    u.fx.push({ key: p.fx, amount: 0, turns: p.turns, fresh: false, source: u.id });
+    st.log.push({ kind: "status", target: u.id, status: p.fx, on: true, amount: 0, turns: p.turns, source: u.id });
+  }
   return st;
 }
+
+/** Passifs posés au début du combat, par personnage (docs/specs/combat.md, refonte des kits du 2026-11-13). */
+export const START_PASSIVES: Record<number, { fx: FxKey; turns: number; name: string; text: string }> = {
+  127691: { fx: "intangible", turns: 1, name: "Infini", text: "Intouchable jusqu'à la fin de son premier tour : aucun ennemi ne peut le viser ni le toucher." },
+};
 
 function finish(st: BattleState, timeout: boolean) {
   const hpLeft = (s: Side) => st.teams[s].reduce((n, u) => n + u.hp, 0) / st.teams[s].reduce((n, u) => n + u.maxHp, 0);
@@ -844,8 +862,17 @@ export function currentActor(st: BattleState): UnitView | null {
 }
 
 /** Sort personnel associé à une action spéciale. */
-function spellFor(u: Unit, slot: "special" | "tertiary" | "ultimate"): CharacterSpell | null {
-  return slot === "special" ? u.spell : slot === "tertiary" ? u.tertiary : u.ultimate;
+function spellFor(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): CharacterSpell | null {
+  if (slot !== "ultimate") return slot === "special" ? u.spell : u.tertiary;
+  return ultimateOf(st, u);
+}
+/** Ultime réellement joué : la copie de Kakashi rejoue le dernier ultime lancé ; sans modèle, ses autres effets. */
+function ultimateOf(st: BattleState, u: Unit): CharacterSpell | null {
+  const own = u.ultimate;
+  if (!own || !own.effects.some((e) => e.k === "copyUltimate")) return own;
+  const model = st.lastUltimate;
+  if (model && !model.effects.some((e) => e.k === "copyUltimate")) return { ...model, name: `Copie : ${model.name.replace(/^Copie : /, "")}` };
+  return { ...own, effects: own.effects.filter((e) => e.k !== "copyUltimate") };
 }
 
 /** Cibles possibles d'un sort personnel donné. */
@@ -883,7 +910,7 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
     list.push({ spell: "affinity", targets });
   }
   for (const slot of ["special", "tertiary", "ultimate"] as const) {
-    const spell = spellFor(u, slot);
+    const spell = spellFor(st, u, slot);
     const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
     if (!spell || !ready) continue;
     const targets = targetsForSpell(st, u, spell);
@@ -894,7 +921,7 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
 
 /** Mode auto : lance un sort personnel prêt si sa cible et son effet sont utiles. */
 function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): Action | null {
-  const spell = spellFor(u, slot);
+  const spell = spellFor(st, u, slot);
   const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
   if (!spell || !ready) return null;
   const targets = targetsForSpell(st, u, spell);
@@ -928,7 +955,8 @@ export function autoAction(st: BattleState): Action {
   const foes = foesFor(st, u);
   const allies = alive(st, u.side);
   const base: Action = { spell: "base", target: weakest(foes).id };
-  if (hasFx(u, "silence") || hasFx(u, "seal")) return base;
+  // Concentration (Gon) : l'attaque chargée part au tour suivant
+  if (hasFx(u, "silence") || hasFx(u, "seal") || hasFx(u, "charged")) return base;
   const ultimate = autoSpecial(st, u, "ultimate");
   if (ultimate) return ultimate;
   const special = autoSpecial(st, u, "special");
@@ -985,7 +1013,12 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   const struck = new Set<Unit>();
   /** Cartes frappées qui ripostent (Domaine du monarque), une ombre par action */
   const shadows = new Set<Unit>();
-  const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false) => {
+  const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false, hpPct = 0) => {
+    // Intouchable (Gojo, Frieren) : aucun coup ne l'atteint
+    if (t.side !== u.side && hasFx(t, "intangible")) {
+      log.push({ kind: "dodge", source: u.id, target: t.id });
+      return 0;
+    }
     // L'ignore-DEF accordé par une attaque de base est consommé sur la prochaine action offensive.
     if (pendingIgnoreFx && !consumedIgnoreFx) {
       consumedIgnoreFx = true;
@@ -1009,7 +1042,10 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     // Combo Cœur : un bouclier couvrant au moins 10 % des PV max renforce les attaques.
     if (opts.combos && u.shield >= u.maxHp * BATTLE.comboShieldThreshold) atk *= 1.15;
     const aff = affinity(u.card.type, t.card.type);
-    let dmg = atk * aff * mult * Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
+    const defFactor = Math.max(BATTLE.floor, BATTLE.defK / (BATTLE.defK + def));
+    let dmg = atk * aff * mult * defFactor;
+    // Tueur de boss (Levi) : une part des PV max de la cible, plafonnée
+    if (hpPct > 0) dmg += Math.min(t.maxHp * hpPct, atk * BATTLE.hpPctCap) * aff * defFactor;
     const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit"), 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card) + fxSum(u, "critDamage");
     dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0)
@@ -1040,7 +1076,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       kind: "damage", source: u.id, target: t.id, amount: dmg, absorbed, crit,
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
-    if (dmg > 0) { landedHit = true; struck.add(t); }
+    if (dmg > 0) { landedHit = true; struck.add(t); t.hitsTaken++; }
     // Un coup réveille l'endormi
     if (dmg > 0) {
       const sleep = t.fx.find((f) => f.key === "sleep");
@@ -1174,7 +1210,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   };
 
   const basic = action.spell === "base" && !u.card.noBasicAttack ? u.card.basicAttack ?? basicAttackOf(u.card.characterId, u.card.rarity, u.card.type) : null;
-  const activeSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
+  const activeSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? ultimateOf(st, u) : null;
+  if (action.spell === "ultimate" && activeSpell) st.lastUltimate = activeSpell;
   const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : activeSpell?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}), ...(!reaction ? { turnOrder: timeline(st, 8) } : {}) });
   const target = action.target ? unit(st, action.target) : null;
@@ -1185,7 +1222,11 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   }
   if (action.spell === "base") {
     if (u.spellIn === 0) u.held++;
-    const amount = hit(target!, 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
+    const charged = u.fx.find((f) => f.key === "charged");
+    if (charged) dropFx(u, charged);
+    const amount = charged
+      ? hit(target!, charged.amount, 1, false, true)
+      : hit(target!, 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
     if (amount > 0 && basic) {
       const applyRider = (rider: BasicRider) => {
         switch (rider.kind) {
@@ -1234,13 +1275,30 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           const ignore = (e.ignoreDef ?? 0) + (e.ignoreMissing ?? 0) * (1 - u.hp / u.maxHp);
           for (const [i, t] of targets.entries()) {
             const strikes = (e.hits ?? 1) + (e.extraHit && fxSum(t, "def") < 0 ? 1 : 0);
-            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure);
+            const rage = 1 + (e.perHitTaken ?? 0) * Math.min(30, u.hitsTaken);
+            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * rage * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure, e.hpPct ?? 0);
           }
           if (e.drain) heal(u, total * e.drain);
           break;
         }
         case "mod":
           for (const t of e.to === "foes" && e.count ? strongestFoes(st, u, e.count) : who(e.to)) addFx(t, `${e.stat}${e.amount > 0 ? "Up" : "Down"}`, e.amount, e.turns, e.stat);
+          break;
+        case "intangible":
+          addFx(u, "intangible", 0, e.turns);
+          break;
+        case "charge":
+          addFx(u, "charged", e.mult, 2);
+          break;
+        case "copyUltimate":
+          break;
+        case "gauge":
+          for (const t of who(e.to)) {
+            if (t === u || !t.ultimate || t.ultimateGauge >= BATTLE.ultimateGaugeMax) continue;
+            const old = t.ultimateGauge;
+            t.ultimateGauge = Math.min(BATTLE.ultimateGaugeMax, old + e.amount);
+            log.push({ kind: "ultimateGauge", target: t.id, amount: t.ultimateGauge - old, current: t.ultimateGauge, max: BATTLE.ultimateGaugeMax });
+          }
           break;
         case "heal":
           for (const t of who(e.to)) heal(t, t.maxHp * e.pct);
