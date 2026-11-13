@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { after } from "next/server";
 import { Suspense } from "react";
 import { devToolsEnabled } from "@/lib/dev-tools";
@@ -9,6 +8,7 @@ import { getAdventure } from "@/lib/adventure-state";
 import { MAX_CRYSTALS } from "@/lib/crystal-stock";
 import { getPackState } from "@/lib/packs";
 import { getEnergy } from "@/lib/battles";
+import { EnergyReserve } from "@/components/team/EnergyMeter";
 import { MAX_ENERGY } from "@/lib/energy";
 import { CountUp } from "@/components/fx/CountUp";
 import { getSessionUser } from "@/lib/session";
@@ -36,9 +36,6 @@ export function SiteHeader() {
     <>
     <MiniBar account={<Suspense fallback={null}><MiniAccount /></Suspense>} />
     <header className="mq-topbar">
-      <Link href="/" className="mq-brand" aria-label="Anima Clash, accueil">
-        <Image className="mq-brand-logo" src="/images/brand/anima-clash-logo.png" alt="Anima Clash" width={480} height={344} unoptimized />
-      </Link>
       <Navigation>
       <nav className="mq-game-nav" aria-label="Navigation principale">
         <div className="mq-nav-side mq-nav-left">
@@ -52,6 +49,7 @@ export function SiteHeader() {
           </div>
           <NavItem href="/inventaire" match={["/forge", "/eveil"]}>Inventaire</NavItem>
           <NavItem href="/equipe">Squads</NavItem>
+          <NavItem href="/changelog">Changelog</NavItem>
         </div>
         <Suspense fallback={<PlayMenu />}>
           <PlayMenuWithLocks />
@@ -80,7 +78,6 @@ export function SiteHeader() {
             </div>
           </div>
           <NavItem href="/achievements">Succès<Suspense fallback={null}><AchievementBadge /></Suspense></NavItem>
-          <NavItem href="/changelog">Changelog</NavItem>
         </div>
       </nav>
       </Navigation>
@@ -98,13 +95,16 @@ export function SiteHeader() {
 async function MiniAccount() {
   const user = await getSessionUser();
   if (!user) return <Link href="/login" className="mq-mini-login">Connexion</Link>;
-  const [wallet, packs] = await Promise.all([getWallet(user.id), getPackState(user.id)]);
+  const [wallet, packs, energy] = await Promise.all([getWallet(user.id), getPackState(user.id), getEnergy(user.id)]);
   return (
+    <>
+    <EnergyReserve energy={energy} />
     <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-mini-account" aria-label={`Profil de ${user.username}`}>
       <span><Icon name="ryo" /><CountUp value={wallet.balance} id="mini-ryo" /></span>
       <span><Icon name="cristal" /><CountUp value={packs.available} id="mini-crystals" /></span>
       <span className="mq-mini-avatar">{user.username.slice(0, 2).toUpperCase()}</span>
     </Link>
+    </>
   );
 }
 
@@ -134,6 +134,7 @@ async function Account() {
   const xpPct = adventure.next === null ? 100 : Math.max(0, Math.min(100, Math.round(((adventure.xp - adventure.floor) / (adventure.next - adventure.floor)) * 100)));
   return (
     <>
+      <EnergyReserve energy={energy} />
       <Suspense fallback={null}>
         <NotificationBell userId={user.id} />
       </Suspense>
@@ -150,7 +151,7 @@ async function Account() {
             <span className="mq-wallet" aria-label="Ressources">
               <span className="mq-wallet-ryo"><Icon name="ryo" /><CountUp value={wallet.balance} id="ryo" /><em>Ryō</em></span>
               <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" /><CountUp value={packs.available} id="crystals" /></span>
-              <span className="mq-wallet-energy" title={`Énergie : 1 par combat d’histoire ou de donjon, +1 toutes les 2 min (max ${MAX_ENERGY})`}><Icon name="recharge" />{energy.available}/{MAX_ENERGY}</span>
+              <span className="mq-wallet-energy" title="Énergie"><Icon name="recharge" />{energy.available}/{MAX_ENERGY}</span>
             </span>
             <span className="mq-xp" role="progressbar" aria-label="Expérience d'Arpenteur" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xpPct}>
               <em>NIV {adventure.level}</em>

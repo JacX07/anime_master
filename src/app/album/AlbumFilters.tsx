@@ -3,6 +3,7 @@ import type { AlbumFilters as Filters } from "@/lib/album";
 import { TypeIcon } from "@/components/icons";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
 import { AnimeSelect, type AnimeOptions } from "./AnimeSelect";
+import { MobileFilters } from "@/components/MobileFilters";
 
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
 const TYPES = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"] as const;
@@ -56,6 +57,8 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
           {filters.sort !== "power" && <input type="hidden" name="sort" value={filters.sort} />}
           <input type="search" name="q" defaultValue={filters.q} placeholder="Rechercher un personnage" aria-label="Rechercher un personnage" />
         </form>
+      </div>
+      <MobileFilters active={!!(filters.rarity || filters.type || filters.owned !== "all")}>
         <div className="vt-chips" role="group" aria-label="Possession">
           {OWNED.map(([v, label]) => (
             <Chip key={v} href={albumHref(filters, { owned: v })} active={filters.owned === v}>
@@ -63,7 +66,6 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
             </Chip>
           ))}
         </div>
-      </div>
       {anime && (
         <div className="vt-row">
           <AnimeSelect {...anime} />
@@ -99,6 +101,7 @@ export function AlbumFilters({ filters, anime, sortable }: { filters: Filters; a
           </Link>
         )}
       </div>
+      </MobileFilters>
     </div>
   );
 }

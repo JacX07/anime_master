@@ -76,3 +76,42 @@
 .inventory-recycle label { display: inline-flex; align-items: center; gap: .35rem; }
 .inventory-notice { margin: 0 0 1rem; color: #7fd48b; font-size: .85rem; }
 .inventory-recycle-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin: 0 0 1rem; padding: .6rem .8rem; background: #e07a6c14; color: #e9a097; font-size: .85rem; }
+
+/* Cases carrées homogènes : même grille pour toutes les familles d'objets. */
+.mq-app-shell[class][class] .inventory .mq-inventory-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+.mq-app-shell[class][class] .inventory .mq-inventory-grid > .inventory-slot {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 100%; height: auto; aspect-ratio: 1; min-height: 0; min-width: 0; padding: 8px 4px 5px; border-radius: 3px;
+  background: #111514; box-shadow: inset 0 -2px var(--artifact-color, var(--slot-color, #94a3b8)); overflow: hidden;
+}
+.mq-app-shell[class][class] .inventory .mq-inventory-grid > .inventory-slot:is(:hover, [aria-pressed="true"]) { background: #171b1a; }
+.inventory .mq-inventory-item[data-tone="gold"] { --slot-color: #f59e0b; }
+.inventory .mq-inventory-item[data-tone="blue"] { --slot-color: #38bdf8; }
+.inventory .mq-inventory-item[data-tone="violet"] { --slot-color: #a855f7; }
+.inventory .mq-inventory-item[data-tone="green"] { --slot-color: #8fbfae; }
+.inventory .mq-inventory-item::after { display: none; }
+.mq-app-shell[class][class] .inventory .mq-item-gem { width: 54%; height: 54%; flex: none; margin: 0; transform: none; background: none; box-shadow: none; }
+.inventory .mq-item-gem::after { display: none; }
+.mq-app-shell[class][class] .inventory .mq-item-gem > :is(img, svg) { width: 100%; height: 100%; object-fit: contain; transform: none; }
+.mq-app-shell[class][class] .inventory .mq-inventory-grid .artifact-tile > :is(img, svg):not(.artifact-tile-owner) { width: 54%; height: 54%; margin: 0; object-fit: contain; }
+.inventory-item-copy, .artifact-tile-name { width: 100%; min-width: 0; text-align: center; }
+.inventory .mq-inventory-item h3, .artifact-tile-name { display: block; font: 400 11px/1.3 var(--font-dm), sans-serif; color: #e9e5dc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+.inventory .inventory-item-copy p, .inventory-equipped-badge { display: none; }
+.mq-app-shell[class][class] .inventory .inventory-quantity,
+.mq-app-shell[class][class] .inventory .artifact-tile-level { position: absolute; inset: 4px 5px auto auto; margin: 0; padding: 0; background: none; font: 400 10px/1.3 var(--font-dm), sans-serif; color: #d5bb7f; }
+.mq-app-shell[class][class] .inventory .artifact-tile > .artifact-tile-owner { width: 16px; height: 20px; left: 4px; bottom: 16px; }
+.inventory-result-count { color: #b4b2aa; font-size: 11px; margin: 10px 0; }
+.inventory > .mobile-filters { margin: 12px 0; }
+.inventory .mobile-filters-panel > .inventory-options { margin: 0; }
+.inventory .mobile-filters-panel > .inventory-recycle { margin-bottom: 0; }
+.inventory-detail { scroll-margin-top: 80px; }
+@media (max-width: 700px) {
+  .mq-app-shell[class][class] .inventory .mq-inventory-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mq-app-shell[class][class] .inventory-workspace[data-selected="true"] { grid-template-columns: minmax(0, 1fr); }
+  .inventory-tabs.mq-section-tabs { flex-wrap: nowrap; overflow-x: auto; gap: 12px; margin-bottom: 12px; }
+  .mq-app-shell[class][class] .inventory-tabs.mq-section-tabs > button { min-width: 0; white-space: nowrap; padding: 8px 2px; }
+  .inventory > .mobile-filters { margin: 0; }
+  .inventory .artifact-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .inventory .artifact-filters > select { min-width: 0; width: 100%; }
+  .inventory-recycle { font-size: 12px; }
+}

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -21,7 +20,6 @@ export function MiniBar({ account }: { account: ReactNode }) {
   const play = () => document.querySelector<HTMLButtonElement>(".mq-topbar .mq-play-button")?.click();
   return (
     <div className="mq-minibar">
-      <Link href="/" className="mq-mini-brand" aria-label="Anima Clash, accueil">ANIMA</Link>
       <span className="mq-mini-page">{LABELS[segment] ?? ""}</span>
       <span className="mq-mini-hint" aria-hidden="true">◆ Menu</span>
       <button type="button" className="mq-mini-play" onClick={play}>JOUER</button>

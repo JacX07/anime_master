@@ -5,6 +5,8 @@ Une section par version, la plus récente en haut. Chaque version correspond à 
 ## À venir
 
 ### Nouveautés
+- **Interface mobile compacte** : énergie visible sans ouvrir le profil, compte à rebours de recharge, collection sur trois colonnes, inventaire en cases carrées sur quatre colonnes et filtres regroupés. Les logos quittent la barre du haut sur PC et mobile.
+- **Illustrations** : quatre pièces dédiées pour chacun des sets Fairy Tail et Bleach ; trois décors Dragon Ball (tournoi, Namek et Enfer) pour l'histoire et le donjon.
 - **Changelog dans le jeu** : un onglet présente l'historique de toutes les versions publiées. À la connexion, une fenêtre présente la dernière version non lue ; sa fermeture est mémorisée sur le compte, y compris sur les autres appareils. L'annonce attend la fin du tutoriel et ne recouvre pas un combat.
 
 ### Migration de base de données

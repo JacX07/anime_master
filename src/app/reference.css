@@ -207,6 +207,23 @@
 .mq-wallet-ryo { color: #e6c36a; }
 .mq-wallet-crystal { color: #7fc4e6; font-size: 14px; }
 .mq-wallet-energy { color: #9fd68a; font-size: 14px; }
+.mq-energy-reserve { display: grid; grid-template-columns: 16px auto; align-items: center; gap: 2px 6px; flex: none; color: #8fbfae; font: 400 11px/1.3 var(--font-dm), sans-serif; white-space: nowrap; }
+.mq-energy-reserve > .i { width: 16px; height: 16px; grid-row: span 2; }
+.mq-energy-reserve b { color: #e9e5dc; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mq-energy-reserve small { grid-column: 2; color: #b4b2aa; font-size: 10px; }
+.mq-energy-reserve[data-empty] b { color: #d9a46b; }
+.mobile-filters-panel { display: grid; gap: 12px; }
+.mq-app-shell[class][class] .mobile-filters-toggle { display: none; }
+@media (max-width: 700px) {
+  .mq-app-shell[class][class] .mobile-filters-toggle { display: inline-flex; min-height: 44px; padding: 8px 0; }
+  .mobile-filters[data-open="false"] > .mobile-filters-panel { display: none; }
+  .mobile-filters[data-open="true"] > .mobile-filters-panel { padding: 12px; background: #111514; border-radius: 5px; }
+}
+@media (min-width: 1500px) { .mq-header-actions > .mq-energy-reserve { display: none; } }
+@media (min-width: 1500px) and (max-width: 1699px) {
+  .mq-app-shell[class][class][class][class] .mq-topbar .mq-nav-side > a,
+  .mq-app-shell[class][class][class][class] .mq-topbar .mq-nav-dropdown > a { font-size: 10px; letter-spacing: .06em; padding-inline: 2px; }
+}
 .mq-wallet .i { width: 16px; height: 16px; flex: none; }
 .mq-wallet-ryo em { color: #8d887a; font: 400 10px var(--font-dm), sans-serif; font-style: normal; letter-spacing: .1em; text-transform: uppercase; }
 .mq-xp { display: flex; align-items: center; gap: 7px; margin-top: 7px; }
@@ -261,15 +278,15 @@
 .guild-directory > li > .guild-ring, .guild-overview > .guild-ring { width: 3.2rem; height: 3.2rem; }
 
 /* Tiroir de navigation et profil sur téléphone/tablette (docs/direction-artistique.md §4.14) :
-   Menu à gauche, logo au centre, profil à droite ; le menu s'ouvre en tiroir, le profil en panneau sous la barre. */
+   Menu à gauche, énergie et profil à droite ; le menu s'ouvre en tiroir, le profil en panneau sous la barre. */
 .mq-navigation-scrim, .mq-burger { display: none; }
 @media (max-width: 1499px) {
-  .mq-app-shell[class][class] .mq-topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 68px; padding: 0 12px; gap: 8px; }
+  .mq-app-shell[class][class] .mq-topbar { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; height: 68px; padding: 0 12px; gap: 8px; }
   /* Pas de backdrop-filter ici (maquette.css, ≥ 1500 px seulement) : il ferait de la barre le bloc contenant du tiroir fixe (32 px de haut au lieu de l'écran) */
   .mq-app-shell[class][class] .mq-topbar { background: rgba(11, 14, 15, .97); }
   .mq-app-shell[class][class] .mq-topbar > .mq-navigation { grid-area: 1 / 1; justify-self: start; }
   .mq-app-shell[class][class] .mq-topbar > .mq-brand { grid-area: 1 / 2; justify-self: center; width: 84px; }
-  .mq-app-shell[class][class] .mq-topbar > .mq-header-actions { grid-area: 1 / 3; grid-column: 3; justify-self: end; width: auto; margin: 0; }
+  .mq-app-shell[class][class] .mq-topbar > .mq-header-actions { grid-area: 1 / 2; grid-column: 2; justify-self: end; width: auto; margin: 0; }
   .mq-app-shell[class][class][class] .mq-navigation-toggle { gap: 9px; padding: 8px 12px; min-height: 44px; background: #2a2e2c; color: #e9e5dc; font: 700 11px/1 var(--font-dm), sans-serif; letter-spacing: .12em; text-transform: uppercase; }
   .mq-app-shell[class][class][class] .mq-navigation-toggle::after { inset: auto 0 0; transform: scaleX(1); }
   .mq-burger { display: block; width: 16px; height: 2px; background: #c4a76d; box-shadow: 0 5px #c4a76d, 0 -5px #c4a76d; }

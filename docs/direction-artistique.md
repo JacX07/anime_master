@@ -116,6 +116,7 @@ Modèle : `.mq-play-overlay` / `.mq-play-menu`.
 Un champ reste identifiable comme champ (fond distinct `#171b1a`, texte clair, focus or), malgré l'absence de bordures.
 
 ### 4.10 Barre du haut
+Modification validée le 2026-11-13 (`docs/maquettes/mobile-compact.html`) : logos retirés de la barre complète et de la mini-barre, sur PC et mobile. L'accueil reste dans le menu. Réserve d'énergie visible sans ouvrir le profil : icône du sprite, libellé « Énergie », quantité sur 20 en 14 px et état de recharge en 10 px ; grille à deux colonnes sur téléphone (Menu, actions du compte). La mini-barre PC affiche aussi la réserve. Le compte à rebours suit le même calcul que les préparations de combat.
 Onglet actif souligné d'or (2 px) et texte or clair ; menus déroulants au survol ; bouton **JOUER** central. Sur mobile, bouton « Menu ».
 - **Escamotable, variante B** (validée le 2026-11-13, maquette `public/mockups/barre-nav-auto.html`), à partir de 1500 px : une mini-barre de 38 px reste visible (logo, page courante, « ◆ Menu », JOUER, Ryō, cristaux, avatar ; `MiniBar.tsx`). La barre complète est cachée au-dessus de l'écran et descend par-dessus au survol de la mini-barre ; elle reste ouverte tant que la souris est dessus (menus compris) ou qu'elle a le focus clavier, remonte 0,45 s après, et reste ouverte pendant le tutoriel.
 
@@ -186,6 +187,14 @@ Coffres dessinés en CSS (`Chests.tsx`, `chests.css`) : Bronze `#b07a45`, Argent
 Maquette : `docs/maquettes/changelog.html`. Lien « Changelog » dans la navigation, titre « Mises à jour » via `PageHeading`. Versions en colonne de 140 px, contenu à droite avec un intervalle de 24 px ; sur téléphone, versions en rangée défilante au-dessus des notes. Sélection marquée par le fond relevé et le texte or, sans cadre. Titres de notes en Cinzel 16 px, texte DM Sans 13 px, interligne 1,5.
 
 À l'arrivée, fenêtre de la dernière version : panneau relevé sans bordure, largeur maximale 620 px, marge intérieure 24 px (16 px sur téléphone), coins de 7 px, voile et flou du §4.7. Notes défilantes, titre « Anima Clash v… », contrôle « Fermer × », liens « Toutes les mises à jour » et « C'est lu, jouer » en actions textuelles partagées. Fermeture par Échap ; lecture mémorisée sur le compte, nouvelle annonce à la version suivante. Ne pas recouvrir le tutoriel, un combat ou une autre fenêtre.
+
+### 4.25 Disposition mobile compacte (validée le 2026-11-13)
+
+Maquette `docs/maquettes/mobile-compact.html` : collection sur trois colonnes, intervalle horizontal de 8 px, portraits au format 2:3, noms DM Sans 11 px, rareté et puissance visibles ; les statistiques détaillées restent dans la fiche. Cadres décoratifs retirés dans cette grille mobile, liseré de rareté conservé. Recherche immédiatement accessible, filtres regroupés derrière « Filtres » sous 700 px ; tous les filtres restent disponibles. Sur PC, les filtres restent ouverts.
+
+Inventaire : toutes les familles partagent des cases carrées, quatre colonnes sous 700 px avec intervalles de 8 px ; grille adaptative au-delà. Illustrations contenues à 54 % de la case, nom en 11 px, quantité ou niveau en haut à droite en 10 px ; sélection par le fond relevé. Statistiques, propriétaire et actions complets dans les détails au toucher. Les filtres avancés et le recyclage sont regroupés avec les autres filtres sur téléphone.
+
+Illustrations fournies : les quatre pièces Fairy Tail et Bleach utilisent leurs images dédiées. Combat DBZ : décors tournoi, Namek et Enfer, assombris derrière le plateau pour garder les cartes et contrôles lisibles. Histoire : un décor par acte ; donjon : difficultés 1–3, 4–6 et 7–10. Aucun décor DBZ appliqué aux autres univers.
 
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
