@@ -30,6 +30,8 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
       { key: "hits", label: "Nombre de frappes", type: "number", min: 1, max: 5, step: 1, def: 1 },
       flag("extraHit", "+1 frappe si DEF de la cible réduite"),
       { key: "ramp", label: "Zone en chaîne : + dégâts par cible", type: "number", min: 0, max: 0.5, step: 0.05, def: 0 },
+      { key: "hpPct", label: "+ part des PV max de la cible (tueur de boss)", type: "number", min: 0, max: 0.2, step: 0.01, def: 0 },
+      { key: "perHitTaken", label: "+ dégâts par coup reçu", type: "number", min: 0, max: 0.3, step: 0.01, def: 0 },
     ],
   },
   mod: {
@@ -45,7 +47,7 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
   regen: { label: "Soin sur la durée", fields: [pctField("% PV max / action", 0.05, 0.5), turns(3), scope("self")] },
   shield: { label: "Bouclier", fields: [pctField("% PV max", 0.15), scope("team")] },
   poison: { label: "Poison", fields: [pctField("% PV max / action", 0.05, 0.3), turns(3), scope("target")] },
-  silence: { label: "Silence", fields: [turns(2), scope("target")] },
+  silence: { label: "Silence", fields: [turns(2), scope("target"), { key: "count", label: "Avec « tous les ennemis » : seulement N (ATK la plus élevée), 0 = tous", type: "number", min: 0, max: 4, step: 1, def: 0 }] },
   stun: { label: "Étourdissement", fields: [{ key: "turns", label: "Tours passés", type: "number", min: 1, max: 2, step: 1, def: 1 }, { key: "count", label: "Nombre d'ennemis (ATK la plus élevée)", type: "number", min: 1, max: 2, step: 1, def: 2 }] },
   sleep: { label: "Sommeil (ennemis plus faibles)", fields: [turns(2)] },
   duel: { label: "Duel (seule la cible peut toucher le lanceur)", fields: [turns(2)] },
@@ -95,7 +97,7 @@ export function parseSpell(raw: unknown): CharacterSpell | null {
       if (f.type === "number") {
         const n = typeof v === "number" ? v : v == null ? f.def : NaN;
         if (!Number.isFinite(n)) return null;
-        if (o.k === "stun" && !Number.isInteger(n)) return null;
+        if ((o.k === "stun" || (o.k === "silence" && f.key === "count")) && !Number.isInteger(n)) return null;
         const c = Math.min(f.max, Math.max(f.min, n));
         if (c !== 0 || f.def !== 0) e[f.key] = c;
       } else if (f.type === "bool") {

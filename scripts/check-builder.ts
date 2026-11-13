@@ -41,6 +41,9 @@ assert.equal(parseBuilderValue("base", { name: "Interdit", rider: { kind: "silen
 assert.equal(parseBuilderValue("base", { name: "Interdit", rider: { kind: "heal", pct: 0.5 } }), null);
 assert.equal(parseBuilderValue("base", { name: "Interdit", rider: { kind: "mod", stat: "atk", amount: 0.04, to: "self" } }), null);
 const card: BattleCard = { characterId: 13, rarity: "SSR", type: "COMBAT", attack: 1000, defense: 1000, power: 100, franchiseId: null };
+assert.ok(parseBuilderValue("base", { name: "Infini", rider: { kind: "shield", pct: 0.08 } }));
+assert.equal(parseBuilderValue("base", { name: "Trop fort", rider: { kind: "shield", pct: 0.081 } }), null);
+assert.equal(parseBuilderValue("ultimate", { name: "Silence", target: null, effects: [{ k: "silence", turns: 2, to: "foes", count: 1.5 }] }), null);
 const basicAttack = { name: "Base de test", rider: { kind: "heal" as const, pct: 0.01 } };
 const st = createBattle([{ ...card, basicAttack }], [card], seededRandom(1), { startingSide: "A" });
 st.teams.A[0].hp -= 100;

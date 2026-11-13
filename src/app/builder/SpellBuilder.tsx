@@ -245,6 +245,6 @@ function BasicEditor({ attack, onChange }: { attack: BasicAttack; onChange: (a: 
       <label className="sb-f">Stat<select value={r.stat} onChange={(e) => change({ ...r, stat: e.target.value as typeof r.stat })}>{["atk", "def", "crit", "dodge"].map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
       <label className="sb-f">Qui<select value={r.to} onChange={(e) => change({ ...r, to: e.target.value as typeof r.to })}><option value="self">Lanceur</option><option value="target">Cible</option></select></label>
       <label className="sb-f">Montant (% ou points)<input type="number" min={-3} max={3} step={0.1} value={+(r.amount * 100).toFixed(3)} onChange={(e) => change({ ...r, amount: Number(e.target.value) / 100 })} /></label>
-    </> : <label className="sb-f">Valeur (%)<input type="number" min={0} max={r.kind === "poison" ? 0.5 : r.kind === "ignoreDef" ? 3 : 2} step={0.01} value={+(r.pct * 100).toFixed(3)} onChange={(e) => change({ ...r, pct: Number(e.target.value) / 100 })} /></label>}
+    </> : <label className="sb-f">Valeur (%)<input type="number" min={0} max={r.kind === "poison" ? 0.5 : r.kind === "ignoreDef" ? 3 : r.kind === "shield" ? 8 : 2} step={0.01} value={+(r.pct * 100).toFixed(3)} onChange={(e) => change({ ...r, pct: Number(e.target.value) / 100 })} /></label>}
   </div>;
 }

@@ -32,7 +32,8 @@ export function parseBuilderValue(slot: BuilderSlot, raw: unknown): BuilderValue
       "to" in r && (r.to === "self" || r.to === "target") && "amount" in r && typeof r.amount === "number" && Number.isFinite(r.amount) && Math.abs(r.amount) <= 0.03) {
     return { name, rider: { kind: "mod", stat: r.stat as "atk" | "def" | "crit" | "dodge", to: r.to, amount: r.amount } };
   }
-  const caps = { heal: 0.02, shield: 0.02, poison: 0.005, drain: 0.02, ignoreDef: 0.03 };
+  // Bouclier : 8 % pour Gojo (Impulsion d'Infini, v0.3.0)
+  const caps = { heal: 0.02, shield: 0.08, poison: 0.005, drain: 0.02, ignoreDef: 0.03 };
   if (typeof r.kind !== "string" || !Object.hasOwn(caps, r.kind) || !("pct" in r) || typeof r.pct !== "number" || !Number.isFinite(r.pct) || r.pct < 0 || r.pct > caps[r.kind as keyof typeof caps]) return null;
   return { name, rider: { kind: r.kind as keyof typeof caps, pct: r.pct } };
 }
