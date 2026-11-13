@@ -1144,7 +1144,12 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .bt-layout-diagonal .bt-head { flex: none; min-height: 30px; padding: .15rem .35rem; border: 0; border-image: none; }
 .bt-layout-diagonal .bt-title { font-size: 1rem; }
 .bt-layout-diagonal .bt-line { font-size: .7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bt-layout-diagonal .bt-arena { position: relative; flex: 1; min-height: 0; container-type: size; }
+.bt-layout-diagonal .bt-arena { position: relative; flex: 1; min-height: 0; container: battle-arena / size; display: grid; place-items: center; }
+.bt-layout-diagonal .bt-formation { position: relative; width: 100%; height: 100%; container-type: size; }
+/* Les positions et les portraits partagent la même échelle, même sur un écran ultra-large. */
+@container battle-arena (min-aspect-ratio: 9 / 5) {
+  .bt-layout-diagonal .bt-formation { width: min(100%, 180cqh, 1440px); height: min(100%, 55.555556cqw, 800px); }
+}
 .bt-layout-diagonal .bt-team, .bt-layout-diagonal .bt-row { display: contents; }
 .bt-layout-diagonal .bt-team-name { position: absolute; left: .5rem; bottom: .25rem; margin: 0; font-size: .65rem; z-index: 1; max-width: 40%; }
 .bt-layout-diagonal .bt-team[data-side="B"] .bt-team-name { left: auto; right: .5rem; bottom: auto; top: .25rem; }

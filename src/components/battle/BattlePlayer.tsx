@@ -368,6 +368,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       </div>
 
       <div className="bt-arena">
+      <div className="bt-formation">
       <span className="bt-versus" aria-hidden="true">VS</span>
       {(["B", "A"] as const).map((side) => (
         <section key={side} className="bt-team" data-side={side} data-result={end ? (end.winner === side ? "win" : end.winner ? "lose" : "draw") : undefined}>
@@ -389,6 +390,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
           </div>
         </section>
       ))}
+      </div>
       </div>
 
 
