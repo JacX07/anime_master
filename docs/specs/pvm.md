@@ -449,3 +449,32 @@ Histoire, Tour, donjons et raids ouvrent le même écran avant le combat (`src/c
 ## Combat laissé en Auto *(v0.3.0)*
 - Le réglage Auto est mémorisé sur le combat en cours (`teams.auto`). Si le joueur quitte la page sans l'abandonner (autre page, fermeture), le combat reste ouvert ; au prochain lancement du même mode (histoire, Tour, donjon, raid), le serveur le **joue jusqu'au bout** avec la stratégie automatique, récompenses comprises, au lieu de l'abandonner. Quitter par la croix reste un abandon volontaire.
 - En quittant par changement de page sans rechargement, le client demande aussi la fin immédiate.
+
+### v0.3.0 — Butin varié et rééquilibrage *(proposition du 2026-11-13, à valider)*
+
+**Constat.** Les puissances ont été recalibrées depuis l'équilibrage du 2026-10-17 (moyennes actuelles : N 3 200, R 4 700, SR 6 500, SSR 8 700, UR 11 000). Une seule carte suffit à réussir une Faille (650) ou une Brèche (6 000). Le butin se limite aux Ryō et à quelques cristaux.
+
+**1. Seuils (mêmes intentions qu'en octobre).**
+
+| Niveau | Durée | Ancien seuil | Nouveau seuil | Repère |
+|---|---|---|---|---|
+| Faille | 1 h | 650 | **9 000** | 3 N réussissent une fois sur deux |
+| Brèche | 6 h | 6 000 | **17 000** | 1 SR + 2 R |
+| Gouffre | 24 h | 24 000 | **27 000** | 1 UR + 2 SSR, ou des SSR des bons types |
+
+**2. Chaque brèche appartient à un univers du jeu** : Lycée Jujutsu → Jujutsu Kaisen, Tenkaichi Budokai → Dragon Ball, Porte de la Vérité → La Grande Alchimie, Grand Line → One Piece, Fourmis-Chimères → Hunter x Hunter, Shiganshina → Attack on Titan.
+
+**3. Butin en plus des Ryō et cristaux** (réussite ; triomphe ×1,5 arrondi ; échec : 25 % des ressources d'éveil, rien d'autre).
+
+| | Faille | Brèche | Gouffre |
+|---|---|---|---|
+| Ressource d'éveil de l'univers | 2 à 4 | 6 à 10 | 15 à 25 |
+| Fragments de signature | 3 | 8 | 20 |
+| Ressource d'arme de l'univers | — | 30 % : 1 | 2, et 50 % : +1 |
+| Artefact (SR ou SSR, set de donjon au hasard) | — | — | 20 % (triomphe 40 %) |
+| **Trouvaille** : carte R ou SR d'un personnage de l'univers | — | 1 % | 3 % |
+
+- Pas de plafond quotidien sur ces ressources : les emplacements et la durée limitent déjà (au plus 3 Gouffres par jour).
+- La trouvaille est une vraie carte (finition normale), signalée dans le rapport. Jamais SSR ni UR, pour ne pas concurrencer les invocations.
+- Tout reste fixé par la graine du lancement (recharger ne change rien). Les expéditions déjà lancées gardent l'ancien calcul.
+- La carte de chaque brèche affiche son univers et son butin possible ; le rapport de retour liste chaque gain avec son image.
