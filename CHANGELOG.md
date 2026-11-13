@@ -2,6 +2,76 @@
 
 Une section par version, la plus récente en haut. Chaque version correspond à un tag Git (`v0.2.0`…) posé sur `main`. Les migrations de base de données à appliquer avant la publication sont listées dans chaque section.
 
+## v0.3.0 — Arène live, Défi des empereurs et progression repensée
+
+Mise à jour du 13 novembre 2026. Les comptes et les récompenses déjà réclamées sont conservés. Sept nouvelles migrations sont à appliquer avant la publication.
+
+### Nouveaux défis
+
+- **Arène live** : affronte un autre joueur en combat manuel 4 contre 4, avec appariement par Elo et 20 secondes pour choisir une action. Sans adversaire après 30 secondes, une équipe fantôme prend le relais. Si tu ne joues pas à temps ou quittes la page, l'automatique joue pour toi ; seul un abandon volontaire donne un forfait. L'arène ne coûte pas d'énergie et récompense le classement, sans ressources d'éveil.
+- **Défi des empereurs** : Shanks, Big Mom, Kaido et Barbe Blanche remplacent le boss de raid hebdomadaire. Chaque porte comporte deux vagues d'équipage puis l'empereur, en Normal, Difficile ou Cauchemar, avec un passage quotidien par empereur. Leurs mécaniques incluent sommeil, duel, dévoration, âmes et transformation en dragon.
+- **Hardcore** : réunis les quatre clés d'empereur pour affronter les quatre boss ensemble. Le passage consomme les clés et rapporte des ressources légendaires et des cœurs de brèche.
+- **Armes légendaires** : Griffon, Murakumogiri, Hassaikai et Napoléon, avec leurs effets propres. Elles peuvent équiper n'importe quelle carte éveillée à 5★. La forge rejoint l'Inventaire, avec un carrousel d'armes et les ressources possédées et requises.
+- **Trois donjons et sets** : Attaque des Titans (Cuirasse du temps : DEF, PV, bouclier et protection à mi-vie), Demon Slayer (critique et ignore DEF) et Fairy Tail (dégâts élémentaires de feu, eau, air, terre et foudre).
+- **Butin de donjon progressif** : les difficultés impaires donnent une pièce de la rareté du palier, puis une seconde de la rareté précédente à partir de la difficulté 3 ; les difficultés paires donnent une pièce et 50 % de chance d'une seconde de même rareté. Le barème va d'une pièce N en difficulté 1 à une UR et 50 % de chance d'une seconde UR en difficulté 10.
+
+### Économie, équipements et équipes
+
+- **Énergie** : réserve de 20, régénération d'un point toutes les 2 minutes. Un combat d'histoire ou de donjon, ainsi qu'un passage chez les empereurs, coûte un point, rendu en cas de défaite.
+- **Ryō** : récompenses d'histoire augmentées au premier passage et petit gain à chaque rejeu ; coût d'amélioration des artefacts divisé par deux et affiché avant de payer.
+- **Artefacts** : stat principale déterminée par l'emplacement, avec la même progression entre raretés ; les sous-stats distinguent les raretés. Les artefacts UR portent le nom « Mythique ». Les objets existants sont recalculés par migration.
+- **Gestion de l'équipement** : aperçu des statistiques et de leur différence avant d'équiper ou d'améliorer, filtres par stat principale, sous-stat, rareté et set, affichage des objets non équipés, recyclage contre des Ryō et jusqu'à dix sauvegardes d'équipement.
+- **Squads** : favoris, filtres par rareté, type et rôle, consultation des sorts pendant le choix et échange de places par bouton ou glisser-déposer. La préparation commune reprend les squads en histoire, Tour, donjons et raids, avec une composition mémorisée par mode.
+- **Budget d'équipe** : plafond de 24 hors raids ; N coûte 1, R 2, SR 3, SSR 5 et UR 8.
+- **Classement de puissance** : les artefacts et l'arme équipés comptent désormais dans le score.
+- **Tour** : récompense de l'étage choisi et prochains paliers visibles avant de combattre.
+
+### Éveil et histoire
+
+- **Doublon facultatif** pour les éveils SSR et UR à 4★ et 5★ : les cœurs de brèche suffisent. Choisir de consommer un doublon divise leur coût par deux.
+- **Bonus à chaque étoile** : +6 % ATK, DEF et PV par étoile ; à 2★, +25 de jauge ultime au départ ; à 3★, secondaire plus rapide ; à 4★, +10 points de critique et +20 points de dégâts critiques ; à 5★, tertiaire plus rapide, accès à l'arme et bouclier initial de 10 % des PV.
+- **Éveil animé et sonore** après confirmation du succès, avec affichage stabilisé, notamment pour Gojo.
+- **Histoire plus progressive** : puissance ennemie croissante entre les univers. Le suivant reste accessible après les quinze combats du précédent.
+- **Étoiles d'histoire** : victoire, aucun allié à terre, puis aucun allié à terre en dix tours ou moins. Une victoire avec exactement deux personnages donne une quatrième étoile bonus indépendante. Les anciennes étoiles sont conservées ; les anciens scores de 3★ reçoivent aussi le bonus duo.
+- **Récompense duo** : quinze étoiles bonus dans un univers donnent une fois quinze cristaux et 500 Ryō, séparément des paliers ordinaires.
+
+### Combat et personnages
+
+- **Combats hors de la page** : quitter un combat PvE ne l'abandonne plus ; l'automatique le termine côté serveur. Changer simplement d'onglet ne saute plus le combat et laisse sa lecture continuer.
+- **Rejeu** : bouton pour répéter un combat d'histoire ou de donjon ; effets de sorts désactivables. La première victoire d'une salle de donjon reste à jouer avec ses effets.
+- **Lecture plus claire** : ordre complet des alliés et ennemis, panneau des bonus et malus avec valeurs, durées, lanceur et statistiques actualisées ; multiplicateurs des sorts visibles et aide sur les dégâts physiques et magiques.
+- **Équilibrage** : la plupart des silences de zone ne touchent plus qu'un ennemi ; soin sur soi plafonné à 35 % des PV max ; une seule provocation par personnage, plus courte quand elle accompagne d'autres effets ; réductions de dégâts des sorts divisées par deux et limitées à deux tours ; soins et boucliers d'équipe des ultimes plafonnés à 20 % des PV max.
+- **Kits revus** : Levi ajoute des dégâts selon les PV max de la cible ; Killua enchaîne des frappes de plus en plus fortes ; Gojo commence intouchable ; Kakashi copie le dernier ultime ; Lelouch contrôle un ennemi ; Time Leap d'Okabe donne de la jauge et retire les malus ; Mob gagne des dégâts selon les coups reçus ; Frieren devient intouchable et traverse les boucliers ; Gon prépare une frappe qui ignore la DEF.
+- **Catalogue** : raretés révisées pour une partie des personnages, statistiques adaptées à leur nouvelle rareté et ajout d'Antispiral.
+
+### Interface et corrections
+
+- **Profil** : photo choisie parmi ses personnages et vitrine recherchable dans toute la collection, y compris les basses raretés.
+- **Collection et navigation** : liste des anime à gauche de la grille, titres plus compacts et barre du haut escamotable sur les grands écrans.
+- **Ambiance** : nouvelles musiques d'accueil, combat, raid et PvP ; animations de navigation, cartes, forge et récompenses, avec respect des préférences de mouvement et de son.
+- **Succès et tutoriel** : pastille rouge pour les récompenses à récupérer ; bouton du tutoriel pour rejoindre la page de l'étape.
+- **Correctifs** : stock de cristaux actualisé après un gain, doublon d'éveil disponible même quand on en possède plusieurs, menus déroulants utilisables dans les fenêtres, synchronisation du bouton « Terminer » avec la dernière action confirmée. Atteindre la limite de tours en PvE ne donne plus une fausse victoire.
+- **Outils et contrôles** : le builder conserve les nouveaux paramètres de sorts, les nouveaux statuts ont leurs effets visuels, le catalogue jetable et les assertions de la CI suivent les règles v0.3.0.
+
+### Expéditions
+
+- **Coffres Bronze, Argent, Or et Légendaire**, avec ouverture animée et butin varié : monnaies, matériaux, énergie, artefacts, cartes et invocations offertes. Le coffre Légendaire contient un gros lot garanti.
+- **Résultats rééquilibrés** selon la brèche et la puissance de l'équipe ; un triomphe rapporte un coffre supplémentaire. Les coffres restent en stock jusqu'à leur ouverture et les invocations offertes s'utilisent à la place des cristaux.
+
+### Migrations et mise en production
+
+Appliquer `npm run db:deploy` sur la base de production **avant** de publier le code. La commande de publication ne migre pas la base.
+
+- `20261110120000_energy` : énergie et régénération.
+- `20261110130000_artifact_recycle` : journal du recyclage d'artefacts.
+- `20261110140000_artifact_main_stats` : recalcul de la stat principale des artefacts existants ; sous-stats conservées.
+- `20261110150000_favorites_gear_presets_avatar` : favoris, sauvegardes d'équipement et avatar.
+- `20261110160000_story_duo_star` : étoile duo et reprise des anciens scores de 3★.
+- `20261111100000_arena_live` : matchs et file d'attente d'arène.
+- `20261113010000_rls_arena` : fermeture de la table d'arène à l'API publique.
+
+Les migrations antérieures restent nécessaires si elles manquent à la base ciblée. Les ajouts de personnages et les changements de rareté relèvent du catalogue : `db:deploy` ne les synchronise pas.
+
 ## v0.2.2 — Joueurs en ligne, tutoriel plus complet et pages de connexion
 
 Une migration de données (sans suppression) est à appliquer avant la publication. Si la v0.2.0 n'a pas encore été publiée, ses migrations restent à appliquer aussi.

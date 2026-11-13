@@ -1,6 +1,6 @@
 {
   "name": "anime-masters",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "vendor:pixi": "node scripts/vendor-pixi.mjs",
