@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { publishedArt, publishedArtUrl, publishedResources } from '../src/lib/published-art';
+import { publishedArt, publishedArtUrl, publishedResources, MATERIAL_ART } from '../src/lib/published-art';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 async function main() {
@@ -37,7 +37,12 @@ try {
       assert.ok(imageMime(bytes));
       assert.ok(url!.includes(createHash("sha256").update(bytes).digest("hex")));
     }
-    if (key.startsWith("resource-")) assert.equal(resources[key.slice(9)], url);
+    if (key.startsWith("resource-")) assert.equal(resources[key.slice(9)], MATERIAL_ART[key.slice(9)] ?? url);
+  }
+  for (const [key, url] of Object.entries(MATERIAL_ART)) {
+    assert.equal(resources[key], url);
+    assert.match(url, /^\/images\/(materials|weapons)\/[a-z0-9-]+\.webp$/);
+    assert.equal(imageMime(await readFile(join(previous, "public", url))), "image/webp");
   }
   // Un export rejoué garde les mêmes URLs ; une source invalide préserve le manifeste publié.
   await mkdir(join(temp, "public", "items"), { recursive: true });

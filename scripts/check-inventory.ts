@@ -30,4 +30,4 @@ assert.deepEqual(filterInventory(withArtifact, "Tout", "16 %", "", false, "name"
 assert.equal(filterInventory(withArtifact, "Tout", "Ultra Rare", "", false, "name").length, 1);
 console.log("Inventaire conforme : catégories partagées, recherche sans accents, univers, tri, stocks vides et ressources futures.");
 
-assert.equal(new Set((["N", "R", "SR", "SSR", "UR"] as const).map((r) => artifactRarity(r).label)).size, 4);
+assert.deepEqual((["N", "R", "SR", "SSR", "UR"] as const).map((r) => artifactRarity(r).label), ["Commun", "Rare", "Épique", "Légendaire", "Mythique"]);

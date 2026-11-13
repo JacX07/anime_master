@@ -41,35 +41,41 @@ async function main() {
   const ld = luffy?.seg.filter((e) => e.kind === "status" && e.status === "defDown" && e.on) ?? [];
   check("Luffy : Gatling frappe 3 fois la cible et pose DEF −", lf.length === 3 && ld.length >= 1, `${lf.length} coups, ${ld.length} malus`);
 
-  // Killua : Godspeed +vitesse ; Kanmuru touche tout le monde, cible choisie d'abord
+  // Killua : Godspeed +vitesse ; Éclair en chaîne touche tout le monde, cible choisie d'abord
   const kg = first(IDS.killua, "Godspeed");
   check("Killua : Godspeed donne Vitesse +", !!kg?.seg.some((e) => e.kind === "status" && e.status === "speedUp" && e.on));
-  const kk = first(IDS.killua, "Foudre divine Kanmuru");
-  const kd = kk?.seg.filter((e): e is Extract<BattleEvent, { kind: "damage" }> => e.kind === "damage") ?? [];
-  const act = kk?.seg[0] as Extract<BattleEvent, { kind: "action" }> | undefined;
-  check("Killua : Kanmuru frappe la cible choisie puis tous les autres + Vitesse +", kd.length >= 2 && kd[0].target === act?.target && new Set(kd.map((e) => e.target)).size === kd.length && !!kk?.seg.some((e) => e.kind === "status" && e.status === "speedUp"), `${kd.length} cibles`);
-
-  // Eren : soin total, ATK/DEF +, DEF ennemie −, zone (état du moteur juste après l'ultime)
   {
-    let n = 0, ok = 0, full = 0;
+    const st = createBattle([card(IDS.killua)], foes(4, { characterId: 999999, type: "COMBAT", attack: 1500, defense: 6000, noSpell: true, noBasicAttack: true }), () => 0.99, { startingSide: "A", passive: false, franchise: false, combos: false, elements: false });
+    for (const u of st.teams.B) { u.maxHp = 1000000; u.hp = u.maxHp; u.shield = 0; }
+    st.teams.A[0].ultimateGauge = 100;
+    applyAction(st, { spell: "ultimate", target: "B3" });
+    const kd = st.log.filter((e): e is Extract<BattleEvent, { kind: "damage" }> => e.kind === "damage");
+    check("Killua : Éclair en chaîne commence par la cible choisie, puis frappe chaque autre ennemi", kd.map((e) => e.target).join() === "B3,B1,B2,B4");
+    check("Killua : dégâts croissants dans la chaîne (+25 % par cible)", kd.length === 4 && kd.every((e, i) => Math.abs(e.amount / kd[0].amount - (1 + 0.25 * i)) < 1e-9));
+  }
+
+  // Eren : soin plafonné à 35 %, ATK/DEF +, DEF ennemie −, zone (état du moteur juste après l'ultime)
+  {
+    let n = 0, ok = 0, healed = 0;
     for (let sd = 1; sd <= 30 && n < 5; sd++) {
       const st = createBattle([card(IDS.eren), ...FOES.slice(4, 7).map((m) => card(m))], foes(), seededRandom(sd), { gauge: true });
       while (currentActor(st)) {
         const a = autoAction(st);
         const actor = currentActor(st)!.id;
         if (a.spell === "ultimate" && actor === "A1") st.teams.A[0].hp = st.teams.A[0].maxHp * 0.3;
+        const before = st.log.length;
         applyAction(st, a);
         if (a.spell === "ultimate" && actor === "A1") {
           n++;
           const eren = st.teams.A[0];
           if (eren.fx.some((f) => f.key === "atkUp") && eren.fx.some((f) => f.key === "defUp") && st.teams.B.filter((u) => u.hp > 0).every((u) => u.fx.some((f) => f.key === "defDown"))) ok++;
-          if (eren.hp >= eren.maxHp * 0.99 || eren.hp > 0.9 * eren.maxHp) full++;
+          if (st.log.slice(before).some((e) => e.kind === "heal" && e.target === "A1" && Math.abs(e.amount - eren.maxHp * 0.35) < 1e-8)) healed++;
           break;
         }
       }
     }
     check("Eren : transformation (ATK+, DEF+, DEF ennemie −)", n > 0 && ok === n, `${ok}/${n}`);
-    check("Eren : récupère tous ses PV (30 % → plein, moins les coups de sa zone)", n > 0 && full === n, `${full}/${n}`);
+    check("Eren : soigne 35 % des PV max après la mise à 30 %", n > 0 && healed === n, `${healed}/${n}`);
   }
 
   // Emilia : ultime automatique à sa mort, une seule fois
@@ -145,25 +151,15 @@ async function main() {
   // Yuuji : 3 frappes, 4 si la cible a de la DEF en moins
   {
     const counts = { plain: new Set<number>(), debuffed: new Set<number>() };
-    for (const debuff of [false, true]) {
-      for (let sd = 1; sd <= 20; sd++) {
-        const st = createBattle([card(IDS.yuuji), ...FOES.slice(4, 7).map((m) => card(m))], foes(4, { defense: 6000, attack: 1500 }), seededRandom(sd), { gauge: true });
-        while (currentActor(st)) {
-          const a = autoAction(st);
-          const actor = currentActor(st)!.id;
-          if (a.spell === "ultimate" && actor === "A1") {
-            for (const u of st.teams.B) u.fx = [];
-            if (debuff) for (const u of st.teams.B) u.fx.push({ key: "defDown", stat: "def", amount: -0.2, turns: 2, fresh: false });
-            const before = st.log.length;
-            applyAction(st, a);
-            counts[debuff ? "debuffed" : "plain"].add(st.log.slice(before).filter((e) => e.kind === "damage" || e.kind === "dodge").length);
-            break;
-          }
-          applyAction(st, a);
-        }
-      }
+    for (const debuff of [false, true]) for (let sd = 1; sd <= 20; sd++) {
+      const st = createBattle([card(IDS.yuuji)], [card(17, { characterId: 999999, defense: 6000, attack: 1500, noSpell: true, noBasicAttack: true })], seededRandom(sd), { startingSide: "A", passive: false, combos: false, elements: false });
+      const target = st.teams.B[0]; target.maxHp = 1000000; target.hp = target.maxHp; target.shield = 0;
+      if (debuff) target.fx.push({ key: "defDown", stat: "def", amount: -0.2, turns: 2, fresh: false });
+      st.teams.A[0].ultimateGauge = 100;
+      applyAction(st, { spell: "ultimate", target: "B1" });
+      counts[debuff ? "debuffed" : "plain"].add(st.log.filter((e) => e.kind === "damage" || e.kind === "dodge").length);
     }
-    check("Yuuji : 3 frappes, 4 si la cible a de la DEF en moins", [...counts.plain].every((n) => n === 3) && [...counts.debuffed].every((n) => n === 4), `sans [${[...counts.plain]}], avec [${[...counts.debuffed]}]`);
+    check("Yuuji : 3 frappes, 4 si la cible a de la DEF en moins", counts.plain.size === 1 && counts.plain.has(3) && counts.debuffed.size === 1 && counts.debuffed.has(4), `sans [${[...counts.plain]}], avec [${[...counts.debuffed]}]`);
   }
 
   // Denji : soigné quand on le frappe
@@ -192,25 +188,18 @@ async function main() {
   }
   check("Kurapika : lancer un sort sous sceau tue, l'IA s'en abstient", sealed > 0 && killed > 0 && aiCasts === 0, `${sealed} tours scellés, ${killed} morts, ${aiCasts} sorts de l'IA`);
 
-  // Mob : 3 frappes de zone avec DEF −, ATK −, puis Esquive/Vitesse −
+  // Mob : l'ultime frappe une cible et grandit avec les coups reçus (30 coups au plus).
   {
-    let ok = 0, n = 0, hits = 0;
-    for (let sd = 1; sd <= 30 && n < 5; sd++) {
-      const st = createBattle([card(IDS.mob), ...FOES.slice(4, 7).map((m) => card(m))], foes(4, { defense: 6000, attack: 1500 }), seededRandom(sd), { gauge: true });
-      while (currentActor(st)) {
-        const a = autoAction(st);
-        const actor = currentActor(st)!.id;
-        const before = st.log.length;
-        applyAction(st, a);
-        if (a.spell === "ultimate" && actor === "A1") {
-          n++;
-          hits = st.log.slice(before).filter((e) => e.kind === "damage").length;
-          if (st.teams.B.filter((u) => u.hp > 0).every((u) => ["defDown", "atkDown", "dodgeDown", "speedDown"].every((k) => u.fx.some((f) => f.key === k)))) ok++;
-          break;
-        }
-      }
-    }
-    check("Mob : 3 zones, puis DEF −, ATK −, Esquive −, Vitesse − sur tous", n > 0 && ok === n && hits >= 6, `${ok}/${n}, ${hits} coups`);
+    const hit = (hitsTaken: number) => {
+      const st = createBattle([card(IDS.mob)], [card(17, { characterId: 999999, defense: 6000, attack: 1500, noSpell: true, noBasicAttack: true })], () => 0.99, { startingSide: "A", passive: false, combos: false, elements: false });
+      st.teams.B[0].maxHp = 1000000; st.teams.B[0].hp = 1000000; st.teams.B[0].shield = 0;
+      st.teams.A[0].hitsTaken = hitsTaken; st.teams.A[0].ultimateGauge = 100;
+      applyAction(st, { spell: "ultimate", target: "B1" });
+      return st.log.filter((e): e is Extract<BattleEvent, { kind: "damage" }> => e.kind === "damage");
+    };
+    const plain = hit(0), charged = hit(3), capped = hit(30), excess = hit(50);
+    check("Mob : Explosion frappe une seule cible", [plain, charged, capped, excess].every((hits) => hits.length === 1 && hits[0].target === "B1"));
+    check("Mob : +10 % par coup reçu, plafonné à 30 coups", Math.abs(charged[0].amount / plain[0].amount - 1.3) < 1e-9 && Math.abs(capped[0].amount / plain[0].amount - 4) < 1e-9 && capped[0].amount === excess[0].amount);
   }
 
   console.log(failures ? `\n${failures} échec(s)` : "\nTout est bon.");
