@@ -97,8 +97,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 </style></head><body>
 <aside class="mk" aria-label="Réglages de la maquette">
   <b>Maquette · Sorts et ultime</b>
-  <p>Survole la main, clique une carte : elle vole jusqu'à Gojo, il la consomme, puis attaque. La jauge monte à chaque sort ; pleine, clique-la.</p>
-  <div class="row"><small>Main</small><button data-hand="fan" aria-pressed="true">Éventail</button><button data-hand="row" aria-pressed="false">Rangée</button></div>
+  <p>Survole la main, clique une carte : elle se désagrège en particules qui filent vers Gojo, il les consomme, puis attaque. La jauge monte à chaque sort ; pleine, clique-la.</p>
   <div class="row"><small>Ultime</small><button data-ult="emblem" aria-pressed="true">Emblème</button><button data-ult="flask" aria-pressed="false">Fiole</button><button data-ult="orb" aria-pressed="false">Orbe</button></div>
   <div class="row"><small>Jauge</small><button id="plus">+25 %</button><button id="full">Pleine</button><button id="empty">Vide</button></div>
 </aside>
@@ -165,21 +164,16 @@ const wait=ms=>new Promise(r=>setTimeout(r,reduce?0:ms));
 async function cast(i,card){const s=SPELLS[i];if(busy||s.cd)return;busy=true;
  const caster=arena.children[0],ally=s.dmg===0,goal=arena.children[ally?0:target];
  const from=center(card),cst=center(caster),dest=center(goal);
- // un double de la carte part de la main (la vraie carte disparaît)
- const ghost=card.cloneNode(true);ghost.classList.add("fly");ghost.classList.remove("hot");
- Object.assign(ghost.style,{position:"fixed",left:from.r.left+"px",top:from.r.top+"px",width:from.r.width+"px",height:from.r.height+"px",margin:0,transform:"none",translate:"0 0",scale:"1",zIndex:60,transition:"none"});
- document.body.appendChild(ghost);card.classList.add("gone");void ghost.offsetWidth;
- const dx=cst.x-from.x,dy=cst.y-from.y;
- ghost.style.transition="translate .55s cubic-bezier(.5,0,.2,1), scale .55s cubic-bezier(.5,0,.2,1), rotate .55s";
- ghost.style.translate=`${dx}px ${dy}px`;ghost.style.scale=".32";ghost.style.rotate="-12deg";
- await wait(560);
- // absorption : la carte se dissout dans le lanceur
- const gr=ghost.getBoundingClientRect();ghost.remove();
- if(!reduce){const list=[];for(let k=0;k<260;k++){const x=gr.left+Math.random()*gr.width,y=gr.top+Math.random()*gr.height;const a=Math.random()*7;
-  list.push({x,y,vx:Math.cos(a)*2.4,vy:Math.sin(a)*2.4,r:Math.random()*2+.8,c:Math.random()<.4?"#fff8dc":s.acc,l:1,d:.03+Math.random()*.02,k:2.2,to:{x:cst.x,y:cst.y}})}spawn(list);}
+ // 1) la carte se désagrège sur place en particules (sa couleur et du blanc), qui s'élèvent un instant puis filent vers le lanceur
+ card.classList.add("gone");
+ if(!reduce){const list=[];for(let k=0;k<520;k++){const x=from.r.left+Math.random()*from.r.width,y=from.r.top+Math.random()*from.r.height;
+   list.push({x,y,vx:(Math.random()-.5)*3.2,vy:-Math.random()*3.4-.8,r:Math.random()*2.3+.8,c:Math.random()<.35?"#fff8dc":s.acc,l:1.6,d:.011+Math.random()*.005,k:.7+Math.random()*.9,to:null});}
+   spawn(list);setTimeout(()=>list.forEach(p=>p.to={x:cst.x,y:cst.y}),300);}
+ await wait(900);
+ // 2) le lanceur « consomme » la carte
  caster.style.setProperty("--charge",s.acc);caster.classList.remove("absorb");void caster.offsetWidth;caster.classList.add("absorb");
- await wait(380);
- // élan du lanceur vers sa cible puis le coup
+ await wait(300);
+ // 3) élan du lanceur vers sa cible puis le coup
  const lx=(dest.x-cst.x)*.12,ly=(dest.y-cst.y)*.12;
  if(!ally){caster.style.transition="translate .16s ease-in";caster.style.translate=`${lx}px ${ly}px`;}
  await wait(160);
@@ -261,7 +255,6 @@ ult.onclick=()=>{if(gauge<100||busy)return;busy=true;const f=document.getElement
 drawVase();
 
 // réglages
-document.querySelectorAll("[data-hand]").forEach(b=>b.onclick=()=>{layout=b.dataset.hand;document.querySelectorAll("[data-hand]").forEach(x=>x.setAttribute("aria-pressed",x===b));place()});
 document.querySelectorAll("[data-ult]").forEach(b=>b.onclick=()=>{ultStyle=b.dataset.ult;document.querySelectorAll("[data-ult]").forEach(x=>x.setAttribute("aria-pressed",x===b));drawVase()});
 document.getElementById("plus").onclick=()=>setGauge(gauge+25);document.getElementById("full").onclick=()=>setGauge(100);document.getElementById("empty").onclick=()=>setGauge(0);
 </script></body></html>
