@@ -38,8 +38,9 @@ Zones, de haut en bas : bandeau (titre, tour, « À toi », croix à droite) · 
 
 Formation : chaque carte a un emplacement calculé (centre et taille en part de l'arène), l'ennemi est le miroir de l'allié. Les emplacements garantissent qu'aucune carte n'en touche une autre ; la taille des cartes est bornée par la largeur et par la hauteur de l'arène. Les cartes sont inclinées vers le centre (rotation 3D), en paysage comme en portrait (alliés en bas, ennemis en haut).
 
+- **D · Diagonales `\ \`** (ajoutée à la demande du joueur) : les deux camps sur deux diagonales parallèles, comme la disposition précédente, mais sans superposition ; la carte du bas, plus proche, est plus grande. L'ennemi n'est pas le miroir de l'allié. En portrait : ennemis en diagonale en haut, alliés en diagonale en bas.
 - **A · Lignes en V** : quatre cartes par camp sur une ligne qui s'enfonce (les cartes du fond plus petites et plus hautes). Utilise 85 à 98 % de la largeur du 16:9 à l'ultra-large.
 - **B · Deux rangs** : deux colonnes de deux par camp, premier rang plus grand. Plus grandes cartes sur écran 16:10 ou tablette, mais marges latérales sur écran très large.
 - **C · Lignes droites** : quatre cartes de même taille alignées, inclinées vers le centre.
 
-Vérifié dans Chromium, 3 dispositions × 9 tailles (320×568 à 3440×950) : aucun chevauchement, aucune carte hors de l'arène, zones dans l'ordre demandé, sorts collés au bas de l'écran, pas de défilement horizontal.
+Vérifié dans Chromium, 4 dispositions × 9 tailles (320×568 à 3440×950) : aucun chevauchement, aucune carte hors de l'arène, zones dans l'ordre demandé, sorts collés au bas de l'écran, pas de défilement horizontal.

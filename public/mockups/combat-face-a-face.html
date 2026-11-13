@@ -88,7 +88,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 </style></head><body>
 <header class="top"><b>La Nuit des Maudits — Boss final</b><span class="tour">TOUR 3</span><span class="who">À toi : Satoru Gojou</span><button class="x" aria-label="Quitter le combat">✕</button></header>
 <div class="order"><span>ORDRE</span><ol id="order"></ol>
-  <div class="pick" role="group" aria-label="Disposition (maquette)"><small>Maquette</small><button data-v="A" aria-pressed="true">A<span> · Lignes en V</span></button><button data-v="B" aria-pressed="false">B<span> · Deux rangs</span></button><button data-v="C" aria-pressed="false">C<span> · Lignes droites</span></button></div>
+  <div class="pick" role="group" aria-label="Disposition (maquette)"><small>Maquette</small><button data-v="D" aria-pressed="true">D<span> · Diagonales \\ \\</span></button><button data-v="A" aria-pressed="false">A<span> · Lignes en V</span></button><button data-v="B" aria-pressed="false">B<span> · Deux rangs</span></button><button data-v="C" aria-pressed="false">C<span> · Lignes droites</span></button></div>
 </div>
 <main class="arena" id="arena"><div class="box" id="box"><span class="vs">VS</span></div></main>
 <div class="ctrl">
@@ -116,11 +116,12 @@ const fmt=new Intl.NumberFormat("fr-FR");
    kW / kH : largeur et hauteur maximales d'une carte en part de la zone ; les emplacements sont choisis pour que
    deux cartes ne se touchent jamais, quelle que soit la taille de l'écran. Index 3 = au premier rang. */
 const V={
+ D:{max:3.6,land:{kW:.094,kH:.6,rot:11,s:[[.06,.30,.82],[.17,.43,.88],[.28,.56,.94],[.39,.69,1]],e:[[.61,.30,.82],[.72,.43,.88],[.83,.56,.94],[.94,.69,1]]},port:{kW:.215,kH:.3,rot:10,s:[[.13,.66,.9],[.375,.72,.94],[.625,.78,.97],[.87,.84,1]],e:[[.13,.16,.9],[.375,.22,.94],[.625,.28,.97],[.87,.34,1]]}},
  A:{max:4.2,land:{kW:.105,kH:.78,rot:16,s:[[.06,.37,.8],[.165,.45,.87],[.275,.53,.94],[.39,.61,1]]},port:{kW:.215,kH:.4,rot:14,s:[[.13,.795,.9],[.375,.765,1],[.625,.765,1],[.87,.795,.9]]}},
  B:{max:2.5,land:{kW:.15,kH:.45,rot:14,s:[[.105,.27,.86],[.105,.73,.86],[.31,.25,1],[.31,.75,1]]},port:{kW:.215,kH:.36,rot:12,s:[[.13,.835,.9],[.87,.835,.9],[.375,.70,1],[.625,.70,1]]}},
  C:{max:4.4,land:{kW:.092,kH:.8,rot:13,s:[[.07,.5,1],[.18,.5,1],[.29,.5,1],[.40,.5,1]]},port:{kW:.215,kH:.42,rot:16,s:[[.13,.78,1],[.375,.78,1],[.625,.78,1],[.87,.78,1]]}},
 };
-const BAR=26;let variant="A",now=0,target=3;
+const BAR=26;let variant="D",now=0,target=3;
 const box=document.getElementById("box"),arena=document.getElementById("arena");
 const units=[];
 [["A",A],["B",B]].forEach(([side,team])=>team.forEach((c,i)=>{const u=document.createElement("button");u.className="unit";u.dataset.side=side;u.dataset.i=i;u.style.setProperty("--r",`var(--${c[1]})`);
@@ -132,7 +133,7 @@ function mark(){units.forEach(u=>{const i=+u.dataset.i;u.toggleAttribute("data-n
 function layout(){const W=arena.clientWidth,H=arena.clientHeight;if(!W||!H)return;const portrait=W/H<1.2;const v=V[variant],f=portrait?v.port:v.land;
  const bw=portrait?Math.min(W,H*1.15):Math.min(W,H*v.max);box.style.left=(W-bw)/2+"px";box.style.width=bw+"px";
  const w=Math.max(34,Math.min(f.kW*bw,(f.kH*H-BAR)/1.4));
- units.forEach(u=>{const ally=u.dataset.side==="A",[x0,y0,s]=f.s[+u.dataset.i];const x=portrait||ally?x0:1-x0,y=portrait&&!ally?1-y0:y0;const uw=w*s,uh=uw*1.4+BAR;
+ units.forEach(u=>{const ally=u.dataset.side==="A",par=!ally&&f.e,[x0,y0,s]=(par?f.e:f.s)[+u.dataset.i];const x=par||portrait||ally?x0:1-x0,y=!par&&portrait&&!ally?1-y0:y0;const uw=w*s,uh=uw*1.4+BAR;
   u.style.width=uw+"px";u.style.left=x*bw-uw/2+"px";u.style.top=y*H-uh/2+"px";u.style.zIndex=Math.round(s*10);
   u.style.transform=portrait?`rotateX(${ally?f.rot:-f.rot}deg)`:`rotateY(${ally?f.rot:-f.rot}deg)`;});
  box.style.perspectiveOrigin="50% 50%";}
