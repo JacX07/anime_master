@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
 import { holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
@@ -98,7 +99,17 @@ const pct = (x: number) => `${Math.round(x * 100)} %`;
 const num = new Intl.NumberFormat("fr-FR");
 
 /** Lecteur de combat 4 contre 4 : rejoue un journal d'événements (docs/specs/combat.md §9), avec lecture, pause et vitesse. */
-export function BattlePlayer({ background, music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
+export function BattlePlayer(props: Props) {
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHost(document.body);
+  }, []);
+  // Sort de la page animée : son contexte d'empilement cachait le combat derrière l'en-tête.
+  return host ? createPortal(<div className="mq-app-shell mq-battle-overlay"><BattlePlayerContent {...props} /></div>, host) : null;
+}
+
+function BattlePlayerContent({ background, music = "combat", allowDisableSpellFx = true, log, characters, names = { A: "Équipe A", B: "Équipe B" }, nextHref, onNext, onEnd, title, endExtra, stars, onExit, exitHref = "/", live }: Props) {
   // Plein écran : la page derrière ne défile pas
   useEffect(() => {
     const before = document.body.style.overflow;

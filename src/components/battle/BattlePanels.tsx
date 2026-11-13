@@ -97,7 +97,6 @@ export function SpellsPanel({
   }
   return (
     <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`} data-choosing={choose ? "" : undefined}>
-      {effects}
       <h3 className="bt-spells-title">
         {character?.name}{" "}
         <small>
@@ -175,6 +174,7 @@ export function SpellsPanel({
           );
         })}
       </div>
+      {effects}
     </section>
   );
 }

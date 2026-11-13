@@ -1,4 +1,6 @@
 /* Lecteur de combat 4 contre 4 (BattlePlayer). --spd : vitesse de lecture (1, 2 ou 4), appliquée aux transitions. */
+.mq-app-shell.mq-battle-overlay { position: fixed; inset: 0; z-index: 1000; background: none; }
+.mq-battle-overlay::before, .mq-battle-overlay::after { display: none; }
 .bt-layout[data-background] { background-image: linear-gradient(#04060680, #040606b3), var(--battle-background); background-size: cover; background-position: center; }
 
 /* Plein écran : par-dessus le menu du site pour l'immersion.
@@ -942,7 +944,21 @@ button.bt-spell:disabled { opacity: 0.45; cursor: not-allowed; }
 .bt-turn-order { overflow: hidden; }
 .bt-turn-order li { animation: bt-queue-enter 220ms ease-out; }
 @keyframes bt-queue-enter { from { opacity: .3; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@media(max-width: 69.999rem) { .bt-layout-with-order { overflow-y: auto; grid-template-rows: auto auto; } .bt-layout-with-order > .bt-spells { max-height: none; overflow: visible; } .bt-turn-order ol { gap: .35rem; } .bt-turn-order .bt-turn-name { font-size: .5rem; } }
+@media(max-width: 69.999rem) {
+  .bt-layout-with-order { height: 100dvh; overflow: hidden; grid-template-rows: minmax(0, 1fr) minmax(0, 30dvh); }
+  .bt-layout-with-order > .bt-spells { min-height: 0; max-height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+  .bt-layout-with-order .bt { width: 100%; height: 100%; min-height: 0; max-height: 100%; overflow: hidden; }
+  .bt-layout-with-order .bt-head, .bt-layout-with-order .bt-controls { flex: none; }
+  .bt-layout-with-order .bt-team { flex: 1; min-height: 0; }
+  .bt-layout-with-order .bt-row { flex: 1; min-height: 0; }
+  .bt-layout-with-order .bt-unit { min-height: 0; }
+  .bt-layout-with-order .bt-card { flex: 1; min-height: 44px; aspect-ratio: auto; }
+  .bt-turn-order ol { gap: .35rem; }
+  .bt-turn-order .bt-turn-name { font-size: .5rem; }
+}
+@media (max-width: 69.999rem) and (max-height: 500px) and (orientation: landscape) {
+  .bt-layout-with-order { grid-template-columns: 3rem minmax(0, 1fr) minmax(180px, 34vw); grid-template-rows: minmax(0, 1fr); grid-template-areas: "turns stage spells"; }
+}
 @media(prefers-reduced-motion: reduce) { .bt-charge-fill { transition: none; } .bt-turn-order li { animation: none; } }
 
 .bt-spell-copy { min-width: 0; }
@@ -1087,6 +1103,13 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .mq-app-shell[class] .bt-dock-row .bt-quit { color: #9b6a66; }
 .mq-app-shell[class] .bt-dock-row .bt-quit:hover:not(:disabled) { color: #e0645c; box-shadow: inset 0 -1px 0 #e0645c; }
 @media (max-width: 480px) { .bt-dock-in { padding: .35rem .6rem; gap: .1rem; } .mq-app-shell[class] .bt-dock .bt-ico { min-width: 2.1rem; padding: .4rem; } .mq-app-shell[class] .bt-dock .bt-spd { min-width: 3rem; } }
+@media (max-width: 360px) {
+  .bt-layout-with-order .bt { padding: .4rem; }
+  .bt-dock-in { padding: .25rem; gap: .05rem; }
+  .mq-app-shell[class] .bt-dock .bt-ico { min-width: 1.8rem; min-height: 44px; padding: .3rem; }
+  .mq-app-shell[class] .bt-dock .bt-big { width: 44px; height: 44px; margin-inline: 0; }
+  .mq-app-shell[class] .bt-dock .bt-spd { min-width: 2.5rem; padding-inline: .1rem; }
+}
 @media (prefers-reduced-motion: reduce) { .bt-sw-tr::after { transition: none; } }
 
 /* v0.3.0 : tours restants sur les icônes d'état, panneau des effets actifs */
