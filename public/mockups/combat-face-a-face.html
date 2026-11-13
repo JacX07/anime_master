@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maquette — Combat face à face</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#c4a76d;--gold-l:#d5bb7f;--txt:#e9e5dc;--muted:#8a8f8a;--panel:#111514;--UR:#ff3b4a;--SSR:#f59e0b}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto auto;height:100dvh;overflow:hidden;color:var(--txt);font:400 13px/1.4 "DM Sans",sans-serif;background:linear-gradient(#04060680,#040606b3),url(/images/battle/citadelle.webp) center/cover #0b0e0f}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* 1. Bandeau du haut : titre, tour, et la croix tout en haut à droite */
+.top{display:flex;align-items:center;gap:12px;padding:6px 10px 6px 14px;background:#0b0e0fd9;min-width:0}
+.top b{font:500 clamp(13px,1.3vw,17px) Cinzel,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tour{flex:none;padding:2px 10px;background:var(--gold);color:#1a1408;font:700 10px "DM Sans";letter-spacing:.14em;clip-path:polygon(8% 0,100% 0,92% 100%,0 100%)}
+.who{color:#f0dca0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.x{margin-left:auto;flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:4px;background:#2a2e2c;color:var(--gold-l);font-size:16px}
+.x:hover{background:#3a3f3c}
+
+/* 2. Ordre de combat, juste sous le titre */
+.order{display:flex;align-items:center;gap:10px;padding:5px 14px;background:#0b0e0fb3;min-width:0}
+.order>span{flex:none;font:500 10px Cinzel,serif;letter-spacing:.2em;color:var(--gold)}
+.order ol{display:flex;gap:6px;list-style:none;margin:0;padding:3px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.order li{position:relative;flex:none;width:34px;height:34px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px #3a3f3c}
+.order li[data-side=B]{box-shadow:0 0 0 1px #8a3a40}
+.order li[data-now]{box-shadow:0 0 0 2px var(--gold-l);transform:scale(1.08)}
+.order img{width:100%;height:100%;object-fit:cover;object-position:top}
+.order i{position:absolute;left:0;top:0;padding:0 3px;background:#0b0e0fcc;color:var(--gold-l);font:700 9px "DM Sans";font-style:normal}
+.pick{margin-left:auto;flex:none;display:flex;gap:2px;align-items:center;padding:2px 4px;border-radius:4px;background:#151918f2;box-shadow:0 0 0 1px #c4a76d55}
+.pick small{color:var(--muted);font-size:10px;padding:0 4px;letter-spacing:.1em;text-transform:uppercase}
+.pick button{padding:4px 8px;font-size:11px;color:var(--muted);border-bottom:2px solid transparent}
+.pick button[aria-pressed=true]{color:var(--txt);border-bottom-color:var(--gold)}
+
+/* 3. Arène : la formation est calculée pour ne jamais superposer deux cartes */
+.arena{position:relative;min-height:0;overflow:hidden}
+.box{position:absolute;top:0;bottom:0;perspective:1400px}
+.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:500 clamp(16px,2.4vw,30px) Cinzel,serif;color:#c4a76d99;letter-spacing:.08em;pointer-events:none}
+.unit{position:absolute;display:grid;gap:3px;transform-style:preserve-3d;transition:left .5s cubic-bezier(.2,.9,.2,1),top .5s cubic-bezier(.2,.9,.2,1),width .5s,transform .5s;cursor:pointer}
+.card{position:relative;aspect-ratio:5/7;border-radius:6px;overflow:hidden;background:#141818;box-shadow:0 0 0 1.5px var(--r,#555),0 12px 22px #000b}
+.card img{width:100%;height:100%;object-fit:cover;object-position:top}
+.card .rar{position:absolute;top:0;right:0;padding:1px 6px;background:#0b0e0fd9;color:var(--r);font:700 clamp(8px,.9vw,11px) "DM Sans";border-radius:0 0 0 5px}
+.card .nm{position:absolute;left:0;right:0;bottom:0;padding:14px 5px 4px;background:linear-gradient(transparent,#000d);font:600 clamp(8px,.95vw,12px) Cinzel,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.card .st{position:absolute;left:3px;top:18%;display:grid;gap:3px}
+.card .st i{width:clamp(7px,1vw,13px);aspect-ratio:1;background:#6fbfa0;transform:rotate(45deg);box-shadow:0 0 0 1px #0b0e0f}
+.card .st i.bad{background:#e0645c}
+.hp{height:5px;background:#262c2a;border-radius:2px;overflow:hidden}
+.hp i{display:block;height:100%;background:linear-gradient(90deg,#4fae7d,#7fd6a3)}
+.hpn{text-align:center;font:500 clamp(9px,.9vw,12px) "DM Sans";color:#cfd8d2;line-height:1.1;font-variant-numeric:tabular-nums}
+.unit[data-now] .card{box-shadow:0 0 0 2.5px var(--gold-l),0 0 26px #c4a76d99,0 12px 22px #000b}
+.unit[data-now]::before{content:"À toi !";position:absolute;left:50%;top:-9px;z-index:2;transform:translateX(-50%);padding:1px 8px;border-radius:9px;background:#f0dca0;color:#1a1408;font:700 10px "DM Sans";white-space:nowrap}
+.unit[data-target] .card{outline:2px dashed #f0dca0;outline-offset:3px}
+.unit[data-boss]::after{content:"♛ Boss";position:absolute;right:-4px;top:-9px;z-index:2;padding:1px 7px;background:#7a1f28;color:#ffd9d9;font:700 9px "DM Sans";border-radius:3px}
+.unit:hover .card{filter:brightness(1.12)}
+
+/* 4. Commandes (auto, vitesse…) au-dessus des sorts */
+.ctrl{display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.4vw,18px);padding:5px 12px;background:#0b0e0fd9;box-shadow:0 -1px 0 #c4a76d33}
+.ico{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;color:var(--gold-l);font-size:14px}
+.ico:hover{background:#c4a76d22}
+.ico.big{width:40px;height:40px;box-shadow:0 0 0 1.5px var(--gold)}
+.spd{font:600 14px Cinzel,serif;color:var(--gold-l);padding:4px 8px}
+.sep{width:1px;height:22px;background:#3a3f3c}
+.sw{display:flex;align-items:center;gap:8px;font:600 11px Cinzel,serif;letter-spacing:.14em}
+.sw span{position:relative;width:34px;height:16px;border-radius:8px;background:#2a2e2c}
+.sw span::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;background:var(--gold-l);transform:rotate(45deg) scale(.8);transition:left .2s}
+.sw[aria-checked=true] span::after{left:20px}
+.quit{color:#b0736f;font:500 10px "DM Sans";letter-spacing:.14em;text-transform:uppercase}
+.quit:hover{color:#e0645c}
+
+/* 5. Barre de sorts, tout en bas */
+.spells{padding:6px 12px calc(8px + env(safe-area-inset-bottom));background:#0e1211f2;box-shadow:0 -1px 0 #c4a76d33}
+.sum{display:flex;gap:10px;align-items:baseline;margin-bottom:5px;min-width:0}
+.sum b{font:500 13px Cinzel,serif;color:var(--gold-l);white-space:nowrap}
+.sum span{color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum em{margin-left:auto;font-style:normal;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.sp{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sp button{display:grid;gap:1px;padding:7px 10px;text-align:left;border-radius:4px;background:#171c1a;box-shadow:inset 0 -2px 0 transparent;min-width:0}
+.sp button b{font:600 12px "DM Sans";white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp button small{color:var(--muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp button[aria-pressed=true]{background:#2a2416;box-shadow:inset 0 -2px 0 var(--gold)}
+.sp button[disabled]{opacity:.45;cursor:not-allowed}
+.sp button[data-ult] b{color:#f0dca0}
+.desc{margin:5px 0 0;color:#b4b2aa;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){.pick button span{display:none}.sp{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.who,.sum span,.sum em,.pick small{display:none}.quit{font-size:0}.quit::before{content:"✕ Abandon";font-size:10px}.sep{display:none}}
+@media (max-width:380px){.ctrl{gap:2px;padding-inline:4px}.ico{width:28px;height:28px}.ico.big{width:32px;height:32px}.spd{padding:2px 4px}.sw{gap:4px;font-size:10px;letter-spacing:.06em}.quit::before{content:"✕"!important;font-size:13px!important}}
+@media (max-height:520px){.sum,.desc{display:none}.top{padding-block:3px}.order{padding-block:3px}.order li{width:28px;height:28px}.ico{width:28px;height:28px}.ico.big{width:32px;height:32px}.ctrl{padding-block:2px}.sp button{padding:4px 8px}.x{width:28px;height:28px}}
+@media (prefers-reduced-motion:reduce){.unit{transition:none}}
+</style></head><body>
+<header class="top"><b>La Nuit des Maudits — Boss final</b><span class="tour">TOUR 3</span><span class="who">À toi : Satoru Gojou</span><button class="x" aria-label="Quitter le combat">✕</button></header>
+<div class="order"><span>ORDRE</span><ol id="order"></ol>
+  <div class="pick" role="group" aria-label="Disposition (maquette)"><small>Maquette</small><button data-v="A" aria-pressed="true">A<span> · Lignes en V</span></button><button data-v="B" aria-pressed="false">B<span> · Deux rangs</span></button><button data-v="C" aria-pressed="false">C<span> · Lignes droites</span></button></div>
+</div>
+<main class="arena" id="arena"><div class="box" id="box"><span class="vs">VS</span></div></main>
+<div class="ctrl">
+  <button class="ico" aria-label="Terminer">⏭</button><button class="ico big" aria-label="Pause">❚❚</button><button class="spd" id="spd" aria-label="Vitesse">×4</button>
+  <button class="ico" aria-label="Effets">✦</button><button class="ico" aria-label="Sons">♪</button><button class="ico" aria-label="Musique">♫</button>
+  <span class="sep"></span>
+  <button class="sw" role="switch" aria-checked="false" id="sw"><span></span><b id="swl">MANUEL</b></button>
+  <button class="quit">✕ Abandonner</button>
+</div>
+<footer class="spells">
+  <div class="sum"><b id="sn">Satoru Gojou</b><span>ATK 6 119 · DEF 3 917 · VIT 106 · PV 33 600</span><em>Touche la cible sur le plateau</em></div>
+  <div class="sp" id="sp">
+    <button aria-pressed="true" data-d="1× ATK. Bouclier de 8 % des PV max pour le lanceur."><b>Impulsion d'Infini</b><small>1 ennemi</small></button>
+    <button disabled data-d="1,1× ATK ; DEF −20 % pour la cible, 2 tours."><b>★ Bleu</b><small>Prêt dans 1 tour</small></button>
+    <button aria-pressed="false" data-d="Dégâts subis −18 % pour l'équipe, 2 tours ; esquive +40 points, 1 tour."><b>◇ Infini</b><small>Aucune cible · recharge 7 tours</small></button>
+    <button aria-pressed="false" data-ult data-d="Extension du territoire : frappe tous les ennemis et traverse les boucliers."><b>✦ Extension du territoire</b><small>Ultime prêt</small></button>
+  </div>
+  <p class="desc" id="desc">1× ATK. Bouclier de 8 % des PV max pour le lanceur.</p>
+</footer>
+<script>
+const A=[["Satoru Gojou","UR","/api/illustrations/character-127691?v=83ea914c-15af-473d-948d-c08c89f195e8",32095,.95],["Ai Hayasaka","SSR","https://s4.anilist.co/file/anilistcdn/character/large/b121104-7TYRl3EEsDYU.png",0,0],["Hitagi Senjougahara","SSR","https://s4.anilist.co/file/anilistcdn/character/large/b22037-sY7GWSKYr2Nl.jpg",1076,.05],["Sasuke Uchiha","SSR","https://s4.anilist.co/file/anilistcdn/character/large/b13-SISLEw1oAD7a.png",10243,.45]];
+const B=[["Ken Kaneki","SSR","https://s4.anilist.co/file/anilistcdn/character/large/b87275-mb13EWZBdbh3.png",2994,.13],["Hanako","SSR","https://s4.anilist.co/file/anilistcdn/character/large/b128651-GaZImkP2Of1R.png",22582,1],["Touka Kirishima","SSR","https://s4.anilist.co/file/anilistcdn/character/large/b87277-oUaqrI1iBzu6.png",22582,1],["Guts","UR","/api/illustrations/character-422?v=a092574a-d762-4afd-94f6-b07baedcdbee",36988,1]];
+const fmt=new Intl.NumberFormat("fr-FR");
+/* Emplacements de l'équipe alliée (x, y = centre en part de la zone ; s = taille). L'ennemi est le miroir.
+   kW / kH : largeur et hauteur maximales d'une carte en part de la zone ; les emplacements sont choisis pour que
+   deux cartes ne se touchent jamais, quelle que soit la taille de l'écran. Index 3 = au premier rang. */
+const V={
+ A:{max:4.2,land:{kW:.105,kH:.78,rot:16,s:[[.06,.37,.8],[.165,.45,.87],[.275,.53,.94],[.39,.61,1]]},port:{kW:.215,kH:.4,rot:14,s:[[.13,.795,.9],[.375,.765,1],[.625,.765,1],[.87,.795,.9]]}},
+ B:{max:2.5,land:{kW:.15,kH:.45,rot:14,s:[[.105,.27,.86],[.105,.73,.86],[.31,.25,1],[.31,.75,1]]},port:{kW:.215,kH:.36,rot:12,s:[[.13,.835,.9],[.87,.835,.9],[.375,.70,1],[.625,.70,1]]}},
+ C:{max:4.4,land:{kW:.092,kH:.8,rot:13,s:[[.07,.5,1],[.18,.5,1],[.29,.5,1],[.40,.5,1]]},port:{kW:.215,kH:.42,rot:16,s:[[.13,.78,1],[.375,.78,1],[.625,.78,1],[.87,.78,1]]}},
+};
+const BAR=26;let variant="A",now=0,target=3;
+const box=document.getElementById("box"),arena=document.getElementById("arena");
+const units=[];
+[["A",A],["B",B]].forEach(([side,team])=>team.forEach((c,i)=>{const u=document.createElement("button");u.className="unit";u.dataset.side=side;u.dataset.i=i;u.style.setProperty("--r",`var(--${c[1]})`);
+ u.innerHTML=`<span class="card"><img src="${c[2]}" alt="" referrerpolicy="no-referrer"><span class="rar">${c[1]}</span><span class="st"><i></i><i class="bad"></i><i></i></span><span class="nm">${c[0]}</span></span><span class="hp"><i style="width:${c[4]*100}%"></i></span><span class="hpn">${fmt.format(c[3])}</span>`;
+ u.setAttribute("aria-label",c[0]);if(side==="B"&&i===3)u.dataset.boss="";if(c[3]===0)u.style.opacity=".45";
+ u.onclick=()=>{if(side==="A"){now=i;document.getElementById("sn").textContent=c[0];}else target=i;mark();};
+ box.appendChild(u);units.push(u);}));
+function mark(){units.forEach(u=>{const i=+u.dataset.i;u.toggleAttribute("data-now",u.dataset.side==="A"&&i===now);u.toggleAttribute("data-target",u.dataset.side==="B"&&i===target);});}
+function layout(){const W=arena.clientWidth,H=arena.clientHeight;if(!W||!H)return;const portrait=W/H<1.2;const v=V[variant],f=portrait?v.port:v.land;
+ const bw=portrait?Math.min(W,H*1.15):Math.min(W,H*v.max);box.style.left=(W-bw)/2+"px";box.style.width=bw+"px";
+ const w=Math.max(34,Math.min(f.kW*bw,(f.kH*H-BAR)/1.4));
+ units.forEach(u=>{const ally=u.dataset.side==="A",[x0,y0,s]=f.s[+u.dataset.i];const x=portrait||ally?x0:1-x0,y=portrait&&!ally?1-y0:y0;const uw=w*s,uh=uw*1.4+BAR;
+  u.style.width=uw+"px";u.style.left=x*bw-uw/2+"px";u.style.top=y*H-uh/2+"px";u.style.zIndex=Math.round(s*10);
+  u.style.transform=portrait?`rotateX(${ally?f.rot:-f.rot}deg)`:`rotateY(${ally?f.rot:-f.rot}deg)`;});
+ box.style.perspectiveOrigin="50% 50%";}
+new ResizeObserver(layout).observe(arena);
+document.querySelectorAll(".pick button").forEach(b=>b.onclick=()=>{variant=b.dataset.v;document.querySelectorAll(".pick button").forEach(x=>x.setAttribute("aria-pressed",x===b));layout();});
+document.getElementById("order").innerHTML=[A[0],B[3],A[3],B[1],A[2],B[2],B[0],A[1]].map((c,i)=>`<li data-side="${A.includes(c)?"A":"B"}" ${i?"":"data-now"}><img src="${c[2]}" alt="${c[0]}" referrerpolicy="no-referrer"><i>${i+1}</i></li>`).join("");
+document.querySelectorAll("#sp button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#sp button").forEach(x=>x.setAttribute("aria-pressed",x===b));document.getElementById("desc").textContent=b.dataset.d;});
+const sw=document.getElementById("sw");sw.onclick=()=>{const on=sw.getAttribute("aria-checked")!=="true";sw.setAttribute("aria-checked",on);document.getElementById("swl").textContent=on?"AUTO":"MANUEL";};
+const sp=document.getElementById("spd");sp.onclick=()=>{sp.textContent=sp.textContent==="×1"?"×2":sp.textContent==="×2"?"×4":"×1";};
+mark();layout();
+</script></body></html>

@@ -27,3 +27,19 @@ Maquette autonome : `docs/maquettes/combat-dispositions.html`. Palette, polices,
 - La maquette se consulte par défilement. Dans le lecteur intégré, l’arène utilise la hauteur restante, les sorts et commandes restent dans la fenêtre ; les détails défilent dans leur propre panneau.
 
 Vérifications : Chromium à 1600, 728, 390 et 320 px, deux variantes ; images chargées, cartes contenues dans le plateau, absence de débordement horizontal, interactions et fermeture des détails par Échap. Inspection visuelle PC et téléphone.
+
+## Révision du 13 novembre 2026 (soir) — proposition, à valider
+
+Maquette : `public/mockups/combat-face-a-face.html` (interactive, trois dispositions).
+
+Demandes du joueur : la croix tout en haut ; l'ordre de combat sous le titre ; la barre de sorts tout en bas, les commandes (auto, vitesse…) juste au-dessus ; mieux utiliser la largeur ; plus aucune carte superposée, la perspective doit suffire à montrer que les équipes se font face ; valable sur tous les écrans.
+
+Zones, de haut en bas : bandeau (titre, tour, « À toi », croix à droite) · ordre de combat · arène · commandes · sorts.
+
+Formation : chaque carte a un emplacement calculé (centre et taille en part de l'arène), l'ennemi est le miroir de l'allié. Les emplacements garantissent qu'aucune carte n'en touche une autre ; la taille des cartes est bornée par la largeur et par la hauteur de l'arène. Les cartes sont inclinées vers le centre (rotation 3D), en paysage comme en portrait (alliés en bas, ennemis en haut).
+
+- **A · Lignes en V** : quatre cartes par camp sur une ligne qui s'enfonce (les cartes du fond plus petites et plus hautes). Utilise 85 à 98 % de la largeur du 16:9 à l'ultra-large.
+- **B · Deux rangs** : deux colonnes de deux par camp, premier rang plus grand. Plus grandes cartes sur écran 16:10 ou tablette, mais marges latérales sur écran très large.
+- **C · Lignes droites** : quatre cartes de même taille alignées, inclinées vers le centre.
+
+Vérifié dans Chromium, 3 dispositions × 9 tailles (320×568 à 3440×950) : aucun chevauchement, aucune carte hors de l'arène, zones dans l'ordre demandé, sorts collés au bas de l'écran, pas de défilement horizontal.
