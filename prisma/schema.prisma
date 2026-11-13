@@ -162,6 +162,8 @@ model User {
   welcomeBoosterClaimedAt DateTime?
   /// Tutoriel en infobulles (docs/specs/guide.md) : étape en cours, 0 = terminé ou passé. Les comptes créés avant le tutoriel sont à 0.
   tutorialStep        Int                    @default(1)
+  /// Dernière version du changelog lue ; partagée entre les appareils du compte.
+  lastReadChangelogVersion String?
   /// Dernière activité, mise à jour au plus une fois par minute (statut « en ligne », SPEC social §2)
   lastSeenAt          DateTime?
   chatMessages        ChatMessage[]

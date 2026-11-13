@@ -181,6 +181,12 @@ Assouplit §1, §6 et §9 pour ces effets précis : soulignement d'onglet qui gl
 ### 4.23 Coffres d'expédition (validé le 2026-11-13, maquette `public/mockups/coffres-expedition.html`)
 Coffres dessinés en CSS (`Chests.tsx`, `chests.css`) : Bronze `#b07a45`, Argent `#cfd6dc`, Or `#f2d27a`, Légendaire arc-en-ciel animé, avec halo de leur couleur. Ouverture plein écran : tremblements croissants (2 à 4), couvercle qui saute, rayons tournants de la couleur du coffre, étincelles ; flash pour l'Or, flash et secousse pour le Légendaire ; objets qui tombent face cachée (dos de carte) puis se retournent, contour à la couleur de leur rareté, gros lot qui pulse. Clic ou Échap abrège.
 
+### 4.24 Changelog et annonce des mises à jour (validé le 2026-11-13)
+
+Maquette : `docs/maquettes/changelog.html`. Lien « Changelog » dans la navigation, titre « Mises à jour » via `PageHeading`. Versions en colonne de 140 px, contenu à droite avec un intervalle de 24 px ; sur téléphone, versions en rangée défilante au-dessus des notes. Sélection marquée par le fond relevé et le texte or, sans cadre. Titres de notes en Cinzel 16 px, texte DM Sans 13 px, interligne 1,5.
+
+À l'arrivée, fenêtre de la dernière version : panneau relevé sans bordure, largeur maximale 620 px, marge intérieure 24 px (16 px sur téléphone), coins de 7 px, voile et flou du §4.7. Notes défilantes, titre « Anima Clash v… », contrôle « Fermer × », liens « Toutes les mises à jour » et « C'est lu, jouer » en actions textuelles partagées. Fermeture par Échap ; lecture mémorisée sur le compte, nouvelle annonce à la version suivante. Ne pas recouvrir le tutoriel, un combat ou une autre fenêtre.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 

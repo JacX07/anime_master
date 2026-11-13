@@ -34,8 +34,15 @@ export function Tutorial() {
   const tip = useRef<HTMLDivElement>(null);
   const [tipSize, setTipSize] = useState({ w: 280, h: 160 });
   const step = tutorialStep(state.step);
+  const loaded = useRef(false);
 
-  const refresh = useCallback(() => { getTutorial().then(setState).catch(() => {}); }, []);
+  const refresh = useCallback(() => { getTutorial().then((value) => { loaded.current = true; setState(value); }).catch(() => {}); }, []);
+  useEffect(() => {
+    const publish = () => { if (loaded.current) dispatchEvent(new CustomEvent("tutorial:state", { detail: { active: state.step !== 0 } })); };
+    addEventListener("tutorial:request", publish);
+    publish();
+    return () => removeEventListener("tutorial:request", publish);
+  }, [state]);
   useEffect(refresh, [refresh, pathname]);
   useEffect(() => {
     addEventListener("tutorial:refresh", refresh);

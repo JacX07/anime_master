@@ -2,6 +2,14 @@
 
 Une section par version, la plus récente en haut. Chaque version correspond à un tag Git (`v0.2.0`…) posé sur `main`. Les migrations de base de données à appliquer avant la publication sont listées dans chaque section.
 
+## À venir
+
+### Nouveautés
+- **Changelog dans le jeu** : un onglet présente l'historique de toutes les versions publiées. À la connexion, une fenêtre présente la dernière version non lue ; sa fermeture est mémorisée sur le compte, y compris sur les autres appareils. L'annonce attend la fin du tutoriel et ne recouvre pas un combat.
+
+### Migration de base de données
+`20261113020000_changelog_read` : dernière version lue par compte. À appliquer avant de publier ce code. Cette section reste hors des annonces en jeu jusqu'à son intégration dans une nouvelle version ; le tag v0.3.0 existant est conservé.
+
 ## v0.3.0 — Arène live, Défi des empereurs et progression repensée
 
 Mise à jour du 13 novembre 2026. Les comptes et les récompenses déjà réclamées sont conservés. Sept nouvelles migrations sont à appliquer avant la publication.

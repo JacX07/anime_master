@@ -26,6 +26,7 @@ import { MiniBar } from "./MiniBar";
 import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
 import { PVP_AVAILABLE } from "@/lib/feature-flags";
+import { ReleaseAnnouncement } from "../changelog/ReleaseAnnouncement";
 
 const num = new Intl.NumberFormat("fr-FR");
 
@@ -79,6 +80,7 @@ export function SiteHeader() {
             </div>
           </div>
           <NavItem href="/achievements">Succès<Suspense fallback={null}><AchievementBadge /></Suspense></NavItem>
+          <NavItem href="/changelog">Changelog</NavItem>
         </div>
       </nav>
       </Navigation>
@@ -136,6 +138,7 @@ async function Account() {
         <NotificationBell userId={user.id} />
       </Suspense>
       <Tutorial />
+      <Suspense fallback={null}><ReleaseAnnouncement userId={user.id} /></Suspense>
       <AccountDropdown>
         <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player" aria-label={`Profil de ${user.username}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
