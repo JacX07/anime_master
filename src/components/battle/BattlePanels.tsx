@@ -95,7 +95,7 @@ export function SpellsPanel({
   const handSpells = spells.filter((s) => s.key !== "ultimate");
   const waitOf = (key: Spell) => (key === "special" ? choose?.waitSpecial ?? 0 : key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0);
   const cards: HandCard[] = handSpells.map((s) => ({
-    key: s.key, name: s.name, kind: s.kind, cost: s.cost, text: s.text, accent: s.accent,
+    key: s.key, name: s.name, kind: s.kind, cost: s.cost, text: s.target === "Aucune cible" ? ({ self: "Sur soi", team: "Toute l’équipe", foes: "Tous les ennemis", "fallen-allies": "Allié K.O." }[s.confirm ?? "self"]) : s.target, details: s.tooltip, accent: s.accent,
     ready: !choose || choose.choices.some((c) => c.spell === s.key), wait: waitOf(s.key),
     selected: selected === s.key,
   }));
@@ -120,7 +120,7 @@ export function SpellsPanel({
       <button type="button" className="bt-hand-toggle" aria-label={`${expanded ? "Replier" : "Afficher"} les sorts de ${character?.name ?? unit.id}`} aria-expanded={expanded} aria-controls={handId} onClick={() => {
         setExpanded(!expanded);
         if (expanded) { setInspected(null); choose?.onSpell(null, "self"); }
-      }}>{expanded ? <span>Replier les sorts</span> : <span className="bt-hand-peek" aria-hidden="true">
+      }}>{expanded ? <span>Replier</span> : <span className="bt-hand-peek" aria-hidden="true">
         {cards.map((card, index) => {
           const offset = index - (cards.length - 1) / 2;
           return <span key={card.key} className="bt-hand-peek-card" style={{
@@ -132,7 +132,7 @@ export function SpellsPanel({
       <div id={handId} className="bt-expanded-hand" hidden={!expanded}>
         {detail && <div className="bt-spell-preview" aria-live="polite"><b>{detail.name}</b><p>{detail.tooltip}</p><small>{choose ? hint : detail.note}</small></div>}
       <div className="bt-hand-zone">
-        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} onHover={() => {}}
+        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy}
           onChoose={(k) => choose_(k as Spell)} />
         {ultimateSpell && (
           <UltimateEmblem gauge={ultimateGauge} max={ultimateGaugeMax} name={ultimateSpell.name} portrait={character?.imageUrl} color="#ff4d6d"

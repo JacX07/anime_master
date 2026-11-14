@@ -165,14 +165,40 @@
   .bt-spell-preview { max-height: 72px; }
   .bt-layout-diagonal .bt-hand-zone { height: 130px; }
 }
-@media (max-height: 500px) and (orientation: landscape) {
-  .bt-layout-diagonal:has(.bt-hand-toggle[aria-expanded="true"]) {
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 34%);
-    grid-template-rows: auto auto minmax(0, 1fr);
-    grid-template-areas: "head head" "turns spells" "stage spells";
-  }
-}
 
 .mq-app-shell[class] .bt-layout-diagonal .bt-unit[data-acting] .bt-card { translate: none; scale: 1; }
 .bt-expanded-hand .bt-hand-zone { margin-top: 16px; }
 .bt-spell-preview { position: relative; z-index: 30; }
+
+/* La main et ses détails ne changent jamais les dimensions du plateau. */
+.bt-layout-diagonal { --hand-height: 210px; grid-template-rows: auto auto minmax(0, 1fr) var(--hand-height); }
+.bt-layout-diagonal > .bt-spells { position: relative; }
+.mq-app-shell[class][class] .bt-spells .bt-hand-toggle { position: absolute; top: auto; bottom: 0; left: 0; z-index: 31; }
+.mq-app-shell[class][class] .bt-spells .bt-hand-toggle[aria-expanded="true"] { left: 0; right: auto; bottom: 0; width: auto; min-height: 44px; padding: 2px 4px; font-size: 11px; }
+.bt-expanded-hand { position: absolute; inset: 0; }
+.bt-expanded-hand .bt-hand-zone { height: var(--hand-height); margin: 0; }
+.bt-spells .bt-spell-preview { position: absolute; left: 0; right: 0; bottom: calc(100% + 16px); z-index: 32; }
+.bt-spells-wait { height: var(--hand-height); }
+.bt-hand-text { display: grid; place-items: center; font-size: 10px; line-height: 1.2; }
+.mq-app-shell[class][class] .bt-hand-card { transition: opacity .12s; will-change: auto; }
+.mq-app-shell[class][class] .bt-ult:is(:hover, :focus-visible):not(:disabled) { transform: none; }
+@media (max-width: 700px) and (orientation: portrait) {
+  .bt-layout-diagonal { --hand-height: 155px; }
+}
+@media (max-height: 650px) {
+  .bt-layout-diagonal { --hand-height: 130px; }
+}
+
+@media (max-height: 650px) and (orientation: portrait) {
+  .bt-layout-diagonal { grid-template-rows: auto auto minmax(0, 1fr) calc(var(--hand-height) + 104px); }
+  .bt-expanded-hand { top: auto; height: var(--hand-height); }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .bt-layout-diagonal {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 34%);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "head head" "turns spells" "stage spells";
+  }
+  .bt-expanded-hand { top: auto; height: var(--hand-height); }
+  .bt-spells .bt-spell-preview { bottom: calc(100% + 4px); max-height: 64px; }
+}

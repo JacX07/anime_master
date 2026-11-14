@@ -14,6 +14,7 @@ export type HandCard = {
   /** Recharge du sort, affichée dans la pastille en haut à gauche */
   cost: string;
   text: string;
+  details: string;
   accent: string;
   /** Le sort peut être lancé maintenant */
   ready: boolean;
@@ -22,16 +23,13 @@ export type HandCard = {
   selected: boolean;
 };
 
-export function SpellHand({ cards, portrait, interactive, busy, onHover, onChoose }: {
+export function SpellHand({ cards, portrait, interactive, busy, onChoose }: {
   cards: HandCard[];
   portrait?: string;
   interactive: boolean;
   busy: boolean;
-  onHover: (key: string | null) => void;
   onChoose: (key: string, el: HTMLElement) => void;
 }) {
-  const [hot, setHot] = useState<number>(-1);
-  const [over, setOver] = useState(false);
   const [viewport, setViewport] = useState({ width: 760, height: 800 });
   const viewportWidth = viewport.width;
   const small = viewportWidth <= 640;
@@ -43,27 +41,19 @@ export function SpellHand({ cards, portrait, interactive, busy, onHover, onChoos
   }, []);
   const n = cards.length;
   const w = viewport.height <= 650 ? 84 : small ? 92 : 132;
-  const selectedIndex = cards.findIndex((c) => c.selected);
-  // Une carte armée (choisie, en attente d'une cible) reste en avant même quand la souris part
-  const focus = over && hot >= 0 ? hot : selectedIndex;
-  const lifted = over || selectedIndex >= 0;
   const room = n > 1 ? (Math.min(viewportWidth - (small ? 100 : 0), 760) - w - 12) / (n - 1) : 0;
   return (
-    <div className="bt-hand" data-over={over || undefined} style={{ "--w": `${w}px` } as CSSProperties} role="group" aria-label="Sorts"
-      onPointerEnter={() => setOver(true)} onPointerLeave={() => { setOver(false); setHot(-1); onHover(null); }}>
+    <div className="bt-hand" style={{ "--w": `${w}px` } as CSSProperties} role="group" aria-label="Sorts">
       {cards.map((c, i) => {
         const m = i - (n - 1) / 2;
-        const gap = Math.min(over ? w * 0.92 : w * 0.55, room);
-        let x = m * gap, y = (lifted ? -8 : 10) + Math.abs(m) * (over ? 8 : 12), r = m * (over ? 5 : 8), z = i, scale = 1;
-        if (focus === i) { y = -(small ? 4 : 10); r = 0; z = 20; scale = small ? 1.03 : 1.06; }
-        else if (focus >= 0 && lifted) x += (i < focus ? -1 : 1) * (small ? 8 : 20);
+        const gap = Math.min(w * 0.75, room);
+        const x = m * gap, y = 10 + Math.abs(m) * 12, r = m * 8;
         const disabled = interactive && (!c.ready || busy);
         return (
-          <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-hot={focus === i || undefined} data-armed={c.selected || undefined}
+          <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-armed={c.selected || undefined}
             data-cd={interactive && !c.ready && c.wait > 0 ? c.wait : undefined} disabled={disabled} aria-pressed={interactive ? c.selected : undefined}
-            aria-label={`${c.name} : ${c.text}`} title={c.text}
-            style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg) scale(${scale})`, zIndex: z, marginLeft: `${-w / 2}px` } as CSSProperties}
-            onPointerEnter={() => { setHot(i); onHover(c.key); }} onFocus={() => { setHot(i); setOver(true); onHover(c.key); }} onBlur={() => { setOver(false); onHover(null); }}
+            aria-label={`${c.name} : ${c.details}`}
+            style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg)`, zIndex: i, marginLeft: `${-w / 2}px` } as CSSProperties}
             onClick={(e) => onChoose(c.key, e.currentTarget)}>
             <span className="bt-hand-glow" aria-hidden="true" /><span className="bt-hand-halo" aria-hidden="true" />
             <span className="bt-hand-face">
