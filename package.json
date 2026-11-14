@@ -38,6 +38,7 @@
     "check:battle": "tsx scripts/check-battle.ts",
     "check:squads": "tsx scripts/check-squads.ts",
     "check:replay": "tsx scripts/check-replay.ts",
+    "check:combat-selection": "tsx scripts/check-combat-selection.ts",
     "check:battles": "tsx scripts/check-battles.ts",
     "check:story": "tsx scripts/check-story.ts",
     "check:story-stars": "tsx scripts/check-story-stars.ts",

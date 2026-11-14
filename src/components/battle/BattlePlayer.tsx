@@ -25,6 +25,7 @@ import { backgroundTimeout } from "@/lib/background-timer";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
 import { EffectsPanel } from "./EffectsPanel";
+import { confirmationTargets, type ConfirmationScope } from "@/lib/combat-selection";
 import { ULT_COLOR } from "./SpellHand";
 import { fxStream } from "@/lib/fx";
 
@@ -123,7 +124,8 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const [playing, setPlaying] = useState(true);
   const pauseMenu = useRef<HTMLDialogElement>(null);
   const wasPlaying = useRef(true);
-  const [detailsHost, setDetailsHost] = useState<HTMLDivElement | null>(null);
+  const infoMenu = useRef<HTMLDialogElement>(null);
+  const infoWasPlaying = useRef(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
   // Effets de sorts désactivés : pas d'effets visuels des sorts, combat joué deux fois plus vite (v0.3.0)
   const [preferredSpellFx, setSpellFx] = useSpellFx();
@@ -132,9 +134,9 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   // En direct (mode manuel), le journal grandit : rattraper le journal ne veut pas dire que le combat est fini
   const caughtUp = rp.idx >= log.length;
   const finished = caughtUp && (!live || rp.end !== null);
-  const [selection, setSelection] = useState<{ key: string; spell: Spell } | null>(null);
+  const [selection, setSelection] = useState<{ key: string; spell: Spell; scope: ConfirmationScope } | null>(null);
   const selectionKey = `${live?.actor ?? ""}:${log.length}`;
-  const spell: Spell = selection?.key === selectionKey ? selection.spell : "base";
+  const spell = selection?.key === selectionKey ? selection.spell : null;
   // `ready` : le journal est rattrapé et une de tes cartes doit agir ; `awaiting` : c'est à toi de choisir (pas en auto)
   const ready = !!live && caughtUp && !rp.end && live.actor !== null;
   const awaiting = ready && !live?.auto;
@@ -142,7 +144,8 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const autoOn = !!live?.auto;
   const autoBusy = !!live?.busy;
   const autoFailed = !!live?.error;
-  const choice = awaiting ? live?.choices.find((c) => c.spell === spell) : undefined;
+  const choice = awaiting && !live?.busy && playing ? live?.choices.find((c) => c.spell === spell) : undefined;
+  const targets = choice && live?.actor ? confirmationTargets(live.actor, choice.targets, selection?.scope ?? "self", rp.units) : [];
   // Sort lancé : la carte se désagrège en particules qui filent vers le lanceur, il les « consomme », puis le coup part (maquette sorts-cartes)
   const [consuming, setConsuming] = useState(false);
   const cancelCast = useRef<(() => void) | null>(null);
@@ -372,13 +375,15 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const actorName = actor ? characters[actor.characterId]?.name : null;
 
   const order = end ? [] : replayTurnOrder(log, rp.idx, rp.cur?.actor ?? null, rp.info, (id) => !!rp.units[id]?.ko, caughtUp && live ? live.timeline : undefined, !caughtUp ? live?.timeline : undefined);
-  const spellUnit = (awaiting ? live?.actor : null) ?? picked ?? rp.cur?.actor ?? ("A1" as UnitId);
+  const activeUnit = awaiting ? live?.actor : rp.cur?.actor;
+  const ownTurn = !!activeUnit?.startsWith("A") && !end;
+  const spellUnit = ownTurn ? (awaiting ? live?.actor : null) ?? (picked?.startsWith("A") ? picked : null) ?? activeUnit! : null;
 
   return (
     <div className="bt-layout bt-layout-with-order bt-layout-diagonal" onPointerDown={() => getAudio().unlock()}>
       <div className="fx-layer" aria-hidden="true" />
       {/* Ultime lancé (par n'importe quel camp) : son nom s'écrit au milieu de l'écran */}
-      {spellFx && rp.cur?.spell === "ultimate" && !finished && (
+      {spellFx && rp.cur?.actor.startsWith("A") && rp.cur?.spell === "ultimate" && !finished && (
         <div key={rp.cur.n} className="bt-ult-wrap" style={{ "--spd": speed, "--ult": ULT_COLOR[rp.cur.type] } as React.CSSProperties} aria-hidden="true">
           <div className="bt-ult-flash" />
           <div className="bt-ult-banner"><small>Ultime · {characters[rp.info[rp.cur.actor].characterId]?.name ?? ""}</small>{rp.cur.name}</div>
@@ -387,7 +392,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       {/* Titre, commandes rapides et menu pause, puis ordre de combat. */}
       <div className="bt-head">
         <div className="bt-head-copy" aria-live="polite">
-        {title && <b className="bt-title">{title}</b>}
+        {title && <b className="bt-title" title={title}>{title}</b>}
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
         <span className="bt-line">
           {end
@@ -395,7 +400,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             : awaiting && live?.actor
               ? `À toi : ${characters[rp.info[live.actor].characterId]?.name ?? ""}`
               : rp.cur && actorName
-                ? `${actorName} · ${spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name)}`
+                ? rp.cur.actor.startsWith("A") ? `${actorName} · ${spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name)}` : `Tour adverse · ${actorName}`
                 : ""}
         </span>
         </div>
@@ -421,6 +426,12 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
               ×{speed}
               <small>Vitesse</small>
             </button>
+          <button type="button" className="bt-info-trigger" aria-label="Informations : buffs et débuffs" title="Effets actifs par personnage" onClick={() => {
+            infoWasPlaying.current = playing;
+            cancelCast.current?.();
+            setPlaying(false);
+            infoMenu.current?.showModal();
+          }}>i</button>
           <button type="button" className="bt-pause-trigger" aria-label="Ouvrir le menu pause" title="Pause et réglages" onClick={() => {
             wasPlaying.current = playing;
             cancelCast.current?.();
@@ -433,7 +444,6 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
       <div className="bt-arena">
       <div className="bt-formation">
-      <span className="bt-versus" aria-hidden="true">VS</span>
       {(["B", "A"] as const).map((side) => (
         <section key={side} className="bt-team" data-side={side} data-result={end ? (end.winner === side ? "win" : end.winner ? "lose" : "draw") : undefined}>
           <h3 className="bt-team-name">
@@ -446,9 +456,12 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
               return <Unit key={id} id={id} rp={rp} characters={characters} acting={awaiting ? live?.actor === id : rp.cur?.actor === id && !finished}
                   turn={awaiting && live?.actor === id}
                   picked={spellUnit === id}
-                  targetable={!!choice?.targets.includes(id)}
-                  rel={relation(rp.info[spellUnit], rp.info[id], rp.units[id].ko)}
-                  onPick={() => (choice?.targets.includes(id) ? play(choice.spell, id) : setPicked(picked === id ? null : id))}
+                  targetable={targets.includes(id)}
+                  rel={spellUnit ? relation(rp.info[spellUnit], rp.info[id], rp.units[id].ko) : null}
+                  onPick={() => {
+                    if (choice && targets.includes(id)) play(choice.spell, choice.targets.includes(null) ? null : id);
+                    else if (id.startsWith("A")) setPicked(picked === id ? null : id);
+                  }}
                 />;
             })}
           </div>
@@ -505,11 +518,9 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       )}
     </div>
 
-      <SpellsPanel
-        effects={<EffectsPanel unit={rp.info[spellUnit]} state={rp.units[spellUnit]} info={rp.info} characters={characters} />}
+      {spellUnit ? <SpellsPanel key={`${spellUnit}:${selectionKey}`}
         unit={rp.info[spellUnit]}
         character={characters[rp.info[spellUnit].characterId]}
-        detailsHost={detailsHost}
         choose={
           awaiting && live
             ? {
@@ -520,16 +531,26 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
                 waitTertiary: live.wait[`${spellUnit}:tertiary`] ?? 0,
                 busy: live.busy || consuming,
                 error: live.error,
-                onSpell: (s) => {
-                  const c = live.choices.find((x) => x.spell === s);
-                  // Sort de zone : pas de cible à choisir
-                  if (c && c.targets.length === 1 && c.targets[0] === null) play(s, null);
-                  else setSelection({ key: selectionKey, spell: s === spell ? "base" : s });
-                },
+                onSpell: (s, scope) => setSelection(s ? { key: selectionKey, spell: s, scope } : null),
               }
             : undefined
         }
-      />
+      /> : <div className="bt-spells-wait" aria-hidden="true" />}
+      <dialog ref={infoMenu} className="bt-confirm bt-info-menu" aria-labelledby="battle-info-title" onClose={() => setPlaying(infoWasPlaying.current)}>
+        <div className="bt-info-heading"><h2 id="battle-info-title">Buffs et débuffs</h2><button type="button" className="ui-button" onClick={() => infoMenu.current?.close()}>Fermer</button></div>
+        {live?.countdown && !end && <p>Le chrono de l’arène continue pendant cette consultation.</p>}
+        {(["A", "B"] as const).map((side) => <section key={side} className="bt-info-team"><h3>{names[side]}</h3>
+          {POSITIONS.filter((position) => rp.info[`${side}${position}` as UnitId]).map((position) => {
+            const id = `${side}${position}` as UnitId;
+            const unit = rp.info[id];
+            const character = characters[unit.characterId];
+            return <details key={id} className="bt-unit-info"><summary>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={character?.imageUrl} alt="" referrerPolicy="no-referrer" /><span>{character?.name ?? id}</span>{rp.units[id].ko && <small>K.O.</small>}
+            </summary><EffectsPanel unit={unit} state={rp.units[id]} info={rp.info} characters={characters} /></details>;
+          })}
+        </section>)}
+      </dialog>
       <dialog ref={pauseMenu} className="bt-confirm bt-pause-menu" aria-labelledby="battle-pause-title" onClose={() => setPlaying(wasPlaying.current)}>
         <h2 id="battle-pause-title">{finished ? "Combat terminé" : "Pause"}</h2>
         {live?.countdown && !end && <p>Le chrono de l’arène continue pendant ce menu.</p>}
@@ -549,7 +570,6 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
               <Icon name="musique" />
             </button>
         </div>
-        <div ref={setDetailsHost} className="bt-pause-details" />
         <div className="bt-pause-actions">
             <button type="button" className="bt-ico" onClick={() => { wasPlaying.current = true; pauseMenu.current?.close(); cancelCast.current?.(); if (live?.onFinish && !rp.end) live.onFinish(); else skip(); }} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
               <Icon name="fin" />
@@ -591,7 +611,7 @@ function Unit({
   const st = rp.units[id];
   const ch = characters[info.characterId];
   const aimed = rp.cur?.target === id && !rp.end;
-  const cast = acting && rp.cur ? spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name) : null;
+  const cast = acting && id.startsWith("A") && rp.cur ? spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name) : null;
   // Effets persistants : seulement les statuts qui changent la lecture du combat
   const ambient = st.ko || rp.end ? "" : PERSISTENT_STATUSES.filter((k) => (k === "exposed" ? st.exposed : (st.fx as Status[]).includes(k))).map((k) => STATUS_FX[k].ambient).join("");
   return (

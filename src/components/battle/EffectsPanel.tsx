@@ -50,6 +50,7 @@ export function EffectsPanel({ unit, state, info, characters }: { unit: UnitView
         <em>{STATUS_INFO[k].help}</em>
       </li>;
     })}</ul> : <p className="bt-effects-none">Aucun effet actif.</p>}
+    {state.shield > 0 && <p className="bt-effects-shield">Bouclier · {fmt(state.shield)} PV</p>}
     <table><thead><tr><th scope="col">Stat</th><th scope="col">Base</th><th scope="col">Actuelle</th></tr></thead>
       <tbody>{rows.map(([l, b, c]) => <tr key={l} data-changed={b && b !== c || (!b && c !== "—") || undefined}><th scope="row">{l}</th><td>{b}</td><td>{c}</td></tr>)}</tbody></table>
   </section>;

@@ -1,5 +1,14 @@
 # Journal des agents
 
+## 2026-11-14 — Main repliée et confirmation explicite des sorts
+- Demande : retirer les détails du menu pause, ajouter une information par personnage, cercler Auto/vitesse, aligner les équipes et supprimer VS ; aucun sort présélectionné ni lancement immédiat des sorts globaux.
+- Cause UX : attaque de base choisie par défaut, effets sans cible serveur (`null`) lancés dès le toucher, inspection suivant aussi les ennemis.
+- Correctif prévu : sélection nulle, main repliée par tour, inspection des effets séparée ; pour les choix serveur `[null]`, ajouter des cartes de confirmation selon la portée et envoyer toujours `null` après confirmation. Moteur et synchronisation inchangés.
+- Pendant le contrôle Auto, une transition montrait brièvement la main alliée alors que le dernier événement ennemi restait affiché : hors attente manuelle, suivre uniquement le camp de l’événement visible pour afficher la main.
+- Validation : lint ciblé, build Next/TypeScript, `check:combat-selection` (incluant un buff réel passé au moteur après confirmation), `check:doflamingo`, `check:replay` (300 combats sans écart) et `graphify update .` réussis.
+- Navigateur : 320×568, 375×812, 390×844, 430×932, 844×390 et 1440×900, équipes alignées et aucune largeur débordante. En manuel : main fermée et zéro sélection/cible au départ ; ouverture puis sélection sans lancement ; buff global de Howl confirmé via Mamoru Chiba, DEF +20 % et bouclier visibles dans Info ; main à nouveau fermée au tour suivant. Info dessert les huit personnages ; anciens détails retirés du menu pause. Dix observations de transitions ennemies en Auto sans main affichée. Parcours central refait sur le build construit à 390 px.
+- Compte de test : combats TEST terminés/abandonnés ; squad d’attaque initiale rétablie (Seijuurou Akashi, Mamoru Chiba, Ira Gamagoori, Shinju Inui, puissance 18 382). Pas de test sur appareil physique ni match PvP réel.
+
 ## 2026-11-14 — Commandes de combat regroupées en haut
 - Demande : supprimer les bandeaux sous les sorts, déplacer Auto/vitesse en haut et remplacer la sortie directe par un menu pause (reprise, audio, effets, abandon).
 - Périmètre : lecteur partagé et styles, moteur et règles inchangés. Détails de carte conservés dans le menu ; pause locale de lecture, jamais du chrono serveur de l’arène live.

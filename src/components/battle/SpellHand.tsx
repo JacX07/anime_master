@@ -42,7 +42,7 @@ export function SpellHand({ cards, portrait, interactive, busy, onHover, onChoos
     return () => removeEventListener("resize", check);
   }, []);
   const n = cards.length;
-  const w = viewport.height <= 500 ? 84 : small ? 92 : 132;
+  const w = viewport.height <= 650 ? 84 : small ? 92 : 132;
   const selectedIndex = cards.findIndex((c) => c.selected);
   // Une carte armée (choisie, en attente d'une cible) reste en avant même quand la souris part
   const focus = over && hot >= 0 ? hot : selectedIndex;
@@ -55,7 +55,7 @@ export function SpellHand({ cards, portrait, interactive, busy, onHover, onChoos
         const m = i - (n - 1) / 2;
         const gap = Math.min(over ? w * 0.92 : w * 0.55, room);
         let x = m * gap, y = (lifted ? -8 : 10) + Math.abs(m) * (over ? 8 : 12), r = m * (over ? 5 : 8), z = i, scale = 1;
-        if (focus === i) { y = -(small ? 40 : 78); r = 0; z = 20; scale = small ? 1.1 : 1.16; }
+        if (focus === i) { y = -(small ? 4 : 10); r = 0; z = 20; scale = small ? 1.03 : 1.06; }
         else if (focus >= 0 && lifted) x += (i < focus ? -1 : 1) * (small ? 8 : 20);
         const disabled = interactive && (!c.ready || busy);
         return (

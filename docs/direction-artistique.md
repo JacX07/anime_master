@@ -217,6 +217,12 @@ Option 3 retenue pour l'ultime : portrait du personnage recadré dans un disque 
 
 Auto et vitesse restent directement accessibles dans l’en-tête. Le bouton pause remplace la croix et ouvre un menu modal : reprise, réglages audio/effets, détails de la carte, fin rapide et abandon/sortie avec les confirmations existantes. Ouvrir le menu suspend la lecture locale ; en arène live, le chrono serveur continue. Fermer le menu reprend la lecture. Plus de commandes, de description ni de bandeau de détails sous les sorts. L’espace libéré agrandit le plateau et permet de voir l’éventail en entier, avec l’ultime à droite. Zones tactiles de 44 px minimum ; adaptation aux écrans courts et aux safe areas.
 
+### 4.27.2 Rangées et sélection volontaire (2026-11-14)
+
+Deux rangées horizontales alignées, ennemis en haut et alliés en bas, sur téléphone comme sur PC ; aucun VS central. Auto et vitesse sont cerclés pour rester identifiables. Un bouton « i » ouvre les buffs/débuffs de chacun des huit personnages, avec valeurs, durées, source et bouclier courant. Le menu pause ne contient plus « Sorts, effets et statistiques ».
+
+À chaque tour manuel : main repliée, aucun sort sélectionné et aucune cible préactivée. Toucher Afficher ouvre les sorts ; en choisir un affiche ses effets complets et les cartes surlignées permettant de confirmer. Les sorts sur soi, d’équipe ou de zone attendent eux aussi un clic de confirmation sur le lanceur, un allié ou un ennemi selon leur portée. Les choix individuels et les cibles serveur restent inchangés ; un effet global envoie toujours la cible `null` au moteur. La main revient repliée après l’action et aucun sort ennemi n’est affiché pendant son tour. Sur écran paysage court, la main ouverte occupe un panneau latéral pour préserver le plateau.
+
 ### 4.28 Navigation mobile à cinq destinations — Violet nuit (validée le 2026-11-13)
 
 Maquette validée dans la conversation : accueil centré sur un personnage, collection dédiée et navigation inférieure **Accueil · Collection · Jouer · Invocation · Menu**, avec **Jouer au centre**. Ces règles remplacent le tiroir principal du §4.14 sur téléphone (jusqu’à 700 px) ; tablette et bureau conservent leur navigation existante.
