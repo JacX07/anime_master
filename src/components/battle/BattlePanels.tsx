@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type CSSProperties } from "react";
 
 import { BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { BOSS_SKILLS } from "@/lib/boss-skills";
@@ -11,7 +11,7 @@ import { describeElement, effectElement } from "@/lib/attack-element";
 import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
-import { Icon, TypeIcon } from "../icons";
+import { TypeIcon } from "../icons";
 import { SpellHand, UltimateEmblem, ULT_COLOR, type HandCard } from "./SpellHand";
 import type { PlayerCharacter } from "./BattlePlayer";
 import { confirmationScope, type ConfirmationScope } from "@/lib/combat-selection";
@@ -117,10 +117,18 @@ export function SpellsPanel({
           {choose.error}
         </p>
       )}
-      <button type="button" className="bt-hand-toggle" aria-expanded={expanded} aria-controls={handId} onClick={() => {
+      <button type="button" className="bt-hand-toggle" aria-label={`${expanded ? "Replier" : "Afficher"} les sorts de ${character?.name ?? unit.id}`} aria-expanded={expanded} aria-controls={handId} onClick={() => {
         setExpanded(!expanded);
         if (expanded) { setInspected(null); choose?.onSpell(null, "self"); }
-      }}><Icon name="magie" /><span>Sorts de {character?.name ?? unit.id}</span><small>{expanded ? "Replier" : "Afficher"}</small></button>
+      }}>{expanded ? <span>Replier les sorts</span> : <span className="bt-hand-peek" aria-hidden="true">
+        {cards.map((card, index) => {
+          const offset = index - (cards.length - 1) / 2;
+          return <span key={card.key} className="bt-hand-peek-card" style={{
+            "--accent": card.accent, "--img": character?.imageUrl ? `url("${character.imageUrl}")` : "none",
+            transform: `translateX(calc(-50% + ${offset * 48}px)) translateY(${Math.abs(offset) * 6}px) rotate(${offset * 9}deg)`,
+          } as CSSProperties}><span className="bt-hand-peek-art" /></span>;
+        })}
+      </span>}</button>
       <div id={handId} className="bt-expanded-hand" hidden={!expanded}>
         {detail && <div className="bt-spell-preview" aria-live="polite"><b>{detail.name}</b><p>{detail.tooltip}</p><small>{choose ? hint : detail.note}</small></div>}
       <div className="bt-hand-zone">

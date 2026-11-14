@@ -2,6 +2,7 @@
 
 ## 2026-11-14 — Main repliée et confirmation explicite des sorts
 - Demande : retirer les détails du menu pause, ajouter une information par personnage, cercler Auto/vitesse, aligner les équipes et supprimer VS ; aucun sort présélectionné ni lancement immédiat des sorts globaux.
+- Ajustement demandé ensuite : remplacer le bouton « Afficher » par un éventail presque masqué, laissant seulement dépasser les illustrations ; ouverture au toucher sans sélection. Lint ciblé, build et graphify réussis ; navigateur à 320×568, 390×844, 430×932, 844×390 et 1440×900 sans débordement. Ouverture au clic et au clavier, sélection/effets/cibles puis repli avec remise à zéro vérifiés ; combat TEST abandonné ensuite.
 - Cause UX : attaque de base choisie par défaut, effets sans cible serveur (`null`) lancés dès le toucher, inspection suivant aussi les ennemis.
 - Correctif prévu : sélection nulle, main repliée par tour, inspection des effets séparée ; pour les choix serveur `[null]`, ajouter des cartes de confirmation selon la portée et envoyer toujours `null` après confirmation. Moteur et synchronisation inchangés.
 - Pendant le contrôle Auto, une transition montrait brièvement la main alliée alors que le dernier événement ennemi restait affiché : hors attente manuelle, suivre uniquement le camp de l’événement visible pour afficher la main.
