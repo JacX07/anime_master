@@ -213,6 +213,10 @@ Maquette `public/mockups/sorts-cartes.html` : sorts en éventail, carte agrandie
 
 Option 3 retenue pour l'ultime : portrait du personnage recadré dans un disque teinté rouge, texture de liquide statique dont seul le niveau suit la jauge, arc de charge et indication « Prêt ». Le nom de l'ultime et du lanceur apparaît au centre à son exécution, pour les deux camps. En mouvements réduits, pas de particules, halo ou flash animé ; annonce brève sans mouvement. Les descriptions intégrales restent dans le panneau des détails. Les commandes et l'accès aux effets restent devant l'éventail, même lorsqu'une carte est relevée. Fond de cette zone transparent, sans barre opaque derrière les sorts ; seuls les détails dépliés conservent leur panneau. Largeur de carte 132 px sur PC, 92 px sur téléphone ; place réservée à l'emblème sur mobile.
 
+### 4.27.1 Commandes en haut et bas réservé aux sorts (2026-11-14)
+
+Auto et vitesse restent directement accessibles dans l’en-tête. Le bouton pause remplace la croix et ouvre un menu modal : reprise, réglages audio/effets, détails de la carte, fin rapide et abandon/sortie avec les confirmations existantes. Ouvrir le menu suspend la lecture locale ; en arène live, le chrono serveur continue. Fermer le menu reprend la lecture. Plus de commandes, de description ni de bandeau de détails sous les sorts. L’espace libéré agrandit le plateau et permet de voir l’éventail en entier, avec l’ultime à droite. Zones tactiles de 44 px minimum ; adaptation aux écrans courts et aux safe areas.
+
 ### 4.28 Navigation mobile à cinq destinations — Violet nuit (validée le 2026-11-13)
 
 Maquette validée dans la conversation : accueil centré sur un personnage, collection dédiée et navigation inférieure **Accueil · Collection · Jouer · Invocation · Menu**, avec **Jouer au centre**. Ces règles remplacent le tiroir principal du §4.14 sur téléphone (jusqu’à 700 px) ; tablette et bureau conservent leur navigation existante.

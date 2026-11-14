@@ -75,7 +75,7 @@ function nextDoff(st: BattleState) {
 {
   const st = start();
   const unit = replayStart(st.log).info.A1;
-  const html = renderToStaticMarkup(createElement(SpellsPanel, { unit, followsAction: false }));
+  const html = renderToStaticMarkup(createElement(SpellsPanel, { unit }));
   for (const name of ["Goshikito", "Parasite", "Birdcage"]) assert.ok(html.includes(name));
   assert.match(html, /les 2 ennemis vivants à l’ATK la plus élevée/);
   assert.match(html, /sur cette attaque/);

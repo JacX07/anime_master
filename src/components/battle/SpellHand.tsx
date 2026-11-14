@@ -32,16 +32,17 @@ export function SpellHand({ cards, portrait, interactive, busy, onHover, onChoos
 }) {
   const [hot, setHot] = useState<number>(-1);
   const [over, setOver] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState(760);
+  const [viewport, setViewport] = useState({ width: 760, height: 800 });
+  const viewportWidth = viewport.width;
   const small = viewportWidth <= 640;
   useEffect(() => {
-    const check = () => setViewportWidth(innerWidth);
+    const check = () => setViewport({ width: innerWidth, height: innerHeight });
     check();
     addEventListener("resize", check);
     return () => removeEventListener("resize", check);
   }, []);
   const n = cards.length;
-  const w = small ? 92 : 132;
+  const w = viewport.height <= 500 ? 84 : small ? 92 : 132;
   const selectedIndex = cards.findIndex((c) => c.selected);
   // Une carte armée (choisie, en attente d'une cible) reste en avant même quand la souris part
   const focus = over && hot >= 0 ? hot : selectedIndex;

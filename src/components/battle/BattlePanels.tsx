@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { createPortal } from "react-dom";
 
 import type { CardType } from "@/generated/prisma/enums";
 import { affinity as typeAffinity, BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } from "@/lib/battle";
@@ -23,7 +23,7 @@ const num = new Intl.NumberFormat("fr-FR");
 export function SpellsPanel({
   unit,
   character,
-  followsAction,
+  detailsHost,
   choose,
   effects,
 }: {
@@ -31,7 +31,7 @@ export function SpellsPanel({
   effects?: React.ReactNode;
   unit: UnitView;
   character?: PlayerCharacter;
-  followsAction: boolean;
+  detailsHost?: HTMLElement | null;
   /** Mode manuel, à ton tour : les sorts deviennent des boutons */
   choose?: {
     choices: { spell: Spell; targets: (UnitId | null)[] }[];
@@ -47,8 +47,6 @@ export function SpellsPanel({
     onSpell: (spell: Spell) => void;
   };
 }) {
-  const [inspected, setInspected] = useState<{ unit: UnitId; spell: Spell } | null>(null);
-  const [hover, setHover] = useState<Spell | null>(null);
   const affinity = SPELL_INFO[unit.type];
   const types = Object.keys(TYPE_LABELS) as CardType[];
   const strongVs = types.find((t) => typeAffinity(unit.type, t) > 1)!;
@@ -100,7 +98,6 @@ export function SpellsPanel({
       note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });
   }
-  const detail = spells.find((s) => s.key === (hover ?? choose?.spell ?? (inspected?.unit === unit.id ? inspected.spell : "base"))) ?? spells[0];
   const ultimateSpell = spells.find((s) => s.key === "ultimate");
   const handSpells = spells.filter((s) => s.key !== "ultimate");
   const waitOf = (key: Spell) => (key === "special" ? choose?.waitSpecial ?? 0 : key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0);
@@ -109,42 +106,24 @@ export function SpellsPanel({
     ready: !choose || choose.choices.some((c) => c.spell === s.key), wait: waitOf(s.key),
     selected: choose?.spell === s.key,
   }));
-  const choose_ = (key: Spell) => { setInspected({ unit: unit.id, spell: key }); choose?.onSpell(key); };
+  const choose_ = (key: Spell) => choose?.onSpell(key);
   return (
     <section className="bt-spells" aria-label={`Sorts de ${character?.name ?? unit.id}`} data-choosing={choose ? "" : undefined}>
-      <h3 className="bt-spells-title">
-        {character?.name}{" "}
-        <small>
-          ATK {num.format(Math.round(unit.atk))} · DEF {num.format(Math.round(unit.def))} · VIT {num.format(Math.round(unit.speed))} · PV {num.format(Math.round(unit.maxHp))}
-        </small>
-        <small>
-          {choose
-            ? choose.busy
-              ? "Envoi…"
-              : choose.spell
-                ? "Touche la cible sur le plateau"
-                : "À toi de jouer : choisis un sort"
-            : followsAction
-              ? "Touche une carte pour voir ses sorts"
-              : "Touche à nouveau la carte pour suivre le tour"}
-        </small>
-      </h3>
       {choose?.error && (
         <p className="bt-error" role="alert">
           {choose.error}
         </p>
       )}
       <div className="bt-hand-zone">
-        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} onHover={(k) => setHover(k as Spell | null)}
-          onChoose={(k) => (choose ? choose_(k as Spell) : setInspected({ unit: unit.id, spell: k as Spell }))} />
+        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} onHover={() => {}}
+          onChoose={(k) => choose_(k as Spell)} />
         {ultimateSpell && (
           <UltimateEmblem gauge={ultimateGauge} max={ultimateGaugeMax} name={ultimateSpell.name} portrait={character?.imageUrl} color="#ff4d6d"
             interactive={!!choose} ready={!choose || choose.choices.some((c) => c.spell === "ultimate")} armed={choose?.spell === "ultimate"} busy={!!choose?.busy}
-            onClick={() => (choose ? choose_("ultimate") : setInspected({ unit: unit.id, spell: "ultimate" }))} />
+            onClick={() => choose_("ultimate")} />
         )}
       </div>
-      <p className="bt-selected-description" aria-live="polite">{detail.text}</p>
-      <details className="bt-inspect-details" onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>
+      {detailsHost && createPortal(<details className="bt-inspect-details" onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>
         <summary>Sorts, effets et statistiques</summary>
         <div className="bt-inspect-content">
           <p>ATK {num.format(Math.round(unit.atk))} · DEF {num.format(Math.round(unit.def))} · VIT {num.format(Math.round(unit.speed))} · PV {num.format(Math.round(unit.maxHp))}</p>
@@ -160,7 +139,7 @@ export function SpellsPanel({
           {spells.map((s) => <div key={s.key} className="bt-spell-detail"><b>{s.title}</b><small>{s.target}</small><p>{s.text}</p>{s.note && <small>{s.note}</small>}</div>)}
           {effects}
         </div>
-      </details>
+      </details>, detailsHost)}
     </section>
   );
 }

@@ -121,6 +121,9 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   }, []);
   const [rp, setRp] = useState<Replay>(() => replayStart(log));
   const [playing, setPlaying] = useState(true);
+  const pauseMenu = useRef<HTMLDialogElement>(null);
+  const wasPlaying = useRef(true);
+  const [detailsHost, setDetailsHost] = useState<HTMLDivElement | null>(null);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
   // Effets de sorts désactivés : pas d'effets visuels des sorts, combat joué deux fois plus vite (v0.3.0)
   const [preferredSpellFx, setSpellFx] = useSpellFx();
@@ -381,8 +384,9 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
           <div className="bt-ult-banner"><small>Ultime · {characters[rp.info[rp.cur.actor].characterId]?.name ?? ""}</small>{rp.cur.name}</div>
         </div>
       )}
-      {/* Bandeau tout en haut (titre, tour, croix), puis l'ordre de combat (disposition validée le 2026-11-13) */}
-      <div className="bt-head" aria-live="polite">
+      {/* Titre, commandes rapides et menu pause, puis ordre de combat. */}
+      <div className="bt-head">
+        <div className="bt-head-copy" aria-live="polite">
         {title && <b className="bt-title">{title}</b>}
         <span className="bt-round">{rp.round ? `Tour ${rp.round}` : "Prêts ?"}</span>
         <span className="bt-line">
@@ -394,15 +398,36 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
                 ? `${actorName} · ${spellLabel(rp.cur.spell, rp.cur.type, rp.cur.name)}`
                 : ""}
         </span>
-        {onExit ? (
-          <button type="button" className="bt-btn bt-exit" onClick={onExit} aria-label="Quitter le combat" title="Quitter le combat">
-            ✕
-          </button>
-        ) : (
-          <Link className="bt-btn bt-exit" href={exitHref} aria-label="Quitter le combat" title="Quitter le combat">
-            ✕
-          </Link>
-        )}
+        </div>
+        <div className="bt-head-actions">
+          {live?.countdown && !end && live.countdown}
+          {live && !end && live.onToggleAuto && (
+              <button type="button" className="bt-sw" role="switch" aria-checked={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
+                <span className="bt-sw-tr" aria-hidden="true" />
+                Auto
+              </button>
+          )}
+            <button
+              type="button"
+              className="bt-spd"
+              onClick={() => {
+                const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+                setSpeed(next);
+                localStorage.setItem("bt-speed", String(next));
+              }}
+              aria-label={`Vitesse ×${speed}, cliquer pour changer`}
+              title="Changer la vitesse (×1, ×2, ×4)"
+            >
+              ×{speed}
+              <small>Vitesse</small>
+            </button>
+          <button type="button" className="bt-pause-trigger" aria-label="Ouvrir le menu pause" title="Pause et réglages" onClick={() => {
+            wasPlaying.current = playing;
+            cancelCast.current?.();
+            setPlaying(false);
+            pauseMenu.current?.showModal();
+          }}><Icon name="pause" /></button>
+        </div>
       </div>
       <TurnOrder order={order} info={rp.info} characters={characters} onPick={setPicked} ended={!!end} />
     <div className="bt" ref={stage} data-paused={!playing || undefined} style={{ "--spd": speed } as React.CSSProperties}>
@@ -484,7 +509,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
         effects={<EffectsPanel unit={rp.info[spellUnit]} state={rp.units[spellUnit]} info={rp.info} characters={characters} />}
         unit={rp.info[spellUnit]}
         character={characters[rp.info[spellUnit].characterId]}
-        followsAction={picked === null}
+        detailsHost={detailsHost}
         choose={
           awaiting && live
             ? {
@@ -505,35 +530,15 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             : undefined
         }
       />
-      <div className="bt-controls">
-        <div className="bt-dock">
-          <div className="bt-dock-in">
-            <button type="button" className="bt-ico" onClick={() => { cancelCast.current?.(); if (live?.onFinish && !rp.end) live.onFinish(); else skip(); }} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
-              <Icon name="fin" />
-            </button>
-            <button
-              type="button"
-              className="bt-big"
-              onClick={() => { cancelCast.current?.(); if (finished) restart(); else setPlaying((p) => !p); }}
-              aria-label={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
-              title={finished ? "Rejouer" : playing ? "Pause" : "Lecture"}
-            >
-              <Icon name={!finished && playing ? "pause" : "lecture"} />
-            </button>
-            <button
-              type="button"
-              className="bt-spd"
-              onClick={() => {
-                const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
-                setSpeed(next);
-                localStorage.setItem("bt-speed", String(next));
-              }}
-              aria-label={`Vitesse ×${speed}, cliquer pour changer`}
-              title="Changer la vitesse (×1, ×2, ×4)"
-            >
-              ×{speed}
-              <small>Vitesse</small>
-            </button>
+      <dialog ref={pauseMenu} className="bt-confirm bt-pause-menu" aria-labelledby="battle-pause-title" onClose={() => setPlaying(wasPlaying.current)}>
+        <h2 id="battle-pause-title">{finished ? "Combat terminé" : "Pause"}</h2>
+        {live?.countdown && !end && <p>Le chrono de l’arène continue pendant ce menu.</p>}
+        <button type="button" className="ui-button bt-resume" onClick={() => {
+          wasPlaying.current = true;
+          if (finished) restart();
+          pauseMenu.current?.close();
+        }}><Icon name="lecture" />{finished ? "Rejouer" : "Reprendre le combat"}</button>
+        <div className="bt-pause-settings" aria-label="Réglages du combat">
             <button type="button" className="bt-ico" data-off={!spellFx || undefined} aria-pressed={spellFx} aria-label="Effets de sorts" disabled={!allowDisableSpellFx} title={!allowDisableSpellFx ? "Gagne cette difficulté pour débloquer le mode sans effets" : spellFx ? "Effets de sorts : activés" : "Effets de sorts : désactivés (combat plus rapide)"} onClick={() => setSpellFx(!spellFx)}>
               <Icon name="ultime" />
             </button>
@@ -543,25 +548,19 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             <button type="button" className="bt-ico" data-off={!musicOn || undefined} aria-pressed={musicOn} aria-label="Musique" title="Musique" onClick={() => toggle("bt-music", !musicOn, setMusicOn)}>
               <Icon name="musique" />
             </button>
-          </div>
         </div>
-        {((live && !end) || (live?.onAbandon && !end)) && (
-          <div className="bt-dock-row">
-            {live?.countdown && !end && live.countdown}
-            {live && !end && live.onToggleAuto && (
-              <button type="button" className="bt-sw" role="switch" aria-checked={live.auto} onClick={live.onToggleAuto} title="Auto : ton équipe joue seule. Manuel : tu choisis. Tu peux changer à tout moment.">
-                <span className="bt-sw-tr" aria-hidden="true" />
-                {live.auto ? "Auto" : "Manuel"}
-              </button>
-            )}
-            {live?.onAbandon && !end && (
-              <button type="button" className="bt-quit" onClick={() => window.confirm("Abandonner ? Le combat sera compté comme perdu.") && live.onAbandon?.()} disabled={live.busy}>
-                <Icon name="fermer" /> Abandonner
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+        <div ref={setDetailsHost} className="bt-pause-details" />
+        <div className="bt-pause-actions">
+            <button type="button" className="bt-ico" onClick={() => { wasPlaying.current = true; pauseMenu.current?.close(); cancelCast.current?.(); if (live?.onFinish && !rp.end) live.onFinish(); else skip(); }} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
+              <Icon name="fin" />
+            </button>
+          {live?.onAbandon && !end ? (
+            <button type="button" className="ui-button bt-confirm-leave" onClick={live.onAbandon} disabled={live.busy}>Abandonner</button>
+          ) : onExit ? (
+            <button type="button" className="ui-button" onClick={onExit}>Quitter le combat</button>
+          ) : <Link className="ui-button" href={exitHref}>Quitter le combat</Link>}
+        </div>
+      </dialog>
     </div>
   );
 }

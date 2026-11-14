@@ -87,3 +87,47 @@
   .bt-layout-diagonal .bt-inspect-details > summary { position: relative; width: fit-content; }
 }
 .bt-layout-diagonal .bt-controls { position: relative; z-index: 40; }
+
+/* Commandes en haut ; le bas du plateau est réservé aux cartes de sort. */
+.bt-layout-diagonal {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: "head" "turns" "stage" "spells";
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+.bt-layout-diagonal > .bt-head { display: flex; flex-wrap: nowrap; align-items: center; gap: 12px; }
+.bt-head-copy { min-width: 0; flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.bt-layout-diagonal .bt-head-copy .bt-title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.bt-head-copy .bt-round { flex-shrink: 0; }
+.bt-layout-diagonal .bt-head-copy .bt-line { flex-basis: 100%; order: 1; }
+.bt-head-actions { display: flex; align-items: center; flex-shrink: 0; gap: 4px; }
+.mq-app-shell[class] .bt-head-actions :is(.bt-sw, .bt-spd, .bt-pause-trigger) { display: grid; place-items: center; min-width: 44px; min-height: 44px; margin: 0; padding: 4px; background: transparent; color: var(--g); font-size: 13px; }
+.bt-head-actions .bt-sw-tr, .bt-head-actions .bt-spd small { display: none; }
+.bt-head-actions .bt-sw[aria-checked="false"] { color: #b4b2aa; }
+.bt-head-actions .bt-sw[aria-checked="true"] { box-shadow: inset 0 -2px var(--g); }
+.bt-pause-trigger .i { display: block; width: 24px; height: 24px; }
+.bt-pause-trigger:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
+.bt-layout-diagonal > .bt-spells { padding: 0 .35rem; }
+.bt-layout-diagonal .bt-hand-zone { height: 210px; margin: 0; }
+.mq-app-shell[class][class] .bt-hand-card { bottom: 30px; }
+.mq-app-shell[class][class] .bt-ult { bottom: 22px; }
+.bt-pause-menu { max-height: calc(100dvh - 32px); overflow-y: auto; }
+.bt-pause-menu .bt-resume { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; width: 100%; }
+.bt-pause-settings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 20px 0; }
+.mq-app-shell[class] .bt-pause-settings .bt-ico { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 64px; width: auto; padding: 8px 2px; }
+.bt-pause-settings .bt-ico::after { content: attr(aria-label); font-size: 11px; }
+.bt-pause-settings .bt-ico[data-off] { color: #8f918a; }
+.bt-pause-settings .bt-ico[aria-pressed="true"] { color: var(--g); box-shadow: inset 0 -1px var(--g); }
+.bt-pause-menu .bt-inspect-details > summary { position: static; padding: 12px 0; min-height: 44px; font-size: 13px; }
+.bt-pause-menu .bt-inspect-content { position: static; width: 100%; max-height: none; padding: 12px 0; background: none; box-shadow: none; }
+.bt-pause-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 16px; }
+.bt-pause-actions > :is(button, a) { min-height: 44px; }
+@media (max-width: 700px) and (orientation: portrait) {
+  .bt-layout-diagonal > .bt-head { gap: 6px; }
+  .bt-head-actions { gap: 0; }
+  .bt-layout-diagonal .bt-head-copy .bt-line { margin: 0; }
+  .bt-layout-diagonal .bt-hand-zone { height: 155px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .bt-layout-diagonal .bt-hand-zone { height: 120px; }
+  .bt-layout-diagonal .bt-head-copy .bt-line { flex-basis: auto; }
+}

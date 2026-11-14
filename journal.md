@@ -1,5 +1,12 @@
 # Journal des agents
 
+## 2026-11-14 — Commandes de combat regroupées en haut
+- Demande : supprimer les bandeaux sous les sorts, déplacer Auto/vitesse en haut et remplacer la sortie directe par un menu pause (reprise, audio, effets, abandon).
+- Périmètre : lecteur partagé et styles, moteur et règles inchangés. Détails de carte conservés dans le menu ; pause locale de lecture, jamais du chrono serveur de l’arène live.
+- Le build a repéré un appel de rendu statique dans `scripts/check-doflamingo.ts` utilisant l’ancienne prop `followsAction` : appel adapté à la nouvelle interface, assertions de descriptions conservées.
+- Validation : lint ciblé, build Next/TypeScript, `check:replay` (300 combats sans écart), `check:doflamingo` et `graphify update .` réussis. Navigateur en 320×568, 375×812, 390×844, 430×932, 844×390 et 1440×900 : commandes en haut (44×44 minimum), sorts entièrement dans l’écran, aucun débordement horizontal.
+- Parcours sur compte de test : pause/reprise/Échap avec retour du focus, réglage musique mémorisé, vitesse ×2 persistante, bascule Auto/Manuel, sélection de sort/cible, détails dans le menu, annulation puis confirmation d’abandon. Version construite : reprise, fin rapide et résultats vérifiés ; une fois le résultat affiché, la fenêtre de résultat recouvre les commandes du plateau et son bouton Rejouer existant relance bien la lecture. Combats TEST abandonnés pour ne pas laisser de partie ouverte. Pas de validation sur appareil physique ou match PvP avec chrono serveur.
+
 ## 2026-11-13 — Intégration des cinq onglets mobiles
 - Symptômes : le chat ne recevait pas Échap après ouverture depuis l’en-tête ; la page Invocation dépassait la largeur mobile.
 - Causes : focus resté sur le bouton extérieur au panneau ; conteneur `vt-inner` hérité en flex avec largeur minimale intrinsèque des bannières.
