@@ -1165,7 +1165,7 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .bt-layout-diagonal .bt-card { flex: none; min-height: 0; aspect-ratio: 5 / 7; }
 .bt-layout-diagonal .bt-unit[data-acting] .bt-card { translate: 0 -2%; scale: 1.03; }
 .bt-layout-diagonal .bt-versus { position: absolute; top: 45%; left: 45%; width: 10%; text-align: center; font: 500 clamp(18px, 3cqw, 32px) var(--font-cinzel), Georgia, serif; color: var(--g); pointer-events: none; }
-.bt-layout-diagonal > .bt-spells { position: relative; align-self: stretch; min-height: 0; max-height: none; overflow: visible; padding: .5rem .65rem; clip-path: none; box-shadow: none; background: #111514f5; }
+.bt-layout-diagonal > .bt-spells { position: relative; align-self: stretch; min-height: 0; max-height: none; overflow: visible; padding: .5rem .65rem; clip-path: none; box-shadow: none; background: transparent; }
 .bt-layout-diagonal .bt-spells-title { margin: 0 0 .3rem; padding-right: 13rem; font-size: .9rem; gap: .2rem .8rem; }
 .bt-layout-diagonal .bt-spells-title small { font-size: .65rem; }
 .bt-layout-diagonal .bt-spells-title small:last-child { margin-left: auto; }

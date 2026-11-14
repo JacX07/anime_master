@@ -81,8 +81,8 @@
   .bt-hand { left: calc(50% - 35px); width: calc(100% - 80px); }
 }
 /* Les descriptions et l'accès aux effets restent lisibles devant les cartes au repos. */
-.bt-layout-diagonal .bt-selected-description { position: relative; z-index: 21; pointer-events: none; background: #111514; }
-.bt-layout-diagonal .bt-inspect-details > summary { z-index: 31; background: #111514; }
+.bt-layout-diagonal .bt-selected-description { position: relative; z-index: 21; pointer-events: none; background: transparent; text-shadow: 0 1px 3px #000, 0 0 6px #000; }
+.bt-layout-diagonal .bt-inspect-details > summary { z-index: 31; background: transparent; text-shadow: 0 1px 3px #000, 0 0 6px #000; }
 @media (max-width: 700px) and (orientation: portrait) {
   .bt-layout-diagonal .bt-inspect-details > summary { position: relative; width: fit-content; }
 }
