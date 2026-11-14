@@ -211,7 +211,7 @@
 .hs-map-parcours .hs-map-node:disabled { opacity: 1; color: #b7bcb2; filter: saturate(.2); }
 .hs-map-parcours .hs-map-node.is-boss { width: 58px; height: 62px; background: linear-gradient(145deg, #543c38, #241d1b); box-shadow: inset 0 0 0 1px #b17d6d, inset 0 0 0 5px #241d1b, inset 0 0 0 6px #71554b, 0 5px 12px #0008; }
 .hs-map-parcours .hs-map-node.is-boss.is-current { box-shadow: inset 0 0 0 1px #ead198, inset 0 0 0 5px #332d1b, inset 0 0 0 6px #b89a59, 0 0 0 5px #d5b56c30, 0 5px 20px #0008; }
-.hs-map-parcours .hs-map-node small { top: calc(100% + 6px); padding: 3px 8px; border-radius: 4px; background: #0b1716ed; color: #eee9dc; text-shadow: none; font-size: 10px; line-height: 1.35; }
+.hs-map-parcours .hs-map-node small { top: calc(100% + 6px); padding: 0; background: transparent; color: #eee9dc; text-shadow: 0 1px 3px #000; font-size: 10px; line-height: 1.35; }
 .hs-map-parcours .hs-map-node.is-current small { color: #fff2d0; }
 .hs-map-parcours .hs-node-stars { color: #edcf85; font-size: 10px; }
 .mq-app-shell[class] button.hs-card-choice[class]:has(.hs-empty-slot) { text-align: center; }
@@ -254,3 +254,11 @@
 .hs-spells { max-width: 640px; }
 .hs-picker .hs-card-choice { position: relative; }
 .hs-spells { max-width: 640px; }
+
+/* Les étoiles restent sous leur jalon sans toucher le prochain. */
+.mq-app-shell[class] .hs-map-parcours .hs-node-stars { width: max-content; margin-inline: auto; gap: 1px; }
+.mq-app-shell[class] .hs-map-parcours .hs-node-stars .i { width: 12px; height: 12px; }
+.hs-map-parcours .hs-map-node.is-boss .hs-map-boss-name { max-width: clamp(44px, 14vw, 60px); overflow-wrap: anywhere; }
+@media (max-width: 375px) {
+  .mq-app-shell[class] .hs-map-parcours .hs-node-stars .i { width: 10px; height: 10px; }
+}

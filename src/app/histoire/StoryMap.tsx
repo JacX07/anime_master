@@ -53,7 +53,7 @@ export function StoryMap({ universes, stock, pending, onPrepare, onClaim }: {
             aria-label={`${world.name}, combat ${n}, ${done ? "terminé" : unlocked ? "disponible" : "verrouillé"}, ${count} étoiles${world.duo.includes(n) ? ", étoile bonus duo obtenue" : ""}`}
             onClick={() => onPrepare(n, world)}>
             <span className="hs-node-face" aria-hidden="true">{isBoss(n) ? <span className="hs-map-emblem" style={{ backgroundImage: `url("/story-map/${world.key}-boss.svg")` }}/> : <><Icon name={!unlocked ? "lock" : done ? "valider" : "atk"}/><b>{n}</b></>}</span>
-            <small>{isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : `Combat ${n}`}<span className="hs-node-stars">{done ? [0, 1, 2].map((k) => <Icon key={k} name={k < count ? "etoile" : "etoile-vide"} className={k < count ? "is-on" : "is-off"} />) : current ? "Vous êtes ici" : ""}{done && <Icon name={world.duo.includes(n) ? "etoile" : "etoile-vide"} className={world.duo.includes(n) ? "is-on" : "is-off"} />}</span>{STORY_BOSSES[world.key]?.[n] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][n].name}</span>}</small>
+            <small>{isFinalBoss(n) ? "Boss final" : isBoss(n) ? "Boss d’acte" : null}<span className="hs-node-stars">{done ? [0, 1, 2].map((k) => <Icon key={k} name={k < count ? "etoile" : "etoile-vide"} className={k < count ? "is-on" : "is-off"} />) : current ? "Vous êtes ici" : ""}{done && <Icon name={world.duo.includes(n) ? "etoile" : "etoile-vide"} className={world.duo.includes(n) ? "is-on" : "is-off"} />}</span>{STORY_BOSSES[world.key]?.[n] && <span className="hs-map-boss-name">{STORY_BOSSES[world.key][n].name}</span>}</small>
           </button>;
         })}
       </div>
