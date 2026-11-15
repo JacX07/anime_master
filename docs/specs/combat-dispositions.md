@@ -57,3 +57,5 @@ Le joueur garde les **diagonales parallèles sur toute la largeur** (l'état d'a
 ## Précision du 15 novembre 2026
 
 PC et tablette : diagonales parallèles (décision du 13 novembre). Téléphone, portrait ou paysage : deux lignes droites alignées (`spell-hand.css`, demande « aligner les équipes » du 14 novembre).
+
+Perspective « cartes posées au sol » (variante B, validée le 15 novembre 2026) sur PC et tablette quand le plateau est en paysage : cartes tournées de 22° vers le centre, taille de 80 % (fond, haut de la diagonale) à 110 % (devant), ombre au sol, deux cartes du fond légèrement assombries (sauf K.O.). Propriétés `rotate`/`scale` indépendantes pour rester compatibles avec les animations `transform`. Téléphone et plateau portrait : à plat.

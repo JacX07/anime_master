@@ -1264,3 +1264,16 @@ button.bt-spell[aria-pressed="true"], .bt-spells[data-choosing] { background: li
 .bt-confirm-row { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: flex-end; }
 .mq-app-shell[class] .bt-confirm-leave { color: #e0897d; }
 .mq-app-shell[class] .bt-confirm-leave:hover:not(:disabled) { border-bottom-color: #e0645c; color: #ffb4aa; }
+
+/* Perspective « cartes posées au sol » (variante B validée le 2026-11-15) : PC et tablette, plateau en paysage.
+   Propriétés indépendantes (`rotate`, `scale`) : elles se composent avec les animations `transform` des attaques et des coups. */
+@media (min-width: 701px) and (min-height: 501px) {
+  @container battle-arena (min-aspect-ratio: 6 / 5) {
+    .bt-layout-diagonal .bt-unit { perspective: 1000px; perspective-origin: 50% -20%; scale: calc(.8 + var(--slot) * .1); transform-origin: 50% 100%; }
+    .bt-layout-diagonal .bt-team[data-side="A"] .bt-unit .bt-card { rotate: y 22deg; }
+    .bt-layout-diagonal .bt-team[data-side="B"] .bt-unit .bt-card { rotate: y -22deg; }
+    .bt-layout-diagonal .bt-unit::before { content: ""; position: absolute; left: 6%; right: 6%; bottom: -5%; height: 10%; border-radius: 50%; background: radial-gradient(closest-side, #000b, transparent); z-index: -1; pointer-events: none; }
+    .bt-layout-diagonal .bt-unit:nth-child(1):not([data-ko]) .bt-card { filter: brightness(.82) saturate(.9); }
+    .bt-layout-diagonal .bt-unit:nth-child(2):not([data-ko]) .bt-card { filter: brightness(.9); }
+  }
+}
