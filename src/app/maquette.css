@@ -2405,7 +2405,7 @@
 /* Le menu du profil ne s'ouvre qu'au survol (ou focus) de l'avatar, du pseudo ou du menu lui-même, pas des ressources. */
 .mq-nav-dropdown.mq-account:not([data-open="true"]):not(:has(:is(.mq-avatar, .mq-player-name, .mq-account-panel):is(:hover, :focus-within))) .mq-account-panel { opacity: 0; visibility: hidden; transform: translate(0, 8px); transition: opacity .15s .25s, transform .15s .25s, visibility 0s .4s; }
 .mq-player-name { color: inherit; }
-/* Bouton « + » des ressources (sources de gains) : affiché par home-hub.css sur l'accueil grand écran uniquement. */
+/* Bouton « + » des ressources (sources de gains) : affiché dans la barre fine (slimbar.css) et sur l'accueil grand écran (home-hub.css). */
 .wallet-sources { display: none; }
 .mq-account-name { padding: 6px 10px 2px; font: 600 15px var(--font-cinzel), serif; }
 .mq-account-name small { display: block; margin-top: 3px; color: #a68e5d; font: 700 8px var(--font-dm), sans-serif; letter-spacing: .2em; text-transform: uppercase; }

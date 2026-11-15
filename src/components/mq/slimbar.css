@@ -1,0 +1,113 @@
+/* Barre fine des pages intérieures (variante B validée le 2026-11-15, maquette barre-fine).
+   ≥ 701 px hors accueil : remplace la barre complète `.mq-topbar`, que gardent l'accueil et le mobile. */
+.mq-slimbar, .mq-menu-panel, .mq-menu-veil { display: none; }
+
+@media (min-width: 701px) {
+  .mq-app-shell[class][class][class]:not([data-page="home"]) > .mq-topbar { display: none; }
+  .mq-app-shell[class]:not([data-page="home"]) > .mq-slimbar {
+    position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 18px; height: 48px; padding: 0 20px;
+    background: #0b0e0ff2; box-shadow: 0 1px 0 #ffffff0d, 0 10px 30px #0006;
+  }
+  .mq-slimbar a { color: inherit; text-decoration: none; }
+
+  /* Retour à l'accueil */
+  .mq-slim-home { display: flex; align-items: center; gap: 9px; min-height: 44px; flex-shrink: 0; color: #9a9f99; font: 400 12px var(--font-dm), sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+  .mq-slim-home .i { width: 26px; height: 26px; color: var(--gold); }
+  .mq-slim-home:hover { color: var(--foreground); }
+
+  /* Raccourcis : onglets textuels, soulignés en or sur la page courante */
+  .mq-slim-tabs { display: flex; align-items: stretch; height: 48px; min-width: 0; }
+  .mq-app-shell[class][class] .mq-slim-tabs > a { position: relative; display: flex; align-items: center; gap: 6px; padding: 0 12px; color: #8d928c; font: 400 12px var(--font-dm), sans-serif; letter-spacing: .06em; white-space: nowrap; }
+  .mq-slim-tabs > a::after { content: ""; position: absolute; left: 50%; right: 50%; bottom: 8px; height: 2px; background: var(--gold); transition: left .2s, right .2s; }
+  .mq-app-shell[class][class] .mq-slim-tabs > a:hover { color: var(--foreground); }
+  .mq-slim-tabs > a:hover::after, .mq-slim-tabs > a[aria-current="page"]::after { left: 12px; right: 12px; }
+  .mq-app-shell[class][class] .mq-slim-tabs > a[aria-current="page"] { color: var(--gold-light); }
+  .mq-slim-badge { display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #e0645c; color: #fff; font: 700 10px/1 var(--font-dm), sans-serif; letter-spacing: 0; }
+
+  /* JOUER au centre */
+  .mq-app-shell[class][class] .mq-slim-play {
+    position: absolute; left: 50%; top: 7px; transform: translateX(-50%); height: 34px; min-height: 0; padding: 0 30px;
+    border: 0; border-radius: 3px; background: rgb(205 170 99 / 20%); box-shadow: inset 0 -2px 0 #c4a76d8c;
+    color: #edd49a; font: 600 13px var(--font-cinzel), serif; letter-spacing: .26em;
+  }
+  .mq-app-shell[class][class] .mq-slim-play:hover { background: rgb(205 170 99 / 30%); }
+  .mq-slim-space { flex: 1; }
+
+  /* Ressources, énergie, notifications */
+  .mq-slim-res { display: flex; align-items: center; gap: 7px; flex-shrink: 0; color: var(--foreground); font: 600 14px var(--font-cinzel), serif; }
+  .mq-slim-res > .i { width: 18px; height: 18px; color: var(--gold); }
+  .mq-slimbar .wallet-sources { display: block; position: relative; }
+  .mq-slimbar .mq-energy-reserve { display: flex; flex-shrink: 0; }
+  .mq-slimbar .bell { position: relative; display: grid; place-items: center; width: 36px; min-height: 44px; margin: 0; padding: 0; border: 0; }
+  .mq-slimbar .bell .i { width: 20px; height: 20px; }
+  .mq-slimbar .bell .album-badge { position: absolute; top: 4px; right: 0; margin: 0; min-width: 15px; height: 15px; font-size: 9px; }
+  .mq-app-shell[class][class] .mq-slim-login { flex-shrink: 0; color: var(--gold-light); font-size: 12px; }
+
+  /* Bouton Menu */
+  .mq-app-shell[class][class] .mq-slim-menu { position: relative; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px; flex-shrink: 0; color: #c9c4bb; font: 400 12px var(--font-dm), sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+  .mq-slim-menu > span:first-child { color: var(--gold); font-size: 9px; }
+  .mq-app-shell[class][class] .mq-slim-menu[aria-expanded="true"] { color: var(--gold-light); }
+
+  /* Avatar et menu du profil */
+  .mq-app-shell[class] .mq-slimbar .mq-account { height: auto; flex-shrink: 0; }
+  .mq-app-shell[class] .mq-slimbar .mq-slim-avatar { width: 34px; height: 34px; font-size: 11px; overflow: hidden; }
+  .mq-slim-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .mq-app-shell[class][class] .mq-slimbar .mq-account-panel { position: absolute; top: calc(100% + 6px); right: 0; left: auto; background: #151918; }
+
+  /* Panneau Menu : toutes les pages, par groupes */
+  .mq-app-shell .mq-slimbar .mq-menu-veil[data-open] { display: block; position: fixed; inset: 48px 0 0; z-index: -1; background: rgba(4, 6, 6, .72); backdrop-filter: blur(6px); animation: mq-menu-in .2s ease-out; }
+  .mq-app-shell .mq-slimbar .mq-menu-panel[data-open] {
+    display: grid; position: absolute; top: 48px; left: 0; right: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px 34px;
+    max-height: calc(100vh - 48px); overflow: auto; padding: 26px 40px 24px; background: linear-gradient(180deg, #141917, #0e1211); box-shadow: 0 30px 60px #000b;
+    animation: mq-menu-in .2s ease-out;
+  }
+  @keyframes mq-menu-in { from { opacity: 0; transform: translateY(-8px); } }
+  .mq-menu-group h3 { margin: 0 0 10px; padding-left: 10px; color: var(--gold-dim, #a68e5d); font: 700 9px var(--font-dm), sans-serif; letter-spacing: .28em; text-transform: uppercase; }
+  .mq-app-shell[class][class] .mq-menu-group > a { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 8px 10px; border-radius: 4px; color: var(--foreground); font: 400 14px var(--font-dm), sans-serif; }
+  .mq-menu-group > a .i { width: 20px; height: 20px; flex-shrink: 0; color: var(--gold); }
+  .mq-app-shell[class][class] .mq-menu-group > a:hover { background: #ffffff0a; }
+  .mq-app-shell[class][class] .mq-menu-group > a[aria-current="page"] { background: #c4a76d1f; box-shadow: inset 3px 0 0 var(--gold); }
+  .mq-menu-group > a > :is(.mq-slim-badge, .mq-menu-info) { margin-left: auto; }
+  .mq-menu-info { color: var(--info, #8fbfae); font-size: 11px; }
+  .mq-menu-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; margin: 10px 0 0; padding-top: 14px; box-shadow: 0 -1px 0 #ffffff0d; color: #767b76; font-size: 12px; }
+
+  /* Les barres glissantes des onglets de la page (FxRuntime) sont sur un calque à part : masquées sous le Menu ouvert. */
+  body:has(.mq-menu-panel[data-open]) .fx-tabbar { visibility: hidden; }
+  .mq-app-shell .mq-slimbar :is(a, button):focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+}
+
+/* Largeurs moyennes : JOUER rentre dans le flux, l'énergie perd sa légende. */
+@media (min-width: 701px) and (max-width: 1599px) {
+  .mq-app-shell[class]:not([data-page="home"]) > .mq-slimbar { gap: 14px; }
+  .mq-app-shell[class][class] .mq-slim-tabs > a { padding: 0 10px; }
+  .mq-slim-tabs > a:hover::after, .mq-slim-tabs > a[aria-current="page"]::after { left: 10px; right: 10px; }
+  .mq-slimbar .mq-energy-reserve small { display: none; }
+}
+/* Raccourcis retirés quand la place manque : le Menu donne accès à tout. */
+@media (min-width: 701px) and (max-width: 1239px) {
+  .mq-app-shell .mq-slim-tabs { display: none; }
+  .mq-app-shell[class][class] .mq-slim-play { position: static; transform: none; flex-shrink: 0; padding: 0 22px; }
+  .mq-app-shell .mq-slimbar .mq-menu-panel[data-open] { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 22px 24px; }
+}
+@media (min-width: 701px) and (max-width: 939px) {
+  .mq-app-shell .mq-slim-home > span, .mq-app-shell .mq-slimbar .mq-energy-reserve { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq-app-shell .mq-slimbar :is(.mq-menu-panel, .mq-menu-veil) { animation: none; }
+}
+
+/* Bouton « + » des ressources : liste des sources de gains (WalletSources). Visible dans la barre fine et sur l'accueil. */
+.mq-app-shell[class][class] .wallet-sources > button { min-width: 32px; min-height: 36px; padding: 0 6px 2px; color: var(--gold); font: 400 20px/1 var(--font-dm), sans-serif; }
+.wallet-sources-panel {
+  position: absolute; top: calc(100% + 10px); right: -10px; z-index: 70; display: flex; flex-direction: column; gap: 2px; width: 300px; padding: 14px 10px 10px;
+  border-radius: 7px; background: #151918; box-shadow: 0 18px 35px #0009; text-align: left; animation: wallet-sources-in .18s ease-out;
+}
+@keyframes wallet-sources-in { from { opacity: 0; transform: translateY(-8px); } }
+.wallet-sources-title { padding: 0 8px; font: 500 15px var(--font-cinzel), serif; color: var(--foreground); }
+.wallet-sources-note { padding: 2px 8px 6px; font: 400 12px var(--font-dm), sans-serif; color: var(--info, #8fbfae); white-space: normal; }
+.mq-app-shell[class] .wallet-sources-panel > a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 8px; border-radius: 4px; color: var(--foreground); text-decoration: none; }
+.wallet-sources-panel > a:hover, .wallet-sources-panel > a:focus-visible { background: #ffffff0d; }
+.wallet-sources-panel .i { width: 20px; height: 20px; flex-shrink: 0; color: var(--gold); }
+.wallet-sources-panel strong { display: block; font: 500 13px var(--font-dm), sans-serif; }
+.wallet-sources-panel em { display: block; font: 400 11px var(--font-dm), sans-serif; font-style: normal; color: #9d98a6; letter-spacing: 0; text-transform: none; }
+@media (prefers-reduced-motion: reduce) { .wallet-sources-panel { animation: none; } }

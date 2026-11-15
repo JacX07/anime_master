@@ -19,7 +19,7 @@ export type TutorialStep = {
   mode?: string;
 };
 
-const nav = (href: string) => `.mobile-collection-tabs a[href="${href}"], .mobile-menu-link[href="${href}"], .mobile-bottom-nav a[data-section="${mobileSection(href)}"], .home-hub a[href="${href}"], .mq-game-nav a[href="${href}"]`;
+const nav = (href: string) => `.mobile-collection-tabs a[href="${href}"], .mobile-menu-link[href="${href}"], .mobile-bottom-nav a[data-section="${mobileSection(href)}"], .home-hub a[href="${href}"], .mq-slim-tabs a[href="${href}"], .mq-game-nav a[href="${href}"], .mq-slim-menu`;
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "invoke", phase: "action", title: "Invoque tes cartes", text: "Ici tu invoques tes premières cartes : un cristal = une carte. Lance un tirage pour continuer.",
@@ -28,7 +28,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     page: "/equipe", targets: [".squad-stage", ".eq-slots"], away: [nav("/equipe")] },
   { key: "story", phase: "action", title: "Lance le mode histoire", text: "Ici tu lances le mode histoire. Gagne le premier combat de One Piece pour continuer.",
     points: ["1 étoile pour la victoire, 2 sans K.O., 3 sans K.O. en 10 tours ou moins. Une victoire en duo donne une 4ᵉ étoile bonus", "Les étoiles débloquent des récompenses aux paliers 12, 24, 36 et 45"],
-    page: "/histoire", targets: [".hs-map-node.is-current", ".hs-map-hint button"], away: [".mobile-mode-story", ".mq-mode-card.mq-mode-story", nav("/jouer"), ".mq-play-button"] },
+    page: "/histoire", targets: [".hs-map-node.is-current", ".hs-map-hint button"], away: [".mobile-mode-story", ".mq-mode-card.mq-mode-story", nav("/jouer"), ".mq-play-button", ".mq-slim-play"] },
   { key: "dungeons", phase: "modes", title: "Donjons", text: "Un boss unique et difficile qui donne des artefacts pour équiper tes cartes.", targets: ['[data-mobile-mode="dungeon"]', ".mq-mode-card.mq-mode-dungeons"], mode: "dungeon" },
   { key: "raids", phase: "modes", title: "Raids", text: "Le Défi des empereurs : Shanks, Big Mom, Kaido et Barbe Blanche, chacun gardé par deux vagues d’équipage. Ils donnent les cœurs de brèche des étoiles 4 et 5 et les ressources des armes légendaires.", targets: ['[data-mobile-mode="raid"]', ".mq-mode-card.mq-mode-raids"], mode: "raid" },
   { key: "expeditions", phase: "modes", title: "Expéditions", text: "Envoie une à trois cartes explorer une brèche pendant quelques heures, puis reviens chercher le butin.", targets: ['[data-mobile-mode="expeditions"]', ".mq-mode-card.mq-mode-expeditions"], mode: "expeditions" },
@@ -54,12 +54,12 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "achievements", phase: "tabs", title: "Succès", text: "Chaque succès rapporte de l’expérience et parfois un titre.", targets: [nav("/achievements")] },
   { key: "settings", phase: "tabs", title: "Paramètres", text: "Son, affichage et compte.", targets: [".mq-gear", nav("/parametres")] },
   { key: "play", phase: "shortcuts", title: "Bouton JOUER", text: "Il ouvre la liste des modes de combat.",
-    points: ["Un mode grisé indique ce qu’il faut pour l’ouvrir"], targets: [nav("/jouer"), ".mq-play-button"] },
+    points: ["Un mode grisé indique ce qu’il faut pour l’ouvrir"], targets: [nav("/jouer"), ".mq-play-button", ".mq-slim-play"] },
   { key: "bell", phase: "shortcuts", title: "Notifications", text: "La cloche te prévient de ce qui se passe.",
     points: ["Enchères gagnées, échanges, demandes d’amis", "Le nombre de notifications non lues s’affiche dessus"], targets: ['a[href="/notifications"]'] },
   { key: "chat", phase: "shortcuts", title: "Chat et joueurs en ligne", text: "Parle aux autres joueurs.",
     points: ["Guilde : ta guilde seulement", "Général : tout le monde (niveau d’Arpenteur 3 requis pour écrire)", "Privé : tes amis", "En ligne : qui est connecté"], targets: [".chat-fab", ".chat-panel"] },
-  { key: "account", phase: "shortcuts", title: "Ton compte", text: "Survole ou touche ton avatar : bonus du jour, Ryō, cristaux et profil.", targets: [".mq-player"] },
+  { key: "account", phase: "shortcuts", title: "Ton compte", text: "Survole ou touche ton avatar : bonus du jour, Ryō, cristaux et profil.", targets: [".mq-player", ".mq-slim-avatar"] },
   { key: "elements", phase: "combat", title: "Les éléments", text: "Le sort secondaire (★) de certaines cartes SSR et UR porte un élément qui ajoute un effet.",
     points: ["Eau : soigne un allié de 10 % de ses PV max et trempe les ennemis touchés", "Foudre : étourdit un ennemi trempé", "Feu : brûlure de 5 % des PV max par action", "Terre : vitesse −25 % pendant 2 actions", "Air : esquive +20 points pour le lanceur"], targets: [] },
   { key: "combos", phase: "combat", title: "Les combos", text: "Deux éléments sur la même cible déclenchent un bonus, quel que soit l’ordre.",

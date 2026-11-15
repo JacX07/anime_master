@@ -15,6 +15,8 @@ import { getSessionUser } from "@/lib/session";
 import { getWallet } from "@/lib/wallet";
 import { prisma } from "@/lib/db";
 import { titleOf, unclaimedAchievementCount } from "@/lib/achievements";
+import { readyCount } from "@/lib/expeditions";
+import { getPeriodicQuests } from "@/lib/periodic-quests";
 import { avatarsFor } from "@/lib/profile";
 import { DailyBonus } from "../DailyBonus";
 import { NotificationBell } from "../NotificationBell";
@@ -22,7 +24,8 @@ import { NavItem } from "./NavItem";
 import { PlayMenu } from "./PlayMenu";
 import { Tutorial } from "../Tutorial";
 import { Navigation } from "./Navigation";
-import { MiniBar } from "./MiniBar";
+import { MenuPanel, SlimPlay } from "./SlimBarClient";
+import "./slimbar.css";
 import { WalletSources } from "./WalletSources";
 import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
@@ -36,7 +39,7 @@ const num = new Intl.NumberFormat("fr-FR");
 export function SiteHeader() {
   return (
     <>
-    <MiniBar account={<Suspense fallback={null}><MiniAccount /></Suspense>} />
+    <SlimBar />
     <header className="mq-topbar">
       <Navigation>
       <nav className="mq-game-nav" aria-label="Navigation principale">
@@ -93,20 +96,79 @@ export function SiteHeader() {
   );
 }
 
-/** Ressources et avatar de la mini-barre. Lit la session : derrière un Suspense. */
-async function MiniAccount() {
+/** Barre fine des pages intérieures sur grand écran (variante B validée le 2026-11-15) : accueil, raccourcis, JOUER, ressources, menu et profil.
+ *  L'accueil et le mobile gardent la barre `.mq-topbar` ; le CSS choisit laquelle afficher. */
+function SlimBar() {
+  return (
+    <header className="mq-slimbar">
+      <Link href="/" className="mq-slim-home"><Icon name="logo" /><span>‹ Accueil</span></Link>
+      <nav className="mq-slim-tabs" aria-label="Raccourcis">
+        <NavItem href="/album" match={["/wishlist", "/character", "/packs"]}>Collection</NavItem>
+        <NavItem href="/equipe" match={["/builder"]}>Squads</NavItem>
+        <NavItem href="/inventaire" match={["/forge", "/eveil"]}>Inventaire</NavItem>
+        <NavItem href="/quetes" match={["/guide"]}>Quêtes<Suspense fallback={null}><QuestBadge /></Suspense></NavItem>
+        <NavItem href="/market" match={["/trades"]}>Marché</NavItem>
+      </nav>
+      <SlimPlay />
+      <span className="mq-slim-space" />
+      <Suspense fallback={<MenuPanel />}>
+        <SlimAccount />
+      </Suspense>
+    </header>
+  );
+}
+
+/** Quêtes périodiques dont la récompense attend. */
+async function claimableQuests(userId: string) {
+  return (await getPeriodicQuests(userId)).filter((quest) => quest.claimable).length;
+}
+
+/** Pastille des quêtes à récupérer sur le raccourci « Quêtes ». */
+async function QuestBadge() {
   const user = await getSessionUser();
-  if (!user) return <Link href="/login" className="mq-mini-login">Connexion</Link>;
-  const [wallet, packs, energy] = await Promise.all([getWallet(user.id), getPackState(user.id), getEnergy(user.id)]);
+  if (!user) return null;
+  const n = await claimableQuests(user.id);
+  return n > 0 ? <span className="mq-slim-badge" aria-label={`${n} quête${n > 1 ? "s" : ""} à récupérer`}>{n}</span> : null;
+}
+
+/** Ressources, énergie, notifications, menu et profil de la barre fine. Lit la session : derrière un Suspense. */
+async function SlimAccount() {
+  const user = await getSessionUser();
+  if (!user) return <><MenuPanel /><Link href="/login" className="mq-slim-login">Connexion</Link><Link href="/signup" className="mq-slim-login">Créer un compte</Link></>;
+  const [wallet, packs, adventure, title, staff, energy, avatars, quests, achievements, expeditions] = await Promise.all([getWallet(user.id), getPackState(user.id), getAdventure(user.id), equippedTitle(user.id), isStaff(user.id), getEnergy(user.id), avatarsFor([user.id]), claimableQuests(user.id), unclaimedAchievementCount(user.id), readyCount(user.id)]);
+  const avatarUrl = avatars.get(user.id);
   return (
     <>
-    <EnergyReserve energy={energy} />
-    <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-mini-account" aria-label={`Profil de ${user.username}`}>
-      <span><Icon name="ryo" /><CountUp value={wallet.balance} id="mini-ryo" /></span>
-      <span><Icon name="cristal" /><CountUp value={packs.available} id="mini-crystals" /></span>
-      <span className="mq-mini-avatar">{user.username.slice(0, 2).toUpperCase()}</span>
-    </Link>
+      <span className="mq-slim-res" title="Ryō"><Icon name="ryo" /><CountUp value={wallet.balance} id="slim-ryo" /><WalletSources kind="ryo" /></span>
+      <span className="mq-slim-res" title="Cristaux"><Icon name="cristal" /><CountUp value={packs.available} id="slim-crystals" /><WalletSources kind="crystals" /></span>
+      <EnergyReserve energy={energy} />
+      <Suspense fallback={null}><NotificationBell userId={user.id} /></Suspense>
+      <MenuPanel quests={quests} achievements={achievements} expeditions={expeditions} />
+      <AccountDropdown>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <Link href={`/u/${encodeURIComponent(user.username)}`} className={`mq-avatar mq-slim-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`} aria-label={`Profil de ${user.username}`}>{avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : user.username.slice(0, 2).toUpperCase()}</Link>
+        <AccountPanel username={user.username} canClaimBonus={wallet.canClaimBonus} title={title} level={adventure.level} power={packs.collectionPower} balance={wallet.balance} crystals={packs.available} staff={staff} />
+      </AccountDropdown>
     </>
+  );
+}
+
+/** Menu du profil, partagé par la barre complète et la barre fine. */
+function AccountPanel({ username, canClaimBonus, title, level, power, balance, crystals, staff }: { username: string; canClaimBonus: boolean; title: string | null; level: number; power: number; balance: number; crystals: number; staff: boolean }) {
+  return (
+    <form action={signOut} className="mq-dropdown-panel mq-account-panel">
+      {canClaimBonus && <DailyBonus />}
+      <p className="mq-account-name">{username}<small>{title ? `${title} · ` : ""}Arpenteur niv. {level}</small><small>Puissance {num.format(power)}</small></p>
+      <dl>
+        <div><dt>Ryō</dt><dd>{num.format(balance)}</dd></div>
+        <div><dt>Cristaux</dt><dd>{crystals} / {MAX_CRYSTALS}</dd></div>
+      </dl>
+      <Link href={`/u/${encodeURIComponent(username)}`}>Profil</Link>
+      <Link href="/parametres">Paramètres</Link>
+      {staff && <Link href="/admin">Administration</Link>}
+      {devToolsEnabled() && <Link href="/outils">Outils</Link>}
+      <button type="submit">Se déconnecter</button>
+    </form>
   );
 }
 
@@ -166,19 +228,7 @@ async function Account() {
             </span>
           </span>
         </div>
-        <form action={signOut} className="mq-dropdown-panel mq-account-panel">
-          {wallet.canClaimBonus && <DailyBonus />}
-          <p className="mq-account-name">{user.username}<small>{title ? `${title} · ` : ""}Arpenteur niv. {adventure.level}</small><small>Puissance {num.format(packs.collectionPower)}</small></p>
-          <dl>
-            <div><dt>Ryō</dt><dd>{num.format(wallet.balance)}</dd></div>
-            <div><dt>Cristaux</dt><dd>{packs.available} / {MAX_CRYSTALS}</dd></div>
-          </dl>
-          <Link href={`/u/${encodeURIComponent(user.username)}`}>Profil</Link>
-          <Link href="/parametres">Paramètres</Link>
-          {staff && <Link href="/admin">Administration</Link>}
-          {devToolsEnabled() && <Link href="/outils">Outils</Link>}
-          <button type="submit">Se déconnecter</button>
-        </form>
+        <AccountPanel username={user.username} canClaimBonus={wallet.canClaimBonus} title={title} level={adventure.level} power={packs.collectionPower} balance={wallet.balance} crystals={packs.available} staff={staff} />
       </AccountDropdown>
     </>
   );

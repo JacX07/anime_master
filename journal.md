@@ -792,3 +792,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Pièges : `home-hub.css` n’est chargé que sur l’accueil, donc une règle de masquage par défaut doit vivre dans une feuille globale (`maquette.css`). Le `backdrop-filter` de la barre du haut rendait les menus déroulants translucides : retiré sur l’accueil, fonds opaques. Le débordement de l’en-tête à 1600 px sur les autres pages (énergie coupée) existait déjà avant.
 - Vérifié : survol Ryō/cristaux sans menu, avatar/pseudo/menu avec, trajet lent pseudo → menu, fermeture ; « + » ouvert, Échap, lien Marché ; clic pseudo → profil ; menu au clic à 1280 et au toucher à 390 ; « + » absent hors accueil ; `check-desktop-home` complet, aucun débordement ni erreur JavaScript ; ESLint et TypeScript réussis.
 
+## 2026-11-15 — Barre fine (variante B) à la place de la barre de navigation
+- Demande : supprimer la grande barre de navigation hors accueil, maquette B validée (raccourcis + panneau Menu).
+- Choix d'implémentation : nouvelle `SlimBar` à côté de `.mq-topbar`, et non une refonte de celle-ci : plus de 120 règles CSS (mobile, accueil, 1499/1500 px) dépendent de `.mq-topbar` ; l'accueil et le mobile la gardent. Le JOUER de la barre fine clique le bouton caché de `.mq-topbar` (un seul menu des modes, piloté aussi par le tutoriel). Mini-barre et barre escamotable supprimées.
+- Pièges : les barres glissantes des onglets (`FxRuntime`, `.fx-tabbar`) sont sur un calque à part et passaient au-dessus du panneau Menu ; masquées tant qu'il est ouvert. Les styles du « + » des ressources devaient quitter `home-hub.css` (chargé seulement sur l'accueil).
+- Tutoriel : `nav()` cible aussi `.mq-slim-tabs` puis `.mq-slim-menu` en repli ; JOUER `.mq-slim-play` ; compte `.mq-slim-avatar`. Parcours complet du tutoriel non rejoué.
+- Vérifié sur le site dev : /album, /market, /friends, /histoire, /guide (visiteur), /u, combat ; Menu (page courante, Échap, lien), raccourcis, JOUER, « + », menu du profil au clic (< 1500 px) ; largeurs 1920 à 701 sans chevauchement ni débordement ; accueil et mobile inchangés ; `check-desktop-home`, ESLint et TypeScript réussis.
+
