@@ -132,9 +132,11 @@
   .bt-layout-diagonal .bt-head-copy .bt-line { flex-basis: auto; }
 }
 
-/* Deux lignes stables ; l'information concerne tous les personnages, pas leurs sorts. */
-.mq-app-shell[class] .bt-layout-diagonal .bt-unit { left: calc(3% + var(--slot) * 24%); top: 50%; width: min(21cqw, calc(25cqh - 20px), 180px); min-width: 44px; }
-.mq-app-shell[class] .bt-layout-diagonal .bt-team[data-side="B"] .bt-unit { left: calc(3% + var(--slot) * 24%); top: 5%; }
+/* Téléphone (portrait ou paysage) : deux lignes stables. PC et tablette gardent les diagonales de battle.css (décision du 2026-11-13, reconfirmée le 2026-11-15). */
+@media (max-width: 700px), (max-height: 500px) and (orientation: landscape) {
+  .mq-app-shell[class] .bt-layout-diagonal .bt-unit { left: calc(3% + var(--slot) * 24%); top: 50%; width: min(21cqw, calc(25cqh - 20px), 180px); min-width: 44px; }
+  .mq-app-shell[class] .bt-layout-diagonal .bt-team[data-side="B"] .bt-unit { left: calc(3% + var(--slot) * 24%); top: 5%; }
+}
 .mq-app-shell[class] .bt-head-actions :is(.bt-sw, .bt-spd, .bt-info-trigger) { width: 44px; height: 44px; min-width: 44px; border-radius: 50%; background: #0b0e0fd9; box-shadow: inset 0 0 0 1.5px #c4a76d; color: #edd49a; padding: 0; }
 .mq-app-shell[class] .bt-head-actions .bt-sw { font-size: 11px; }
 .mq-app-shell[class] .bt-head-actions .bt-sw[aria-checked="true"] { background: #c4a76d40; box-shadow: inset 0 0 0 2px #edd49a; color: #fff0c8; }

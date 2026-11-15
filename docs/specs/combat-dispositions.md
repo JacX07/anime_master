@@ -53,3 +53,7 @@ Le joueur garde les **diagonales parallèles sur toute la largeur** (l'état d'a
 - Formation : pas horizontal de 10 % par carte, largeur de carte `min(9.4cqw, 27cqh, 260px)` : une carte n'est jamais plus large que le pas, donc aucune superposition. La formation occupe toute la largeur jusqu'au ratio 3,6:1 ; au-delà (ultra-large) elle reste centrée.
 - Arène plus haute que large (ratio ≤ 6:5, requête de conteneur) : ennemis en diagonale en haut, alliés en diagonale en bas, une colonne par carte.
 - Vérifié dans le jeu (`/combat/test`) de 320×568 à 3440×950 : aucun chevauchement, aucune carte hors de l'arène, zones dans l'ordre, croix en haut à droite, pas de défilement horizontal.
+
+## Précision du 15 novembre 2026
+
+PC et tablette : diagonales parallèles (décision du 13 novembre). Téléphone, portrait ou paysage : deux lignes droites alignées (`spell-hand.css`, demande « aligner les équipes » du 14 novembre).

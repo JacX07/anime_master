@@ -799,3 +799,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Tutoriel : `nav()` cible aussi `.mq-slim-tabs` puis `.mq-slim-menu` en repli ; JOUER `.mq-slim-play` ; compte `.mq-slim-avatar`. Parcours complet du tutoriel non rejoué.
 - Vérifié sur le site dev : /album, /market, /friends, /histoire, /guide (visiteur), /u, combat ; Menu (page courante, Échap, lien), raccourcis, JOUER, « + », menu du profil au clic (< 1500 px) ; largeurs 1920 à 701 sans chevauchement ni débordement ; accueil et mobile inchangés ; `check-desktop-home`, ESLint et TypeScript réussis.
 
+## 2026-11-15 — Combat : diagonales rétablies sur PC
+- Symptôme : sur PC, les équipes étaient sur deux lignes plates au lieu des diagonales validées le 2026-11-13.
+- Cause : la demande du 2026-11-14 « aligner les équipes » (pensée pour le téléphone) a été codée dans `spell-hand.css` par une règle sans media query, qui écrasait les diagonales de `battle.css` à toutes les tailles.
+- Correctif : règle limitée aux téléphones (≤ 700 px, ou paysage ≤ 500 px de haut). PC et tablette retrouvent les diagonales ; téléphones inchangés.
+- Vérifié sur `/combat/test` : 3440×950, 2000×949, 1920×1080, 1440×900, 1280×800, 1024×768 et 768×1024 en diagonales, sans chevauchement ni carte hors du plateau (hors animation d'attaque) ; 390×844 et 844×390 en deux lignes comme avant ; aucune erreur JavaScript.
+
