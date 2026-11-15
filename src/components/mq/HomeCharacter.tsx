@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Rarity } from "@/generated/prisma/enums";
 import { Icon, RarityGem } from "@/components/icons";
 import { closeOnBackdrop } from "@/lib/dialog";
@@ -34,7 +34,7 @@ export function HomeCharacter({ userId, characters }: { userId: string; characte
   return <section className="mobile-home-hero" aria-label="Personnage d’accueil" data-admiring={admiring || undefined}>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img className="mobile-home-art" src={selected?.imageUrl ?? "/images/backgrounds/accueil.webp"} alt={selected ? selected.name : ""} referrerPolicy="no-referrer" />
-    <div className="mobile-home-copy">
+    <div className="mobile-home-copy" style={selected ? { "--home-rarity": `var(--rarity-${selected.rarity})` } as CSSProperties : undefined}>
       {selected ? <><span className="mobile-home-rarity" style={{ color: `var(--rarity-${selected.rarity})` }}><RarityGem rarity={selected.rarity} />{selected.rarity}</span><h1>{selected.name}</h1><small>Ton personnage d’accueil</small></>
         : <><small>ANIMA CLASH</small><h1>La Faille vous appelle.</h1><small>Ta prochaine légende t’attend.</small></>}
     </div>

@@ -781,3 +781,11 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Vérification finale après build : pause pendant l’absorption à ×1 puis reprise à ×4, ultime réellement chargé et lancé, fin automatique puis sortie ; aucun canvas ni classe de consommation restant, aucune erreur JavaScript. Mesure indicative après limitation des particules et pause des halos inactifs : 49 frames/1,2 s, p95 49,9 ms en Chromium headless sous captures. Build réussi ; tests responsive et descriptions réussis. Performance sur téléphone physique non mesurée.
 
 - 2026-11-14 : signalement d’une barre noire derrière les sorts. Le fond quasi opaque du panneau précédent et les aplats de description/résumé subsistaient après passage à l’éventail. Retirer ces trois fonds et conserver la lisibilité des textes par une ombre ; le panneau détaillé garde son fond. Build et `graphify update .` réussis ; navigateur sur `/combat/test?seed=186752076` en 1280×800 et 390×844 : trois fonds transparents, éventail présent, détails ouverts avec fond conservé et fermés par Échap. Accueil mobile et cinq onglets vérifiés à 390 px.
+
+## 2026-11-15 — Accueil PC trop éloigné de la maquette Lames · Violet nuit
+- Symptôme : rectangle sombre autour de l’illustration, grand « I » fantôme en bas à droite, cadran qui traverse JOUER, lame JOUER pas plus visible que les autres.
+- Causes : voile `.mobile-home-hero::after` rectangulaire posé sur l’image fondue ; chiffre romain décoratif de l’ancien accueil (`maquette.css`, `.mq-main::before`) toujours actif ; lames translucides devant le cadran.
+- Correctif (≥ 1101 px, `home-hub.css`) : illustration en calque centré à fondu radial, sans voile ; emblèmes gravés à gauche ; progression en bannière en haut ; lames opaques et décalées sur le cadran, JOUER doré deux fois plus haut ; ressources en blocs avec libellé au-dessus ; bande du bas avec icônes. Tablette et mobile inchangés.
+- Piège : `:is()` n’accepte pas les pseudo-éléments (`::after`) ; écrire les sélecteurs séparément.
+- Vérifié sur le site dev : 1920, 1600, 1440, 1280 (sans défilement) et 390 px, mode Admirer, parcours `check-desktop-home` (vitrine, recherche, rechargement, chat, liens) sans erreur ; TypeScript et ESLint ciblé réussis.
+
