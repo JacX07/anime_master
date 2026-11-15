@@ -2402,6 +2402,11 @@
 .mq-account { height: auto; }
 .mq-account-panel { left: auto; right: 0; width: 210px; transform: translate(0, 8px); display: flex; flex-direction: column; gap: 2px; }
 .mq-nav-dropdown:hover .mq-account-panel, .mq-nav-dropdown:focus-within .mq-account-panel { transform: translate(0, 0); }
+/* Le menu du profil ne s'ouvre qu'au survol (ou focus) de l'avatar, du pseudo ou du menu lui-même, pas des ressources. */
+.mq-nav-dropdown.mq-account:not([data-open="true"]):not(:has(:is(.mq-avatar, .mq-player-name, .mq-account-panel):is(:hover, :focus-within))) .mq-account-panel { opacity: 0; visibility: hidden; transform: translate(0, 8px); transition: opacity .15s .25s, transform .15s .25s, visibility 0s .4s; }
+.mq-player-name { color: inherit; }
+/* Bouton « + » des ressources (sources de gains) : affiché par home-hub.css sur l'accueil grand écran uniquement. */
+.wallet-sources { display: none; }
 .mq-account-name { padding: 6px 10px 2px; font: 600 15px var(--font-cinzel), serif; }
 .mq-account-name small { display: block; margin-top: 3px; color: #a68e5d; font: 700 8px var(--font-dm), sans-serif; letter-spacing: .2em; text-transform: uppercase; }
 .mq-account-panel dl { margin: 6px 0; padding: 8px 10px; border-top: 1px solid #2a2f2c; border-bottom: 1px solid #2a2f2c; }

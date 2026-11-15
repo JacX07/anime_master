@@ -23,6 +23,7 @@ import { PlayMenu } from "./PlayMenu";
 import { Tutorial } from "../Tutorial";
 import { Navigation } from "./Navigation";
 import { MiniBar } from "./MiniBar";
+import { WalletSources } from "./WalletSources";
 import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
 import { PVP_AVAILABLE } from "@/lib/feature-flags";
@@ -144,17 +145,18 @@ async function Account() {
       <Tutorial />
       <Suspense fallback={null}><ReleaseAnnouncement userId={user.id} /></Suspense>
       <AccountDropdown>
-        <Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player" aria-label={`Profil de ${user.username}`}>
+        {/* Seuls l'avatar et le pseudo mènent au profil (et ouvrent son menu) : les ressources gardent leurs propres boutons. */}
+        <div className="mq-player">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <span className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`}>{avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : user.username.slice(0, 2).toUpperCase()}</span>
+          <Link href={`/u/${encodeURIComponent(user.username)}`} className={`mq-avatar ${wallet.canClaimBonus ? "mq-active" : ""}`} aria-label={`Profil de ${user.username}`}>{avatarUrl ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" /> : user.username.slice(0, 2).toUpperCase()}</Link>
           <span className="mq-player-text">
-            <b>{user.username}</b>
+            <b><Link href={`/u/${encodeURIComponent(user.username)}`} className="mq-player-name">{user.username}</Link></b>
             {title && <small>{title}</small>}
             <small>Puissance {num.format(packs.collectionPower)}</small>
             <span className="mq-wallet" aria-label="Ressources">
               <span className="mq-wallet-free" title="Cartes offertes"><Icon name="paquet" />{packs.freeCards}</span>
-              <span className="mq-wallet-ryo"><Icon name="ryo" /><CountUp value={wallet.balance} id="ryo" /><em>Ryō</em></span>
-              <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" /><CountUp value={packs.available} id="crystals" /></span>
+              <span className="mq-wallet-ryo"><Icon name="ryo" /><CountUp value={wallet.balance} id="ryo" /><em>Ryō</em><WalletSources kind="ryo" /></span>
+              <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" /><CountUp value={packs.available} id="crystals" /><WalletSources kind="crystals" /></span>
               <span className="mq-wallet-energy" title="Énergie"><Icon name="recharge" />{energy.available}/{MAX_ENERGY}</span>
             </span>
             <span className="mq-xp" role="progressbar" aria-label="Expérience d'Arpenteur" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xpPct}>
@@ -163,7 +165,7 @@ async function Account() {
               {adventure.next !== null && <small>{num.format(adventure.xp - adventure.floor)} / {num.format(adventure.next - adventure.floor)}</small>}
             </span>
           </span>
-        </Link>
+        </div>
         <form action={signOut} className="mq-dropdown-panel mq-account-panel">
           {wallet.canClaimBonus && <DailyBonus />}
           <p className="mq-account-name">{user.username}<small>{title ? `${title} · ` : ""}Arpenteur niv. {adventure.level}</small><small>Puissance {num.format(packs.collectionPower)}</small></p>

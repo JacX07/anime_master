@@ -18,7 +18,7 @@ export function AccountDropdown({ children }: { children: ReactNode }) {
     <div className="mq-nav-dropdown mq-account" ref={root} data-open={open}
       onClickCapture={(e) => {
         const target = e.target as HTMLElement;
-        if (window.matchMedia("(max-width: 1499px)").matches && target.closest(".mq-player")) { e.preventDefault(); setOpen((o) => !o); }
+        if (window.matchMedia("(max-width: 1499px)").matches && target.closest(".mq-avatar, .mq-player-name")) { e.preventDefault(); setOpen((o) => !o); }
         else if (target.closest(".mq-account-panel a")) setOpen(false);
       }}>
       {children}
