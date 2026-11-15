@@ -1,5 +1,10 @@
 # Journal des agents
 
+## 2026-11-15 — Fonds des objets de l’inventaire
+- Demande : couleur de rareté sur toute la case et dégradé plus intense en haut. Réutiliser `--artifact-color` pour les artefacts et `--slot-color` pour les ressources ; celles-ci ont une teinte de famille, pas une rareté métier. Aucun changement aux objets ni aux grades.
+- Correctif : un même dégradé pour `.inventory-slot`, y compris survol/sélection, sans filet inférieur. Navigateur : 320, 390, 430 et 1440 px, fonds calculés en dégradé, aucun débordement, fiche sélectionnée/fermée et rechargement réussis. Build Node 24/TypeScript et graphify réussis.
+- Contexte rôles : `character-roles.ts` score secondaire/tertiaire/ultime et retient les rôles atteignant 70 % du meilleur ; attaque de base omise et score offensif minoré de 0,5 par sort. Buffs personnels, malus et contrôles comptent Support. Ceci explique Killua/Gojo/Eren Support et Kaneki Attaque/Support ; aucune règle modifiée dans cette demande.
+
 ## 2026-11-14 — Main repliée et confirmation explicite des sorts
 - Validation de l’éventail permanent : lint ciblé, check:spell-inspection, check:doflamingo, check:combat-selection, build Node 24/TypeScript et graphify réussis. Navigateur Chromium : maintien souris natif, relâchement sans choix/cible, carte restant en avant et plateau stable à 320×568, 375×667, 390×844, 430×932, 844×390 et 1440×900. Tactile simulé via CDP et clavier Espace : fiche épinglée ; clic sur le texte conservé ; extérieur/Échap ferment ; clic bref puis cible et abandon TEST réussis. Squad inchangée ; aucun appareil physique ni PvP réel.
 - Ajustement validé le 2026-11-15 : éventail toujours ouvert, suppression du repliement ; le maintien épingle les détails et relève le sort après relâchement. Fermeture au toucher extérieur, choix de sort, Échap, annulation/perte de focus ou changement de tour. Ne pas fermer sur lostpointercapture normal après pointerup.

@@ -162,6 +162,7 @@ Correction responsive du 2026-11-13 : le combat et son résultat restent devant 
 
 ### 4.16 Cases d'artefact par rareté (révisé le 2026-11-13)
 Le fond de la case est de la **couleur de la rareté** (46 % sur `#0a0e0d`, 58 % au survol, 62 % et contour or `#d5bb7f` à la sélection). **Plus de losange en haut à gauche, plus de reflet, plus de ligne** : demande du joueur. Icône non désaturée, niveau en blanc. Même rendu dans la fiche personnage (`.eq-character-dialog`).
+Décision du 2026-11-15, grille Inventaire : ressources, armes et artefacts partagent un fond en dégradé vertical de leur couleur existante. Haut à 46 %, bas à 18 % sur `#0a0e0d` ; survol 58/26 %, sélection 62/30 % et contour or. Le rouge mythique UR reste rouge, les autres objets gardent leur teinte ; aucune rareté ajoutée aux matériaux qui n’en ont pas. Le fond remplace le filet inférieur. Les cases d’équipement hors Inventaire gardent leur présentation actuelle.
 
 ### 4.16 bis Inventaire à deux colonnes (2026-11-13)
 Objets à gauche (grille de cases carrées), à droite une colonne collante : la fiche de l'objet sélectionné en premier, puis les filtres (univers, tri, non possédés, filtres d'artefacts, recyclage). Recherche en pleine largeur au-dessus. Sous 981 px : une colonne (filtres repliables, grille, fiche).
