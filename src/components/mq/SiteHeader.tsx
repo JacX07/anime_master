@@ -152,6 +152,7 @@ async function Account() {
             {title && <small>{title}</small>}
             <small>Puissance {num.format(packs.collectionPower)}</small>
             <span className="mq-wallet" aria-label="Ressources">
+              <span className="mq-wallet-free" title="Cartes offertes"><Icon name="paquet" />{packs.freeCards}</span>
               <span className="mq-wallet-ryo"><Icon name="ryo" /><CountUp value={wallet.balance} id="ryo" /><em>Ryō</em></span>
               <span className="mq-wallet-crystal" title="Cristaux"><Icon name="cristal" /><CountUp value={packs.available} id="crystals" /></span>
               <span className="mq-wallet-energy" title="Énergie"><Icon name="recharge" />{energy.available}/{MAX_ENERGY}</span>

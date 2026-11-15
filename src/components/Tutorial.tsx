@@ -15,7 +15,7 @@ function visible(el: Element | null): el is HTMLElement {
   const r = el.getBoundingClientRect();
   return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden";
 }
-const atStepPage = (page: string | undefined, pathname: string) => pathname === page || (page === "/packs" && pathname === "/" && typeof window !== "undefined" && window.matchMedia("(min-width: 701px)").matches);
+const atStepPage = (page: string | undefined, pathname: string) => pathname === page;
 
 const firstVisible = (selectors: string[]) => {
   for (const s of selectors) for (const el of document.querySelectorAll(s)) if (visible(el)) return el;

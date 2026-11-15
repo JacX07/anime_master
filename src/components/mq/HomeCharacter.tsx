@@ -10,6 +10,7 @@ type Character = { id: number; name: string; imageUrl: string; rarity: Rarity };
 export function HomeCharacter({ userId, characters }: { userId: string; characters: Character[] }) {
   const storageKey = `home-character:${userId}`;
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [admiring, setAdmiring] = useState(false);
   const [query, setQuery] = useState("");
   const [limit, setLimit] = useState(60);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -20,11 +21,17 @@ export function HomeCharacter({ userId, characters }: { userId: string; characte
       if (characters.some((character) => character.id === saved)) setSelectedId(saved);
     } catch { /* Le choix reste utilisable lorsque le stockage est indisponible. */ }
   }, [storageKey, characters]);
+  useEffect(() => {
+    if (!admiring) return;
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setAdmiring(false); };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [admiring]);
   const selected = characters.find((character) => character.id === selectedId) ?? characters[0];
   const needle = query.trim().toLocaleLowerCase("fr");
   const shown = characters.filter((character) => character.name.toLocaleLowerCase("fr").includes(needle));
 
-  return <section className="mobile-home-hero" aria-label="Personnage d’accueil">
+  return <section className="mobile-home-hero" aria-label="Personnage d’accueil" data-admiring={admiring || undefined}>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img className="mobile-home-art" src={selected?.imageUrl ?? "/images/backgrounds/accueil.webp"} alt={selected ? selected.name : ""} referrerPolicy="no-referrer" />
     <div className="mobile-home-copy">
@@ -32,6 +39,7 @@ export function HomeCharacter({ userId, characters }: { userId: string; characte
         : <><small>ANIMA CLASH</small><h1>La Faille vous appelle.</h1><small>Ta prochaine légende t’attend.</small></>}
     </div>
     {characters.length > 0 && <button type="button" className="mobile-home-change" onClick={() => { setQuery(""); setLimit(60); dialog.current?.showModal(); }}><Icon name="modifier" />Changer</button>}
+    <button type="button" className="home-admire home-desktop-only" aria-pressed={admiring} onClick={() => setAdmiring(!admiring)}>{admiring ? "Revenir au menu" : "Admirer"}</button>
     <dialog ref={dialog} className="mobile-character-picker" aria-labelledby="home-character-title" onClick={closeOnBackdrop}>
       <div className="mobile-character-head"><h2 id="home-character-title">Personnage d’accueil</h2><button type="button" className="ui-button" onClick={() => dialog.current?.close()}>Fermer</button></div>
       <p>Choisis une illustration parmi tes personnages. Ton avatar reste inchangé.</p>

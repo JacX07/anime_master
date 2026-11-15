@@ -19,7 +19,7 @@ export type TutorialStep = {
   mode?: string;
 };
 
-const nav = (href: string) => `.mobile-collection-tabs a[href="${href}"], .mobile-menu-link[href="${href}"], .mobile-bottom-nav a[data-section="${mobileSection(href)}"], .mq-game-nav a[href="${href}"]`;
+const nav = (href: string) => `.mobile-collection-tabs a[href="${href}"], .mobile-menu-link[href="${href}"], .mobile-bottom-nav a[data-section="${mobileSection(href)}"], .home-hub a[href="${href}"], .mq-game-nav a[href="${href}"]`;
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "invoke", phase: "action", title: "Invoque tes cartes", text: "Ici tu invoques tes premières cartes : un cristal = une carte. Lance un tirage pour continuer.",

@@ -9,7 +9,7 @@ Pour l’instant, pas de personnage : une page **Guide** (`/guide`, menu Quêtes
 À la première arrivée d'un **nouveau compte**, des infobulles numérotées guident le joueur. Les comptes existants ne le voient pas (ils peuvent le lancer depuis la page Guide).
 
 **Phase 1 — Premiers pas (actions réelles).** L'étape suivante s'affiche automatiquement dès que l'action est faite.
-1. « Ici tu invoques tes cartes » : zone d'invocation de l'accueil. Terminé quand le joueur possède une carte.
+1. « Ici tu invoques tes cartes » : page Invocation (`/packs`), accessible depuis l’accueil sur PC et l’onglet Invocation sur mobile. Terminé quand le joueur possède une carte.
 2. « Ici tu formes ta squad » : menu Squads, puis les emplacements. Terminé quand l'équipe d'attaque a 4 cartes.
 3. « Ici tu lances le mode histoire » : JOUER, puis Mode histoire, puis le combat 1 de One Piece. Terminé quand le **premier combat est gagné**.
 

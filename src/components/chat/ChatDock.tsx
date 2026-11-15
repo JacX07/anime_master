@@ -51,7 +51,7 @@ export function ChatDock({ userId }: { userId: string }) {
   const panel = useRef<HTMLElement>(null);
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (open && window.matchMedia("(max-width: 700px)").matches) panel.current?.querySelector<HTMLButtonElement>(".chat-close")?.focus();
+    if (open) panel.current?.querySelector<HTMLButtonElement>(".chat-close")?.focus();
   }, [open]);
   const last = useRef<string | null>(null);
   const busy = useRef(false);

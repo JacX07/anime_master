@@ -31,6 +31,19 @@
 .invocation-page .pk-main > .pk-stage { grid-column: 1; }
 .invocation-page .pk-main > .pk-banner-panel { grid-column: 2; }
 
+.mobile-character-picker { position: fixed; inset: 0; margin: auto; width: min(94vw, 520px); max-height: calc(100dvh - 32px); padding: 18px; border: 0; border-radius: 7px; background: var(--panel); color: var(--foreground); overflow: auto; }
+.mobile-character-picker::backdrop { background: #040606d1; }
+.mobile-character-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mobile-character-head h2 { font-size: 20px; }
+.mobile-character-picker p { margin: 12px 0; font-size: 13px; color: #b4b2aa; }
+.mobile-character-picker input { width: 100%; min-height: 44px; padding: 12px; margin-bottom: 16px; border: 0; background: var(--panel-raised); color: var(--foreground); font-size: 16px; }
+.mobile-character-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; }
+.mq-app-shell[class][class] .mobile-character-grid button { display: block; min-width: 0; padding: 0; text-align: left; background: none; }
+.mobile-character-grid img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 3px; }
+.mobile-character-grid b { display: block; font: 400 11px var(--font-dm), sans-serif; margin-top: 6px; overflow-wrap: anywhere; }
+.mobile-character-grid small { display: block; color: var(--info); font-size: 10px; }
+.mobile-character-grid button[aria-pressed="true"] { color: var(--gold); background: var(--panel-raised); }
+
 @media (max-width: 700px) {
   :root {
     --background: #0a0910;
@@ -142,18 +155,7 @@
   .mobile-home-event { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 14px; font-size: 12px; color: #b4b2aa; }
   .mobile-home-event a { display: inline-flex; gap: 5px; align-items: center; min-height: 44px; color: var(--gold); }
   .mobile-home-event .i { width: 16px; height: 16px; }
-  .mobile-character-picker { position: fixed; inset: 0; margin: auto; width: min(94vw, 520px); max-height: calc(100dvh - 32px); padding: 18px; border: 0; border-radius: 7px; background: var(--panel); color: var(--foreground); overflow: auto; }
-  .mobile-character-picker::backdrop { background: #040606d1; }
-  .mobile-character-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .mobile-character-head h2 { font-size: 20px; }
-  .mobile-character-picker p { margin: 12px 0; font-size: 13px; color: #b4b2aa; }
-  .mobile-character-picker input { width: 100%; min-height: 44px; padding: 12px; margin-bottom: 16px; border: 0; background: var(--panel-raised); color: var(--foreground); font-size: 16px; }
-  .mobile-character-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; }
-  .mq-app-shell[class][class] .mobile-character-grid button { display: block; min-width: 0; padding: 0; text-align: left; background: none; }
-  .mobile-character-grid img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 3px; }
-  .mobile-character-grid b { display: block; font: 400 11px var(--font-dm), sans-serif; margin-top: 6px; overflow-wrap: anywhere; }
-  .mobile-character-grid small { display: block; color: var(--info); font-size: 10px; }
-  .mobile-character-grid button[aria-pressed="true"] { color: var(--gold); background: var(--panel-raised); }
+
 
   .mobile-mode-grid, .mobile-menu-groups { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .mq-app-shell .mobile-mode { gap: 12px; padding: 16px 12px; min-height: 96px; }

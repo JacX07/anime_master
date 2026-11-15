@@ -242,6 +242,10 @@ Maquette validée dans la conversation : accueil centré sur un personnage, coll
 - **Invocation** : `/packs` devient une destination réelle, avec le moteur et les animations existants ; aucun changement aux coûts, garanties ou taux.
 - **Jouer** : histoire prioritaire, accès aux autres modes et conditions réelles. **Menu** : progression, amis/guildes, Marché et Échanges, guide, réglages et mises à jour. Guide et tutoriel suivent ces accès.
 
+### 4.29 Accueil PC « Lames » — Violet nuit (2026-11-15)
+
+Reprise demandée de la maquette `accueil-pont-v3.html` du début du fil, disposition Lames sélectionnée : personnage intégré au centre, activités à gauche, cinq lames à droite autour du cadran gravé avec JOUER prédominant ; ressources élargies en haut, accès secondaires en bas. Palette Violet nuit du §4.28, texte agrandi (titres d’activité 18 px, lames 23 px, détails 13 px, accès secondaires 15 px), aucune heure/date. L’ancienne barre de navigation et sa mini-barre disparaissent sur l’accueil PC ; les pages intérieures gardent leurs accès existants. Une même vitrine et préférence de personnage servent PC et mobile ; Changer et Admirer sont fonctionnels, Échap quitte Admirer. Les chiffres viennent des données réelles ; Invocations rejoint `/packs`, Jouer rejoint le hub des modes et le tutoriel suit ces routes. Sous 701 px, les cinq onglets et la composition mobile sont conservés. De 701 à 1100 px, composition en deux colonnes et activités sous la vitrine pour préserver la lisibilité. Aucun moteur de jeu modifié.
+
 ## 5. Iconographie
 Piste C « Héraldique » : sprite `public/icons/icons.json` via `Icon`, `TypeIcon`, `RarityGem`, `StatusIcon` (`src/components/icons.tsx`). Silhouettes de blasons, aplats francs, lisibles en petit ; couleurs de rareté conservées. Symboles typographiques admis : `◇ ◆ › → ✓ ×`.
 
