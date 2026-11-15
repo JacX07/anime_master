@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type CSSProperties } from "react";
+import { useHoldInspection, type InspectSpell } from "./useHoldInspection";
 import type { CardType } from "@/generated/prisma/enums";
 
 /** Couleur de l'emblème et de l'annonce d'ultime selon le type de la carte */
@@ -23,13 +24,18 @@ export type HandCard = {
   selected: boolean;
 };
 
-export function SpellHand({ cards, portrait, interactive, busy, onChoose }: {
+export function SpellHand({ cards, portrait, interactive, busy, inspecting, inspectionId, enabled, onInspect, onChoose }: {
   cards: HandCard[];
   portrait?: string;
   interactive: boolean;
   busy: boolean;
+  inspecting: string | null;
+  inspectionId: string;
+  enabled: boolean;
+  onInspect: InspectSpell;
   onChoose: (key: string, el: HTMLElement) => void;
 }) {
+  const hold = useHoldInspection(onInspect, enabled);
   const [viewport, setViewport] = useState({ width: 760, height: 800 });
   const viewportWidth = viewport.width;
   const small = viewportWidth <= 640;
@@ -47,14 +53,16 @@ export function SpellHand({ cards, portrait, interactive, busy, onChoose }: {
       {cards.map((c, i) => {
         const m = i - (n - 1) / 2;
         const gap = Math.min(w * 0.75, room);
-        const x = m * gap, y = c.selected ? -(small ? 4 : 10) : 10 + Math.abs(m) * 12, r = c.selected ? 0 : m * 8;
+        const inspectingCard = inspecting === c.key;
+        const raised = c.selected || inspectingCard;
+        const x = m * gap, y = inspectingCard ? -(small ? 14 : 24) : c.selected ? -(small ? 4 : 10) : 10 + Math.abs(m) * 12, r = raised ? 0 : m * 8;
         const disabled = interactive && (!c.ready || busy);
         return (
-          <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-armed={c.selected || undefined}
-            data-cd={interactive && !c.ready && c.wait > 0 ? c.wait : undefined} disabled={disabled} aria-pressed={interactive ? c.selected : undefined}
+          <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-armed={c.selected || undefined} data-inspecting={inspectingCard || undefined}
+            data-cd={interactive && !c.ready && c.wait > 0 ? c.wait : undefined} aria-disabled={disabled || undefined} aria-describedby={inspectingCard ? inspectionId : undefined} aria-pressed={interactive ? c.selected : undefined}
             aria-label={`${c.name} : ${c.details}`}
-            style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg) scale(${c.selected ? 1.03 : 1})`, zIndex: c.selected ? 20 : i, marginLeft: `${-w / 2}px` } as CSSProperties}
-            onClick={(e) => onChoose(c.key, e.currentTarget)}>
+            style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg) scale(${inspectingCard ? 1.08 : c.selected ? 1.03 : 1})`, zIndex: inspectingCard ? 30 : c.selected ? 20 : i, marginLeft: `${-w / 2}px` } as CSSProperties}
+            {...hold(c.key, (anchor) => { if (!disabled) onChoose(c.key, anchor); })}>
             <span className="bt-hand-glow" aria-hidden="true" /><span className="bt-hand-halo" aria-hidden="true" />
             <span className="bt-hand-face">
               <span className="bt-hand-art" aria-hidden="true" />
@@ -71,7 +79,7 @@ export function SpellHand({ cards, portrait, interactive, busy, onChoose }: {
 }
 
 /** Ultime : disque sombre, portrait du personnage teinté, liquide texturé (immobile) qui monte avec la jauge, arc de charge. */
-export function UltimateEmblem({ gauge, max, name, portrait, color, interactive, ready, armed, busy, onClick }: {
+export function UltimateEmblem({ gauge, max, name, portrait, color, interactive, ready, armed, busy, inspecting, inspectionId, enabled, onInspect, onClick }: {
   gauge: number;
   max: number;
   name: string;
@@ -82,8 +90,13 @@ export function UltimateEmblem({ gauge, max, name, portrait, color, interactive,
   ready: boolean;
   armed: boolean;
   busy: boolean;
+  inspecting: boolean;
+  inspectionId: string;
+  enabled: boolean;
+  onInspect: InspectSpell;
   onClick: (el: HTMLElement) => void;
 }) {
+  const hold = useHoldInspection(onInspect, enabled);
   const uid = useId().replace(/:/g, "");
   const pct = Math.max(0, Math.min(100, (gauge / max) * 100));
   const full = pct >= 100;
@@ -91,9 +104,9 @@ export function UltimateEmblem({ gauge, max, name, portrait, color, interactive,
   const y = bottom - (bottom - top) * (pct / 100);
   const id = (s: string) => `${s}${uid}`;
   return (
-    <button type="button" className="bt-ult" data-full={full || undefined} data-armed={armed || undefined} disabled={!interactive || !ready || busy}
+    <button type="button" className="bt-ult" data-full={full || undefined} data-armed={armed || undefined} data-inspecting={inspecting || undefined} aria-disabled={!interactive || !ready || busy || undefined} aria-describedby={inspecting ? inspectionId : undefined}
       aria-pressed={interactive ? armed : undefined} aria-label={`Ultime ${name} : ${Math.round(pct)} %${full ? ", prêt" : ""}`} title={`${name} · ${Math.round(pct)} %`}
-      style={{ "--ult": color } as CSSProperties} onClick={(e) => onClick(e.currentTarget)}>
+      style={{ "--ult": color } as CSSProperties} {...hold("ultimate", (anchor) => { if (interactive && ready && !busy) onClick(anchor); })}>
       <svg viewBox="0 0 200 210" aria-hidden="true">
         <defs>
           <clipPath id={id("c")}><circle cx="100" cy="110" r="78" /></clipPath>

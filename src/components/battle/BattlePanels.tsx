@@ -13,6 +13,8 @@ import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
 import { TypeIcon } from "../icons";
 import { SpellHand, UltimateEmblem, ULT_COLOR, type HandCard } from "./SpellHand";
+import { SpellInspection } from "./SpellInspection";
+import type { InspectSpell } from "./useHoldInspection";
 import type { PlayerCharacter } from "./BattlePlayer";
 import { confirmationScope, type ConfirmationScope } from "@/lib/combat-selection";
 
@@ -41,7 +43,10 @@ export function SpellsPanel({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [inspected, setInspected] = useState<Spell | null>(null);
+  const [inspection, setInspection] = useState<{ key: string; anchor: HTMLElement } | null>(null);
   const handId = useId();
+  const inspectionId = `${handId}-inspection`;
+  const onInspect: InspectSpell = (key, anchor) => setInspection(key && anchor ? { key, anchor } : null);
   const selected = choose ? choose.spell : inspected;
   const affinity = SPELL_INFO[unit.type];
   const boss = unit.boss ? BOSS_SKILLS[unit.characterId] : undefined;
@@ -99,12 +104,7 @@ export function SpellsPanel({
     ready: !choose || choose.choices.some((c) => c.spell === s.key), wait: waitOf(s.key),
     selected: selected === s.key,
   }));
-  const detail = spells.find((entry) => entry.key === selected);
-  const isGlobal = choose?.choices.find((entry) => entry.spell === selected)?.targets.includes(null);
-  const hint = !isGlobal ? "Touche une carte surlignée sur le plateau pour confirmer." : detail?.confirm === "team"
-    ? "Touche le lanceur ou un allié surligné pour confirmer l’effet de groupe." : detail?.confirm === "foes"
-      ? "Touche un ennemi surligné pour confirmer l’effet de groupe." : detail?.confirm === "fallen-allies"
-        ? "Touche un allié K.O. surligné pour confirmer." : "Touche le lanceur surligné pour confirmer.";
+  const detail = spells.find((entry) => entry.key === inspection?.key);
   const choose_ = (key: Spell) => {
     const next = selected === key ? null : key;
     setInspected(next);
@@ -119,7 +119,7 @@ export function SpellsPanel({
       )}
       <button type="button" className="bt-hand-toggle" aria-label={`${expanded ? "Replier" : "Afficher"} les sorts de ${character?.name ?? unit.id}`} aria-expanded={expanded} aria-controls={handId} onClick={() => {
         setExpanded(!expanded);
-        if (expanded) { setInspected(null); choose?.onSpell(null, "self"); }
+        if (expanded) { setInspection(null); setInspected(null); choose?.onSpell(null, "self"); }
       }}>{expanded ? <span>Replier</span> : <span className="bt-hand-peek" aria-hidden="true">
         {cards.map((card, index) => {
           const offset = index - (cards.length - 1) / 2;
@@ -130,13 +130,13 @@ export function SpellsPanel({
         })}
       </span>}</button>
       <div id={handId} className="bt-expanded-hand" hidden={!expanded}>
-        {detail && <div className="bt-spell-preview" aria-live="polite"><b>{detail.name}</b><p>{detail.tooltip}</p><small>{choose ? hint : detail.note}</small></div>}
+        {detail && inspection && <SpellInspection id={inspectionId} anchor={inspection.anchor} name={detail.name} target={detail.target} description={detail.tooltip} note={detail.note} />}
       <div className="bt-hand-zone">
-        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy}
+        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} inspecting={inspection?.key ?? null} inspectionId={inspectionId} enabled={expanded} onInspect={onInspect}
           onChoose={(k) => choose_(k as Spell)} />
         {ultimateSpell && (
           <UltimateEmblem gauge={ultimateGauge} max={ultimateGaugeMax} name={ultimateSpell.name} portrait={character?.imageUrl} color="#ff4d6d"
-            interactive={!!choose} ready={!choose || choose.choices.some((c) => c.spell === "ultimate")} armed={selected === "ultimate"} busy={!!choose?.busy}
+            interactive={!!choose} ready={!choose || choose.choices.some((c) => c.spell === "ultimate")} armed={selected === "ultimate"} busy={!!choose?.busy} inspecting={inspection?.key === "ultimate"} inspectionId={inspectionId} enabled={expanded} onInspect={onInspect}
             onClick={() => choose_("ultimate")} />
         )}
       </div>
