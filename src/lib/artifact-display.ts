@@ -35,6 +35,8 @@ export const SET_ARTIFACTS: Record<string, Record<string, string>> = {
   "jujutsu-kaisen": { CASQUE: "Bandeau de l'Infini", PLASTRON: "Veste de sorcier", GANTS: "Gants de l'Infini", BOTTES: "Bottes de sorcier" },
   "dragon-ball": { CASQUE: "Scouter saiyan", PLASTRON: "Kimono de combat", GANTS: "Poignets d'entraînement", BOTTES: "Bottes saiyan" },
   "fairy-tail": { CASQUE: "Diadème de Fairy Tail", PLASTRON: "Manteau de Fairy Tail", GANTS: "Gants de Fairy Tail", BOTTES: "Bottes de Fairy Tail" },
+  "attack-on-titan": { CASQUE: "Capuche du Bataillon d’exploration", PLASTRON: "Veste du Bataillon d’exploration", GANTS: "Gants du Bataillon d’exploration", BOTTES: "Bottes du Bataillon d’exploration" },
+  "demon-slayer": { CASQUE: "Masque de pourfendeur", PLASTRON: "Haori de Tanjiro", GANTS: "Gants de pourfendeur", BOTTES: "Sandales de pourfendeur" },
   bleach: { CASQUE: "Masque de Hollow", PLASTRON: "Shihakushō de capitaine", GANTS: "Brassards de shinigami", BOTTES: "Bottes de shinigami" },
 };
 const SLOT_FILES: Record<string, string> = { CASQUE: "helmet", PLASTRON: "breastplate", GANTS: "gauntlets", BOTTES: "boots" };
