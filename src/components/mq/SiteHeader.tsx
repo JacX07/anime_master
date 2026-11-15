@@ -16,6 +16,7 @@ import { getWallet } from "@/lib/wallet";
 import { prisma } from "@/lib/db";
 import { titleOf, unclaimedAchievementCount } from "@/lib/achievements";
 import { readyCount } from "@/lib/expeditions";
+import { playModeState } from "@/lib/play-modes";
 import { getPeriodicQuests } from "@/lib/periodic-quests";
 import { avatarsFor } from "@/lib/profile";
 import { DailyBonus } from "../DailyBonus";
@@ -29,7 +30,6 @@ import "./slimbar.css";
 import { WalletSources } from "./WalletSources";
 import { AccountDropdown } from "./AccountDropdown";
 import { Icon } from "../icons";
-import { PVP_AVAILABLE } from "@/lib/feature-flags";
 import { ReleaseAnnouncement } from "../changelog/ReleaseAnnouncement";
 import { MobileChatButton } from "../chat/MobileChatButton";
 
@@ -251,19 +251,6 @@ async function isStaff(userId: string): Promise<boolean> {
 /** Raison pour laquelle un mode du menu « Jouer » est fermé, par identifiant de carte (absent : ouvert). */
 async function PlayMenuWithLocks() {
   const user = await getSessionUser();
-  const locks: Record<string, string> = {};
-  const info: Record<string, string> = {};
-  if (!PVP_AVAILABLE) { locks.pvp = "Pas encore disponible"; }
-  if (user) {
-    const [adventure, ready] = await Promise.all([getAdventure(user.id), readyCount(user.id)]);
-    const next = adventure.quests.find((quest) => quest.group === "Histoire" && quest.available && !quest.done);
-    info.story = next ? next.title : "Tous les univers explorés";
-    if (ready) info.expeditions = `${ready} expédition${ready > 1 ? "s" : ""} prête${ready > 1 ? "s" : ""}`;
-    const ids = { expeditions: "expeditions", dungeon: "dungeons", raid: "raids", tower: "tower" } as const;
-    for (const mode of adventure.modes) {
-      if (mode.unlocked) continue;
-      locks[ids[mode.key]] = adventure.level < mode.level ? `Niveau ${mode.level} requis` : "Progresse dans l’histoire";
-    }
-  }
+  const { locks, info } = await playModeState(user?.id ?? null);
   return <PlayMenu locks={locks} info={info} />;
 }

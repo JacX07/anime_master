@@ -32,7 +32,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: "dungeons", phase: "modes", title: "Donjons", text: "Un boss unique et difficile qui donne des artefacts pour équiper tes cartes.", targets: ['[data-mobile-mode="dungeon"]', ".pm-mode-dungeons"], mode: "dungeon" },
   { key: "raids", phase: "modes", title: "Raids", text: "Le Défi des empereurs : Shanks, Big Mom, Kaido et Barbe Blanche, chacun gardé par deux vagues d’équipage. Ils donnent les cœurs de brèche des étoiles 4 et 5 et les ressources des armes légendaires.", targets: ['[data-mobile-mode="raid"]', ".pm-mode-raids"], mode: "raid" },
   { key: "expeditions", phase: "modes", title: "Expéditions", text: "Envoie une à trois cartes explorer une brèche pendant quelques heures, puis reviens chercher le butin.", targets: ['[data-mobile-mode="expeditions"]', ".pm-mode-expeditions"], mode: "expeditions" },
-  { key: "pvp", phase: "modes", title: "Arène", text: "Affronte les squads des autres joueurs.", targets: ['[data-mobile-mode="pvp"]', ".pm-mode-pvp"] },
+  { key: "pvp", phase: "modes", title: "Arène", text: "Affronte les squads des autres joueurs.", targets: ['[data-mobile-mode="pvp"]', ".pm-mode-live"] },
   { key: "tower", phase: "modes", title: "Tour", text: "Monte étage par étage et compare-toi aux autres au classement.", targets: ['[data-mobile-mode="tower"]', ".pm-mode-tower"], mode: "tower" },
   { key: "crystals", phase: "home", title: "Cristaux", text: "Un cristal = une carte tirée.",
     points: ["Le stock est de 50 au maximum et se recharge avec le temps", "Tu peux en acheter avec des Ryō (+5, +25)"], page: "/packs", targets: [".pk-wallet > div:first-child"], away: [nav("/packs")] },

@@ -32,7 +32,7 @@ export function MenuPanel({ quests = 0, achievements = 0, expeditions = 0 }: { q
       { href: "/donjons", icon: "broken-shield", label: "Donjons" },
       { href: "/raid", icon: "ultime", label: "Raids" },
       { href: "/tour", icon: "classement", label: "Tour" },
-      { href: "/duels", icon: "duel", label: "Arène", match: ["/arene"] },
+      { href: "/arene", icon: "duel", label: "Arène" },
       { href: "/expeditions", icon: "aventure", label: "Expéditions", info: expeditions ? `${expeditions} prête${expeditions > 1 ? "s" : ""}` : undefined },
     ] },
     { title: "Cartes", items: [

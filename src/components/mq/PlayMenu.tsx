@@ -19,11 +19,10 @@ const PVM: Mode[] = [
 ];
 const PVP: Mode[] = [
   { id: "live", href: "/arene", title: "Arène live", tag: "Temps réel · classé", description: "Combat classé à quatre contre quatre : choisis tes sorts et tes cibles.", icon: "combat", image: "/api/illustrations/character-27", position: "50% 25%" },
-  { id: "pvp", href: "/duels", title: "Duels quiz", tag: "Asynchrone", description: "Défie un joueur avec trois cartes et réponds au quiz à ton rythme.", icon: "duel", image: "/api/illustrations/character-45627", position: "50% 25%" },
 ];
 
 /** Un panneau vertical : illustration, icône, catégorie, titre, description au survol, état et action. */
-function ModePanel({ mode, lock, info, onPick }: { mode: Mode; lock?: string; info?: string; onPick: () => void }) {
+function ModePanel({ mode, lock, info, onPick }: { mode: Mode; lock?: string; info?: string; onPick?: () => void }) {
   return <Link href={mode.href} onClick={onPick} className={`pm-mode pm-mode-${mode.id}${mode.main ? " pm-main" : ""}`} data-locked={lock ? true : undefined} aria-disabled={lock ? true : undefined}>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img className="pm-art" src={mode.image} alt="" loading="lazy" style={mode.position ? { objectPosition: mode.position } : undefined} />
@@ -36,6 +35,20 @@ function ModePanel({ mode, lock, info, onPick }: { mode: Mode; lock?: string; in
       <em>{lock ? "Conditions ›" : mode.main ? "Continuer ›" : "Ouvrir ›"}</em>
     </span>
   </Link>;
+}
+
+/** Les modes côte à côte (PvM | PvP) : menu JOUER et page /jouer. */
+export function ModeBoard({ locks = {}, info = {}, onPick }: { locks?: Record<string, string>; info?: Record<string, string>; onPick?: () => void }) {
+  return <div className="pm-groups">
+    <section className="pm-group pm-pvm" aria-label="PvM, contre le jeu">
+      <h3 className="pm-group-title">PvM <small>Contre le jeu</small></h3>
+      <div className="pm-row">{PVM.map((mode) => <ModePanel key={mode.id} mode={mode} lock={locks[mode.id]} info={info[mode.id]} onPick={onPick} />)}</div>
+    </section>
+    <section className="pm-group pm-pvp" aria-label="PvP, contre les joueurs">
+      <h3 className="pm-group-title">PvP <small>Contre les joueurs</small></h3>
+      <div className="pm-row">{PVP.map((mode) => <ModePanel key={mode.id} mode={mode} lock={locks[mode.id]} info={info[mode.id]} onPick={onPick} />)}</div>
+    </section>
+  </div>;
 }
 
 /** Bouton central « JOUER » de la barre et son écran de destinations. */
@@ -78,16 +91,7 @@ export function PlayMenu({ locks = {}, info = {} }: { locks?: Record<string, str
               </div>
               <button type="button" onClick={() => setOpen(false)}>Fermer ×</button>
             </div>
-            <div className="pm-groups">
-              <section className="pm-group pm-pvm" aria-label="PvM, contre le jeu">
-                <h3 className="pm-group-title">PvM <small>Contre le jeu</small></h3>
-                <div className="pm-row">{PVM.map((mode) => <ModePanel key={mode.id} mode={mode} lock={locks[mode.id]} info={info[mode.id]} onPick={() => setOpen(false)} />)}</div>
-              </section>
-              <section className="pm-group pm-pvp" aria-label="PvP, contre les joueurs">
-                <h3 className="pm-group-title">PvP <small>Contre les joueurs</small></h3>
-                <div className="pm-row">{PVP.map((mode) => <ModePanel key={mode.id} mode={mode} lock={locks[mode.id]} info={info[mode.id]} onPick={() => setOpen(false)} />)}</div>
-              </section>
-            </div>
+            <ModeBoard locks={locks} info={info} onPick={() => setOpen(false)} />
           </div>
         </div></div>,
         document.body,
