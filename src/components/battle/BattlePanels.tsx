@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type CSSProperties } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } from "@/lib/battle";
 import { BOSS_SKILLS } from "@/lib/boss-skills";
@@ -41,12 +41,24 @@ export function SpellsPanel({
     onSpell: (spell: Spell | null, scope: ConfirmationScope) => void;
   };
 }) {
-  const [expanded, setExpanded] = useState(false);
   const [inspected, setInspected] = useState<Spell | null>(null);
   const [inspection, setInspection] = useState<{ key: string; anchor: HTMLElement } | null>(null);
   const handId = useId();
   const inspectionId = `${handId}-inspection`;
   const onInspect: InspectSpell = (key, anchor) => setInspection(key && anchor ? { key, anchor } : null);
+  useEffect(() => {
+    if (!inspection) return;
+    const outside = (event: Event) => {
+      const target = event.target as Node;
+      if (!inspection.anchor.contains(target) && !document.getElementById(inspectionId)?.contains(target)) setInspection(null);
+    };
+    document.addEventListener("pointerdown", outside, true);
+    document.addEventListener("focusin", outside);
+    return () => {
+      document.removeEventListener("pointerdown", outside, true);
+      document.removeEventListener("focusin", outside);
+    };
+  }, [inspection, inspectionId]);
   const selected = choose ? choose.spell : inspected;
   const affinity = SPELL_INFO[unit.type];
   const boss = unit.boss ? BOSS_SKILLS[unit.characterId] : undefined;
@@ -106,6 +118,7 @@ export function SpellsPanel({
   }));
   const detail = spells.find((entry) => entry.key === inspection?.key);
   const choose_ = (key: Spell) => {
+    setInspection(null);
     const next = selected === key ? null : key;
     setInspected(next);
     choose?.onSpell(next, spells.find((entry) => entry.key === key)?.confirm ?? "self");
@@ -117,26 +130,14 @@ export function SpellsPanel({
           {choose.error}
         </p>
       )}
-      <button type="button" className="bt-hand-toggle" aria-label={`${expanded ? "Replier" : "Afficher"} les sorts de ${character?.name ?? unit.id}`} aria-expanded={expanded} aria-controls={handId} onClick={() => {
-        setExpanded(!expanded);
-        if (expanded) { setInspection(null); setInspected(null); choose?.onSpell(null, "self"); }
-      }}>{expanded ? <span>Replier</span> : <span className="bt-hand-peek" aria-hidden="true">
-        {cards.map((card, index) => {
-          const offset = index - (cards.length - 1) / 2;
-          return <span key={card.key} className="bt-hand-peek-card" style={{
-            "--accent": card.accent, "--img": character?.imageUrl ? `url("${character.imageUrl}")` : "none",
-            transform: `translateX(calc(-50% + ${offset * 48}px)) translateY(${Math.abs(offset) * 6}px) rotate(${offset * 9}deg)`,
-          } as CSSProperties}><span className="bt-hand-peek-art" /></span>;
-        })}
-      </span>}</button>
-      <div id={handId} className="bt-expanded-hand" hidden={!expanded}>
+      <div id={handId} className="bt-expanded-hand">
         {detail && inspection && <SpellInspection id={inspectionId} anchor={inspection.anchor} name={detail.name} target={detail.target} description={detail.tooltip} note={detail.note} />}
       <div className="bt-hand-zone">
-        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} inspecting={inspection?.key ?? null} inspectionId={inspectionId} enabled={expanded} onInspect={onInspect}
+        <SpellHand cards={cards} portrait={character?.imageUrl} interactive={!!choose} busy={!!choose?.busy} inspecting={inspection?.key ?? null} inspectionId={inspectionId} enabled={true} onInspect={onInspect}
           onChoose={(k) => choose_(k as Spell)} />
         {ultimateSpell && (
           <UltimateEmblem gauge={ultimateGauge} max={ultimateGaugeMax} name={ultimateSpell.name} portrait={character?.imageUrl} color="#ff4d6d"
-            interactive={!!choose} ready={!choose || choose.choices.some((c) => c.spell === "ultimate")} armed={selected === "ultimate"} busy={!!choose?.busy} inspecting={inspection?.key === "ultimate"} inspectionId={inspectionId} enabled={expanded} onInspect={onInspect}
+            interactive={!!choose} ready={!choose || choose.choices.some((c) => c.spell === "ultimate")} armed={selected === "ultimate"} busy={!!choose?.busy} inspecting={inspection?.key === "ultimate"} inspectionId={inspectionId} enabled={true} onInspect={onInspect}
             onClick={() => choose_("ultimate")} />
         )}
       </div>

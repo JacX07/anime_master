@@ -15,9 +15,9 @@ export function useHoldInspection(onInspect: InspectSpell, enabled: boolean) {
     if (!current) return;
     clearTimeout(current.timer);
     press.current = null;
-    if (current.held) { suppressClick.current = true; callback.current(null, null); }
+    if (current.held) suppressClick.current = true;
   }, []);
-  const cancel = useCallback(() => { if (press.current) suppressClick.current = true; end(); }, [end]);
+  const cancel = useCallback(() => { if (press.current) suppressClick.current = true; end(); callback.current(null, null); }, [end]);
   useEffect(() => {
     const visibility = () => { if (document.hidden) cancel(); };
     const escape = (event: globalThis.KeyboardEvent) => { if (event.key === "Escape") cancel(); };
@@ -30,10 +30,10 @@ export function useHoldInspection(onInspect: InspectSpell, enabled: boolean) {
       window.removeEventListener("pointerup", end);
       document.removeEventListener("visibilitychange", visibility);
       document.removeEventListener("keydown", escape);
-      end();
+      cancel();
     };
   }, [cancel, end]);
-  useEffect(() => { if (!enabled) end(); }, [enabled, end]);
+  useEffect(() => { if (!enabled) cancel(); }, [enabled, cancel]);
 
   const start = (key: string, anchor: HTMLElement, x = 0, y = 0) => {
     end();
@@ -61,8 +61,8 @@ export function useHoldInspection(onInspect: InspectSpell, enabled: boolean) {
     },
     onPointerUp: end,
     onPointerCancel: cancel,
-    onLostPointerCapture: cancel,
-    onBlur: cancel,
+    onLostPointerCapture: end,
+    onBlur: end,
     onContextMenu: (event: React.MouseEvent) => event.preventDefault(),
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
       if (suppressClick.current) { suppressClick.current = false; event.preventDefault(); return; }
