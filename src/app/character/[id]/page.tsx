@@ -25,17 +25,23 @@ export async function generateMetadata({ params }: PageProps<"/character/[id]">)
   return { title: c ? `${c.name} — Anime Masters` : "Personnage — Anime Masters" };
 }
 
-export default function CharacterPage({ params }: PageProps<"/character/[id]">) {
+export default function CharacterPage({ params, searchParams }: PageProps<"/character/[id]">) {
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
-      <Link href="/album" className="text-sm text-muted hover:text-foreground">
-        ← Album
-      </Link>
+      <Suspense fallback={<Link href="/album" className="text-sm text-muted hover:text-foreground">← Album</Link>}>
+        <AlbumBackLink searchParams={searchParams} />
+      </Suspense>
       <Suspense fallback={<p className="mt-6 text-muted">Chargement…</p>}>
         <Character params={params} />
       </Suspense>
     </main>
   );
+}
+
+async function AlbumBackLink({ searchParams }: { searchParams: PageProps<"/character/[id]">["searchParams"] }) {
+  const { returnTo } = await searchParams;
+  const href = typeof returnTo === "string" && (returnTo === "/album" || returnTo.startsWith("/album?")) ? returnTo : "/album";
+  return <Link href={href} className="text-sm text-muted hover:text-foreground">← Album</Link>;
 }
 
 const ROLES: Record<string, string> = { MAIN: "Principal", SUPPORTING: "Secondaire", BACKGROUND: "Figurant" };

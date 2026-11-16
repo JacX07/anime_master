@@ -1,5 +1,10 @@
 # Journal des agents
 
+## 2026-11-16 — Collection : retour filtré et tiroir clavier
+- Symptômes : ouvrir une fiche puis cliquer ← Album effaçait la recherche ; sur mobile le champ du tiroir Collections fermé restait focalisable hors écran.
+- Correctif : destination de retour limitée à /album et ses paramètres, transmise par toutes les cartes, y compris la pagination ; tiroir fermé invisible, fermeture Échap et focus rendu au bouton.
+- Validation : lint ciblé et build Node 24 réussis. Chromium 390 px : recherche Satoru → Gojo → retour avec recherche conservée ; tiroir ouvert puis Échap, focus restauré et champ caché inaccessible. À 1440 px le panneau reste visible ; filtre UR/MAGIE/possédé conservé. Une destination externe retourne à /album.
+
 ## 2026-11-16 — Bonus de compétence magique pour le type Magie
 - Validation : check:magic-skill (bonus de 50 % donnant ×1,5 sur une compétence non marquée d’un personnage MAGIE, quatre emplacements, exclusions physique/base et autres types), check:passives, ESLint ciblé et build Node 24/TypeScript réussis. Chromium 390 px : règle dans les actualités v0.4.0, démonstration avec lanceurs magiques et Toji, dégâts affichés et pause/reprise sans erreur JS. Le bonus chiffré est vérifié par simulation moteur ; la démonstration sans équipement ne le mesure pas.
 - Règle précisée par l’utilisateur : tous les personnages de type MAGIE bénéficient du bonus sur leurs compétences. Le calcul ne retenait que huit personnages explicitement listés et l’affinité Magie. Ajouter le type comme valeur par défaut pour secondaire, tertiaire, ultime et affinité ; conserver la priorité du marquage explicite physique et exclure l’attaque de base. Le passif de Toji n’est pas modifié par cette règle de bonus.

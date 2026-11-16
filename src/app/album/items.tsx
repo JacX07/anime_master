@@ -31,10 +31,10 @@ export function World({ world, filters }: { world: WorldBand; filters: Filters }
 }
 
 /** Une carte de la grille d'un anime */
-export function CardItem({ entry: e }: { entry: AlbumEntry }) {
+export function CardItem({ entry: e, filters }: { entry: AlbumEntry; filters: Filters }) {
   return (
     <li>
-      <Link href={`/character/${e.id}`} className="vt-card" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
+      <Link href={{ pathname: `/character/${e.id}`, query: { returnTo: albumHref(filters) } }} className="vt-card" style={{ "--rar": `var(--rarity-${e.rarity})` } as React.CSSProperties}>
         <CharacterCard {...e} characterId={e.id} finish={e.owned?.best} count={e.owned?.count} stars={e.owned?.stars} missing={!e.owned} />
       </Link>
     </li>

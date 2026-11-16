@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type SidebarAnime = { key: string; title: string; owned: number; total: number; cover?: string; href: string };
 type Sort = "size" | "completion" | "alpha";
@@ -12,6 +12,15 @@ export function CollectionsSidebar({ items, current, allHref, owned, total }: { 
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<Sort>("size");
   const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setOpen(false); toggle.current?.focus(); }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [open]);
   const shown = useMemo(() => {
     const needle = q.trim().toLocaleLowerCase();
     const list = items.filter((a) => !needle || a.title.toLocaleLowerCase().includes(needle));
@@ -40,7 +49,7 @@ export function CollectionsSidebar({ items, current, allHref, owned, total }: { 
   );
   return (
     <div className="cs-wrap">
-      <button type="button" className="cs-toggle" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="collections">◆ Collections</button>
+      <button ref={toggle} type="button" className="cs-toggle" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="collections">◆ Collections</button>
       {open && <div className="cs-veil" onClick={() => setOpen(false)} aria-hidden="true" />}
       <aside id="collections" className="cs" data-open={open || undefined} aria-label="Collections">
         <div className="cs-head">

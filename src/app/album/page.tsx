@@ -112,7 +112,7 @@ async function Album({ searchParams }: { searchParams: PageProps<"/album">["sear
             ) : (
               <InfiniteList key={listKey} as="ul" className="vt-grid" pages={album.pages} filters={filters}>
                 {album.entries.map((e) => (
-                  <CardItem key={e.id} entry={e} />
+                  <CardItem key={e.id} entry={e} filters={filters} />
                 ))}
               </InfiniteList>
             )}

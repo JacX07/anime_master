@@ -11,7 +11,7 @@ async function load(filters: AlbumFilters, page: number): Promise<ReactNode[]> {
   const res = await fetch(`/api/album/more${search}`);
   if (!res.ok) throw new Error(String(res.status));
   const data: { bands?: WorldBand[]; entries?: AlbumEntry[] } = await res.json();
-  return data.bands ? data.bands.map((w) => <World key={w.key} world={w} filters={filters} />) : (data.entries ?? []).map((e) => <CardItem key={e.id} entry={e} />);
+  return data.bands ? data.bands.map((w) => <World key={w.key} world={w} filters={filters} />) : (data.entries ?? []).map((e) => <CardItem key={e.id} entry={e} filters={filters} />);
 }
 
 export function InfiniteList({ as: Tag, className, pages, filters, children }: { as: "div" | "ul"; className: string; pages: number; filters: AlbumFilters; children: ReactNode }) {
