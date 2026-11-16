@@ -16,7 +16,7 @@ const num = new Intl.NumberFormat("fr-FR");
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
 
 export async function generateMetadata({ params }: PageProps<"/u/[pseudo]">): Promise<Metadata> {
-  return { title: `${decodeURIComponent((await params).pseudo)} — Anime Masters` };
+  return { title: `${decodeURIComponent((await params).pseudo)} — Anima Clash` };
 }
 
 export default function ProfilePage({ params }: PageProps<"/u/[pseudo]">) {

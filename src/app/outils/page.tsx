@@ -8,7 +8,7 @@ import { devToolsEnabled } from "@/lib/dev-tools";
 import { requireUser } from "@/lib/session";
 import "./outils.css";
 
-export const metadata: Metadata = { title: "Outils — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Outils — Anima Clash", robots: { index: false } };
 
 const TOOLS = [
   { href: "/admin", title: "Administration", text: "Joueurs, économie, statistiques et journal des événements. Réservé aux modérateurs et administrateurs." },

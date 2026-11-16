@@ -6,7 +6,7 @@ import { InventoryTabs } from "@/components/InventoryTabs";
 import { InventoryGrid } from "./InventoryGrid";
 import "./inventory-grid.css";
 
-export const metadata: Metadata = { title: "Inventaire — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Inventaire — Anima Clash", robots: { index: false } };
 
 export default function InventoryPage() {
   return <main className="vt inventory-page"><div className="vt-inner">

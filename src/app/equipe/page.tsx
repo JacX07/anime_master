@@ -9,7 +9,7 @@ import { speedOf } from "@/lib/speed";
 import { SquadManager } from "./SquadManager";
 import { getFavoriteIds } from "@/lib/favorites";
 
-export const metadata: Metadata = { title: "Équipe — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Équipe — Anima Clash", robots: { index: false } };
 
 export default function TeamPage() {
   return (

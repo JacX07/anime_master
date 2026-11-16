@@ -7,7 +7,7 @@ import { requireUser } from "@/lib/session";
 import { tradableCards } from "@/lib/trades";
 import { TradeComposer } from "./TradeComposer";
 
-export const metadata: Metadata = { title: "Nouvelle offre — Anime Masters" };
+export const metadata: Metadata = { title: "Nouvelle offre — Anima Clash" };
 
 export default function NewTradePage({ searchParams }: PageProps<"/trades/new">) {
   return (

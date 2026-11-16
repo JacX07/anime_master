@@ -15,6 +15,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 
 ### Accueil, navigation et écrans de gestion
 
+- **Identité du site** : les onglets du navigateur portent le nom Anima Clash et reprennent le blason AC du logo comme icône.
 - **Accueil PC** : nouvelle composition autour du personnage choisi, illustration intégrée au décor et palette Violet nuit. Tu peux changer de personnage, le rechercher dans ta collection et l’admirer ; le choix est mémorisé.
 - **Profil et monnaies** : accès au profil depuis le pseudo et explications sur les sources de Ryō et de cristaux.
 - **Navigation PC** : barre supérieure affinée et accès aux modes de jeu organisés côte à côte, en PvM et PvP. Les Duels quiz quittent le hub Jouer.

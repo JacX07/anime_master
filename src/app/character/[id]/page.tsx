@@ -22,7 +22,7 @@ const parseId = (raw: string) => (/^\d{1,9}$/.test(raw) ? Number(raw) : null);
 export async function generateMetadata({ params }: PageProps<"/character/[id]">): Promise<Metadata> {
   const id = parseId((await params).id);
   const c = id ? await prisma.character.findUnique({ where: { id }, select: { name: true } }) : null;
-  return { title: c ? `${c.name} — Anime Masters` : "Personnage — Anime Masters" };
+  return { title: c ? `${c.name} — Anima Clash` : "Personnage — Anima Clash" };
 }
 
 export default function CharacterPage({ params, searchParams }: PageProps<"/character/[id]">) {

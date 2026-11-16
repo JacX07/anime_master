@@ -9,7 +9,7 @@ import { WEAPONS } from "@/lib/weapons";
 import { ForgeCarousel, type ForgeWeapon } from "./ForgeCarousel";
 import "../inventaire/inventaire.css";
 
-export const metadata = { title: "Forge — Anime Masters", robots: { index: false } };
+export const metadata = { title: "Forge — Anima Clash", robots: { index: false } };
 
 const ACCENT: Record<string, string> = { griffon: "#d9b650", napoleon: "#e0609c", hassaikai: "#5b8fcc", murakumogiri: "#c18a50" };
 

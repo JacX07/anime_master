@@ -1,5 +1,13 @@
 # Journal des agents
 
+## 2026-11-16 — Identité de l’onglet Anima Clash
+- Constat : l’onglet affiche encore Anime Masters et le favicon Next par défaut ; les titres de nombreuses pages utilisent aussi l’ancien nom. L’utilisateur confirme le nom Anima Clash et demande de réutiliser son icône existante.
+- Source retrouvée : public/images/brand/anima-clash-logo.png. Réutiliser son blason AC pour le favicon multirésolution, harmoniser les titres statiques/dynamiques et le libellé de secours de l’invocation ; conserver les URL, identifiants et données.
+- Source et formats : blason extrait du logo existant, favicon ICO transparent à cinq tailles (16/32/48/64/256 px), dessin source conservé.
+- Validation : build Node 24/TypeScript réussi ; ESLint des fichiers modifiés sans erreur (un avertissement img déjà présent dans la page de duel). Chromium : dix titres vérifiés, dont accueil, connexion, profil et fiche dynamique ; favicon reçu en 200 image/x-icon, cinq tailles, décodé en 256×256 et SHA-256 identique au fichier du dépôt. Album et Actualités vérifiés à 390 px sans débordement ; note Identité du site visible. Aucun déploiement Vercel exécuté.
+- Piège de vérification : getReleases utilise use cache avec cacheLife("hours"). Une modification de CHANGELOG.md après le build peut rester invisible ; terminer les notes avant de reconstruire le site et vérifier le nouveau build. Le rapport de validation précédent est rectifié sur ce point.
+
+
 ## 2026-11-16 — Texte de défaite incohérent
 - Symptôme : en combat test perdu, le titre Défaite est correct mais le texte annonce que l’équipe adverse est à terre.
 - Cause : le résumé KO ne tenait pas compte du vainqueur. Correctif : distinguer victoire, défaite et double KO dans le lecteur partagé, sans changer le moteur.

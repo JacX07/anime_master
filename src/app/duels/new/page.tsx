@@ -8,7 +8,7 @@ import { duelCards } from "@/lib/duels";
 import { requireUser } from "@/lib/session";
 import { TeamPicker } from "../TeamPicker";
 
-export const metadata: Metadata = { title: "Nouveau duel — Anime Masters" };
+export const metadata: Metadata = { title: "Nouveau duel — Anima Clash" };
 
 export default function NewDuelPage({ searchParams }: PageProps<"/duels/new">) {
   return (

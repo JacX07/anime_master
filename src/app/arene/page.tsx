@@ -10,7 +10,7 @@ import { requireUser } from "@/lib/session";
 import { ArenaBoard } from "./ArenaBoard";
 import "./arene.css";
 
-export const metadata: Metadata = { title: "Arène live — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Arène live — Anima Clash", robots: { index: false } };
 
 export default function ArenaPage() {
   return <main className="vt"><SceneBody night scroll /><Suspense fallback={<p className="vt-inner vt-muted">Chargement de l’arène…</p>}><Arena /></Suspense></main>;

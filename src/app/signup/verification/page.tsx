@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { ResendButton } from "@/components/AuthForm";
 import "@/components/auth.css";
 
-export const metadata: Metadata = { title: "Vérifie ta boîte mail — Anime Masters" };
+export const metadata: Metadata = { title: "Vérifie ta boîte mail — Anima Clash" };
 
 async function Body({ searchParams }: { searchParams: Promise<{ email?: string }> }) {
   const { email } = await searchParams;

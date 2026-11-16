@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { getAttackTeam, getBattle, PVM_OPPONENTS } from "@/lib/battles";
 import { requireUser } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Combat — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Combat — Anima Clash", robots: { index: false } };
 
 const HINTS: Record<string, string> = {
   test: "4 personnages SR fixes, toujours les mêmes.",

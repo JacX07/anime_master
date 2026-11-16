@@ -9,7 +9,7 @@ import { getTeamContext } from "@/lib/team-context";
 import { requireUser } from "@/lib/session";
 import { EmperorBoard } from "./EmperorBoard";
 
-export const metadata: Metadata = { title: "Raid — Défi des empereurs — Anime Masters" };
+export const metadata: Metadata = { title: "Raid — Défi des empereurs — Anima Clash" };
 
 export default function EmperorsPage() {
   return <main className="vt"><SceneBody night scroll /><Suspense fallback={<p className="vt-inner vt-muted">Chargement…</p>}><Emperors /></Suspense></main>;

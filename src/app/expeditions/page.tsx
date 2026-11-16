@@ -8,7 +8,7 @@ import { Chests } from "./Chests";
 import { requireUser } from "@/lib/session";
 import { ExpeditionBoard } from "./ExpeditionBoard";
 
-export const metadata: Metadata = { title: "Expéditions — Anime Masters" };
+export const metadata: Metadata = { title: "Expéditions — Anima Clash" };
 
 export default function ExpeditionsPage() {
   return (

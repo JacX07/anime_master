@@ -10,7 +10,7 @@ import { Countdown } from "./Countdown";
 import "./market.css";
 import { PageHeading } from "@/components/mq/PageHeading";
 
-export const metadata: Metadata = { title: "Bourse des brèches — Anime Masters" };
+export const metadata: Metadata = { title: "Bourse des brèches — Anima Clash" };
 
 const RARITIES = ["UR", "SSR", "SR", "R", "N"] as const;
 const TYPES = ["COMBAT", "MYSTERE", "MAGIE", "COEUR", "AVENTURE"] as const;

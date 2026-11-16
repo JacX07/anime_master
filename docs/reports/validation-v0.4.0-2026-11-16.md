@@ -69,7 +69,7 @@ Un bundle temporaire des modules réels `CombatVfx` et `STATUS_FX` a été exéc
 - Base jetable supprimée et instance Postgres locale temporaire arrêtée.
 - Les résultats d’invocation et de l’histoire restent sur le compte partagé de test ; aucune donnée de production touchée.
 - Journaux bruts conservés pour cette session dans `/tmp/anime-v040-audit-GFHQWr/` : `summary.json`, logs par contrôle, `build-final.log`, `migrate-status-dev.log`, `npm-audit.json`, `graphify-update.log`.
-- Build testé : `IIkrM8INC9_xL4RsQmx3z`. Les correctifs source sont committés et poussés ; les parcours corrigés ont été vérifiés sur ce build. Les notes, lues depuis le fichier, sont visibles sans reconstruction.
+- Build testé : `IIkrM8INC9_xL4RsQmx3z`. Les correctifs source sont committés et poussés ; les parcours corrigés ont été vérifiés sur ce build. Les notes sont lues depuis le fichier via `getReleases` avec un cache de plusieurs heures ; terminer leur modification avant le build, puis vérifier le build reconstruit.
 
 ## Limites avant la publication humaine
 

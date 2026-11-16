@@ -7,7 +7,7 @@ import { SpellBuilder, type BuilderChar } from "./SpellBuilder";
 import "./builder.css";
 import { speedOf } from "@/lib/speed";
 
-export const metadata: Metadata = { title: "Spell Builder — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Spell Builder — Anima Clash", robots: { index: false } };
 
 async function Loaded() {
   await requireBuilder();

@@ -22,7 +22,7 @@ export function mechanicPrompt(p: MechanicPromptInput): string {
   const draftStep = p.mode === "worktree"
     ? `5. Écris le sort (JSON : ${shape}) dans mechanic-draft.json à la racine, avec des valeurs raisonnables.`
     : `5. Écris le sort (JSON : ${shape}) dans un fichier temporaire et simule-le AVANT de l'appliquer (sinon le sort d'origine devient le nouveau sort et l'écart vaut zéro) : npx tsx scripts/builder-sim.ts ${p.characterId} <fichier.json> 2000 ${p.slot} (Node 24, comme next dev). La sortie donne l'écart avec le sort d'origine (delta, marge, verdict). Si le sort est nettement plus fort ou plus faible sans que ce soit voulu, ajuste les valeurs et relance. Ensuite seulement, écris-le dans src/lib/skill-overrides.json, entrée "${p.characterId}", clé "${p.slot}" (${SLOT_LABELS[p.slot]})${p.slot === "base" ? "" : ', avec "final": true'} ; garde les autres entrées du fichier telles quelles.`;
-  return `Tu travailles sur le jeu Anime Masters (Next.js, TypeScript), ${where}
+  return `Tu travailles sur le jeu Anima Clash (Next.js, TypeScript), ${where}
 
 Demande de sort pour ${p.name} (${p.rarity}, id AniList ${p.characterId}), emplacement ${SLOT_LABELS[p.slot]} :
 « ${p.wish} »

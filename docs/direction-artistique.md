@@ -15,6 +15,9 @@ Ce fichier décrit le site **tel qu'il est codé** (`src/app/globals.css`, `maqu
 - **Horlogerie médiévale brisée** (validé le 2026-11-04) : astrolabes, cadrans gradués et rouages dessinés au trait, abîmés par une chute (dents arrachées, rayons cassés, cadrans fêlés, anneaux ouverts). C'est une horloge astronomique en ruine, pas du steampunk (§4.13).
 - **L'or parle, la couleur éclaire** : l'or reste réservé à l'action ; chaque mode a sa lumière d'ambiance, et un vert-de-gris porte l'information (§2).
 
+### 1.1 Identité du site (validée le 2026-11-16)
+Le nom affiché dans les onglets est **Anima Clash**, y compris dans les titres des pages. Le favicon reprend le blason AC du logo existant `public/images/brand/anima-clash-logo.png`, sans le texte sous le blason pour rester lisible en petit. `src/app/favicon.ico` contient les tailles 16, 32, 48, 64 et 256 px sur fond transparent. Le logo source conserve son dessin et ses couleurs.
+
 ## 2. Couleurs
 Toujours via les variables de `globals.css` ou les valeurs ci-dessous, jamais de valeur inventée.
 
