@@ -8,8 +8,10 @@ const MAGIC_SLOTS: Record<number, readonly MagicSpellSlot[]> = Object.fromEntrie
   [68, 88350, 89362, 89361, 88572, 88575, 507, 81929].map((id) => [id, ["special", "tertiary", "ultimate"]]),
 );
 export function isMagicalSpell(card: { characterId: number; type: CardType }, slot: MagicSpellSlot, spell?: CharacterSpell | null) {
+  if (slot === "base") return false;
   if (spell?.damageKind) return spell.damageKind === "magic";
-  if (slot === "affinity") return card.type === "MAGIE";
+  if (card.type === "MAGIE") return true;
+  if (slot === "affinity") return false;
   return MAGIC_SLOTS[card.characterId]?.includes(slot) ?? false;
 }
 export const magicSkillMultiplier = (skill: number) => 1 + Math.max(0, skill);

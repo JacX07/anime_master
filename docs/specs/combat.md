@@ -643,3 +643,6 @@ Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone
 - **Johan** : *Lecture des failles humaines* (peur sur tous les ennemis, 2 tours : chaque sort lancé fait perdre le tour une fois sur deux) ; *Manipulation* (2 tours : les buffs du manipulé vont à l'équipe adverse, ses malus à ses alliés) ; *Élimination ciblée* (la cible subit +25 % de dégâts, 3 tours).
 - **Griffith** : passif *Troupe du faucon* (+15 % d'ATK à l'équipe s'il est en première position) ; *Charge du mercenaire* (×1,5 ATK, ignore 40 % de la DEF, une charge de saignement) ; *L'Éclipse* (une fois par combat : ses alliés meurent, leurs effets de mort se déclenchent, il récupère leurs PV restants, ATK +50 % et toutes ses attaques touchent tous les ennemis jusqu'à la fin ; DEF −30 % aux ennemis pendant 3 tours).
 
+
+### Bonus de compétence magique — précision du 2026-11-16
+Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compétence magique sur les compétences secondaire, tertiaire, ultime et d’affinité, sauf marquage explicite physique. Les attaques de base sont exclues. Les sorts explicitement magiques des autres types et le marquage existant par personnage restent pris en charge. Cette règle concerne le bonus de dégâts, pas la classification utilisée actuellement par l’immunité de Toji.

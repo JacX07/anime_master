@@ -87,6 +87,8 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 
 ### Autres passifs et ajustements
 
+- **Bonus de compétence magique** : toutes les cartes de type Magie en bénéficient sur leur secondaire, tertiaire, ultime et compétence d’affinité. Les attaques de base et les compétences explicitement physiques restent exclues. Les compétences explicitement magiques des autres types conservent leur bonus.
+
 - **Aizen — Kyoka Suigetsu** : une attaque ennemie sur deux qui le vise est redirigée vers un allié de l’attaquant, s’il en possède un.
 - **Toji — Lance inversée du ciel** : annule les dégâts magiques reçus, ainsi que les dégâts sur la durée provenant des attaquants magiques concernés.
 - **Momo Ayase — Pouvoir de Momo** : immunisée contre poison, brûlure et saignement.

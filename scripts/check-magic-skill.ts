@@ -15,7 +15,14 @@ function damage(skill: number, kind?: "physical" | "magic", type: BattleCard["ty
 }
 assert(Math.abs(damage(.5, "magic") / damage(0, "magic") - 1.5) < 1e-8, "Un sort explicitement magique profite du bonus même sur COMBAT");
 assert.equal(damage(.5, "physical", "MAGIE"), damage(0, "physical", "MAGIE"), "Le type MAGIE ne transforme pas un sort physique");
-assert.equal(damage(.5, undefined, "MAGIE"), damage(0, undefined, "MAGIE"), "Un sort non marqué ne reçoit pas le bonus");
+assert(Math.abs(damage(.5, undefined, "MAGIE") / damage(0, undefined, "MAGIE") - 1.5) < 1e-8, "Tous les personnages MAGIE reçoivent le bonus sur leurs compétences non marquées physiques");
+for (const slot of ["special", "tertiary", "ultimate", "affinity"] as const) {
+  assert(isMagicalSpell({ characterId: 999999, type: "MAGIE" }, slot), `Bonus Magie : ${slot}`);
+  assert(!isMagicalSpell({ characterId: 999999, type: "MAGIE" }, slot, spell("physical")), `Physique explicite : ${slot}`);
+}
+assert.equal(damage(.5, undefined, "COMBAT"), damage(0, undefined, "COMBAT"), "Les autres types ne gagnent pas le bonus sans compétence magique");
+assert.equal(damage(.5, undefined, "MAGIE", "base"), damage(0, undefined, "MAGIE", "base"), "L’attaque de base Magie reste sans bonus de compétence");
+assert(!isMagicalSpell({ characterId: 999999, type: "MAGIE" }, "base", spell("magic")));
 assert.equal(damage(.5, "magic", "COMBAT", "base"), damage(0, "magic", "COMBAT", "base"));
 assert(isMagicalSpell({ characterId: 68, type: "AVENTURE" }, "special"));
 assert(!isMagicalSpell({ characterId: 68, type: "AVENTURE" }, "base"));

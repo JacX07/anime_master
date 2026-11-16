@@ -1,5 +1,9 @@
 # Journal des agents
 
+## 2026-11-16 — Bonus de compétence magique pour le type Magie
+- Validation : check:magic-skill (bonus de 50 % donnant ×1,5 sur une compétence non marquée d’un personnage MAGIE, quatre emplacements, exclusions physique/base et autres types), check:passives, ESLint ciblé et build Node 24/TypeScript réussis. Chromium 390 px : règle dans les actualités v0.4.0, démonstration avec lanceurs magiques et Toji, dégâts affichés et pause/reprise sans erreur JS. Le bonus chiffré est vérifié par simulation moteur ; la démonstration sans équipement ne le mesure pas.
+- Règle précisée par l’utilisateur : tous les personnages de type MAGIE bénéficient du bonus sur leurs compétences. Le calcul ne retenait que huit personnages explicitement listés et l’affinité Magie. Ajouter le type comme valeur par défaut pour secondaire, tertiaire, ultime et affinité ; conserver la priorité du marquage explicite physique et exclure l’attaque de base. Le passif de Toji n’est pas modifié par cette règle de bonus.
+
 ## 2026-11-16 — Notes de prochaine mise à jour et Actualités
 - Version confirmée par l’utilisateur : v0.4.0. En-tête À venir — v0.4.0 reconnu dans les actualités avec statut En préparation ; v0.3.0 reste la dernière version publiée. Check-changelog, ESLint et build réussis ; navigateur PC/mobile : v0.4.0 affichée En préparation et historique conservé.
 - Validation : check-changelog (parsing À venir opt-in, historique inchangé, filtres techniques, lecture par compte), ESLint ciblé et build Node 24/TypeScript réussis. Chromium : notes À venir sélectionnées, 17 personnages présents, listes de raretés v0.3.0, aller-retour entre versions, rechargement, sections techniques masquées et défilement à 320, 390, 430 et 1440 px sans débordement ni erreur JavaScript. Aucun déploiement de production ni appareil physique.
