@@ -1,5 +1,10 @@
 # Journal des agents
 
+## 2026-11-16 — Texte de défaite incohérent
+- Symptôme : en combat test perdu, le titre Défaite est correct mais le texte annonce que l’équipe adverse est à terre.
+- Cause : le résumé KO ne tenait pas compte du vainqueur. Correctif : distinguer victoire, défaite et double KO dans le lecteur partagé, sans changer le moteur.
+- Validation : lint et build réussis ; Chromium 1440 px, vrai combat perdu en Auto : Toute ton équipe est à terre, en 4 tours. Le parcours Histoire a aussi produit une victoire avec butin persisté.
+
 ## 2026-11-16 — Doublons de personnage dans le sélecteur de squad
 - Symptôme : deux exemplaires du même personnage pouvaient être proposés à deux postes alors que les combats exigent des personnages distincts.
 - Correctif : désactiver les exemplaires par characterId occupé à un autre poste, en autorisant le remplacement du poste courant.

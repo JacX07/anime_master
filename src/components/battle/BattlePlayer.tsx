@@ -467,7 +467,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             <>
           <span>
             {end.reason === "ko"
-              ? `Toute l'équipe adverse est à terre, en ${end.rounds} tours.`
+              ? `${end.winner === "A" ? "Toute l'équipe adverse est" : end.winner === "B" ? "Toute ton équipe est" : "Les deux équipes sont"} à terre, en ${end.rounds} tours.`
               : `Temps écoulé après ${end.rounds} tours · PV restants : ${names.A} ${pct(end.hpLeft.A)}, ${names.B} ${pct(end.hpLeft.B)}.`}
           </span>
           <span className="bt-end-actions">
