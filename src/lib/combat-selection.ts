@@ -2,9 +2,11 @@ import type { UnitId } from "./battle";
 import type { Effect } from "./spells";
 
 /** UI confirmation only: a global spell still sends target=null to the engine. */
-export type ConfirmationScope = "self" | "team" | "foes" | "fallen-allies";
+export type ConfirmationScope = "self" | "team" | "foes" | "fallen-allies" | "chosen-allies";
 export function confirmationScope(effects: readonly Effect[]): ConfirmationScope {
   if (effects.some((effect) => effect.k === "arise")) return "fallen-allies";
+  // Auswählen (Yhwach) : alliés cochés un par un
+  if (effects.some((effect) => effect.k === "auswahlen")) return "chosen-allies";
   if (effects.some((effect) => ("to" in effect && effect.to === "team") || effect.k === "resetCd")) return "team";
   if (effects.some((effect) => ("to" in effect && effect.to === "foes") || effect.k === "damage" || effect.k === "stun" || effect.k === "sleep")) return "foes";
   return "self";
@@ -16,6 +18,7 @@ export function confirmationTargets(actor: UnitId, targets: readonly (UnitId | n
   return (Object.keys(units) as UnitId[]).filter((id) => {
     if (scope === "self") return id === actor && !units[id]?.ko;
     if (scope === "foes") return id[0] !== actor[0] && !units[id]?.ko;
+    if (scope === "chosen-allies") return id[0] === actor[0] && id !== actor && !units[id]?.ko;
     return id[0] === actor[0] && (scope === "fallen-allies" ? !!units[id]?.ko : !units[id]?.ko);
   });
 }

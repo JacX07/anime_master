@@ -56,7 +56,9 @@ export function applySpellRules<T extends CharacterSpell | null | undefined>(cha
 export const KITLESS = new Set([23277, 58]); // Meruem ; Chrollo : son livre se remplit en combat (Skill Hunter)
 /** Saitama : un seul sort (le secondaire), ni tertiaire ni ultime. */
 export const SINGLE_SPELL = new Set([73935]);
+/** Secondaire seul, sans tertiaire ni ultime (Yhwach : Auswählen ; il garde son attaque de base) */
+export const SECONDARY_ONLY = new Set([68537]);
 
 export function withSpellRules(catalog: Record<number, CharacterSpell>, slot: SpellSlot): Record<number, CharacterSpell> {
-  return Object.fromEntries(Object.entries(catalog).filter(([id]) => !KITLESS.has(Number(id)) && !(slot !== "special" && SINGLE_SPELL.has(Number(id)))).map(([id, spell]) => [id, applySpellRules(Number(id), slot, spell)]));
+  return Object.fromEntries(Object.entries(catalog).filter(([id]) => !KITLESS.has(Number(id)) && !(slot !== "special" && (SINGLE_SPELL.has(Number(id)) || SECONDARY_ONLY.has(Number(id))))).map(([id, spell]) => [id, applySpellRules(Number(id), slot, spell)]));
 }

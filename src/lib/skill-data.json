@@ -13192,5 +13192,21 @@
         }
       ]
     }
+  },
+  "68537": {
+    "orientation": "soutien",
+    "secondary": {
+      "name": "Auswählen",
+      "target": null,
+      "final": true,
+      "effects": [
+        {
+          "k": "auswahlen",
+          "bonus": 0.5,
+          "heal": 0.3,
+          "turns": 2
+        }
+      ]
+    }
   }
 }

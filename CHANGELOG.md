@@ -38,6 +38,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Shigeo** : ???% — Explosion frappe tous les ennemis.
 - **Maomao** : nouveau passif, immunisée contre le poison, la brûlure et le saignement.
 - **Yuuta et Madara** : quand un ennemi lance un sort, une fenêtre propose de l'apprendre (Yuuta à 80 %, Madara à 100 % sous Susanoo), même pendant le tour adverse ; il remplace la copie précédente.
+- **Yhwach** : Auswählen bénit les alliés de ton choix (+50 % de dégâts finaux pendant 2 tours, soin de 30 % de leurs PV max). Pendant son tour, il peut retirer ce pouvoir : l'allié meurt et Yhwach prend une de ses compétences. Passif The Almighty : une fois par combat, un coup fatal le laisse à 1 PV et il joue aussitôt. En Auto, jamais de sacrifice.
 - **Chrollo** : Skill Hunter remplit un livre de deux pages avec les sorts ennemis ; livre plein, choisis la page à remplacer ou garde-le.
 - **Sukuna** : le Sanctuaire malveillant pose une entaille (8 % des PV max par tour, 2 tours) qui bloque les soins.
 - **Netero** : Hyakushiki Kannon dure 4 tours et Netero rejoue aussitôt ; une paume à chaque action.

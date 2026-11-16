@@ -144,12 +144,21 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
   const autoBusy = !!live?.busy;
   const autoFailed = !!live?.error;
   const choice = awaiting && !live?.busy && playing ? live?.choices.find((c) => c.spell === spell) : undefined;
-  const targets = choice && live?.actor ? confirmationTargets(live.actor, choice.targets, selection?.scope ?? "self", rp.units) : [];
+  // Auswählen (Yhwach) : plusieurs alliés à choisir avant de lancer
+  const multi = choice?.spell === "special" && !!choice.choices;
+  const [blessPick, setBlessPick] = useState<{ key: string; ids: UnitId[] }>({ key: "", ids: [] });
+  const blessed = blessPick.key === selectionKey ? blessPick.ids : [];
+  const toggleBless = (id: UnitId) => setBlessPick({ key: selectionKey, ids: blessed.includes(id) ? blessed.filter((x) => x !== id) : [...blessed, id] });
+  // Retrait du pouvoir : allié choisi, en attente de confirmation
+  const [withdrawing, setWithdrawing] = useState<{ key: string; id: UnitId } | null>(null);
+  const withdrawTarget = withdrawing?.key === selectionKey ? withdrawing.id : null;
+  const withdrawable = awaiting && !live?.busy && !live?.decision ? live?.choices.find((c) => c.spell === "withdraw")?.targets.filter((t): t is UnitId => t !== null) ?? [] : [];
+  const targets = multi ? (choice.choices as UnitId[]) : choice && live?.actor ? confirmationTargets(live.actor, choice.targets, selection?.scope ?? "self", rp.units) : [];
   // Sort lancé : la carte se désagrège en particules qui filent vers le lanceur, il les « consomme », puis le coup part (maquette sorts-cartes)
   const [consuming, setConsuming] = useState(false);
   const cancelCast = useRef<(() => void) | null>(null);
   useEffect(() => () => cancelCast.current?.(), []);
-  const play = (s: Spell, target: UnitId | null) => {
+  const play = (s: Spell, target: UnitId | null, picked?: string) => {
     if (consuming) return;
     setSelection(null);
     const root = document.querySelector(".mq-battle-overlay");
@@ -172,7 +181,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       };
     }
     // L'action est envoyée immédiatement ; seul le lecteur attend l'absorption visuelle.
-    live?.onPlay(s, target);
+    live?.onPlay(s, target, picked);
   };
   useEffect(() => {
     // En auto, dès que l'écran a rattrapé le journal, le serveur joue l'action suivante
@@ -446,7 +455,8 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
                   targetable={targets.includes(id)}
                   rel={spellUnit ? relation(rp.info[spellUnit], rp.info[id], rp.units[id].ko) : null}
                   onPick={() => {
-                    if (choice && targets.includes(id)) play(choice.spell, choice.targets.includes(null) ? null : id);
+                    if (multi && targets.includes(id)) toggleBless(id);
+                    else if (choice && targets.includes(id)) play(choice.spell, choice.targets.includes(null) ? null : id);
                     else if (id.startsWith("A")) setPicked(picked === id ? null : id);
                   }}
                 />;
@@ -505,9 +515,38 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       )}
     </div>
 
+      {multi && live && (() => {
+        const who = (id: UnitId) => characters[rp.info[id]?.characterId]?.name ?? id;
+        return <div className="bt-decision" role="dialog" aria-label="Auswählen : choisir les alliés">
+          <h3>Auswählen</h3>
+          <p>Touche les alliés à bénir (autant que tu veux) : +50 % de dégâts finaux pendant 2 tours, soin de 30 % de leurs PV max.</p>
+          <div className="bt-allies">{(choice.choices as UnitId[]).map((id) => <button key={id} type="button" className={blessed.includes(id) ? "bt-ally on" : "bt-ally"} aria-pressed={blessed.includes(id)} onClick={() => toggleBless(id)}>{blessed.includes(id) ? "✓ " : ""}{who(id)}</button>)}</div>
+          <div className="bt-decision-actions">
+            <button type="button" className="ui-button" disabled={!blessed.length || live.busy} onClick={() => { setSelection(null); live.onPlay("special", null, blessed.join(",")); }}>Lancer Auswählen ({blessed.length} allié{blessed.length > 1 ? "s" : ""})</button>
+            <button type="button" className="ui-button" onClick={() => setSelection(null)}>Annuler</button>
+          </div>
+        </div>;
+      })()}
+      {withdrawable.length > 0 && !multi && live && (() => {
+        const who = (id: UnitId) => characters[rp.info[id]?.characterId]?.name ?? id;
+        if (withdrawTarget) return <div className="bt-decision" role="dialog" aria-label="Retirer le pouvoir">
+          <h3>Retirer le pouvoir de {who(withdrawTarget)} ?</h3>
+          <p>{who(withdrawTarget)} meurt. Yhwach prend ensuite une de ses compétences. Le retrait ne coûte pas son tour.</p>
+          <div className="bt-decision-actions">
+            <button type="button" className="ui-button" disabled={live.busy} onClick={() => { setWithdrawing(null); live.onPlay("withdraw", withdrawTarget); }}>Retirer le pouvoir</button>
+            <button type="button" className="ui-button" onClick={() => setWithdrawing(null)}>Annuler</button>
+          </div>
+        </div>;
+        return <div className="bt-withdraw" aria-label="Retirer le pouvoir d'un allié béni"><span>Retirer le pouvoir :</span>{withdrawable.map((id) => <button key={id} type="button" className="ui-button" onClick={() => setWithdrawing({ key: selectionKey, id })}>{who(id)}</button>)}</div>;
+      })()}
       {awaiting && live?.decision && (() => {
         const d = live.decision;
         const who = (id: UnitId) => characters[rp.info[id]?.characterId]?.name ?? "";
+        if (d.kind === "absorb") return <div className="bt-decision" role="dialog" aria-label="Compétence à prendre">
+          <h3>{who(d.unit)} prend une compétence de {who(d.source)}</h3>
+          <p>Un secondaire ou un tertiaire devient son tertiaire ; un ultime devient son ultime.</p>
+          <div className="bt-decision-actions">{(d.offer ?? []).map((o) => <button key={o.choice} type="button" className="ui-button" disabled={live.busy} onClick={() => live.onPlay("decide", null, o.choice)}>Prendre {o.name} <small>({o.slot === "special" ? "secondaire" : o.slot === "tertiary" ? "tertiaire" : "ultime"})</small></button>)}</div>
+        </div>;
         const label = (c: string) => c === "learn" ? "Apprendre" : c === "ignore" ? (d.kind === "steal" && d.choices.length > 2 ? "Garder mon livre" : "Ignorer") : `Remplacer la page ${Number(c.split(":")[1]) + 1}`;
         return <div className="bt-decision" role="dialog" aria-label="Décision hors tour">
           <h3>{who(d.unit)} peut {d.kind === "steal" ? "voler" : "copier"} « {d.spell} »</h3>

@@ -27,7 +27,7 @@ const REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
 export class ArenaError extends Error {}
 
 const toJson = (x: unknown) => x as Prisma.InputJsonValue;
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide";
+const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide" || x === "withdraw";
 const other = (s: Side): Side => (s === "A" ? "B" : "A");
 
 /** Inverse les camps A et B d'un journal, d'un identifiant ou d'une table indexée par identifiant (vue du joueur B). */

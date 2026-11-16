@@ -83,6 +83,8 @@ export type Effect =
   | { k: "vulnerable"; pct: number; turns: number }
   /** Saignement (une charge) sur la cible touchée */
   | { k: "bleed" }
+  /** Auswählen (Yhwach) : alliés choisis, +bonus de dégâts finaux pendant `turns` tours et soin unique de `heal` × leurs PV max */
+  | { k: "auswahlen"; bonus: number; heal: number; turns: number }
   /** Griffith : sacrifie ses alliés, récupère leurs PV restants, ses attaques touchent tous les ennemis */
   | { k: "eclipse" }
   /** Anti-Spirale : l'allié le plus bas en PV reçoit un bouclier de `pct` des dégâts de l'effet précédent */
@@ -513,6 +515,7 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "dread": return `peur sur tous les ennemis, ${nx(e.turns)} : chaque fois qu'ils lancent un sort, une chance sur deux de perdre leur tour`;
     case "puppet": return `manipule la cible, ${nx(e.turns)} : ses buffs profitent à vos cartes et ses malus frappent ses alliés`;
     case "vulnerable": return `la cible subit ${pct(e.pct)} de dégâts en plus, ${nx(e.turns)}`;
+    case "auswahlen": return `bénit les alliés choisis (autant qu'il veut) : +${pct(e.bonus)} de dégâts finaux, ${nx(e.turns)}, et soin unique de ${pct(e.heal)} de leurs PV max ; Yhwach peut retirer ce pouvoir à tout moment de son tour : l'allié meurt et Yhwach prend une de ses compétences`;
     case "bleed": return "saignement sur la cible (se cumule jusqu'à 5 fois, dure jusqu'à un soin)";
     case "eclipse": return "sacrifie tous ses alliés et récupère leurs PV restants (ses PV max augmentent d'autant) ; jusqu'à la fin du combat, ATK +50 %, ses attaques touchent tous les ennemis et ignorent toute la DEF, ses sorts lui rendent 50 % des dégâts infligés";
     case "donateShield": return `l'allié le plus bas en PV reçoit un bouclier de ${pct(e.pct)} des dégâts infligés`;

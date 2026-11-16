@@ -14,7 +14,8 @@ export interface SkillEntry {
 const DATA = raw as unknown as Record<string, SkillEntry>;
 const final = (s: CharacterSpell): CharacterSpell => ({ ...s, final: true });
 const slot = (k: "secondary" | "tertiary" | "ultimate"): Record<number, CharacterSpell> =>
-  Object.fromEntries(Object.entries(DATA).map(([id, e]) => [Number(id), final(e[k])]));
+  // Un emplacement absent (Yhwach : secondaire seul) n'est pas listé
+  Object.fromEntries(Object.entries(DATA).filter(([, e]) => e[k]).map(([id, e]) => [Number(id), final(e[k])]));
 
 export const SECONDARY_DATA = slot("secondary");
 export const TERTIARY_DATA = slot("tertiary");

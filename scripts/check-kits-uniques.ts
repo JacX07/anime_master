@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { applyAction, autoAction, battle, createBattle, currentActor, legalActions, seededRandom, type BattleCard, type BattleState } from "../src/lib/battle";
+import { applyAction, autoAction, battle, createBattle, currentActor, decisionOf, legalActions, seededRandom, type BattleCard, type BattleState } from "../src/lib/battle";
 import { spellOf } from "../src/lib/spells";
 import { TERTIARY_SPELLS } from "../src/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "../src/lib/ultimate-catalog";
@@ -353,5 +353,61 @@ for (let seed = 1; seed <= 200; seed++) {
     until(s, "A1");
     assert.deepEqual(legalActions(s).map((a) => a.spell), ["special"], "Saitama : un seul sort");
   }
+}
+// Lot 3 — Yhwach : Auswählen sur les alliés choisis, retrait du pouvoir, The Almighty
+{
+  const YHWACH = 68537;
+  assert.equal(spellOf(YHWACH, "UR", "COMBAT")?.name, "Auswählen");
+  assert.equal(TERTIARY_SPELLS[YHWACH], undefined, "ni tertiaire");
+  assert.equal(ULTIMATE_CATALOG[YHWACH], undefined, "ni ultime");
+  const s = createBattle([card(YHWACH), card(5, { rarity: "UR" }), dummy({ defense: 1000000 })], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A", gauge: true });
+  until(s, "A1");
+  const aus = legalActions(s).find((a) => a.spell === "special");
+  assert.deepEqual(aus?.choices, ["A2", "A3"], "Auswählen : les alliés vivants au choix");
+  assert(!legalActions(s).some((a) => a.spell === "withdraw"), "rien à retirer avant la bénédiction");
+  assert.throws(() => applyAction(s, { spell: "special", target: null, choice: "A1" }), "Yhwach ne se bénit pas");
+  s.teams.A[1].hp = s.teams.A[1].maxHp * 0.5;
+  const hp = s.teams.A[1].hp;
+  applyAction(s, { spell: "special", target: null, choice: "A2" });
+  assert.equal(s.teams.A[1].fx.find((f) => f.key === "blessed")?.amount, 0.5, "+50 % de dégâts finaux");
+  assert(!s.teams.A[2].fx.some((f) => f.key === "blessed"), "seulement les alliés choisis");
+  assert(Math.abs(s.teams.A[1].hp - hp - s.teams.A[1].maxHp * 0.3) < 1, "soin de 30 % des PV max");
+  until(s, "A1");
+  const w = legalActions(s).find((a) => a.spell === "withdraw");
+  assert.deepEqual(w?.targets, ["A2"], "retrait possible sur l'allié béni");
+  const ichigo = s.teams.A[1];
+  applyAction(s, { spell: "withdraw", target: "A2" });
+  assert.equal(ichigo.hp, 0, "l'allié meurt");
+  assert.equal(currentActor(s)?.id, "A1", "la fenêtre s'ouvre pour Yhwach");
+  const d = decisionOf(s);
+  assert(d?.kind === "absorb" && d.offer?.some((o) => o.slot === "ultimate"), "compétences de l'allié proposées");
+  applyAction(s, { spell: "decide", target: null, choice: "take:ultimate" });
+  assert.equal(s.teams.A[0].ultimate?.name, ichigo.ultimate?.name, "ultime pris");
+  assert.equal(currentActor(s)?.id, "A1", "le retrait ne coûte pas son tour");
+  assert(legalActions(s).some((a) => a.spell === "base"), "Yhwach joue encore");
+  // Auto : Yhwach seul ne tente pas Auswählen (plantait avec « Action impossible »)
+  {
+    const solo = createBattle([card(YHWACH)], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A", gauge: true });
+    until(solo, "A1");
+    assert.notEqual(autoAction(solo).spell, "special", "pas d'Auswählen sans allié");
+    applyAction(solo, autoAction(solo));
+  }
+  // Auto : jamais de retrait
+  for (let g = 0; g < 30; g++) {
+    const r = battle([card(YHWACH), card(5, { rarity: "UR" }), card(40, { rarity: "UR" })], [card(27, { rarity: "UR" }), card(62, { rarity: "UR" })], seededRandom(g), { gauge: true });
+    assert(!r.log.some((e) => e.kind === "kit" && e.target === "A1"), "Auto : aucun sacrifice");
+  }
+}
+// The Almighty : un coup fatal le laisse à 1 PV, il joue aussitôt ; une seule fois
+{
+  const s = createBattle([card(68537, { defense: 1 }), dummy({ defense: 1000000 })], [card(999003, { rarity: "N", attack: 1000000 })], () => 0.5, { startingSide: "B", gauge: true });
+  until(s, "B1");
+  applyAction(s, { spell: "base", target: "A1" });
+  assert.equal(s.teams.A[0].hp, 1, "reste à 1 PV");
+  assert.equal(currentActor(s)?.id, "A1", "joue aussitôt");
+  applyAction(s, { spell: "base", target: "B1" });
+  until(s, "B1");
+  applyAction(s, { spell: "base", target: "A1" });
+  assert.equal(s.teams.A[0].hp, 0, "une seule fois par combat");
 }
 console.log("check-kits ok");

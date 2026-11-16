@@ -117,7 +117,7 @@ export function SpellsPanel({
   const handSpells = spells.filter((s) => s.key !== "ultimate");
   const waitOf = (key: Spell) => (key === "special" ? choose?.waitSpecial ?? 0 : key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0);
   const cards: HandCard[] = handSpells.map((s) => ({
-    key: s.key, name: s.name, kind: s.kind, cost: s.cost, text: s.target === "Aucune cible" ? ({ self: "Sur soi", team: "Toute l’équipe", foes: "Tous les ennemis", "fallen-allies": "Allié K.O." }[s.confirm ?? "self"]) : s.target, details: s.tooltip, accent: s.accent,
+    key: s.key, name: s.name, kind: s.kind, cost: s.cost, text: s.target === "Aucune cible" ? ({ self: "Sur soi", team: "Toute l’équipe", foes: "Tous les ennemis", "fallen-allies": "Allié K.O.", "chosen-allies": "Alliés au choix" }[s.confirm ?? "self"]) : s.target, details: s.tooltip, accent: s.accent,
     ready: !choose || choose.choices.some((c) => c.spell === s.key), wait: waitOf(s.key),
     selected: selected === s.key,
   }));

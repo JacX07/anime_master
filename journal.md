@@ -942,3 +942,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - **Symptôme** : `check:raid` et `check:dungeon` échouaient (« Action impossible ») dès que l'équipe tirée contenait Yuuta ou Chrollo.
 - **Cause** : ces tests jouent `view.choices[0]` sans transmettre `choice` ; depuis le lot 3, ce premier choix peut être `decide`, qui exige une réponse.
 - **Correctif** : passer `choice: choice.choices?.[0]` (check-raid, check-dungeon ×2, check-story). À retenir : tout client qui rejoue `legalActions` doit transmettre `choices`.
+
+## 2026-11-16 — Serveur de dev resté sur l'ancien moteur après des modifications de `battle.ts`
+- **Symptôme** : en combat manuel, la carte Auswählen de Yhwach visait les ennemis et la fenêtre de choix ne s'ouvrait pas ; les mêmes actions rejouées en Node donnaient le bon kit.
+- **Cause** : le serveur Next (lancé avant les modifications) servait encore l'ancien `battle.ts` / `skill-data.json` aux actions serveur, alors que le client était à jour.
+- **Contournement** : arrêter le serveur, `rm -rf .next/dev`, relancer (voir aussi la mémoire « Dev stale CSS »). Pour diagnostiquer, comparer `view.choices` côté client et un rejeu Node du combat (`createBattle` + actions de la ligne `battle`).
+- **Autre piège (2e occurrence)** : `autoAction` ne passe pas par `legalActions` ; un sort refusé par `legalActions` (Auswählen sans allié) doit aussi être écarté dans `autoSpecial`, sinon « Action impossible » en Auto.

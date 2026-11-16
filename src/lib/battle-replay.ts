@@ -111,6 +111,7 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   auraPierce: { label: "Projection d'aura", glyph: "✧", help: "Ignore une part de la DEF des ennemis.", bad: false },
   dread: { label: "Peur", glyph: "☠", help: "Chaque sort lancé a une chance sur deux de faire perdre le tour.", bad: true },
   puppet: { label: "Manipulé", glyph: "⛓", help: "Ses buffs profitent à ses ennemis, ses malus frappent ses alliés.", bad: true },
+  blessed: { label: "Auswählen", glyph: "✠", help: "Béni par Yhwach : +50 % de dégâts finaux. Yhwach peut retirer ce pouvoir à tout moment de son tour : la carte meurt.", bad: false },
   godHand: { label: "Main de Dieu", glyph: "✹", help: "Toutes ses attaques touchent tous les ennemis et ignorent toute la DEF ; ses sorts lui rendent 50 % des dégâts.", bad: false },
 };
 
@@ -247,7 +248,7 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "ko":
       // Une carte tombée perd ses états : le moteur ne les retire pas du journal
-      patch(ev.target, { hp: 0, ko: true, exposed: false, weaken: false, elan: false, fx: [] });
+      patch(ev.target, { hp: 0, shield: 0, ko: true, exposed: false, weaken: false, elan: false, fx: [] });
       break;
     case "wave":
       // La vague suivante remplace tout le camp B

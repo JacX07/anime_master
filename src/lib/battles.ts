@@ -926,7 +926,7 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
   return toView(row, replay(row.teams as unknown as BattleTeams, row.seed, row.actions as unknown as Action[]));
 }
 
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide";
+const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide" || x === "withdraw";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
 export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number, toEnd = false): Promise<BattleView> {

@@ -203,11 +203,11 @@ export interface BattleOptions {
   timeoutLoser?: Side;
 }
 
-export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate" | "decide";
-/** Sorts réellement joués (une décision hors tour n'est pas une action) */
-export type ActionSpell = Exclude<Spell, "decide">;
+export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate" | "decide" | "withdraw";
+/** Sorts réellement joués (une décision hors tour ou le retrait du pouvoir de Yhwach ne sont pas des actions) */
+export type ActionSpell = Exclude<Spell, "decide" | "withdraw">;
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand" | "blessed";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 /** Emplacement de sort remplaçable en combat (transformation, absorption) */
 export type KitSlot = "special" | "tertiary" | "ultimate";
@@ -216,11 +216,11 @@ export type KitSlot = "special" | "tertiary" | "ultimate";
 export interface Action {
   spell: Spell;
   target: UnitId | null;
-  /** Réponse à une décision en attente (`spell: "decide"`) : learn, ignore, page:0, page:1 */
+  /** Réponse à une décision en attente (`spell: "decide"`) : learn, ignore, page:0, page:1, take:<emplacement> ; Auswählen : alliés choisis, séparés par des virgules */
   choice?: string;
 }
 /** Décision hors tour (lot 3) : copie de Yuuta/Madara, vol de Chrollo */
-export interface PendingChoice { unit: UnitId; kind: "copy" | "steal"; spell: CharacterSpell; source: UnitId }
+export interface PendingChoice { unit: UnitId; kind: "copy" | "steal" | "absorb"; spell: CharacterSpell; source: UnitId; offer?: { slot: KitSlot; spell: CharacterSpell }[] }
 
 /** Une carte en combat, telle que l'affichage la voit. */
 export interface UnitView {
@@ -366,6 +366,8 @@ interface Unit {
   bookNext: number;
   /** Ultime « une fois par combat » déjà lancé */
   onceUsed: boolean;
+  /** The Almighty (Yhwach) : déjà sauvé d'un coup fatal */
+  almightyUsed: boolean;
   /** Meruem : absorption déjà faite */
   absorbed: boolean;
   /** Saitama : sorti du combat après son coup (ni K.O., ni ciblable, ne joue plus) */
@@ -489,7 +491,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: (starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0) + (card.startGauge ?? 0),
       revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [], hitsTaken: 0,
-      clones: 0, clonesUsed: false, kitBackup: null, palms: 0, bookNext: 0, onceUsed: false, absorbed: false, out: false,
+      clones: 0, clonesUsed: false, kitBackup: null, palms: 0, bookNext: 0, onceUsed: false, almightyUsed: false, absorbed: false, out: false,
     };
   });
 }
@@ -518,6 +520,7 @@ const YUUTA = 129571, CHROLLO = 58;
 const COPY_SCALE: Record<number, number> = { [YUUTA]: 0.8, 53901: 1, [CHROLLO]: 1 };
 /** Griffith après l'Éclipse : part des dégâts de ses sorts rendue en PV */
 const GOD_HAND_DRAIN = 0.5;
+const YHWACH = 68537;
 const MADARA = 53901, NETERO = 14489, ANTI_SPIRAL = 5115, MERUEM = 23277, SAITAMA = 73935, GRIFFITH = 424;
 const PALMS = [{ mult: 1, name: "Première paume" }, { mult: 1.25, name: "Troisième paume" }, { mult: 1.5, name: "99ᵉ paume" }, { mult: 2, name: "Paume zéro" }];
 const SUSANOO_IMMUNE = new Set<FxKey>(["stun", "sleep", "fear", "seal"]);
@@ -731,15 +734,20 @@ function gaugeActor(st: BattleState): Unit | null {
 }
 
 /** Décision en attente, telle que l'interface l'affiche (lot 3) */
-export interface DecisionView { unit: UnitId; kind: "copy" | "steal"; spell: string; source: UnitId; choices: string[]; pages: (string | null)[] }
+export interface DecisionView { unit: UnitId; kind: "copy" | "steal" | "absorb"; spell: string; source: UnitId; choices: string[]; pages: (string | null)[]; offer?: { choice: string; slot: KitSlot; name: string }[] }
 export function decisionOf(st: BattleState): DecisionView | null {
   const p = st.pending?.[0];
   if (!p || st.result) return null;
   const u = unit(st, p.unit);
-  return { unit: p.unit, kind: p.kind, spell: p.spell.name, source: p.source, choices: pendingChoices(u, p), pages: p.kind === "steal" ? [u.spell?.name ?? null, u.tertiary?.name ?? null] : [u.spell?.name ?? null] };
+  return {
+    unit: p.unit, kind: p.kind, spell: p.spell.name, source: p.source, choices: pendingChoices(u, p), pages: p.kind === "steal" ? [u.spell?.name ?? null, u.tertiary?.name ?? null] : [u.spell?.name ?? null],
+    ...(p.offer ? { offer: p.offer.map((o) => ({ choice: `take:${o.slot}`, slot: o.slot, name: o.spell.name })) } : {}),
+  };
 }
 /** Réponses possibles : apprendre ou ignorer ; livre de Chrollo plein : remplacer une page */
 function pendingChoices(u: Unit, p: PendingChoice): string[] {
+  // Yhwach : une des compétences de l'allié sacrifié (obligatoire)
+  if (p.kind === "absorb") return (p.offer ?? []).map((o) => `take:${o.slot}`);
   if (p.kind === "steal" && u.spell && u.tertiary) return ["page:0", "page:1", "ignore"];
   return ["learn", "ignore"];
 }
@@ -755,6 +763,16 @@ function resolveDecision(st: BattleState, choice: string) {
   const p = st.pending!.shift()!;
   const u = unit(st, p.unit);
   if (choice === "ignore") return;
+  if (p.kind === "absorb") {
+    const o = p.offer!.find((x) => `take:${x.slot}` === choice)!;
+    // Ultime pris : il remplace l'ultime (jauge conservée) ; secondaire ou tertiaire : il devient son tertiaire, prêt aussitôt
+    const spell: CharacterSpell = { ...o.spell, final: true };
+    const slot: KitSlot = o.slot === "ultimate" ? "ultimate" : "tertiary";
+    if (slot === "ultimate") u.ultimate = spell;
+    else { u.tertiary = spell; u.tIn = SPELL_FIRST; }
+    st.log.push({ kind: "kit", target: u.id, slot, spell, source: p.source });
+    return;
+  }
   const spell = learnedCopy(u, p.spell);
   const slot: "special" | "tertiary" = p.kind === "copy" ? "special" : choice === "page:1" || (choice === "learn" && u.spell) ? "tertiary" : "special";
   if (slot === "special") u.spell = spell;
@@ -814,7 +832,7 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       u.hp -= amount;
       st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}), ...(effect.key === "bleed" ? { bleed: true } : {}) });
       triggerTitan(st, u, false);
-      if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
+      if (u.hp <= 0 && !almightySave(st, u)) st.log.push({ kind: "ko", target: u.id });
     }
     if (u.hp > 0 && effect.key === "regen" && !hasFx(u, "gash")) {
       if (effect.amount > 0) clearBleed(st, u);
@@ -971,6 +989,30 @@ function processDeaths(st: BattleState) {
 }
 
 /** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV ou étourdies et ouvre les tours. */
+/** Yhwach retire le pouvoir d'un allié béni : l'allié meurt, et Yhwach choisit une de ses compétences (sans consommer son tour) */
+function withdrawPower(st: BattleState, u: Unit, ally: Unit) {
+  ally.hp = 0;
+  ally.shield = 0;
+  ally.titanShield = 0;
+  st.log.push({ kind: "status", target: ally.id, status: "blessed", on: false });
+  st.log.push({ kind: "ko", target: ally.id });
+  const offer = (["special", "tertiary", "ultimate"] as const).flatMap((slot) => {
+    const spell = slot === "special" ? ally.spell : slot === "tertiary" ? ally.tertiary : ally.ultimate;
+    return spell ? [{ slot, spell }] : [];
+  });
+  if (offer.length) (st.pending ??= []).push({ unit: u.id, kind: "absorb", spell: offer[0].spell, source: ally.id, offer });
+}
+
+/** The Almighty (Yhwach) : une fois par combat, un coup fatal le laisse à 1 PV et il joue aussitôt. Renvoie true s'il est sauvé. */
+function almightySave(st: BattleState, t: Unit): boolean {
+  if (t.hp > 0 || t.card.characterId !== YHWACH || t.almightyUsed || t.out) return false;
+  t.almightyUsed = true;
+  t.hp = 1;
+  st.log.push({ kind: "heal", source: t.id, target: t.id, amount: 1, hp: 1 });
+  if (st.opts.gauge) t.gauge = Math.max(t.gauge, GAUGE_THRESHOLD);
+  return true;
+}
+
 /** Susanoo dissipé : rend le kit d'origine avant le choix de l'action, sinon l'IA choisit un sort du kit Susanoo disparu (Meruem qui a dévoré Madara n'avait pas de sort d'origine : plantage) */
 function restoreKit(st: BattleState, u: Unit) {
   if (!u.kitBackup || hasFx(u, "susanoo")) return;
@@ -1070,6 +1112,20 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
   const u = unit(st, id);
   const p = st.pending?.[0];
   if (p) return [{ spell: "decide", targets: [null], choices: pendingChoices(u, p) }];
+  const list: { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[] = turnActions(st, u);
+  if (u.card.characterId === YHWACH) {
+    // Auswählen : il choisit les alliés à bénir (au moins un) ; Retirer le pouvoir : à tout moment de son tour, même sous silence
+    const mates = alive(st, u.side).filter((x) => x !== u);
+    const aus = list.find((a) => a.spell === "special" && spellFor(st, u, "special")?.effects.some((e) => e.k === "auswahlen"));
+    if (aus) aus.choices = mates.map((x) => x.id);
+    const blessed = mates.filter((x) => hasFx(x, "blessed")).map((x) => x.id);
+    if (blessed.length) list.push({ spell: "withdraw", targets: blessed });
+    if (!mates.length) return list.filter((a) => a !== aus);
+  }
+  return list;
+}
+
+function turnActions(st: BattleState, u: Unit): { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[] {
   const foes = foesFor(st, u).map((f) => f.id);
   const list: { spell: Spell; targets: (UnitId | null)[] }[] = [{ spell: "base", targets: foes }];
   if (hasFx(u, "silence")) return list;
@@ -1103,6 +1159,8 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   const targets = targetsForSpell(st, u, spell);
   if (!targets.length) return null;
   const allies = alive(st, u.side), foes = foesFor(st, u);
+  // Auswählen : il faut au moins un allié à bénir (sinon le sort n'est pas permis)
+  if (spell.effects.some((e) => e.k === "auswahlen") && allies.length < 2) return null;
   const fx = spell.effects;
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
   if (only("stun") && !fx.some((effect) => effect.k === "stun" && strongestFoes(st, u, effect.count).some((foe) => !foe.card.boss && !hasFx(foe, "immune")))) return null;
@@ -1174,6 +1232,15 @@ export function applyAction(st: BattleState, action: Action) {
     if (!action.choice || !allowed.choices?.includes(action.choice)) throw new Error("Action impossible");
     resolveDecision(st, action.choice);
     return;
+  }
+  if (action.spell === "withdraw") {
+    withdrawPower(st, unit(st, id), unit(st, action.target!));
+    return;
+  }
+  // Auswählen : les alliés choisis doivent être valides, distincts et au moins un
+  if (allowed.choices && action.choice !== undefined) {
+    const picked = action.choice.split(",");
+    if (!picked.length || new Set(picked).size !== picked.length || picked.some((x) => !allowed.choices!.includes(x))) throw new Error("Action impossible");
   }
   resolveAction(st, unit(st, id), action, false);
 }
@@ -1301,7 +1368,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     if (action.spell === "special" && opts.elements && !u.card.noElement && effectElement(u.card.characterId)) dmg *= 1 + (u.card.artifactStats?.elementalDamage ?? 0);
     if (magicalAction) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
-    dmg *= 1 + u.finalBonus;
+    // Auswählen (Yhwach) : +50 % de dégâts finaux pour les alliés bénis
+    dmg *= 1 + u.finalBonus + fxKeySum(u, "blessed");
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 + fxKeySum(t, "vulnerable");
     const g = t.card.guard;
@@ -1333,7 +1401,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     const wt = weaponOf(t.card)?.passive;
     if (dmg > 0 && wt?.kind === "guardStack" && action.spell === "base") t.guard = Math.min(wt.max, t.guard + wt.step);
     triggerTitan(st, t, t === u);
-    if (t.hp === 0) log.push({ kind: "ko", target: t.id });
+    if (t.hp === 0 && !almightySave(st, t)) log.push({ kind: "ko", target: t.id });
     else if (t.side !== u.side) {
       if (hasFx(t, "counter")) shadows.add(t);
       // Soif de sang (Denji) : soigné d'une part des dégâts reçus
@@ -1601,6 +1669,16 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
             log.push({ kind: "kit", target: u.id, slot: "tertiary", spell: u.tertiary });
           }
           break;
+        case "auswahlen": {
+          // Auswählen (Yhwach) : les alliés choisis (tous en Auto) gagnent des dégâts finaux et sont soignés une fois
+          const mates = alive(st, u.side).filter((x) => x !== u);
+          const picked = action.choice ? mates.filter((x) => action.choice!.split(",").includes(x.id)) : mates;
+          for (const t of picked) {
+            addFx(t, "blessed", e.bonus, e.turns);
+            heal(t, t.maxHp * e.heal);
+          }
+          break;
+        }
         case "kannon":
           addFx(u, "kannon", 0, e.turns);
           break;
@@ -1625,7 +1703,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
           target.shield -= absorbed;
           target.hp = Math.max(0, target.hp - (dealt - absorbed));
           log.push({ kind: "damage", source: u.id, target: target.id, amount: dealt, absorbed, crit: true, affinity: null, exposedBonus: false, hp: target.hp, shield: target.shield });
-          if (target.hp === 0) log.push({ kind: "ko", target: target.id });
+          if (target.hp === 0 && !almightySave(st, target)) log.push({ kind: "ko", target: target.id });
           landedHit = true;
           // Saitama sort du combat : il « dort » pour de bon, sans être K.O.
           u.out = true;
@@ -1864,7 +1942,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus: false, hp: u.hp, shield: u.shield, shadow: true,
     });
     triggerTitan(st, u, true);
-    if (u.hp === 0) log.push({ kind: "ko", target: u.id });
+    if (u.hp === 0 && !almightySave(st, u)) log.push({ kind: "ko", target: u.id });
   }
   // Un sort actif (même sans dégât : buff, soin, debuff) charge la jauge comme une attaque qui touche
   if ((landedHit || activeSpell) && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {
