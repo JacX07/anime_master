@@ -45,27 +45,28 @@ export function DungeonsBoard({ dungeon, name, boss, maxLevel, levels, artifacts
       setPrep({ level, enemies: res.cards });
     });
   };
-  const run = (level: number, manual: boolean) => {
+  // Un seul bouton : le combat est suivi par le serveur et part en Auto ou Manuel comme au dernier combat (bouton Auto en route)
+  const run = (level: number) => {
     setError(null);
     start(async () => {
-      const result = await startBattleAction(dungeonKey(level, dungeon.key), manual, squad.selectedIds);
+      const result = await startBattleAction(dungeonKey(level, dungeon.key), true, squad.selectedIds);
       if (!result.ok) return setError(result.error);
       setPrep(null);
-      setFight({ battle: result.battle, level, auto: !manual || localStorage.getItem("bt-auto") !== "off" });
+      setFight({ battle: result.battle, level, auto: localStorage.getItem("bt-auto") !== "off" });
     });
   };
   if (fight) return <section className="hs-fight"><LiveBattle key={fight.battle.id} initial={fight.battle} initialAuto={fight.auto} names={{ A: "Ton équipe", B: boss?.name ?? name }} title={`${name} — difficulté ${fight.level}`} onExit={() => setFight(null)} abandonOnExit onEnd={() => router.refresh()} renderEnd={(battle) => <div className="hs-result" role="status">
     <b>{battle.winner === "A" ? "Victoire !" : "Défaite — aucun coût ni butin."}</b>
     {(battle.loot?.artifacts ?? (battle.loot?.artifact ? [battle.loot.artifact] : [])).map((a, i) => <p key={i}>{artifactRarity(a.rarity).label} · {SLOT_NAMES[a.slot as ArtifactSlot]} · {artifactStatLabel(a.mainStat)} {artifactStatValue(a.mainStat, a.mainValue)}</p>)}
     {battle.loot && Object.values(battle.loot.resources).some(Boolean) && <p>Matériaux : {Object.values(battle.loot.resources).reduce((a, b) => a + b, 0)}</p>}
-    <div className="hs-actions"><button type="button" className="bt-btn" onClick={() => setFight(null)}>Retour au donjon</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level, true)}>Rejouer en manuel</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level, false)}>Rejouer en auto</button>{battle.winner === "A" && fight.level < 10 && <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level + 1, true)}>Difficulté suivante</button>}</div>
+    <div className="hs-actions"><button type="button" className="bt-btn" onClick={() => setFight(null)}>Retour au donjon</button><button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level)}>Rejouer</button>{battle.winner === "A" && fight.level < 10 && <button type="button" className="bt-btn" disabled={pending} onClick={() => run(fight.level + 1)}>Difficulté suivante</button>}</div>
     <ReplayOptions unlocked={battle.winner === "A" || battle.spellFxUnlocked === true} />
     {error && <p className="hs-error" role="alert">{error}</p>}
   </div>} /></section>;
   if (prep) {
     const d = levels.find((l) => l.level === prep.level)!;
     return <TeamPreparation title={`${name} — difficulté ${prep.level}`} subtitle={`Set ${dungeon.universe} · ${d.mechanic}`} team={squad} context={context} enemies={prep.enemies} energy onBack={() => { setPrep(null); setError(null); }}
-      footer={<><p className="hs-team-note">{dropLabel(d.level)} · 25 % par emplacement{d.resource ? ` · ${d.resource} matériau${d.resource > 1 ? "x" : ""}` : ""}</p><div className="hs-actions"><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(prep.level, true)}>Combattre en manuel</button><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(prep.level, false)}>Combattre en auto</button></div></>} />;
+      footer={<><p className="hs-team-note">{dropLabel(d.level)} · 25 % par emplacement{d.resource ? ` · ${d.resource} matériau${d.resource > 1 ? "x" : ""}` : ""}</p><div className="hs-actions"><button type="button" className="ui-button hs-fight-button" disabled={pending || !ready} onClick={() => run(prep.level)}>Combattre</button></div></>} />;
   }
   return <>
     <section className="dg-hero"><div className="dg-visual"><span className="dg-sigil" aria-hidden="true">◈</span><div><p className="dg-kicker">Set {dungeon.universe}</p><h2>{name}</h2><p>{dungeon.description}</p></div>{boss?.imageUrl && <><span className="sr-only">{boss.name}</span><img src={boss.imageUrl} alt="" aria-hidden="true" referrerPolicy="no-referrer" /></>}</div><div className="dg-summary"><strong>{maxLevel}/10</strong><span>difficultés vaincues</span><p>Une ou deux pièces selon la difficulté. Chaque pièce a 25 % de chances par emplacement.</p><Link className="bt-btn" href="/equipe">Préparer mon équipe</Link></div></section>

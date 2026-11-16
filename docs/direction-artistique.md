@@ -301,3 +301,7 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 - 2026-11-13 : barre du haut escamotable avec mini-barre (§4.10).
 - 2026-11-13 : titres de page compacts (§3), collection fusionnée (§4.20), boutons colorés par rôle (§4.21), effets visuels de la refonte (§4.22).
 - 2026-11-10 : pages de connexion, inscription et mot de passe oublié remises dans la DA, e-mails de confirmation (§4.19).
+
+### Commandes de combat — 2026-11-16
+
+Un seul bouton « Combattre » en préparation, avec le dernier réglage Auto/Manuel mémorisé et modifiable pendant le combat. « Passer l’animation en cours » applique seulement les effets déjà résolus de l’action affichée, sans simuler la suite. Le survol souris relève un sort sans le sélectionner ; le maintien conserve son rôle d’inspection épinglée.

@@ -264,7 +264,14 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
   return { ...state, idx: state.idx + 1, info, units, cur, round, end, pops, popSeq };
 }
 
-/** Rejoue tout le journal d'un coup (bouton « fin », vérifications). */
+/** Applique les effets restants de l'action affichée, sans commencer l'action suivante. */
+export function replayCurrentAction(state: Replay, log: BattleEvent[]): Replay {
+  let next = state;
+  while (next.idx < log.length && log[next.idx].kind !== "action") next = replayStep(next, log);
+  return { ...next, pops: [] };
+}
+
+/** Rejoue tout le journal d'un coup (vérifications). */
 export function replayAll(log: BattleEvent[]): Replay {
   let s = replayStart(log);
   while (s.idx < log.length) s = replayStep(s, log);

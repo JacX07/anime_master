@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { abandonBattleAction, finishAutoAction, playActionAction, playAutoAction } from "@/app/battle-actions";
+import { abandonBattleAction, playActionAction, playAutoAction } from "@/app/battle-actions";
 import type { Spell, UnitId } from "@/lib/battle";
 import type { MusicTrack } from "@/lib/track-music";
 import type { BattleView } from "@/lib/battles";
@@ -41,14 +41,9 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
   const [pending, start] = useTransition();
   // Une seule requête à la fois (le lecteur peut redemander à chaque rendu)
   const inflight = useRef(false);
-  // « Terminer » demandé pendant une requête : relancé dès qu'elle revient
-  const finishWanted = useRef(false);
-  const [skipNonce, setSkipNonce] = useState(0);
-  const stepsRef = useRef(view.steps);
   const statusRef = useRef(view.status);
 
   const apply = (next: BattleView) => {
-    stepsRef.current = next.steps;
     statusRef.current = next.status;
     setError(null);
     setLog((l) => [...l, ...next.log]);
@@ -68,24 +63,9 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
         apply(r.battle);
       } finally {
         inflight.current = false;
-        if (finishWanted.current) queueMicrotask(() => finishRef.current());
       }
     });
   };
-
-  // Termine tout de suite en automatique (serveur), puis l'écran saute au résultat
-  const finishing = useRef(false);
-  const finish = () => {
-    if (statusRef.current !== "RUNNING" || finishing.current) return;
-    finishWanted.current = true;
-    if (inflight.current) return;
-    finishWanted.current = false;
-    finishing.current = true;
-    setSkipNonce((n) => n + 1);
-    send(() => finishAutoAction(view.id, stepsRef.current));
-  };
-  const finishRef = useRef(finish);
-  useEffect(() => { finishRef.current = finish; });
 
   // Changer d'onglet ne change rien : l'animation continue à son rythme (minuterie d'arrière-plan du lecteur) et le serveur joue action par action.
 
@@ -155,8 +135,6 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
         },
         onAutoStep: autoStep,
         onNext,
-        onFinish: running ? finish : undefined,
-        skipNonce,
       }}
     />
     <LeaveConfirm open={!!confirming} busy={pending} onStay={() => setConfirming(null)} onLeave={() => abandon(confirming ?? undefined)} />

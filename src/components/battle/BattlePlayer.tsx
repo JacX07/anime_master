@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView, CHARACTER_PASSIVES } from "@/lib/battle";
-import { holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
+import { holdFor, replayCurrentAction, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { attackElement } from "@/lib/attack-element";
 import { attackVisual, attackWeapon } from "@/lib/attack-visual";
@@ -83,10 +83,6 @@ export interface LiveControl {
   onToggleAuto?: () => void;
   /** Demande au serveur de jouer l'action de la carte qui doit agir */
   onAutoStep: () => void;
-  /** « Terminer » : le serveur joue la suite en auto, sans animation */
-  onFinish?: () => void;
-  /** Incrémenté quand l'écran doit sauter au résultat dès que le journal contient la fin */
-  skipNonce?: number;
   /** Abandon du combat en cours (compté comme perdu) */
   onAbandon?: () => void;
   /** Affiché à côté de l'interrupteur : chrono de l'arène live */
@@ -358,17 +354,16 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
     setRp(replayStart(log));
     setPlaying(true);
   };
-  const skip = () => { cancelCast.current?.(); setRp({ ...replayAll(log), pops: [] }); };
-  // Saut au résultat demandé par le combat en direct (« Terminer », onglet en arrière-plan) : dès que la fin est dans le journal
-  const skipped = useRef(0);
-  useEffect(() => {
-    const nonce = live?.skipNonce ?? 0;
-    if (nonce > skipped.current && log[log.length - 1]?.kind === "end") {
-      cancelCast.current?.();
-      skipped.current = nonce;
-      setRp({ ...replayAll(log), pops: [] });
-    }
-  }, [live?.skipNonce, log]);
+  const skip = () => {
+    cancelCast.current?.();
+    vfx.current?.clear();
+    // La minuterie du dernier événement doit aussi être épuisée si on est déjà à la frontière suivante.
+    const next = replayCurrentAction(rp, log);
+    playbackHold.current = { idx: next.idx, remaining: 0 };
+    lastIdx.current = next.idx;
+    visualIndex.current = next.idx;
+    setRp(next);
+  };
 
   const end = rp.end;
   const actor = rp.cur && !finished ? rp.info[rp.cur.actor] : null;
@@ -571,7 +566,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             </button>
         </div>
         <div className="bt-pause-actions">
-            <button type="button" className="bt-ico" onClick={() => { wasPlaying.current = true; pauseMenu.current?.close(); cancelCast.current?.(); if (live?.onFinish && !rp.end) live.onFinish(); else skip(); }} disabled={finished} aria-label={live?.onFinish ? "Terminer le combat en automatique, sans animation" : "Aller à la fin"} title={live?.onFinish ? "Terminer (auto, sans animation)" : "Aller à la fin"}>
+            <button type="button" className="bt-ico" onClick={() => { wasPlaying.current = true; skip(); pauseMenu.current?.close(); }} disabled={finished || (caughtUp && !consuming)} aria-label="Passer l’animation en cours" title="Passer l’animation en cours">
               <Icon name="fin" />
             </button>
           {live?.onAbandon && !end ? (

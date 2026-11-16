@@ -20,23 +20,23 @@ interface Props {
   opponents: OpponentChoice[];
 }
 
-/** Écran de combat : choix de l'adversaire et du mode de départ (Auto ou Manuel, modifiable en route), reprise d'un combat ouvert, puis le lecteur. */
+/** Écran de combat : choix de l'adversaire, dernier réglage Auto/Manuel modifiable en route, reprise d'un combat ouvert, puis le lecteur. */
 export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents }: Props) {
   const [view, setView] = useState<BattleView | null>(null);
   const [open, setOpen] = useState(initial);
   const [auto, setAuto] = useState(false);
   const [teamReady, setTeamReady] = useState(ready);
   const [opponent, setOpponent] = useState(opponents[0].key);
-  const [manual, setManual] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   // Dernier réglage Auto / Manuel (modifié en plein combat) et dernier adversaire
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setManual(localStorage.getItem("bt-auto") === "off");
     const last = localStorage.getItem("bt-opponent");
-    if (last && opponents.some((o) => o.key === last)) setOpponent(last);
+    if (last && opponents.some((o) => o.key === last)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Préférence relue après hydratation.
+      setOpponent(last);
+    }
   }, [opponents]);
 
   const opponentName = (key: string) => opponents.find((o) => o.key === key)?.name ?? key;
@@ -58,8 +58,7 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
       // Tous les combats sont suivis par le serveur : l'auto n'est qu'un réglage qu'on peut changer en route
       const r = await startBattleAction(opponent, true);
       if (!r.ok) return setError(r.error);
-      setAuto(!manual);
-      localStorage.setItem("bt-auto", manual ? "off" : "on");
+      setAuto(localStorage.getItem("bt-auto") !== "off");
       localStorage.setItem("bt-opponent", opponent);
       setView(r.battle);
       setError(null);
@@ -103,7 +102,7 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
               type="button"
               className="bt-btn bt-play"
               onClick={() => {
-                setAuto(false);
+                setAuto(localStorage.getItem("bt-auto") !== "off");
                 setView(open);
               }}
             >
@@ -125,19 +124,6 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
           </label>
         ))}
       </fieldset>
-      <fieldset className="bt-pick">
-        <legend>Mode de départ (modifiable en plein combat)</legend>
-        <label className="bt-choice" data-on={!manual || undefined}>
-          <input type="radio" name="mode" checked={!manual} onChange={() => setManual(false)} />
-          <b>Automatique</b>
-          <small>Ton équipe joue seule, tu regardes.</small>
-        </label>
-        <label className="bt-choice" data-on={manual || undefined}>
-          <input type="radio" name="mode" checked={manual} onChange={() => setManual(true)} />
-          <b>Manuel</b>
-          <small>À chaque tour de ta carte, tu choisis le sort et la cible.</small>
-        </label>
-      </fieldset>
       {teamReady ? null : bestCardIds.length === 4 ? (
         <p className="vt-muted">Tu n&apos;as pas encore d&apos;équipe d&apos;attaque. Utilise tes 4 cartes les plus puissantes (4 personnages différents).</p>
       ) : (
@@ -151,7 +137,7 @@ export function BattleArena({ initial, bestCardIds, teamReady: ready, opponents 
       <div>
         {teamReady ? (
           <button type="button" className="bt-btn bt-play" onClick={launch} disabled={pending || !!open}>
-            Lancer le combat
+            Combattre
           </button>
         ) : (
           bestCardIds.length === 4 && (

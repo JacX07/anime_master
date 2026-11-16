@@ -2,7 +2,7 @@
 // Usage : npm run check:replay
 
 import { applyAction, autoAction, createBattle, currentActor, type BattleCard, type Random } from "../src/lib/battle";
-import { holdFor, replayAll } from "../src/lib/battle-replay";
+import { holdFor, replayAll, replayCurrentAction, replayStart, replayStep } from "../src/lib/battle-replay";
 import { attackVisual, ATTACK_VISUALS, attackWeapon } from "../src/lib/attack-visual";
 import { BASIC_ATTACK_ROSTER } from "../src/lib/basic-attack-roster";
 import { strict as assert } from "node:assert";
@@ -57,6 +57,18 @@ for (let g = 0; g < GAMES; g++) {
   const log = st.result!.log;
   events += log.length;
   longest = Math.max(longest, log.reduce((ms, _, i) => ms + holdFor(log, i), 0));
+  // Skip ne doit franchir aucune action suivante, même si plusieurs sont déjà reçues du serveur.
+  const firstAction = log.findIndex((event) => event.kind === "action");
+  let cursor = replayStart(log);
+  while (cursor.idx <= firstAction) cursor = replayStep(cursor, log);
+  const nextAction = log.findIndex((event, i) => i >= cursor.idx && event.kind === "action");
+  const skipped = replayCurrentAction(cursor, log);
+  assert.equal(skipped.idx, nextAction === -1 ? log.length : nextAction);
+  let expected = cursor;
+  while (expected.idx < skipped.idx) expected = replayStep(expected, log);
+  assert.deepEqual(skipped.units, expected.units);
+  assert.deepEqual(skipped.cur, cursor.cur, "Skip garde l’action affichée");
+  assert.deepEqual(replayCurrentAction(skipped, log), skipped, "Skip répété ne joue pas l’action suivante");
   const r = replayAll(log);
   const bad: string[] = [];
   if (r.end?.kind !== "end") bad.push("pas de « end »");

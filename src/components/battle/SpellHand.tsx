@@ -36,6 +36,7 @@ export function SpellHand({ cards, portrait, interactive, busy, inspecting, insp
   onChoose: (key: string, el: HTMLElement) => void;
 }) {
   const hold = useHoldInspection(onInspect, enabled);
+  const [hovered, setHovered] = useState<string | null>(null);
   const [viewport, setViewport] = useState({ width: 760, height: 800 });
   const viewportWidth = viewport.width;
   const small = viewportWidth <= 640;
@@ -54,14 +55,17 @@ export function SpellHand({ cards, portrait, interactive, busy, inspecting, insp
         const m = i - (n - 1) / 2;
         const gap = Math.min(w * 0.75, room);
         const inspectingCard = inspecting === c.key;
-        const raised = c.selected || inspectingCard;
-        const x = m * gap, y = inspectingCard ? -(small ? 14 : 24) : c.selected ? -(small ? 4 : 10) : 10 + Math.abs(m) * 12, r = raised ? 0 : m * 8;
+        const hovering = hovered === c.key;
+        const raised = c.selected || inspectingCard || hovering;
+        const x = m * gap, y = inspectingCard ? -(small ? 14 : 24) : hovering ? -18 : c.selected ? -(small ? 4 : 10) : 10 + Math.abs(m) * 12, r = raised ? 0 : m * 8;
         const disabled = interactive && (!c.ready || busy);
         return (
           <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-armed={c.selected || undefined} data-inspecting={inspectingCard || undefined}
             data-cd={interactive && !c.ready && c.wait > 0 ? c.wait : undefined} aria-disabled={disabled || undefined} aria-describedby={inspectingCard ? inspectionId : undefined} aria-pressed={interactive ? c.selected : undefined}
             aria-label={`${c.name} : ${c.details}`}
-            style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg) scale(${inspectingCard ? 1.08 : c.selected ? 1.03 : 1})`, zIndex: inspectingCard ? 30 : c.selected ? 20 : i, marginLeft: `${-w / 2}px` } as CSSProperties}
+            style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg) scale(${inspectingCard ? 1.08 : hovering ? 1.06 : c.selected ? 1.03 : 1})`, zIndex: inspectingCard ? 30 : hovering ? 25 : c.selected ? 20 : i, marginLeft: `${-w / 2}px` } as CSSProperties}
+            onPointerEnter={(event) => { if (event.pointerType === "mouse" && window.matchMedia("(hover: hover)").matches) setHovered(c.key); }}
+            onPointerLeave={() => setHovered(null)}
             {...hold(c.key, (anchor) => { if (!disabled) onChoose(c.key, anchor); })}>
             <span className="bt-hand-glow" aria-hidden="true" /><span className="bt-hand-halo" aria-hidden="true" />
             <span className="bt-hand-face">
