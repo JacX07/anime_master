@@ -625,7 +625,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Cause : `revalidatePath("/", "layout")` dans les actions joueur invalidait les coquilles statiques de tout le site (`cacheComponents`). Côté base, des lectures complètes à chaque page ou action : puissance de collection (toutes les cartes et leurs personnages), `distinct` Prisma (fait en mémoire, relit toutes les lignes), catalogue des anime. Mesuré via `pg_stat_statements` sur la prod : plus de 100 M de lignes en 7 jours.
 - Correctif : `refresh()` dans les actions ; agrégats SQL (`$queryRaw`, `groupBy`) ; `"use cache"` sur le catalogue ; sondage du chat ralenti (branche `perf/egress-isr`).
 - À retenir : pour rafraîchir l'écran après une action, `refresh()` suffit (pages dynamiques) ; pas de `distinct` Prisma ni de `select` imbriqué sur une collection entière pour un simple total. La base Supabase dev (`.env`) compte aussi dans l'egress de l'organisation.
-- Occurrences : 1.
+- 2026-11-17 : egress encore à ~1,5 Go/jour (≈ 10 Go du 2 au 16/11, plan Free 5 Go). Les jours sans dev (12 et 14/11) sont presque à zéro : le `.env` de dev pointait sur la base Supabase de prod, et le cache `"use cache"` du catalogue est vidé à chaque démarrage à froid sur Vercel. Correctif : Postgres local (rôle `anime`, base `anime_dev`, copie par `pg_dump -n public` avec le binaire 17) dans `.env` ; URLs de prod gardées en commentaire `PROD_*`. Les autres checkouts (`anime_master`, `-tuto`, `-v030`) pointent encore sur Supabase.
+- Occurrences : 2 (2026-11-09, 2026-11-17).
 
 ## 2026-11-09 — Tiroir de menu mobile réduit à une bande de 32 px
 
