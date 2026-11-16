@@ -15,6 +15,14 @@
 - Correctif : destination de retour limitée à /album et ses paramètres, transmise par toutes les cartes, y compris la pagination ; tiroir fermé invisible, fermeture Échap et focus rendu au bouton.
 - Validation : lint ciblé et build Node 24 réussis. Chromium 390 px : recherche Satoru → Gojo → retour avec recherche conservée ; tiroir ouvert puis Échap, focus restauré et champ caché inaccessible. À 1440 px le panneau reste visible ; filtre UR/MAGIE/possédé conservé. Une destination externe retourne à /album.
 
+## 2026-11-16 — Passe complète avant v0.4.0
+- Résultats : 72 scripts métier (publication exclue), lint, génération Next et TypeScript réussis ; le seul échec initial VFX est corrigé dans l’entrée existante du 2 novembre. Build final et lint ciblé réussis, check-changelog relancé avec succès. Audit npm production : 0 vulnérabilité signalée. Migrations dev à jour.
+- Correctifs documentés dans leurs entrées dédiées : retour filtré et tiroir clavier, doublons du sélecteur de squad, statuts VFX. Autre bug reproduit : après une défaite réelle, le texte KO annonçait l’équipe adverse à terre ; texte adapté au vainqueur puis défaite retestée dans Chromium.
+- 25 destinations PC/mobile consultées ; huit écrans centraux à 320/375/430/768 px ; combat et inspection à 320/375/390/430/768/844 paysage/1440 px. Connexion refusée puis valide, pagination 60 → 120, invocation ×5 et nouvelles cartes persistées, sauvegarde squad, victoire histoire et 3 étoiles persistées, ciblage manuel, pause/Auto/abandon, réglages et personnage d’accueil persistants, Actualités vérifiées.
+- Piège de vérification : Next peut retourner un écran de chargement pendant le streaming. Attendre le contenu visible attendu avant de mesurer ou conclure à une perte de persistance. Le témoin Chargement de pagination hors écran n’est pas un blocage : la liste passe bien de 60 à 120 cartes au défilement.
+- Nettoyage : squad temporaire supprimée et disparition confirmée ; base Postgres jetable supprimée et instance arrêtée. Butin réel conservé uniquement sur le compte dev de test.
+- Rapport, limites et preuves : docs/reports/validation-v0.4.0-2026-11-16.md. Pas de publication, de PvP réel à deux joueurs ni d’appareil physique. Journaux temporaires : /tmp/anime-v040-audit-GFHQWr/.
+
 ## 2026-11-16 — Bonus de compétence magique pour le type Magie
 - Validation : check:magic-skill (bonus de 50 % donnant ×1,5 sur une compétence non marquée d’un personnage MAGIE, quatre emplacements, exclusions physique/base et autres types), check:passives, ESLint ciblé et build Node 24/TypeScript réussis. Chromium 390 px : règle dans les actualités v0.4.0, démonstration avec lanceurs magiques et Toji, dégâts affichés et pause/reprise sans erreur JS. Le bonus chiffré est vérifié par simulation moteur ; la démonstration sans équipement ne le mesure pas.
 - Règle précisée par l’utilisateur : tous les personnages de type MAGIE bénéficient du bonus sur leurs compétences. Le calcul ne retenait que huit personnages explicitement listés et l’affinité Magie. Ajouter le type comme valeur par défaut pour secondaire, tertiaire, ultime et affinité ; conserver la priorité du marquage explicite physique et exclure l’attaque de base. Le passif de Toji n’est pas modifié par cette règle de bonus.
@@ -220,8 +228,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Correctif : réutiliser les effets existants pour les dix statuts ; créer une situation déterministe avec jauge chargée puis vérifier contrôle, K.-O. et victoire dans cet ordre.
 - Occurrences : 1.
 - Statut : corrigé et checks dédiés réussis.
-
 - Validation du 16 novembre : check-combat-vfx et build réussis ; contrôleur réel dans Chromium, six rendus présents, pause et vitesses ×2/×4 opérationnelles après engagement des animations, retrait naturel puis dispose sans canvas, nœud ou animation résiduel. Préférence de réduction des animations : aucun effet créé. Pas de mesure de FPS sur appareil physique.
+- Proposition de promotion en règle, non appliquée : avant de committer un nouveau statut de combat, compléter ses informations et sa correspondance visuelle, puis exécuter check-combat-vfx. Récidives : 2 et 13 novembre, puis 16 novembre ; validation explicite de l’utilisateur requise avant toute modification d’AGENTS.md.
 
 ## 2026-11-02 — Double clic manuel après une première écriture
 

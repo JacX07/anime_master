@@ -98,6 +98,11 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 
 ### Correctifs et confort
 
+- **Retour à la collection** : la recherche et les filtres sont conservés après la consultation d’une fiche de personnage.
+- **Collections au clavier** : le panneau mobile fermé ne capte plus le focus ; Échap le ferme et rend le focus à son bouton.
+- **Squads** : les autres exemplaires d’un personnage déjà placé ne sont plus proposés à un autre poste.
+- **Effets de combat** : les nouveaux statuts de Madara, Netero, Johan et Griffith disposent de leurs effets visuels d’application.
+- **Résultat du combat** : le texte après une défaite désigne correctement ton équipe mise à terre.
 - Répartition de l’espace de combat revue sur les petits écrans ; détails de sorts, commandes et résultats ne doivent plus se recouvrir.
 - Récompenses et écrans de victoire conservés au premier plan, sans en-tête ou pied de page par-dessus.
 - Commandes tactiles, zones de confirmation et descriptions longues rendues plus faciles à utiliser.
