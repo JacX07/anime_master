@@ -32,6 +32,10 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Levi** : l'ultime ajoute 20 % des PV max de la cible et +50 points de taux de critique.
 - **Shigeo** : ???% — Explosion frappe tous les ennemis.
 - **Maomao** : nouveau passif, immunisée contre le poison, la brûlure et le saignement.
+- **Sukuna** : le Sanctuaire malveillant pose une entaille (8 % des PV max par tour, 2 tours) qui bloque les soins.
+- **Netero** : Hyakushiki Kannon dure 3 tours et Netero rejoue aussitôt.
+- **Gilgamesh** : Ea désarme les porteurs d'épée pendant un tour (sans sort sans épée, ils passent leur tour), puis frappe tous les ennemis à ×2,1 ATK, +25 % par ennemi désarmé.
+- **Saitama** : plus d'attaque de base, seulement son coup de poing, prêt dès le premier tour.
 - **Madara** : Katon (×2,1) et Kyūbi (×3,3) brûlent au lieu d'empoisonner ; la Copie du Susanoo frappe à 100 %.
 
 ### Butins et taux affichés

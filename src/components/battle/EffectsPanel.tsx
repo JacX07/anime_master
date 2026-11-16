@@ -12,7 +12,7 @@ const clamp = (n: number) => Math.max(-CAP, Math.min(CAP, n));
 /** Valeur lisible d'un effet selon sa nature. */
 function valueOf(status: Status, amount?: number) {
   if (amount === undefined || amount === 0) return null;
-  if (status === "poison" || status === "burn") return `${pct(amount).replace("+", "")} des PV max par tour`;
+  if (status === "poison" || status === "burn" || status === "gash") return `${pct(amount).replace("+", "")} des PV max par tour`;
   if (status === "bleed") return `${pct(amount).replace("+", "")} des PV actuels par tour`;
   if (status === "regen") return `${pct(amount)} des PV max par tour`;
   if (status === "reduce" || status === "titan") return `dégâts subis ${pct(-amount)}`;

@@ -650,7 +650,7 @@ Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compét
 ### Kits demandés le 2026-11-16 (soir)
 **Lot 1 — codé** : Gojo (étourdit les 4 ennemis, 1 tour), Cid (I am Atomic ×2,2 en zone perforant), Levi (ultime de `skill-overrides.json` : +20 % des PV max de la cible, +50 points de critique), Shigeo (Explosion en zone), Maomao (immunisée contre les dégâts sur la durée), Madara (Katon ×2,1 et Kyūbi ×3,3 en brûlure, Copie à 100 %).
 
-**Lot 2 — validé, à coder**
+**Lot 2 — codé le 2026-11-16** (paumes de Netero : la recharge d'un tour existait déjà ; un désarmé ne peut lancer que des sorts sans dégâts, sinon il passe son tour ; Saitama garde l'attaque de base en dernier recours sous silence)
 - Sukuna, ultime : remplace le poison par une **entaille** sur tous les ennemis, 2 tours : 8 % des PV max par action, bloque les soins reçus tant qu'elle dure. Statut distinct du saignement, non cumulable.
 - Netero : chaque paume a 1 tour de recharge. Ultime : statue de Kannon 3 tours, puis il rejoue aussitôt (l'ultime ne coûte pas son tour).
 - Gilgamesh, ultime : **désarme** 1 tour les ennemis porteurs d'épée (`blade-users.ts`) ; un désarmé lance ses sorts sans épée, sinon passe son tour. Dégâts ×2,1 ATK en zone, +25 % par ennemi désarmé.

@@ -1,5 +1,10 @@
 # Journal des agents
 
+## 2026-11-16 — Kits, lot 2 (Sukuna, Netero, Gilgamesh, Saitama)
+- Moteur : statuts `gash` (entaille : dégâts sur la durée + aucun soin, `heal` et régénération bloqués) et `disarm` (`disarmedStuck` fait passer le tour ; `legalActions` et `autoAction` n'offrent que des sorts sans dégâts) ; champ de sort `replay` (tour immédiat, comme les buffs solo) ; Saitama prêt au tour 1, sans attaque de base (fiche et main de combat masquent la ligne via `SINGLE_SPELL`).
+- Piège : `autoAction` ignore `legalActions` ; tout nouveau filtre d'actions doit aussi y être reporté (check-spells l'a révélé : « Action impossible » sur 2 combats sur 1 500).
+- Vérifié : check-kits-uniques (bloc lot 2), check-kits, check-spells, check-builder, check-passives, check-battle, check-replay, statuts, TypeScript, ESLint ; fiches des quatre personnages ; /combat/test?seed=11&ids=133701,14489,2514,73935,5,62,36765,422 sans erreur (Désarmé, Kannon visibles). Non testé : combat manuel.
+
 ## 2026-11-16 — Kits, lot 1 (Gojo, Cid, Levi, Shigeo, Maomao, Madara)
 - Piège majeur : `src/lib/skill-overrides.json` (écrit par « Appliquer au jeu » du builder) passe AVANT `skill-data.json`. Levi et Shigeo y avaient leur ultime réel ; modifier seulement `skill-data.json` ne change rien en jeu. Vérifier les deux fichiers avant d'annoncer l'état d'un kit.
 - Fait : Gojo étourdit les 4 ennemis ; Cid « I am Atomic » ×2,2 en zone perforant ; Levi (override) +20 % des PV max de la cible et +50 points de critique (nouveau champ `critBonus`) ; Shigeo (override) Explosion en zone ; Maomao passif `DOT_IMMUNE` ; Madara Katon ×2,1 et Kyūbi ×3,3 posent une brûlure (`poison.burn`), Copie à 100 %.

@@ -80,11 +80,11 @@ const until = (s: BattleState, id: string) => { for (let i = 0; currentActor(s)?
   assert(!s.teams.B[0].fx.some((f) => f.key === "bleed"), "Momo sans saignement");
 }
 
-// Sukuna : l'ultime pose 3 tours de dégâts sur la durée
+// Sukuna : l'ultime pose une entaille de 8 % pendant 2 tours (lot 2 du 2026-11-16)
 {
   const ult = ULTIMATE_CATALOG[133701];
-  const dot = ult?.effects.find((e) => e.k === "poison");
-  assert.equal(dot && "turns" in dot ? dot.turns : 0, 3);
+  const gash = ult?.effects.find((e) => e.k === "gash");
+  assert.equal(gash && gash.k === "gash" ? `${gash.pct}/${gash.turns}` : "", "0.08/2");
 }
 
 // Emilia : à sa mort, Colère de Puck part toute seule (combat complet)

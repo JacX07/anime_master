@@ -67,6 +67,10 @@ export type Effect =
   | { k: "susanoo"; turns: number }
   /** Netero : statue de Kannon, chaque paume frappe deux fois pendant `turns` tours du lanceur */
   | { k: "kannon"; turns: number }
+  /** Entaille (Sukuna) : `pct` des PV max perdus à chaque action, soins reçus bloqués, pendant `turns` tours ; ne se cumule pas */
+  | { k: "gash"; pct: number; turns: number; to: Scope }
+  /** Désarme (Gilgamesh) les ennemis porteurs d'épée ; chaque désarmé ajoute `bonus` aux dégâts suivants du sort */
+  | { k: "disarm"; turns: number; bonus: number }
   /** Rejoue à `mult` le dernier sort secondaire ou tertiaire lancé par un ennemi (Madara) ou par n'importe qui (`from: "all"`, Yuuta) */
   | { k: "copySpell"; mult: number; from?: "foes" | "all" }
   /** Saitama : met la cible K.O. d'un coup (les boss perdent `bossPct` de leurs PV max), puis le lanceur sort du combat */
@@ -97,6 +101,8 @@ export interface CharacterSpell {
   final?: boolean;
   /** Utilisable une seule fois par combat */
   oncePerCombat?: boolean;
+  /** Le lanceur rejoue aussitôt (Netero : statue de Kannon) */
+  replay?: boolean;
 }
 
 export { KITLESS } from "./spell-rules";
@@ -480,6 +486,8 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "shield": return `bouclier de ${pct(e.pct)} des PV max pour ${WHO[e.to]}`;
     case "poison": return `${e.burn ? "brûlure" : "poison"} : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "silence": return `silence sur ${e.to === "foes" && e.count ? (e.count === 1 ? "l’ennemi à l’ATK la plus élevée" : `les ${e.count} ennemis à l’ATK la plus élevée`) : WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
+    case "gash": return `entaille : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)} ; les soins reçus sont bloqués`;
+    case "disarm": return `désarme les ennemis porteurs d'épée, ${nx(e.turns)} (sans sort sans épée, ils passent leur tour) ; +${pct(e.bonus)} de dégâts par ennemi désarmé`;
     case "stun": return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
     case "sleep": return `endort ${e.weaker ? "les ennemis dont l'ATK est inférieure à celle du lanceur" : "tous les ennemis"} ${nx(e.turns)} ; un coup réveille ; sans effet sur les boss`;
     case "duel": return `provoque un ennemi en duel : lui seul peut atteindre le lanceur, ${nx(e.turns)}`;
@@ -519,5 +527,5 @@ export const isSoloBuff = (spell: CharacterSpell): boolean => spell.target === n
   return (effect.k === "heal" || effect.k === "regen" || effect.k === "shield" || effect.k === "reduce" || effect.k === "immune" || effect.k === "purge") && effect.to === "self";
 });
 /** Description d'un sort : multiplicateurs masqués par défaut, visibles avec `detailed` */
-export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + "." + (isSoloBuff(sp) ? " Tour immédiat : le lanceur peut rejouer." : "") + (sp.oncePerCombat ? " Une fois par combat." : "");
+export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + "." + (isSoloBuff(sp) || sp.replay ? " Tour immédiat : le lanceur peut rejouer." : "") + (sp.oncePerCombat ? " Une fois par combat." : "");
 export const SPELL_TARGET_LABEL = { foe: "1 ennemi", ally: "1 allié", deadAlly: "1 allié mort", none: "Aucune cible" } as const;

@@ -3325,12 +3325,17 @@
     },
     "ultimate": {
       "name": "Ea, l'épée de la rupture",
-      "target": "foe",
+      "target": null,
       "effects": [
         {
+          "k": "disarm",
+          "turns": 1,
+          "bonus": 0.25
+        },
+        {
           "k": "damage",
-          "mult": 4.8,
-          "pierce": true
+          "mult": 2.1,
+          "zone": true
         }
       ]
     }
@@ -11013,9 +11018,9 @@
           "ignoreDef": 0.3
         },
         {
-          "k": "poison",
-          "pct": 0.05,
-          "turns": 3,
+          "k": "gash",
+          "pct": 0.08,
+          "turns": 2,
           "to": "foes"
         }
       ]
@@ -13135,9 +13140,10 @@
         },
         {
           "k": "kannon",
-          "turns": 2
+          "turns": 3
         }
-      ]
+      ],
+      "replay": true
     }
   },
   "5115": {

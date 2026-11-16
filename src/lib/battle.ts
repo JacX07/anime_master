@@ -205,7 +205,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "auraPierce" | "dread" | "puppet" | "godHand";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 /** Emplacement de sort remplaçable en combat (transformation, absorption) */
 export type KitSlot = "special" | "tertiary" | "ultimate";
@@ -377,7 +377,7 @@ interface Fx {
   /** Duel : le seul ennemi qui peut encore atteindre le porteur */
   foe?: UnitId;
 }
-const MALUS = new Set<string>(["dread", "puppet", "sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
+const MALUS = new Set<string>(["dread", "puppet", "sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet", "gash", "disarm"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -473,7 +473,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       dodge: p?.kind === "dodge" ? p.chance : 0,
       spellIn: 2, held: 0, guard: 0, souls: 0, finalBonus: 0, soulTaken: false, shieldTaken: false, devoured: false, phased: false, exposed: false, weaken: 0, elan: 0,
       spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
-      pIn: SPELL_FIRST,
+      pIn: card.characterId === SAITAMA ? 0 : SPELL_FIRST,
       tertiary: rawTertiary ? (card.tertiary ? card.tertiary : powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale)) : null,
       tIn: SPELL_FIRST,
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
@@ -684,7 +684,7 @@ function gaugeActor(st: BattleState): Unit | null {
       const u = ready[0];
       u.gauge -= GAUGE_THRESHOLD;
       st.gaugeActor = u.id;
-      if (hasFx(u, "stun") || hasFx(u, "sleep") || cutOffByDuel(st, u)) {
+      if (hasFx(u, "stun") || hasFx(u, "sleep") || cutOffByDuel(st, u) || disarmedStuck(st, u)) {
         st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
         advanceCooldowns(u);
         finishUnitTurn(st, u);
@@ -713,6 +713,16 @@ function gaugeActor(st: BattleState): Unit | null {
     }
   }
   return null;
+}
+
+/** Désarmé (Gilgamesh) : un porteur d'épée sans sort sans dégâts prêt passe son tour */
+function disarmedStuck(st: BattleState, u: Unit): boolean {
+  if (!hasFx(u, "disarm")) return false;
+  return !(["special", "tertiary", "ultimate"] as const).some((slot) => {
+    const spell = spellFor(st, u, slot);
+    const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
+    return spell && ready && !spell.effects.some((e) => e.k === "damage") && !hasFx(u, "silence");
+  });
 }
 
 function advanceCooldowns(u: Unit) {
@@ -751,14 +761,14 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       effect.fresh = false;
       continue;
     }
-    if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn" || effect.key === "bleed")) {
+    if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn" || effect.key === "bleed" || effect.key === "gash")) {
       const amount = Math.min(u.hp, (effect.key === "bleed" ? Math.ceil(u.hp * effect.amount) : u.maxHp * effect.amount) * (1 - fxKeySum(u, "titan")));
       u.hp -= amount;
       st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}), ...(effect.key === "bleed" ? { bleed: true } : {}) });
       triggerTitan(st, u, false);
       if (u.hp <= 0) st.log.push({ kind: "ko", target: u.id });
     }
-    if (u.hp > 0 && effect.key === "regen") {
+    if (u.hp > 0 && effect.key === "regen" && !hasFx(u, "gash")) {
       if (effect.amount > 0) clearBleed(st, u);
       const before = u.hp;
       u.hp = Math.min(u.maxHp, u.hp + u.maxHp * effect.amount);
@@ -935,7 +945,7 @@ export function currentActor(st: BattleState): UnitView | null {
     }
     const u = st.teams[st.order[st.slot % 2]][Math.floor(st.slot / 2)];
     if (u && u.hp > 0 && !u.out) {
-      if (!hasFx(u, "stun") && !hasFx(u, "sleep") && !cutOffByDuel(st, u)) return view(u);
+      if (!hasFx(u, "stun") && !hasFx(u, "sleep") && !cutOffByDuel(st, u) && !disarmedStuck(st, u)) return view(u);
       st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
       advanceCooldowns(u);
       finishUnitTurn(st, u);
@@ -1009,7 +1019,12 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
     const targets = targetsForSpell(st, u, spell);
     if (targets.length) list.push({ spell: slot, targets });
   }
-  // Saitama n'a que son coup de poing (l'attaque de base ne sert que s'il ne peut pas le lancer)
+  // Désarmé : ni attaque de base ni sort qui frappe
+  if (hasFx(u, "disarm")) {
+    const unarmed = list.filter((a) => a.spell !== "base" && a.spell !== "affinity" && !spellFor(st, u, a.spell as "special" | "tertiary" | "ultimate")?.effects.some((e) => e.k === "damage"));
+    if (unarmed.length) return unarmed;
+  }
+  // Saitama n'a que son coup de poing : pas d'attaque de base (elle ne reste qu'en dernier recours, sous silence)
   if (u.card.characterId === SAITAMA && list.some((a) => a.spell === "special")) return list.filter((a) => a.spell !== "base");
   return list;
 }
@@ -1050,6 +1065,11 @@ export function autoAction(st: BattleState): Action {
   const foes = foesFor(st, u);
   const allies = alive(st, u.side);
   const base: Action = { spell: "base", target: weakest(foes).id };
+  // Désarmé (Gilgamesh) : seulement un sort sans dégâts, parmi les actions permises
+  if (hasFx(u, "disarm")) {
+    const allowed = legalActions(st).find((a) => a.spell !== "base" && a.spell !== "affinity");
+    if (allowed) return { spell: allowed.spell, target: allowed.targets[0] ?? null };
+  }
   // Concentration (Gon) : l'attaque chargée part au tour suivant
   if (hasFx(u, "silence") || hasFx(u, "seal") || hasFx(u, "charged")) return base;
   const ultimate = autoSpecial(st, u, "ultimate");
@@ -1255,7 +1275,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     return dmg;
   };
   const heal = (t: Unit, amount: number) => {
-    if (isAnti(t)) return;
+    // Entaille (Sukuna) : aucun soin reçu
+    if (isAnti(t) || hasFx(t, "gash")) return;
     if (t.hp > 0 && amount > 0) clearBleed(st, t);
     const before = t.hp;
     t.hp = Math.min(t.maxHp, t.hp + amount);
@@ -1275,7 +1296,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         return;
       }
     }
-    if ((key === "poison" || key === "burn" || key === "bleed") && (DOT_IMMUNE.has(t.card.characterId)
+    if ((key === "poison" || key === "burn" || key === "bleed" || key === "gash") && (DOT_IMMUNE.has(t.card.characterId)
       || (MAGIC_IMMUNE.has(t.card.characterId) && magicalAction))) {
       log.push({ kind: "resist", target: t.id });
       return;
@@ -1447,6 +1468,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     if (palm) u.palms++;
     const who = (scope: Scope): Unit[] =>
       scope === "self" ? [u] : scope === "team" ? alive(st, u.side) : scope === "foes" ? reachableFoes(st, u) : target && target.hp > 0 ? [target] : [];
+    let disarmBoost = 1;
     for (const e of activeSpell!.effects) {
       switch (e.k) {
         case "damage": {
@@ -1463,7 +1485,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           for (const [i, t] of targets.entries()) {
             const strikes = ((e.hits ?? 1) + (e.extraHit && fxSum(t, "def") < 0 ? 1 : 0)) * echo;
             const rage = 1 + (e.perHitTaken ?? 0) * Math.min(30, u.hitsTaken);
-            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * (palm?.mult ?? 1) * rage * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure, e.hpPct ?? 0, e.critBonus ?? 0);
+            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * disarmBoost * (palm?.mult ?? 1) * rage * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure, e.hpPct ?? 0, e.critBonus ?? 0);
           }
           zoneStrike = false;
           lastDealt = total;
@@ -1497,6 +1519,19 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         case "kannon":
           addFx(u, "kannon", 0, e.turns);
           break;
+        case "gash":
+          for (const t of who(e.to)) addFx(t, "gash", e.pct, e.turns);
+          break;
+        case "disarm": {
+          let disarmed = 0;
+          for (const foe of reachableFoes(st, u)) {
+            if (!BLADE_USERS.has(foe.card.characterId)) continue;
+            addFx(foe, "disarm", 0, e.turns);
+            if (hasFx(foe, "disarm")) disarmed++;
+          }
+          disarmBoost = 1 + e.bonus * disarmed;
+          break;
+        }
         case "oneShot": {
           if (!target || target.hp <= 0) break;
           if (MAGIC_IMMUNE.has(target.card.characterId) && magicalAction) { log.push({ kind: "resist", target: target.id }); break; }
@@ -1753,7 +1788,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
   if (reaction) return;
-  if (activeSpell && hasCharacterSlots(u.card.rarity) && isSoloBuff(activeSpell)) {
+  if (activeSpell && hasCharacterSlots(u.card.rarity) && (isSoloBuff(activeSpell) || activeSpell.replay)) {
     u.continuingTurn = true;
     // La provocation garde son tour : sinon le tour immédiat la consommerait avant que les ennemis jouent (v0.3.0)
     for (const effect of u.fx) if (effect.key !== "taunt") effect.fresh = false;

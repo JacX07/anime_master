@@ -1,5 +1,6 @@
 "use client";
 
+import { SINGLE_SPELL } from "@/lib/spell-rules";
 import { useEffect, useId, useState } from "react";
 
 import { BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } from "@/lib/battle";
@@ -66,6 +67,8 @@ export function SpellsPanel({
   const spells: { key: Spell; title: React.ReactNode; name: string; kind: string; cost: string; accent: string; target: string; text: string; tooltip: string; note: string | null; confirm?: ConfirmationScope }[] = [
     { key: "base" as const, title: <>{basic?.name ?? BASE_SPELL.name}</>, name: basic?.name ?? BASE_SPELL.name, kind: "Attaque de base", cost: "0", accent: "#c4a76d", target: BASE_SPELL.target, text: basic ? describeBasicAttack(basic) : BASE_SPELL.text, tooltip: basic ? describeBasicAttack(basic) : BASE_SPELL.details, note: null },
   ];
+  // Saitama : un seul sort, pas d'attaque de base
+  if (SINGLE_SPELL.has(unit.characterId)) spells.shift();
   // Les SSR et UR n'ont pas de sort de type : leurs 4 emplacements sont personnalisés
   if (!hasCharacterSlots(unit.rarity)) {
     spells.push({ key: "affinity" as const, title: <><TypeIcon type={unit.type} /> {SPELL_NAMES[unit.type]}</>, name: SPELL_NAMES[unit.type], kind: "Affinité", cost: String(BATTLE.spellCooldown), accent: "#d1bd8e", target: affinity.target, text: affinity.text, tooltip: affinity.details, confirm: unit.type === "AVENTURE" ? "team" : "self", note: AFFINITY_COOLDOWN });

@@ -1,5 +1,6 @@
 "use client";
 
+import { SINGLE_SPELL } from "@/lib/spell-rules";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
@@ -118,10 +119,12 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
           <p>{passive.text}</p>
         </li>
       )}
-      <li tabIndex={0} title={basic ? describeBasicAttack(basic) : BASE_SPELL.details}>
-        <b>{basic?.name ?? BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
-        <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
-      </li>
+      {!SINGLE_SPELL.has(card.characterId) && (
+        <li tabIndex={0} title={basic ? describeBasicAttack(basic) : BASE_SPELL.details}>
+          <b>{basic?.name ?? BASE_SPELL.name}</b> <small>{BASE_SPELL.target}</small>
+          <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
+        </li>
+      )}
       {!slots && (
         <li tabIndex={0} title={info.details}>
           <b><TypeIcon type={card.type} /> {SPELL_NAMES[card.type]}</b> <small>{info.target}</small>

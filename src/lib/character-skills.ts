@@ -62,6 +62,8 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "gauge":
       case "susanoo":
       case "kannon":
+      case "gash":
+      case "disarm":
       case "copySpell":
       case "donateShield":
       case "auraPierce":

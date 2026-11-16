@@ -99,6 +99,8 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   titan: { label: "Cuirasse du Titan", glyph: "", help: "Dégâts subis −50 % et bouclier temporaire de 50 % des PV max. Une activation par combat, pendant 2 actions du porteur.", bad: false },
   reduce: { label: "Dégâts réduits", glyph: "⛉", help: "Subit moins de dégâts.", bad: false },
   regen: { label: "Régénération", glyph: "✚", help: "Récupère des PV à la fin de chacun de ses tours.", bad: false },
+  gash: { label: "Entaille", glyph: "⟋", help: "Perd des PV max à la fin de chacun de ses tours et ne peut pas être soigné.", bad: true },
+  disarm: { label: "Désarmé", glyph: "⚔", help: "Ne peut ni attaquer ni lancer de sort qui frappe ; sans autre sort, passe son tour.", bad: true },
   burn: { label: "Brûlure", glyph: "♨", help: "Perd 5 % de ses PV max à la fin de chacun de ses tours.", bad: true },
   wet: { label: "Trempé", glyph: "≋", help: "Un sort de foudre l'étourdira (son prochain tour).", bad: true },
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },

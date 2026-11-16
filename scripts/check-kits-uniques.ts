@@ -192,16 +192,16 @@ for (let seed = 1; seed <= 200; seed++) {
 {
   const LEVI = 45627, GOJO = 127691, CID = 136837, MAOMAO = 126824;
   const foes = () => [1, 2, 3, 4].map(() => dummy({ defense: 1000000, attack: 1 }));
-  const ultimate = (id: number, rng: number, target: string | null = "B1") => {
+  const ultimate = (id: number, rng: number, target: `B${number}` | null = "B1") => {
     const s = createBattle([card(id, { startGauge: 100 })], foes(), () => rng, { startingSide: "A" });
     until(s, "A1");
     applyAction(s, { spell: "ultimate", target });
     return s.log;
   };
   // Levi (skill-overrides.json) : +50 points de critique (15 % de base → 65 %), +20 % des PV max de la cible
-  const leviHit = (rng: number) => ultimate(LEVI, rng).find((e) => e.kind === "damage" && e.source === "A1");
-  assert(leviHit(0.6)?.kind === "damage" && leviHit(0.6)!.crit, "Levi : critique à 60 % de tirage");
-  assert(leviHit(0.7)?.kind === "damage" && !leviHit(0.7)!.crit, "Levi : plus de critique assuré");
+  const leviCrit = (rng: number) => ultimate(LEVI, rng).some((e) => e.kind === "damage" && e.source === "A1" && e.crit);
+  assert(leviCrit(0.6), "Levi : critique à 60 % de tirage");
+  assert(!leviCrit(0.7), "Levi : plus de critique assuré");
   // Gojo : les quatre ennemis étourdis
   assert.equal(ultimate(GOJO, 0.5, null).filter((e) => e.kind === "status" && e.status === "stun" && e.on).length, 4, "Gojo étourdit tout le monde");
   // Cid : I am Atomic frappe les quatre ennemis
@@ -221,6 +221,60 @@ for (let seed = 1; seed <= 200; seed++) {
     applyAction(s, { spell: "tertiary", target: null });
     assert(s.log.some((e) => e.kind === "status" && e.status === "burn" && e.on), "Katon brûle");
     assert(!s.log.some((e) => e.kind === "status" && e.status === "poison" && e.on), "Katon n'empoisonne plus");
+  }
+}
+
+// Lot 2 du 2026-11-16 : Sukuna, Netero, Gilgamesh, Saitama
+{
+  const SUKUNA = 133701, GILGAMESH = 2514, SAITAMA = 73935, ICHIGO = 5;
+  // Sukuna : entaille sur tous les ennemis, aucun soin reçu pendant qu'elle dure
+  {
+    const s = createBattle([card(SUKUNA, { startGauge: 100 })], [1, 2].map(() => dummy({ defense: 1000000, attack: 1 })), () => 0.5, { startingSide: "A" });
+    until(s, "A1");
+    applyAction(s, { spell: "ultimate", target: null });
+    assert.equal(s.teams.B.filter((b) => b.fx.some((f) => f.key === "gash")).length, 2, "entaille sur tous les ennemis");
+    assert(!s.log.some((e) => e.kind === "status" && e.status === "poison" && e.on), "plus de poison");
+    const foe = s.teams.B[0];
+    foe.hp = foe.maxHp / 2;
+    const healer = createBattle([card(999004, { startGauge: 100, ultimate: { name: "Soin", target: null, effects: [{ k: "heal", pct: 0.5, to: "team" }] } })], [dummy()], () => 0.5, { startingSide: "A" });
+    healer.teams.A[0].fx.push({ key: "gash", amount: 0.08, turns: 2, fresh: false });
+    healer.teams.A[0].hp = healer.teams.A[0].maxHp / 2;
+    until(healer, "A1");
+    const hp = healer.teams.A[0].hp;
+    applyAction(healer, { spell: "ultimate", target: null });
+    assert(healer.teams.A[0].hp <= hp, "pas de soin sous entaille");
+  }
+  // Netero : Kannon 3 tours, puis il rejoue aussitôt
+  {
+    const s = createBattle([card(NETERO, { startGauge: 100 })], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A" });
+    until(s, "A1");
+    applyAction(s, { spell: "ultimate", target: "B1" });
+    assert.equal(s.teams.A[0].fx.find((f) => f.key === "kannon")?.turns, 3, "Kannon 3 tours");
+    assert.equal(currentActor(s)?.id, "A1", "Netero rejoue aussitôt");
+  }
+  // Gilgamesh : désarme les porteurs d'épée, +25 % par désarmé ; un désarmé sans autre sort passe son tour
+  {
+    const run = (foes: BattleCard[]) => {
+      const s = createBattle([card(GILGAMESH, { startGauge: 100 })], foes, () => 0.5, { startingSide: "A" });
+      until(s, "A1");
+      applyAction(s, { spell: "ultimate", target: null });
+      return s;
+    };
+    const swords = run([card(ICHIGO, { defense: 1000000, attack: 1, noSpell: true }), dummy({ defense: 1000000, attack: 1 })]);
+    assert(swords.teams.B[0].fx.some((f) => f.key === "disarm"), "Ichigo désarmé");
+    assert(!swords.teams.B[1].fx.some((f) => f.key === "disarm"), "sans épée : pas désarmé");
+    const none = run([dummy({ defense: 1000000, attack: 1 }), dummy({ defense: 1000000, attack: 1 })]);
+    const dmg = (st: BattleState, id: string) => st.log.find((e) => e.kind === "damage" && e.source === "A1" && e.target === id);
+    const a = dmg(swords, "B2"), b = dmg(none, "B2");
+    assert(a?.kind === "damage" && b?.kind === "damage" && Math.abs(a.amount / b.amount - 1.25) < 1e-6, "+25 % par ennemi désarmé");
+    until(swords, "A1");
+    assert(swords.log.some((e) => e.kind === "skip" && e.actor === "B1"), "Ichigo désarmé passe son tour");
+  }
+  // Saitama : jamais d'attaque de base, son coup est prêt dès le premier tour
+  {
+    const s = createBattle([card(SAITAMA)], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A" });
+    until(s, "A1");
+    assert.deepEqual(legalActions(s).map((a) => a.spell), ["special"], "Saitama : un seul sort");
   }
 }
 console.log("check-kits ok");

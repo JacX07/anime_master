@@ -61,6 +61,8 @@ export const EFFECTS: Record<Kind, { label: string; fields: Field[] }> = {
   intangible: { label: "Intouchable (lanceur)", fields: [turns(1)] },
   susanoo: { label: "Susanoo parfait (Madara)", fields: [turns(2)] },
   kannon: { label: "Statue de Kannon (Netero)", fields: [turns(2)] },
+  gash: { label: "Entaille (bloque les soins)", fields: [pctField("% PV max / action", 0.08, 0.3), turns(2), scope("foes")] },
+  disarm: { label: "Désarmement (porteurs d'épée)", fields: [turns(1), { key: "bonus", label: "% de dégâts par désarmé", type: "number", min: 0, max: 1, step: 0.05, def: 0.25 }] },
   copySpell: { label: "Copie d'un sort", fields: [{ key: "mult", label: "Puissance", type: "number", min: 0.1, max: 1, step: 0.05, def: 0.8 }, { key: "from", label: "Copie de", type: "choice", options: { foes: "Ennemis", all: "Tout le monde" }, def: "foes" }] },
   donateShield: { label: "Bouclier à l'allié le plus bas", fields: [pctField("% des dégâts", 0.25)] },
   auraPierce: { label: "Aura : l'équipe ignore la DEF", fields: [pctField("% de DEF ignorée", 0.3), turns(2)] },
