@@ -1,5 +1,11 @@
 # Journal des agents
 
+## 2026-11-16 — Armes standard non forgeables, cœurs au Défi des empereurs
+- Constat : `forgeWeapon` (20 ressources d'arme + 50 cœurs, une arme générique par type) existe dans `src/lib/forge.ts` et le combat applique les armes, mais la page Forge n'affiche que les 4 armes d'empereurs. Les ressources d'arme (Armure saiyan, Métal à chakra…) tombent en histoire et en donjon sans aucun usage.
+- Décision de l'utilisateur : on laisse tel quel pour le moment (pas d'ajout à la Forge).
+- Les cœurs de brèche tombent aussi au Défi des empereurs (`settleEmperor` → `raidProgress`, plafond quotidien partagé avec le raid, versés même en défaite) ; seul l'écran de préparation le dit, pas la carte du boss.
+- Éclats du Trône : 10 % au niveau 10 du donjon One Piece pour 5 par arme d'empereur (environ 50 victoires attendues) ; à régler si trop long.
+
 ## 2026-11-16 — Promotion de Yhwach et listes de raretés
 - Demande : promouvoir Yhwach en UR et expliciter les reclassements dans le changelog joueur. Yhwach (#68537) est encore N en développement ; Yor et Ichigo manquent dans la liste SSR publiée alors que leurs overrides sont présents.
 - Correctif : override UR et statistiques au milieu de la plage UR pour Yhwach ; liste SSR corrigée et récapitulatif dans les notes v0.4.0. La production reste réservée au transfert de catalogue puis à la publication humaine.
