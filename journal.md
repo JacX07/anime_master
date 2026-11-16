@@ -928,3 +928,7 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Pièges : le builder borne les durées à 6 tours et l'étourdissement à 2 ennemis (relevé à 4) ; un effet permanent passe donc par le moteur (ATK +50 % de l'Éclipse). Les champs du schéma doivent porter le nom exact de l'effet (`bossPct`, `from`). Tester un étourdissement par les événements : le tour sauté retire l'effet aussitôt.
 - Vérifié : check-kits-uniques (neuf kits), suites de combat, builder, ESLint, TypeScript ; fiches des cinq personnages et combat `/combat/test?seed=31&ids=424,719,129571,4004,73935,…` sans erreur (Saitama endormi ∞ après son coup, copies de Yuuta, Manipulation). Combat manuel non rejoué.
 
+## 2026-11-16 — Site bloqué après « Passer le tutoriel » (nouveau compte)
+- **Symptôme** : sur un nouveau compte, après avoir passé le tutoriel, plus aucun clic ne fonctionne (pages autres que l'accueil, bureau).
+- **Cause** : l'annonce de mise à jour (`UpdateNotice`, `<dialog>` modal) était rendue dans `.mq-topbar`, masquée (`display: none`) hors accueil au profit de la barre fine. Différée pendant le tutoriel, elle s'ouvrait ensuite via `showModal()` sans boîte visible : toute la page devenait inerte.
+- **Correctif** : la modale est rendue dans `<body>` par un portail (`.mq-app-shell.release-layer`, même principe que `.tuto-layer`), avec `margin: auto` (le reset Tailwind la collait en haut à gauche). À retenir : ne jamais ouvrir un `<dialog>` modal dans un parent qui peut être masqué.

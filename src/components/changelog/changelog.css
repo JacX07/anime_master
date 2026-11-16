@@ -22,7 +22,10 @@
 .release-notes p { color: #b4b2aa; margin: 0 0 14px; }
 .release-notes code { font-size: 12px; }
 .release-hint { font: 400 11px/1.5 var(--font-dm), sans-serif; color: #b4b2aa; margin: 20px 0 0; }
-.mq-app-shell .release-modal { width: min(620px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; background: #171b1a; color: #e9e5dc; border-radius: 7px; box-shadow: 0 40px 100px #000b; text-align: left; }
+.mq-app-shell .release-modal { margin: auto; width: min(620px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; background: #171b1a; color: #e9e5dc; border-radius: 7px; box-shadow: 0 40px 100px #000b; text-align: left; }
+.mq-app-shell.release-layer { position: fixed; inset: 0; z-index: 1000; display: block; min-height: 0; background: none; pointer-events: none; isolation: auto; }
+.mq-app-shell.release-layer::before, .mq-app-shell.release-layer::after { display: none; }
+.mq-app-shell.release-layer .release-modal { pointer-events: auto; }
 .release-modal::backdrop { background: rgba(4, 6, 6, .82); backdrop-filter: blur(12px); }
 .release-modal-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .release-modal-top .mq-eyebrow { margin: 0; }
