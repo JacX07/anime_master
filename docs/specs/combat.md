@@ -646,3 +646,18 @@ Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone
 
 ### Bonus de compétence magique — précision du 2026-11-16
 Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compétence magique sur les compétences secondaire, tertiaire, ultime et d’affinité, sauf marquage explicite physique. Les attaques de base sont exclues. Les sorts explicitement magiques des autres types et le marquage existant par personnage restent pris en charge. L’immunité de Toji utilise désormais cette même nature résolue par sort ; les bonus de set physique/magique conservent leur classement historique par carte.
+
+### Kits demandés le 2026-11-16 (soir)
+**Lot 1 — codé** : Gojo (étourdit les 4 ennemis, 1 tour), Cid (I am Atomic ×2,2 en zone perforant), Levi (ultime de `skill-overrides.json` : +20 % des PV max de la cible, +50 points de critique), Shigeo (Explosion en zone), Maomao (immunisée contre les dégâts sur la durée), Madara (Katon ×2,1 et Kyūbi ×3,3 en brûlure, Copie à 100 %).
+
+**Lot 2 — validé, à coder**
+- Sukuna, ultime : remplace le poison par une **entaille** sur tous les ennemis, 2 tours : 8 % des PV max par action, bloque les soins reçus tant qu'elle dure. Statut distinct du saignement, non cumulable.
+- Netero : chaque paume a 1 tour de recharge. Ultime : statue de Kannon 3 tours, puis il rejoue aussitôt (l'ultime ne coûte pas son tour).
+- Gilgamesh, ultime : **désarme** 1 tour les ennemis porteurs d'épée (`blade-users.ts`) ; un désarmé lance ses sorts sans épée, sinon passe son tour. Dégâts ×2,1 ATK en zone, +25 % par ennemi désarmé.
+- Saitama : un seul sort, le coup qui met K.O. ; ni attaque de base, ni tertiaire, ni ultime.
+
+**Lot 3 — conception en cours**
+- Yuuta (copie à 80 %) et Madara (copie à 100 %) : quand un ennemi lance un sort, choix de l'apprendre ou non, même hors de son tour ; un seul sort gardé, remplacé à chaque copie ; en Auto, accepté automatiquement.
+- Chrollo : un seul sort, **Skill Hunter**. Quand un ennemi lance un sort, Chrollo peut le copier dans son livre (même hors de son tour) ; livre de 2 pages au plus ; il peut désapprendre une page pour en apprendre une autre.
+- Yhwach : **Auswählen** (secondaire) : choisit autant d'alliés qu'il veut ; pendant 2 tours ils gagnent +50 % de dégâts finaux et sont soignés de 30 %. Il peut retirer ce pouvoir à tout moment : l'allié meurt et Yhwach gagne une de ses compétences, choisie dans une fenêtre. Passif **The Almighty** : une fois par combat, un coup fatal le laisse à 1 PV et il joue aussitôt. Ni tertiaire ni ultime.
+- Deku, **One For All** : six alters, chacun 3 tours de recharge — Embrayage (vitesse + pour ses alliés, − pour les ennemis) ; Fa jin (chaque attaque de base ajoute +50 % de charge, 250 % au plus, libérée par ce sort ; attaque de base ×1,5) ; Danger sense (face à un coup fatal, esquive portée jusqu'à 50 %) ; Fouet noir (étourdit un ennemi 1 tour) ; Écran de fumée (intouchable par les attaques ciblées, les zones touchent) ; Voltige (recharges de ses sorts −1 tour).
