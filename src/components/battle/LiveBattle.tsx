@@ -7,6 +7,7 @@ import type { Spell, UnitId } from "@/lib/battle";
 import type { MusicTrack } from "@/lib/track-music";
 import type { BattleView } from "@/lib/battles";
 import { BattlePlayer, type PlayerCharacter } from "./BattlePlayer";
+import { closeOnBackdrop } from "@/lib/dialog";
 
 interface Props {
   /** Combat déjà créé côté serveur (lancé en mode suivi : Auto et Manuel sont un simple réglage) */
@@ -153,7 +154,7 @@ function LeaveConfirm({ open, busy, onStay, onLeave }: { open: boolean; busy: bo
     if (!open && d.open) d.close();
   }, [open]);
   return (
-    <dialog ref={ref} className="bt-confirm" onClose={onStay} aria-labelledby="bt-confirm-title">
+    <dialog ref={ref} className="bt-confirm" onClose={onStay} onClick={closeOnBackdrop} aria-labelledby="bt-confirm-title">
       <h2 id="bt-confirm-title">Quitter le combat ?</h2>
       <p>Le combat ne sera <b>pas résolu</b> : il est abandonné, compté comme une défaite, sans butin ni victoire. Ton énergie est rendue.</p>
       <div className="bt-confirm-row">

@@ -22,6 +22,7 @@ import "./battle.css";
 import "./spell-hand.css";
 import type { MusicTrack } from "@/lib/track-music";
 import { backgroundTimeout } from "@/lib/background-timer";
+import { closeOnBackdrop } from "@/lib/dialog";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
 import { EffectsPanel } from "./EffectsPanel";
@@ -533,7 +534,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             : undefined
         }
       /> : <div className="bt-spells-wait" aria-hidden="true" />}
-      <dialog ref={infoMenu} className="bt-confirm bt-info-menu" aria-labelledby="battle-info-title" onClose={() => setPlaying(infoWasPlaying.current)}>
+      <dialog ref={infoMenu} className="bt-confirm bt-info-menu" aria-labelledby="battle-info-title" onClick={closeOnBackdrop} onClose={() => setPlaying(infoWasPlaying.current)}>
         <div className="bt-info-heading"><h2 id="battle-info-title">Buffs et débuffs</h2><button type="button" className="ui-button" onClick={() => infoMenu.current?.close()}>Fermer</button></div>
         {live?.countdown && !end && <p>Le chrono de l’arène continue pendant cette consultation.</p>}
         {(["A", "B"] as const).map((side) => <section key={side} className="bt-info-team"><h3>{names[side]}</h3>
@@ -548,7 +549,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
           })}
         </section>)}
       </dialog>
-      <dialog ref={pauseMenu} className="bt-confirm bt-pause-menu" aria-labelledby="battle-pause-title" onClose={() => setPlaying(wasPlaying.current)}>
+      <dialog ref={pauseMenu} className="bt-confirm bt-pause-menu" aria-labelledby="battle-pause-title" onClick={closeOnBackdrop} onClose={() => setPlaying(wasPlaying.current)}>
         <h2 id="battle-pause-title">{finished ? "Combat terminé" : "Pause"}</h2>
         {live?.countdown && !end && <p>Le chrono de l’arène continue pendant ce menu.</p>}
         <button type="button" className="ui-button bt-resume" onClick={() => {
