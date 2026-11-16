@@ -25,7 +25,7 @@ const evs = (s: BattleState) => s.log;
   assert(s.teams.A[0].ultimate, "ultime gardé");
 }
 
-// Anti-Spirale : intouchable, aucun buff, défaite quand ses alliés tombent, ultime une fois par combat
+// Anti-Spirale : intouchable, aucun buff, défaite quand ses alliés tombent, ultime relançable (2026-11-16 : plus de limite par combat)
 {
   const s = createBattle([card(999002, { attack: 50000, rarity: "N" })], [card(ANTI), dummy({ defense: 1, attack: 1 })], () => 0.5, { startingSide: "A" });
   until(s, "A1");
@@ -42,7 +42,7 @@ const evs = (s: BattleState) => s.log;
   applyAction(s, { spell: "ultimate", target: null });
   s.teams.A[0].ultimateGauge = 100;
   until(s, "A1");
-  assert(!legalActions(s).some((a) => a.spell === "ultimate"), "Big Bang une seule fois");
+  assert(legalActions(s).some((a) => a.spell === "ultimate"), "Big Bang relançable une fois la jauge pleine");
   assert(!s.teams.A[0].fx.some((f) => f.key.endsWith("Up")), "aucun buff");
 }
 
@@ -286,12 +286,16 @@ for (let seed = 1; seed <= 200; seed++) {
     applyAction(healer, { spell: "ultimate", target: null });
     assert(healer.teams.A[0].hp <= hp, "pas de soin sous entaille");
   }
-  // Netero : Kannon 3 tours, puis il rejoue aussitôt
+  // Netero : Kannon 4 tours, puis il rejoue aussitôt ; une paume à chaque action
   {
     const s = createBattle([card(NETERO, { startGauge: 100 })], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A" });
     until(s, "A1");
     applyAction(s, { spell: "ultimate", target: "B1" });
-    assert.equal(s.teams.A[0].fx.find((f) => f.key === "kannon")?.turns, 3, "Kannon 3 tours");
+    assert.equal(s.teams.A[0].fx.find((f) => f.key === "kannon")?.turns, 4, "Kannon 4 tours");
+    assert(legalActions(s).some((a) => a.spell === "special"), "paume dès le tour rejoué");
+    applyAction(s, { spell: "special", target: "B1" });
+    until(s, "A1");
+    assert(legalActions(s).some((a) => a.spell === "special"), "paume de nouveau à l'action suivante");
     assert.equal(currentActor(s)?.id, "A1", "Netero rejoue aussitôt");
     // Seul ennemi restant intouchable : pas de tour rejoué sans cible (plantait dans autoAction)
     const u = createBattle([card(NETERO, { startGauge: 100 })], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A", gauge: true });

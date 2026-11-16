@@ -125,7 +125,7 @@ async function main() {
     let view = await startBattle(uid, dungeonKey(1), true);
     for (let i = 0; i < 300 && view.status === "RUNNING"; i++) {
       const choice = view.choices[0];
-      view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0] });
+      view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0], choice: choice.choices?.[0] });
     }
     check("Combat manuel terminé", view.status === "DONE");
     // Nouveaux donjons : distinguer univers d'histoire et clé du set (Fairy Tail).
@@ -145,7 +145,7 @@ async function main() {
       await prisma.dungeonProgress.create({ data: { userId: uid, dungeon: d.key, maxLevel: 2 } });
       const before = await prisma.artifact.count({ where: { userId: uid, setKey: d.key } });
       let fight = await startBattle(uid, dungeonKey(3, d.key), d.key === "fairy-tail");
-      for (let i = 0; i < 100 && fight.status === "RUNNING"; i++) { const choice = fight.choices[0]; fight = await playAction(uid, fight.id, { spell: choice.spell, target: choice.targets[0] }); }
+      for (let i = 0; i < 100 && fight.status === "RUNNING"; i++) { const choice = fight.choices[0]; fight = await playAction(uid, fight.id, { spell: choice.spell, target: choice.targets[0], choice: choice.choices?.[0] }); }
       check(`${d.universe} première victoire : effets obligatoires en auto comme en manuel`, fight.spellFxUnlocked === false);
       check(`${d.universe} victoire réelle et deux raretés`, fight.winner === "A" && fight.loot?.artifacts?.map((a) => a.rarity).join(",") === "R,N");
       const after = await prisma.artifact.count({ where: { userId: uid, setKey: d.key } });

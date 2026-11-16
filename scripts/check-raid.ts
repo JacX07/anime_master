@@ -94,7 +94,7 @@ async function main() {
     check("Manuel : pas de butin avant la fin", view.loot === null && (await stock()) === m0);
     for (let i = 0; i < 300 && view.status === "RUNNING"; i++) {
       const choice = view.choices[0];
-      view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0] });
+      view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0], choice: choice.choices?.[0] });
     }
     check("Manuel : combat terminé et butin versé une fois", view.status === "DONE" && view.loot !== null && (await stock()) === m0 + hearts(view.loot.resources), `${hearts(view.loot?.resources)} cœur(s)`);
   } finally {

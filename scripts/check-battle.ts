@@ -200,7 +200,7 @@ const hit0 = awakeningHit(0), hit4 = awakeningHit(4);
 check("Éveil 4★ : critique de 25 % et multiplicateur de 170 % appliqués aux dégâts", hit0?.kind === "damage" && hit4?.kind === "damage" && !hit0.crit && hit4.crit && Math.abs(hit4.amount / hit0.amount - 1.24 * 1.7) < 1e-6);
 // Cooldown : à 3 étoiles, le sort affilié (secondaire) revient une action plus tôt ; à 5, le tertiaire aussi.
 const casts = (stars: number) => {
-  const s = createBattle([{ ...plain, stars, power: 9 }, filler(12), filler(13), filler(14)], [card({ attack: 100, defense: 90000, franchiseId: 20 }), card({ attack: 100, defense: 90000, franchiseId: 21 }), card({ attack: 100, defense: 90000, franchiseId: 22 }), card({ attack: 100, defense: 90000, franchiseId: 23 })], () => 0.5);
+  const s = createBattle([{ ...plain, stars, power: 9 }, filler(12), filler(13), filler(14)], [20, 21, 22, 23].map((franchiseId) => card({ rarity: "N", attack: 100, defense: 90000, franchiseId })), () => 0.5);
   while (currentActor(s) && s.round <= 10) applyAction(s, autoAction(s));
   return s.log.filter((e) => e.kind === "action" && e.actor === "A1" && e.spell === "affinity").length;
 };
@@ -209,7 +209,7 @@ check("Éveil : cooldown secondaire −1 dès 3★, tertiaire −1 dès 5★ (SS
   const ssr = card({ characterId: 900001, rarity: "SSR", type: "MAGIE", franchiseId: 11 });
   const at = (stars: number) => createBattle([{ ...ssr, stars }, filler(12), filler(13), filler(14)], [filler(15), filler(16), filler(17), filler(18)], () => 0.5).teams.A.find((u) => u.card.characterId === 900001)!;
   const [a, b, c] = [0, 3, 5].map(at);
-  return a.specialCd === 5 && b.specialCd === 4 && c.specialCd === 4 && a.tertiaryCd === 7 && b.tertiaryCd === 7 && c.tertiaryCd === 6;
+  return a.specialCd === 3 && b.specialCd === 2 && c.specialCd === 2 && a.tertiaryCd === 3 && b.tertiaryCd === 3 && c.tertiaryCd === 2;
 })());
 // Esquive : même une arme à 100 % reste plafonnée à 60 %.
 const dodger = { ...card({ type: "COEUR", attack: 1000, defense: 3000, power: 0, franchiseId: 30 }), stars: 5, weapon: { stat: 0, passive: { kind: "dodge" as const, chance: 1 } } };

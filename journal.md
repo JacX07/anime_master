@@ -937,3 +937,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - **Symptôme** : `Reduce of empty array` dans `autoAction` (`weakest(foes)`) et `Cannot read properties of null (reading 'effects')`, environ 1 combat sur 15 000 entre UR au hasard.
 - **Causes** : (1) Netero rejouait après Kannon (`replay`) alors que le seul ennemi restant était intouchable (Frieren) : le tour continué contournait le saut de tour `cutOffByDuel`. (2) Meruem, après avoir dévoré l'ultime Susanoo de Madara, gardait le kit Susanoo jusqu'à `applyAction` : l'IA choisissait le tertiaire Susanoo, puis la restauration du kit d'origine (vide) le remettait à `null` avant la résolution. Madara avait le même décalage, sans plantage.
 - **Correctif** : rejouer seulement s'il reste un ennemi atteignable ; restauration du kit (`restoreKit`) dès que la carte devient l'acteur, dans `currentActor`. Tests dans `check-kits-uniques.ts`. À retenir : un combat de 40 000 tirages au hasard (`battle()` en boucle) trouve ces cas rares ; à relancer après chaque lot de kits.
+
+## 2026-11-16 — Tests manuels bloqués par la fenêtre de copie (lot 3)
+- **Symptôme** : `check:raid` et `check:dungeon` échouaient (« Action impossible ») dès que l'équipe tirée contenait Yuuta ou Chrollo.
+- **Cause** : ces tests jouent `view.choices[0]` sans transmettre `choice` ; depuis le lot 3, ce premier choix peut être `decide`, qui exige une réponse.
+- **Correctif** : passer `choice: choice.choices?.[0]` (check-raid, check-dungeon ×2, check-story). À retenir : tout client qui rejoue `legalActions` doit transmettre `choices`.

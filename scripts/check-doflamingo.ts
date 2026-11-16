@@ -37,7 +37,7 @@ function nextDoff(st: BattleState) {
     assert.equal(target.fx.find((f) => f.key === "speedDown")?.amount, -.25);
     assert.equal(target.fx.find((f) => f.key === "speedDown")?.turns, 2);
   }
-  assert.equal(st.teams.A[0].pIn, 5);
+  assert.equal(st.teams.A[0].pIn, 3);
   nextDoff(st);
   assert.ok(!legalActions(st).some((a) => a.spell === "special"), "Pas de relance au tour suivant");
   applyAction(st, { spell: "base", target: "B1" });

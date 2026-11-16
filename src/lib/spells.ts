@@ -109,9 +109,9 @@ export { KITLESS } from "./spell-rules";
 
 /** Actions de la carte avant le 1er lancer (1 = dès sa 1re action), puis entre deux lancers */
 export const SPELL_FIRST = 1;
-export const SPELL_COOLDOWN = 5;
-/** Recharge du secondaire d'un personnage (Netero : paumes toutes les 2 actions) */
-export const specialCooldownOf = (characterId: number) => (characterId === 14489 ? 2 : SPELL_COOLDOWN);
+export const SPELL_COOLDOWN = 3;
+/** Recharge du secondaire d'un personnage (Netero : une paume à chaque action) */
+export const specialCooldownOf = (characterId: number) => (characterId === 14489 ? 1 : SPELL_COOLDOWN);
 
 const S = (name: string, target: CharacterSpell["target"], ...effects: Effect[]): CharacterSpell => ({ name, target, effects });
 const dmg = (mult: number, o: Omit<Extract<Effect, { k: "damage" }>, "k" | "mult"> = {}): Effect => ({ k: "damage", mult, ...o });

@@ -59,7 +59,7 @@ check("Catalogues runtime : 243 personnages dans les trois emplacements (236 + 4
   check("Descriptions : multiplicateur réservé au détail, critique en points et durées en tours", !describeSpell(spell).includes("4×") && describeSpell(spell, true).includes("4× ATK") && describeSpell(spell).includes("+25 points") && describeSpell(spell).includes("2 tours"));
 }
 
-// Cooldown : prêt dès la 1re action, puis toutes les 5 actions
+// Cooldown : prêt dès la 1re action, puis toutes les 3 actions (2026-11-16, avant 5)
 {
   const st = start([card(SASUKE), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   const ready: boolean[] = [];
@@ -69,7 +69,7 @@ check("Catalogues runtime : 243 personnages dans les trois emplacements (236 + 4
     ready.push(can);
     play(st, can ? "special" : "base", "B1");
   }
-  check("Cooldown secondaire : prêt dès la 1re action puis après 5 actions", ready.join() === "true,false,false,false,false,true,false,false", ready.map(Number).join(""));
+  check("Cooldown secondaire : prêt dès la 1re action puis après 3 actions", ready.join() === "true,false,false,true,false,false,true,false", ready.map(Number).join(""));
   check("N, R et SR n'ont pas de sort de personnage", !legalActions(start([dummy(1), dummy(2), dummy(3), dummy(4)], [dummy(5), dummy(6), dummy(7), dummy(8)])).some((x) => x.spell === "special"));
 }
 
@@ -297,7 +297,7 @@ check("Catalogues runtime : 243 personnages dans les trois emplacements (236 + 4
   check("Buff instantané : ne débloque pas un autre sort un tour trop tôt", !legalActions(st).some((action) => action.spell === "tertiary"));
   const loaded: BattleState = { ...JSON.parse(JSON.stringify(st)), rng: seededRandom(7) };
   play(loaded, "base", "B1");
-  check("Buff instantané : sauvegarde et action suivante restent dans un seul tour", currentActor(loaded)?.id === "B1" && loaded.teams.A[0].tIn === 1 && loaded.teams.A[0].pIn === 5 && !loaded.teams.A[0].continuingTurn);
+  check("Buff instantané : sauvegarde et action suivante restent dans un seul tour", currentActor(loaded)?.id === "B1" && loaded.teams.A[0].tIn === 1 && loaded.teams.A[0].pIn === 3 && !loaded.teams.A[0].continuingTurn);
   check("Buff instantané : un seul tic de poison et le bonus d'un tour est consommé", evs(loaded, "poison").length === 1 && !loaded.teams.A[0].fx.some((effect) => effect.stat === "atk"));
   const control = start([card(SASUKE, { noBasicAttack: true }), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);
   play(control, "base", "B1");

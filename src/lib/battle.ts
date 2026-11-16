@@ -127,7 +127,7 @@ export const BATTLE = {
   /** Actions du lanceur entre deux sorts affiliés ; le premier sort part à sa 2e action */
   spellCooldown: 3,
   /** Rechargement du sort tertiaire, en actions du lanceur. */
-  tertiaryCooldown: 7,
+  tertiaryCooldown: 3,
   /** Coefficient de balance des effets secondaires (les effets légers gardent leur identité). */
   secondaryEffectScale: 0.6,
   /** Le tertiaire doit au moins rivaliser avec une frappe de base. */

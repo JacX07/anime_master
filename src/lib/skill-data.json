@@ -1858,7 +1858,6 @@
     "ultimate": {
       "name": "L'Éclipse",
       "target": null,
-      "oncePerCombat": true,
       "effects": [
         {
           "k": "eclipse"
@@ -13081,7 +13080,6 @@
       "damageKind": "magic",
       "target": null,
       "final": true,
-      "oncePerCombat": true,
       "effects": [
         {
           "k": "mod",
@@ -13140,7 +13138,7 @@
         },
         {
           "k": "kannon",
-          "turns": 3
+          "turns": 4
         }
       ],
       "replay": true
@@ -13186,7 +13184,6 @@
       "name": "Infinity Big Bang Storm",
       "target": null,
       "final": true,
-      "oncePerCombat": true,
       "effects": [
         {
           "k": "damage",

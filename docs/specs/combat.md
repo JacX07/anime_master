@@ -67,7 +67,7 @@ Les atouts et défauts de type de l'étape 1 (§5 ter), pensés pour le quiz, so
 Les SSR et UR ont quatre emplacements : attaque de base, secondaire, tertiaire et ultime. Ils sont disponibles en manuel et en automatique ; les buffs personnels purs peuvent précéder l'action qui termine le tour de la carte.
 
 - `src/lib/skill-data.json` contient les **236 fiches réécrites**, chacune avec un secondaire, un tertiaire et un ultime nommés. `skill-data.ts` alimente les trois catalogues du moteur et de l'interface. Ces valeurs finales ne reçoivent plus les anciens coefficients de réduction.
-- Le **secondaire** se recharge en **5 tours** de la carte ; le **tertiaire** en **7 tours**. Les valeurs, noms et combinaisons sont propres à chaque personnage ; le tertiaire apporte surtout des bonus, malus et protections.
+- Le **secondaire** et le **tertiaire** se rechargent en **3 tours** de la carte *(2026-11-16 ; avant : 5 et 7)*. L'ultime n'a plus de limite par combat : il se relance chaque fois que sa jauge est pleine. Les valeurs, noms et combinaisons sont propres à chaque personnage ; le tertiaire apporte surtout des bonus, malus et protections.
 - Les **ultimes** combinent jusqu'à quatre effets : gros dégâts, renfort d'équipe, protection, contrôle ou réanimation. La jauge reste décrite au §4 ter.
 - Les orientations servent seulement à la simulation : attaque 73, soutien 56, protection 29, contrôle 49, hybride 29. Aucun rôle explicite n'est affiché. Un personnage peut combiner plusieurs fonctions.
 - Les quatre sorts s'affichent en **grille 2 × 2**, avec l'ultime mis en avant. Les multiplicateurs de dégâts apparaissent au survol. Les chances de critique et d'esquive s'expriment en **points de pourcentage** : +25 points ajoute 25 points à la chance actuelle.
@@ -512,7 +512,7 @@ Tout ce qui rend une carte plus forte, avec une limite pour chaque source. Le co
 ### 2. Éveil
 - De 0 à 5 étoiles, sur la carte du joueur (l'exemplaire, pas le personnage).
 - **+6 % d'ATK, de DEF et de PV par étoile** (+18 % à 3★, +30 % à 5★). À 2★ : jauge d’ultime initiale +25 ; à 4★ : +10 points de critique et +20 points de dégâts critiques ; à 5★ : bouclier initial de 10 % des PV (cumulable avec celui du second camp). Décision v0.3.0 du 2026-11-10.
-- **À 3 étoiles, le cooldown du sort secondaire (le sort affilié pour N/R/SR) baisse d'une action** (5 → 4 pour un SSR/UR, 3 → 2 pour les autres). **À 5 étoiles, le cooldown du sort tertiaire baisse d'une action** (7 → 6). *(Modifié le 2026-11-01 ; avant : affilié 3 → 2 à 5★.)*
+- **À 3 étoiles, le cooldown du sort secondaire (le sort affilié pour N/R/SR) baisse d'une action** (3 → 2 pour tous depuis le 2026-11-16). **À 5 étoiles, le cooldown du sort tertiaire baisse d'une action** (3 → 2). *(Modifié le 2026-11-01 ; avant : affilié 3 → 2 à 5★.)*
 - **Coût** : étoiles 1 à 3 = ressource du mode histoire ; étoiles 4 et 5 = ressource rare du raid. Un doublon **facultatif**, choisi explicitement, divise le coût en cœurs par deux.
 - À 5 étoiles, la carte peut équiper une **arme légendaire**.
 
@@ -652,7 +652,7 @@ Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compét
 
 **Lot 2 — codé le 2026-11-16** (paumes de Netero : la recharge d'un tour existait déjà ; un désarmé ne peut lancer que des sorts sans dégâts, sinon il passe son tour ; Saitama garde l'attaque de base en dernier recours sous silence)
 - Sukuna, ultime : remplace le poison par une **entaille** sur tous les ennemis, 2 tours : 8 % des PV max par action, bloque les soins reçus tant qu'elle dure. Statut distinct du saignement, non cumulable.
-- Netero : chaque paume a 1 tour de recharge. Ultime : statue de Kannon 3 tours, puis il rejoue aussitôt (l'ultime ne coûte pas son tour).
+- Netero : une paume à chaque action (recharge 1, modifié le 2026-11-16). Ultime : statue de Kannon **4 tours** (modifié le 2026-11-16, pour enchaîner les paumes sous Kannon), puis il rejoue aussitôt (l'ultime ne coûte pas son tour).
 - Gilgamesh, ultime : **désarme** 1 tour les ennemis porteurs d'épée (`blade-users.ts`) ; un désarmé lance ses sorts sans épée, sinon passe son tour. Dégâts ×2,1 ATK en zone, +25 % par ennemi désarmé.
 - Saitama : un seul sort, le coup qui met K.O. ; ni attaque de base, ni tertiaire, ni ultime.
 
@@ -673,3 +673,8 @@ Interprétation proposée ; les points marqués **?** attendent une réponse. Le
 - **Marin Kitagawa** (133676). Secondaire **Cosplay parfait** : équipe ATK +50 % et 30 % d'ignore-DEF, 2 tours. Tertiaire **Couture sur mesure** : bouclier 30 % des PV max et DEF +28 % pour l'équipe, 2 tours, recharge 7 tours. Ultime **Transformation en Shizuku-tan** : immunité aux malus pour l'équipe (**?** durée : 2 tours proposés) et −3 tours de recharge sur les sorts de tous ses alliés.
 - **Askeladd** (13020). Ultime **Duel** : provoque un ennemi en duel 3 tours ; personne d'autre ne peut les attaquer, l'ennemi n'utilise que son attaque de base ; Askeladd gagne ignore-DEF, critique et dégâts critiques (**?** valeurs : 30 % / +30 % / +50 % proposés). Secondaire **Stratège** : −2 tours de recharge (**?** sur les sorts des alliés ou les siens). Passif de chef : dégâts de saignement ×2 (**?** pour toute l'équipe, ou seulement en tête d'équipe).
 - **Chika Fujiwara** (121103). Secondaire : alliés ATK et DEF +40 %, 3 tours. Tertiaire : vitesse +30 % pour l'équipe et +30 % de jauge de tour aux alliés. Ultime **Danse de Chika** : provoque tous les ennemis, 2 tours.
+
+### Recharges et ultimes — changement global du 2026-11-16
+- Secondaire et tertiaire : recharge de 3 tours pour tous les SSR/UR et les boss (avant : 5 et 7) ; l'éveil retire toujours un tour (3★ secondaire, 5★ tertiaire).
+- Ultimes : plus aucun « une fois par combat » (Griffith, Madara, Anti-Spirale) ; tout ultime se relance dès que sa jauge est pleine. The Almighty (Yhwach, passif) reste une fois par combat.
+- Netero : paume à chaque action, Kannon 4 tours.

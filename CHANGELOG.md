@@ -25,6 +25,11 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Illustrations d’équipement** : visuels dédiés aux quatre pièces des sets Fairy Tail, Bleach, Attaque des Titans et Demon Slayer.
 - **Carte de l’histoire** : jalons et étoiles allégés ; suppression des rectangles et des libellés « Combat N » qui se chevauchaient.
 
+### Recharges et ultimes
+
+- **Secondaire et tertiaire** : se rechargent en 3 tours (avant 5 et 7) ; l'éveil retire toujours un tour.
+- **Ultimes** : plus de limite d'une fois par combat (Griffith, Madara, Anti-Spirale) ; chaque ultime se relance dès que sa jauge est pleine.
+
 ### Kits revus
 
 - **Gojo** : Extension du territoire étourdit les quatre ennemis.
@@ -35,7 +40,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Yuuta et Madara** : quand un ennemi lance un sort, une fenêtre propose de l'apprendre (Yuuta à 80 %, Madara à 100 % sous Susanoo), même pendant le tour adverse ; il remplace la copie précédente.
 - **Chrollo** : Skill Hunter remplit un livre de deux pages avec les sorts ennemis ; livre plein, choisis la page à remplacer ou garde-le.
 - **Sukuna** : le Sanctuaire malveillant pose une entaille (8 % des PV max par tour, 2 tours) qui bloque les soins.
-- **Netero** : Hyakushiki Kannon dure 3 tours et Netero rejoue aussitôt.
+- **Netero** : Hyakushiki Kannon dure 4 tours et Netero rejoue aussitôt ; une paume à chaque action.
 - **Gilgamesh** : Ea désarme les porteurs d'épée pendant un tour (sans sort sans épée, ils passent leur tour), puis frappe tous les ennemis à ×2,1 ATK, +25 % par ennemi désarmé.
 - **Saitama** : plus d'attaque de base, seulement son coup de poing, prêt dès le premier tour.
 - **Madara** : Katon (×2,1) et Kyūbi (×3,3) brûlent au lieu d'empoisonner ; la Copie du Susanoo frappe à 100 %.
@@ -77,7 +82,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 ### Isaac Netero — La progression des paumes
 
 - **Paumes** : frappe de base à 1,2× ATK, renforcée à chaque utilisation : 100 %, 125 %, 150 %, puis Paume zéro à 200 % de cette puissance. Après Paume zéro, la progression recommence.
-- **Recharge des Paumes** : deux actions, pour permettre leur utilisation pendant Kannon.
+- **Recharge des Paumes** : une action, une paume peut partir à chaque tour, y compris sous Kannon.
 - **Projection d’aura** : l’équipe ignore 30 % de la DEF et gagne 50 points de dégâts critiques pendant deux actions. L’ignore-DEF ne se cumule pas avec lui-même.
 - **Hyakushiki Kannon** : frappe immédiate à 1× ATK ; pendant deux tours personnels, les dégâts des paumes sont répétés. Les buffs, la jauge et la progression des paumes ne sont pas doublés.
 

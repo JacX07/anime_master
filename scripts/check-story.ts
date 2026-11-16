@@ -123,7 +123,7 @@ async function main() {
     check("Manuel : pas de butin avant la fin", view.loot === null && sum(await stock()) === before);
     for (let i = 0; i < 200 && view.status === "RUNNING"; i++) {
       const choice = view.choices[0];
-      view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0] });
+      view = await playAction(uid, view.id, { spell: choice.spell, target: choice.targets[0], choice: choice.choices?.[0] });
     }
     check("Manuel : combat terminé", view.status === "DONE");
     check("Manuel : score d'histoire persisté", view.storyStars !== null && (await getBattle(uid, view.id)).storyStars === view.storyStars);
