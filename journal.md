@@ -198,11 +198,15 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 
 ## 2026-11-02 — Statuts VFX incomplets et scénario Makima non déterministe
 
+- Récidive le 2026-11-16 pendant la passe v0.4.0 : check-combat-vfx échoue sur susanoo ; les six statuts susanoo, kannon, auraPierce, dread, puppet et godHand n’ont pas d’alias dans STATUS_FX. Réutiliser les effets existants d’immunité, ATK, ignore-DEF et silence, avec le bon classement bonus/malus. Le moteur possède ces états, mais le lecteur ignorait leur effet d’application.
+
 - Symptôme : check-combat-vfx échoue dès counter ; check-kits ne voit aucun cas d'exécution du dernier ennemi contrôlé.
 - Cause : dix statuts moteur n'ont pas de correspondance dans STATUS_FX ; le scénario Makima repose sur trente combats automatiques sans garantir que l'ultime soit prêt avant la mort de l'unique ennemi.
 - Correctif : réutiliser les effets existants pour les dix statuts ; créer une situation déterministe avec jauge chargée puis vérifier contrôle, K.-O. et victoire dans cet ordre.
 - Occurrences : 1.
 - Statut : corrigé et checks dédiés réussis.
+
+- Validation du 16 novembre : check-combat-vfx et build réussis ; contrôleur réel dans Chromium, six rendus présents, pause et vitesses ×2/×4 opérationnelles après engagement des animations, retrait naturel puis dispose sans canvas, nœud ou animation résiduel. Préférence de réduction des animations : aucun effet créé. Pas de mesure de FPS sur appareil physique.
 
 ## 2026-11-02 — Double clic manuel après une première écriture
 

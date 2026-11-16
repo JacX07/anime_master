@@ -80,5 +80,7 @@ const STATUS_ALIASES: Partial<Record<Status, Status>> = {
   // Empereurs et kits v0.3.0
   critDamageUp: "critUp", critDamageDown: "critDown", fear: "silence", sleep: "stun", devour: "poison", duel: "taunt",
   intangible: "dodgeUp", charged: "atkUp",
+  // Kits v0.4.0 : même rendu et même nettoyage que les effets déjà présents.
+  susanoo: "immune", kannon: "atkUp", auraPierce: "ignoreDef", dread: "silence", puppet: "silence", godHand: "atkUp",
 };
 for (const [key, source] of Object.entries(STATUS_ALIASES)) STATUS_FX[key as Status] = STATUS_FX[source];
