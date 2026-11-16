@@ -4,17 +4,106 @@ Une section par version, la plus récente en haut. Chaque version correspond à 
 
 ## À venir
 
-### Nouveautés
-- **Sorts en éventail** : cartes de compétence relevées au survol ou au toucher, particules absorbées par le lanceur, ultime en portrait avec jauge texturée et annonce du sort au centre de l’écran.
-- **Plateau de combat** : équipes en diagonales face à face, davantage de place pour les portraits et quatre sorts compacts sous l’arène. Descriptions complètes, affinités et effets consultables dans un panneau dépliable ; commandes toujours accessibles.
-- **Fond de combat commun** : la citadelle et son arène habillent tous les combats, y compris Dragon Ball.
-- **Combat mobile** : commandes de vitesse toujours accessibles, panneau des sorts défilant et résultat au premier plan ; l'en-tête et le pied de page ne recouvrent plus le titre de victoire.
-- **Interface mobile compacte** : énergie visible sans ouvrir le profil, compte à rebours de recharge, collection sur trois colonnes, inventaire en cases carrées sur quatre colonnes et filtres regroupés. Les logos quittent la barre du haut sur PC et mobile.
-- **Illustrations** : quatre pièces dédiées pour chacun des sets Fairy Tail et Bleach.
-- **Changelog dans le jeu** : un onglet présente l'historique de toutes les versions publiées. À la connexion, une fenêtre présente la dernière version non lue ; sa fermeture est mémorisée sur le compte, y compris sur les autres appareils. L'annonce attend la fin du tutoriel et ne recouvre pas un combat.
+La prochaine mise à jour prépare une nouvelle interface PC et mobile, un combat plus lisible et des compétences propres à davantage de personnages. Ces notes présentent les changements préparés pour cette mise à jour ; elles ne constituent pas une annonce de déploiement. Aucune date de sortie n’est annoncée.
 
-### Migration de base de données
-`20261113020000_changelog_read` : dernière version lue par compte. À appliquer avant de publier ce code. Cette section reste hors des annonces en jeu jusqu'à son intégration dans une nouvelle version ; le tag v0.3.0 existant est conservé.
+### Les nouveautés à retenir
+
+- **Un nouvel accueil Violet nuit**, avec un personnage de ta collection mis en avant, une reprise de l’histoire et des accès rapides aux activités.
+- **Cinq onglets sur mobile** : Accueil, Collection, Jouer au centre, Invocation et Menu. Le Marché et les fonctions secondaires restent accessibles depuis le Menu ; le chat dispose de son propre accès.
+- **Des sorts en éventail**, une fiche détaillée qui reste ouverte après un appui long et une interface de combat dégagée.
+- **De nouveaux kits et passifs** pour Madara, Netero, Anti-Spirale, Meruem, Saitama, Dio, Yuuta, Johan, Griffith et les quatre empereurs, ainsi que des ajustements pour Aizen, Toji, Momo et Sukuna.
+
+### Accueil, navigation et écrans de gestion
+
+- **Accueil PC** : nouvelle composition autour du personnage choisi, illustration intégrée au décor et palette Violet nuit. Tu peux changer de personnage, le rechercher dans ta collection et l’admirer ; le choix est mémorisé.
+- **Profil et monnaies** : accès au profil depuis le pseudo et explications sur les sources de Ryō et de cristaux.
+- **Navigation PC** : barre supérieure affinée et accès aux modes de jeu organisés côte à côte, en PvM et PvP. Les Duels quiz quittent le hub Jouer.
+- **Navigation mobile** : barre inférieure à cinq onglets avec libellés visibles et Jouer au centre. Les combats conservent leur écran immersif, sans navigation générale devant le plateau.
+- **Collection mobile** : trois colonnes de cartes, filtres regroupés et présentation plus compacte pour parcourir la collection.
+- **Inventaire** : cases d’objets teintées selon leur rareté, avec un dégradé plus marqué en haut et plus doux en bas. Les équipements conservent leur couleur de rareté.
+- **Illustrations d’équipement** : visuels dédiés aux quatre pièces des sets Fairy Tail, Bleach, Attaque des Titans et Demon Slayer.
+- **Carte de l’histoire** : jalons et étoiles allégés ; suppression des rectangles et des libellés « Combat N » qui se chevauchaient.
+
+### Combat : commandes et lecture des sorts
+
+- **Un seul bouton Combattre** remplace les choix de lancement Auto et Manuel. Le dernier réglage est mémorisé ; tu peux changer de mode pendant le combat. Les boutons de rejeu des donjons sont réunis en un seul bouton Rejouer.
+- **Commandes en haut** : Auto, vitesse, informations et pause libèrent le bas de l’écran pour les sorts. Auto et vitesse sont entourés pour mieux se repérer.
+- **Menu pause** : reprise du combat, effets de sorts, sons, musique et abandon regroupés au même endroit. Le bouton Skip est désactivé.
+- **Sorts en éventail toujours visibles** : plus de bouton de repliement. Chaque carte affiche un résumé court de sa cible ; les descriptions longues ne saturent plus la main.
+- **Inspection par maintien** : maintiens le doigt sur téléphone ou le clic gauche sur PC pour ouvrir les détails au-dessus du sort. La carte inspectée passe au premier plan ; la fiche reste ouverte après relâchement. Un toucher extérieur ou Échap permet de la fermer.
+- **Survol PC** : la carte de sort se relève sans être sélectionnée ni lancée. Un appui long sert à lire ; un clic bref sert à choisir.
+- **Confirmation sur le plateau** : aucun sort n’est sélectionné par défaut. Après le choix d’un sort, les cibles autorisées sont mises en évidence ; touche une cible pour confirmer, y compris pour les buffs personnels ou d’équipe.
+- **Buffs et débuffs** : les noms des effets sont mis en vert dans la description, sans colorer leurs valeurs. Le bouton d’information permet de consulter les effets actifs de chaque personnage.
+- **Plateau** : deux rangées sur téléphone, diagonales avec perspective sur PC, suppression du VS central et des panneaux opaques qui recouvraient les sorts. Les sorts adverses ne sont plus affichés pendant leur tour.
+- **Animations** : la carte du sort lancé se désagrège vers le personnage ; l’ultime dispose d’un portrait et d’une jauge dédiée. La citadelle sert de décor commun aux combats, y compris Dragon Ball.
+- **Sortie d’un combat PvE** : quitter demande confirmation et abandonne le combat ; cela ne le termine plus automatiquement. Changer simplement d’onglet ne saute pas au résultat. L’abandon ne donne ni victoire ni butin, et l’énergie est rendue.
+
+### Madara Uchiha — Rinnegan et Susanoo parfait
+
+- **Cellules d’Hashirama** : récupère 8 % de ses PV max à chacune de ses actions, sous réserve des effets anti-soin.
+- **Rinnegan** : le premier lancer invoque deux clones, une seule fois par combat. Tant qu’il en reste, un coup ciblé a deux chances sur trois de toucher un clone ; un clone touché disparaît. Les attaques de zone touchent toujours Madara.
+- **Pression gravitationnelle** : les lancers suivants de Rinnegan infligent 0,6× ATK à tous les ennemis et réduisent leur vitesse de 30 % pendant deux actions. Cette première version enchaîne automatiquement clones puis pression ; elle ne propose pas encore de choix entre les deux.
+- **Katon : boule de feu suprême** : 0,7× ATK en zone et brûlure de 5 % des PV max pendant deux actions.
+- **Mangekyō Sharingan éternel** : Susanoo parfait pendant deux tours personnels, une fois par combat ; ATK +50 % et immunité à l’étourdissement, au sommeil, à la peur et au sceau.
+- **Sorts du Susanoo** : Copie reprend à 80 % de puissance le dernier secondaire ou tertiaire ennemi compatible ; Kyūbi frappe tous les ennemis à 1,1× ATK et applique une brûlure de 6 % pendant deux actions.
+
+### Isaac Netero — La progression des paumes
+
+- **Paumes** : frappe de base à 1,2× ATK, renforcée à chaque utilisation : 100 %, 125 %, 150 %, puis Paume zéro à 200 % de cette puissance. Après Paume zéro, la progression recommence.
+- **Recharge des Paumes** : deux actions, pour permettre leur utilisation pendant Kannon.
+- **Projection d’aura** : l’équipe ignore 30 % de la DEF et gagne 50 points de dégâts critiques pendant deux actions. L’ignore-DEF ne se cumule pas avec lui-même.
+- **Hyakushiki Kannon** : frappe immédiate à 1× ATK ; pendant deux tours personnels, les dégâts des paumes sont répétés. Les buffs, la jauge et la progression des paumes ne sont pas doublés.
+
+### Anti-Spirale — Une présence hors d’atteinte
+
+- **Dimension** : intouchable par les dégâts, zones et contrôles pendant tout le combat. En contrepartie, il ne reçoit aucun buff, soin ou bouclier, même de lui-même. Son équipe perd dès que tous ses alliés sont morts.
+- **Mugann** : 1,2× ATK sur un ennemi ; l’allié le plus bas en PV reçoit un bouclier égal à 25 % des dégâts infligés.
+- **Effondrement spiral** : étourdit les ennemis pendant une action et réduit leur DEF de 25 % pendant deux actions. Les boss résistent à l’étourdissement.
+- **Infinity Big Bang Storm** : 3× ATK sur tous les ennemis, une seule fois par combat.
+
+### Meruem, Saitama, Dio et Yuuta
+
+- **Meruem — Absorption d’aura** : commence avec seulement son attaque de base. À la première mort d’un ennemi, il absorbe un de ses sorts pour tout le combat : l’ultime en priorité, sinon le tertiaire, sinon le secondaire. Une seule absorption, automatique et définitive.
+- **Saitama — Coup de poing sérieux** : un seul sort met un ennemi ordinaire K.O. ; contre un boss, il retire 30 % de ses PV max. Saitama quitte ensuite le combat sans compter comme K.O. et sans déclencher d’effet de mort. Il ne joue plus et n’est plus ciblable.
+- **Dio — Za Warudo** : son ultime étourdit tous les ennemis pendant un tour. Les boss résistent à ce contrôle.
+- **Yuuta — Copie : Rika** : reprend à 80 % de puissance le dernier secondaire ou tertiaire compatible lancé par un allié ou un ennemi. Le coup de Saitama ne peut pas être copié ; sans modèle, Yuuta effectue une frappe de remplacement.
+
+### Johan et Griffith
+
+- **Johan — Lecture des failles humaines** : applique la peur aux ennemis pendant deux tours ; chaque tentative de sort a une chance sur deux de faire perdre le tour.
+- **Johan — Manipulation** : pendant deux tours, les buffs du personnage manipulé vont à ses ennemis et ses malus à ses alliés.
+- **Johan — Élimination ciblée** : la cible subit 25 % de dégâts supplémentaires pendant trois tours.
+- **Griffith — Troupe du faucon** : placé en première position de la squad, donne +15 % d’ATK à toute l’équipe.
+- **Griffith — Charge du mercenaire** : frappe avec perforation de DEF et applique du saignement.
+- **Griffith — L’Éclipse** : une seule fois par combat, sacrifie ses alliés et déclenche leurs effets de mort. Griffith récupère leurs PV restants, gagne +50 % d’ATK et ses attaques touchent tous les ennemis jusqu’à la fin du combat. Réduit aussi la DEF adverse de 30 % pendant trois tours.
+
+### Les quatre empereurs : compétences des cartes jouables
+
+- **Shanks** : Divine Departure pour percer la DEF d’une cible ; Voix de l’empereur pour renforcer l’ATK et le critique de l’équipe ; Haki des rois pour frapper en zone et endormir les adversaires moins puissants.
+- **Big Mom** : Zeus : Nuée orageuse frappe en zone ; Prométhée : Soleil de feu ajoute des dégâts sur la durée ; Soul Pocus frappe l’équipe adverse et réduit son ATK.
+- **Kaido** : Raimei Hakke pour une frappe ciblée ; Souffle du dragon pour les dégâts de zone et sur la durée ; Boro Breath pour une attaque ultime de zone.
+- **Barbe Blanche** : Gura Gura no Mi frappe en zone et affaiblit la DEF ; Haki du roi des mers protège l’équipe ; Séisme frappe en zone et étourdit une cible.
+- Ces compétences concernent les cartes de ta collection ; les rencontres du Défi des empereurs conservent leurs mécaniques de boss propres.
+
+### Autres passifs et ajustements
+
+- **Aizen — Kyoka Suigetsu** : une attaque ennemie sur deux qui le vise est redirigée vers un allié de l’attaquant, s’il en possède un.
+- **Toji — Lance inversée du ciel** : annule les dégâts magiques reçus, ainsi que les dégâts sur la durée provenant des attaquants magiques concernés.
+- **Momo Ayase — Pouvoir de Momo** : immunisée contre poison, brûlure et saignement.
+- **Sukuna — Sanctuaire malveillant** : ajoute des dégâts sur la durée de 5 % des PV max pendant trois actions à tous les ennemis.
+- **Passifs visibles** : consultation dans les fiches d’équipe et de combat ; le builder affiche aussi le passif du personnage et permet d’ouvrir sa fiche en cliquant sur son portrait.
+- **Compétences évolutives** : les sorts affichés suivent désormais les transformations de Madara et l’absorption de Meruem pendant le combat.
+
+### Correctifs et confort
+
+- Répartition de l’espace de combat revue sur les petits écrans ; détails de sorts, commandes et résultats ne doivent plus se recouvrir.
+- Récompenses et écrans de victoire conservés au premier plan, sans en-tête ou pied de page par-dessus.
+- Commandes tactiles, zones de confirmation et descriptions longues rendues plus faciles à utiliser.
+- **Actualités et historique** : les notes de la prochaine mise à jour sont consultables sous « À venir ». Les versions déjà publiées restent disponibles ; l’annonce de connexion continue de concerner les versions publiées.
+
+### Migrations de base de données
+
+`20261113020000_changelog_read` : mémorisation de la dernière version publiée lue par compte. À appliquer avant publication si elle manque. Les notes « À venir » n’acquittent aucune version publiée et ne créent aucun tag ni déploiement.
 
 ## v0.3.0 — Arène live, Défi des empereurs et progression repensée
 
@@ -57,6 +146,9 @@ Mise à jour du 13 novembre 2026. Les comptes et les récompenses déjà réclam
 - **Équilibrage** : la plupart des silences de zone ne touchent plus qu'un ennemi ; soin sur soi plafonné à 35 % des PV max ; une seule provocation par personnage, plus courte quand elle accompagne d'autres effets ; réductions de dégâts des sorts divisées par deux et limitées à deux tours ; soins et boucliers d'équipe des ultimes plafonnés à 20 % des PV max.
 - **Kits revus** : Levi ajoute des dégâts selon les PV max de la cible ; Killua enchaîne des frappes de plus en plus fortes ; Gojo commence intouchable ; Kakashi copie le dernier ultime ; Lelouch contrôle un ennemi ; Time Leap d'Okabe donne de la jauge et retire les malus ; Mob gagne des dégâts selon les coups reçus ; Frieren devient intouchable et traverse les boucliers ; Gon prépare une frappe qui ignore la DEF.
 - **Catalogue** : raretés révisées pour une partie des personnages, statistiques adaptées à leur nouvelle rareté et ajout d'Antispiral.
+- **Personnages reclassés en SSR** : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Sakura Matou et Megumin.
+- **Personnages promus en UR** : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Toji, Cid Kagenou, Taiga, Chrollo, Griffith, Anti-Spirale, Onizuka, All Might, Gilgamesh, Aizen, Madara et Netero.
+- **Statistiques après reclassement** : recalées au milieu de la nouvelle rareté pour éviter que la popularité seule place les anciens UR au sommet des SSR et les nouveaux UR au bas de leur catégorie. Les cartes déjà possédées suivent ces nouvelles raretés ; leur rareté au moment du tirage reste conservée dans l’historique.
 
 ### Interface et corrections
 

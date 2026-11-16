@@ -1,9 +1,9 @@
 export type ReleaseBlock = { kind: "paragraph"; text: string } | { kind: "list"; items: string[] };
 export interface ReleaseSection { title: string; blocks: ReleaseBlock[] }
-export interface Release { version: string; title: string; sections: ReleaseSection[] }
+export interface Release { version: string; title: string; sections: ReleaseSection[]; upcoming?: boolean }
 
 /** Le document reste la source unique ; les consignes de déploiement ne sont pas des notes joueur. */
-export function parseChangelog(markdown: string): Release[] {
+export function parseChangelog(markdown: string, includeUpcoming = false): Release[] {
   const releases: Release[] = [];
   let release: Release | null = null;
   let section: ReleaseSection | null = null;
@@ -12,7 +12,9 @@ export function parseChangelog(markdown: string): Release[] {
   for (const line of markdown.replaceAll("\r\n", "\n").split("\n")) {
     if (line.startsWith("## ")) {
       const match = /^## (v\d+\.\d+\.\d+(?:-[\w.-]+)?) — (.+)$/.exec(line);
-      release = match ? { version: match[1], title: match[2], sections: [] } : null;
+      release = includeUpcoming && line === "## À venir"
+        ? { version: "À venir", title: "Prochaine mise à jour", sections: [], upcoming: true }
+        : match ? { version: match[1], title: match[2], sections: [] } : null;
       section = null;
       introduction = true;
       if (release) {

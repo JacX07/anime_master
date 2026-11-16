@@ -1,5 +1,10 @@
 # Journal des agents
 
+## 2026-11-16 — Notes de prochaine mise à jour et Actualités
+- Validation : check-changelog (parsing À venir opt-in, historique inchangé, filtres techniques, lecture par compte), ESLint ciblé et build Node 24/TypeScript réussis. Chromium : notes À venir sélectionnées, 17 personnages présents, listes de raretés v0.3.0, aller-retour entre versions, rechargement, sections techniques masquées et défilement à 320, 390, 430 et 1440 px sans débordement ni erreur JavaScript. Aucun déploiement de production ni appareil physique.
+- Constat : la section À venir de CHANGELOG.md était obsolète et ignorée par le parseur utilisé par Actualités. Une source unique conserve les notes complètes ; l’historique peut inclure explicitement À venir, sans l’annoncer comme une version publiée ni acquitter une lecture de version.
+- Contenu confronté aux commits depuis v0.3.0 et aux kits effectivement exécutés : clones puis pression pour Madara, absorption automatique de Meruem, passifs et sorts propres aux empereurs, refonte PC/mobile et Skip désactivé. Les changements de rareté et les neuf kits déjà décrits dans v0.3.0 restent dans cette version, sans les réannoncer comme nouveaux ; les listes complètes des promotions UR et reclassements SSR y sont détaillées.
+
 ## 2026-11-16 — Lancement unique, skip et survol des sorts
 - Ajustement demandé : désactiver finalement Skip ; bouton conservé grisé, sans gestionnaire de clic. ESLint et build Node 24 réussis ; Chromium PC 1440 px et mobile 390 px : bouton disabled, clic programmatique sans effet, reprise et abandon opérationnels.
 - Validation : lint ciblé, check:replay (300 combats, arrêt avant action suivante et effets identiques), check:combat-selection et build Next/TypeScript Node 24 réussis. Chromium sur le build final : survol sans sélection, attaque manuelle puis Skip sans POST supplémentaire ni fin du combat, Auto activé/désactivé, abandon et rechargement, bouton unique de préparation Donjons ; 320, 375, 390 et 430 px sans débordement horizontal. Pas d’appareil physique ni de PvP réel.

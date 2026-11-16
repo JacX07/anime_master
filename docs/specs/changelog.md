@@ -5,8 +5,8 @@ Demande du 13 novembre 2026 : un onglet Changelog pour toutes les versions et un
 ## Parcours prévu
 
 - Lien « Changelog » dans la navigation principale, sur ordinateur et mobile, vers `/changelog`.
-- Historique des cinq versions actuellement documentées, dernière version sélectionnée par défaut. Choisir une ancienne version affiche ses notes ; la liste devient horizontale sur téléphone.
-- Source unique : `CHANGELOG.md`. Les sections de déploiement et de migration restent dans le document technique, hors de la lecture destinée aux joueurs.
+- Notes À venir sélectionnées par défaut lorsqu’elles existent, suivies de l’historique des versions publiées. Choisir une ancienne version affiche ses notes ; la liste devient horizontale sur téléphone.
+- Source unique : `CHANGELOG.md`. La section À venir apparaît dans Actualités / historique avec le statut En préparation ; elle ne déclenche pas l’annonce de connexion et ne modifie pas la dernière version publiée lue. Les sections de déploiement et de migration restent dans le document technique, hors de la lecture destinée aux joueurs.
 - Une fenêtre affiche les notes de la dernière version au joueur connecté qui ne l'a pas encore lue. « Fermer », Échap et « C'est lu, jouer » mémorisent la lecture pour cette version, sur son compte ; « Toutes les mises à jour » ouvre l'historique et mémorise aussi la lecture.
 - La fermeture persiste après rechargement et sur les autres appareils du compte. Une nouvelle version du changelog déclenche une nouvelle annonce.
 - Ne pas superposer l'annonce à un combat en cours ou au tutoriel ; conserver l'accès permanent à l'historique.

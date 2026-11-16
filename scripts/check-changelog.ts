@@ -7,6 +7,15 @@ import { prisma } from "../src/lib/db";
 async function main() {
   const releases = parseChangelog(readFileSync("CHANGELOG.md", "utf8"));
   const versions = releases.map((r) => r.version);
+  const news = parseChangelog(readFileSync("CHANGELOG.md", "utf8"), true);
+  assert.equal(news[0].upcoming, true);
+  assert.equal(news[0].version, "À venir");
+  assert.deepEqual(news.slice(1), releases, "Les notes à venir ne changent pas les versions publiées");
+  assert(!releases.some((release) => release.upcoming), "Pas d’annonce de connexion pour les notes à venir");
+  assert(!news[0].sections.some((section) => /^Migrations/i.test(section.title)));
+  const upcomingText = JSON.stringify(news[0]);
+  for (const name of ["Madara", "Netero", "Anti-Spirale", "Meruem", "Saitama", "Dio", "Yuuta", "Johan", "Griffith", "Shanks", "Big Mom", "Kaido", "Barbe Blanche"]) assert(upcomingText.includes(name), `Kit documenté : ${name}`);
+
   for (const version of ["v0.3.0", "v0.2.2", "v0.2.1", "v0.2.0", "v0.1.0"]) assert(versions.includes(version), `Historique ${version} conservé`);
   assert.equal(new Set(versions).size, versions.length);
   assert(releases.every((r) => r.sections.length > 0));
