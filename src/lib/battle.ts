@@ -203,7 +203,9 @@ export interface BattleOptions {
   timeoutLoser?: Side;
 }
 
-export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
+export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate" | "decide";
+/** Sorts réellement joués (une décision hors tour n'est pas une action) */
+export type ActionSpell = Exclude<Spell, "decide">;
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
 export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
@@ -214,7 +216,11 @@ export type KitSlot = "special" | "tertiary" | "ultimate";
 export interface Action {
   spell: Spell;
   target: UnitId | null;
+  /** Réponse à une décision en attente (`spell: "decide"`) : learn, ignore, page:0, page:1 */
+  choice?: string;
 }
+/** Décision hors tour (lot 3) : copie de Yuuta/Madara, vol de Chrollo */
+export interface PendingChoice { unit: UnitId; kind: "copy" | "steal"; spell: CharacterSpell; source: UnitId }
 
 /** Une carte en combat, telle que l'affichage la voit. */
 export interface UnitView {
@@ -246,7 +252,7 @@ export type BattleEvent =
   | { kind: "wave"; index: number; total: number; units: UnitView[] }
   | { kind: "round"; round: number }
   /** Une carte agit ; target = null pour la zone d'Aventure. name personnalise le sort spécial ou l'attaque de base. */
-  | { kind: "action"; actor: UnitId; spell: Spell; target: UnitId | null; name?: string; turnOrder?: UnitId[] }
+  | { kind: "action"; actor: UnitId; spell: ActionSpell; target: UnitId | null; name?: string; turnOrder?: UnitId[] }
   | { kind: "skip"; actor: UnitId; reason: "stun" }
   | { kind: "ultimateGauge"; target: UnitId; amount: number; current: number; max: number }
   | {
@@ -356,6 +362,8 @@ interface Unit {
   kitBackup: { spell: CharacterSpell | null; tertiary: CharacterSpell | null } | null;
   /** Netero : paumes lancées (progression) */
   palms: number;
+  /** Chrollo : prochaine page remplacée en Auto */
+  bookNext: number;
   /** Ultime « une fois par combat » déjà lancé */
   onceUsed: boolean;
   /** Meruem : absorption déjà faite */
@@ -418,6 +426,8 @@ export interface BattleState {
   /** Dernier secondaire ou tertiaire lancé par chaque camp (Copie de Madara), et par n'importe qui (Yuuta) */
   lastSpells: Partial<Record<Side, CharacterSpell>>;
   lastAnySpell: CharacterSpell | null;
+  /** Décisions hors tour en attente, traitées avant toute autre action */
+  pending?: PendingChoice[];
   log: BattleEvent[];
   result: BattleResult | null;
 }
@@ -479,7 +489,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: (starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0) + (card.startGauge ?? 0),
       revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [], hitsTaken: 0,
-      clones: 0, clonesUsed: false, kitBackup: null, palms: 0, onceUsed: false, absorbed: false, out: false,
+      clones: 0, clonesUsed: false, kitBackup: null, palms: 0, bookNext: 0, onceUsed: false, absorbed: false, out: false,
     };
   });
 }
@@ -503,6 +513,9 @@ const ILLUSION = new Set([1086]);
 const MAGIC_IMMUNE = new Set([162722]);
 
 /** Kits du 2026-11-16 (docs/specs/combat.md) */
+const YUUTA = 129571, CHROLLO = 58;
+/** Copie hors tour : puissance gardée par copieur (Madara seulement sous Susanoo) */
+const COPY_SCALE: Record<number, number> = { [YUUTA]: 0.8, 53901: 1, [CHROLLO]: 1 };
 const MADARA = 53901, NETERO = 14489, ANTI_SPIRAL = 5115, MERUEM = 23277, SAITAMA = 73935, GRIFFITH = 424;
 const PALMS = [{ mult: 1, name: "Première paume" }, { mult: 1.25, name: "Troisième paume" }, { mult: 1.5, name: "99ᵉ paume" }, { mult: 2, name: "Paume zéro" }];
 const SUSANOO_IMMUNE = new Set<FxKey>(["stun", "sleep", "fear", "seal"]);
@@ -539,7 +552,7 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
-    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, lastUltimate: null, lastSpells: {}, lastAnySpell: null, log: [], result: null,
+    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, lastUltimate: null, lastSpells: {}, lastAnySpell: null, pending: [], log: [], result: null,
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
@@ -713,6 +726,39 @@ function gaugeActor(st: BattleState): Unit | null {
     }
   }
   return null;
+}
+
+/** Décision en attente, telle que l'interface l'affiche (lot 3) */
+export interface DecisionView { unit: UnitId; kind: "copy" | "steal"; spell: string; source: UnitId; choices: string[]; pages: (string | null)[] }
+export function decisionOf(st: BattleState): DecisionView | null {
+  const p = st.pending?.[0];
+  if (!p || st.result) return null;
+  const u = unit(st, p.unit);
+  return { unit: p.unit, kind: p.kind, spell: p.spell.name, source: p.source, choices: pendingChoices(u, p), pages: p.kind === "steal" ? [u.spell?.name ?? null, u.tertiary?.name ?? null] : [u.spell?.name ?? null] };
+}
+/** Réponses possibles : apprendre ou ignorer ; livre de Chrollo plein : remplacer une page */
+function pendingChoices(u: Unit, p: PendingChoice): string[] {
+  if (p.kind === "steal" && u.spell && u.tertiary) return ["page:0", "page:1", "ignore"];
+  return ["learn", "ignore"];
+}
+/** Copie apprise : même sort, dégâts à la puissance du copieur */
+function learnedCopy(u: Unit, spell: CharacterSpell): CharacterSpell {
+  const scale = COPY_SCALE[u.card.characterId] ?? 1;
+  const { oncePerCombat: _once, ...rest } = spell;
+  void _once;
+  return { ...rest, final: true, name: `Copie : ${spell.name.replace(/^Copie : /, "")}`, effects: spell.effects.map((e) => (e.k === "damage" ? { ...e, mult: e.mult * scale } : e)) };
+}
+/** Applique la réponse à la décision en attente (aucun tour consommé) */
+function resolveDecision(st: BattleState, choice: string) {
+  const p = st.pending!.shift()!;
+  const u = unit(st, p.unit);
+  if (choice === "ignore") return;
+  const spell = learnedCopy(u, p.spell);
+  const slot: "special" | "tertiary" = p.kind === "copy" ? "special" : choice === "page:1" || (choice === "learn" && u.spell) ? "tertiary" : "special";
+  if (slot === "special") u.spell = spell;
+  else u.tertiary = spell;
+  if (p.kind === "steal") u.bookNext = slot === "special" ? 1 : 0;
+  st.log.push({ kind: "kit", target: u.id, slot, spell, source: p.source });
 }
 
 /** Désarmé (Gilgamesh) : un porteur d'épée sans sort sans dégâts prêt passe son tour */
@@ -924,6 +970,11 @@ function processDeaths(st: BattleState) {
 
 /** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV ou étourdies et ouvre les tours. */
 export function currentActor(st: BattleState): UnitView | null {
+  while (st.pending?.length && !st.result) {
+    const p = unit(st, st.pending[0].unit);
+    if (p.hp > 0 && !p.out) return view(p);
+    st.pending.shift();
+  }
   if (st.opts.gauge) {
     const u = gaugeActor(st);
     return u ? view(u) : null;
@@ -1000,10 +1051,12 @@ export const hasCharacterSlots = (rarity: string) => rarity === "SSR" || rarity 
 const cooldownReady = (actor: Unit, remaining: number) => remaining <= (actor.continuingTurn ? 0 : 1);
 
 /** Ce que la carte courante peut faire : attaque de base, sorts prêts et ultime chargé. */
-export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId | null)[] }[] {
+export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[] {
   const id = currentActor(st)?.id;
   if (!id) return [];
   const u = unit(st, id);
+  const p = st.pending?.[0];
+  if (p) return [{ spell: "decide", targets: [null], choices: pendingChoices(u, p) }];
   const foes = foesFor(st, u).map((f) => f.id);
   const list: { spell: Spell; targets: (UnitId | null)[] }[] = [{ spell: "base", targets: foes }];
   if (hasFx(u, "silence")) return list;
@@ -1064,6 +1117,11 @@ export function autoAction(st: BattleState): Action {
   const u = unit(st, id);
   const foes = foesFor(st, u);
   const allies = alive(st, u.side);
+  const pending = st.pending?.[0];
+  if (pending) {
+    const choices = pendingChoices(u, pending);
+    return { spell: "decide", target: null, choice: choices.includes("learn") ? "learn" : `page:${u.bookNext}` };
+  }
   const base: Action = { spell: "base", target: weakest(foes).id };
   // Désarmé (Gilgamesh) : seulement un sort sans dégâts, parmi les actions permises
   if (hasFx(u, "disarm")) {
@@ -1099,11 +1157,18 @@ export function applyAction(st: BattleState, action: Action) {
   if (!id) throw new Error("Combat terminé");
   const allowed = legalActions(st).find((x) => x.spell === action.spell);
   if (!allowed?.targets.includes(action.target)) throw new Error("Action impossible");
+  if (action.spell === "decide") {
+    if (!action.choice || !allowed.choices?.includes(action.choice)) throw new Error("Action impossible");
+    resolveDecision(st, action.choice);
+    return;
+  }
   resolveAction(st, unit(st, id), action, false);
 }
 
 /** Résout une action de `u`. `reaction` : lancée hors de son tour (ultime à la mort) : ni recharge, ni jauge, ni fin de tour. */
-function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boolean) {
+function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: boolean) {
+  // Une décision hors tour ne passe jamais ici (applyAction la traite à part)
+  const action = rawAction as Action & { spell: ActionSpell };
   const { rng, opts, log } = st;
   if (!reaction && action.spell !== "base" && hasFx(u, "seal")) {
     // Sceau (Kurapika) : lancer un sort scellé est fatal
@@ -1399,7 +1464,10 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   // Paumes de Netero : la puissance dépend du nombre de paumes déjà lancées
   const palm = action.spell === "special" && u.card.characterId === NETERO ? PALMS[u.palms % PALMS.length] : null;
   const ownSpell = action.spell === "special" ? (rinneganClones ? { name: "Rinnegan : Clones", target: null, effects: [] } as CharacterSpell : u.spell) : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? ultimateOf(st, u) : null;
-  const resolvedSpell = ownSpell?.effects.some((e) => e.k === "copySpell") ? copiedSpell(st, u, ownSpell) : ownSpell;
+  const learnsCopies = u.card.characterId in COPY_SCALE;
+  const resolvedSpell = ownSpell?.effects.some((e) => e.k === "copySpell")
+    ? learnsCopies ? { ...ownSpell, effects: ownSpell.effects.filter((e) => e.k !== "copySpell") } : copiedSpell(st, u, ownSpell)
+    : ownSpell;
   // Figer la nature avant de mémoriser un modèle : une copie conserve le type du sort source.
   const activeSpell: CharacterSpell | null = resolvedSpell ? { ...resolvedSpell, damageKind: isMagicalSpell(u.card, action.spell, resolvedSpell) ? "magic" : "physical" } : null;
   const magicalAction = isMagicalSpell(u.card, action.spell, activeSpell);
@@ -1409,6 +1477,13 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     st.lastAnySpell = activeSpell;
   }
   if (action.spell === "ultimate" && activeSpell?.oncePerCombat) u.onceUsed = true;
+  // Lot 3 : chaque copieur adverse peut apprendre ce sort (Madara seulement sous Susanoo)
+  if (!reaction && activeSpell && action.spell !== "base" && action.spell !== "affinity" && !rinneganClones && !activeSpell.effects.some((e) => e.k === "copySpell" || e.k === "copyUltimate")) {
+    for (const f of alive(st, enemy(u.side))) {
+      if (!(f.card.characterId in COPY_SCALE) || (f.card.characterId === MADARA && !hasFx(f, "susanoo"))) continue;
+      (st.pending ??= []).push({ unit: f.id, kind: f.card.characterId === CHROLLO ? "steal" : "copy", spell: activeSpell, source: u.id });
+    }
+  }
   const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : palm ? `${activeSpell?.name} : ${palm.name}` : activeSpell?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}), ...(!reaction ? { turnOrder: timeline(st, 8) } : {}) });
   const target = action.target ? unit(st, action.target) : null;

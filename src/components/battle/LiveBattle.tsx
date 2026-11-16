@@ -47,7 +47,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
     statusRef.current = next.status;
     setError(null);
     setLog((l) => [...l, ...next.log]);
-    setView((v) => ({ ...v, steps: next.steps, status: next.status, spellFxUnlocked: next.spellFxUnlocked, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, wait: next.wait, timeline: next.timeline }));
+    setView((v) => ({ ...v, steps: next.steps, status: next.status, spellFxUnlocked: next.spellFxUnlocked, winner: next.winner, loot: next.loot, storyStars: next.storyStars, actor: next.actor, choices: next.choices, decision: next.decision, wait: next.wait, timeline: next.timeline }));
   };
 
   const send = (call: () => ReturnType<typeof playAutoAction>) => {
@@ -77,7 +77,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
     return () => window.removeEventListener("beforeunload", warn);
   }, [view.id]);
 
-  const play = (spell: Spell, target: UnitId | null) => send(() => playActionAction(view.id, { spell, target }, view.steps));
+  const play = (spell: Spell, target: UnitId | null, choice?: string) => send(() => playActionAction(view.id, { spell, target, ...(choice ? { choice } : {}) }, view.steps));
   const autoStep = () => send(() => playAutoAction(view.id, view.steps));
 
   // Demande de sortie (croix ou « Abandonner ») : panneau de confirmation, puis abandon côté serveur
@@ -121,6 +121,7 @@ export function LiveBattle({ music, initial, initialAuto, names, title, onEnd, r
       live={{
         actor: view.actor,
         choices: view.choices,
+        decision: view.decision,
         wait: view.wait,
         timeline: view.timeline,
         busy: pending,

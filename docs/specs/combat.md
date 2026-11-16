@@ -656,7 +656,7 @@ Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compét
 - Gilgamesh, ultime : **désarme** 1 tour les ennemis porteurs d'épée (`blade-users.ts`) ; un désarmé lance ses sorts sans épée, sinon passe son tour. Dégâts ×2,1 ATK en zone, +25 % par ennemi désarmé.
 - Saitama : un seul sort, le coup qui met K.O. ; ni attaque de base, ni tertiaire, ni ultime.
 
-**Lot 3 — conception en cours**
+**Lot 3 — copies (Yuuta, Madara) et livre de Chrollo codés le 2026-11-16 ; Yhwach et Deku à coder.** Écart : pas de minuteur de 8 s en PvE (le combat attend la réponse) ; en arène, le minuteur existant joue l'Auto (apprendre). Madara n'apprend que sous Susanoo.
 - Yuuta (copie à 80 %) et Madara (copie à 100 %) : quand un ennemi lance un sort, choix de l'apprendre ou non, même hors de son tour ; un seul sort gardé, remplacé à chaque copie ; en Auto, accepté automatiquement.
 - Chrollo : un seul sort, **Skill Hunter**. Quand un ennemi lance un sort, Chrollo peut le copier dans son livre (même hors de son tour) ; livre de 2 pages au plus ; il peut désapprendre une page pour en apprendre une autre. Un sort copié reste utilisable tant qu'il n'est pas désappris.
 - Yhwach : **Auswählen** (secondaire) : choisit autant d'alliés qu'il veut ; pendant 2 tours ils gagnent +50 % de dégâts finaux et sont soignés une fois de 30 % de leurs PV max. En Auto, aucun sacrifice (manuel seulement). Il peut retirer ce pouvoir à tout moment : l'allié meurt et Yhwach gagne une de ses compétences, choisie dans une fenêtre. Passif **The Almighty** : une fois par combat, un coup fatal le laisse à 1 PV et il joue aussitôt. Ni tertiaire ni ultime.

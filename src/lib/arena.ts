@@ -7,7 +7,7 @@ import { eloChange } from "./duel-rules";
 import { overBudget, budgetMessage } from "./team-budget";
 import { charactersOf, teamSnapshot } from "./battles";
 import {
-  applyAction, autoAction, BATTLE, createBattle, currentActor, legalActions, seededRandom, timeline,
+  applyAction, autoAction, BATTLE, createBattle, currentActor, decisionOf, legalActions, seededRandom, timeline, type DecisionView,
   type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId,
 } from "./battle";
 import type { Prisma } from "../generated/prisma/client";
@@ -27,7 +27,7 @@ const REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
 export class ArenaError extends Error {}
 
 const toJson = (x: unknown) => x as Prisma.InputJsonValue;
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate";
+const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide";
 const other = (s: Side): Side => (s === "A" ? "B" : "A");
 
 /** Inverse les camps A et B d'un journal, d'un identifiant ou d'une table indexée par identifiant (vue du joueur B). */
@@ -249,7 +249,8 @@ export interface ArenaView {
   actor: UnitId | null;
   /** Vrai quand c'est à ce joueur de choisir */
   myTurn: boolean;
-  choices: { spell: Spell; targets: (UnitId | null)[] }[];
+  choices: { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[];
+  decision: DecisionView | null;
   wait: Record<string, number>;
   timeline: UnitId[];
   characters: Record<number, { name: string; imageUrl: string; rarity: Rarity; type: CardType }>;
@@ -268,7 +269,7 @@ async function viewOf(row: Row, userId: string, from: number, now: Date): Promis
   const opId = mySide === "A" ? row.playerBId : row.playerAId;
   const opponent = row.status === "QUEUED" ? null : who(opId, mySide === "A" ? row.eloB : row.eloA);
   const base = { id: row.id, status: row.status, steps: row.steps, queuedAt: row.createdAt.toISOString(), serverNow: now.toISOString(), me: meUser, opponent };
-  if (row.status === "QUEUED") return { ...base, deadline: null, winner: null, eloChange: null, log: [], actor: null, myTurn: false, choices: [], wait: {}, timeline: [], characters: {} };
+  if (row.status === "QUEUED") return { ...base, deadline: null, winner: null, eloChange: null, log: [], actor: null, myTurn: false, choices: [], decision: null, wait: {}, timeline: [], characters: {} };
   const st = buildState(row);
   // Forfait ou abandon : le moteur n'a pas écrit de fin, on l'ajoute pour que l'écran affiche le résultat
   let fullLog: BattleEvent[] = st.log;
@@ -297,6 +298,7 @@ async function viewOf(row: Row, userId: string, from: number, now: Date): Promis
     actor: actor ? mine(actor.id) : null,
     myTurn,
     choices: myTurn ? mine(legalActions(st)) : [],
+    decision: myTurn ? mine(decisionOf(st)) : null,
     wait: mine(waitAll),
     timeline: running ? mine(timeline(st, 5)) : [],
     characters: await charactersOf({ A: row.teamA as unknown as BattleCard[], B: (row.teamB ?? []) as unknown as BattleCard[] }),
@@ -319,7 +321,7 @@ export async function arenaView(userId: string, matchId: string, from = 0, now =
 }
 
 /** Le joueur choisit sort et cible pour la carte qui agit. Les identifiants sont ceux de sa vue (lui en A). */
-export async function arenaPlay(userId: string, matchId: string, action: { spell: Spell; target: UnitId | null }, expectedSteps: number, from = 0, now = new Date()): Promise<ArenaView> {
+export async function arenaPlay(userId: string, matchId: string, action: { spell: Spell; target: UnitId | null; choice?: string }, expectedSteps: number, from = 0, now = new Date()): Promise<ArenaView> {
   if (!isSpell(action?.spell) || (action.target !== null && typeof action.target !== "string")) throw new ArenaError("Action invalide.");
   const found = await prisma.arenaMatch.findFirst({ where: { id: matchId, OR: [{ playerAId: userId }, { playerBId: userId, ghost: false }] } });
   if (!found) throw new ArenaError("Match introuvable.");
@@ -331,8 +333,8 @@ export async function arenaPlay(userId: string, matchId: string, action: { spell
   const actor = currentActor(st);
   if (!actor || actor.id[0] !== mySide) throw new ArenaError("Ce n'est pas ton tour.");
   const chosen: Action = mySide === "B"
-    ? { spell: action.spell, target: action.target === null ? null : (swapSides(action.target) as UnitId) }
-    : { spell: action.spell, target: action.target };
+    ? { spell: action.spell, target: action.target === null ? null : (swapSides(action.target) as UnitId), ...(typeof action.choice === "string" ? { choice: action.choice } : {}) }
+    : { spell: action.spell, target: action.target, ...(typeof action.choice === "string" ? { choice: action.choice } : {}) };
   try { applyAction(st, chosen); } catch { throw new ArenaError("Action impossible."); }
   const played = [chosen];
   // Les actions du fantôme suivent immédiatement ; un nouveau chrono démarre pour la carte suivante

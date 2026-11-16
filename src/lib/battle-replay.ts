@@ -3,7 +3,7 @@
 // L'état ne contient que ce que l'écran montre (PV, boucliers, états, K.O.) et la liste des « pops » (nombres, effets) à animer.
 
 import type { CardType } from "../generated/prisma/enums";
-import type { BattleEvent, FxKey, Side, Spell, Status, UnitId, UnitView } from "./battle";
+import type { ActionSpell, BattleEvent, FxKey, Side, Spell, Status, UnitId, UnitView } from "./battle";
 import type { ModStat } from "./spells";
 import { attackVisual } from "./attack-visual";
 
@@ -45,7 +45,7 @@ export interface Replay {
   first: Side;
   round: number;
   /** Sort en cours (n = numéro de l'action) : sert aux effets des événements qui suivent l'action */
-  cur: { n: number; actor: UnitId; spell: Spell; target: UnitId | null; type: CardType; name?: string } | null;
+  cur: { n: number; actor: UnitId; spell: ActionSpell; target: UnitId | null; type: CardType; name?: string } | null;
   pops: Pop[];
   popSeq: number;
   end: Extract<BattleEvent, { kind: "end" }> | null;

@@ -124,17 +124,59 @@ const SAITAMA = 73935, DIO = 4004, YUUTA = 129571, JOHAN = 719, GRIFFITH = 424;
   assert.equal(new Set(evs(s).filter((e) => e.kind === "status" && e.status === "stun" && e.on).map((e) => e.kind === "status" && e.target)).size, 2, "deux étourdis");
   assert(evs(s).some((e) => e.kind === "resist" && e.target === "B3"), "le boss résiste");
 }
-// Yuuta : copie le dernier sort lancé par n'importe qui, à 80 %
+// Lot 3 : Yuuta apprend (ou non) un sort lancé par un ennemi, même hors de son tour ; copie à 80 %
 {
-  const s = createBattle([card(YUUTA), card(NETERO)], [dummy({ defense: 1e9 }), dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
-  until(s, "A1");
-  applyAction(s, { spell: "base", target: "B1" });
-  until(s, "A2");
-  applyAction(s, { spell: "special", target: "B1" });
-  until(s, "A1");
-  applyAction(s, { spell: "special", target: "B1" });
-  const act = [...evs(s)].reverse().find((e) => e.kind === "action" && e.actor === "A1");
-  assert(act?.kind === "action" && act.name === "Copie : Paumes", `Yuuta copie un allié (${act?.kind === "action" ? act.name : ""})`);
+  const setup = () => {
+    const s = createBattle([card(YUUTA), dummy({ defense: 1e9 })], [card(NETERO, { defense: 1e9 }), dummy({ defense: 1e9 })], () => 0.5, { startingSide: "B" });
+    until(s, "B1");
+    applyAction(s, { spell: "special", target: "A2" });
+    return s;
+  };
+  const s = setup();
+  assert.equal(currentActor(s)?.id, "A1", "Yuuta décide aussitôt");
+  assert.deepEqual(legalActions(s), [{ spell: "decide", targets: [null], choices: ["learn", "ignore"] }]);
+  applyAction(s, { spell: "decide", target: null, choice: "learn" });
+  const copy = s.teams.A[0].spell!;
+  assert.equal(copy.name, "Copie : Paumes");
+  const dmg = copy.effects.find((e) => e.k === "damage");
+  assert(dmg?.k === "damage" && Math.abs(dmg.mult - 1.2 * 0.8) < 1e-9, "copie à 80 %");
+  assert(evs(s).some((e) => e.kind === "kit" && e.target === "A1" && e.source === "B1"), "événement de kit");
+  const ignored = setup();
+  const before = ignored.teams.A[0].spell?.name;
+  applyAction(ignored, { spell: "decide", target: null, choice: "ignore" });
+  assert.equal(ignored.teams.A[0].spell?.name, before, "ignorer garde le sort");
+  assert.deepEqual(autoAction(setup()), { spell: "decide", target: null, choice: "learn" }, "Auto : apprend");
+  // Un allié ne déclenche pas de copie
+  const ally = createBattle([card(YUUTA), card(NETERO)], [dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(ally, "A2");
+  applyAction(ally, { spell: "special", target: "B1" });
+  assert(!ally.pending?.length, "pas de copie d'un allié");
+}
+// Lot 3 : Chrollo vole les sorts ennemis dans un livre de 2 pages ; livre plein : remplacer une page ou garder
+{
+  const CHROLLO = 58;
+  const s = createBattle([card(CHROLLO), dummy({ defense: 1e9 })], [card(NETERO, { defense: 1e9 }), card(SAITAMA, { defense: 1e9 })], () => 0.5, { startingSide: "B" });
+  const page = (k: "spell" | "tertiary") => (s.teams.A[0] as { spell: { name: string } | null; tertiary: { name: string } | null })[k]?.name ?? null;
+  assert.equal(page("spell"), null, "livre vide");
+  assert.equal(s.teams.A[0].ultimate, null, "pas d'ultime");
+  until(s, "B1");
+  applyAction(s, { spell: "special", target: "A2" });
+  applyAction(s, { spell: "decide", target: null, choice: "learn" });
+  assert.equal(page("spell"), "Copie : Paumes", "page 1");
+  s.pending = [{ unit: "A1", kind: "steal", spell: { name: "Bleu", target: "foe", effects: [{ k: "damage", mult: 1 }] }, source: "B1" }];
+  applyAction(s, { spell: "decide", target: null, choice: "learn" });
+  assert.equal(page("tertiary"), "Copie : Bleu", "page 2");
+  s.pending = [{ unit: "A1", kind: "steal", spell: { name: "Rouge", target: "foe", effects: [{ k: "damage", mult: 1 }] }, source: "B1" }];
+  assert.deepEqual(legalActions(s)[0].choices, ["page:0", "page:1", "ignore"], "livre plein");
+  applyAction(s, { spell: "decide", target: null, choice: "page:0" });
+  assert.equal(page("spell"), "Copie : Rouge", "page 1 remplacée");
+}
+// Lot 3 : Madara n'apprend que sous Susanoo, à 100 %
+{
+  const s = createBattle([card(MADARA), dummy({ defense: 1e9 })], [card(NETERO, { defense: 1e9 })], () => 0.5, { startingSide: "B" });
+  until(s, "B1");
+  applyAction(s, { spell: "special", target: "A2" });
+  assert(!s.pending?.length, "pas de copie hors Susanoo");
 }
 // Johan : peur sur tous, manipulation, élimination ciblée
 {

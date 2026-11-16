@@ -29,7 +29,7 @@ export function SpellsPanel({
   character?: PlayerCharacter;
   /** Mode manuel, à ton tour : les sorts deviennent des boutons */
   choose?: {
-    choices: { spell: Spell; targets: (UnitId | null)[] }[];
+    choices: { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[];
     spell: Spell | null;
     /** Actions à attendre avant le sort affilié de cette carte */
     wait: number;

@@ -32,6 +32,8 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Levi** : l'ultime ajoute 20 % des PV max de la cible et +50 points de taux de critique.
 - **Shigeo** : ???% — Explosion frappe tous les ennemis.
 - **Maomao** : nouveau passif, immunisée contre le poison, la brûlure et le saignement.
+- **Yuuta et Madara** : quand un ennemi lance un sort, une fenêtre propose de l'apprendre (Yuuta à 80 %, Madara à 100 % sous Susanoo), même pendant le tour adverse ; il remplace la copie précédente.
+- **Chrollo** : Skill Hunter remplit un livre de deux pages avec les sorts ennemis ; livre plein, choisis la page à remplacer ou garde-le.
 - **Sukuna** : le Sanctuaire malveillant pose une entaille (8 % des PV max par tour, 2 tours) qui bloque les soins.
 - **Netero** : Hyakushiki Kannon dure 3 tours et Netero rejoue aussitôt.
 - **Gilgamesh** : Ea désarme les porteurs d'épée pendant un tour (sans sort sans épée, ils passent leur tour), puis frappe tous les ennemis à ×2,1 ATK, +25 % par ennemi désarmé.

@@ -1,5 +1,11 @@
 # Journal des agents
 
+## 2026-11-16 — Kits, lot 3 (1/2) : décisions hors tour
+- Moteur : `st.pending` (file de `PendingChoice`) traité en tête de `currentActor` ; action `{ spell: "decide", choice }` (learn, ignore, page:0, page:1) validée par `legalActions(...).choices` ; `autoAction` apprend. Le type `ActionSpell` exclut "decide" des événements `action`. Copie apprise = événement `kit` (rejeu et main de combat déjà compatibles).
+- Chrollo dans `KITLESS` : livre = emplacements secondaire (page 1) et tertiaire (page 2). Yuuta et Madara n'utilisent plus la copie automatique (`copiedSpell`) ; Kakashi garde la sienne.
+- Interface : `decision` (via `decisionOf`) dans BattleView et ArenaView ; fenêtre `.bt-decision` dans BattlePlayer ; `onPlay(spell, target, choice)`.
+- Vérifié en vrai combat manuel (donjon One Piece 10, compte agenttest, Yuuta et Chrollo donnés par dev-tools) : fenêtres de Yuuta puis Chrollo, Apprendre et Ignorer, main mise à jour. Non testé : arène PvP, livre plein en combat réel (couvert par check-kits-uniques).
+
 ## 2026-11-16 — Kits, lot 2 (Sukuna, Netero, Gilgamesh, Saitama)
 - Moteur : statuts `gash` (entaille : dégâts sur la durée + aucun soin, `heal` et régénération bloqués) et `disarm` (`disarmedStuck` fait passer le tour ; `legalActions` et `autoAction` n'offrent que des sorts sans dégâts) ; champ de sort `replay` (tour immédiat, comme les buffs solo) ; Saitama prêt au tour 1, sans attaque de base (fiche et main de combat masquent la ligne via `SINGLE_SPELL`).
 - Piège : `autoAction` ignore `legalActions` ; tout nouveau filtre d'actions doit aussi y être reporté (check-spells l'a révélé : « Action impossible » sur 2 combats sur 1 500).
