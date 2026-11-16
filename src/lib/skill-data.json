@@ -12878,5 +12878,200 @@
         }
       ]
     }
+  },
+  "54495": {
+    "orientation": "attaque",
+    "secondary": {
+      "name": "Zeus : Nuée orageuse",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.8,
+          "zone": true
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Prométhée : Soleil de feu",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.55,
+          "zone": true
+        },
+        {
+          "k": "poison",
+          "pct": 0.04,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Soul Pocus",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.6,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": -0.3,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    }
+  },
+  "727": {
+    "orientation": "attaque",
+    "secondary": {
+      "name": "Divine Departure",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.5,
+          "ignoreDef": 0.3
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Voix de l'empereur",
+      "target": null,
+      "effects": [
+        {
+          "k": "mod",
+          "stat": "crit",
+          "amount": 0.2,
+          "turns": 2,
+          "to": "team"
+        },
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": 0.2,
+          "turns": 2,
+          "to": "team"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Haki des rois",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.2,
+          "zone": true
+        },
+        {
+          "k": "sleep",
+          "turns": 1,
+          "weaker": true
+        }
+      ]
+    }
+  },
+  "46109": {
+    "orientation": "attaque",
+    "secondary": {
+      "name": "Raimei Hakke",
+      "target": "foe",
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.55
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Souffle du dragon",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.6,
+          "zone": true
+        },
+        {
+          "k": "poison",
+          "pct": 0.04,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Boro Breath",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.8,
+          "zone": true
+        }
+      ]
+    }
+  },
+  "2751": {
+    "orientation": "hybride",
+    "secondary": {
+      "name": "Gura Gura no Mi",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.75,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.15,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Haki du roi des mers",
+      "target": null,
+      "effects": [
+        {
+          "k": "shield",
+          "pct": 0.14,
+          "to": "team"
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": 0.2,
+          "turns": 2,
+          "to": "team"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Séisme",
+      "target": null,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.7,
+          "zone": true
+        },
+        {
+          "k": "stun",
+          "turns": 1,
+          "count": 1
+        }
+      ]
+    }
   }
 }

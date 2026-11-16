@@ -108,11 +108,11 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
         <ul>
           {list.map((c) => (
             <li key={c.id}>
-              <div className="sb-character">
+              <button type="button" className="sb-character" disabled={busy} aria-pressed={c.id === id} onClick={() => pick(c)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={c.imageUrl} alt="" loading="lazy" />
                 <span>{c.name}<small>{c.rarity} · {c.type}</small></span>
-              </div>
+              </button>
               {c.spells.map((s) => (
                 <button key={s.slot} type="button" title={describeBuilderSpell(s.custom ?? s.original, true)} disabled={busy} aria-pressed={c.id === id && s.slot === slot} onClick={() => pick(c, s)}>
                   <span><small>{SLOT_LABELS[s.slot]}{s.custom ? " · modifié" : ""}</small>

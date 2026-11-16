@@ -820,3 +820,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Big Mom (54495) a déjà son image AniList (raid compris) : rien changé.
 
 - Suite : passif affiché en lecture seule dans le spell builder (`/builder`). La fiche `/character/[id]` l'affichait déjà via `SpellList`. Une erreur d'hydratation (serveur sans passif) venait du cache du serveur de dev lancé avant la modification : `rm -rf .next/dev` et redémarrage la font disparaître.
+
+## 2026-11-16 — Linlin sans sorts, empereurs sans kit de joueur
+- Symptôme : la fiche de Linlin (Big Mom) n'affichait que deux sorts génériques ; dans le builder, cliquer sur le nom ne faisait rien.
+- Cause : les quatre empereurs (727, 54495, 46109, 2751) n'avaient de kit que pour le raid (`boss-skills.ts`) ; leurs cartes retombaient sur l'archétype générique. Dans le builder, seul le bouton d'un sort ouvrait l'éditeur.
+- Correctif : kits de joueur SSR ajoutés dans `skill-data.json` (le raid garde `BOSS_SKILLS`) ; nom et portrait cliquables dans le builder. `check-spells` compte 240 kits. check-emperors, check-emperor-raid, check-battle, ESLint, TypeScript réussis ; fiche et builder vérifiés.
