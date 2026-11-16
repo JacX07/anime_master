@@ -81,6 +81,6 @@ Un bundle temporaire des modules réels `CombatVfx` et `STATUS_FX` a été exéc
 - Les procédures de sauvegarde, déploiement, migrations de production et smoke test du domaine public restent réservées à l’utilisateur. `check-publication.ts` n’a pas été exécuté.
 - v0.4.0 reste une version **en préparation** ; aucun tag ni annonce de publication n’a été créé. Le manifeste du package reste à v0.3.0 jusqu’à l’étape de versionnement choisie par l’utilisateur.
 
-## Règle proposée, non appliquée
+## Promotion en règle après validation
 
-Les correspondances VFX manquantes sont revenues les 2, 13 et 16 novembre ; voir l’entrée « Statuts VFX incomplets et scénario Makima non déterministe » de `journal.md`. Proposition pour `AGENTS.md` : « Avant de committer un nouveau statut de combat, compléter ses informations et sa correspondance visuelle, puis exécuter `check-combat-vfx`. » Cette règle attend une validation explicite ; `AGENTS.md` n’a pas été modifié.
+Le 16 novembre, l’utilisateur a explicitement demandé d’ajouter les règles de prévention dans `AGENTS.md`. La proposition concernant les statuts VFX est donc promue en règle, ainsi que la prévention des doublons de personnage, des retours sans filtres, du focus dans les tiroirs fermés et des textes de résultat incohérents. La règle de vérification navigateur précise aussi l’attente du contenu visible pendant le streaming Next. Les entrées existantes de `journal.md` portent la mention « promue en règle » ; les résultats de la passe restent inchangés.

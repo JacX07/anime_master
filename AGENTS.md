@@ -44,8 +44,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Pour chaque fonctionnalité développée, vérifier dans le navigateur sur le site en cours d’exécution que le parcours utilisateur fonctionne réellement et que les changements sont visibles. Les tests automatisés, le typecheck et le lint ne suffisent pas.
 - Vérifier avant le commit et le push, puis confirmer après le push que le site testé utilise bien la version poussée. Corriger les problèmes constatés et refaire le parcours avant d’annoncer la fonctionnalité terminée.
 - Tester les interactions concernées et les états pertinents (succès, erreur, persistance après rechargement), sur les vues et tailles d’écran affectées.
+- Avec le streaming Next, attendre le contenu visible attendu avant de mesurer l’écran ou de vérifier la persistance ; un écran de chargement ou un témoin de pagination hors écran ne suffit pas à conclure à un bug.
 - Si l’accès au site, l’authentification ou le déploiement bloque cette vérification, indiquer précisément ce qui n’a pas été vérifié. Ne jamais présenter une fonctionnalité comme validée sur le site sans l’avoir testée.
 - Cette exigence s’applique aussi aux sous-agents : l’inclure dans leurs consignes et leur demander les parcours testés et les résultats.
+
+## Invariants UI et combat
+
+Règles issues de la passe v0.4.0 du 16 novembre 2026 ; cas reproduits et correctifs détaillés dans `journal.md`.
+
+- **Statuts de combat** : tout nouveau statut doit avoir ses informations d’affichage et sa correspondance dans `STATUS_FX`, avec le bon classement buff/débuff. Réutiliser les effets existants lorsque adaptés. Avant le commit, exécuter `npx --no-install tsx scripts/check-combat-vfx.ts` ; si le rendu change, vérifier aussi pause, vitesse, réduction des animations et nettoyage.
+- **Squads** : appliquer les contraintes de personnage unique avec `characterId`, pas seulement l’identifiant de l’exemplaire de carte. Le sélecteur doit exclure les autres exemplaires d’un personnage placé ailleurs, tout en autorisant le remplacement du poste courant. Conserver la validation serveur.
+- **Retour depuis une fiche** : conserver recherche et filtres de la collection d’origine, y compris pour les cartes chargées par pagination. Toute destination de retour fournie dans l’URL doit être limitée à la route locale autorisée. Vérifier l’aller-retour réel après navigation.
+- **Panneaux fermés** : déplacer un tiroir hors écran ne suffit pas ; ses contrôles doivent sortir du parcours clavier (`visibility`, `hidden` ou `inert` selon le composant). Prévoir Échap et restaurer le focus sur le déclencheur à la fermeture, sans masquer le panneau desktop permanent.
+- **Résultats de combat** : titres, textes et récompenses doivent suivre le résultat serveur, son vainqueur et sa raison de fin. Vérifier victoire, défaite, match nul et abandon selon les cas concernés ; ne jamais déduire une victoire de la seule fermeture de l’interface ou fin d’animation.
 
 ## Session handoff
 

@@ -4,22 +4,26 @@
 - Symptôme : en combat test perdu, le titre Défaite est correct mais le texte annonce que l’équipe adverse est à terre.
 - Cause : le résumé KO ne tenait pas compte du vainqueur. Correctif : distinguer victoire, défaite et double KO dans le lecteur partagé, sans changer le moteur.
 - Validation : lint et build réussis ; Chromium 1440 px, vrai combat perdu en Auto : Toute ton équipe est à terre, en 4 tours. Le parcours Histoire a aussi produit une victoire avec butin persisté.
+- Promue en règle le 2026-11-16, avec autorisation explicite de l’utilisateur : AGENTS.md, « Invariants UI et combat », résultats fondés sur le serveur et vérification des issues concernées.
 
 ## 2026-11-16 — Doublons de personnage dans le sélecteur de squad
 - Symptôme : deux exemplaires du même personnage pouvaient être proposés à deux postes alors que les combats exigent des personnages distincts.
 - Correctif : désactiver les exemplaires par characterId occupé à un autre poste, en autorisant le remplacement du poste courant.
 - Validation : lint ciblé et build réussis ; Chromium 390 px, squad enregistrée puis rechargée : les deux Gojo sont désactivés au poste 2 et restent disponibles au poste 1. Les contrôles serveur de squad ont passé la suite complète initiale.
+- Promue en règle le 2026-11-16, avec autorisation explicite de l’utilisateur : AGENTS.md, « Invariants UI et combat », unicité par characterId et validation serveur conservée.
 
 ## 2026-11-16 — Collection : retour filtré et tiroir clavier
 - Symptômes : ouvrir une fiche puis cliquer ← Album effaçait la recherche ; sur mobile le champ du tiroir Collections fermé restait focalisable hors écran.
 - Correctif : destination de retour limitée à /album et ses paramètres, transmise par toutes les cartes, y compris la pagination ; tiroir fermé invisible, fermeture Échap et focus rendu au bouton.
 - Validation : lint ciblé et build Node 24 réussis. Chromium 390 px : recherche Satoru → Gojo → retour avec recherche conservée ; tiroir ouvert puis Échap, focus restauré et champ caché inaccessible. À 1440 px le panneau reste visible ; filtre UR/MAGIE/possédé conservé. Une destination externe retourne à /album.
+- Promue en règle le 2026-11-16, avec autorisation explicite de l’utilisateur : AGENTS.md, « Invariants UI et combat », retour filtré local et contrôles inaccessibles au clavier lorsque le panneau est fermé.
 
 ## 2026-11-16 — Passe complète avant v0.4.0
 - Résultats : 72 scripts métier (publication exclue), lint, génération Next et TypeScript réussis ; le seul échec initial VFX est corrigé dans l’entrée existante du 2 novembre. Build final et lint ciblé réussis, check-changelog relancé avec succès. Audit npm production : 0 vulnérabilité signalée. Migrations dev à jour.
 - Correctifs documentés dans leurs entrées dédiées : retour filtré et tiroir clavier, doublons du sélecteur de squad, statuts VFX. Autre bug reproduit : après une défaite réelle, le texte KO annonçait l’équipe adverse à terre ; texte adapté au vainqueur puis défaite retestée dans Chromium.
 - 25 destinations PC/mobile consultées ; huit écrans centraux à 320/375/430/768 px ; combat et inspection à 320/375/390/430/768/844 paysage/1440 px. Connexion refusée puis valide, pagination 60 → 120, invocation ×5 et nouvelles cartes persistées, sauvegarde squad, victoire histoire et 3 étoiles persistées, ciblage manuel, pause/Auto/abandon, réglages et personnage d’accueil persistants, Actualités vérifiées.
 - Piège de vérification : Next peut retourner un écran de chargement pendant le streaming. Attendre le contenu visible attendu avant de mesurer ou conclure à une perte de persistance. Le témoin Chargement de pagination hors écran n’est pas un blocage : la liste passe bien de 60 à 120 cartes au défilement.
+- Promue en règle le 2026-11-16, avec autorisation explicite de l’utilisateur : attente du contenu visible avant vérification du streaming, dans AGENTS.md, « Vérification sur le site ».
 - Nettoyage : squad temporaire supprimée et disparition confirmée ; base Postgres jetable supprimée et instance arrêtée. Butin réel conservé uniquement sur le compte dev de test.
 - Rapport, limites et preuves : docs/reports/validation-v0.4.0-2026-11-16.md. Pas de publication, de PvP réel à deux joueurs ni d’appareil physique. Journaux temporaires : /tmp/anime-v040-audit-GFHQWr/.
 
@@ -226,10 +230,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : check-combat-vfx échoue dès counter ; check-kits ne voit aucun cas d'exécution du dernier ennemi contrôlé.
 - Cause : dix statuts moteur n'ont pas de correspondance dans STATUS_FX ; le scénario Makima repose sur trente combats automatiques sans garantir que l'ultime soit prêt avant la mort de l'unique ennemi.
 - Correctif : réutiliser les effets existants pour les dix statuts ; créer une situation déterministe avec jauge chargée puis vérifier contrôle, K.-O. et victoire dans cet ordre.
-- Occurrences : 1.
+- Occurrences VFX : 3 (2, 13 et 16 novembre 2026).
 - Statut : corrigé et checks dédiés réussis.
 - Validation du 16 novembre : check-combat-vfx et build réussis ; contrôleur réel dans Chromium, six rendus présents, pause et vitesses ×2/×4 opérationnelles après engagement des animations, retrait naturel puis dispose sans canvas, nœud ou animation résiduel. Préférence de réduction des animations : aucun effet créé. Pas de mesure de FPS sur appareil physique.
-- Proposition de promotion en règle, non appliquée : avant de committer un nouveau statut de combat, compléter ses informations et sa correspondance visuelle, puis exécuter check-combat-vfx. Récidives : 2 et 13 novembre, puis 16 novembre ; validation explicite de l’utilisateur requise avant toute modification d’AGENTS.md.
+- Promue en règle le 2026-11-16, avec autorisation explicite de l’utilisateur : AGENTS.md, « Invariants UI et combat », informations et correspondance VFX complètes, `npx --no-install tsx scripts/check-combat-vfx.ts` avant commit. Récidives relevées les 2, 13 et 16 novembre.
 
 ## 2026-11-02 — Double clic manuel après une première écriture
 
