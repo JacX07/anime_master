@@ -514,7 +514,7 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "puppet": return `manipule la cible, ${nx(e.turns)} : ses buffs profitent à vos cartes et ses malus frappent ses alliés`;
     case "vulnerable": return `la cible subit ${pct(e.pct)} de dégâts en plus, ${nx(e.turns)}`;
     case "bleed": return "saignement sur la cible (se cumule jusqu'à 5 fois, dure jusqu'à un soin)";
-    case "eclipse": return "sacrifie tous ses alliés et récupère leurs PV restants ; jusqu'à la fin du combat, ATK +50 % et ses attaques touchent tous les ennemis";
+    case "eclipse": return "sacrifie tous ses alliés et récupère leurs PV restants (ses PV max augmentent d'autant) ; jusqu'à la fin du combat, ATK +50 %, ses attaques touchent tous les ennemis et ignorent toute la DEF, ses sorts lui rendent 50 % des dégâts infligés";
     case "donateShield": return `l'allié le plus bas en PV reçoit un bouclier de ${pct(e.pct)} des dégâts infligés`;
     case "auraPierce": return `l'équipe ignore ${pct(e.pct)} de la DEF, ${nx(e.turns)} (ne se cumule pas)`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;

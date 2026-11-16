@@ -516,6 +516,8 @@ const MAGIC_IMMUNE = new Set([162722]);
 const YUUTA = 129571, CHROLLO = 58;
 /** Copie hors tour : puissance gardée par copieur (Madara seulement sous Susanoo) */
 const COPY_SCALE: Record<number, number> = { [YUUTA]: 0.8, 53901: 1, [CHROLLO]: 1 };
+/** Griffith après l'Éclipse : part des dégâts de ses sorts rendue en PV */
+const GOD_HAND_DRAIN = 0.5;
 const MADARA = 53901, NETERO = 14489, ANTI_SPIRAL = 5115, MERUEM = 23277, SAITAMA = 73935, GRIFFITH = 424;
 const PALMS = [{ mult: 1, name: "Première paume" }, { mult: 1.25, name: "Troisième paume" }, { mult: 1.5, name: "99ᵉ paume" }, { mult: 2, name: "Paume zéro" }];
 const SUSANOO_IMMUNE = new Set<FxKey>(["stun", "sleep", "fear", "seal"]);
@@ -1261,7 +1263,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       consumedIgnoreFx = true;
       dropFx(u, pendingIgnoreFx);
     }
-    ignoreDef = Math.min(0.95, ignoreDef + pendingIgnoreDef + (u.card.artifactStats?.ignoreDef ?? 0) + fxKeySum(u, "auraPierce"));
+    // Main de Dieu (Griffith après l'Éclipse) : ignore toute la DEF, au-delà du plafond de 95 %
+    ignoreDef = hasFx(u, "godHand") ? 1 : Math.min(0.95, ignoreDef + pendingIgnoreDef + (u.card.artifactStats?.ignoreDef ?? 0) + fxKeySum(u, "auraPierce"));
     // Esquive : arme (sorts affiliés seulement) ou effet d'un sort ; un coup qui traverse ne s'esquive pas
     const dodge = pierce || u.card.artifactStats?.precision ? 0 : clamp((action.spell === "affinity" ? t.dodge : 0) + (t.card.artifactStats?.dodge ?? 0) + fxSum(t, "dodge"), 0, BATTLE.dodgeCap);
     if (dodge > 0 && rng() < dodge) {
@@ -1569,7 +1572,9 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
           }
           zoneStrike = false;
           lastDealt = total;
-          if (e.drain) heal(u, total * e.drain);
+          // Main de Dieu : ses sorts rendent 50 % des dégâts infligés
+          const drain = (e.drain ?? 0) + (hasFx(u, "godHand") ? GOD_HAND_DRAIN : 0);
+          if (drain) heal(u, total * drain);
           break;
         }
         case "mod":

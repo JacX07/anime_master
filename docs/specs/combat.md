@@ -641,7 +641,7 @@ Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone
 - **Yuuta** : secondaire *Copie : Rika* : rejoue à 80 % le dernier secondaire ou tertiaire lancé par n'importe qui (sauf le coup de Saitama) ; sans modèle, ×1,2 ATK.
 - **All Might** : inchangé.
 - **Johan** : *Lecture des failles humaines* (peur sur tous les ennemis, 2 tours : chaque sort lancé fait perdre le tour une fois sur deux) ; *Manipulation* (2 tours : les buffs du manipulé vont à l'équipe adverse, ses malus à ses alliés) ; *Élimination ciblée* (la cible subit +25 % de dégâts, 3 tours).
-- **Griffith** : passif *Troupe du faucon* (+15 % d'ATK à l'équipe s'il est en première position) ; *Charge du mercenaire* (×1,5 ATK, ignore 40 % de la DEF, une charge de saignement) ; *L'Éclipse* (une fois par combat : ses alliés meurent, leurs effets de mort se déclenchent, il récupère leurs PV restants, ATK +50 % et toutes ses attaques touchent tous les ennemis jusqu'à la fin ; DEF −30 % aux ennemis pendant 3 tours).
+- **Griffith** : passif *Troupe du faucon* (+15 % d'ATK à l'équipe s'il est en première position) ; *Charge du mercenaire* (×1,5 ATK, ignore 40 % de la DEF, une charge de saignement) ; *L'Éclipse* (ses alliés meurent, leurs effets de mort se déclenchent, il récupère leurs PV restants en PV max, ATK +50 % et jusqu'à la fin toutes ses attaques touchent tous les ennemis, ignorent 100 % de la DEF (au-delà du plafond de 95 %), et ses sorts lui rendent 50 % des dégâts — renforcé le 2026-11-16 ; DEF −30 % aux ennemis pendant 3 tours).
 
 
 ### Bonus de compétence magique — précision du 2026-11-16
@@ -678,3 +678,5 @@ Interprétation proposée ; les points marqués **?** attendent une réponse. Le
 - Secondaire et tertiaire : recharge de 3 tours pour tous les SSR/UR et les boss (avant : 5 et 7) ; l'éveil retire toujours un tour (3★ secondaire, 5★ tertiaire).
 - Ultimes : plus aucun « une fois par combat » (Griffith, Madara, Anti-Spirale) ; tout ultime se relance dès que sa jauge est pleine. The Almighty (Yhwach, passif) reste une fois par combat.
 - Netero : paume à chaque action, Kannon 4 tours.
+- Anti-Spirale : Big Bang ×2 ATK en zone (avant ×3), puisqu'il devient relançable (77 % de victoires mesurées à ×3).
+- Griffith : après l'Éclipse, ignore-DEF 100 % et vol de vie de 50 % sur ses sorts (19 % de victoires mesurées avant).

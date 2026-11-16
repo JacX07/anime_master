@@ -111,7 +111,7 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   auraPierce: { label: "Projection d'aura", glyph: "✧", help: "Ignore une part de la DEF des ennemis.", bad: false },
   dread: { label: "Peur", glyph: "☠", help: "Chaque sort lancé a une chance sur deux de faire perdre le tour.", bad: true },
   puppet: { label: "Manipulé", glyph: "⛓", help: "Ses buffs profitent à ses ennemis, ses malus frappent ses alliés.", bad: true },
-  godHand: { label: "Main de Dieu", glyph: "✹", help: "Toutes ses attaques touchent tous les ennemis.", bad: false },
+  godHand: { label: "Main de Dieu", glyph: "✹", help: "Toutes ses attaques touchent tous les ennemis et ignorent toute la DEF ; ses sorts lui rendent 50 % des dégâts.", bad: false },
 };
 
 /** Nom du sort joué : attaque, affinité, secondaire, tertiaire ou ultime. */

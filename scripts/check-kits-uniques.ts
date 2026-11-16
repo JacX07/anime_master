@@ -222,6 +222,18 @@ const SAITAMA = 73935, DIO = 4004, YUUTA = 129571, JOHAN = 719, GRIFFITH = 424;
   const before = evs(s).length;
   applyAction(s, { spell: "base", target: "B1" });
   assert.equal(new Set(evs(s).slice(before).filter((e) => e.kind === "damage" && e.source === "A1").map((e) => e.kind === "damage" && e.target)).size, 2, "Main de Dieu : la base touche tout le monde");
+  assert(s.teams.A[0].maxHp >= hp + allies - 1, "PV max augmentés des PV récupérés");
+  // Renfort du 2026-11-16 : ignore toute la DEF (DEF 1e9 ignorée) et 50 % de vol de vie sur ses sorts
+  const dealt = evs(s).slice(before).find((e) => e.kind === "damage" && e.source === "A1" && e.target === "B1");
+  assert(dealt?.kind === "damage" && dealt.amount + dealt.absorbed > 1000, "Main de Dieu : DEF entièrement ignorée");
+  until(s, "A1");
+  const g = s.teams.A[0];
+  g.hp = g.maxHp * 0.2;
+  g.pIn = 0;
+  const low = g.hp, from = evs(s).length;
+  applyAction(s, { spell: "special", target: "B1" });
+  const spellDmg = evs(s).slice(from).reduce((n, e) => n + (e.kind === "damage" && e.source === "A1" ? e.amount + e.absorbed : 0), 0);
+  assert(spellDmg > 0 && Math.abs(g.hp - low - spellDmg * 0.5) < 1, "Main de Dieu : sorts rendent 50 % des dégâts");
 }
 // Combats complets sans erreur
 for (let seed = 1; seed <= 200; seed++) {

@@ -13187,7 +13187,7 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 3,
+          "mult": 2,
           "zone": true
         }
       ]

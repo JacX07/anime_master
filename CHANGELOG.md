@@ -28,7 +28,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 ### Recharges et ultimes
 
 - **Secondaire et tertiaire** : se rechargent en 3 tours (avant 5 et 7) ; l'éveil retire toujours un tour.
-- **Ultimes** : plus de limite d'une fois par combat (Griffith, Madara, Anti-Spirale) ; chaque ultime se relance dès que sa jauge est pleine.
+- **Ultimes** : plus de limite d'une fois par combat (Griffith, Madara, Anti-Spirale) ; chaque ultime se relance dès que sa jauge est pleine. En contrepartie, le Big Bang de l'Anti-Spirale passe de ×3 à ×2 ATK.
 
 ### Kits revus
 
@@ -107,7 +107,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Johan — Élimination ciblée** : la cible subit 25 % de dégâts supplémentaires pendant trois tours.
 - **Griffith — Troupe du faucon** : placé en première position de la squad, donne +15 % d’ATK à toute l’équipe.
 - **Griffith — Charge du mercenaire** : frappe avec perforation de DEF et applique du saignement.
-- **Griffith — L’Éclipse** : une seule fois par combat, sacrifie ses alliés et déclenche leurs effets de mort. Griffith récupère leurs PV restants, gagne +50 % d’ATK et ses attaques touchent tous les ennemis jusqu’à la fin du combat. Réduit aussi la DEF adverse de 30 % pendant trois tours.
+- **Griffith — L’Éclipse** : sacrifie ses alliés et déclenche leurs effets de mort. Griffith récupère leurs PV restants (ses PV max augmentent d’autant), gagne +50 % d’ATK, et jusqu’à la fin du combat ses attaques touchent tous les ennemis en ignorant toute leur DEF ; ses sorts lui rendent 50 % des dégâts infligés. Réduit aussi la DEF adverse de 30 % pendant trois tours.
 
 ### Les quatre empereurs : compétences des cartes jouables
 
