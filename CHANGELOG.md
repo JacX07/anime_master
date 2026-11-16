@@ -25,6 +25,12 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Illustrations d’équipement** : visuels dédiés aux quatre pièces des sets Fairy Tail, Bleach, Attaque des Titans et Demon Slayer.
 - **Carte de l’histoire** : jalons et étoiles allégés ; suppression des rectangles et des libellés « Combat N » qui se chevauchaient.
 
+### Changements de rareté
+
+- **Yhwach passe en UR** : statistiques recalculées pour sa nouvelle rareté. Les exemplaires déjà possédés suivent ce changement ; l’historique garde la rareté du tirage d’origine.
+- **Récapitulatif des reclassements SSR** amorcés en v0.3.0 : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Yor, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Ichigo, Sakura Matou et Megumin.
+- **Récapitulatif des promotions UR** amorcées en v0.3.0 : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Toji, Cid Kagenou, Taiga, Chrollo, Griffith, Anti-Spirale, Onizuka, All Might, Gilgamesh, Aizen, Madara et Netero.
+
 ### Combat : commandes et lecture des sorts
 
 - **Un seul bouton Combattre** remplace les choix de lancement Auto et Manuel. Le dernier réglage est mémorisé ; tu peux changer de mode pendant le combat. Les boutons de rejeu des donjons sont réunis en un seul bouton Rejouer.
@@ -154,7 +160,7 @@ Mise à jour du 13 novembre 2026. Les comptes et les récompenses déjà réclam
 - **Équilibrage** : la plupart des silences de zone ne touchent plus qu'un ennemi ; soin sur soi plafonné à 35 % des PV max ; une seule provocation par personnage, plus courte quand elle accompagne d'autres effets ; réductions de dégâts des sorts divisées par deux et limitées à deux tours ; soins et boucliers d'équipe des ultimes plafonnés à 20 % des PV max.
 - **Kits revus** : Levi ajoute des dégâts selon les PV max de la cible ; Killua enchaîne des frappes de plus en plus fortes ; Gojo commence intouchable ; Kakashi copie le dernier ultime ; Lelouch contrôle un ennemi ; Time Leap d'Okabe donne de la jauge et retire les malus ; Mob gagne des dégâts selon les coups reçus ; Frieren devient intouchable et traverse les boucliers ; Gon prépare une frappe qui ignore la DEF.
 - **Catalogue** : raretés révisées pour une partie des personnages, statistiques adaptées à leur nouvelle rareté et ajout d'Antispiral.
-- **Personnages reclassés en SSR** : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Sakura Matou et Megumin.
+- **Personnages reclassés en SSR** : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Yor, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Ichigo, Sakura Matou et Megumin.
 - **Personnages promus en UR** : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Toji, Cid Kagenou, Taiga, Chrollo, Griffith, Anti-Spirale, Onizuka, All Might, Gilgamesh, Aizen, Madara et Netero.
 - **Statistiques après reclassement** : recalées au milieu de la nouvelle rareté pour éviter que la popularité seule place les anciens UR au sommet des SSR et les nouveaux UR au bas de leur catégorie. Les cartes déjà possédées suivent ces nouvelles raretés ; leur rareté au moment du tirage reste conservée dans l’historique.
 

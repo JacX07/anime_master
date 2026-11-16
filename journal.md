@@ -1,5 +1,9 @@
 # Journal des agents
 
+## 2026-11-16 — Promotion de Yhwach et listes de raretés
+- Demande : promouvoir Yhwach en UR et expliciter les reclassements dans le changelog joueur. Yhwach (#68537) est encore N en développement ; Yor et Ichigo manquent dans la liste SSR publiée alors que leurs overrides sont présents.
+- Correctif : override UR et statistiques au milieu de la plage UR pour Yhwach ; liste SSR corrigée et récapitulatif dans les notes v0.4.0. La production reste réservée au transfert de catalogue puis à la publication humaine.
+
 ## 2026-11-16 — Identité de l’onglet Anima Clash
 - Constat : l’onglet affiche encore Anime Masters et le favicon Next par défaut ; les titres de nombreuses pages utilisent aussi l’ancien nom. L’utilisateur confirme le nom Anima Clash et demande de réutiliser son icône existante.
 - Source retrouvée : public/images/brand/anima-clash-logo.png. Réutiliser son blason AC pour le favicon multirésolution, harmoniser les titres statiques/dynamiques et le libellé de secours de l’invocation ; conserver les URL, identifiants et données.
