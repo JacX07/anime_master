@@ -1,5 +1,11 @@
 # Journal des agents
 
+## 2026-11-16 — Kits, lot 1 (Gojo, Cid, Levi, Shigeo, Maomao, Madara)
+- Piège majeur : `src/lib/skill-overrides.json` (écrit par « Appliquer au jeu » du builder) passe AVANT `skill-data.json`. Levi et Shigeo y avaient leur ultime réel ; modifier seulement `skill-data.json` ne change rien en jeu. Vérifier les deux fichiers avant d'annoncer l'état d'un kit.
+- Fait : Gojo étourdit les 4 ennemis ; Cid « I am Atomic » ×2,2 en zone perforant ; Levi (override) +20 % des PV max de la cible et +50 points de critique (nouveau champ `critBonus`) ; Shigeo (override) Explosion en zone ; Maomao passif `DOT_IMMUNE` ; Madara Katon ×2,1 et Kyūbi ×3,3 posent une brûlure (`poison.burn`), Copie à 100 %.
+- Tests adaptés : check-spells (Gojo 4 cibles), check-kits (Mob en zone), check-kits-uniques (nouveau bloc). Les combats de démo mélangent l'ordre des ids : ne pas déduire le lanceur de la position.
+- Reste : lot 2 (Sukuna entaille, Netero, Gilgamesh désarmé, Saitama un seul sort), lot 3 (copie avec choix Yuuta/Madara, Chrollo, Yhwach).
+
 ## 2026-11-16 — Butins et taux affichés (empereurs, coffres)
 - Demande : afficher les taux et les images des objets pour les empereurs (clé, ressource légendaire, cœurs) et pour les coffres d'expédition. Maquette `public/mockups/drops-lisibles.html` validée ; l'affichage des donjons existait déjà, abandonné.
 - Code : `chestContents`/`breachChestOdds` (`chests.ts`), `LEGENDARY_ODDS` (`emperors.ts`), `ChestContents.tsx`, bloc `Drops` d'`EmperorBoard.tsx`. `scripts/check-drop-odds.ts` (`npm run check:drop-odds`) compare les chances affichées au tirage réel : un changement de table doit passer par là.

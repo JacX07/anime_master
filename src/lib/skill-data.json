@@ -10259,7 +10259,7 @@
         {
           "k": "stun",
           "turns": 1,
-          "count": 2
+          "count": 4
         }
       ]
     }
@@ -11292,11 +11292,12 @@
     },
     "ultimate": {
       "name": "I am Atomic",
-      "target": "foe",
+      "target": null,
       "effects": [
         {
           "k": "damage",
-          "mult": 4.6,
+          "mult": 2.2,
+          "zone": true,
           "pierce": true
         }
       ]
@@ -13058,14 +13059,15 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 0.7,
+          "mult": 2.1,
           "zone": true
         },
         {
           "k": "poison",
           "pct": 0.05,
           "turns": 2,
-          "to": "foes"
+          "to": "foes",
+          "burn": true
         }
       ]
     },

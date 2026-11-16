@@ -284,12 +284,13 @@
   "89616": {
     "ultimate": {
       "name": "???% — Explosion",
-      "target": "foe",
+      "target": null,
       "effects": [
         {
           "k": "damage",
           "mult": 1.2,
-          "perHitTaken": 0.1
+          "perHitTaken": 0.1,
+          "zone": true
         }
       ],
       "final": true
@@ -349,7 +350,8 @@
           "k": "damage",
           "mult": 1.5,
           "ignoreDef": 0.3,
-          "hpPct": 0.08
+          "hpPct": 0.2,
+          "critBonus": 0.5
         }
       ],
       "final": true

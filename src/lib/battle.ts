@@ -495,7 +495,7 @@ const enemy = (s: Side): Side => (s === "A" ? "B" : "A");
 const alive = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B].filter((u) => u.side === s && u.hp > 0 && !u.out) : st.teams[s].filter((u) => u.hp > 0 && !u.out));
 const fallen = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B] : st.teams[s]).filter((u) => u.side === s && u.hp <= 0);
 /** Passifs : insensible aux dégâts sur la durée (Momo Ayase) ; lance son ultime en mourant (Emilia) */
-const DOT_IMMUNE = new Set([222594]);
+const DOT_IMMUNE = new Set([222594, 126824]);
 const DEATH_CAST = new Set([88572]);
 /** Aizen : Kyoka Suigetsu, un coup ennemi sur deux frappe un allié de l'attaquant. */
 const ILLUSION = new Set([1086]);
@@ -508,8 +508,8 @@ const PALMS = [{ mult: 1, name: "Première paume" }, { mult: 1.25, name: "Troisi
 const SUSANOO_IMMUNE = new Set<FxKey>(["stun", "sleep", "fear", "seal"]);
 /** Sorts de Madara pendant le Susanoo parfait */
 const SUSANOO_KIT = {
-  spell: { name: "Copie", target: "foe", final: true, effects: [{ k: "copySpell", mult: 0.8 }, { k: "damage", mult: 1 }] } as CharacterSpell,
-  tertiary: { name: "Kyūbi", target: null, damageKind: "magic", final: true, effects: [{ k: "damage", mult: 1.1, zone: true }, { k: "poison", pct: 0.06, turns: 2, to: "foes" }] } as CharacterSpell,
+  spell: { name: "Copie", target: "foe", final: true, effects: [{ k: "copySpell", mult: 1 }, { k: "damage", mult: 1 }] } as CharacterSpell,
+  tertiary: { name: "Kyūbi", target: null, damageKind: "magic", final: true, effects: [{ k: "damage", mult: 3.3, zone: true }, { k: "poison", pct: 0.06, turns: 2, to: "foes", burn: true }] } as CharacterSpell,
 };
 const isAnti = (u: Unit) => u.card.characterId === ANTI_SPIRAL;
 
@@ -517,6 +517,7 @@ const isAnti = (u: Unit) => u.card.characterId === ANTI_SPIRAL;
 export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> = {
   88572: { name: "Colère de Puck", text: "Quand Emilia tombe, Puck lance aussitôt son ultime." },
   222594: { name: "Pouvoir de Momo", text: "Immunisée contre les dégâts sur la durée : poison, brûlure et saignement." },
+  126824: { name: "Corps d'apothicaire", text: "Immunisée contre les dégâts sur la durée : poison, brûlure et saignement." },
   127691: { name: "Infini", text: "Intouchable jusqu'à la fin de son premier tour : aucun ennemi ne peut le viser ni le toucher." },
   1086: { name: "Kyoka Suigetsu", text: "Une attaque ennemie sur deux visant Aizen frappe à la place un allié de l'attaquant, au hasard." },
   162722: { name: "Lance inversée du ciel", text: "Annule les dégâts des sorts magiques et leurs dégâts sur la durée. Les attaques de base et les sorts physiques le touchent normalement." },
@@ -1131,7 +1132,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   let zoneStrike = false;
   /** Dégâts du dernier effet de dégâts (bouclier du Mugann) */
   let lastDealt = 0;
-  const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false, hpPct = 0): number => {
+  const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false, hpPct = 0, critBonus = 0): number => {
     // Intouchable (Gojo, Frieren) : aucun coup ne l'atteint
     if (t.side !== u.side && hasFx(t, "intangible")) {
       log.push({ kind: "dodge", source: u.id, target: t.id });
@@ -1154,7 +1155,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         const decoy = decoys[Math.floor(rng() * decoys.length)];
         log.push({ kind: "dodge", source: u.id, target: t.id });
         redirected = true;
-        const dealt = hit(decoy, mult, ignoreDef, exposedBonus, pierce, critSure, hpPct);
+        const dealt = hit(decoy, mult, ignoreDef, exposedBonus, pierce, critSure, hpPct, critBonus);
         redirected = false;
         return dealt;
       }
@@ -1192,7 +1193,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     let dmg = atk * aff * mult * defFactor;
     // Tueur de boss (Levi) : une part des PV max de la cible, plafonnée
     if (hpPct > 0) dmg += Math.min(t.maxHp * hpPct, atk * BATTLE.hpPctCap) * aff * defFactor;
-    const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit"), 0, BATTLE.critCap);
+    const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit") + critBonus, 0, BATTLE.critCap);
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card) + fxSum(u, "critDamage");
     dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0)
       + ((damageKind(u.card) === "magic" ? weaponOf(u.card)?.stats?.magicDamage : weaponOf(u.card)?.stats?.physDamage) ?? 0);
@@ -1462,7 +1463,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           for (const [i, t] of targets.entries()) {
             const strikes = ((e.hits ?? 1) + (e.extraHit && fxSum(t, "def") < 0 ? 1 : 0)) * echo;
             const rage = 1 + (e.perHitTaken ?? 0) * Math.min(30, u.hitsTaken);
-            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * (palm?.mult ?? 1) * rage * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure, e.hpPct ?? 0);
+            for (let n = 0; n < strikes && t.hp > 0; n++) total += hit(t, e.mult * (palm?.mult ?? 1) * rage * (1 + (e.ramp ?? 0) * i), ignore, false, e.pierce, e.critSure, e.hpPct ?? 0, e.critBonus ?? 0);
           }
           zoneStrike = false;
           lastDealt = total;
@@ -1585,7 +1586,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           }
           break;
         case "poison":
-          for (const t of who(e.to)) addFx(t, "poison", e.pct, e.turns);
+          for (const t of who(e.to)) addFx(t, e.burn ? "burn" : "poison", e.pct, e.turns);
           break;
         case "silence":
           for (const t of e.to === "foes" && e.count ? strongestFoes(st, u, e.count) : who(e.to)) addFx(t, "silence", 0, e.turns);

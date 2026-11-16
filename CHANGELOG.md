@@ -25,6 +25,15 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Illustrations d’équipement** : visuels dédiés aux quatre pièces des sets Fairy Tail, Bleach, Attaque des Titans et Demon Slayer.
 - **Carte de l’histoire** : jalons et étoiles allégés ; suppression des rectangles et des libellés « Combat N » qui se chevauchaient.
 
+### Kits revus
+
+- **Gojo** : Extension du territoire étourdit les quatre ennemis.
+- **Cid Kagenou** : I am Atomic frappe tous les ennemis (×2,2 ATK, traverse les boucliers).
+- **Levi** : l'ultime ajoute 20 % des PV max de la cible et +50 points de taux de critique.
+- **Shigeo** : ???% — Explosion frappe tous les ennemis.
+- **Maomao** : nouveau passif, immunisée contre le poison, la brûlure et le saignement.
+- **Madara** : Katon (×2,1) et Kyūbi (×3,3) brûlent au lieu d'empoisonner ; la Copie du Susanoo frappe à 100 %.
+
 ### Butins et taux affichés
 
 - **Défi des empereurs** : chaque carte indique la clé, les quantités de ressource légendaire par difficulté (avec leur chance) et les cœurs de brèche gagnés à chaque combat, avec leurs images.

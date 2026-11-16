@@ -187,4 +187,40 @@ for (let seed = 1; seed <= 200; seed++) {
   const pick = (n: number) => ids[(seed * 7 + n * 3) % ids.length];
   battle([card(pick(0)), card(pick(1)), card(pick(2)), card(pick(3))], [card(pick(4)), card(pick(5)), card(pick(6)), card(pick(7))], seededRandom(seed), { gauge: seed % 2 === 0 });
 }
+
+// Lot du 2026-11-16 : Levi, Gojo, Cid, Maomao, Madara
+{
+  const LEVI = 45627, GOJO = 127691, CID = 136837, MAOMAO = 126824;
+  const foes = () => [1, 2, 3, 4].map(() => dummy({ defense: 1000000, attack: 1 }));
+  const ultimate = (id: number, rng: number, target: string | null = "B1") => {
+    const s = createBattle([card(id, { startGauge: 100 })], foes(), () => rng, { startingSide: "A" });
+    until(s, "A1");
+    applyAction(s, { spell: "ultimate", target });
+    return s.log;
+  };
+  // Levi (skill-overrides.json) : +50 points de critique (15 % de base → 65 %), +20 % des PV max de la cible
+  const leviHit = (rng: number) => ultimate(LEVI, rng).find((e) => e.kind === "damage" && e.source === "A1");
+  assert(leviHit(0.6)?.kind === "damage" && leviHit(0.6)!.crit, "Levi : critique à 60 % de tirage");
+  assert(leviHit(0.7)?.kind === "damage" && !leviHit(0.7)!.crit, "Levi : plus de critique assuré");
+  // Gojo : les quatre ennemis étourdis
+  assert.equal(ultimate(GOJO, 0.5, null).filter((e) => e.kind === "status" && e.status === "stun" && e.on).length, 4, "Gojo étourdit tout le monde");
+  // Cid : I am Atomic frappe les quatre ennemis
+  assert.equal(new Set(ultimate(CID, 0.5, null).filter((e) => e.kind === "damage" && e.source === "A1").map((e) => e.kind === "damage" && e.target)).size, 4, "Cid frappe tout le monde");
+  // Maomao : immunisée contre poison et brûlure
+  for (const burn of [false, true]) {
+    const s = createBattle([card(999003, { startGauge: 100, ultimate: { name: "Nuage", target: null, effects: [{ k: "poison", pct: 0.1, turns: 2, to: "foes", burn }] } })], [card(MAOMAO, { defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A" });
+    until(s, "A1");
+    applyAction(s, { spell: "ultimate", target: null });
+    assert(s.log.some((e) => e.kind === "resist" && e.target === "B1"), `Maomao résiste (${burn ? "brûlure" : "poison"})`);
+    assert(!s.teams.B[0].fx.some((f) => f.key === "poison" || f.key === "burn"), "aucun effet sur la durée");
+  }
+  // Madara : Katon pose une brûlure, ×2,1 ATK
+  {
+    const s = createBattle([card(MADARA)], foes(), () => 0.5, { startingSide: "A" });
+    until(s, "A1");
+    applyAction(s, { spell: "tertiary", target: null });
+    assert(s.log.some((e) => e.kind === "status" && e.status === "burn" && e.on), "Katon brûle");
+    assert(!s.log.some((e) => e.kind === "status" && e.status === "poison" && e.on), "Katon n'empoisonne plus");
+  }
+}
 console.log("check-kits ok");
