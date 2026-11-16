@@ -635,3 +635,11 @@ Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone
 - Passif *Absorption d'aura* : au premier ennemi qui tombe (tué par lui ou non), Meruem l'absorbe et garde pour tout le combat un de ses sorts, au même emplacement. Une fois par combat, choix définitif. Première version : choix automatique, l'ultime d'abord, sinon le tertiaire, sinon le secondaire.
 - L'affichage suit les sorts remplacés en combat grâce à l'événement `kit` (Susanoo, absorption).
 
+### Kits du 2026-11-16 (suite) — validés et codés
+- **Saitama** : un seul sort, *Coup de poing sérieux* : la cible est K.O. (un boss perd 30 % de ses PV max), puis Saitama sort du combat sans être K.O. (pas d'effet de mort, plus ciblable, ne joue plus, ses PV ne comptent plus au décompte). Pas d'attaque de base, sauf s'il ne peut pas lancer son coup (silence). Ni tertiaire ni ultime (`SINGLE_SPELL`).
+- **Dio** : ultime *Za Warudo* : étourdit tous les ennemis pendant 1 tour ; les boss résistent.
+- **Yuuta** : secondaire *Copie : Rika* : rejoue à 80 % le dernier secondaire ou tertiaire lancé par n'importe qui (sauf le coup de Saitama) ; sans modèle, ×1,2 ATK.
+- **All Might** : inchangé.
+- **Johan** : *Lecture des failles humaines* (peur sur tous les ennemis, 2 tours : chaque sort lancé fait perdre le tour une fois sur deux) ; *Manipulation* (2 tours : les buffs du manipulé vont à l'équipe adverse, ses malus à ses alliés) ; *Élimination ciblée* (la cible subit +25 % de dégâts, 3 tours).
+- **Griffith** : passif *Troupe du faucon* (+15 % d'ATK à l'équipe s'il est en première position) ; *Charge du mercenaire* (×1,5 ATK, ignore 40 % de la DEF, une charge de saignement) ; *L'Éclipse* (une fois par combat : ses alliés meurent, leurs effets de mort se déclenchent, il récupère leurs PV restants, ATK +50 % et toutes ses attaques touchent tous les ennemis jusqu'à la fin ; DEF −30 % aux ennemis pendant 3 tours).
+

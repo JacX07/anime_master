@@ -832,3 +832,8 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Pièges : un `scripts/check-kits.ts` existait déjà (écrasé puis restauré) ; le nouveau test s'appelle `check-kits-uniques.ts`. Les effets permanents (`turns: 999`) s'affichent « ∞ ». `check-builder` et `check-spells` adaptés (243 kits, Meruem base seule).
 - Vérifié : check-kits-uniques, check-kits, check-passives, check-battle, check-spells, check-builder, statuts, éléments, empereurs, arène, ESLint, TypeScript ; fiches des quatre personnages et combat `/combat/test?seed=777&ids=53901,14489,23277,5115,…` joué jusqu'au bout sans erreur. Non testés : combat manuel avec ces cartes, absorption de Meruem visible dans la main (couverte par le test moteur seulement).
 
+## 2026-11-16 — Kits Saitama, Dio, Yuuta, Johan, Griffith
+- Moteur : effets `oneShot`, `dread`, `puppet`, `vulnerable`, `bleed`, `eclipse`, `copySpell.from`. Saitama « sorti » : champ `out`, exclu d'`alive`, des acteurs et du décompte de PV de fin (`finish`). Aura de Griffith dans `auraBonus`.
+- Pièges : le builder borne les durées à 6 tours et l'étourdissement à 2 ennemis (relevé à 4) ; un effet permanent passe donc par le moteur (ATK +50 % de l'Éclipse). Les champs du schéma doivent porter le nom exact de l'effet (`bossPct`, `from`). Tester un étourdissement par les événements : le tour sauté retire l'effet aussitôt.
+- Vérifié : check-kits-uniques (neuf kits), suites de combat, builder, ESLint, TypeScript ; fiches des cinq personnages et combat `/combat/test?seed=31&ids=424,719,129571,4004,73935,…` sans erreur (Saitama endormi ∞ après son coup, copies de Yuuta, Manipulation). Combat manuel non rejoué.
+

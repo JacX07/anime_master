@@ -65,8 +65,20 @@ export type Effect =
   | { k: "susanoo"; turns: number }
   /** Netero : statue de Kannon, chaque paume frappe deux fois pendant `turns` tours du lanceur */
   | { k: "kannon"; turns: number }
-  /** Madara : rejoue à `mult` le dernier sort secondaire ou tertiaire lancé par un ennemi */
-  | { k: "copySpell"; mult: number }
+  /** Rejoue à `mult` le dernier sort secondaire ou tertiaire lancé par un ennemi (Madara) ou par n'importe qui (`from: "all"`, Yuuta) */
+  | { k: "copySpell"; mult: number; from?: "foes" | "all" }
+  /** Saitama : met la cible K.O. d'un coup (les boss perdent `bossPct` de leurs PV max), puis le lanceur sort du combat */
+  | { k: "oneShot"; bossPct: number }
+  /** Johan : peur, chaque sort lancé fait perdre le tour une fois sur deux, `turns` tours, à tous les ennemis */
+  | { k: "dread"; turns: number }
+  /** Johan : la cible est manipulée, ses buffs vont aux ennemis et ses malus à ses alliés, `turns` tours */
+  | { k: "puppet"; turns: number }
+  /** La cible subit `pct` de dégâts en plus, `turns` tours */
+  | { k: "vulnerable"; pct: number; turns: number }
+  /** Saignement (une charge) sur la cible touchée */
+  | { k: "bleed" }
+  /** Griffith : sacrifie ses alliés, récupère leurs PV restants, ses attaques touchent tous les ennemis */
+  | { k: "eclipse" }
   /** Anti-Spirale : l'allié le plus bas en PV reçoit un bouclier de `pct` des dégâts de l'effet précédent */
   | { k: "donateShield"; pct: number }
   /** Netero : l'équipe ignore `pct` de la DEF pendant `turns` tours (ne se cumule pas) */
@@ -485,7 +497,13 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "gauge": return `+${e.amount} à la jauge d'ultime de ${e.to === "team" ? "ses alliés" : WHO[e.to]}`;
     case "susanoo": return `Susanoo parfait pendant ${nx(e.turns)} du lanceur : immunité à l'étourdissement, au sommeil, à la peur et au sceau ; le secondaire devient Copie et le tertiaire Kyūbi`;
     case "kannon": return `statue de Kannon pendant ${nx(e.turns)} du lanceur : chaque paume frappe deux fois`;
-    case "copySpell": return `rejoue à ${pct(e.mult)} le dernier sort secondaire ou tertiaire lancé par un ennemi ; s'il n'y en a pas encore :`;
+    case "copySpell": return `rejoue à ${pct(e.mult)} le dernier sort secondaire ou tertiaire lancé ${e.from === "all" ? "dans le combat (allié ou ennemi)" : "par un ennemi"} ; s'il n'y en a pas encore :`;
+    case "oneShot": return `met la cible K.O. d'un seul coup (un boss perd ${pct(e.bossPct)} de ses PV max), puis le lanceur sort du combat sans être K.O.`;
+    case "dread": return `peur sur tous les ennemis, ${nx(e.turns)} : chaque fois qu'ils lancent un sort, une chance sur deux de perdre leur tour`;
+    case "puppet": return `manipule la cible, ${nx(e.turns)} : ses buffs profitent à vos cartes et ses malus frappent ses alliés`;
+    case "vulnerable": return `la cible subit ${pct(e.pct)} de dégâts en plus, ${nx(e.turns)}`;
+    case "bleed": return "saignement sur la cible (se cumule jusqu'à 5 fois, dure jusqu'à un soin)";
+    case "eclipse": return "sacrifie tous ses alliés et récupère leurs PV restants ; jusqu'à la fin du combat, ATK +50 % et ses attaques touchent tous les ennemis";
     case "donateShield": return `l'allié le plus bas en PV reçoit un bouclier de ${pct(e.pct)} des dégâts infligés`;
     case "auraPierce": return `l'équipe ignore ${pct(e.pct)} de la DEF, ${nx(e.turns)} (ne se cumule pas)`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;

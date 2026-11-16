@@ -54,7 +54,9 @@ export function applySpellRules<T extends CharacterSpell | null | undefined>(cha
 
 /** Meruem : attaque de base seulement ; ses sorts viennent de l'absorption (passif). */
 export const KITLESS = new Set([23277]);
+/** Saitama : un seul sort (le secondaire), ni tertiaire ni ultime. */
+export const SINGLE_SPELL = new Set([73935]);
 
 export function withSpellRules(catalog: Record<number, CharacterSpell>, slot: SpellSlot): Record<number, CharacterSpell> {
-  return Object.fromEntries(Object.entries(catalog).filter(([id]) => !KITLESS.has(Number(id))).map(([id, spell]) => [id, applySpellRules(Number(id), slot, spell)]));
+  return Object.fromEntries(Object.entries(catalog).filter(([id]) => !KITLESS.has(Number(id)) && !(slot !== "special" && SINGLE_SPELL.has(Number(id)))).map(([id, spell]) => [id, applySpellRules(Number(id), slot, spell)]));
 }

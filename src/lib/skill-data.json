@@ -1825,20 +1825,16 @@
   "424": {
     "orientation": "soutien",
     "secondary": {
-      "name": "Charisme du Faucon",
-      "target": null,
+      "name": "Charge du mercenaire",
+      "target": "foe",
       "effects": [
         {
-          "k": "mod",
-          "stat": "atk",
-          "amount": 0.18,
-          "turns": 2,
-          "to": "team"
+          "k": "damage",
+          "mult": 1.5,
+          "ignoreDef": 0.4
         },
         {
-          "k": "shield",
-          "pct": 0.08,
-          "to": "team"
+          "k": "bleed"
         }
       ]
     },
@@ -1860,27 +1856,17 @@
       ]
     },
     "ultimate": {
-      "name": "Éclipse",
+      "name": "L'Éclipse",
       "target": null,
+      "oncePerCombat": true,
       "effects": [
         {
-          "k": "mod",
-          "stat": "atk",
-          "amount": 0.4,
-          "turns": 3,
-          "to": "team"
-        },
-        {
-          "k": "mod",
-          "stat": "crit",
-          "amount": 0.3,
-          "turns": 3,
-          "to": "team"
+          "k": "eclipse"
         },
         {
           "k": "mod",
           "stat": "def",
-          "amount": -0.4,
+          "amount": -0.3,
           "turns": 3,
           "to": "foes"
         }
@@ -2373,71 +2359,33 @@
   "719": {
     "orientation": "controle",
     "secondary": {
-      "name": "Regard du monstre",
-      "target": "foe",
+      "name": "Lecture des failles humaines",
+      "target": null,
       "effects": [
         {
-          "k": "silence",
-          "turns": 2,
-          "to": "target"
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.2,
-          "turns": 2,
-          "to": "target"
+          "k": "dread",
+          "turns": 2
         }
       ]
     },
     "tertiary": {
-      "name": "Le Livre aux images rouges",
-      "target": null,
+      "name": "Manipulation",
+      "target": "foe",
       "effects": [
         {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.3,
-          "turns": 2,
-          "to": "foes"
-        },
-        {
-          "k": "mod",
-          "stat": "crit",
-          "amount": -0.2,
-          "turns": 2,
-          "to": "foes"
-        },
-        {
-          "k": "poison",
-          "pct": 0.06,
-          "turns": 3,
-          "to": "foes"
+          "k": "puppet",
+          "turns": 2
         }
       ]
     },
     "ultimate": {
-      "name": "Le Monstre sans nom",
-      "target": null,
+      "name": "Élimination ciblée",
+      "target": "foe",
       "effects": [
         {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.45,
-          "turns": 3,
-          "to": "foes"
-        },
-        {
-          "k": "mod",
-          "stat": "def",
-          "amount": -0.45,
-          "turns": 3,
-          "to": "foes"
-        },
-        {
-          "k": "silence",
-          "turns": 2,
-          "to": "foes"
+          "k": "vulnerable",
+          "pct": 0.25,
+          "turns": 3
         }
       ]
     }
@@ -3526,13 +3474,13 @@
       ]
     },
     "ultimate": {
-      "name": "The World, Za Warudo",
-      "target": "foe",
+      "name": "Za Warudo",
+      "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 4.7,
-          "critSure": true
+          "k": "stun",
+          "turns": 1,
+          "count": 4
         }
       ]
     }
@@ -6632,13 +6580,12 @@
   "73935": {
     "orientation": "attaque",
     "secondary": {
-      "name": "Coup de poing normal",
+      "name": "Coup de poing sérieux",
       "target": "foe",
       "effects": [
         {
-          "k": "damage",
-          "mult": 1.4,
-          "ignoreDef": 0.3
+          "k": "oneShot",
+          "bossPct": 0.3
         }
       ]
     },
@@ -10583,13 +10530,17 @@
   "129571": {
     "orientation": "soutien",
     "secondary": {
-      "name": "Appel de Rika",
+      "name": "Copie : Rika",
       "target": "foe",
       "effects": [
         {
+          "k": "copySpell",
+          "mult": 0.8,
+          "from": "all"
+        },
+        {
           "k": "damage",
-          "mult": 1.3,
-          "drain": 0.3
+          "mult": 1.2
         }
       ]
     },

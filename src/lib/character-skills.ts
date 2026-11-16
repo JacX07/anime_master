@@ -65,6 +65,12 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "copySpell":
       case "donateShield":
       case "auraPierce":
+      case "oneShot":
+      case "dread":
+      case "puppet":
+      case "vulnerable":
+      case "bleed":
+      case "eclipse":
       case "sleep":
       case "duel":
       case "devour":

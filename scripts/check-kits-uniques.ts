@@ -96,9 +96,94 @@ const evs = (s: BattleState) => s.log;
   }
   assert(intercepted > 160 && intercepted < 240, `clones ${intercepted}/300`);
 }
+const SAITAMA = 73935, DIO = 4004, YUUTA = 129571, JOHAN = 719, GRIFFITH = 424;
+// Saitama : un seul sort, K.O. en un coup, puis il sort sans être K.O. ; boss : 30 % des PV max
+{
+  assert.equal(TERTIARY_SPELLS[SAITAMA], undefined);
+  assert.equal(ULTIMATE_CATALOG[SAITAMA], undefined);
+  const s = createBattle([card(SAITAMA), dummy({ defense: 1e9 })], [dummy({ defense: 1e9 }), dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  assert.deepEqual(legalActions(s).map((a) => a.spell), ["special"], "pas d'attaque de base");
+  applyAction(s, { spell: "special", target: "B1" });
+  assert.equal(s.teams.B[0].hp, 0, "cible K.O.");
+  assert(s.teams.A[0].hp > 0 && s.teams.A[0].out, "Saitama sort sans être K.O.");
+  assert(!evs(s).some((e) => e.kind === "ko" && e.target === "A1"));
+  for (let i = 0; i < 6; i++) { const a = currentActor(s); assert(a && a.id !== "A1", "Saitama ne joue plus"); applyAction(s, autoAction(s)); }
+  const b = createBattle([card(SAITAMA)], [dummy({ boss: true, defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(b, "A1");
+  const max = b.teams.B[0].maxHp, shield = b.teams.B[0].shield;
+  applyAction(b, { spell: "special", target: "B1" });
+  assert(Math.abs(max - b.teams.B[0].hp - (max * 0.3 - shield)) < 1, "boss : 30 % des PV max");
+  assert.equal(b.result?.winner, "B", "seul et sorti, Saitama perd");
+}
+// Dio : Za Warudo étourdit tous les ennemis, sauf les boss
+{
+  const s = createBattle([card(DIO, { startGauge: 100 })], [dummy(), dummy(), dummy({ boss: true })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: null });
+  assert.equal(new Set(evs(s).filter((e) => e.kind === "status" && e.status === "stun" && e.on).map((e) => e.kind === "status" && e.target)).size, 2, "deux étourdis");
+  assert(evs(s).some((e) => e.kind === "resist" && e.target === "B3"), "le boss résiste");
+}
+// Yuuta : copie le dernier sort lancé par n'importe qui, à 80 %
+{
+  const s = createBattle([card(YUUTA), card(NETERO)], [dummy({ defense: 1e9 }), dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "base", target: "B1" });
+  until(s, "A2");
+  applyAction(s, { spell: "special", target: "B1" });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: "B1" });
+  const act = [...evs(s)].reverse().find((e) => e.kind === "action" && e.actor === "A1");
+  assert(act?.kind === "action" && act.name === "Copie : Paumes", `Yuuta copie un allié (${act?.kind === "action" ? act.name : ""})`);
+}
+// Johan : peur sur tous, manipulation, élimination ciblée
+{
+  const s = createBattle([card(JOHAN, { startGauge: 100 })], [dummy(), dummy()], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: null });
+  assert.equal(s.teams.B.filter((x) => x.fx.some((f) => f.key === "dread")).length, 2, "peur sur tous");
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: "B1" });
+  assert(s.teams.B[0].fx.some((f) => f.key === "vulnerable" && f.amount === 0.25 && f.turns === 3));
+  let skipped = 0;
+  for (let seed = 1; seed <= 200; seed++) {
+    const d = createBattle([card(NETERO)], [card(JOHAN)], seededRandom(seed), { startingSide: "A" });
+    d.teams.A[0].fx.push({ key: "dread", amount: 0.5, turns: 2, fresh: false });
+    until(d, "A1");
+    applyAction(d, { spell: "special", target: "B1" });
+    if (d.teams.A[0].palms === 0) skipped++;
+  }
+  assert(skipped > 70 && skipped < 130, `peur : ${skipped}/200 tours perdus`);
+  // Manipulé : son buff d'équipe profite aux ennemis
+  const m = createBattle([card(NETERO), dummy()], [card(JOHAN), dummy()], () => 0.5, { startingSide: "A" });
+  m.teams.A[0].fx.push({ key: "puppet", amount: 0, turns: 2, fresh: false });
+  until(m, "A1");
+  applyAction(m, { spell: "tertiary", target: null });
+  assert(m.teams.A[0].fx.every((f) => f.key !== "critDamageUp"), "le manipulé ne garde pas son buff");
+  assert(m.teams.B.some((x) => x.fx.some((f) => f.key === "critDamageUp")), "le buff part chez l'ennemi");
+}
+// Griffith : leader +15 % ATK, saignement, Éclipse
+{
+  const lead = createBattle([card(GRIFFITH), dummy()], [dummy()], () => 0.5);
+  const tail = createBattle([dummy(), card(GRIFFITH)], [dummy()], () => 0.5);
+  assert(Math.abs(lead.teams.A[1].atk / tail.teams.A[0].atk - 1.15) < 1e-6, "+15 % en première position");
+  const s = createBattle([card(GRIFFITH, { startGauge: 100 }), dummy(), dummy()], [dummy({ defense: 1e9 }), dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: "B1" });
+  assert.equal(s.teams.B[0].fx.find((f) => f.key === "bleed")?.stacks, 1, "saignement");
+  until(s, "A1");
+  const hp = s.teams.A[0].hp, allies = s.teams.A[1].hp + s.teams.A[2].hp;
+  applyAction(s, { spell: "ultimate", target: null });
+  assert.equal(s.teams.A[1].hp + s.teams.A[2].hp, 0, "alliés sacrifiés");
+  assert(Math.abs(s.teams.A[0].hp - hp - allies) < 1, "PV restants récupérés");
+  until(s, "A1");
+  const before = evs(s).length;
+  applyAction(s, { spell: "base", target: "B1" });
+  assert.equal(new Set(evs(s).slice(before).filter((e) => e.kind === "damage" && e.source === "A1").map((e) => e.kind === "damage" && e.target)).size, 2, "Main de Dieu : la base touche tout le monde");
+}
 // Combats complets sans erreur
 for (let seed = 1; seed <= 200; seed++) {
-  const ids = [MADARA, NETERO, ANTI, MERUEM, 5, 62, 127691, 1086];
+  const ids = [MADARA, NETERO, ANTI, MERUEM, SAITAMA, DIO, YUUTA, JOHAN, GRIFFITH, 5, 62, 1086];
   const pick = (n: number) => ids[(seed * 7 + n * 3) % ids.length];
   battle([card(pick(0)), card(pick(1)), card(pick(2)), card(pick(3))], [card(pick(4)), card(pick(5)), card(pick(6)), card(pick(7))], seededRandom(seed), { gauge: seed % 2 === 0 });
 }

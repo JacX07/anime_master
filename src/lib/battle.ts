@@ -205,7 +205,7 @@ export interface BattleOptions {
 
 export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate";
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "auraPierce";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "auraPierce" | "dread" | "puppet" | "godHand";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 /** Emplacement de sort remplaçable en combat (transformation, absorption) */
 export type KitSlot = "special" | "tertiary" | "ultimate";
@@ -360,6 +360,8 @@ interface Unit {
   onceUsed: boolean;
   /** Meruem : absorption déjà faite */
   absorbed: boolean;
+  /** Saitama : sorti du combat après son coup (ni K.O., ni ciblable, ne joue plus) */
+  out: boolean;
 }
 
 interface Fx {
@@ -375,7 +377,7 @@ interface Fx {
   /** Duel : le seul ennemi qui peut encore atteindre le porteur */
   foe?: UnitId;
 }
-const MALUS = new Set<string>(["sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
+const MALUS = new Set<string>(["dread", "puppet", "sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
@@ -413,8 +415,9 @@ export interface BattleState {
   stolen: number;
   /** Dernier ultime lancé dans le combat (copie de Kakashi) */
   lastUltimate: CharacterSpell | null;
-  /** Dernier secondaire ou tertiaire lancé par chaque camp (Copie de Madara) */
+  /** Dernier secondaire ou tertiaire lancé par chaque camp (Copie de Madara), et par n'importe qui (Yuuta) */
   lastSpells: Partial<Record<Side, CharacterSpell>>;
+  lastAnySpell: CharacterSpell | null;
   log: BattleEvent[];
   result: BattleResult | null;
 }
@@ -439,11 +442,13 @@ function statBonus(team: BattleCard[], opts: BattleState["opts"]) {
 
 /** Renfort d'ATK donné par les armes « typeAura » de l'équipe aux cartes de leur type. */
 function auraBonus(team: BattleCard[]) {
+  // Troupe du faucon : Griffith en première position donne +15 % d'ATK à toute l'équipe
+  const hawk = team[0]?.characterId === GRIFFITH ? 0.15 : 0;
   return team.map((c) =>
     team.reduce((n, o) => {
       const p = weaponOf(o)?.passive;
       return p?.kind === "typeAura" && p.type === c.type ? n + p.bonus : n;
-    }, 0),
+    }, hawk),
   );
 }
 
@@ -474,7 +479,7 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       ultimate: opts.spells && !card.noUltimate ? card.ultimate ?? ULTIMATE_CATALOG[card.characterId] ?? null : null,
       ultimateGauge: (starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0) + (card.startGauge ?? 0),
       revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [], hitsTaken: 0,
-      clones: 0, clonesUsed: false, kitBackup: null, palms: 0, onceUsed: false, absorbed: false,
+      clones: 0, clonesUsed: false, kitBackup: null, palms: 0, onceUsed: false, absorbed: false, out: false,
     };
   });
 }
@@ -487,7 +492,7 @@ const view = (u: Unit): UnitView => ({
 });
 const enemy = (s: Side): Side => (s === "A" ? "B" : "A");
 /** Le camp d'une carte est `u.side` : il change quand elle est volée (Makima) ; sa position et son id restent ceux de son camp d'origine. */
-const alive = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B].filter((u) => u.side === s && u.hp > 0) : st.teams[s].filter((u) => u.hp > 0));
+const alive = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B].filter((u) => u.side === s && u.hp > 0 && !u.out) : st.teams[s].filter((u) => u.hp > 0 && !u.out));
 const fallen = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.teams.B] : st.teams[s]).filter((u) => u.side === s && u.hp <= 0);
 /** Passifs : insensible aux dégâts sur la durée (Momo Ayase) ; lance son ultime en mourant (Emilia) */
 const DOT_IMMUNE = new Set([222594]);
@@ -498,7 +503,7 @@ const ILLUSION = new Set([1086]);
 const MAGIC_IMMUNE = new Set([162722]);
 
 /** Kits du 2026-11-16 (docs/specs/combat.md) */
-const MADARA = 53901, NETERO = 14489, ANTI_SPIRAL = 5115, MERUEM = 23277;
+const MADARA = 53901, NETERO = 14489, ANTI_SPIRAL = 5115, MERUEM = 23277, SAITAMA = 73935, GRIFFITH = 424;
 const PALMS = [{ mult: 1, name: "Première paume" }, { mult: 1.25, name: "Troisième paume" }, { mult: 1.5, name: "99ᵉ paume" }, { mult: 2, name: "Paume zéro" }];
 const SUSANOO_IMMUNE = new Set<FxKey>(["stun", "sleep", "fear", "seal"]);
 /** Sorts de Madara pendant le Susanoo parfait */
@@ -518,6 +523,8 @@ export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> 
   53901: { name: "Cellules d'Hashirama", text: "Soin de 8 % des PV max à chacune de ses actions. Le premier Rinnegan invoque deux clones (un coup ciblé sur Madara touche un clone 2 fois sur 3) ; les suivants lancent la Pression gravitationnelle." },
   14489: { name: "Cent mille paumes", text: "Les paumes montent en puissance à chaque lancer : 100 %, 125 %, 150 %, puis Paume zéro à 200 % et retour au début. Recharge de 2 actions." },
   5115: { name: "Dimension", text: "Intouchable pendant tout le combat, y compris par les zones et les contrôles ; ne reçoit ni buff, ni soin, ni bouclier. Son équipe perd dès que tous ses alliés sont morts." },
+  424: { name: "Troupe du faucon", text: "En première position de la squad, Griffith donne +15 % d'ATK à toute l'équipe." },
+  73935: { name: "Un seul coup", text: "N'a qu'un sort : Coup de poing sérieux met un ennemi K.O. (un boss perd 30 % de ses PV max), puis Saitama sort du combat sans être K.O." },
   23277: { name: "Absorption d'aura", text: "N'a que l'attaque de base. Au premier ennemi qui tombe, il l'absorbe et garde pour tout le combat son ultime, ou à défaut son tertiaire ou son secondaire. Une seule fois par combat." },
 };
 const unit = (st: BattleState, id: UnitId) => st.teams[id[0] as Side][Number(id.slice(1)) - 1];
@@ -531,7 +538,7 @@ export function createBattle(a: BattleCard[], b: BattleCard[], rng: Random, opti
   const maxPower = (t: BattleCard[]) => Math.max(...t.map((c) => c.power));
   const first: Side = opts.startingSide ?? (maxPower(b) > maxPower(a) ? "B" : "A");
   const st: BattleState = {
-    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, lastUltimate: null, lastSpells: {}, log: [], result: null,
+    rng, opts, teams, first, order: [first, enemy(first)], round: 0, slot: 0, roundOpen: false, gaugeTicks: 0, gaugeActor: null, waves: opts.waves.map((w) => [...w]), waveIndex: 1, waveTotal: opts.waves.length + 1, stolen: 0, lastUltimate: null, lastSpells: {}, lastAnySpell: null, log: [], result: null,
   };
   st.log.push({ kind: "start", first, units: [...teams.A, ...teams.B].map(view) });
   for (const u of teams[enemy(first)]) {
@@ -557,7 +564,8 @@ export const START_PASSIVES: Record<number, { fx: FxKey; turns: number; amount?:
 };
 
 function finish(st: BattleState, timeout: boolean) {
-  const hpLeft = (s: Side) => st.teams[s].reduce((n, u) => n + u.hp, 0) / st.teams[s].reduce((n, u) => n + u.maxHp, 0);
+  // Une carte sortie du combat (Saitama) ne compte plus ses PV
+  const hpLeft = (s: Side) => st.teams[s].reduce((n, u) => n + (u.out ? 0 : u.hp), 0) / st.teams[s].reduce((n, u) => n + u.maxHp, 0);
   const left = { A: hpLeft("A"), B: hpLeft("B") };
   const loser = timeout ? st.opts.timeoutLoser : undefined;
   const winner: Side | null = loser ? enemy(loser) : left.A === left.B ? null : left.A > left.B ? "A" : "B";
@@ -668,7 +676,7 @@ function gaugeActor(st: BattleState): Unit | null {
       return null;
     }
     if (st.gaugeActor) return unit(st, st.gaugeActor);
-    const ready = [...st.teams.A, ...st.teams.B].filter((u) => u.hp > 0 && u.gauge >= GAUGE_THRESHOLD);
+    const ready = [...st.teams.A, ...st.teams.B].filter((u) => u.hp > 0 && !u.out && u.gauge >= GAUGE_THRESHOLD);
     if (ready.length) {
       const slotOf = (u: Unit) => (Number(u.id.slice(1)) - 1) * 2 + st.order.indexOf(u.side);
       ready.sort((a, b) => b.gauge - a.gauge || slotOf(a) - slotOf(b));
@@ -923,7 +931,7 @@ export function currentActor(st: BattleState): UnitView | null {
       st.log.push({ kind: "round", round: st.round });
     }
     const u = st.teams[st.order[st.slot % 2]][Math.floor(st.slot / 2)];
-    if (u && u.hp > 0) {
+    if (u && u.hp > 0 && !u.out) {
       if (!hasFx(u, "stun") && !hasFx(u, "sleep") && !cutOffByDuel(st, u)) return view(u);
       st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
       advanceCooldowns(u);
@@ -942,7 +950,7 @@ function spellFor(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ulti
 /** Copie de Madara : le dernier secondaire ou tertiaire ennemi visant un ennemi ou personne, à puissance réduite ; sans modèle, ses autres effets. */
 function copiedSpell(st: BattleState, u: Unit, own: CharacterSpell): CharacterSpell {
   const rule = own.effects.find((e) => e.k === "copySpell");
-  const model = st.lastSpells[enemy(u.side)];
+  const model = rule?.k === "copySpell" && rule.from === "all" ? st.lastAnySpell : st.lastSpells[enemy(u.side)];
   const scale = rule && rule.k === "copySpell" ? rule.mult : 1;
   if (!model || (model.target !== "foe" && model.target !== null)) return { ...own, effects: own.effects.filter((e) => e.k !== "copySpell") };
   return { ...model, name: `Copie : ${model.name}`, effects: model.effects.map((e) => (e.k === "damage" ? { ...e, mult: e.mult * scale } : e)) };
@@ -998,6 +1006,8 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
     const targets = targetsForSpell(st, u, spell);
     if (targets.length) list.push({ spell: slot, targets });
   }
+  // Saitama n'a que son coup de poing (l'attaque de base ne sert que s'il ne peut pas le lancer)
+  if (u.card.characterId === SAITAMA && list.some((a) => a.spell === "special")) return list.filter((a) => a.spell !== "base");
   return list;
 }
 
@@ -1021,7 +1031,7 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   if (only("shield") && allies.every((x) => x.shield > x.maxHp * 0.05)) return null;
   if (spell.target === "ally") return { spell: slot, target: mostHurt(allies).id };
   if (spell.target === "foe") {
-    const control = fx.some((e) => e.k === "silence" || e.k === "seal" || e.k === "steal");
+    const control = fx.some((e) => e.k === "silence" || e.k === "seal" || e.k === "steal" || e.k === "puppet" || e.k === "oneShot");
     const pool = foes.filter((f) => targets.includes(f.id));
     const pick = control ? pool.reduce((m, x) => (x.atk > m.atk ? x : m)) : weakest(pool);
     return { spell: slot, target: pick.id };
@@ -1084,6 +1094,16 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     currentActor(st);
     return;
   }
+  if (!reaction && action.spell !== "base" && hasFx(u, "dread") && st.rng() < 0.5) {
+    // Peur (Johan) : le sort n'est pas lancé et le tour est perdu
+    log.push({ kind: "skip", actor: u.id, reason: "stun" });
+    if (!u.continuingTurn) advanceCooldowns(u);
+    finishUnitTurn(st, u);
+    if (st.opts.gauge) st.gaugeActor = null;
+    else nextSlot(st);
+    currentActor(st);
+    return;
+  }
   if (!reaction && !u.continuingTurn) advanceCooldowns(u);
   if (u.kitBackup && !hasFx(u, "susanoo")) {
     u.spell = u.kitBackup.spell;
@@ -1103,6 +1123,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   /** Cartes frappées qui ripostent (Domaine du monarque), une ombre par action */
   const shadows = new Set<Unit>();
   let redirected = false;
+  /** Manipulation en cours de redirection (évite la boucle) */
+  let flipping = false;
   /** Coup porté par une zone (les clones de Madara ne l'interceptent pas) */
   let zoneStrike = false;
   /** Dégâts du dernier effet de dégâts (bouclier du Mugann) */
@@ -1238,8 +1260,19 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     if (t.hp > before) log.push({ kind: "heal", source: u.id, target: t.id, amount: t.hp - before, hp: t.hp });
   };
   /** Pose un effet durable ; un malus est refusé par l'immunité, et le silence par les boss. L'effet de même nature se renouvelle (le plus fort reste). */
-  const addFx = (t: Unit, key: FxKey, amount: number, turns: number, stat?: ModStat) => {
+  const addFx = (t: Unit, key: FxKey, amount: number, turns: number, stat?: ModStat): void => {
     if (t.hp <= 0) return;
+    // Manipulation (Johan) : les buffs du manipulé vont à ses ennemis, ses malus à ses alliés
+    if (!flipping && hasFx(u, "puppet") && (MALUS.has(key) || key.endsWith("Up") || key.endsWith("Down"))) {
+      const bad = MALUS.has(key) || key.endsWith("Down");
+      const pool = bad ? (t.side !== u.side ? alive(st, u.side).filter((x) => x !== u) : []) : t.side === u.side ? alive(st, enemy(u.side)).filter((x) => !isAnti(x)) : [];
+      if (pool.length) {
+        flipping = true;
+        addFx(pool[Math.floor(rng() * pool.length)], key, amount, turns, stat);
+        flipping = false;
+        return;
+      }
+    }
     if ((key === "poison" || key === "burn" || key === "bleed") && (DOT_IMMUNE.has(t.card.characterId)
       || (MAGIC_IMMUNE.has(t.card.characterId) && t.side !== u.side && damageKind(u.card) === "magic"))) {
       log.push({ kind: "resist", target: t.id });
@@ -1345,7 +1378,10 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   const ownSpell = action.spell === "special" ? (rinneganClones ? { name: "Rinnegan : Clones", target: null, effects: [] } as CharacterSpell : u.spell) : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? ultimateOf(st, u) : null;
   const activeSpell = ownSpell?.effects.some((e) => e.k === "copySpell") ? copiedSpell(st, u, ownSpell) : ownSpell;
   if (action.spell === "ultimate" && activeSpell) st.lastUltimate = activeSpell;
-  if ((action.spell === "special" || action.spell === "tertiary") && activeSpell && !activeSpell.effects.some((e) => e.k === "copySpell") && !rinneganClones) st.lastSpells[u.side] = activeSpell;
+  if ((action.spell === "special" || action.spell === "tertiary") && activeSpell && !activeSpell.effects.some((e) => e.k === "copySpell" || e.k === "oneShot") && !rinneganClones) {
+    st.lastSpells[u.side] = activeSpell;
+    st.lastAnySpell = activeSpell;
+  }
   if (action.spell === "ultimate" && activeSpell?.oncePerCombat) u.onceUsed = true;
   const actionName = action.spell === "base" ? basic?.name : action.spell === "affinity" ? undefined : palm ? `${activeSpell?.name} : ${palm.name}` : activeSpell?.name;
   log.push({ kind: "action", actor: u.id, spell: action.spell, target: action.target, ...(actionName ? { name: actionName } : {}), ...(!reaction ? { turnOrder: timeline(st, 8) } : {}) });
@@ -1362,6 +1398,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
     const amount = charged
       ? hit(target!, charged.amount, 1, false, true)
       : hit(target!, 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
+    // Main de Dieu (Griffith après l'Éclipse) : l'attaque de base touche aussi les autres ennemis
+    if (hasFx(u, "godHand")) for (const f of reachableFoes(st, u)) if (f !== target) hit(f, 1);
     if (amount > 0 && basic) {
       const applyRider = (rider: BasicRider) => {
         switch (rider.kind) {
@@ -1409,13 +1447,14 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         case "damage": {
           const foes = reachableFoes(st, u);
           // Chaîne (Kanmuru) : la cible choisie d'abord, puis tous les autres ennemis
-          const targets = e.zone ? (e.ramp && target && target.hp > 0 ? [target, ...foes.filter((f) => f !== target)] : foes) : target ? [target] : [];
+          const zone = e.zone || hasFx(u, "godHand");
+          const targets = zone ? (e.ramp && target && target.hp > 0 ? [target, ...foes.filter((f) => f !== target)] : foes) : target ? [target] : [];
           let total = 0;
           // L'ignore-DEF peut grandir avec les PV manquants du lanceur (part de PV max manquants × ignoreMissing)
           const ignore = (e.ignoreDef ?? 0) + (e.ignoreMissing ?? 0) * (1 - u.hp / u.maxHp);
           // Kannon : chaque paume frappe deux fois (dégâts seulement)
           const echo = palm && hasFx(u, "kannon") ? 2 : 1;
-          zoneStrike = !!e.zone;
+          zoneStrike = !!zone;
           for (const [i, t] of targets.entries()) {
             const strikes = ((e.hits ?? 1) + (e.extraHit && fxSum(t, "def") < 0 ? 1 : 0)) * echo;
             const rage = 1 + (e.perHitTaken ?? 0) * Math.min(30, u.hitsTaken);
@@ -1453,6 +1492,59 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
         case "kannon":
           addFx(u, "kannon", 0, e.turns);
           break;
+        case "oneShot": {
+          if (!target || target.hp <= 0) break;
+          const dealt = target.card.boss ? target.maxHp * e.bossPct : target.hp + target.shield;
+          const absorbed = target.card.boss ? Math.min(target.shield, dealt) : target.shield;
+          target.shield -= absorbed;
+          target.hp = Math.max(0, target.hp - (dealt - absorbed));
+          log.push({ kind: "damage", source: u.id, target: target.id, amount: dealt, absorbed, crit: true, affinity: null, exposedBonus: false, hp: target.hp, shield: target.shield });
+          if (target.hp === 0) log.push({ kind: "ko", target: target.id });
+          landedHit = true;
+          // Saitama sort du combat : il « dort » pour de bon, sans être K.O.
+          u.out = true;
+          u.fx.push({ key: "sleep", amount: 0, turns: 999, fresh: false, source: u.id });
+          log.push({ kind: "status", target: u.id, status: "sleep", on: true, amount: 0, turns: 999, source: u.id });
+          break;
+        }
+        case "dread":
+          for (const t of reachableFoes(st, u)) addFx(t, "dread", 0.5, e.turns);
+          break;
+        case "puppet":
+          if (target) addFx(target, "puppet", 0, e.turns);
+          break;
+        case "vulnerable":
+          if (target) addFx(target, "vulnerable", e.pct, e.turns);
+          break;
+        case "bleed": {
+          if (!target || target.hp <= 0 || target.side === u.side || hasFx(target, "immune")) break;
+          const stacks = Math.min(5, (target.fx.find((f) => f.key === "bleed")?.stacks ?? 0) + 1);
+          const amount = stacks * 0.02 * (1 + (u.card.artifactStats?.bleedBonus ?? 0));
+          addFx(target, "bleed", amount, Infinity);
+          const bleed = target.fx.find((f) => f.key === "bleed");
+          if (bleed) Object.assign(bleed, { stacks, amount });
+          break;
+        }
+        case "eclipse": {
+          // L'Éclipse : les alliés sont sacrifiés (leurs effets de mort se déclenchent) et Griffith prend leurs PV restants
+          let gain = 0;
+          for (const x of alive(st, u.side)) {
+            if (x === u || isAnti(x)) continue;
+            gain += x.hp;
+            x.hp = 0;
+            x.shield = 0;
+            x.titanShield = 0;
+            log.push({ kind: "ko", target: x.id });
+          }
+          if (gain > 0) {
+            u.maxHp += gain;
+            u.hp += gain;
+            log.push({ kind: "heal", source: u.id, target: u.id, amount: gain, hp: u.hp });
+          }
+          addFx(u, "godHand", 0, 999);
+          addFx(u, "atkUp", 0.5, 999, "atk");
+          break;
+        }
         case "auraPierce":
           for (const t of alive(st, u.side)) addFx(t, "auraPierce", e.pct, e.turns);
           break;

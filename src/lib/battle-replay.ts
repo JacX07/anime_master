@@ -107,6 +107,9 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   susanoo: { label: "Susanoo parfait", glyph: "⛨", help: "Immunisé contre l'étourdissement, le sommeil, la peur et le sceau ; sorts Copie et Kyūbi.", bad: false },
   kannon: { label: "Kannon", glyph: "✋", help: "Chaque paume frappe deux fois.", bad: false },
   auraPierce: { label: "Projection d'aura", glyph: "✧", help: "Ignore une part de la DEF des ennemis.", bad: false },
+  dread: { label: "Peur", glyph: "☠", help: "Chaque sort lancé a une chance sur deux de faire perdre le tour.", bad: true },
+  puppet: { label: "Manipulé", glyph: "⛓", help: "Ses buffs profitent à ses ennemis, ses malus frappent ses alliés.", bad: true },
+  godHand: { label: "Main de Dieu", glyph: "✹", help: "Toutes ses attaques touchent tous les ennemis.", bad: false },
 };
 
 /** Nom du sort joué : attaque, affinité, secondaire, tertiaire ou ultime. */
