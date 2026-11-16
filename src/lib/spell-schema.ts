@@ -97,6 +97,8 @@ export function parseSpell(raw: unknown): CharacterSpell | null {
   if (!name || !Array.isArray(r.effects) || r.effects.length === 0 || r.effects.length > 8) return null;
   const target = r.target === null ? null : TARGETS.find((t) => t === r.target);
   if (target === undefined) return null;
+  if (r.damageKind !== undefined && r.damageKind !== "physical" && r.damageKind !== "magic") return null;
+  const damageKind = r.damageKind as CharacterSpell["damageKind"];
   const effects: Effect[] = [];
   for (const raw of r.effects) {
     const o = raw as Record<string, unknown> | null;
@@ -120,7 +122,7 @@ export function parseSpell(raw: unknown): CharacterSpell | null {
     }
     effects.push(e as unknown as Effect);
   }
-  return { name, target, effects };
+  return { name, target, effects, ...(damageKind ? { damageKind } : {}) };
 }
 
 export const TARGET_CHOICES: { value: CharacterSpell["target"]; label: string }[] = [

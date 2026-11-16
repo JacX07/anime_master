@@ -12152,6 +12152,7 @@
     "orientation": "attaque",
     "secondary": {
       "name": "Lance inversée",
+      "damageKind": "physical",
       "target": "foe",
       "effects": [
         {
@@ -12163,6 +12164,7 @@
     },
     "tertiary": {
       "name": "Assassin sans énergie",
+      "damageKind": "physical",
       "target": null,
       "effects": [
         {
@@ -12183,6 +12185,7 @@
     },
     "ultimate": {
       "name": "Chaîne aux mille lieues",
+      "damageKind": "physical",
       "target": "foe",
       "effects": [
         {
@@ -13029,6 +13032,7 @@
     "orientation": "attaque",
     "secondary": {
       "name": "Rinnegan : Pression gravitationnelle",
+      "damageKind": "magic",
       "target": null,
       "final": true,
       "effects": [
@@ -13048,6 +13052,7 @@
     },
     "tertiary": {
       "name": "Katon : boule de feu suprême",
+      "damageKind": "magic",
       "target": null,
       "final": true,
       "effects": [
@@ -13066,6 +13071,7 @@
     },
     "ultimate": {
       "name": "Mangekyō Sharingan éternel",
+      "damageKind": "magic",
       "target": null,
       "final": true,
       "oncePerCombat": true,

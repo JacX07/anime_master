@@ -600,7 +600,7 @@ Moteur (`battle.ts`) : statuts `intangible` et `charged`, compteur `hitsTaken`, 
 | Momo Ayase | Pouvoir de Momo | Immunisée contre poison, brûlure et saignement. |
 | Satoru Gojo | Infini | Intouchable jusqu'à la fin de son premier tour. |
 | Sousuke Aizen | Kyoka Suigetsu | Un coup ennemi sur deux qui le vise frappe un allié de l'attaquant, tiré au hasard (si l'attaquant en a un). Vaut aussi pour les zones. |
-| Toji Fushiguro | Lance inversée du ciel | Aucun dégât d'un attaquant magique (cartes Magie et Jujutsu Kaisen), ni poison, brûlure ou saignement qu'il pose. |
+| Toji Fushiguro | Lance inversée du ciel | Immunité aux dégâts du sort effectivement magique et aux dégâts sur la durée qu’il pose ; attaques de base et sorts explicitement physiques autorisés, indépendamment du type ou de la franchise du lanceur. Copies et absorptions conservent la nature source. |
 | Sukuna | (ultime) | Sanctuaire malveillant ajoute 5 % des PV max par action pendant 3 actions à tous les ennemis. |
 
 ### Madara, Netero, Anti-Spirale : chiffres validés le 2026-11-16, codés
@@ -645,4 +645,4 @@ Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone
 
 
 ### Bonus de compétence magique — précision du 2026-11-16
-Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compétence magique sur les compétences secondaire, tertiaire, ultime et d’affinité, sauf marquage explicite physique. Les attaques de base sont exclues. Les sorts explicitement magiques des autres types et le marquage existant par personnage restent pris en charge. Cette règle concerne le bonus de dégâts, pas la classification utilisée actuellement par l’immunité de Toji.
+Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compétence magique sur les compétences secondaire, tertiaire, ultime et d’affinité, sauf marquage explicite physique. Les attaques de base sont exclues. Les sorts explicitement magiques des autres types et le marquage existant par personnage restent pris en charge. L’immunité de Toji utilise désormais cette même nature résolue par sort ; les bonus de set physique/magique conservent leur classement historique par carte.

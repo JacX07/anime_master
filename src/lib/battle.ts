@@ -509,7 +509,7 @@ const SUSANOO_IMMUNE = new Set<FxKey>(["stun", "sleep", "fear", "seal"]);
 /** Sorts de Madara pendant le Susanoo parfait */
 const SUSANOO_KIT = {
   spell: { name: "Copie", target: "foe", final: true, effects: [{ k: "copySpell", mult: 0.8 }, { k: "damage", mult: 1 }] } as CharacterSpell,
-  tertiary: { name: "Kyūbi", target: null, final: true, effects: [{ k: "damage", mult: 1.1, zone: true }, { k: "poison", pct: 0.06, turns: 2, to: "foes" }] } as CharacterSpell,
+  tertiary: { name: "Kyūbi", target: null, damageKind: "magic", final: true, effects: [{ k: "damage", mult: 1.1, zone: true }, { k: "poison", pct: 0.06, turns: 2, to: "foes" }] } as CharacterSpell,
 };
 const isAnti = (u: Unit) => u.card.characterId === ANTI_SPIRAL;
 
@@ -519,7 +519,7 @@ export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> 
   222594: { name: "Pouvoir de Momo", text: "Immunisée contre les dégâts sur la durée : poison, brûlure et saignement." },
   127691: { name: "Infini", text: "Intouchable jusqu'à la fin de son premier tour : aucun ennemi ne peut le viser ni le toucher." },
   1086: { name: "Kyoka Suigetsu", text: "Une attaque ennemie sur deux visant Aizen frappe à la place un allié de l'attaquant, au hasard." },
-  162722: { name: "Lance inversée du ciel", text: "Annule tous les dégâts magiques reçus." },
+  162722: { name: "Lance inversée du ciel", text: "Annule les dégâts des sorts magiques et leurs dégâts sur la durée. Les attaques de base et les sorts physiques le touchent normalement." },
   53901: { name: "Cellules d'Hashirama", text: "Soin de 8 % des PV max à chacune de ses actions. Le premier Rinnegan invoque deux clones (un coup ciblé sur Madara touche un clone 2 fois sur 3) ; les suivants lancent la Pression gravitationnelle." },
   14489: { name: "Cent mille paumes", text: "Les paumes montent en puissance à chaque lancer : 100 %, 125 %, 150 %, puis Paume zéro à 200 % et retour au début. Recharge de 2 actions." },
   5115: { name: "Dimension", text: "Intouchable pendant tout le combat, y compris par les zones et les contrôles ; ne reçoit ni buff, ni soin, ni bouclier. Son équipe perd dès que tous ses alliés sont morts." },
@@ -854,9 +854,11 @@ function processDeaths(st: BattleState) {
       if (!prey) continue;
       m.absorbed = true;
       const slot: KitSlot = prey.ultimate ? "ultimate" : prey.tertiary ? "tertiary" : "special";
-      if (slot === "ultimate") m.ultimate = prey.ultimate;
-      else if (slot === "tertiary") { m.tertiary = prey.tertiary; m.tIn = 1; }
-      else { m.spell = prey.spell; m.pIn = 1; }
+      const source = (slot === "ultimate" ? prey.ultimate : slot === "tertiary" ? prey.tertiary : prey.spell)!;
+      const absorbed: CharacterSpell = { ...source, damageKind: isMagicalSpell(prey.card, slot, source) ? "magic" : "physical" };
+      if (slot === "ultimate") m.ultimate = absorbed;
+      else if (slot === "tertiary") { m.tertiary = absorbed; m.tIn = 1; }
+      else { m.spell = absorbed; m.pIn = 1; }
       st.log.push({ kind: "kit", target: m.id, slot, spell: slot === "ultimate" ? m.ultimate : slot === "tertiary" ? m.tertiary : m.spell, source: prey.id });
       changed = true;
     }
@@ -1141,7 +1143,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       return 0;
     }
     // Lance inversée du ciel (Toji) : aucun dégât magique
-    if (t.side !== u.side && MAGIC_IMMUNE.has(t.card.characterId) && damageKind(u.card) === "magic") {
+    if (MAGIC_IMMUNE.has(t.card.characterId) && magicalAction) {
       log.push({ kind: "resist", target: t.id });
       return 0;
     }
@@ -1203,8 +1205,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       if (el === "foudre" || el === "feu") dmg *= 2;
     }
     if (action.spell === "special" && opts.elements && !u.card.noElement && effectElement(u.card.characterId)) dmg *= 1 + (u.card.artifactStats?.elementalDamage ?? 0);
-    const markedSpell = action.spell === "special" ? u.spell : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? u.ultimate : null;
-    if (isMagicalSpell(u.card, action.spell, markedSpell)) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
+    if (magicalAction) dmg *= magicSkillMultiplier(u.card.artifactStats?.magicSkill ?? 0);
     dmg *= 1 + (rng() * 2 - 1) * BATTLE.variance;
     dmg *= 1 + u.finalBonus;
     // Réduction des dégâts subis (sorts de tank), plafonnée
@@ -1274,7 +1275,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
       }
     }
     if ((key === "poison" || key === "burn" || key === "bleed") && (DOT_IMMUNE.has(t.card.characterId)
-      || (MAGIC_IMMUNE.has(t.card.characterId) && t.side !== u.side && damageKind(u.card) === "magic"))) {
+      || (MAGIC_IMMUNE.has(t.card.characterId) && magicalAction))) {
       log.push({ kind: "resist", target: t.id });
       return;
     }
@@ -1376,7 +1377,10 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   // Paumes de Netero : la puissance dépend du nombre de paumes déjà lancées
   const palm = action.spell === "special" && u.card.characterId === NETERO ? PALMS[u.palms % PALMS.length] : null;
   const ownSpell = action.spell === "special" ? (rinneganClones ? { name: "Rinnegan : Clones", target: null, effects: [] } as CharacterSpell : u.spell) : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? ultimateOf(st, u) : null;
-  const activeSpell = ownSpell?.effects.some((e) => e.k === "copySpell") ? copiedSpell(st, u, ownSpell) : ownSpell;
+  const resolvedSpell = ownSpell?.effects.some((e) => e.k === "copySpell") ? copiedSpell(st, u, ownSpell) : ownSpell;
+  // Figer la nature avant de mémoriser un modèle : une copie conserve le type du sort source.
+  const activeSpell: CharacterSpell | null = resolvedSpell ? { ...resolvedSpell, damageKind: isMagicalSpell(u.card, action.spell, resolvedSpell) ? "magic" : "physical" } : null;
+  const magicalAction = isMagicalSpell(u.card, action.spell, activeSpell);
   if (action.spell === "ultimate" && activeSpell) st.lastUltimate = activeSpell;
   if ((action.spell === "special" || action.spell === "tertiary") && activeSpell && !activeSpell.effects.some((e) => e.k === "copySpell" || e.k === "oneShot") && !rinneganClones) {
     st.lastSpells[u.side] = activeSpell;
@@ -1494,6 +1498,7 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
           break;
         case "oneShot": {
           if (!target || target.hp <= 0) break;
+          if (MAGIC_IMMUNE.has(target.card.characterId) && magicalAction) { log.push({ kind: "resist", target: target.id }); break; }
           const dealt = target.card.boss ? target.maxHp * e.bossPct : target.hp + target.shield;
           const absorbed = target.card.boss ? Math.min(target.shield, dealt) : target.shield;
           target.shield -= absorbed;

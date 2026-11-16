@@ -90,7 +90,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Bonus de compétence magique** : toutes les cartes de type Magie en bénéficient sur leur secondaire, tertiaire, ultime et compétence d’affinité. Les attaques de base et les compétences explicitement physiques restent exclues. Les compétences explicitement magiques des autres types conservent leur bonus.
 
 - **Aizen — Kyoka Suigetsu** : une attaque ennemie sur deux qui le vise est redirigée vers un allié de l’attaquant, s’il en possède un.
-- **Toji — Lance inversée du ciel** : annule les dégâts magiques reçus, ainsi que les dégâts sur la durée provenant des attaquants magiques concernés.
+- **Toji — Lance inversée du ciel** : annule les dégâts des sorts magiques et les dégâts sur la durée qu’ils appliquent. La nature du sort lancé fait foi, y compris après copie ou absorption : une attaque de base ou une compétence physique le touche, même si son lanceur est de type Magie ou vient de Jujutsu Kaisen. Ses propres techniques d’armes sont classées physiques.
 - **Momo Ayase — Pouvoir de Momo** : immunisée contre poison, brûlure et saignement.
 - **Sukuna — Sanctuaire malveillant** : ajoute des dégâts sur la durée de 5 % des PV max pendant trois actions à tous les ennemis.
 - **Passifs visibles** : consultation dans les fiches d’équipe et de combat ; le builder affiche aussi le passif du personnage et permet d’ouvrir sa fiche en cliquant sur son portrait.
