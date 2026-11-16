@@ -28,14 +28,22 @@ export function parseBuilderValue(slot: BuilderSlot, raw: unknown): BuilderValue
   const r = raw.rider;
   if (!r || typeof r !== "object" || !("kind" in r)) return null;
   const name = raw.name.trim().slice(0, 60);
+  // Multiplicateur d'ATK (Violet : tir ×2), 3 au plus
+  const m = "mult" in raw && typeof raw.mult === "number" && Number.isFinite(raw.mult) ? Math.min(3, Math.max(0.5, raw.mult)) : 1;
+  const mult = m !== 1 ? { mult: m } : {};
   if (r.kind === "mod" && "stat" in r && ["atk", "def", "crit", "dodge"].includes(String(r.stat)) &&
       "to" in r && (r.to === "self" || r.to === "target") && "amount" in r && typeof r.amount === "number" && Number.isFinite(r.amount) && Math.abs(r.amount) <= 0.03) {
-    return { name, rider: { kind: "mod", stat: r.stat as "atk" | "def" | "crit" | "dodge", to: r.to, amount: r.amount } };
+    return { name, ...mult, rider: { kind: "mod", stat: r.stat as "atk" | "def" | "crit" | "dodge", to: r.to, amount: r.amount } };
+  }
+  // Poison à chance (Maomao, lot 4) : 3 % au plus, 3 tours au plus
+  if (r.kind === "poison" && "chance" in r && typeof r.chance === "number" && r.chance > 0 && r.chance <= 1 && "pct" in r && typeof r.pct === "number" && r.pct > 0 && r.pct <= 0.03) {
+    const turns = "turns" in r && typeof r.turns === "number" && Number.isInteger(r.turns) ? Math.min(3, Math.max(1, r.turns)) : 1;
+    return { name, ...mult, rider: { kind: "poison", pct: r.pct, chance: r.chance, turns } };
   }
   // Bouclier : 8 % pour Gojo (Impulsion d'Infini, v0.3.0)
   const caps = { heal: 0.02, shield: 0.08, poison: 0.005, drain: 0.02, ignoreDef: 0.03 };
   if (typeof r.kind !== "string" || !Object.hasOwn(caps, r.kind) || !("pct" in r) || typeof r.pct !== "number" || !Number.isFinite(r.pct) || r.pct < 0 || r.pct > caps[r.kind as keyof typeof caps]) return null;
-  return { name, rider: { kind: r.kind as keyof typeof caps, pct: r.pct } };
+  return { name, ...mult, rider: { kind: r.kind as keyof typeof caps, pct: r.pct } };
 }
 
 export function builderSpellSource(id: number, slot: BuilderSlot, value: BuilderValue): string {

@@ -398,7 +398,7 @@
         },
         {
           "k": "damage",
-          "mult": 1.1,
+          "mult": 3.1,
           "zone": true,
           "pierce": true
         }

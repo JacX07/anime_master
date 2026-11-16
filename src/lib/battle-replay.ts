@@ -112,6 +112,11 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   dread: { label: "Peur", glyph: "☠", help: "Chaque sort lancé a une chance sur deux de faire perdre le tour.", bad: true },
   puppet: { label: "Manipulé", glyph: "⛓", help: "Ses buffs profitent à ses ennemis, ses malus frappent ses alliés.", bad: true },
   blessed: { label: "Auswählen", glyph: "✠", help: "Béni par Yhwach : +50 % de dégâts finaux. Yhwach peut retirer ce pouvoir à tout moment de son tour : la carte meurt.", bad: false },
+  toxic: { label: "Poison renforcé", glyph: "☣", help: "Subit plus de dégâts de poison.", bad: true },
+  antiMagic: { label: "Immunité magique", glyph: "⊘", help: "Les capacités magiques ennemies (dégâts et malus) ne la touchent pas.", bad: false },
+  noCrit: { label: "Plan de secours", glyph: "✕", help: "Ne peut plus faire de coup critique.", bad: true },
+  deathNote: { label: "Death Note", glyph: "✎", help: "Sous 30 % de ses PV max, la carte est exécutée (sauf les boss).", bad: true },
+  named: { label: "Nom marqué", glyph: "✍", help: "Subit 25 % de dégâts de plus à chaque coup reçu, sans plafond.", bad: true },
   godHand: { label: "Main de Dieu", glyph: "✹", help: "Toutes ses attaques touchent tous les ennemis et ignorent toute la DEF ; ses sorts lui rendent 50 % des dégâts.", bad: false },
 };
 

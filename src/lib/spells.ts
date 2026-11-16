@@ -21,18 +21,21 @@ export type Effect =
       perHitTaken?: number }
   /** Bonus ou malus (amount négatif) de la stat, en part (0,2 = +20 %, ou +20 points de critique) */
   | { k: "mod"; stat: ModStat; amount: number; turns: number; to: Scope; count?: number }
-  | { k: "heal"; pct: number; to: Scope }
+  /** `fromCaster` : la part se calcule sur les PV max du lanceur (Frieren) */
+  | { k: "heal"; pct: number; to: Scope; fromCaster?: boolean }
   | { k: "regen"; pct: number; turns: number; to: Scope }
   | { k: "shield"; pct: number; to: Scope }
   /** Perd `pct` de ses PV max à chaque action du porteur */
   | { k: "poison"; pct: number; turns: number; to: Scope; /** Brûlure plutôt que poison (Madara) */ burn?: boolean }
   /** Ne peut lancer que le sort de base. Sans effet sur les boss. */
   | { k: "silence"; turns: number; to: Scope; /** Avec `to: "foes"` : seulement les N ennemis à l'ATK la plus élevée */ count?: number }
-  | { k: "stun"; turns: number; count: number }
+  /** `to: "target"` : la cible choisie plutôt que les N ennemis à l'ATK la plus élevée (Violet) */
+  | { k: "stun"; turns: number; count: number; to?: "target" | "strongest" }
   /** Endort les ennemis (leur coup les réveille) ; `weaker` : seulement ceux dont l'ATK est inférieure à celle du lanceur */
   | { k: "sleep"; turns: number; weaker?: boolean }
   /** Duel : la cible choisie est la seule à pouvoir atteindre le lanceur, pendant `turns` actions du lanceur */
-  | { k: "duel"; turns: number }
+  /** `lock` (Askeladd) : duel mutuel, personne d'autre ne peut les atteindre, l'ennemi n'a que son attaque de base ; `pierce` : ignore-DEF du lanceur pendant le duel */
+  | { k: "duel"; turns: number; lock?: boolean; pierce?: number }
   /** Marque un ennemi : sans `threshold` × PV max de dégâts avant l'échéance, il est avalé */
   | { k: "devour"; turns: number; threshold: number }
   | { k: "immune"; turns: number; to: Scope }
@@ -80,7 +83,7 @@ export type Effect =
   /** Johan : la cible est manipulée, ses buffs vont aux ennemis et ses malus à ses alliés, `turns` tours */
   | { k: "puppet"; turns: number }
   /** La cible subit `pct` de dégâts en plus, `turns` tours */
-  | { k: "vulnerable"; pct: number; turns: number }
+  | { k: "vulnerable"; pct: number; turns: number; /** Tous les ennemis plutôt que la cible (Dazai) */ to?: "target" | "foes" }
   /** Saignement (une charge) sur la cible touchée */
   | { k: "bleed" }
   /** Auswählen (Yhwach) : alliés choisis, +bonus de dégâts finaux pendant `turns` tours et soin unique de `heal` × leurs PV max */
@@ -90,7 +93,31 @@ export type Effect =
   /** Anti-Spirale : l'allié le plus bas en PV reçoit un bouclier de `pct` des dégâts de l'effet précédent */
   | { k: "donateShield"; pct: number }
   /** Netero : l'équipe ignore `pct` de la DEF pendant `turns` tours (ne se cumule pas) */
-  | { k: "auraPierce"; pct: number; turns: number };
+  | { k: "auraPierce"; pct: number; turns: number }
+  /** Lot 4 — Maomao : les ennemis subissent `pct` de dégâts de poison en plus, `turns` tours */
+  | { k: "poisonAmp"; pct: number; turns: number }
+  /** Maomao : retire les malus de l'équipe et la soigne de `pct` des PV max du lanceur, +`per` par malus retiré */
+  | { k: "cleanse"; pct: number; per: number }
+  /** Maomao : chaque cumul de poison des ennemis inflige aussitôt un tour de poison */
+  | { k: "detonate" }
+  /** Dazai : l'équipe est immunisée contre les capacités magiques, `turns` tours */
+  | { k: "antiMagic"; turns: number }
+  /** Dazai : dissipe les buffs de la cible */
+  | { k: "dispel" }
+  /** Dazai : les ennemis ne peuvent plus faire de coup critique, `turns` tours */
+  | { k: "noCrit"; turns: number }
+  /** Violet : prolonge de `turns` tours les buffs des alliés ; bouclier par allié de `pct` des PV max du lanceur, +`per` par buff prolongé */
+  | { k: "extendBuffs"; turns: number; pct: number; per: number }
+  /** Light : marque les ennemis ; un marqué sous `at` de ses PV max est exécuté (boss exclus) */
+  | { k: "deathNote"; turns: number; at: number }
+  /** Light : la cible subit `pct` de dégâts de plus à chaque coup reçu, sans plafond */
+  | { k: "nameMark"; pct: number; turns: number }
+  /** Light : la cible joue sa prochaine action pour le camp du lanceur ; sans sort prêt, elle est étourdie */
+  | { k: "control" }
+  /** Marin, Askeladd : −`turns` tours de recharge sur les sorts des alliés (pas du lanceur) */
+  | { k: "cdCut"; turns: number }
+  /** Chika : +`pct` de jauge de tour aux alliés (ordonnanceur à jauge) */
+  | { k: "turnGauge"; pct: number };
 
 export interface CharacterSpell {
   /** Nature explicite du sort ; indépendante du type de la carte. */
@@ -113,7 +140,10 @@ export { KITLESS } from "./spell-rules";
 export const SPELL_FIRST = 1;
 export const SPELL_COOLDOWN = 3;
 /** Recharge du secondaire d'un personnage (Netero : une paume à chaque action) */
-export const specialCooldownOf = (characterId: number) => (characterId === 14489 ? 1 : SPELL_COOLDOWN);
+export const specialCooldownOf = (characterId: number) => (characterId === 14489 ? 1 : characterId === 89198 ? 2 : SPELL_COOLDOWN);
+/** Recharge du tertiaire d'un personnage (Marin : Couture sur mesure, 7 tours) */
+export const TERTIARY_COOLDOWN = 3;
+export const tertiaryCooldownOf = (characterId: number) => (characterId === 133676 ? 7 : TERTIARY_COOLDOWN);
 
 const S = (name: string, target: CharacterSpell["target"], ...effects: Effect[]): CharacterSpell => ({ name, target, effects });
 const dmg = (mult: number, o: Omit<Extract<Effect, { k: "damage" }>, "k" | "mult"> = {}): Effect => ({ k: "damage", mult, ...o });
@@ -483,16 +513,17 @@ export function describeEffect(e: Effect, detailed = false): string {
       ].filter(Boolean).join(", ");
     case "mod":
       return `${STAT_NAMES[e.stat]} ${amountText(e.stat, e.amount)} pour ${e.to === "foes" && e.count ? `les ${e.count} ennemis vivants à l’ATK la plus élevée` : WHO[e.to]}, ${nx(e.turns)}`;
-    case "heal": return `soigne ${WHO[e.to]} de ${pct(e.pct)} des PV max`;
+    case "heal": return e.fromCaster ? `soigne ${WHO[e.to]} de ${pct(e.pct)} des PV max du lanceur` : `soigne ${WHO[e.to]} de ${pct(e.pct)} des PV max`;
     case "regen": return `soin sur la durée de ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "shield": return `bouclier de ${pct(e.pct)} des PV max pour ${WHO[e.to]}`;
     case "poison": return `${e.burn ? "brûlure" : "poison"} : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "silence": return `silence sur ${e.to === "foes" && e.count ? (e.count === 1 ? "l’ennemi à l’ATK la plus élevée" : `les ${e.count} ennemis à l’ATK la plus élevée`) : WHO[e.to]} (attaque de base seulement), ${nx(e.turns)} ; sans effet sur les boss`;
     case "gash": return `entaille : ${pct(e.pct)} des PV max par tour pour ${WHO[e.to]}, ${nx(e.turns)} ; les soins reçus sont bloqués`;
     case "disarm": return `désarme les ennemis porteurs d'épée, ${nx(e.turns)} (sans sort sans épée, ils passent leur tour) ; +${pct(e.bonus)} de dégâts par ennemi désarmé`;
-    case "stun": return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
+    case "stun": if (e.to === "target") return `étourdit la cible ${nx(e.turns)} ; sans effet sur les boss`;
+      return `étourdit jusqu'à ${e.count} ennemi${e.count > 1 ? "s" : ""} vivant${e.count > 1 ? "s" : ""} à l'ATK la plus élevée : chacun passe ${e.turns === 1 ? "son prochain tour" : `ses ${e.turns} prochains tours`} ; sans effet sur les boss`;
     case "sleep": return `endort ${e.weaker ? "les ennemis dont l'ATK est inférieure à celle du lanceur" : "tous les ennemis"} ${nx(e.turns)} ; un coup réveille ; sans effet sur les boss`;
-    case "duel": return `provoque un ennemi en duel : lui seul peut atteindre le lanceur, ${nx(e.turns)}`;
+    case "duel": return e.lock ? `provoque un ennemi en duel, ${nx(e.turns)} : personne d'autre ne peut les attaquer, l'ennemi n'utilise que son attaque de base${e.pierce ? ` ; le lanceur ignore ${pct(e.pierce)} de la DEF` : ""}` : `provoque un ennemi en duel : lui seul peut atteindre le lanceur, ${nx(e.turns)}`;
     case "devour": return `marque un ennemi : si l'équipe ne lui inflige pas ${pct(e.threshold)} de ses PV max d'ici ${nx(e.turns)}, il est avalé et le lanceur gagne un de ses sorts`;
     case "immune": return `immunité aux malus pour ${WHO[e.to]}, ${nx(e.turns)}`;
     case "purge": return `retire les malus de ${WHO[e.to]}`;
@@ -514,12 +545,24 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "oneShot": return `met la cible K.O. d'un seul coup (un boss perd ${pct(e.bossPct)} de ses PV max), puis le lanceur sort du combat sans être K.O.`;
     case "dread": return `peur sur tous les ennemis, ${nx(e.turns)} : chaque fois qu'ils lancent un sort, une chance sur deux de perdre leur tour`;
     case "puppet": return `manipule la cible, ${nx(e.turns)} : ses buffs profitent à vos cartes et ses malus frappent ses alliés`;
-    case "vulnerable": return `la cible subit ${pct(e.pct)} de dégâts en plus, ${nx(e.turns)}`;
+    case "vulnerable": return `${e.to === "foes" ? "tous les ennemis subissent" : "la cible subit"} ${pct(e.pct)} de dégâts en plus, ${nx(e.turns)}`;
     case "auswahlen": return `bénit les alliés choisis (autant qu'il veut) : +${pct(e.bonus)} de dégâts finaux, ${nx(e.turns)}, et soin unique de ${pct(e.heal)} de leurs PV max ; Yhwach peut retirer ce pouvoir à tout moment de son tour : l'allié meurt et Yhwach prend une de ses compétences`;
     case "bleed": return "saignement sur la cible (se cumule jusqu'à 5 fois, dure jusqu'à un soin)";
     case "eclipse": return "sacrifie tous ses alliés et récupère leurs PV restants (ses PV max augmentent d'autant) ; jusqu'à la fin du combat, ATK +50 %, ses attaques touchent tous les ennemis et ignorent toute la DEF, ses sorts lui rendent 50 % des dégâts infligés";
     case "donateShield": return `l'allié le plus bas en PV reçoit un bouclier de ${pct(e.pct)} des dégâts infligés`;
     case "auraPierce": return `l'équipe ignore ${pct(e.pct)} de la DEF, ${nx(e.turns)} (ne se cumule pas)`;
+    case "poisonAmp": return `tous les ennemis subissent ${pct(e.pct)} de dégâts de poison en plus, ${nx(e.turns)}`;
+    case "cleanse": return `retire les malus de l'équipe et la soigne de ${pct(e.pct)} des PV max du lanceur, +${pct(e.per)} par malus retiré`;
+    case "detonate": return "fait exploser les poisons des ennemis : chaque cumul inflige aussitôt un tour de poison";
+    case "antiMagic": return `toute l'équipe est immunisée contre les capacités magiques (dégâts et malus), ${nx(e.turns)}`;
+    case "dispel": return "dissipe les buffs de la cible";
+    case "noCrit": return `les ennemis ne peuvent plus faire de coup critique, ${nx(e.turns)}`;
+    case "extendBuffs": return `prolonge de ${nx(e.turns)} les buffs des alliés ; chaque allié reçoit un bouclier de ${pct(e.pct)} des PV max du lanceur, +${pct(e.per)} par buff prolongé`;
+    case "deathNote": return `marque tous les ennemis, ${nx(e.turns)} : un ennemi marqué qui passe sous ${pct(e.at)} de ses PV max est exécuté (sauf les boss)`;
+    case "nameMark": return `la cible subit ${pct(e.pct)} de dégâts de plus à chaque coup reçu, sans plafond, ${nx(e.turns)}`;
+    case "control": return "la cible joue sa prochaine action contre son propre camp ; si elle n'a aucun sort prêt (ou si c'est un boss, ou la dernière de son camp), elle est étourdie à la place";
+    case "cdCut": return `−${nx(e.turns)} de recharge sur les sorts de ses alliés`;
+    case "turnGauge": return `+${pct(e.pct)} de jauge de tour pour ses alliés`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;
   }
 }

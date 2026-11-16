@@ -65,6 +65,18 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "gash":
       case "disarm":
       case "auswahlen":
+      case "poisonAmp":
+      case "cleanse":
+      case "detonate":
+      case "antiMagic":
+      case "dispel":
+      case "noCrit":
+      case "extendBuffs":
+      case "deathNote":
+      case "nameMark":
+      case "control":
+      case "cdCut":
+      case "turnGauge":
       case "copySpell":
       case "donateShield":
       case "auraPierce":

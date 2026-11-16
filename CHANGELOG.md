@@ -11,7 +11,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Un nouvel accueil Violet nuit**, avec un personnage de ta collection mis en avant, une reprise de l’histoire et des accès rapides aux activités.
 - **Cinq onglets sur mobile** : Accueil, Collection, Jouer au centre, Invocation et Menu. Le Marché et les fonctions secondaires restent accessibles depuis le Menu ; le chat dispose de son propre accès.
 - **Des sorts en éventail**, une fiche détaillée qui reste ouverte après un appui long et une interface de combat dégagée.
-- **De nouveaux kits et passifs** pour Madara, Netero, Anti-Spirale, Meruem, Saitama, Dio, Yuuta, Johan, Griffith et les quatre empereurs, ainsi que des ajustements pour Aizen, Toji, Momo et Sukuna.
+- **De nouveaux kits et passifs** pour Madara, Netero, Anti-Spirale, Meruem, Saitama, Dio, Yuuta, Johan, Griffith, Dazai, Maomao, Frieren, Violet, Light, Marin, Askeladd, Chika et les quatre empereurs, ainsi que des ajustements pour Aizen, Toji, Momo et Sukuna.
 
 ### Accueil, navigation et écrans de gestion
 
@@ -45,6 +45,15 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Gilgamesh** : Ea désarme les porteurs d'épée pendant un tour (sans sort sans épée, ils passent leur tour), puis frappe tous les ennemis à ×2,1 ATK, +25 % par ennemi désarmé.
 - **Saitama** : plus d'attaque de base, seulement son coup de poing, prêt dès le premier tour.
 - **Madara** : Katon (×2,1) et Kyūbi (×3,3) brûlent au lieu d'empoisonner ; la Copie du Susanoo frappe à 100 %.
+- **Poison cumulable** : chaque poison posé s'ajoute aux précédents, quel que soit le lanceur. Une carte porte au plus 10 malus en même temps.
+- **Maomao** : son attaque de base a 70 % de chance d'empoisonner ; Herbes toxiques empoisonne tous les ennemis et renforce leurs poisons de 25 % ; Remède de l'apothicaire purge l'équipe et la soigne (15 % des PV max de Maomao, +5 % par malus retiré) ; Réaction toxique fait exploser chaque cumul de poison.
+- **Osamu Dazai** : Contact dissipe les buffs d'un ennemi (recharge 2 tours) ; Plan de secours : tous les ennemis subissent +25 % de dégâts et ne font plus de critique, 2 tours ; Annulation totale immunise l'équipe contre les capacités magiques, 2 tours. Passif : −30 % de dégâts des sorts magiques.
+- **Frieren** : la Magie de guérison soigne l'équipe de 25 % des PV max de Frieren ; Zoltraak céleste passe à ×3,1 ATK.
+- **Violet Evergarden** : tir de base ×2 ATK ; Poing mécanique (×3 ATK) étourdit la cible ; la Lettre donne à l'équipe +30 points de critique et +50 % de dégâts critiques, 3 tours ; Poupée de souvenirs prolonge de 2 tours les buffs des alliés et leur donne un bouclier.
+- **Light Yagami** : Marquer un nom (+25 % de dégâts de plus à chaque coup reçu, 3 tours) ; Contrôle (la cible joue sa prochaine action contre son camp, sinon elle est étourdie) ; Death Note exécute un ennemi marqué qui passe sous 30 % de ses PV (sauf les boss).
+- **Marin Kitagawa** : Cosplay parfait (équipe ATK +50 % et 30 % d'ignore-DEF) ; Couture sur mesure (bouclier 30 %, DEF +28 %, recharge 7 tours) ; Shizuku-tan immunise l'équipe contre les malus et retire 3 tours de recharge aux sorts de ses alliés.
+- **Askeladd** : Duel de 3 tours (personne d'autre ne peut les attaquer, l'adversaire n'a que son attaque de base ; Askeladd gagne ignore-DEF, critique et dégâts critiques) ; Stratège retire 2 tours de recharge aux alliés ; en tête d'équipe, les saignements de son équipe sont doublés.
+- **Chika Fujiwara** : ATK et DEF +40 % pour l'équipe, 3 tours ; vitesse +30 % et jauge de tour ; Danse de Chika provoque tous les ennemis, 2 tours.
 
 ### Butins et taux affichés
 

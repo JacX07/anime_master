@@ -7,8 +7,8 @@ export function confirmationScope(effects: readonly Effect[]): ConfirmationScope
   if (effects.some((effect) => effect.k === "arise")) return "fallen-allies";
   // Auswählen (Yhwach) : alliés cochés un par un
   if (effects.some((effect) => effect.k === "auswahlen")) return "chosen-allies";
-  if (effects.some((effect) => ("to" in effect && effect.to === "team") || effect.k === "resetCd")) return "team";
-  if (effects.some((effect) => ("to" in effect && effect.to === "foes") || effect.k === "damage" || effect.k === "stun" || effect.k === "sleep")) return "foes";
+  if (effects.some((effect) => ("to" in effect && effect.to === "team") || effect.k === "resetCd" || effect.k === "antiMagic" || effect.k === "cdCut" || effect.k === "extendBuffs" || effect.k === "turnGauge" || effect.k === "cleanse")) return "team";
+  if (effects.some((effect) => ("to" in effect && effect.to === "foes") || effect.k === "damage" || effect.k === "stun" || effect.k === "sleep" || effect.k === "poisonAmp" || effect.k === "detonate" || effect.k === "noCrit" || effect.k === "deathNote")) return "foes";
   return "self";
 }
 

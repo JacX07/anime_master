@@ -1120,49 +1120,33 @@
   "80": {
     "orientation": "controle",
     "secondary": {
-      "name": "Crise cardiaque",
+      "name": "Marquer un nom",
       "target": "foe",
       "effects": [
         {
-          "k": "poison",
-          "pct": 0.06,
-          "turns": 3,
-          "to": "target"
+          "k": "nameMark",
+          "pct": 0.25,
+          "turns": 3
         }
       ]
     },
     "tertiary": {
-      "name": "Règle du Death Note",
+      "name": "Contrôle",
       "target": "foe",
       "effects": [
         {
-          "k": "silence",
-          "turns": 2,
-          "to": "target"
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.3,
-          "turns": 2,
-          "to": "target"
+          "k": "control"
         }
       ]
     },
     "ultimate": {
-      "name": "Jugement de Kira",
-      "target": "foe",
+      "name": "Death Note",
+      "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 4.5,
-          "pierce": true
-        },
-        {
-          "k": "poison",
-          "pct": 0.08,
-          "turns": 3,
-          "to": "target"
+          "k": "deathNote",
+          "turns": 2,
+          "at": 0.3
         }
       ]
     }
@@ -4104,19 +4088,12 @@
   "13020": {
     "orientation": "controle",
     "secondary": {
-      "name": "Ruse du chef des Wolfs",
-      "target": "foe",
+      "name": "Stratège",
+      "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 0.8
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.2,
-          "turns": 2,
-          "to": "target"
+          "k": "cdCut",
+          "turns": 2
         }
       ]
     },
@@ -4141,27 +4118,28 @@
       ]
     },
     "ultimate": {
-      "name": "Stratagème d'Askeladd",
-      "target": null,
+      "name": "Duel",
+      "target": "foe",
       "effects": [
         {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.4,
+          "k": "duel",
           "turns": 3,
-          "to": "foes"
+          "lock": true,
+          "pierce": 0.3
         },
         {
           "k": "mod",
-          "stat": "def",
-          "amount": -0.4,
+          "stat": "crit",
+          "amount": 0.3,
           "turns": 3,
-          "to": "foes"
+          "to": "self"
         },
         {
-          "k": "silence",
-          "turns": 1,
-          "to": "foes"
+          "k": "mod",
+          "stat": "critDamage",
+          "amount": 0.5,
+          "turns": 3,
+          "to": "self"
         }
       ]
     }
@@ -7726,63 +7704,37 @@
   "89198": {
     "orientation": "hybride",
     "secondary": {
-      "name": "Annulation du pouvoir",
+      "name": "Contact",
       "target": "foe",
       "effects": [
         {
-          "k": "silence",
-          "turns": 2,
-          "to": "target"
-        },
-        {
-          "k": "mod",
-          "stat": "def",
-          "amount": -0.18,
-          "turns": 2,
-          "to": "target"
+          "k": "dispel"
         }
       ]
     },
     "tertiary": {
-      "name": "Mime du suicide",
+      "name": "Plan de secours",
       "target": null,
       "effects": [
         {
-          "k": "mod",
-          "stat": "dodge",
-          "amount": 0.4,
-          "turns": 2,
-          "to": "self"
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.3,
+          "k": "vulnerable",
+          "pct": 0.25,
           "turns": 2,
           "to": "foes"
+        },
+        {
+          "k": "noCrit",
+          "turns": 2
         }
       ]
     },
     "ultimate": {
-      "name": "No Longer Human",
+      "name": "Annulation totale",
       "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 1.5,
-          "zone": true,
-          "ignoreDef": 0.4
-        },
-        {
-          "k": "purge",
-          "to": "team"
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.4,
-          "turns": 3,
-          "to": "foes"
+          "k": "antiMagic",
+          "turns": 2
         }
       ]
     }
@@ -8496,10 +8448,16 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 1.5,
-          "ignoreDef": 0.2
+          "mult": 3
+        },
+        {
+          "k": "stun",
+          "turns": 1,
+          "count": 1,
+          "to": "target"
         }
-      ]
+      ],
+      "damageKind": "physical"
     },
     "tertiary": {
       "name": "Lettre de l'Auto-Souvenir",
@@ -8508,27 +8466,28 @@
         {
           "k": "mod",
           "stat": "crit",
-          "amount": 0.2,
-          "turns": 2,
-          "to": "self"
+          "amount": 0.3,
+          "turns": 3,
+          "to": "team"
         },
         {
           "k": "mod",
-          "stat": "dodge",
-          "amount": 0.35,
-          "turns": 2,
-          "to": "self"
+          "stat": "critDamage",
+          "amount": 0.5,
+          "turns": 3,
+          "to": "team"
         }
       ]
     },
     "ultimate": {
-      "name": "Poupée de souvenirs : Je t'aime",
-      "target": "foe",
+      "name": "Poupée de souvenirs",
+      "target": null,
       "effects": [
         {
-          "k": "damage",
-          "mult": 4,
-          "pierce": true
+          "k": "extendBuffs",
+          "turns": 2,
+          "pct": 0.15,
+          "per": 0.05
         }
       ]
     }
@@ -8786,19 +8745,21 @@
   "121103": {
     "orientation": "soutien",
     "secondary": {
-      "name": "Chika Dance",
+      "name": "Soutien du conseil",
       "target": null,
       "effects": [
         {
           "k": "mod",
-          "stat": "dodge",
-          "amount": 0.2,
-          "turns": 2,
+          "stat": "atk",
+          "amount": 0.4,
+          "turns": 3,
           "to": "team"
         },
         {
-          "k": "heal",
-          "pct": 0.1,
+          "k": "mod",
+          "stat": "def",
+          "amount": 0.4,
+          "turns": 3,
           "to": "team"
         }
       ]
@@ -8809,33 +8770,24 @@
       "effects": [
         {
           "k": "mod",
-          "stat": "atk",
+          "stat": "speed",
           "amount": 0.3,
           "turns": 2,
           "to": "team"
         },
         {
-          "k": "mod",
-          "stat": "crit",
-          "amount": 0.18,
-          "turns": 2,
-          "to": "team"
+          "k": "turnGauge",
+          "pct": 0.3
         }
       ]
     },
     "ultimate": {
-      "name": "Fête des cinq sens",
+      "name": "Danse de Chika",
       "target": null,
       "effects": [
         {
-          "k": "shield",
-          "pct": 0.25,
-          "to": "team"
-        },
-        {
-          "k": "heal",
-          "pct": 0.3,
-          "to": "team"
+          "k": "taunt",
+          "turns": 2
         }
       ]
     }
@@ -9939,62 +9891,39 @@
   "126824": {
     "orientation": "controle",
     "secondary": {
-      "name": "Test sur la langue",
-      "target": "foe",
+      "name": "Herbes toxiques",
+      "target": null,
       "effects": [
         {
           "k": "poison",
           "pct": 0.05,
           "turns": 3,
-          "to": "target"
+          "to": "foes"
+        },
+        {
+          "k": "poisonAmp",
+          "pct": 0.25,
+          "turns": 3
         }
       ]
     },
     "tertiary": {
-      "name": "Fumée soporifique",
+      "name": "Remède de l'apothicaire",
       "target": null,
       "effects": [
         {
-          "k": "silence",
-          "turns": 1,
-          "to": "foes"
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.28,
-          "turns": 2,
-          "to": "foes"
+          "k": "cleanse",
+          "pct": 0.15,
+          "per": 0.05
         }
       ]
     },
     "ultimate": {
-      "name": "Pharmacopée du Pavillon",
+      "name": "Réaction toxique",
       "target": null,
       "effects": [
         {
-          "k": "poison",
-          "pct": 0.08,
-          "turns": 4,
-          "to": "foes"
-        },
-        {
-          "k": "mod",
-          "stat": "atk",
-          "amount": -0.4,
-          "turns": 3,
-          "to": "foes"
-        },
-        {
-          "k": "mod",
-          "stat": "def",
-          "amount": -0.4,
-          "turns": 3,
-          "to": "foes"
-        },
-        {
-          "k": "purge",
-          "to": "team"
+          "k": "detonate"
         }
       ]
     }
@@ -10810,9 +10739,14 @@
         {
           "k": "mod",
           "stat": "atk",
-          "amount": 0.18,
+          "amount": 0.5,
           "turns": 2,
           "to": "team"
+        },
+        {
+          "k": "auraPierce",
+          "pct": 0.3,
+          "turns": 2
         }
       ]
     },
@@ -10822,7 +10756,7 @@
       "effects": [
         {
           "k": "shield",
-          "pct": 0.15,
+          "pct": 0.3,
           "to": "team"
         },
         {
@@ -10839,23 +10773,13 @@
       "target": null,
       "effects": [
         {
-          "k": "mod",
-          "stat": "atk",
-          "amount": 0.4,
-          "turns": 3,
+          "k": "immune",
+          "turns": 2,
           "to": "team"
         },
         {
-          "k": "mod",
-          "stat": "crit",
-          "amount": 0.25,
-          "turns": 3,
-          "to": "team"
-        },
-        {
-          "k": "shield",
-          "pct": 0.18,
-          "to": "team"
+          "k": "cdCut",
+          "turns": 3
         }
       ]
     }
@@ -12376,8 +12300,9 @@
       "effects": [
         {
           "k": "heal",
-          "pct": 0.13,
-          "to": "team"
+          "pct": 0.25,
+          "to": "team",
+          "fromCaster": true
         }
       ]
     },

@@ -663,7 +663,7 @@ Toutes les cartes de type MAGIE bénéficient de la stat d’équipement Compét
 - Deku, **One For All** : six alters, chacun 3 tours de recharge — Embrayage (vitesse + pour ses alliés, − pour les ennemis) ; Fa jin (chaque attaque de base ajoute +50 % de charge, 250 % au plus, libérée par ce sort ; attaque de base ×1,5) ; Danger sense (face à un coup fatal, esquive portée jusqu'à 50 %) ; Fouet noir (étourdit un ennemi 1 tour) ; Écran de fumée (intouchable par les attaques ciblées, les zones touchent) ; Voltige (recharges de ses sorts −1 tour).
 - Précisions Deku (2026-11-16) : les six alters remplacent secondaire, tertiaire et ultime. Embrayage : vitesse +20 % pour ses alliés, −20 % pour les ennemis (2 tours, durée par défaut, non précisée). Fa jin : ×1,5 ATK multiplié par (1 + charge), charge remise à zéro après le sort. Danger sense : effet automatique, 3 tours de recharge entre deux déclenchements. Écran de fumée : 2 tours. Voltige : réduit d'un tour la recharge de tous les autres alters.
 
-### Lot 4 — kits demandés le 2026-11-16 (soir, suite) : validés le 2026-11-17, à coder
+### Lot 4 — kits demandés le 2026-11-16 (soir, suite) : validés le 2026-11-17, codés le 2026-11-17
 Les sorts non cités gardent leur version actuelle.
 - **Règle générale (nouvelle)** : le poison devient cumulable pour tous les lanceurs ; une carte porte au plus **10 malus** en même temps (donc jusqu'à 10 cumuls de poison si elle n'a que ça).
 - **Osamu Dazai** (89198). Ultime (remplace No Longer Human) : toute son équipe est immunisée contre les capacités magiques, 2 tours. Secondaire **Contact** : touche une cible et dissipe ses buffs (sans dégâts, recharge courte). Tertiaire **Plan de secours** : tous les ennemis subissent +25 % de dégâts pendant 2 tours et ne peuvent plus faire de coup critique. Passif : −30 % de dégâts reçus de tout lanceur d'un sort magique.
@@ -674,6 +674,15 @@ Les sorts non cités gardent leur version actuelle.
 - **Marin Kitagawa** (133676). Secondaire **Cosplay parfait** : équipe ATK +50 % et 30 % d'ignore-DEF, 2 tours. Tertiaire **Couture sur mesure** : bouclier 30 % des PV max et DEF +28 % pour l'équipe, 2 tours, recharge 7 tours. Ultime **Transformation en Shizuku-tan** : immunité aux malus pour l'équipe, 2 tours, et −3 tours de recharge sur les sorts de tous ses alliés.
 - **Askeladd** (13020). Ultime **Duel** : provoque un ennemi en duel 3 tours ; personne d'autre ne peut les attaquer, l'ennemi n'utilise que son attaque de base ; Askeladd gagne 30 % d'ignore-DEF, +30 % de critique et +50 % de dégâts critiques. Secondaire **Stratège** : −2 tours de recharge sur les sorts de ses alliés. Passif de chef : en tête d'équipe, les dégâts de saignement de son équipe sont doublés.
 - **Chika Fujiwara** (121103). Secondaire : alliés ATK et DEF +40 %, 3 tours. Tertiaire : vitesse +30 % pour l'équipe et +30 % de jauge de tour aux alliés. Ultime **Danse de Chika** : provoque tous les ennemis, 2 tours.
+
+**Choix de la première version codée (2026-11-17), valeurs non précisées par la spec**
+- Poison cumulable : chaque pose est un cumul avec sa propre durée ; l'affichage montre la somme. Au-delà de 10 malus, un nouveau malus est refusé (« Résiste ») ; un malus déjà présent peut toujours être renouvelé.
+- Maomao : poison de l'attaque de base 3 % des PV max, 2 tours ; secondaire 5 % des PV max, 3 tours, poison renforcé 3 tours. Ultime : les cumuls restent en place après l'explosion. Le soin du tertiaire compte aussi Exposé et Affaibli comme malus retirés.
+- Dazai : Contact recharge 2 tours ; en Auto, il ne le lance que sur un ennemi qui a des buffs (effets permanents exclus). L'immunité magique bloque les dégâts et les malus des capacités magiques ennemies.
+- Violet : la Poupée de souvenirs ne prolonge pas les effets permanents ; le bouclier n'est pas plafonné.
+- Light : Contrôle utilise le vol de Makima pour une action (la cible joue dans le camp de Light) quand elle a un sort prêt, sinon elle est étourdie ; elle est aussi étourdie si c'est un boss, la dernière de son camp ou si elle est immunisée.
+- Askeladd : le duel verrouille les deux cartes l'une sur l'autre (ses zones ne touchent que l'adversaire) ; ignore-DEF, critique et dégâts critiques pendant 3 tours. Saignements doublés tant qu'il est vivant en première position.
+- Marin et Askeladd : la réduction de recharge ne concerne pas le lanceur. Chika : la jauge de tour ne compte qu'avec l'ordonnanceur à jauge.
 
 ### Recharges et ultimes — changement global du 2026-11-16
 - Secondaire et tertiaire : recharge de 3 tours pour tous les SSR/UR et les boss (avant : 5 et 7) ; l'éveil retire toujours un tour (3★ secondaire, 5★ tertiaire).

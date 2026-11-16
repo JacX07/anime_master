@@ -410,4 +410,208 @@ for (let seed = 1; seed <= 200; seed++) {
   applyAction(s, { spell: "base", target: "A1" });
   assert.equal(s.teams.A[0].hp, 0, "une seule fois par combat");
 }
+// ── Lot 4 (2026-11-17) ───────────────────────────────────────────────────────────
+const MAOMAO = 126824, DAZAI = 89198, FRIEREN = 176754, VIOLET = 90169, LIGHT = 80, MARIN = 133676, ASKELADD = 13020, CHIKA = 121103;
+const fxOf = (s: BattleState, id: string, key: string) => s.teams[id[0] as "A" | "B"][Number(id.slice(1)) - 1].fx.filter((f) => f.key === key);
+// Poison cumulable, 10 malus au plus
+{
+  const s = createBattle([card(MAOMAO, { attack: 1 })], [dummy({ defense: 1e9, attack: 1 })], () => 0.1, { startingSide: "A" });
+  for (let i = 0; i < 14; i++) { until(s, "A1"); applyAction(s, { spell: "base", target: "B1" }); }
+  const stacks = fxOf(s, "B1", "poison").length;
+  assert(stacks >= 2, `le poison se cumule (${stacks})`);
+  const malus = s.teams.B[0].fx.length;
+  assert(malus <= 10, `10 malus au plus (${malus})`);
+  // Un tour de poison retire bien des PV pour chaque cumul
+  const b = s.teams.B[0];
+  b.fx = [];
+  for (let i = 0; i < 12; i++) b.fx.push({ key: "poison", amount: 0.01, turns: 5, fresh: false, source: "A1" });
+  assert.equal(b.fx.length, 12);
+}
+{
+  const s = createBattle([card(MAOMAO, { attack: 1 })], [dummy({ defense: 1e9, attack: 1 })], () => 0.1, { startingSide: "A" });
+  const b = s.teams.B[0];
+  for (let i = 0; i < 9; i++) b.fx.push({ key: "atkDown", stat: "atk", amount: -0.01 * (i + 1), turns: 5, fresh: false, source: "A1" });
+  until(s, "A1");
+  applyAction(s, { spell: "base", target: "B1" });
+  assert.equal(fxOf(s, "B1", "poison").length, 1, "10e malus accepté");
+  until(s, "A1");
+  applyAction(s, { spell: "base", target: "B1" });
+  assert(b.fx.filter((f) => f.key !== "atkDown").length <= 1 && b.fx.length <= 10, "11e malus refusé");
+}
+// Maomao : secondaire (poison de zone + poison renforcé), ultime (explosion), tertiaire (purge et soin)
+{
+  const s = createBattle([card(MAOMAO, { startGauge: 100 }), dummy({ defense: 1e9 })], [dummy({ defense: 1e9, attack: 1 }), dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: null });
+  assert(fxOf(s, "B1", "poison").length === 1 && fxOf(s, "B2", "poison").length === 1 && fxOf(s, "B1", "toxic").length === 1, "poison et poison renforcé sur tous les ennemis");
+  const b = s.teams.B[0];
+  b.fx.push({ key: "poison", amount: 0.05, turns: 3, fresh: false, source: "A1" });
+  until(s, "A1");
+  const before = b.hp;
+  applyAction(s, { spell: "ultimate", target: null });
+  const boom = [...s.log].reverse().find((e) => e.kind === "poison" && e.target === "B1");
+  assert(boom && boom.kind === "poison" && Math.abs(boom.amount - b.maxHp * 0.1 * 1.25) < 1, "explosion : 2 cumuls × 5 % × 1,25");
+  assert(b.hp < before);
+  const m = s.teams.A[0];
+  m.fx.push({ key: "atkDown", stat: "atk", amount: -0.2, turns: 3, fresh: false }, { key: "defDown", stat: "def", amount: -0.2, turns: 3, fresh: false });
+  m.hp = m.maxHp * 0.3;
+  m.tIn = 0;
+  until(s, "A1");
+  const hp = m.hp;
+  applyAction(s, { spell: "tertiary", target: null });
+  assert.equal(m.fx.filter((f) => f.key === "atkDown" || f.key === "defDown").length, 0, "malus retirés");
+  assert(Math.abs(m.hp - hp - m.maxHp * 0.25) < 1, "soin 15 % + 2 × 5 %");
+}
+// Dazai : Contact dissipe les buffs ; Plan de secours ; immunité magique ; passif −30 % magique
+{
+  const s = createBattle([card(DAZAI, { startGauge: 100 })], [card(5, { rarity: "UR", attack: 1 }), dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  s.teams.B[0].fx.push({ key: "atkUp", stat: "atk", amount: 0.3, turns: 3, fresh: false });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: "B1" });
+  assert.equal(fxOf(s, "B1", "atkUp").length, 0, "Contact dissipe les buffs");
+  assert.equal(s.teams.A[0].specialCd, 2, "recharge courte");
+  until(s, "A1");
+  applyAction(s, { spell: "tertiary", target: null });
+  assert(fxOf(s, "B1", "noCrit").length && fxOf(s, "B2", "vulnerable")[0]?.amount === 0.25, "Plan de secours sur tous les ennemis");
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: null });
+  assert(fxOf(s, "A1", "antiMagic").length, "immunité magique");
+}
+{
+  // Un sort magique ne touche pas une carte sous immunité magique
+  const s = createBattle([card(DAZAI)], [card(89361, { rarity: "UR", type: "MAGIE", startGauge: 100 })], () => 0.5, { startingSide: "B" });
+  s.teams.A[0].fx.push({ key: "antiMagic", amount: 0, turns: 3, fresh: false });
+  until(s, "B1");
+  const hp = s.teams.A[0].hp;
+  applyAction(s, autoAction(s).spell === "ultimate" ? { spell: "ultimate", target: legalActions(s).find((a) => a.spell === "ultimate")!.targets[0] } : autoAction(s));
+  assert.equal(s.teams.A[0].hp, hp, "aucun dégât magique");
+}
+// Frieren : soin de 25 % de SES PV max ; ultime ×3,1
+{
+  assert.equal(ULTIMATE_CATALOG[FRIEREN]?.effects.find((e) => e.k === "damage")?.k === "damage" && (ULTIMATE_CATALOG[FRIEREN]!.effects.find((e) => e.k === "damage") as { mult: number }).mult, 3.1);
+  const s = createBattle([card(FRIEREN, { attack: 3000 }), dummy({ attack: 10, defense: 10000 })], [dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  const ally = s.teams.A[1];
+  ally.hp = 1;
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: null });
+  assert(Math.abs(ally.hp - 1 - s.teams.A[0].maxHp * 0.25) < 1, "25 % des PV max de Frieren");
+}
+// Violet : tir ×2, Poing mécanique étourdit, Lettre, Poupée de souvenirs
+{
+  const s = createBattle([card(VIOLET, { startGauge: 100 }), dummy({ defense: 1e9 })], [dummy({ defense: 1e9, attack: 1 }), dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: "B2" });
+  assert(s.log.some((e) => e.kind === "status" && e.target === "B2" && e.status === "stun" && e.on), "la cible choisie est étourdie");
+  until(s, "A1");
+  applyAction(s, { spell: "tertiary", target: null });
+  assert.equal(fxOf(s, "A2", "critDamageUp")[0]?.amount, 0.5, "équipe +50 % de dégâts critiques");
+  until(s, "A1");
+  const turns = fxOf(s, "A2", "critUp")[0].turns;
+  applyAction(s, { spell: "ultimate", target: null });
+  assert.equal(fxOf(s, "A2", "critUp")[0].turns, turns + 2, "buffs prolongés de 2 tours");
+  const sh = [...s.log].reverse().find((e) => e.kind === "shield" && e.target === "A2");
+  assert(sh?.kind === "shield" && Math.abs(sh.amount - s.teams.A[0].maxHp * 0.25) < 1, "bouclier 15 % + 2 buffs × 5 %");
+}
+// Light : Marquer un nom (rampe), Death Note (exécution sous 30 %), Contrôle
+{
+  const s = createBattle([card(LIGHT, { startGauge: 100 }), card(999004, { rarity: "N", attack: 300 })], [dummy({ defense: 1, attack: 1 }), dummy({ defense: 1, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: null });
+  assert(fxOf(s, "B1", "deathNote").length, "marque");
+  const b = s.teams.B[0];
+  b.hp = b.maxHp * 0.31;
+  until(s, "A2");
+  applyAction(s, { spell: "base", target: "B1" });
+  assert.equal(b.hp, 0, "exécuté sous 30 %");
+}
+{
+  const s = createBattle([card(LIGHT), dummy({ attack: 1000, defense: 1e9 })], [dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: "B1" });
+  const mark = s.log.length;
+  for (let i = 0; i < 3; i++) { until(s, "A2"); applyAction(s, { spell: "base", target: "B1" }); }
+  // Light et l'allié ont la même ATK : les coups successifs valent 100 %, 125 %, 150 %…
+  const hits = s.log.slice(mark).filter((e) => e.kind === "damage" && e.target === "B1").map((e) => (e.kind === "damage" ? e.amount : 0));
+  assert(hits.length >= 3 && hits.slice(0, 3).every((h, k) => Math.abs(h / hits[0] - (1 + 0.25 * k)) < 0.01), `+25 % de plus à chaque coup (${hits.join(", ")})`);
+}
+{
+  // Contrôle : avec un sort prêt, la cible joue pour Light ; sans, elle est étourdie
+  const s = createBattle([card(LIGHT), dummy({ defense: 1e9 })], [card(5, { rarity: "UR", attack: 1 }), dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  s.teams.B[0].pIn = 0;
+  applyAction(s, { spell: "tertiary", target: "B1" });
+  assert.equal(s.teams.B[0].side, "A", "la cible passe dans le camp de Light");
+  const t = createBattle([card(LIGHT), dummy({ defense: 1e9 })], [card(5, { rarity: "UR", attack: 1 }), dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(t, "A1");
+  t.teams.B[0].pIn = 3; t.teams.B[0].tIn = 3;
+  applyAction(t, { spell: "tertiary", target: "B1" });
+  assert(t.log.some((e) => e.kind === "status" && e.target === "B1" && e.status === "stun" && e.on), "sans sort prêt : étourdie");
+}
+// Marin : Cosplay parfait, Couture (recharge 7), Shizuku-tan (immunité, −3 recharges des alliés)
+{
+  const s = createBattle([card(MARIN, { startGauge: 100 }), card(5, { rarity: "UR" })], [dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  assert.equal(s.teams.A[0].tertiaryCd, 7, "Couture : 7 tours");
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: null });
+  assert(fxOf(s, "A2", "atkUp")[0]?.amount === 0.5 && fxOf(s, "A2", "auraPierce")[0]?.amount === 0.3, "ATK +50 % et 30 % d'ignore-DEF");
+  s.teams.A[1].pIn = 3; s.teams.A[1].tIn = 3;
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: null });
+  assert(fxOf(s, "A2", "immune").length && s.teams.A[1].pIn === 0 && s.teams.A[1].tIn === 0, "immunité et −3 tours de recharge");
+}
+// Askeladd : Duel (verrou mutuel, base seulement), Stratège, saignements doublés en tête
+{
+  const s = createBattle([card(ASKELADD, { startGauge: 100 }), card(5, { rarity: "UR" })], [card(40, { rarity: "UR", attack: 1, defense: 1e9 }), card(62, { rarity: "UR", attack: 1, defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: "B1" });
+  assert(fxOf(s, "A1", "critUp").length && fxOf(s, "A1", "auraPierce")[0]?.amount === 0.3, "Askeladd renforcé");
+  until(s, "A2");
+  assert(!legalActions(s).find((a) => a.spell === "base")?.targets.includes("B1"), "personne d'autre n'atteint l'ennemi en duel");
+  applyAction(s, autoAction(s));
+  until(s, "B1");
+  assert.deepEqual(legalActions(s).map((a) => a.spell), ["base"], "l'ennemi n'a que son attaque de base");
+  assert.deepEqual(legalActions(s)[0].targets, ["A1"], "il ne peut viser qu'Askeladd");
+  assert.equal(autoAction(s).spell, "base");
+}
+{
+  const s = createBattle([card(ASKELADD), card(5, { rarity: "UR" })], [dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  s.teams.A[1].pIn = 3; s.teams.A[1].tIn = 3;
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: null });
+  assert(s.teams.A[1].pIn === 1 && s.teams.A[1].tIn === 1, "Stratège : −2 tours");
+  // Saignement doublé : même saignement, Askeladd en tête ou non
+  const tick = (lead: boolean) => {
+    const team = lead ? [card(ASKELADD, { noSpell: true, noTertiary: true }), card(422, { rarity: "UR" })] : [card(422, { rarity: "UR" }), card(ASKELADD, { noSpell: true, noTertiary: true })];
+    const t = createBattle(team, [dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "B" });
+    t.teams.B[0].fx.push({ key: "bleed", amount: 0.02, turns: Infinity, fresh: false, stacks: 1, source: lead ? "A2" : "A1" });
+    until(t, "B1");
+    applyAction(t, { spell: "base", target: "A1" });
+    const e = t.log.find((x) => x.kind === "poison" && x.target === "B1");
+    return e?.kind === "poison" ? e.amount : 0;
+  };
+  assert.equal(tick(true), tick(false) * 2, "saignement doublé avec Askeladd en tête");
+}
+// Chika : ATK et DEF +40 %, vitesse et jauge de tour, provocation
+{
+  const s = createBattle([card(CHIKA, { startGauge: 100 }), card(5, { rarity: "UR" })], [dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A", gauge: true });
+  until(s, "A1");
+  applyAction(s, { spell: "special", target: null });
+  assert(fxOf(s, "A2", "atkUp")[0]?.amount === 0.4 && fxOf(s, "A2", "defUp")[0]?.amount === 0.4, "ATK et DEF +40 %");
+  until(s, "A1");
+  s.teams.A[1].gauge = 0;
+  applyAction(s, { spell: "tertiary", target: null });
+  assert(fxOf(s, "A2", "speedUp").length && s.teams.A[1].gauge >= 3000, "vitesse et +30 % de jauge");
+  until(s, "A1");
+  applyAction(s, { spell: "ultimate", target: null });
+  assert(fxOf(s, "A1", "taunt").length, "provocation");
+}
+// Robustesse : 3 000 combats au hasard avec les kits du lot 4
+{
+  const pool = [MAOMAO, DAZAI, FRIEREN, VIOLET, LIGHT, MARIN, ASKELADD, CHIKA, 5, 40, 62, 422, 89361, 53901, 14489, 68537, 58, 129571];
+  const rng = seededRandom(404);
+  for (let g = 0; g < 3000; g++) {
+    const pick = () => Array.from({ length: 4 }, () => card(pool[Math.floor(rng() * pool.length)], { type: (["COMBAT", "MAGIE", "MYSTERE", "COEUR", "AVENTURE"] as const)[Math.floor(rng() * 5)] }));
+    battle(pick(), pick(), seededRandom(g), { gauge: g % 2 === 0 });
+  }
+}
 console.log("check-kits ok");

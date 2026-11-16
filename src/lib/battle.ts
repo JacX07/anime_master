@@ -12,7 +12,7 @@ import { BLADE_USERS } from "./blade-users";
 import { damageKind } from "./damage-kind";
 import { BOSS_SKILLS } from "./boss-skills";
 import { basicAttackOf, type BasicAttack, type BasicRider } from "./basic-attacks";
-import { isSoloBuff, specialCooldownOf, spellOf, SPELL_COOLDOWN, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
+import { isSoloBuff, specialCooldownOf, spellOf, tertiaryCooldownOf, SPELL_FIRST, type CharacterSpell, type Effect, type ModStat, type Scope } from "./spells";
 import { balanceSecondary, powerTertiaryDamage } from "./character-skills";
 import { TERTIARY_SPELLS } from "./tertiary-catalog";
 import { ULTIMATE_CATALOG } from "./ultimate-catalog";
@@ -207,7 +207,7 @@ export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate" | 
 /** Sorts réellement joués (une décision hors tour ou le retrait du pouvoir de Yhwach ne sont pas des actions) */
 export type ActionSpell = Exclude<Spell, "decide" | "withdraw">;
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand" | "blessed";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand" | "blessed" | "toxic" | "antiMagic" | "noCrit" | "deathNote" | "named";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 /** Emplacement de sort remplaçable en combat (transformation, absorption) */
 export type KitSlot = "special" | "tertiary" | "ultimate";
@@ -386,14 +386,26 @@ interface Fx {
   stacks?: number;
   /** Duel : le seul ennemi qui peut encore atteindre le porteur */
   foe?: UnitId;
+  /** Duel d'Askeladd : le porteur ne peut atteindre que `foe` ; `bound` : il n'a que son attaque de base */
+  lock?: boolean;
+  bound?: boolean;
 }
-const MALUS = new Set<string>(["dread", "puppet", "sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet", "gash", "disarm"]);
+const MALUS = new Set<string>(["dread", "puppet", "sleep", "fear", "earth", "swept", "broken", "vulnerable", "bleed", "seal", "atkDown", "defDown", "critDown", "dodgeDown", "speedDown", "silence", "poison", "stun", "burn", "wet", "gash", "disarm", "toxic", "noCrit", "deathNote", "named"]);
+/** Lot 4 : une carte porte au plus 10 malus en même temps (chaque cumul de poison compte) */
+const MALUS_CAP = 10;
+/** Buffs dissipés (Contact de Dazai) ou prolongés (Poupée de souvenirs de Violet) ; les transformations ne sont pas des buffs */
+const BUFFS = new Set<string>(["atkUp", "defUp", "critUp", "critDamageUp", "dodgeUp", "speedUp", "immune", "regen", "reduce", "taunt", "counter", "bloodlust", "intangible", "auraPierce", "blessed", "antiMagic"]);
 const fxSum = (u: Unit, stat: ModStat) => u.fx.reduce((n, f) => (f.stat === stat ? n + f.amount : n), 0);
 const fxKeySum = (u: Unit, key: FxKey) => u.fx.reduce((n, f) => (f.key === key ? n + f.amount : n), 0);
 const hasFx = (u: Unit, key: FxKey) => u.fx.some((f) => f.key === key);
 /** Ennemis vivants que `u` peut atteindre : une carte en duel n'est atteignable que par son adversaire désigné. */
-const reachableFoes = (st: BattleState, u: Unit): Unit[] =>
-  alive(st, enemy(u.side)).filter((f) => !f.fx.some((x) => (x.key === "duel" && x.foe && x.foe !== u.id) || x.key === "intangible"));
+const reachableFoes = (st: BattleState, u: Unit): Unit[] => {
+  const all = alive(st, enemy(u.side)).filter((f) => !f.fx.some((x) => (x.key === "duel" && x.foe && x.foe !== u.id) || x.key === "intangible"));
+  // Duel d'Askeladd : chacun des deux ne peut atteindre que l'autre
+  const lock = u.fx.find((x) => x.key === "duel" && x.lock && x.foe);
+  const only = lock ? all.filter((f) => f.id === lock.foe) : [];
+  return only.length ? only : all;
+};
 /** Tous les ennemis vivants sont en duel avec un autre : la carte ne peut atteindre personne et passe son tour. */
 const cutOffByDuel = (st: BattleState, u: Unit) => alive(st, enemy(u.side)).length > 0 && reachableFoes(st, u).length === 0;
 /** Ennemis qu'une attaque à cible unique peut viser : seuls les provocateurs vivants s'il y en a */
@@ -480,8 +492,8 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       atk: card.attack * (1 + bonus[i] + aura[i] + (card.artifactStats?.attack ?? 0) + (w?.stats?.attack ?? 0)) + (card.artifactStats?.flatAttack ?? 0),
       def: card.defense * (1 + bonus[i] + (card.artifactStats?.defense ?? 0) + (w?.stats?.defense ?? 0)) + (card.artifactStats?.flatDefense ?? 0),
       cooldown: BATTLE.spellCooldown - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
-      specialCd: card.characterId === NETERO ? specialCooldownOf(NETERO) : SPELL_COOLDOWN - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
-      tertiaryCd: BATTLE.tertiaryCooldown - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
+      specialCd: card.characterId === NETERO ? specialCooldownOf(NETERO) : specialCooldownOf(card.characterId) - (starsOf(card) >= BATTLE.secondaryCdStar ? 1 : 0),
+      tertiaryCd: tertiaryCooldownOf(card.characterId) - (starsOf(card) >= BATTLE.tertiaryCdStar ? 1 : 0),
       dodge: p?.kind === "dodge" ? p.chance : 0,
       spellIn: 2, held: 0, guard: 0, souls: 0, finalBonus: 0, soulTaken: false, shieldTaken: false, devoured: false, phased: false, exposed: false, weaken: 0, elan: 0,
       spell: rawSecondary ? (card.spell ? card.spell : balanceSecondary(rawSecondary, BATTLE.secondaryEffectScale)) : null,
@@ -530,6 +542,34 @@ const SUSANOO_KIT = {
   tertiary: { name: "Kyūbi", target: null, damageKind: "magic", final: true, effects: [{ k: "damage", mult: 3.3, zone: true }, { k: "poison", pct: 0.06, turns: 2, to: "foes", burn: true }] } as CharacterSpell,
 };
 const isAnti = (u: Unit) => u.card.characterId === ANTI_SPIRAL;
+/** Lot 4 (2026-11-17) */
+const DAZAI = 89198, ASKELADD = 13020;
+/** Dazai : dégâts reçus des sorts magiques réduits */
+const DAZAI_MAGIC_GUARD = 0.3;
+/** Askeladd en tête d'équipe : saignements de son équipe doublés */
+const askeladdLeads = (st: BattleState, source: UnitId | undefined) => {
+  if (!source) return false;
+  const lead = st.teams[source[0] as Side][0];
+  return lead?.card.characterId === ASKELADD && lead.hp > 0 && !!st.opts.spells && !lead.card.noUltimate;
+};
+/** Death Note (Light) : un ennemi marqué qui passe sous le seuil est exécuté (boss exclus) */
+function deathNoteCheck(st: BattleState, t: Unit): boolean {
+  const note = t.fx.find((f) => f.key === "deathNote");
+  if (!note || t.hp <= 0 || t.card.boss || t.hp >= t.maxHp * note.amount) return false;
+  const left = t.hp;
+  t.hp = 0;
+  t.shield = 0;
+  t.titanShield = 0;
+  st.log.push({ kind: "damage", source: note.source ?? t.id, target: t.id, amount: left, absorbed: 0, crit: true, affinity: null, exposedBonus: false, hp: 0, shield: 0 });
+  st.log.push({ kind: "ko", target: t.id });
+  return true;
+}
+/** Après le retrait d'un cumul de poison, l'affichage garde l'effet tant qu'il en reste un */
+function logPoisonLeft(st: BattleState, u: Unit) {
+  const left = u.fx.filter((f) => f.key === "poison");
+  if (!left.length) { st.log.push({ kind: "status", target: u.id, status: "poison", on: false }); return; }
+  st.log.push({ kind: "status", target: u.id, status: "poison", on: true, amount: left.reduce((n, f) => n + f.amount, 0), turns: Math.max(...left.map((f) => f.turns)), source: left[left.length - 1].source });
+}
 
 /** Passifs de personnage affichés dans les fiches (équipe, combat). */
 export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> = {
@@ -538,6 +578,8 @@ export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> 
   126824: { name: "Corps d'apothicaire", text: "Immunisée contre les dégâts sur la durée : poison, brûlure et saignement." },
   127691: { name: "Infini", text: "Intouchable jusqu'à la fin de son premier tour : aucun ennemi ne peut le viser ni le toucher." },
   1086: { name: "Kyoka Suigetsu", text: "Une attaque ennemie sur deux visant Aizen frappe à la place un allié de l'attaquant, au hasard." },
+  89198: { name: "No Longer Human", text: "Subit 30 % de dégâts en moins de tout lanceur d'un sort magique." },
+  13020: { name: "Chef des Wolfs", text: "En tête d'équipe, les dégâts de saignement de son équipe sont doublés." },
   162722: { name: "Lance inversée du ciel", text: "Annule les dégâts des sorts magiques et leurs dégâts sur la durée. Les attaques de base et les sorts physiques le touchent normalement." },
   53901: { name: "Cellules d'Hashirama", text: "Soin de 8 % des PV max à chacune de ses actions. Le premier Rinnegan invoque deux clones (un coup ciblé sur Madara touche un clone 2 fois sur 3) ; les suivants lancent la Pression gravitationnelle." },
   14489: { name: "Cent mille paumes", text: "Les paumes montent en puissance à chaque lancer : 100 %, 125 %, 150 %, puis Paume zéro à 200 % et retour au début. Recharge de 2 actions." },
@@ -828,11 +870,14 @@ function finishUnitTurn(st: BattleState, u: Unit) {
       continue;
     }
     if (u.hp > 0 && (effect.key === "poison" || effect.key === "burn" || effect.key === "bleed" || effect.key === "gash")) {
-      const amount = Math.min(u.hp, (effect.key === "bleed" ? Math.ceil(u.hp * effect.amount) : u.maxHp * effect.amount) * (1 - fxKeySum(u, "titan")));
+      // Maomao : poison renforcé ; Askeladd en tête : saignements de son équipe doublés
+      const boost = effect.key === "poison" ? 1 + fxKeySum(u, "toxic") : effect.key === "bleed" && askeladdLeads(st, effect.source) ? 2 : 1;
+      const amount = Math.min(u.hp, (effect.key === "bleed" ? Math.ceil(u.hp * effect.amount) : u.maxHp * effect.amount) * boost * (1 - fxKeySum(u, "titan")));
       u.hp -= amount;
       st.log.push({ kind: "poison", target: u.id, amount, hp: u.hp, ...(effect.source ? { source: effect.source } : {}), ...(effect.key === "burn" ? { burn: true } : {}), ...(effect.key === "bleed" ? { bleed: true } : {}) });
       triggerTitan(st, u, false);
       if (u.hp <= 0 && !almightySave(st, u)) st.log.push({ kind: "ko", target: u.id });
+      deathNoteCheck(st, u);
     }
     if (u.hp > 0 && effect.key === "regen" && !hasFx(u, "gash")) {
       if (effect.amount > 0) clearBleed(st, u);
@@ -862,12 +907,13 @@ function finishUnitTurn(st: BattleState, u: Unit) {
         if (lost > 0) st.log.push({ kind: "shield", source: u.id, target: u.id, amount: -lost, shield: u.shield });
       }
       u.fx = u.fx.filter((fx) => fx !== effect);
-      st.log.push({ kind: "status", target: u.id, status: effect.key, on: false });
+      if (effect.key === "poison") logPoisonLeft(st, u);
+      else st.log.push({ kind: "status", target: u.id, status: effect.key, on: false });
     }
   }
   // Tours restants (après décompte), pour le panneau des effets
   const turns: Partial<Record<Status, number>> = {};
-  for (const f of u.fx) if (f.key !== "ignoreDef" && f.key !== "bleed") turns[f.key] = f.turns + (f.fresh ? 1 : 0);
+  for (const f of u.fx) if (f.key !== "ignoreDef" && f.key !== "bleed") turns[f.key] = Math.max(turns[f.key] ?? 0, f.turns + (f.fresh ? 1 : 0));
   if (u.weaken > 0) turns.weaken = u.weaken;
   if (u.elan > 0) turns.elan = u.elan;
   if (Object.keys(turns).length) st.log.push({ kind: "fxTurns", target: u.id, turns });
@@ -1128,7 +1174,8 @@ export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId 
 function turnActions(st: BattleState, u: Unit): { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[] {
   const foes = foesFor(st, u).map((f) => f.id);
   const list: { spell: Spell; targets: (UnitId | null)[] }[] = [{ spell: "base", targets: foes }];
-  if (hasFx(u, "silence")) return list;
+  // Duel d'Askeladd : l'ennemi provoqué n'a que son attaque de base
+  if (hasFx(u, "silence") || isBound(u)) return list;
   if (cooldownReady(u, u.spellIn) && !hasCharacterSlots(u.card.rarity)) {
     const t = u.card.type;
     const targets = t === "AVENTURE" ? [null] : t === "COEUR" ? alive(st, u.side).map((x) => x.id) : foes;
@@ -1151,6 +1198,8 @@ function turnActions(st: BattleState, u: Unit): { spell: Spell; targets: (UnitId
   return list;
 }
 
+const isBound = (u: Unit) => u.fx.some((f) => f.key === "duel" && f.bound);
+
 /** Mode auto : lance un sort personnel prêt si sa cible et son effet sont utiles. */
 function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): Action | null {
   const spell = spellFor(st, u, slot);
@@ -1165,15 +1214,21 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
   if (only("stun") && !fx.some((effect) => effect.k === "stun" && strongestFoes(st, u, effect.count).some((foe) => !foe.card.boss && !hasFx(foe, "immune")))) return null;
   if (spell.target === "deadAlly") return { spell: slot, target: targets[0] };
-  if (fx.some((e) => e.k === "heal" || e.k === "purge") && fx.every((e) => e.k === "heal" || e.k === "purge")) {
+  if (fx.some((e) => e.k === "heal" || e.k === "purge" || e.k === "cleanse") && fx.every((e) => e.k === "heal" || e.k === "purge" || e.k === "cleanse")) {
     const hurt = allies.some((x) => x.hp < x.maxHp * BATTLE.healBelow);
-    const dirty = fx.some((e) => e.k === "purge") && allies.some((x) => x.fx.some((f) => MALUS.has(f.key)) || x.exposed || x.weaken > 0);
+    const dirty = fx.some((e) => e.k === "purge" || e.k === "cleanse") && allies.some((x) => x.fx.some((f) => MALUS.has(f.key)) || x.exposed || x.weaken > 0);
     if (!hurt && !dirty) return null;
   }
   if (only("shield") && allies.every((x) => x.shield > x.maxHp * 0.05)) return null;
+  // Explosion des poisons : seulement si un ennemi est empoisonné ; Contact : seulement sur un ennemi qui a des buffs
+  if (only("detonate") && !foes.some((f) => hasFx(f, "poison"))) return null;
+  if (only("dispel")) {
+    const buffed = foes.filter((f) => targets.includes(f.id) && f.fx.some((x) => BUFFS.has(x.key) && x.turns < 999));
+    return buffed.length ? { spell: slot, target: buffed.reduce((m, x) => (x.atk > m.atk ? x : m)).id } : null;
+  }
   if (spell.target === "ally") return { spell: slot, target: mostHurt(allies).id };
   if (spell.target === "foe") {
-    const control = fx.some((e) => e.k === "silence" || e.k === "seal" || e.k === "steal" || e.k === "puppet" || e.k === "oneShot");
+    const control = fx.some((e) => e.k === "silence" || e.k === "seal" || e.k === "steal" || e.k === "puppet" || e.k === "oneShot" || e.k === "control" || (e.k === "duel" && !!e.lock));
     const pool = foes.filter((f) => targets.includes(f.id));
     const pick = control ? pool.reduce((m, x) => (x.atk > m.atk ? x : m)) : weakest(pool);
     return { spell: slot, target: pick.id };
@@ -1200,7 +1255,7 @@ export function autoAction(st: BattleState): Action {
     if (allowed) return { spell: allowed.spell, target: allowed.targets[0] ?? null };
   }
   // Concentration (Gon) : l'attaque chargée part au tour suivant
-  if (hasFx(u, "silence") || hasFx(u, "seal") || hasFx(u, "charged")) return base;
+  if (hasFx(u, "silence") || hasFx(u, "seal") || hasFx(u, "charged") || isBound(u)) return base;
   const ultimate = autoSpecial(st, u, "ultimate");
   if (ultimate) return ultimate;
   const special = autoSpecial(st, u, "special");
@@ -1307,6 +1362,11 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       log.push({ kind: "resist", target: t.id });
       return 0;
     }
+    // Immunité magique (ultime de Dazai)
+    if (t.side !== u.side && magicalAction && hasFx(t, "antiMagic")) {
+      log.push({ kind: "resist", target: t.id });
+      return 0;
+    }
     // Kyoka Suigetsu (Aizen) : une fois sur deux, l'attaquant frappe un de ses alliés
     if (!redirected && t.side !== u.side && ILLUSION.has(t.card.characterId) && rng() < 0.5) {
       const decoys = alive(st, u.side).filter((x) => x !== u && !isAnti(x));
@@ -1353,7 +1413,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     let dmg = atk * aff * mult * defFactor;
     // Tueur de boss (Levi) : une part des PV max de la cible, plafonnée
     if (hpPct > 0) dmg += Math.min(t.maxHp * hpPct, atk * BATTLE.hpPctCap) * aff * defFactor;
-    const crit = critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit") + critBonus, 0, BATTLE.critCap);
+    // Plan de secours (Dazai) : plus de coup critique
+    const crit = !hasFx(u, "noCrit") && (critSure || rng() < clamp(BATTLE.critRate + (u.card.artifactStats?.crit ?? 0) + starCrit(u.card) + fxSum(u, "crit") + critBonus, 0, BATTLE.critCap));
     if (crit) dmg *= BATTLE.critDamage + (u.card.artifactStats?.critDamage ?? 0) + starCritDamage(u.card) + fxSum(u, "critDamage");
     dmg *= 1 + ((damageKind(u.card) === "magic" ? u.card.artifactStats?.magicDamage : u.card.artifactStats?.physDamage) ?? 0)
       + ((damageKind(u.card) === "magic" ? weaponOf(u.card)?.stats?.magicDamage : weaponOf(u.card)?.stats?.physDamage) ?? 0);
@@ -1372,6 +1433,11 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     dmg *= 1 + u.finalBonus + fxKeySum(u, "blessed");
     // Réduction des dégâts subis (sorts de tank), plafonnée
     dmg *= 1 + fxKeySum(t, "vulnerable");
+    // Marquer un nom (Light) : +25 % de plus à chaque coup reçu
+    const named = t.fx.find((f) => f.key === "named");
+    if (named) dmg *= 1 + named.amount * (named.stacks ?? 0);
+    // Passif de Dazai : −30 % de dégâts des sorts magiques
+    if (t.card.characterId === DAZAI && magicalAction && t.side !== u.side && opts.spells) dmg *= 1 - DAZAI_MAGIC_GUARD;
     const g = t.card.guard;
     const passiveGuard = g && (g.when === "above" ? t.hp > t.maxHp * g.at : t.hp <= t.maxHp * g.at) ? g.reduce : 0;
     dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan") + (weaponOf(t.card)?.stats?.reduce ?? 0) + t.guard + passiveGuard, 0, BATTLE.reduceCap);
@@ -1383,7 +1449,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       kind: "damage", source: u.id, target: t.id, amount: dmg, absorbed, crit,
       affinity: aff > 1 ? "strong" : aff < 1 ? "weak" : null, exposedBonus, hp: t.hp, shield: t.shield,
     });
-    if (dmg > 0) { landedHit = true; struck.add(t); t.hitsTaken++; }
+    if (dmg > 0) { landedHit = true; struck.add(t); t.hitsTaken++; if (named) named.stacks = (named.stacks ?? 0) + 1; }
     // Un coup réveille l'endormi
     if (dmg > 0) {
       const sleep = t.fx.find((f) => f.key === "sleep");
@@ -1402,6 +1468,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     if (dmg > 0 && wt?.kind === "guardStack" && action.spell === "base") t.guard = Math.min(wt.max, t.guard + wt.step);
     triggerTitan(st, t, t === u);
     if (t.hp === 0 && !almightySave(st, t)) log.push({ kind: "ko", target: t.id });
+    else if (deathNoteCheck(st, t)) { /* exécuté par le Death Note */ }
     else if (t.side !== u.side) {
       if (hasFx(t, "counter")) shadows.add(t);
       // Soif de sang (Denji) : soigné d'une part des dégâts reçus
@@ -1446,11 +1513,24 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       log.push({ kind: "resist", target: t.id });
       return;
     }
-    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun" || key === "seal" || key === "sleep") && t.card.boss))) {
+    if (MALUS.has(key) && (hasFx(t, "immune") || ((key === "silence" || key === "stun" || key === "seal" || key === "sleep") && t.card.boss)
+      // Immunité magique (Dazai) : aucun malus d'une capacité magique ennemie
+      || (magicalAction && t.side !== u.side && hasFx(t, "antiMagic")))) {
       log.push({ kind: "resist", target: t.id });
       return;
     }
-    const old = t.fx.find((f) => f.key === key);
+    // Lot 4 : le poison se cumule (chaque pose est un cumul), dans la limite de 10 malus par carte
+    const old = key === "poison" ? undefined : t.fx.find((f) => f.key === key);
+    if (!old && MALUS.has(key) && t.fx.filter((f) => MALUS.has(f.key)).length >= MALUS_CAP) {
+      log.push({ kind: "resist", target: t.id });
+      return;
+    }
+    if (key === "poison") {
+      t.fx.push({ key, amount, turns, fresh: t === u, source: u.id });
+      const stacks = t.fx.filter((f) => f.key === "poison");
+      log.push({ kind: "status", target: t.id, status: key, on: true, amount: stacks.reduce((n, f) => n + f.amount, 0), turns: Math.max(...stacks.map((f) => f.turns)), source: u.id });
+      return;
+    }
     if (old) {
       if (key === "stun" || key === "sleep") old.turns = Math.max(old.turns, turns);
       else if (Math.abs(amount) >= Math.abs(old.amount)) Object.assign(old, { amount, turns, fresh: t === u, source: u.id });
@@ -1574,7 +1654,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     if (charged) dropFx(u, charged);
     const amount = charged
       ? hit(target!, charged.amount, 1, false, true)
-      : hit(target!, 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
+      : hit(target!, basic?.mult ?? 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
     // Main de Dieu (Griffith après l'Éclipse) : l'attaque de base touche aussi les autres ennemis
     if (hasFx(u, "godHand")) for (const f of reachableFoes(st, u)) if (f !== target) hit(f, 1);
     if (amount > 0 && basic) {
@@ -1597,7 +1677,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
             break;
           }
           case "poison":
-            addFx(target!, "poison", rider.pct, 1);
+            // Maomao : 70 % de chance de poser un poison
+            if (rider.chance === undefined || rng() < rider.chance) addFx(target!, "poison", rider.pct, rider.turns ?? 1);
             break;
           case "drain":
             heal(u, amount * rider.pct);
@@ -1718,7 +1799,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
           if (target) addFx(target, "puppet", 0, e.turns);
           break;
         case "vulnerable":
-          if (target) addFx(target, "vulnerable", e.pct, e.turns);
+          for (const t of e.to === "foes" ? reachableFoes(st, u) : target ? [target] : []) addFx(t, "vulnerable", e.pct, e.turns);
           break;
         case "bleed": {
           if (!target || target.hp <= 0 || target.side === u.side || hasFx(target, "immune")) break;
@@ -1770,7 +1851,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
           }
           break;
         case "heal":
-          for (const t of who(e.to)) heal(t, t.maxHp * e.pct);
+          for (const t of who(e.to)) heal(t, (e.fromCaster ? u : t).maxHp * e.pct);
           break;
         case "regen":
           for (const t of who(e.to)) addFx(t, "regen", e.pct, e.turns);
@@ -1798,9 +1879,107 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
           if (!target || target.hp <= 0) break;
           addFx(u, "duel", 0, e.turns);
           const duel = u.fx.find((f) => f.key === "duel");
-          if (duel) duel.foe = target.id;
+          if (duel) Object.assign(duel, { foe: target.id, ...(e.lock ? { lock: true } : {}) });
+          if (e.lock) {
+            // Duel d'Askeladd : l'ennemi ne peut atteindre que lui et n'a que son attaque de base
+            addFx(target, "duel", 0, e.turns);
+            const bound = target.fx.find((f) => f.key === "duel");
+            if (bound) Object.assign(bound, { foe: u.id, lock: true, bound: true });
+            if (e.pierce) addFx(u, "auraPierce", e.pierce, e.turns);
+          }
           break;
         }
+        case "poisonAmp":
+          for (const t of reachableFoes(st, u)) addFx(t, "toxic", e.pct, e.turns);
+          break;
+        case "cleanse": {
+          // Maomao : purge de l'équipe, soin de 15 % de ses PV max + 5 % par malus retiré
+          let removed = 0;
+          const team = alive(st, u.side);
+          for (const t of team) {
+            const bad = t.fx.filter((x) => MALUS.has(x.key));
+            removed += bad.length + (t.exposed ? 1 : 0) + (t.weaken > 0 ? 1 : 0);
+            for (const f of bad) dropFx(t, f);
+            if (t.exposed) setStatus(t, "exposed", 0);
+            if (t.weaken > 0) setStatus(t, "weaken", 0);
+          }
+          for (const t of team) heal(t, u.maxHp * (e.pct + e.per * removed));
+          break;
+        }
+        case "detonate":
+          // Maomao : chaque cumul de poison inflige aussitôt un tour de poison
+          for (const t of reachableFoes(st, u)) {
+            const stacks = t.fx.filter((f) => f.key === "poison");
+            if (!stacks.length || t.hp <= 0) continue;
+            const amount = Math.min(t.hp, stacks.reduce((n, f) => n + t.maxHp * f.amount, 0) * (1 + fxKeySum(t, "toxic")) * (1 - fxKeySum(t, "titan")));
+            t.hp -= amount;
+            log.push({ kind: "poison", source: u.id, target: t.id, amount, hp: t.hp });
+            landedHit = true;
+            triggerTitan(st, t, false);
+            if (t.hp <= 0 && !almightySave(st, t)) log.push({ kind: "ko", target: t.id });
+            else deathNoteCheck(st, t);
+          }
+          break;
+        case "antiMagic":
+          for (const t of alive(st, u.side)) addFx(t, "antiMagic", 0, e.turns);
+          break;
+        case "dispel":
+          if (target && target.hp > 0) for (const f of target.fx.filter((x) => BUFFS.has(x.key) && x.turns < 999)) dropFx(target, f);
+          break;
+        case "noCrit":
+          for (const t of reachableFoes(st, u)) addFx(t, "noCrit", 0, e.turns);
+          break;
+        case "extendBuffs":
+          // Violet : prolonge les buffs des alliés, bouclier de 15 % de ses PV max + 5 % par buff prolongé
+          for (const t of alive(st, u.side)) {
+            if (isAnti(t)) continue;
+            const buffs = t.fx.filter((f) => BUFFS.has(f.key) && f.turns < 999);
+            for (const f of buffs) {
+              f.turns += e.turns;
+              log.push({ kind: "status", target: t.id, status: f.key, on: true, amount: f.amount, turns: f.turns + (f.fresh ? 1 : 0), source: f.source, ...(f.stat ? { stat: f.stat } : {}) });
+            }
+            const add = u.maxHp * (e.pct + e.per * buffs.length);
+            t.shield += add;
+            log.push({ kind: "shield", source: u.id, target: t.id, amount: add, shield: t.shield });
+          }
+          break;
+        case "deathNote":
+          for (const t of reachableFoes(st, u)) {
+            if (t.card.boss) { log.push({ kind: "resist", target: t.id }); continue; }
+            addFx(t, "deathNote", e.at, e.turns);
+            deathNoteCheck(st, t);
+          }
+          break;
+        case "nameMark":
+          if (target && target.hp > 0) {
+            addFx(target, "named", e.pct, e.turns);
+            const mark = target.fx.find((f) => f.key === "named");
+            if (mark) mark.stacks = 0;
+          }
+          break;
+        case "control": {
+          // Light : la cible joue sa prochaine action pour notre camp ; sans sort prêt (ou boss, ou dernière de son camp), étourdie
+          if (!target || target.hp <= 0) break;
+          const ready = !hasFx(target, "silence") && ((target.spell && cooldownReady(target, target.pIn)) || (target.tertiary && cooldownReady(target, target.tIn)) || (target.ultimate && target.ultimateGauge >= BATTLE.ultimateGaugeMax));
+          const mates = alive(st, target.side).filter((x) => x !== target);
+          if (ready && !target.card.boss && mates.length && !hasFx(target, "immune") && !hasFx(target, "controlled")) {
+            target.side = u.side;
+            st.stolen++;
+            addFx(target, "controlled", 0, 1);
+          } else addFx(target, "stun", 0, 1);
+          break;
+        }
+        case "cdCut":
+          for (const t of alive(st, u.side)) {
+            if (t === u) continue;
+            t.spellIn = Math.max(0, t.spellIn - e.turns);
+            t.pIn = Math.max(0, t.pIn - e.turns);
+            t.tIn = Math.max(0, t.tIn - e.turns);
+          }
+          break;
+        case "turnGauge":
+          if (opts.gauge) for (const t of alive(st, u.side)) if (t !== u) t.gauge += GAUGE_THRESHOLD * e.pct;
+          break;
         case "devour": {
           const foes = alive(st, enemy(u.side));
           if (!foes.length) break;
@@ -1809,7 +1988,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
           break;
         }
         case "stun": {
-          const targets = strongestFoes(st, u, e.count);
+          const targets = e.to === "target" ? (target && target.hp > 0 && target.side !== u.side ? [target] : []) : strongestFoes(st, u, e.count);
           for (const foe of targets) addFx(foe, "stun", 0, e.turns);
           break;
         }
@@ -1943,6 +2122,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     });
     triggerTitan(st, u, true);
     if (u.hp === 0 && !almightySave(st, u)) log.push({ kind: "ko", target: u.id });
+    else deathNoteCheck(st, u);
   }
   // Un sort actif (même sans dégât : buff, soin, debuff) charge la jauge comme une attaque qui touche
   if ((landedHit || activeSpell) && action.spell !== "ultimate" && u.ultimate && u.ultimateGauge < BATTLE.ultimateGaugeMax) {

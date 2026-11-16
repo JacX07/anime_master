@@ -11,12 +11,15 @@ export type BasicRider =
   | { kind: "mod"; stat: Exclude<ModStat, "speed">; amount: number; to: "self" | "target" }
   | { kind: "heal"; pct: number }
   | { kind: "shield"; pct: number }
-  | { kind: "poison"; pct: number }
+  /** `chance` : probabilité de poser le poison (1 par défaut) ; `turns` : durée (1 par défaut) */
+  | { kind: "poison"; pct: number; chance?: number; turns?: number }
   | { kind: "drain"; pct: number }
   | { kind: "ignoreDef"; pct: number; immediate?: boolean };
 
 export interface BasicAttack {
   name: string;
+  /** Multiplicateur d'ATK (1 par défaut ; Violet : tir ×2) */
+  mult?: number;
   rider: BasicRider;
 }
 
@@ -152,7 +155,9 @@ export function describeBasicRider(rider: BasicRider): string {
     }
     case "heal": return `rend ${percent(rider.pct)} des PV max au lanceur`;
     case "shield": return `bouclier de ${percent(rider.pct)} des PV max pour le lanceur`;
-    case "poison": return `poison : ${percent(rider.pct)} des PV max de la cible à son prochain tour`;
+    case "poison": return rider.chance !== undefined || rider.turns !== undefined
+      ? `${rider.chance !== undefined && rider.chance < 1 ? `${percent(rider.chance)} de chance de poser un ` : ""}poison : ${percent(rider.pct)} des PV max de la cible par tour, ${rider.turns ?? 1} tour${(rider.turns ?? 1) > 1 ? "s" : ""}`
+      : `poison : ${percent(rider.pct)} des PV max de la cible à son prochain tour`;
     case "drain": return `rend ${percent(rider.pct)} des dégâts infligés en PV`;
     case "ignoreDef": return `ignore ${percent(rider.pct)} de la DEF ${rider.immediate ? "sur cette attaque" : "sur la prochaine attaque du lanceur"}`;
   }
@@ -160,5 +165,5 @@ export function describeBasicRider(rider: BasicRider): string {
 
 export function describeBasicAttack(attack: BasicAttack, detailed = true): string {
   const rider = describeBasicRider(attack.rider);
-  return detailed ? `1× ATK. ${rider.charAt(0).toUpperCase()}${rider.slice(1)}.` : `${rider}.`;
+  return detailed ? `${String(attack.mult ?? 1).replace(".", ",")}× ATK. ${rider.charAt(0).toUpperCase()}${rider.slice(1)}.` : `${rider}.`;
 }

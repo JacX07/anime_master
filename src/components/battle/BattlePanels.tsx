@@ -7,7 +7,7 @@ import { BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } fro
 import { BOSS_SKILLS } from "@/lib/boss-skills";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES } from "@/lib/battle-replay";
-import { describeSpell, specialCooldownOf, spellOf, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { describeSpell, specialCooldownOf, spellOf, tertiaryCooldownOf, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { describeElement, effectElement } from "@/lib/attack-element";
 import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
@@ -95,11 +95,11 @@ export function SpellsPanel({
   if (tertiary) {
     spells.push({
       key: "tertiary",
-      title: <>◇ {tertiary.name}</>, name: tertiary.name, kind: "◇ Tertiaire", cost: String(BATTLE.tertiaryCooldown), accent: "#a98bd9",
+      title: <>◇ {tertiary.name}</>, name: tertiary.name, kind: "◇ Tertiaire", cost: String(tertiaryCooldownOf(unit.characterId)), accent: "#a98bd9",
       target: SPELL_TARGET_LABEL[tertiary.target ?? "none"], confirm: confirmationScope(tertiary.effects),
       text: describeSpell(tertiary, true),
       tooltip: describeSpell(tertiary, true),
-      note: `Rechargement : ${BATTLE.tertiaryCooldown} tours.`,
+      note: `Rechargement : ${tertiaryCooldownOf(unit.characterId)} tours.`,
     });
   }
   const ultimate = "ultimate" in kit ? kit.ultimate ?? undefined : boss?.ultimate ?? (hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined);
