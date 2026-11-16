@@ -819,3 +819,4 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Piège de test : le second joueur reçoit un bouclier au premier tour ; comparer PV + bouclier. `scripts/check-passives.ts` couvre les six cas ; checks de combat existants, ESLint et TypeScript réussis ; passifs visibles dans `/combat/test?ids=…`.
 - Big Mom (54495) a déjà son image AniList (raid compris) : rien changé.
 
+- Suite : passif affiché en lecture seule dans le spell builder (`/builder`). La fiche `/character/[id]` l'affichait déjà via `SpellList`. Une erreur d'hydratation (serveur sans passif) venait du cache du serveur de dev lancé avant la modification : `rm -rf .next/dev` et redémarrage la font disparaître.

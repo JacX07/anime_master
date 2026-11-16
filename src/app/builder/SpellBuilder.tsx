@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { EFFECTS, newEffect, TARGET_CHOICES, type Field } from "@/lib/spell-schema";
+import { CHARACTER_PASSIVES } from "@/lib/battle";
 import { SLOT_LABELS, describeBuilderSpell, builderSpellSource, type BuilderEntry, type BuilderSlot } from "@/lib/builder-slots";
 import { describeBasicAttack, type BasicAttack, type BasicRider } from "@/lib/basic-attacks";
 import { describeEffect, describeSpell, type CharacterSpell, type Effect } from "@/lib/spells";
@@ -129,6 +130,7 @@ export function SpellBuilder({ chars }: { chars: BuilderChar[] }) {
       {ch && entry && value ? (
         <section className="sb-edit">
           <h2>{ch.name} <small>{ch.rarity} · {ch.type} · ATK {ch.attack} / DEF {ch.defense} / VIT {ch.speed}</small></h2>
+          {CHARACTER_PASSIVES[ch.id] && <p className="sb-passive"><strong>Passif · {CHARACTER_PASSIVES[ch.id].name}</strong> {CHARACTER_PASSIVES[ch.id].text} <small>(codé dans le moteur, non modifiable ici)</small></p>}
           <div className="sb-actions" aria-label="Emplacement du sort">
             {ch.spells.map((s) => <button key={s.slot} type="button" className="bt-btn" aria-pressed={slot === s.slot} disabled={busy} onClick={() => pick(ch, s)}>{SLOT_LABELS[s.slot]}</button>)}
           </div>

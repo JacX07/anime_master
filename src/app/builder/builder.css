@@ -49,3 +49,6 @@
 .sb-job pre { white-space: pre-wrap; font-size: 0.8rem; background: #0b0e0f; padding: 0.5rem; border-radius: 0.4rem; max-height: 18rem; overflow: auto; }
 .sb-err { color: #ff8a8a; }
 .sb-prompt textarea { width: 100%; padding: 0.5rem 0.6rem; border: 1px solid #313632; border-radius: 0.4rem; background: #0b0e0f; color: inherit; font: 0.8rem/1.4 monospace; }
+
+.sb-passive { margin: 6px 0 10px; padding: 8px 12px; border-radius: 5px; background: #171b1a; box-shadow: inset 3px 0 0 var(--gold); font-size: 13px; }
+.sb-passive small { color: #767b76; }
