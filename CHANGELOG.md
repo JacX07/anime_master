@@ -25,6 +25,11 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Illustrations d’équipement** : visuels dédiés aux quatre pièces des sets Fairy Tail, Bleach, Attaque des Titans et Demon Slayer.
 - **Carte de l’histoire** : jalons et étoiles allégés ; suppression des rectangles et des libellés « Combat N » qui se chevauchaient.
 
+### Butins et taux affichés
+
+- **Défi des empereurs** : chaque carte indique la clé, les quantités de ressource légendaire par difficulté (avec leur chance) et les cœurs de brèche gagnés à chaque combat, avec leurs images.
+- **Expéditions** : nouveau panneau « Ce que contiennent les coffres » : chances de coffre par niveau de brèche, puis contenu et pourcentage de chaque objet pour les coffres Bronze, Argent, Or et Légendaire (gros lot compris).
+
 ### Changements de rareté
 
 - **Yhwach passe en UR** : statistiques recalculées pour sa nouvelle rareté. Les exemplaires déjà possédés suivent ce changement ; l’historique garde la rareté du tirage d’origine.

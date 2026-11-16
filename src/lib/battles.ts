@@ -378,7 +378,7 @@ export async function getEmperorState(userId: string, now = new Date()) {
   return {
     tutorial,
     difficulties: DIFFICULTIES.map((d) => ({ key: d.key, name: d.name, mult: d.mult, unlocked: open.includes(d.key) })),
-    emperors: EMPERORS.map((e) => ({ key: e.key, name: e.name, blurb: e.blurb, characterId: e.characterId, keyName: e.keyName, keys: owned(e.keyResource), resource: e.resource, resourceName: e.resourceName, resources: owned(e.resource), clearedToday: cleared(e.key), weapon: e.weapon })),
+    emperors: EMPERORS.map((e) => ({ key: e.key, name: e.name, blurb: e.blurb, characterId: e.characterId, keyResource: e.keyResource, keyName: e.keyName, keys: owned(e.keyResource), resource: e.resource, resourceName: e.resourceName, resources: owned(e.resource), clearedToday: cleared(e.key), weapon: e.weapon })),
     hardcore: { keys: Math.min(...ALL_KEYS.map(owned)), clearedToday: cleared(HARDCORE_KEY) },
     fullHeartsLeft: Math.max(0, DAILY_FULL_HEARTS - (daily?.units ?? 0)),
   };

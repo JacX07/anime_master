@@ -1,5 +1,11 @@
 # Journal des agents
 
+## 2026-11-16 — Butins et taux affichés (empereurs, coffres)
+- Demande : afficher les taux et les images des objets pour les empereurs (clé, ressource légendaire, cœurs) et pour les coffres d'expédition. Maquette `public/mockups/drops-lisibles.html` validée ; l'affichage des donjons existait déjà, abandonné.
+- Code : `chestContents`/`breachChestOdds` (`chests.ts`), `LEGENDARY_ODDS` (`emperors.ts`), `ChestContents.tsx`, bloc `Drops` d'`EmperorBoard.tsx`. `scripts/check-drop-odds.ts` (`npm run check:drop-odds`) compare les chances affichées au tirage réel : un changement de table doit passer par là.
+- Pièges : le serveur de dev lancé en arrière-plan avec `nohup` disparaissait ; le lancer via `run_in_background`. Un `Write` sur `scripts/check-dungeon-drops.ts` avait écrasé un test existant (restauré par `git checkout`) : toujours vérifier `git ls-files` avant de créer un script.
+- Vérifié sur le site dev : /raid/empereurs (PC et 390 px, sans débordement) et /expeditions (onglets, choix d'univers). Non vérifié : coffre réellement ouvert, compte avec coffres.
+
 ## 2026-11-16 — Armes standard non forgeables, cœurs au Défi des empereurs
 - Constat : `forgeWeapon` (20 ressources d'arme + 50 cœurs, une arme générique par type) existe dans `src/lib/forge.ts` et le combat applique les armes, mais la page Forge n'affiche que les 4 armes d'empereurs. Les ressources d'arme (Armure saiyan, Métal à chakra…) tombent en histoire et en donjon sans aucun usage.
 - Décision de l'utilisateur : on laisse tel quel pour le moment (pas d'ajout à la Forge).

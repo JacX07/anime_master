@@ -5,6 +5,8 @@ import { SceneBody } from "@/components/SceneBody";
 import { prisma } from "@/lib/db";
 import { BREACHES, chestStock, expeditionState, MAX_TEAM, SLOTS } from "@/lib/expeditions";
 import { Chests } from "./Chests";
+import { ChestContents } from "./ChestContents";
+import { CHEST_TIERS, parseChestKey } from "@/lib/chests";
 import { requireUser } from "@/lib/session";
 import { ExpeditionBoard } from "./ExpeditionBoard";
 
@@ -45,6 +47,7 @@ async function Expeditions() {
         </p>
       </header>
       <Chests chests={chests.map((c) => ({ key: c.key, tier: c.tier, universeName: c.universeName, quantity: c.quantity }))} />
+      <ChestContents universeKeys={Object.fromEntries(CHEST_TIERS.map((t) => [t, chests.map((c) => parseChestKey(c.key)).find((k) => k?.tier === t)?.universe ?? null]))} />
       <ExpeditionBoard
         slots={state.slots}
         done={state.done}

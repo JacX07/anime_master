@@ -95,6 +95,13 @@ export function legendaryAmount(difficulty: string, rand: () => number): number 
   return 1;
 }
 
+/** Quantités possibles de ressource légendaire par difficulté et leur chance (affichage de `legendaryAmount`, vérifié par scripts/check-drop-odds.ts). */
+export const LEGENDARY_ODDS: Record<string, { amount: number; chance: number }[]> = {
+  normal: [{ amount: 1, chance: 1 }],
+  difficile: [{ amount: 1, chance: 0.5 }, { amount: 2, chance: 0.5 }],
+  cauchemar: [{ amount: 2, chance: 0.5 }, { amount: 3, chance: 0.5 }],
+};
+
 /** Hardcore : une ressource de deux empereurs différents, tirés au sort. */
 export function hardcoreDrops(rand: () => number): string[] {
   const pool = EMPERORS.map((e) => e.resource);
