@@ -13073,5 +13073,162 @@
         }
       ]
     }
+  },
+  "53901": {
+    "orientation": "attaque",
+    "secondary": {
+      "name": "Rinnegan : Pression gravitationnelle",
+      "target": null,
+      "final": true,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.6,
+          "zone": true
+        },
+        {
+          "k": "mod",
+          "stat": "speed",
+          "amount": -0.3,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Katon : boule de feu suprême",
+      "target": null,
+      "final": true,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 0.7,
+          "zone": true
+        },
+        {
+          "k": "poison",
+          "pct": 0.05,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Mangekyō Sharingan éternel",
+      "target": null,
+      "final": true,
+      "oncePerCombat": true,
+      "effects": [
+        {
+          "k": "mod",
+          "stat": "atk",
+          "amount": 0.5,
+          "turns": 2,
+          "to": "self"
+        },
+        {
+          "k": "susanoo",
+          "turns": 2
+        }
+      ]
+    }
+  },
+  "14489": {
+    "orientation": "attaque",
+    "secondary": {
+      "name": "Paumes",
+      "target": "foe",
+      "final": true,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.2
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Projection d'aura",
+      "target": null,
+      "final": true,
+      "effects": [
+        {
+          "k": "auraPierce",
+          "pct": 0.3,
+          "turns": 2
+        },
+        {
+          "k": "mod",
+          "stat": "critDamage",
+          "amount": 0.5,
+          "turns": 2,
+          "to": "team"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Hyakushiki Kannon",
+      "target": "foe",
+      "final": true,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.0
+        },
+        {
+          "k": "kannon",
+          "turns": 2
+        }
+      ]
+    }
+  },
+  "5115": {
+    "orientation": "attaque",
+    "secondary": {
+      "name": "Mugann",
+      "target": "foe",
+      "final": true,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 1.2
+        },
+        {
+          "k": "donateShield",
+          "pct": 0.25
+        }
+      ]
+    },
+    "tertiary": {
+      "name": "Effondrement spiral",
+      "target": null,
+      "final": true,
+      "effects": [
+        {
+          "k": "stun",
+          "turns": 1,
+          "count": 4
+        },
+        {
+          "k": "mod",
+          "stat": "def",
+          "amount": -0.25,
+          "turns": 2,
+          "to": "foes"
+        }
+      ]
+    },
+    "ultimate": {
+      "name": "Infinity Big Bang Storm",
+      "target": null,
+      "final": true,
+      "oncePerCombat": true,
+      "effects": [
+        {
+          "k": "damage",
+          "mult": 3,
+          "zone": true
+        }
+      ]
+    }
   }
 }

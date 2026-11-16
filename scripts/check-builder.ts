@@ -4,11 +4,13 @@ import { BASIC_ATTACK_ROSTER } from "../src/lib/basic-attack-roster";
 import { builderEntries } from "../src/lib/builder-catalog";
 import { BUILDER_SLOTS, parseBuilderValue, readSlotDrafts } from "../src/lib/builder-slots";
 import { applyAction, createBattle, seededRandom, type BattleCard } from "../src/lib/battle";
+import { KITLESS } from "../src/lib/spell-rules";
 
 let count = 0;
 for (const id of Object.keys(BASIC_ATTACK_ROSTER).map(Number)) {
   const entries = builderEntries(id, "SSR", "COMBAT");
-  assert.deepEqual(entries.map((s) => s.slot), BUILDER_SLOTS, `Quatre emplacements pour ${id}`);
+  // Meruem (KITLESS) : attaque de base seulement, ses sorts viennent de l'absorption
+  assert.deepEqual(entries.map((s) => s.slot), KITLESS.has(id) ? ["base"] : BUILDER_SLOTS, `Quatre emplacements pour ${id}`);
   for (const entry of entries) {
     const parsed = parseBuilderValue(entry.slot, entry.original);
     assert.ok(parsed, `Sort valide : ${id}/${entry.slot}`);

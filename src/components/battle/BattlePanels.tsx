@@ -6,7 +6,7 @@ import { BATTLE, hasCharacterSlots, type Spell, type UnitId, type UnitView } fro
 import { BOSS_SKILLS } from "@/lib/boss-skills";
 import { basicAttackOf, describeBasicAttack } from "@/lib/basic-attacks";
 import { AFFINITY_COOLDOWN, BASE_SPELL, SPELL_INFO, SPELL_NAMES } from "@/lib/battle-replay";
-import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { describeSpell, specialCooldownOf, spellOf, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { describeElement, effectElement } from "@/lib/attack-element";
 import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
@@ -72,21 +72,23 @@ export function SpellsPanel({
   }
   const rawOwn = spellOf(unit.characterId, unit.rarity, unit.type);
   const element = effectElement(unit.characterId);
-  const own = boss?.spell ?? (rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null);
+  // Sorts remplacés en combat (Susanoo, absorption) : prioritaires sur le catalogue
+  const kit = unit.kit ?? {};
+  const own = "special" in kit ? kit.special ?? null : boss?.spell ?? (rawOwn ? balanceSecondary(rawOwn, BATTLE.secondaryEffectScale) : null);
   if (own) {
     spells.push({
       key: "special" as const,
-      title: <>★ {own.name}</>, name: own.name, kind: "★ Secondaire", cost: String(SPELL_COOLDOWN), accent: "#5aa9ff",
+      title: <>★ {own.name}</>, name: own.name, kind: "★ Secondaire", cost: String(specialCooldownOf(unit.characterId)), accent: "#5aa9ff",
       target: SPELL_TARGET_LABEL[own.target ?? "none"], confirm: confirmationScope(own.effects),
       text: [describeSpell(own, true), element && describeElement(element)].filter(Boolean).join(" "),
       tooltip: [describeSpell(own, true), element && describeElement(element)].filter(Boolean).join(" "),
-      note: `Rechargement : ${SPELL_COOLDOWN} tours.`,
+      note: `Rechargement : ${specialCooldownOf(unit.characterId)} tours.`,
     });
   }
   const ultimateGauge = unit.ultimateGauge ?? 0;
   const ultimateGaugeMax = unit.ultimateGaugeMax ?? BATTLE.ultimateGaugeMax;
   const rawTertiary = !boss?.noTertiary && hasCharacterSlots(unit.rarity) ? TERTIARY_SPELLS[unit.characterId] : undefined;
-  const tertiary = rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
+  const tertiary = "tertiary" in kit ? kit.tertiary ?? undefined : rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
   if (tertiary) {
     spells.push({
       key: "tertiary",
@@ -97,7 +99,7 @@ export function SpellsPanel({
       note: `Rechargement : ${BATTLE.tertiaryCooldown} tours.`,
     });
   }
-  const ultimate = boss?.ultimate ?? (hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined);
+  const ultimate = "ultimate" in kit ? kit.ultimate ?? undefined : boss?.ultimate ?? (hasCharacterSlots(unit.rarity) ? ULTIMATE_CATALOG[unit.characterId] : undefined);
   if (ultimate) {
     spells.push({
       key: "ultimate",

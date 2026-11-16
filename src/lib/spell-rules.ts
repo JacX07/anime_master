@@ -52,6 +52,9 @@ export function applySpellRules<T extends CharacterSpell | null | undefined>(cha
   return { ...base, effects: kept.map((e) => rule(characterId, slot, base, e)) } as T;
 }
 
+/** Meruem : attaque de base seulement ; ses sorts viennent de l'absorption (passif). */
+export const KITLESS = new Set([23277]);
+
 export function withSpellRules(catalog: Record<number, CharacterSpell>, slot: SpellSlot): Record<number, CharacterSpell> {
-  return Object.fromEntries(Object.entries(catalog).map(([id, spell]) => [id, applySpellRules(Number(id), slot, spell)]));
+  return Object.fromEntries(Object.entries(catalog).filter(([id]) => !KITLESS.has(Number(id))).map(([id, spell]) => [id, applySpellRules(Number(id), slot, spell)]));
 }

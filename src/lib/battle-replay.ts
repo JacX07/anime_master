@@ -104,6 +104,9 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
   intangible: { label: "Intouchable", glyph: "◌", help: "Aucun ennemi ne peut le viser ni le toucher.", bad: false },
   charged: { label: "Concentration", glyph: "✊", help: "Sa prochaine attaque de base frappe très fort, ignore la DEF et ne s'esquive pas.", bad: false },
+  susanoo: { label: "Susanoo parfait", glyph: "⛨", help: "Immunisé contre l'étourdissement, le sommeil, la peur et le sceau ; sorts Copie et Kyūbi.", bad: false },
+  kannon: { label: "Kannon", glyph: "✋", help: "Chaque paume frappe deux fois.", bad: false },
+  auraPierce: { label: "Projection d'aura", glyph: "✧", help: "Ignore une part de la DEF des ennemis.", bad: false },
 };
 
 /** Nom du sort joué : attaque, affinité, secondaire, tertiaire ou ultime. */
@@ -188,6 +191,9 @@ export function replayStep(state: Replay, log: BattleEvent[]): Replay {
       break;
     case "ultimateGauge":
       info = { ...state.info, [ev.target]: { ...state.info[ev.target], ultimateGauge: ev.current } };
+      break;
+    case "kit":
+      info = { ...info, [ev.target]: { ...info[ev.target], kit: { ...info[ev.target].kit, [ev.slot]: ev.spell } } };
       break;
     case "damage":
       patch(ev.target, { hp: ev.hp, shield: ev.shield });
@@ -302,6 +308,8 @@ export function holdFor(log: BattleEvent[], i: number): number {
       return 600;
     case "resist":
       return 300;
+    case "kit":
+      return 500;
     case "ko":
       return 650;
     case "end":

@@ -53,7 +53,7 @@ function until(st: BattleState, id: string) {
 }
 
 // Les catalogues réécrits alimentent bien les trois emplacements SSR/UR.
-check("Catalogues runtime : 240 personnages dans les trois emplacements (236 + 4 empereurs)", Object.keys(SECONDARY_DATA).length === 240 && Object.keys(TERTIARY_DATA).length === 240 && Object.keys(ULTIMATE_DATA).length === 240);
+check("Catalogues runtime : 243 personnages dans les trois emplacements (236 + 4 empereurs + Madara, Netero, Anti-Spirale)", Object.keys(SECONDARY_DATA).length === 243 && Object.keys(TERTIARY_DATA).length === 243 && Object.keys(ULTIMATE_DATA).length === 243);
 {
   const spell: CharacterSpell = { name: "Lisibilité", target: "foe", effects: [{ k: "damage", mult: 4 }, { k: "mod", stat: "crit", amount: 0.25, turns: 2, to: "self" }] };
   check("Descriptions : multiplicateur réservé au détail, critique en points et durées en tours", !describeSpell(spell).includes("4×") && describeSpell(spell, true).includes("4× ATK") && describeSpell(spell).includes("+25 points") && describeSpell(spell).includes("2 tours"));

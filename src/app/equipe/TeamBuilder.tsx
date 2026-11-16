@@ -11,7 +11,7 @@ import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
 import { TERTIARY_SPELLS } from "@/lib/tertiary-catalog";
 import { ULTIMATE_CATALOG } from "@/lib/ultimate-catalog";
 import { RARITY_NAMES, TYPE_LABELS } from "@/lib/labels";
-import { describeSpell, spellOf, SPELL_COOLDOWN, SPELL_TARGET_LABEL } from "@/lib/spells";
+import { describeSpell, specialCooldownOf, spellOf, SPELL_TARGET_LABEL } from "@/lib/spells";
 import { isMagicalSpell } from "@/lib/magic-skill";
 import { StatisticsPanel } from "./StatisticsPanel";
 import { ResourceArt } from "@/components/ResourceArt";
@@ -133,7 +133,7 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
         <li tabIndex={0} title={describeSpell(own, true)}>
           <b>★ {own.name}</b>{isMagicalSpell(card, "special", own) && <small> · Magique</small>} <small>{SPELL_TARGET_LABEL[own.target ?? "none"]}</small>
           <p>{describeSpell(own, true)}</p>
-          <small>Rechargement : {SPELL_COOLDOWN} tours de cette carte.</small>
+          <small>Rechargement : {specialCooldownOf(card.characterId)} tours de cette carte.</small>
         </li>
       )}
       {tertiary && (

@@ -1,7 +1,7 @@
 // Sorts de personnage des SSR et UR (docs/specs/combat.md §4 bis) : des listes d'effets lues par le moteur (battle.ts).
 // Pur : aucune lecture en base. Un SSR ou UR sans sort écrit reçoit un sort générique déduit de son type.
 
-import { applySpellRules } from "./spell-rules";
+import { applySpellRules, KITLESS as KITLESS_IDS } from "./spell-rules";
 import type { CardType, Rarity } from "../generated/prisma/enums";
 import { SECONDARY_DATA } from "./skill-data";
 import { SECONDARY_OVERRIDES } from "./skill-overrides";
@@ -60,7 +60,17 @@ export type Effect =
   /** Copie (Kakashi) : rejoue aussitôt le dernier ultime lancé dans le combat, allié ou ennemi ; sinon, les autres effets du sort */
   | { k: "copyUltimate" }
   /** Ajoute `amount` à la jauge d'ultime des alliés (pas du lanceur) */
-  | { k: "gauge"; amount: number; to: Scope };
+  | { k: "gauge"; amount: number; to: Scope }
+  /** Madara : Susanoo parfait pendant `turns` tours du lanceur (immunité aux contrôles, sorts Copie et Kyūbi) */
+  | { k: "susanoo"; turns: number }
+  /** Netero : statue de Kannon, chaque paume frappe deux fois pendant `turns` tours du lanceur */
+  | { k: "kannon"; turns: number }
+  /** Madara : rejoue à `mult` le dernier sort secondaire ou tertiaire lancé par un ennemi */
+  | { k: "copySpell"; mult: number }
+  /** Anti-Spirale : l'allié le plus bas en PV reçoit un bouclier de `pct` des dégâts de l'effet précédent */
+  | { k: "donateShield"; pct: number }
+  /** Netero : l'équipe ignore `pct` de la DEF pendant `turns` tours (ne se cumule pas) */
+  | { k: "auraPierce"; pct: number; turns: number };
 
 export interface CharacterSpell {
   /** Nature explicite du sort ; indépendante du type de la carte. */
@@ -71,11 +81,17 @@ export interface CharacterSpell {
   effects: Effect[];
   /** Valeurs déjà définitives : aucun coefficient de modération (secondaire, tertiaire) ne s'applique */
   final?: boolean;
+  /** Utilisable une seule fois par combat */
+  oncePerCombat?: boolean;
 }
+
+export { KITLESS } from "./spell-rules";
 
 /** Actions de la carte avant le 1er lancer (1 = dès sa 1re action), puis entre deux lancers */
 export const SPELL_FIRST = 1;
 export const SPELL_COOLDOWN = 5;
+/** Recharge du secondaire d'un personnage (Netero : paumes toutes les 2 actions) */
+export const specialCooldownOf = (characterId: number) => (characterId === 14489 ? 2 : SPELL_COOLDOWN);
 
 const S = (name: string, target: CharacterSpell["target"], ...effects: Effect[]): CharacterSpell => ({ name, target, effects });
 const dmg = (mult: number, o: Omit<Extract<Effect, { k: "damage" }>, "k" | "mult"> = {}): Effect => ({ k: "damage", mult, ...o });
@@ -411,6 +427,7 @@ export const ARCH_SPELLS: Record<number, [Arch, string]> = {
 /** Sort de personnage d'une carte, ou null (N, R et SR n'en ont pas). */
 export function spellOf(characterId: number, rarity: Rarity, type: CardType): CharacterSpell | null {
   if (rarity !== "SSR" && rarity !== "UR") return null;
+  if (KITLESS_IDS.has(characterId)) return null;
   const arch = ARCH_SPELLS[characterId];
   return applySpellRules(characterId, "special", SECONDARY_OVERRIDES[characterId] ?? SECONDARY_DATA[characterId] ?? CHARACTER_SPELLS[characterId] ?? (arch ? archSpell(arch[0], arch[1], rarity) : GENERIC[type]));
 }
@@ -466,6 +483,11 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "charge": return `concentration : la prochaine attaque de base frappe à ${String(e.mult).replace(".", ",")}× ATK, ignore toute la DEF et ne peut pas être esquivée`;
     case "copyUltimate": return "copie le dernier ultime lancé dans le combat (allié ou ennemi) et le joue aussitôt ; s'il n'y en a pas encore :";
     case "gauge": return `+${e.amount} à la jauge d'ultime de ${e.to === "team" ? "ses alliés" : WHO[e.to]}`;
+    case "susanoo": return `Susanoo parfait pendant ${nx(e.turns)} du lanceur : immunité à l'étourdissement, au sommeil, à la peur et au sceau ; le secondaire devient Copie et le tertiaire Kyūbi`;
+    case "kannon": return `statue de Kannon pendant ${nx(e.turns)} du lanceur : chaque paume frappe deux fois`;
+    case "copySpell": return `rejoue à ${pct(e.mult)} le dernier sort secondaire ou tertiaire lancé par un ennemi ; s'il n'y en a pas encore :`;
+    case "donateShield": return `l'allié le plus bas en PV reçoit un bouclier de ${pct(e.pct)} des dégâts infligés`;
+    case "auraPierce": return `l'équipe ignore ${pct(e.pct)} de la DEF, ${nx(e.turns)} (ne se cumule pas)`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;
   }
 }
@@ -476,5 +498,5 @@ export const isSoloBuff = (spell: CharacterSpell): boolean => spell.target === n
   return (effect.k === "heal" || effect.k === "regen" || effect.k === "shield" || effect.k === "reduce" || effect.k === "immune" || effect.k === "purge") && effect.to === "self";
 });
 /** Description d'un sort : multiplicateurs masqués par défaut, visibles avec `detailed` */
-export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + "." + (isSoloBuff(sp) ? " Tour immédiat : le lanceur peut rejouer." : "");
+export const describeSpell = (sp: CharacterSpell, detailed = false) => capital(sp.effects.map((e) => describeEffect(e, detailed)).join(" ; ")) + "." + (isSoloBuff(sp) ? " Tour immédiat : le lanceur peut rejouer." : "") + (sp.oncePerCombat ? " Une fois par combat." : "");
 export const SPELL_TARGET_LABEL = { foe: "1 ennemi", ally: "1 allié", deadAlly: "1 allié mort", none: "Aucune cible" } as const;

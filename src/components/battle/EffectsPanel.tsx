@@ -45,7 +45,7 @@ export function EffectsPanel({ unit, state, info, characters }: { unit: UnitView
       const from = name(d?.source);
       return <li key={k} data-bad={STATUS_INFO[k].bad || undefined}>
         <b>{STATUS_INFO[k].label}</b>{value && <span> {value}</span>}
-        {d?.turns !== undefined && <small> · {d.turns} tour{d.turns > 1 ? "s" : ""}</small>}
+        {d?.turns !== undefined && <small> · {d.turns >= 99 ? "permanent" : `${d.turns} tour${d.turns > 1 ? "s" : ""}`}</small>}
         {from && <small> · par {from}</small>}
         <em>{STATUS_INFO[k].help}</em>
       </li>;

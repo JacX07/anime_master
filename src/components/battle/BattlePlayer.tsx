@@ -662,7 +662,7 @@ function Unit({
           .map((k: Status) => (
             <li key={k} data-state={k} data-bad={STATUS_INFO[k].bad || undefined} tabIndex={0} aria-label={`${STATUS_INFO[k].label} : ${STATUS_INFO[k].help}`} onClick={(e) => e.stopPropagation()}>
               <StatusIcon status={k} />
-              {st.fxd?.[k]?.turns !== undefined && <span className="bt-state-turns" aria-hidden="true">{st.fxd[k]!.turns}</span>}
+              {st.fxd?.[k]?.turns !== undefined && <span className="bt-state-turns" aria-hidden="true">{st.fxd[k]!.turns! >= 99 ? "∞" : st.fxd[k]!.turns}</span>}
               <span className="bt-tip" role="tooltip">
                 <b>{STATUS_INFO[k].label}</b>
                 {STATUS_INFO[k].help}

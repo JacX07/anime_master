@@ -603,7 +603,7 @@ Moteur (`battle.ts`) : statuts `intangible` et `charged`, compteur `hitsTaken`, 
 | Toji Fushiguro | Lance inversée du ciel | Aucun dégât d'un attaquant magique (cartes Magie et Jujutsu Kaisen), ni poison, brûlure ou saignement qu'il pose. |
 | Sukuna | (ultime) | Sanctuaire malveillant ajoute 5 % des PV max par action pendant 3 actions à tous les ennemis. |
 
-### Madara, Netero, Anti-Spirale : chiffres proposés, à valider avant code
+### Madara, Netero, Anti-Spirale : chiffres validés le 2026-11-16, codés
 Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone). Recharges standard : secondaire 5 actions, tertiaire 7 actions, ultime à la jauge.
 
 **Madara Uchiha (UR)**
@@ -624,3 +624,14 @@ Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone
 - Secondaire *Mugann* : ×1,2 ATK sur un ennemi ; l'allié le plus bas en PV reçoit un bouclier égal à 25 % des dégâts infligés.
 - Tertiaire *Effondrement spiral* : étourdit tous les ennemis pendant 1 action et DEF −25 % pendant 2 actions ; recharge tertiaire standard (7). Les boss résistent à l'étourdissement.
 - Ultime *Infinity Big Bang Storm* : ×3 ATK en zone, une fois par combat.
+
+**Écarts de la première version codée (2026-11-16)**
+- Madara : pas encore d'écran de choix pour le Rinnegan ; le premier lancer invoque les clones, les suivants lancent la Pression gravitationnelle. La Copie ne reprend que les sorts visant un ennemi ou personne.
+- Netero : recharge des Paumes ramenée à 2 actions, sinon Kannon (2 tours) ne croiserait jamais une paume.
+- Projection d'aura : l'ignore-DEF dure 2 actions de chaque allié et ne se cumule pas.
+
+**Meruem (UR)** — validé le 2026-11-16
+- Attaque de base seulement : ni secondaire, ni tertiaire, ni ultime au départ (`KITLESS`).
+- Passif *Absorption d'aura* : au premier ennemi qui tombe (tué par lui ou non), Meruem l'absorbe et garde pour tout le combat un de ses sorts, au même emplacement. Une fois par combat, choix définitif. Première version : choix automatique, l'ultime d'abord, sinon le tertiaire, sinon le secondaire.
+- L'affichage suit les sorts remplacés en combat grâce à l'événement `kit` (Susanoo, absorption).
+

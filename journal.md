@@ -825,3 +825,10 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Symptôme : la fiche de Linlin (Big Mom) n'affichait que deux sorts génériques ; dans le builder, cliquer sur le nom ne faisait rien.
 - Cause : les quatre empereurs (727, 54495, 46109, 2751) n'avaient de kit que pour le raid (`boss-skills.ts`) ; leurs cartes retombaient sur l'archétype générique. Dans le builder, seul le bouton d'un sort ouvrait l'éditeur.
 - Correctif : kits de joueur SSR ajoutés dans `skill-data.json` (le raid garde `BOSS_SKILLS`) ; nom et portrait cliquables dans le builder. `check-spells` compte 240 kits. check-emperors, check-emperor-raid, check-battle, ESLint, TypeScript réussis ; fiche et builder vérifiés.
+
+## 2026-11-16 — Kits Madara, Netero, Anti-Spirale, Meruem
+- Moteur : effets `susanoo`, `kannon`, `copySpell`, `donateShield`, `auraPierce` ; `oncePerCombat` sur un sort ; clones, paumes, absorption et défaite de l'Anti-Spirale dans `battle.ts`. Événement `kit` (et `UnitView.kit`) pour afficher les sorts remplacés en combat ; `BattlePanels` le lit avant le catalogue.
+- Meruem sans kit : `KITLESS` (spell-rules) filtre les trois catalogues et `spellOf`. Recharge propre de Netero : `specialCooldownOf`.
+- Pièges : un `scripts/check-kits.ts` existait déjà (écrasé puis restauré) ; le nouveau test s'appelle `check-kits-uniques.ts`. Les effets permanents (`turns: 999`) s'affichent « ∞ ». `check-builder` et `check-spells` adaptés (243 kits, Meruem base seule).
+- Vérifié : check-kits-uniques, check-kits, check-passives, check-battle, check-spells, check-builder, statuts, éléments, empereurs, arène, ESLint, TypeScript ; fiches des quatre personnages et combat `/combat/test?seed=777&ids=53901,14489,23277,5115,…` joué jusqu'au bout sans erreur. Non testés : combat manuel avec ces cartes, absorption de Meruem visible dans la main (couverte par le test moteur seulement).
+
