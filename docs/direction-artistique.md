@@ -304,4 +304,4 @@ Bordures de cadre, boutons pleins opaques ou encadrés, steampunk (laiton en rel
 
 ### Commandes de combat — 2026-11-16
 
-Un seul bouton « Combattre » en préparation, avec le dernier réglage Auto/Manuel mémorisé et modifiable pendant le combat. « Passer l’animation en cours » applique seulement les effets déjà résolus de l’action affichée, sans simuler la suite. Le survol souris relève un sort sans le sélectionner ; le maintien conserve son rôle d’inspection épinglée.
+Un seul bouton « Combattre » en préparation, avec le dernier réglage Auto/Manuel mémorisé et modifiable pendant le combat. Le bouton Skip est désactivé à la demande du joueur ; il reste grisé et ne déclenche aucune action. Le survol souris relève un sort sans le sélectionner ; le maintien conserve son rôle d’inspection épinglée.

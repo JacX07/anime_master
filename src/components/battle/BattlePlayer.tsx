@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView, CHARACTER_PASSIVES } from "@/lib/battle";
-import { holdFor, replayCurrentAction, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
+import { holdFor, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { attackElement } from "@/lib/attack-element";
 import { attackVisual, attackWeapon } from "@/lib/attack-visual";
@@ -354,17 +354,6 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
     setRp(replayStart(log));
     setPlaying(true);
   };
-  const skip = () => {
-    cancelCast.current?.();
-    vfx.current?.clear();
-    // La minuterie du dernier événement doit aussi être épuisée si on est déjà à la frontière suivante.
-    const next = replayCurrentAction(rp, log);
-    playbackHold.current = { idx: next.idx, remaining: 0 };
-    lastIdx.current = next.idx;
-    visualIndex.current = next.idx;
-    setRp(next);
-  };
-
   const end = rp.end;
   const actor = rp.cur && !finished ? rp.info[rp.cur.actor] : null;
   const actorName = actor ? characters[actor.characterId]?.name : null;
@@ -566,7 +555,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             </button>
         </div>
         <div className="bt-pause-actions">
-            <button type="button" className="bt-ico" onClick={() => { wasPlaying.current = true; skip(); pauseMenu.current?.close(); }} disabled={finished || (caughtUp && !consuming)} aria-label="Passer l’animation en cours" title="Passer l’animation en cours">
+            <button type="button" className="bt-ico" disabled aria-label="Passer l’animation en cours (désactivé)" title="Skip désactivé">
               <Icon name="fin" />
             </button>
           {live?.onAbandon && !end ? (

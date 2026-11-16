@@ -1,6 +1,7 @@
 # Journal des agents
 
 ## 2026-11-16 — Lancement unique, skip et survol des sorts
+- Ajustement demandé : désactiver finalement Skip ; bouton conservé grisé, sans gestionnaire de clic. ESLint et build Node 24 réussis ; Chromium PC 1440 px et mobile 390 px : bouton disabled, clic programmatique sans effet, reprise et abandon opérationnels.
 - Validation : lint ciblé, check:replay (300 combats, arrêt avant action suivante et effets identiques), check:combat-selection et build Next/TypeScript Node 24 réussis. Chromium sur le build final : survol sans sélection, attaque manuelle puis Skip sans POST supplémentaire ni fin du combat, Auto activé/désactivé, abandon et rechargement, bouton unique de préparation Donjons ; 320, 375, 390 et 430 px sans débordement horizontal. Pas d’appareil physique ni de PvP réel.
 - Reprise après interruption : seule la simplification des boutons Donjons était écrite, non commitée ; un appel Difficulté suivante passait encore l’ancien paramètre manual. Terminer tous les appelants, puis supprimer le choix de mode de départ du combat TEST ; les autres modes utilisent déjà un seul bouton et un combat suivi serveur.
 - Le survol souris d’un sort relève seulement sa carte, sans sélectionner ni lancer ; le maintien et ses détails épinglés restent indépendants. Aucun survol simulé sur écran tactile.
