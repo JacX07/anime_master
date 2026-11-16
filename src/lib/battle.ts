@@ -969,6 +969,16 @@ function processDeaths(st: BattleState) {
 }
 
 /** Carte qui doit agir maintenant, ou null si le combat est fini. Saute les cartes à 0 PV ou étourdies et ouvre les tours. */
+/** Susanoo dissipé : rend le kit d'origine avant le choix de l'action, sinon l'IA choisit un sort du kit Susanoo disparu (Meruem qui a dévoré Madara n'avait pas de sort d'origine : plantage) */
+function restoreKit(st: BattleState, u: Unit) {
+  if (!u.kitBackup || hasFx(u, "susanoo")) return;
+  u.spell = u.kitBackup.spell;
+  u.tertiary = u.kitBackup.tertiary;
+  u.kitBackup = null;
+  st.log.push({ kind: "kit", target: u.id, slot: "special", spell: u.spell });
+  st.log.push({ kind: "kit", target: u.id, slot: "tertiary", spell: u.tertiary });
+}
+
 export function currentActor(st: BattleState): UnitView | null {
   while (st.pending?.length && !st.result) {
     const p = unit(st, st.pending[0].unit);
@@ -977,6 +987,7 @@ export function currentActor(st: BattleState): UnitView | null {
   }
   if (st.opts.gauge) {
     const u = gaugeActor(st);
+    if (u) restoreKit(st, u);
     return u ? view(u) : null;
   }
   while (!st.result) {
@@ -996,7 +1007,7 @@ export function currentActor(st: BattleState): UnitView | null {
     }
     const u = st.teams[st.order[st.slot % 2]][Math.floor(st.slot / 2)];
     if (u && u.hp > 0 && !u.out) {
-      if (!hasFx(u, "stun") && !hasFx(u, "sleep") && !cutOffByDuel(st, u) && !disarmedStuck(st, u)) return view(u);
+      if (!hasFx(u, "stun") && !hasFx(u, "sleep") && !cutOffByDuel(st, u) && !disarmedStuck(st, u)) { restoreKit(st, u); return view(u); }
       st.log.push({ kind: "skip", actor: u.id, reason: "stun" });
       advanceCooldowns(u);
       finishUnitTurn(st, u);
@@ -1193,13 +1204,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     return;
   }
   if (!reaction && !u.continuingTurn) advanceCooldowns(u);
-  if (u.kitBackup && !hasFx(u, "susanoo")) {
-    u.spell = u.kitBackup.spell;
-    u.tertiary = u.kitBackup.tertiary;
-    u.kitBackup = null;
-    log.push({ kind: "kit", target: u.id, slot: "special", spell: u.spell });
-    log.push({ kind: "kit", target: u.id, slot: "tertiary", spell: u.tertiary });
-  }
+  restoreKit(st, u);
 
   // Un bonus ignore-DEF reste applicable à tous les coups d'une même action (par exemple une zone).
   const pendingIgnoreFx = u.fx.find((f) => f.key === "ignoreDef");
@@ -1863,7 +1868,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     log.push({ kind: "ultimateGauge", target: u.id, amount: u.ultimateGauge - old, current: u.ultimateGauge, max: BATTLE.ultimateGaugeMax });
   }
   if (reaction) return;
-  if (activeSpell && hasCharacterSlots(u.card.rarity) && (isSoloBuff(activeSpell) || activeSpell.replay)) {
+  // Rejouer (Kannon, buff solo) seulement s'il reste un ennemi atteignable : sinon plus aucune cible (ex. Frieren intouchable seule en face)
+  if (activeSpell && hasCharacterSlots(u.card.rarity) && (isSoloBuff(activeSpell) || activeSpell.replay) && reachableFoes(st, u).length > 0) {
     u.continuingTurn = true;
     // La provocation garde son tour : sinon le tour immédiat la consommerait avant que les ennemis jouent (v0.3.0)
     for (const effect of u.fx) if (effect.key !== "taunt") effect.fresh = false;

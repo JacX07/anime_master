@@ -293,6 +293,25 @@ for (let seed = 1; seed <= 200; seed++) {
     applyAction(s, { spell: "ultimate", target: "B1" });
     assert.equal(s.teams.A[0].fx.find((f) => f.key === "kannon")?.turns, 3, "Kannon 3 tours");
     assert.equal(currentActor(s)?.id, "A1", "Netero rejoue aussitôt");
+    // Seul ennemi restant intouchable : pas de tour rejoué sans cible (plantait dans autoAction)
+    const u = createBattle([card(NETERO, { startGauge: 100 })], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A", gauge: true });
+    until(u, "A1");
+    u.teams.B[0].fx.push({ key: "intangible", amount: 0, turns: 1, fresh: false });
+    u.teams.B.push({ ...u.teams.B[0], id: "B2", fx: [] });
+    u.teams.B[1].hp = 1;
+    u.teams.B[1].shield = 0;
+    applyAction(u, { spell: "ultimate", target: "B2" });
+    assert.notEqual(currentActor(u)?.id, "A1", "pas de tour rejoué quand plus aucun ennemi n'est atteignable");
+  }
+  // Susanoo dissipé : le kit d'origine revient avant le choix de l'action (Meruem sans sort d'origine plantait)
+  {
+    const s = createBattle([card(MERUEM)], [dummy({ defense: 1000000, attack: 1 })], () => 0.5, { startingSide: "A" });
+    const m = s.teams.A[0];
+    m.kitBackup = { spell: null, tertiary: null };
+    m.spell = spellOf(MADARA, "UR", "COMBAT");
+    until(s, "A1");
+    assert.equal(s.teams.A[0].spell, null, "kit d'origine rendu dès que Meruem est l'acteur");
+    assert(!legalActions(s).some((a) => a.spell === "special"), "plus de sort Susanoo à lancer");
   }
   // Gilgamesh : désarme les porteurs d'épée, +25 % par désarmé ; un désarmé sans autre sort passe son tour
   {
