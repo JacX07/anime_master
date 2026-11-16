@@ -813,3 +813,9 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Vérifié sur le site dev : ouverture depuis la barre fine et l'accueil, survol, Échap, lien Histoire, 1600/1280/1024/800 px sans débordement, `/jouer` mobile intact, `check-desktop-home`, ESLint et TypeScript réussis. Tutoriel complet non rejoué.
 - Suite : la page `/jouer` (PC et mobile) reprend les mêmes panneaux via `ModeBoard` (`PlayMenu.tsx`) ; états partagés dans `src/lib/play-modes.ts`. Duels quiz retiré du menu, de la page et du panneau Menu (Arène → `/arene`) ; étape « Arène » du tutoriel → `.pm-mode-live`. Vérifié : /jouer à 2000, 1280 et 390 px sans débordement, lien Donjons, menu JOUER à 6 panneaux, `check-desktop-home`, ESLint, TypeScript.
 
+## 2026-11-16 — Passifs Emilia, Momo, Gojo, Aizen, Toji ; ultime de Sukuna
+- Emilia (`DEATH_CAST`), Momo (`DOT_IMMUNE`) et Gojo (`START_PASSIVES`) existaient déjà ; Momo refuse désormais aussi le saignement. Nouveaux : Aizen (`ILLUSION`, redirection 1/2 vers un allié de l'attaquant) et Toji (`MAGIC_IMMUNE`, magique = `damageKind`). Textes dans `CHARACTER_PASSIVES`, affichés dans Squads et le panneau d'infos du combat.
+- Piège : les sorts SSR/UR viennent d'abord de `src/lib/skill-data.json` ; `ultimate-catalog.ts` n'est qu'un repli. Sukuna (poison 5 %, 3 actions) et le nom « Colère de Puck » sont modifiés dans le JSON.
+- Piège de test : le second joueur reçoit un bouclier au premier tour ; comparer PV + bouclier. `scripts/check-passives.ts` couvre les six cas ; checks de combat existants, ESLint et TypeScript réussis ; passifs visibles dans `/combat/test?ids=…`.
+- Big Mom (54495) a déjà son image AniList (raid compris) : rien changé.
+

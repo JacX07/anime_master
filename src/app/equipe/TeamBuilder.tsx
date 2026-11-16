@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
 import { autoAttackTeamAction, autoDefenseTeamAction, setAttackTeamAction, setDefenseTeamAction } from "@/app/battle-actions";
-import { affinity, BATTLE, START_PASSIVES } from "@/lib/battle";
+import { affinity, BATTLE, CHARACTER_PASSIVES } from "@/lib/battle";
 import { BASE_SPELL, AFFINITY_COOLDOWN, SPELL_INFO, SPELL_NAMES } from "@/lib/battle-replay";
 import { describeBasicAttack, basicAttackOf } from "@/lib/basic-attacks";
 import { balanceSecondary, powerTertiaryDamage } from "@/lib/character-skills";
@@ -109,7 +109,7 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
   const rawTertiary = slots ? TERTIARY_SPELLS[card.characterId] : undefined;
   const tertiary = rawTertiary ? powerTertiaryDamage(rawTertiary, BATTLE.tertiaryDamageScale) : undefined;
   const ultimate = slots ? ULTIMATE_CATALOG[card.characterId] : undefined;
-  const passive = slots ? START_PASSIVES[card.characterId] : undefined;
+  const passive = slots ? CHARACTER_PASSIVES[card.characterId] : undefined;
   return (
     <ul className="eq-spells">
       {passive && (

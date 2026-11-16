@@ -7427,7 +7427,7 @@
       ]
     },
     "ultimate": {
-      "name": "Puck : Hyoga Ultime",
+      "name": "Colère de Puck",
       "target": null,
       "effects": [
         {
@@ -11060,6 +11060,12 @@
           "mult": 2.2,
           "zone": true,
           "ignoreDef": 0.3
+        },
+        {
+          "k": "poison",
+          "pct": 0.05,
+          "turns": 3,
+          "to": "foes"
         }
       ]
     }

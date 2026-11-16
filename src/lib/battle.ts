@@ -473,6 +473,19 @@ const fallen = (st: BattleState, s: Side) => (st.stolen ? [...st.teams.A, ...st.
 /** Passifs : insensible aux dégâts sur la durée (Momo Ayase) ; lance son ultime en mourant (Emilia) */
 const DOT_IMMUNE = new Set([222594]);
 const DEATH_CAST = new Set([88572]);
+/** Aizen : Kyoka Suigetsu, un coup ennemi sur deux frappe un allié de l'attaquant. */
+const ILLUSION = new Set([1086]);
+/** Toji : lance inversée du ciel, les dégâts magiques ne le touchent pas. */
+const MAGIC_IMMUNE = new Set([162722]);
+
+/** Passifs de personnage affichés dans les fiches (équipe, combat). */
+export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> = {
+  88572: { name: "Colère de Puck", text: "Quand Emilia tombe, Puck lance aussitôt son ultime." },
+  222594: { name: "Pouvoir de Momo", text: "Immunisée contre les dégâts sur la durée : poison, brûlure et saignement." },
+  127691: { name: "Infini", text: "Intouchable jusqu'à la fin de son premier tour : aucun ennemi ne peut le viser ni le toucher." },
+  1086: { name: "Kyoka Suigetsu", text: "Une attaque ennemie sur deux visant Aizen frappe à la place un allié de l'attaquant, au hasard." },
+  162722: { name: "Lance inversée du ciel", text: "Annule tous les dégâts magiques reçus." },
+};
 const unit = (st: BattleState, id: UnitId) => st.teams[id[0] as Side][Number(id.slice(1)) - 1];
 const weakest = (units: Unit[]) => units.reduce((m, x) => (x.hp < m.hp ? x : m));
 const mostHurt = (units: Unit[]) => units.reduce((m, x) => (x.hp / x.maxHp < m.hp / m.maxHp ? x : m));
@@ -1013,11 +1026,29 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   const struck = new Set<Unit>();
   /** Cartes frappées qui ripostent (Domaine du monarque), une ombre par action */
   const shadows = new Set<Unit>();
-  const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false, hpPct = 0) => {
+  let redirected = false;
+  const hit = (t: Unit, mult: number, ignoreDef = 0, exposedBonus = false, pierce = false, critSure = false, hpPct = 0): number => {
     // Intouchable (Gojo, Frieren) : aucun coup ne l'atteint
     if (t.side !== u.side && hasFx(t, "intangible")) {
       log.push({ kind: "dodge", source: u.id, target: t.id });
       return 0;
+    }
+    // Lance inversée du ciel (Toji) : aucun dégât magique
+    if (t.side !== u.side && MAGIC_IMMUNE.has(t.card.characterId) && damageKind(u.card) === "magic") {
+      log.push({ kind: "resist", target: t.id });
+      return 0;
+    }
+    // Kyoka Suigetsu (Aizen) : une fois sur deux, l'attaquant frappe un de ses alliés
+    if (!redirected && t.side !== u.side && ILLUSION.has(t.card.characterId) && rng() < 0.5) {
+      const decoys = alive(st, u.side).filter((x) => x !== u);
+      if (decoys.length) {
+        const decoy = decoys[Math.floor(rng() * decoys.length)];
+        log.push({ kind: "dodge", source: u.id, target: t.id });
+        redirected = true;
+        const dealt = hit(decoy, mult, ignoreDef, exposedBonus, pierce, critSure, hpPct);
+        redirected = false;
+        return dealt;
+      }
     }
     // L'ignore-DEF accordé par une attaque de base est consommé sur la prochaine action offensive.
     if (pendingIgnoreFx && !consumedIgnoreFx) {
@@ -1117,7 +1148,8 @@ function resolveAction(st: BattleState, u: Unit, action: Action, reaction: boole
   /** Pose un effet durable ; un malus est refusé par l'immunité, et le silence par les boss. L'effet de même nature se renouvelle (le plus fort reste). */
   const addFx = (t: Unit, key: FxKey, amount: number, turns: number, stat?: ModStat) => {
     if (t.hp <= 0) return;
-    if ((key === "poison" || key === "burn") && DOT_IMMUNE.has(t.card.characterId)) {
+    if ((key === "poison" || key === "burn" || key === "bleed") && (DOT_IMMUNE.has(t.card.characterId)
+      || (MAGIC_IMMUNE.has(t.card.characterId) && t.side !== u.side && damageKind(u.card) === "magic"))) {
       log.push({ kind: "resist", target: t.id });
       return;
     }

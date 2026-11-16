@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
-import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView } from "@/lib/battle";
+import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView, CHARACTER_PASSIVES } from "@/lib/battle";
 import { holdFor, replayAll, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { attackElement } from "@/lib/attack-element";
@@ -547,7 +547,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             return <details key={id} className="bt-unit-info"><summary>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={character?.imageUrl} alt="" referrerPolicy="no-referrer" /><span>{character?.name ?? id}</span>{rp.units[id].ko && <small>K.O.</small>}
-            </summary><EffectsPanel unit={unit} state={rp.units[id]} info={rp.info} characters={characters} /></details>;
+            </summary>{CHARACTER_PASSIVES[unit.characterId] && <p className="bt-unit-passive"><b>Passif · {CHARACTER_PASSIVES[unit.characterId].name}</b> {CHARACTER_PASSIVES[unit.characterId].text}</p>}<EffectsPanel unit={unit} state={rp.units[id]} info={rp.info} characters={characters} /></details>;
           })}
         </section>)}
       </dialog>

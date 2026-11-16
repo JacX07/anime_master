@@ -590,3 +590,37 @@ Moteur (`battle.ts`) : statuts `intangible` et `charged`, compteur `hitsTaken`, 
 - → UR : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Touji, Cid Kagenou, Taiga, Chrollo, Griffith, Antispiral (importé, AniList 5115), Onizuka, All Might (Toshinori Yagi), Gilgamesh, Aizen, Madara et Netero (SR → UR).
 - Stats : ces 47 personnages sont placés **au milieu de leur nouvelle rareté** (`RARITY_MIDDLE`) ; sinon la popularité AniList mettait les anciens UR en haut des SSR et les nouveaux UR en bas des UR, au même niveau. Appliqué en base le 2026-11-13 (UR 9 869–13 713, moyenne 11 073 ; SSR 7 268–10 741, moyenne 8 773).
 - Les cartes déjà tirées suivent (décision du joueur) ; `rarityAtPull` garde l'historique. Madara, Netero et Antispiral n'ont pas encore de kit propre (sorts génériques de leur type).
+
+## Passifs et kits du 2026-11-16
+
+### Passifs codés
+| Personnage | Passif | Règle |
+|---|---|---|
+| Emilia | Colère de Puck | À sa mort, elle lance aussitôt son ultime (renommé « Colère de Puck »), même sans jauge. |
+| Momo Ayase | Pouvoir de Momo | Immunisée contre poison, brûlure et saignement. |
+| Satoru Gojo | Infini | Intouchable jusqu'à la fin de son premier tour. |
+| Sousuke Aizen | Kyoka Suigetsu | Un coup ennemi sur deux qui le vise frappe un allié de l'attaquant, tiré au hasard (si l'attaquant en a un). Vaut aussi pour les zones. |
+| Toji Fushiguro | Lance inversée du ciel | Aucun dégât d'un attaquant magique (cartes Magie et Jujutsu Kaisen), ni poison, brûlure ou saignement qu'il pose. |
+| Sukuna | (ultime) | Sanctuaire malveillant ajoute 5 % des PV max par action pendant 3 actions à tous les ennemis. |
+
+### Madara, Netero, Anti-Spirale : chiffres proposés, à valider avant code
+Repères : UR existants (Sukuna : secondaire ×0,8 en zone, ultime ×2,2 en zone). Recharges standard : secondaire 5 actions, tertiaire 7 actions, ultime à la jauge.
+
+**Madara Uchiha (UR)**
+- Passif *Cellules d'Hashirama* : soin de 8 % des PV max au début de son propre tour, plafonné aux PV manquants ; bloqué par les effets anti-soin.
+- Secondaire *Rinnegan* : au choix, une seule technique par action.
+  - *Pression gravitationnelle* : ×0,6 ATK en zone, vitesse −30 % pendant 2 actions.
+  - *Clones* (une fois par combat) : deux clones ; un coup ciblé sur Madara touche un clone 2 fois sur 3 tant qu'il en reste ; un clone touché disparaît ; les zones touchent toujours Madara.
+- Tertiaire *Katon, boule de feu suprême* : ×0,7 ATK en zone, brûlure 5 % des PV max pendant 2 actions.
+- Ultime *Mangekyō Sharingan éternel* (une fois par combat) : Susanoo parfait pendant 2 de ses tours. ATK +50 %, immunité à l'étourdissement, au sommeil, à la peur et au sceau. Le secondaire devient *Copie* (rejoue à 80 % le dernier secondaire ou tertiaire lancé par un ennemi), le tertiaire devient *Kyūbi* (×1,1 ATK en zone, brûlure 6 % pendant 2 actions).
+
+**Isaac Netero (UR)**
+- Secondaire *Paumes* : ×1,2 ATK sur un ennemi. Progression à chaque lancer : 100 %, 125 % (3ᵉ paume), 150 % (99ᵉ paume), puis *Paume zéro* à 200 % ; après Paume zéro, retour à 100 %.
+- Tertiaire *Projection d'aura* : équipe ignore 30 % de la DEF et +50 points de dégâts critiques pendant 2 actions ; ne se cumule pas avec elle-même.
+- Ultime *Hyakushiki Kannon* : paume immédiate ×1,0 ; pendant 2 de ses tours, chaque paume frappe deux fois. Seuls les dégâts sont doublés : ni buffs, ni jauge, ni progression.
+
+**Anti-Spirale (UR)**
+- Passif *Dimension* : intouchable (dégâts, zones, contrôles) ; ne reçoit aucun buff, soin ni bouclier, même de lui-même. Son équipe perd dès que tous ses alliés sont morts.
+- Secondaire *Mugann* : ×1,2 ATK sur un ennemi ; l'allié le plus bas en PV reçoit un bouclier égal à 25 % des dégâts infligés.
+- Tertiaire *Effondrement spiral* : étourdit tous les ennemis pendant 1 action et DEF −25 % pendant 2 actions ; recharge tertiaire standard (7). Les boss résistent à l'étourdissement.
+- Ultime *Infinity Big Bang Storm* : ×3 ATK en zone, une fois par combat.
