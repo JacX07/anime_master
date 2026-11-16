@@ -174,7 +174,7 @@ export function SquadManager({ cards, presets, saved, inventory, favorites = [] 
         <p role="status">{Math.min(shown, filtered.length)} / {filtered.length} cartes</p>
         {!filtered.length && <p>Aucune carte ne correspond.</p>}
         <div className="squad-picker-grid">{filtered.slice(0, shown).map((card) => {
-          const occupied = slots.some((id, i) => i !== target && id === card.id);
+          const occupied = members.some((member, i) => i !== target && member?.characterId === card.characterId);
           return <div key={card.id} className="squad-pick-item">
             <button className="squad-card" disabled={occupied} title={occupied ? "Déjà dans la squad" : card.name} aria-label={`Choisir ${card.name}`} onClick={() => { setDraft(slots.map((id, i) => i === target ? card.id : id)); setTarget(null); setMessage(null); }}><CharacterCard {...card} />{favs.has(card.characterId) && <span className="fav-badge" aria-hidden="true">★</span>}{occupied && <small>Déjà dans la squad</small>}</button>
             <div className="squad-pick-meta"><RoleTags roles={pickFilter.roles.get(card.characterId)!} /><button type="button" className="ui-button" onClick={() => setSpellCard(card)}>Sorts</button></div>

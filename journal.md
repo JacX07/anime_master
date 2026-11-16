@@ -1,5 +1,10 @@
 # Journal des agents
 
+## 2026-11-16 — Doublons de personnage dans le sélecteur de squad
+- Symptôme : deux exemplaires du même personnage pouvaient être proposés à deux postes alors que les combats exigent des personnages distincts.
+- Correctif : désactiver les exemplaires par characterId occupé à un autre poste, en autorisant le remplacement du poste courant.
+- Validation : lint ciblé et build réussis ; Chromium 390 px, squad enregistrée puis rechargée : les deux Gojo sont désactivés au poste 2 et restent disponibles au poste 1. Les contrôles serveur de squad ont passé la suite complète initiale.
+
 ## 2026-11-16 — Collection : retour filtré et tiroir clavier
 - Symptômes : ouvrir une fiche puis cliquer ← Album effaçait la recherche ; sur mobile le champ du tiroir Collections fermé restait focalisable hors écran.
 - Correctif : destination de retour limitée à /album et ses paramètres, transmise par toutes les cartes, y compris la pagination ; tiroir fermé invisible, fermeture Échap et focus rendu au bouton.
