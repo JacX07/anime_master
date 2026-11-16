@@ -82,5 +82,6 @@ const STATUS_ALIASES: Partial<Record<Status, Status>> = {
   intangible: "dodgeUp", charged: "atkUp",
   // Kits v0.4.0 : même rendu et même nettoyage que les effets déjà présents.
   susanoo: "immune", kannon: "atkUp", auraPierce: "ignoreDef", dread: "silence", puppet: "silence", godHand: "atkUp",
+  gash: "poison", disarm: "atkDown",
 };
 for (const [key, source] of Object.entries(STATUS_ALIASES)) STATUS_FX[key as Status] = STATUS_FX[source];
