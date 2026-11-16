@@ -9,7 +9,8 @@ async function main() {
   const versions = releases.map((r) => r.version);
   const news = parseChangelog(readFileSync("CHANGELOG.md", "utf8"), true);
   assert.equal(news[0].upcoming, true);
-  assert.equal(news[0].version, "À venir");
+  assert.equal(news[0].version, "v0.4.0");
+  assert(!versions.includes("v0.4.0"), "La v0.4.0 reste en préparation");
   assert.deepEqual(news.slice(1), releases, "Les notes à venir ne changent pas les versions publiées");
   assert(!releases.some((release) => release.upcoming), "Pas d’annonce de connexion pour les notes à venir");
   assert(!news[0].sections.some((section) => /^Migrations/i.test(section.title)));

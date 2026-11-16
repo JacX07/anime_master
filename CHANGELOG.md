@@ -2,9 +2,9 @@
 
 Une section par version, la plus récente en haut. Chaque version correspond à un tag Git (`v0.2.0`…) posé sur `main`. Les migrations de base de données à appliquer avant la publication sont listées dans chaque section.
 
-## À venir
+## À venir — v0.4.0
 
-La prochaine mise à jour prépare une nouvelle interface PC et mobile, un combat plus lisible et des compétences propres à davantage de personnages. Ces notes présentent les changements préparés pour cette mise à jour ; elles ne constituent pas une annonce de déploiement. Aucune date de sortie n’est annoncée.
+La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat plus lisible et des compétences propres à davantage de personnages. Ces notes présentent les changements préparés pour cette mise à jour ; elles ne constituent pas une annonce de déploiement. Aucune date de sortie n’est annoncée.
 
 ### Les nouveautés à retenir
 

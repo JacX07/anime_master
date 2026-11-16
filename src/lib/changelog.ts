@@ -12,8 +12,9 @@ export function parseChangelog(markdown: string, includeUpcoming = false): Relea
   for (const line of markdown.replaceAll("\r\n", "\n").split("\n")) {
     if (line.startsWith("## ")) {
       const match = /^## (v\d+\.\d+\.\d+(?:-[\w.-]+)?) — (.+)$/.exec(line);
-      release = includeUpcoming && line === "## À venir"
-        ? { version: "À venir", title: "Prochaine mise à jour", sections: [], upcoming: true }
+      const upcoming = /^## À venir(?: — (v\d+\.\d+\.\d+(?:-[\w.-]+)?))?$/.exec(line);
+      release = includeUpcoming && upcoming
+        ? { version: upcoming[1] ?? "À venir", title: "Prochaine mise à jour", sections: [], upcoming: true }
         : match ? { version: match[1], title: match[2], sections: [] } : null;
       section = null;
       introduction = true;
