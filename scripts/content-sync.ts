@@ -50,6 +50,18 @@ export async function readPostgres(db: PrismaClient): Promise<Catalogue> {
 
 function quote(value: string) { return `"${value}"`; }
 
+/** Message d'erreur lisible, sans adresse de connexion, hôte, utilisateur ni mot de passe. */
+export function describeError(error: unknown): string {
+  const raw = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  const code = (error as { code?: unknown })?.code;
+  return (typeof code === "string" && !raw.includes(code) ? `[${code}] ` : "") + raw
+    .replace(/postgres(?:ql)?:\/\/\S+/gi, "postgresql://***")
+    .replace(/\b(?:password|user|host)=\S+/gi, (m) => `${m.split("=")[0]}=***`)
+    .replace(/(?:[a-z0-9-]+\.)+(?:supabase\.(?:co|com)|neon\.tech|rds\.amazonaws\.com|pooler\.[a-z.]+)(?::\d+)?/gi, "***")
+    .replace(/\b\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?\b/g, "***")
+    .split("\n").slice(0, 6).join(" ").slice(0, 600);
+}
+
 export async function syncContent(db: PrismaClient, catalogue: Catalogue, apply: boolean): Promise<SyncResult> {
   const result: SyncResult = [];
   const rollback = new Error("Aperçu terminé");
@@ -111,6 +123,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // Les erreurs des connecteurs peuvent inclure les paramètres de connexion.
     console.error("Échec du transfert : transaction annulée. Vérifier connexion, schéma migré et contenu source. Aucun secret affiché.");
     if (error instanceof Prisma.PrismaClientKnownRequestError) console.error(`Code Prisma : ${error.code}`);
+    console.error(`Cause : ${describeError(error)}`);
     process.exitCode = 1;
   });
 }
