@@ -19,6 +19,7 @@ export const RARITIES: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 /** Raretés imposées par le design, quels que soient les favoris (survivent aux réimports). */
 export const RARITY_OVERRIDES: Record<number, Rarity> = {
   129928: "UR", // Jin-U Seong (Solo Leveling)
+  68537: "UR", // Yhwach — promotion demandée pour la v0.4.0
   // Empereurs du Défi (docs/specs/raid-empereurs.md)
   727: "SSR", // Shanks
   2751: "SSR", // Barbe Blanche (Newgate Edward)
@@ -33,10 +34,10 @@ export const RARITY_OVERRIDES: Record<number, Rarity> = {
   58: "UR", 424: "UR", 5115: "UR", 434: "UR", 89224: "UR", 2514: "UR", 1086: "UR", 53901: "UR", 14489: "UR",
 };
 /**
- * Raretés changées le 2026-11-13 : la popularité AniList les mettrait au bord de leur nouvelle plage (un ancien UR devient le SSR
+ * Raretés changées depuis le 2026-11-13 : la popularité AniList les mettrait au bord de leur nouvelle plage (un ancien UR devient le SSR
  * le plus fort, un nouveau UR le plus faible des UR, au même niveau). Elles sont placées au milieu de leur nouvelle rareté.
  */
-export const RARITY_MIDDLE = new Set([27, 40, 40881, 62, 87275, 14, 10138, 127212, 85, 89334, 88572, 71, 28, 34470, 11, 127222, 138102, 17, 130102, 88892,
+export const RARITY_MIDDLE = new Set([68537, 27, 40, 40881, 62, 87275, 14, 10138, 127212, 85, 89334, 88572, 71, 28, 34470, 11, 127222, 138102, 17, 130102, 88892,
   137079, 126071, 89220, 126635, 672, 6356, 5, 500, 89361, 73935, 133701, 129571, 23277, 4004, 719, 162722, 136837, 12064, 58, 424, 5115, 434, 89224, 2514, 1086, 53901, 14489]);
 
 /** Classe par favoris décroissants (égalité : plus petit id d'abord) et attribue les raretés. */

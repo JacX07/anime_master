@@ -224,15 +224,15 @@ check("Catalogues runtime : 243 personnages dans les trois emplacements (236 + 4
   st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
   play(st, "ultimate", null);
   const stunned = evs(st, "status").filter((event) => event.status === "stun" && event.on).map((event) => event.target);
-  check("Gojo : Extension du territoire étourdit exactement les deux ennemis à l'ATK la plus élevée", ULTIMATE_DATA[GOJO].name === "Extension du territoire" && stunned.join() === "B1,B2" && st.teams.A[0].ultimateGauge === 0);
+  check("Gojo : Extension du territoire étourdit les quatre ennemis", ULTIMATE_DATA[GOJO].name === "Extension du territoire" && stunned.join() === "B1,B2,B3,B4" && st.teams.A[0].ultimateGauge === 0);
   currentActor(st); currentActor(st);
   check("Étourdissement : un tour sauté immédiatement, sans rejouer l'événement à la lecture de l'état", currentActor(st)?.id === "A2" && evs(st, "skip").length === 1 && !evs(st, "action").some((event) => event.actor === "B1"));
   until(st, "A1");
-  check("Étourdissement : chacun passe exactement un tour", evs(st, "skip").map((event) => event.actor).join() === "B1,B2");
+  check("Étourdissement : chacun passe exactement un tour", evs(st, "skip").map((event) => event.actor).join() === "B1,B2,B3,B4");
   play(st, "base", "B3");
   check("Étourdissement : la cible peut rejouer au tour suivant", currentActor(st)?.id === "B1" && !st.teams.B[0].fx.some((effect) => effect.key === "stun"));
   const replay = replayAll(st.log);
-  check("Étourdissement : rejeu et historique annoncent les tours passés", historyOf(st.log, st.log.length).filter((entry) => entry.name === "Étourdissement : tour passé").length === 2 && !replay.units.B1.fx.includes("stun"));
+  check("Étourdissement : rejeu et historique annoncent les tours passés", historyOf(st.log, st.log.length).filter((entry) => entry.name === "Étourdissement : tour passé").length === 4 && !replay.units.B1.fx.includes("stun"));
 }
 {
   const st = start([card(GOJO, { rarity: "UR", ultimate: { name: "Deux tours", target: null, effects: [{ k: "stun", turns: 2, count: 2 }] } }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200 }), dummy(5, { attack: 150 }), dummy(6), dummy(7)]);
@@ -269,11 +269,11 @@ check("Catalogues runtime : 243 personnages dans les trois emplacements (236 + 4
 }
 {
   const st = start([card(GOJO, { rarity: "UR" }), dummy(1), dummy(2), dummy(3)], [dummy(4, { attack: 200, boss: true }), dummy(5, { attack: 150 }), dummy(6), dummy(7)]);
-  st.teams.B[1].fx.push({ key: "immune", amount: 0, turns: 2, fresh: false });
+  for (const foe of st.teams.B.slice(1)) foe.fx.push({ key: "immune", amount: 0, turns: 2, fresh: false });
   st.teams.A[0].ultimateGauge = BATTLE.ultimateGaugeMax;
-  check("Gojo en auto : conserve l'ultime si ses deux cibles sont protégées", autoAction(st).spell !== "ultimate");
+  check("Gojo en auto : conserve l'ultime si toutes ses cibles sont protégées", autoAction(st).spell !== "ultimate");
   play(st, "ultimate", null);
-  check("Étourdissement : boss et immunité résistent, sans transfert vers une troisième cible", evs(st, "resist").length === 2 && !evs(st, "status").some((event) => event.status === "stun") && evs(st, "skip").length === 0);
+  check("Étourdissement : boss et immunité résistent", evs(st, "resist").length === 4 && !evs(st, "status").some((event) => event.status === "stun") && evs(st, "skip").length === 0);
 }
 {
   const st = start([card(CHOPPER), dummy(1), dummy(2), dummy(3)], [dummy(4), dummy(5), dummy(6), dummy(7)]);

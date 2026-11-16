@@ -8,7 +8,7 @@ import { PageHeading } from "@/components/mq/PageHeading";
 import { RestartTutorial } from "./RestartTutorial";
 import "./guide.css";
 
-export const metadata = { title: "Guide — Anime Masters", robots: { index: false } };
+export const metadata = { title: "Guide — Anima Clash", robots: { index: false } };
 
 export default function GuidePage() {
   return <main className="vt"><div className="vt-inner guide-page">

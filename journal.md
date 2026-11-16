@@ -1,5 +1,46 @@
 # Journal des agents
 
+## 2026-11-16 — Kits, lot 3 (1/2) : décisions hors tour
+- Moteur : `st.pending` (file de `PendingChoice`) traité en tête de `currentActor` ; action `{ spell: "decide", choice }` (learn, ignore, page:0, page:1) validée par `legalActions(...).choices` ; `autoAction` apprend. Le type `ActionSpell` exclut "decide" des événements `action`. Copie apprise = événement `kit` (rejeu et main de combat déjà compatibles).
+- Chrollo dans `KITLESS` : livre = emplacements secondaire (page 1) et tertiaire (page 2). Yuuta et Madara n'utilisent plus la copie automatique (`copiedSpell`) ; Kakashi garde la sienne.
+- Interface : `decision` (via `decisionOf`) dans BattleView et ArenaView ; fenêtre `.bt-decision` dans BattlePlayer ; `onPlay(spell, target, choice)`.
+- Vérifié en vrai combat manuel (donjon One Piece 10, compte agenttest, Yuuta et Chrollo donnés par dev-tools) : fenêtres de Yuuta puis Chrollo, Apprendre et Ignorer, main mise à jour. Non testé : arène PvP, livre plein en combat réel (couvert par check-kits-uniques).
+
+## 2026-11-16 — Kits, lot 2 (Sukuna, Netero, Gilgamesh, Saitama)
+- Moteur : statuts `gash` (entaille : dégâts sur la durée + aucun soin, `heal` et régénération bloqués) et `disarm` (`disarmedStuck` fait passer le tour ; `legalActions` et `autoAction` n'offrent que des sorts sans dégâts) ; champ de sort `replay` (tour immédiat, comme les buffs solo) ; Saitama prêt au tour 1, sans attaque de base (fiche et main de combat masquent la ligne via `SINGLE_SPELL`).
+- Piège : `autoAction` ignore `legalActions` ; tout nouveau filtre d'actions doit aussi y être reporté (check-spells l'a révélé : « Action impossible » sur 2 combats sur 1 500).
+- Vérifié : check-kits-uniques (bloc lot 2), check-kits, check-spells, check-builder, check-passives, check-battle, check-replay, statuts, TypeScript, ESLint ; fiches des quatre personnages ; /combat/test?seed=11&ids=133701,14489,2514,73935,5,62,36765,422 sans erreur (Désarmé, Kannon visibles). Non testé : combat manuel.
+
+## 2026-11-16 — Kits, lot 1 (Gojo, Cid, Levi, Shigeo, Maomao, Madara)
+- Piège majeur : `src/lib/skill-overrides.json` (écrit par « Appliquer au jeu » du builder) passe AVANT `skill-data.json`. Levi et Shigeo y avaient leur ultime réel ; modifier seulement `skill-data.json` ne change rien en jeu. Vérifier les deux fichiers avant d'annoncer l'état d'un kit.
+- Fait : Gojo étourdit les 4 ennemis ; Cid « I am Atomic » ×2,2 en zone perforant ; Levi (override) +20 % des PV max de la cible et +50 points de critique (nouveau champ `critBonus`) ; Shigeo (override) Explosion en zone ; Maomao passif `DOT_IMMUNE` ; Madara Katon ×2,1 et Kyūbi ×3,3 posent une brûlure (`poison.burn`), Copie à 100 %.
+- Tests adaptés : check-spells (Gojo 4 cibles), check-kits (Mob en zone), check-kits-uniques (nouveau bloc). Les combats de démo mélangent l'ordre des ids : ne pas déduire le lanceur de la position.
+- Reste : lot 2 (Sukuna entaille, Netero, Gilgamesh désarmé, Saitama un seul sort), lot 3 (copie avec choix Yuuta/Madara, Chrollo, Yhwach).
+
+## 2026-11-16 — Butins et taux affichés (empereurs, coffres)
+- Demande : afficher les taux et les images des objets pour les empereurs (clé, ressource légendaire, cœurs) et pour les coffres d'expédition. Maquette `public/mockups/drops-lisibles.html` validée ; l'affichage des donjons existait déjà, abandonné.
+- Code : `chestContents`/`breachChestOdds` (`chests.ts`), `LEGENDARY_ODDS` (`emperors.ts`), `ChestContents.tsx`, bloc `Drops` d'`EmperorBoard.tsx`. `scripts/check-drop-odds.ts` (`npm run check:drop-odds`) compare les chances affichées au tirage réel : un changement de table doit passer par là.
+- Pièges : le serveur de dev lancé en arrière-plan avec `nohup` disparaissait ; le lancer via `run_in_background`. Un `Write` sur `scripts/check-dungeon-drops.ts` avait écrasé un test existant (restauré par `git checkout`) : toujours vérifier `git ls-files` avant de créer un script.
+- Vérifié sur le site dev : /raid/empereurs (PC et 390 px, sans débordement) et /expeditions (onglets, choix d'univers). Non vérifié : coffre réellement ouvert, compte avec coffres.
+
+## 2026-11-16 — Armes standard non forgeables, cœurs au Défi des empereurs
+- Constat : `forgeWeapon` (20 ressources d'arme + 50 cœurs, une arme générique par type) existe dans `src/lib/forge.ts` et le combat applique les armes, mais la page Forge n'affiche que les 4 armes d'empereurs. Les ressources d'arme (Armure saiyan, Métal à chakra…) tombent en histoire et en donjon sans aucun usage.
+- Décision de l'utilisateur : on laisse tel quel pour le moment (pas d'ajout à la Forge).
+- Les cœurs de brèche tombent aussi au Défi des empereurs (`settleEmperor` → `raidProgress`, plafond quotidien partagé avec le raid, versés même en défaite) ; seul l'écran de préparation le dit, pas la carte du boss.
+- Éclats du Trône : 10 % au niveau 10 du donjon One Piece pour 5 par arme d'empereur (environ 50 victoires attendues) ; à régler si trop long.
+
+## 2026-11-16 — Promotion de Yhwach et listes de raretés
+- Demande : promouvoir Yhwach en UR et expliciter les reclassements dans le changelog joueur. Yhwach (#68537) est encore N en développement ; Yor et Ichigo manquent dans la liste SSR publiée alors que leurs overrides sont présents.
+- Correctif : override UR et statistiques au milieu de la plage UR pour Yhwach ; liste SSR corrigée et récapitulatif dans les notes v0.4.0. La production reste réservée au transfert de catalogue puis à la publication humaine.
+
+## 2026-11-16 — Identité de l’onglet Anima Clash
+- Constat : l’onglet affiche encore Anime Masters et le favicon Next par défaut ; les titres de nombreuses pages utilisent aussi l’ancien nom. L’utilisateur confirme le nom Anima Clash et demande de réutiliser son icône existante.
+- Source retrouvée : public/images/brand/anima-clash-logo.png. Réutiliser son blason AC pour le favicon multirésolution, harmoniser les titres statiques/dynamiques et le libellé de secours de l’invocation ; conserver les URL, identifiants et données.
+- Source et formats : blason extrait du logo existant, favicon ICO transparent à cinq tailles (16/32/48/64/256 px), dessin source conservé.
+- Validation : build Node 24/TypeScript réussi ; ESLint des fichiers modifiés sans erreur (un avertissement img déjà présent dans la page de duel). Chromium : dix titres vérifiés, dont accueil, connexion, profil et fiche dynamique ; favicon reçu en 200 image/x-icon, cinq tailles, décodé en 256×256 et SHA-256 identique au fichier du dépôt. Album et Actualités vérifiés à 390 px sans débordement ; note Identité du site visible. Aucun déploiement Vercel exécuté.
+- Piège de vérification : getReleases utilise use cache avec cacheLife("hours"). Une modification de CHANGELOG.md après le build peut rester invisible ; terminer les notes avant de reconstruire le site et vérifier le nouveau build. Le rapport de validation précédent est rectifié sur ce point.
+
+
 ## 2026-11-16 — Texte de défaite incohérent
 - Symptôme : en combat test perdu, le titre Défaite est correct mais le texte annonce que l’équipe adverse est à terre.
 - Cause : le résumé KO ne tenait pas compte du vainqueur. Correctif : distinguer victoire, défaite et double KO dans le lecteur partagé, sans changer le moteur.
@@ -887,3 +928,7 @@ Format : `## AAAA-MM-JJ — titre` puis symptôme, cause, correctif, occurrences
 - Pièges : le builder borne les durées à 6 tours et l'étourdissement à 2 ennemis (relevé à 4) ; un effet permanent passe donc par le moteur (ATK +50 % de l'Éclipse). Les champs du schéma doivent porter le nom exact de l'effet (`bossPct`, `from`). Tester un étourdissement par les événements : le tour sauté retire l'effet aussitôt.
 - Vérifié : check-kits-uniques (neuf kits), suites de combat, builder, ESLint, TypeScript ; fiches des cinq personnages et combat `/combat/test?seed=31&ids=424,719,129571,4004,73935,…` sans erreur (Saitama endormi ∞ après son coup, copies de Yuuta, Manipulation). Combat manuel non rejoué.
 
+## 2026-11-16 — Site bloqué après « Passer le tutoriel » (nouveau compte)
+- **Symptôme** : sur un nouveau compte, après avoir passé le tutoriel, plus aucun clic ne fonctionne (pages autres que l'accueil, bureau).
+- **Cause** : l'annonce de mise à jour (`UpdateNotice`, `<dialog>` modal) était rendue dans `.mq-topbar`, masquée (`display: none`) hors accueil au profit de la barre fine. Différée pendant le tutoriel, elle s'ouvrait ensuite via `showModal()` sans boîte visible : toute la page devenait inerte.
+- **Correctif** : la modale est rendue dans `<body>` par un portail (`.mq-app-shell.release-layer`, même principe que `.tuto-layer`), avec `margin: auto` (le reset Tailwind la collait en haut à gauche). À retenir : ne jamais ouvrir un `<dialog>` modal dans un parent qui peut être masqué.

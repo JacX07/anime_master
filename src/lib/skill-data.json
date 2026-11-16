@@ -3325,12 +3325,17 @@
     },
     "ultimate": {
       "name": "Ea, l'épée de la rupture",
-      "target": "foe",
+      "target": null,
       "effects": [
         {
+          "k": "disarm",
+          "turns": 1,
+          "bonus": 0.25
+        },
+        {
           "k": "damage",
-          "mult": 4.8,
-          "pierce": true
+          "mult": 2.1,
+          "zone": true
         }
       ]
     }
@@ -10259,7 +10264,7 @@
         {
           "k": "stun",
           "turns": 1,
-          "count": 2
+          "count": 4
         }
       ]
     }
@@ -11013,9 +11018,9 @@
           "ignoreDef": 0.3
         },
         {
-          "k": "poison",
-          "pct": 0.05,
-          "turns": 3,
+          "k": "gash",
+          "pct": 0.08,
+          "turns": 2,
           "to": "foes"
         }
       ]
@@ -11292,11 +11297,12 @@
     },
     "ultimate": {
       "name": "I am Atomic",
-      "target": "foe",
+      "target": null,
       "effects": [
         {
           "k": "damage",
-          "mult": 4.6,
+          "mult": 2.2,
+          "zone": true,
           "pierce": true
         }
       ]
@@ -13058,14 +13064,15 @@
       "effects": [
         {
           "k": "damage",
-          "mult": 0.7,
+          "mult": 2.1,
           "zone": true
         },
         {
           "k": "poison",
           "pct": 0.05,
           "turns": 2,
-          "to": "foes"
+          "to": "foes",
+          "burn": true
         }
       ]
     },
@@ -13133,9 +13140,10 @@
         },
         {
           "k": "kannon",
-          "turns": 2
+          "turns": 3
         }
-      ]
+      ],
+      "replay": true
     }
   },
   "5115": {

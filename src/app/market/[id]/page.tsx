@@ -12,7 +12,7 @@ import { Countdown } from "../Countdown";
 import { BidPanel } from "./BidPanel";
 import "../market.css";
 
-export const metadata: Metadata = { title: "Enchère — Anime Masters" };
+export const metadata: Metadata = { title: "Enchère — Anima Clash" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "medium" });
 
 export default function AuctionPage({ params }: PageProps<"/market/[id]">) {

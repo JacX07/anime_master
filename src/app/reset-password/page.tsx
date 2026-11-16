@@ -5,7 +5,7 @@ import { resetPassword } from "@/app/auth-actions";
 import { ResetForm } from "@/components/AuthForm";
 import "@/components/auth.css";
 
-export const metadata: Metadata = { title: "Nouveau mot de passe — Anime Masters" };
+export const metadata: Metadata = { title: "Nouveau mot de passe — Anima Clash" };
 
 type Search = Promise<{ token?: string; error?: string }>;
 

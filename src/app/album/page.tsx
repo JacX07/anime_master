@@ -15,7 +15,7 @@ import { DuplicateSale } from "./DuplicateSale";
 import { CollectionsSidebar } from "./CollectionsSidebar";
 import "./album.css";
 
-export const metadata: Metadata = { title: "Album — Anime Masters" };
+export const metadata: Metadata = { title: "Album — Anima Clash" };
 
 const num = new Intl.NumberFormat("fr-FR");
 const pct = (a: number, b: number) => (b ? Math.floor((a / b) * 1000) / 10 : 0);

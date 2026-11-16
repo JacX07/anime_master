@@ -26,6 +26,7 @@
     "simulate:balance": "tsx scripts/simulate-balance.ts",
     "check:recharge": "tsx scripts/check-recharge.ts",
     "check:passives": "tsx scripts/check-passives.ts",
+    "check:drop-odds": "tsx scripts/check-drop-odds.ts",
     "check:economy": "tsx scripts/check-economy.ts",
     "check:trades": "tsx scripts/check-trades.ts",
     "check:auctions": "tsx scripts/check-auctions.ts",

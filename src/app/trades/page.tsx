@@ -7,7 +7,7 @@ import { listTrades } from "@/lib/trades";
 import { NewTradeForm } from "./NewTradeForm";
 import { TradeList } from "./TradeList";
 
-export const metadata: Metadata = { title: "Échanges — Anime Masters" };
+export const metadata: Metadata = { title: "Échanges — Anima Clash" };
 
 const TABS = [
   ["recues", "Reçues"],

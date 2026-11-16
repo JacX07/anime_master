@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { URGallery } from "./URGallery";
 
-export const metadata: Metadata = { title: "Galerie UR — Anime Masters" };
+export const metadata: Metadata = { title: "Galerie UR — Anima Clash" };
 
 export default function URGalleryPage() {
   return (

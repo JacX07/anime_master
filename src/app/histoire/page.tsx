@@ -9,7 +9,7 @@ import { LEVELS, mixFor } from "@/lib/story";
 import { getStarClaims } from "@/lib/story-star-claims";
 import { StoryBoard } from "./StoryBoard";
 
-export const metadata: Metadata = { title: "Histoire — Anime Masters" };
+export const metadata: Metadata = { title: "Histoire — Anima Clash" };
 
 export default function StoryPage() {
   return (

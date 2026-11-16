@@ -1,15 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import type { Release } from "@/lib/changelog";
 import { readReleaseAction } from "@/app/changelog/actions";
 import { ReleaseNotes } from "./ReleaseNotes";
 
+const noop = () => () => {};
+
 export function UpdateNotice({ release, tutorialActive }: { release: Release; tutorialActive: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const deferred = useRef(tutorialActive);
   const [dismissed, setDismissed] = useState(false);
+  // Rendu dans <body> : la barre du haut qui contient ce composant est masquée sur certaines pages,
+  // et un <dialog> modal dans un parent masqué bloque toute la page sans s'afficher.
+  const mounted = useSyncExternalStore(noop, () => true, () => false);
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
   const pathname = usePathname();
@@ -32,7 +38,7 @@ export function UpdateNotice({ release, tutorialActive }: { release: Release; tu
     dispatchEvent(new Event("tutorial:request"));
     check();
     return () => { observer.disconnect(); removeEventListener("tutorial:state", tutorial); if (modal.open) modal.close(); };
-  }, [dismissed, pathname]);
+  }, [dismissed, pathname, mounted]);
 
   const dismiss = (history = false) => {
     if (pending) return;
@@ -48,7 +54,8 @@ export function UpdateNotice({ release, tutorialActive }: { release: Release; tu
     });
   };
 
-  return <dialog ref={dialog} className="release-modal" aria-labelledby="update-title" aria-describedby="update-description"
+  if (!mounted) return null;
+  return createPortal(<div className="mq-app-shell release-layer"><dialog ref={dialog} className="release-modal" aria-labelledby="update-title" aria-describedby="update-description"
     onCancel={(event) => { event.preventDefault(); dismiss(); }}
     onClick={(event) => { if (event.target === event.currentTarget) dismiss(); }}>
     <div className="release-modal-top"><p className="mq-eyebrow">Nouvelle mise à jour</p><button type="button" className="text-action" disabled={pending} onClick={() => dismiss()}>Fermer ×</button></div>
@@ -61,5 +68,5 @@ export function UpdateNotice({ release, tutorialActive }: { release: Release; tu
       <button type="button" className="ui-button text-action" disabled={pending} onClick={() => dismiss()}>{pending ? "Enregistrement…" : "C'est lu, jouer"}</button>
     </div>
     <p className="release-hint">Une fois fermée, cette annonce ne revient qu’à la prochaine version.</p>
-  </dialog>;
+  </dialog></div>, document.body);
 }

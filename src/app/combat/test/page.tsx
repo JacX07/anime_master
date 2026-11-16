@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { BattlePlayer } from "@/components/battle/BattlePlayer";
 import { demoBattle } from "@/lib/battle-demo";
 
-export const metadata: Metadata = { title: "Test du lecteur de combat — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Test du lecteur de combat — Anima Clash", robots: { index: false } };
 
 export default function CombatTestPage({ searchParams }: { searchParams: Promise<{ seed?: string; ids?: string }> }) {
   return (

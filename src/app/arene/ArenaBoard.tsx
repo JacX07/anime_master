@@ -95,11 +95,11 @@ export function ArenaBoard({ initial, elo, name, team, budget }: Props) {
     if (polled.ok && polled.view) apply(polled.view, from);
   };
 
-  const play = async (spell: Spell, target: UnitId | null) => {
+  const play = async (spell: Spell, target: UnitId | null, choice?: string) => {
     if (!view) return;
     setBusy(true); setError(null);
     const from = logLen.current;
-    const res = await arenaPlayAction(view.id, spell, target, view.steps, from);
+    const res = await arenaPlayAction(view.id, spell, target, view.steps, from, choice);
     setBusy(false);
     if (!res.ok) { setError(res.error); void poll(); return; }
     apply(res.view, from);
@@ -158,6 +158,7 @@ export function ArenaBoard({ initial, elo, name, team, budget }: Props) {
     live={{
       actor: mine ? view.actor : null,
       choices: view.choices,
+      decision: view.decision,
       wait: view.wait,
       timeline: view.timeline,
       busy,

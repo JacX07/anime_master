@@ -9,3 +9,22 @@
 @media (max-width: 560px) { .rd-boss { flex-direction: column; align-items: flex-start; } }
 
 .rd-emperors { display: grid; gap: 1.5rem; }
+
+/* Butin affiché sur la carte d'un empereur (maquette public/mockups/drops-lisibles.html, validée le 2026-11-16) */
+.rd-drops { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: .4rem 2rem; max-width: 44rem; margin: .6rem 0 .8rem; }
+.rd-drops > div { display: grid; align-content: start; gap: .15rem; }
+.rd-ico svg { width: 1.4rem; height: 1.4rem; }
+.rd-drops h3 { margin: .5rem 0 .1rem; color: #a68e5d; font: 400 11px var(--font-dm-sans, inherit), sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.rd-drops h3 small { margin-left: .5rem; color: #767b76; letter-spacing: 0; text-transform: none; }
+.rd-line { display: grid; grid-template-columns: 2rem 1fr auto; align-items: center; gap: .6rem; padding: .15rem 0; font-size: .85rem; }
+.rd-line:not(:has(.rd-ico)) { grid-template-columns: 1fr auto; }
+.rd-line span { color: #b4b2aa; }
+.rd-line b { color: #d5bb7f; font-weight: 500; font-variant-numeric: tabular-nums; white-space: pre-wrap; text-align: right; }
+.rd-ico { display: grid; place-items: center; width: 2rem; height: 2rem; }
+.rd-ico img { margin: 0 !important; width: 1.75rem !important; height: 1.75rem !important; aspect-ratio: auto; box-shadow: none !important; border-radius: 0 !important; object-fit: contain; }
+@media (max-width: 560px) {
+  .rd-boss > div { width: 100%; min-width: 0; }
+  .rd-drops { grid-template-columns: minmax(0, 1fr); }
+  .rd-line { grid-template-columns: 2rem minmax(0, 1fr) auto; }
+  .rd-line b { white-space: normal; }
+}

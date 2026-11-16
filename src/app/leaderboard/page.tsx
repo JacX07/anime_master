@@ -10,7 +10,7 @@ import { getSessionUser } from "@/lib/session";
 import "./leaderboard.css";
 import { PageHeading } from "@/components/mq/PageHeading";
 
-export const metadata: Metadata = { title: "Classement — Anime Masters" };
+export const metadata: Metadata = { title: "Classement — Anima Clash" };
 const num = new Intl.NumberFormat("fr-FR");
 
 const TABS = [

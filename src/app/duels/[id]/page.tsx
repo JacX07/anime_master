@@ -14,7 +14,7 @@ import { speedOf } from "@/lib/speed";
 import { DefenseSession } from "./DefenseSession";
 import { Replay } from "./Replay";
 
-export const metadata: Metadata = { title: "Duel — Anime Masters" };
+export const metadata: Metadata = { title: "Duel — Anima Clash" };
 const num = new Intl.NumberFormat("fr-FR");
 
 export default function DuelPage({ params }: PageProps<"/duels/[id]">) {

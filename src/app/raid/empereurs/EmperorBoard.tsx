@@ -1,14 +1,18 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getBattlePreviewAction, startBattleAction } from "@/app/battle-actions";
+import { Icon } from "@/components/icons";
 import { ResourceArt } from "@/components/ResourceArt";
 import { LiveBattle } from "@/components/battle/LiveBattle";
 import { TeamPreparation, type PrepEnemy } from "@/components/team/TeamPreparation";
 import { useModeTeam } from "@/components/team/useModeTeam";
 import type { BattleView } from "@/lib/battles";
-import { emperorKey, HARDCORE_KEY } from "@/lib/emperors";
+import { emperorKey, HARDCORE_KEY, LEGENDARY_ODDS } from "@/lib/emperors";
+import { RAID_RESOURCE } from "@/lib/raid";
 import { RESOURCE_NAMES } from "@/lib/story";
 import type { getEmperorState } from "@/lib/battles";
 import type { TeamContext } from "@/lib/team-context";
@@ -16,6 +20,23 @@ import "../../histoire/histoire.css";
 import "../raid.css";
 
 type State = Awaited<ReturnType<typeof getEmperorState>>;
+const pct = (x: number) => `${Math.round(x * 100)} %`;
+/** Résumé du butin d'un empereur ; les chances viennent de `LEGENDARY_ODDS` et des cœurs du raid (1 à 5 au Normal, ×2 et ×4). */
+function Drops({ resource, keyResource, keyName, difficulties }: { resource: string | null; keyResource: string | null; keyName: string | null; difficulties: State["difficulties"] }) {
+  const art = (key: string) => <span className="rd-ico"><ResourceArt resource={key} size={28} fallback={<img src={`/items/${key}.svg`} alt="" width={28} height={28} />} /></span>;
+  return <div className="rd-drops">
+    <div>
+      <h3>Butin d’une victoire <small>1 par jour</small></h3>
+      {keyResource && keyName && <div className="rd-line"><span className="rd-ico"><Icon name="unlock" /></span><span>{keyName}</span><b>×1 · 100 %</b></div>}
+      {resource && difficulties.map((d) => <div className="rd-line" key={d.key}>{art(resource)}<span>{d.name}</span><b>{LEGENDARY_ODDS[d.key]?.map((o) => `×${o.amount} · ${pct(o.chance)}`).join("   ") ?? ""}</b></div>)}
+    </div>
+    <div>
+      <h3>Cœurs de brèche <small>même après une défaite</small></h3>
+      {difficulties.map((d) => <div className="rd-line" key={`h${d.key}`}>{art(RAID_RESOURCE)}<span>{d.name}</span><b>{d.mult} à {5 * d.mult}</b></div>)}
+    </div>
+  </div>;
+}
+
 interface Target { boss: string; name: string; difficulty: string }
 
 export function EmperorBoard({ state, portraits, context, storageKey }: { state: State; portraits: Record<number, string>; context: TeamContext; storageKey: string }) {
@@ -82,13 +103,13 @@ export function EmperorBoard({ state, portraits, context, storageKey }: { state:
     <div className="rd-emperors">
       {state.emperors.map((e) => <section key={e.key} className="rd-boss" aria-label={e.name}>
         {portraits[e.characterId] && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img src={portraits[e.characterId]} alt={e.name} referrerPolicy="no-referrer" />
         )}
         <div>
           <h2 className="hs-h">{e.name}</h2>
           <p className="vt-muted">{e.blurb}</p>
           <p><ResourceArt resource={e.resource} size={28} />{e.resourceName} : <b>{e.resources}</b> · {e.keyName} : <b>{e.keys}</b></p>
+          <Drops resource={e.resource} keyResource={e.keyResource} keyName={e.keyName} difficulties={state.difficulties} />
           {e.clearedToday ? <p role="status">Vaincu aujourd’hui : reviens demain.</p> : <div className="hs-actions" role="group" aria-label={`Difficultés de ${e.name}`}>
             {state.difficulties.map((d) => <button key={d.key} type="button" className="ui-button" disabled={pending || !state.tutorial || !d.unlocked} onClick={() => prepare({ boss: e.key, name: e.name, difficulty: d.key })}>{d.name}</button>)}
           </div>}
@@ -99,6 +120,12 @@ export function EmperorBoard({ state, portraits, context, storageKey }: { state:
           <h2 className="hs-h">Hardcore : les quatre empereurs</h2>
           <p className="vt-muted">Une clé de chaque empereur, consommées à la victoire. Récompense : deux ressources légendaires parmi les quatre.</p>
           <p>Jeux de clés complets : <b>{state.hardcore.keys}</b></p>
+          <div className="rd-drops">
+            <div><h3>Butin d’une victoire <small>1 par jour</small></h3>
+              <div className="rd-line"><span>2 ressources légendaires différentes, parmi les quatre (50 % chacune)</span><b>×1 chacune</b></div></div>
+            <div><h3>Cœurs de brèche <small>même après une défaite</small></h3>
+              {state.difficulties.map((d) => <div className="rd-line" key={d.key}><span className="rd-ico"><ResourceArt resource={RAID_RESOURCE} size={28} fallback={<img src={`/items/${RAID_RESOURCE}.svg`} alt="" width={28} height={28} />} /></span><span>{d.name}</span><b>{d.mult} à {5 * d.mult}</b></div>)}</div>
+          </div>
           {state.hardcore.clearedToday ? <p role="status">Vaincu aujourd’hui : reviens demain.</p> : <div className="hs-actions" role="group" aria-label="Difficultés du Hardcore">
             {state.difficulties.map((d) => <button key={d.key} type="button" className="ui-button" disabled={pending || !state.tutorial || !d.unlocked || state.hardcore.keys < 1} onClick={() => prepare({ boss: HARDCORE_KEY, name: "Les quatre empereurs", difficulty: d.key })}>{d.name}</button>)}
           </div>}

@@ -7,7 +7,7 @@ import { requireUser } from "@/lib/session";
 import { listWishes } from "@/lib/wishlist";
 import { RemoveWish } from "./RemoveWish";
 
-export const metadata: Metadata = { title: "Souhaits — Anime Masters" };
+export const metadata: Metadata = { title: "Souhaits — Anima Clash" };
 
 export default function WishlistPage() {
   return (

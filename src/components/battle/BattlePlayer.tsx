@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
-import { affinity, type BattleEvent, type Side, type Spell, type Status, type UnitId, type UnitView, CHARACTER_PASSIVES } from "@/lib/battle";
+import { affinity, type BattleEvent, type DecisionView, type Side, type Spell, type Status, type UnitId, type UnitView, CHARACTER_PASSIVES } from "@/lib/battle";
 import { holdFor, replayStart, replayStep, spellLabel, STATUS_INFO, type Pop, type Replay } from "@/lib/battle-replay";
 import { TYPE_LABELS } from "@/lib/labels";
 import { attackElement } from "@/lib/attack-element";
@@ -22,6 +22,7 @@ import "./battle.css";
 import "./spell-hand.css";
 import type { MusicTrack } from "@/lib/track-music";
 import { backgroundTimeout } from "@/lib/background-timer";
+import { closeOnBackdrop } from "@/lib/dialog";
 import { BattleAudio } from "./sound";
 import { useSpellFx } from "./RepeatControls";
 import { EffectsPanel } from "./EffectsPanel";
@@ -70,13 +71,15 @@ interface Props {
 export interface LiveControl {
   /** Carte du joueur qui doit agir (null : l'adversaire joue ou le combat est fini) */
   actor: UnitId | null;
-  choices: { spell: Spell; targets: (UnitId | null)[] }[];
+  choices: { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[];
   /** Actions que chaque carte doit encore attendre avant son sort affilié */
   wait: Record<string, number>;
   timeline: UnitId[];
   busy: boolean;
   error?: string | null;
-  onPlay: (spell: Spell, target: UnitId | null) => void;
+  onPlay: (spell: Spell, target: UnitId | null, choice?: string) => void;
+  /** Décision hors tour (copie, vol de Chrollo) */
+  decision?: DecisionView | null;
   /** Mode auto : la stratégie automatique joue à ta place, on peut revenir au manuel à tout moment */
   auto: boolean;
   /** Absent : pas d'interrupteur Auto (arène live) */
@@ -502,6 +505,17 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
       )}
     </div>
 
+      {awaiting && live?.decision && (() => {
+        const d = live.decision;
+        const who = (id: UnitId) => characters[rp.info[id]?.characterId]?.name ?? "";
+        const label = (c: string) => c === "learn" ? "Apprendre" : c === "ignore" ? (d.kind === "steal" && d.choices.length > 2 ? "Garder mon livre" : "Ignorer") : `Remplacer la page ${Number(c.split(":")[1]) + 1}`;
+        return <div className="bt-decision" role="dialog" aria-label="Décision hors tour">
+          <h3>{who(d.unit)} peut {d.kind === "steal" ? "voler" : "copier"} « {d.spell} »</h3>
+          <p>Lancé par {who(d.source)}.{d.kind === "copy" && d.pages[0] ? <> Remplace : <b>{d.pages[0]}</b>.</> : null}</p>
+          {d.kind === "steal" && <div className="bt-book">{d.pages.map((p, i) => <div key={i}><small>Page {i + 1}</small><b>{p ?? "vide"}</b></div>)}</div>}
+          <div className="bt-decision-actions">{d.choices.map((c) => <button key={c} type="button" className="ui-button" disabled={live.busy} onClick={() => live.onPlay("decide", null, c)}>{label(c)}</button>)}</div>
+        </div>;
+      })()}
       {spellUnit ? <SpellsPanel key={`${spellUnit}:${selectionKey}`}
         unit={rp.info[spellUnit]}
         character={characters[rp.info[spellUnit].characterId]}
@@ -520,7 +534,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
             : undefined
         }
       /> : <div className="bt-spells-wait" aria-hidden="true" />}
-      <dialog ref={infoMenu} className="bt-confirm bt-info-menu" aria-labelledby="battle-info-title" onClose={() => setPlaying(infoWasPlaying.current)}>
+      <dialog ref={infoMenu} className="bt-confirm bt-info-menu" aria-labelledby="battle-info-title" onClick={closeOnBackdrop} onClose={() => setPlaying(infoWasPlaying.current)}>
         <div className="bt-info-heading"><h2 id="battle-info-title">Buffs et débuffs</h2><button type="button" className="ui-button" onClick={() => infoMenu.current?.close()}>Fermer</button></div>
         {live?.countdown && !end && <p>Le chrono de l’arène continue pendant cette consultation.</p>}
         {(["A", "B"] as const).map((side) => <section key={side} className="bt-info-team"><h3>{names[side]}</h3>
@@ -535,7 +549,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
           })}
         </section>)}
       </dialog>
-      <dialog ref={pauseMenu} className="bt-confirm bt-pause-menu" aria-labelledby="battle-pause-title" onClose={() => setPlaying(wasPlaying.current)}>
+      <dialog ref={pauseMenu} className="bt-confirm bt-pause-menu" aria-labelledby="battle-pause-title" onClick={closeOnBackdrop} onClose={() => setPlaying(wasPlaying.current)}>
         <h2 id="battle-pause-title">{finished ? "Combat terminé" : "Pause"}</h2>
         {live?.countdown && !end && <p>Le chrono de l’arène continue pendant ce menu.</p>}
         <button type="button" className="ui-button bt-resume" onClick={() => {

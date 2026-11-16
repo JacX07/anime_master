@@ -15,6 +15,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 
 ### Accueil, navigation et écrans de gestion
 
+- **Identité du site** : les onglets du navigateur portent le nom Anima Clash et reprennent le blason AC du logo comme icône.
 - **Accueil PC** : nouvelle composition autour du personnage choisi, illustration intégrée au décor et palette Violet nuit. Tu peux changer de personnage, le rechercher dans ta collection et l’admirer ; le choix est mémorisé.
 - **Profil et monnaies** : accès au profil depuis le pseudo et explications sur les sources de Ryō et de cristaux.
 - **Navigation PC** : barre supérieure affinée et accès aux modes de jeu organisés côte à côte, en PvM et PvP. Les Duels quiz quittent le hub Jouer.
@@ -23,6 +24,32 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Inventaire** : cases d’objets teintées selon leur rareté, avec un dégradé plus marqué en haut et plus doux en bas. Les équipements conservent leur couleur de rareté.
 - **Illustrations d’équipement** : visuels dédiés aux quatre pièces des sets Fairy Tail, Bleach, Attaque des Titans et Demon Slayer.
 - **Carte de l’histoire** : jalons et étoiles allégés ; suppression des rectangles et des libellés « Combat N » qui se chevauchaient.
+
+### Kits revus
+
+- **Gojo** : Extension du territoire étourdit les quatre ennemis.
+- **Cid Kagenou** : I am Atomic frappe tous les ennemis (×2,2 ATK, traverse les boucliers).
+- **Levi** : l'ultime ajoute 20 % des PV max de la cible et +50 points de taux de critique.
+- **Shigeo** : ???% — Explosion frappe tous les ennemis.
+- **Maomao** : nouveau passif, immunisée contre le poison, la brûlure et le saignement.
+- **Yuuta et Madara** : quand un ennemi lance un sort, une fenêtre propose de l'apprendre (Yuuta à 80 %, Madara à 100 % sous Susanoo), même pendant le tour adverse ; il remplace la copie précédente.
+- **Chrollo** : Skill Hunter remplit un livre de deux pages avec les sorts ennemis ; livre plein, choisis la page à remplacer ou garde-le.
+- **Sukuna** : le Sanctuaire malveillant pose une entaille (8 % des PV max par tour, 2 tours) qui bloque les soins.
+- **Netero** : Hyakushiki Kannon dure 3 tours et Netero rejoue aussitôt.
+- **Gilgamesh** : Ea désarme les porteurs d'épée pendant un tour (sans sort sans épée, ils passent leur tour), puis frappe tous les ennemis à ×2,1 ATK, +25 % par ennemi désarmé.
+- **Saitama** : plus d'attaque de base, seulement son coup de poing, prêt dès le premier tour.
+- **Madara** : Katon (×2,1) et Kyūbi (×3,3) brûlent au lieu d'empoisonner ; la Copie du Susanoo frappe à 100 %.
+
+### Butins et taux affichés
+
+- **Défi des empereurs** : chaque carte indique la clé, les quantités de ressource légendaire par difficulté (avec leur chance) et les cœurs de brèche gagnés à chaque combat, avec leurs images.
+- **Expéditions** : nouveau panneau « Ce que contiennent les coffres » : chances de coffre par niveau de brèche, puis contenu et pourcentage de chaque objet pour les coffres Bronze, Argent, Or et Légendaire (gros lot compris).
+
+### Changements de rareté
+
+- **Yhwach passe en UR** : statistiques recalculées pour sa nouvelle rareté. Les exemplaires déjà possédés suivent ce changement ; l’historique garde la rareté du tirage d’origine.
+- **Récapitulatif des reclassements SSR** amorcés en v0.3.0 : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Yor, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Ichigo, Sakura Matou et Megumin.
+- **Récapitulatif des promotions UR** amorcées en v0.3.0 : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Toji, Cid Kagenou, Taiga, Chrollo, Griffith, Anti-Spirale, Onizuka, All Might, Gilgamesh, Aizen, Madara et Netero.
 
 ### Combat : commandes et lecture des sorts
 
@@ -153,7 +180,7 @@ Mise à jour du 13 novembre 2026. Les comptes et les récompenses déjà réclam
 - **Équilibrage** : la plupart des silences de zone ne touchent plus qu'un ennemi ; soin sur soi plafonné à 35 % des PV max ; une seule provocation par personnage, plus courte quand elle accompagne d'autres effets ; réductions de dégâts des sorts divisées par deux et limitées à deux tours ; soins et boucliers d'équipe des ultimes plafonnés à 20 % des PV max.
 - **Kits revus** : Levi ajoute des dégâts selon les PV max de la cible ; Killua enchaîne des frappes de plus en plus fortes ; Gojo commence intouchable ; Kakashi copie le dernier ultime ; Lelouch contrôle un ennemi ; Time Leap d'Okabe donne de la jauge et retire les malus ; Mob gagne des dégâts selon les coups reçus ; Frieren devient intouchable et traverse les boucliers ; Gon prépare une frappe qui ignore la DEF.
 - **Catalogue** : raretés révisées pour une partie des personnages, statistiques adaptées à leur nouvelle rareté et ajout d'Antispiral.
-- **Personnages reclassés en SSR** : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Sakura Matou et Megumin.
+- **Personnages reclassés en SSR** : Killua, Luffy, Mikasa, Zoro, Ken Kaneki, Itachi, Thorfinn, Yuuji, Kakashi, Reigen, Emilia, L, Kurapika, Kurisu Makise, Edward, Mai, Yor, Naruto, Denji, Bakugou, Power, Tanjirou, Shouto, Megumi, Gintoki, Joseph, Ichigo, Sakura Matou et Megumin.
 - **Personnages promus en UR** : Saitama, Sukuna, Yuuta, Meruem, Dio, Johan, Toji, Cid Kagenou, Taiga, Chrollo, Griffith, Anti-Spirale, Onizuka, All Might, Gilgamesh, Aizen, Madara et Netero.
 - **Statistiques après reclassement** : recalées au milieu de la nouvelle rareté pour éviter que la popularité seule place les anciens UR au sommet des SSR et les nouveaux UR au bas de leur catégorie. Les cartes déjà possédées suivent ces nouvelles raretés ; leur rareté au moment du tirage reste conservée dans l’historique.
 

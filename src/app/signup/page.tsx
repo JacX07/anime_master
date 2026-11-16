@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { emailConfigured } from "@/lib/email-config";
 import { WELCOME_CRYSTALS, WELCOME_DRAWS } from "@/lib/crystal-stock";
 
-export const metadata: Metadata = { title: "Inscription — Anime Masters" };
+export const metadata: Metadata = { title: "Inscription — Anima Clash" };
 
 export default function SignupPage() {
   return (

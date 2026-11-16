@@ -9,7 +9,7 @@ import { requireUser } from "@/lib/session";
 import { tintOf } from "@/lib/tint";
 import { NewDuelForm } from "./NewDuelForm";
 
-export const metadata: Metadata = { title: "Duels — Anime Masters" };
+export const metadata: Metadata = { title: "Duels — Anima Clash" };
 
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" });
 

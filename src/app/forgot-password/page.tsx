@@ -4,7 +4,7 @@ import { ForgotForm } from "@/components/AuthForm";
 import { emailConfigured } from "@/lib/email-config";
 import "@/components/auth.css";
 
-export const metadata: Metadata = { title: "Mot de passe oublié — Anime Masters" };
+export const metadata: Metadata = { title: "Mot de passe oublié — Anima Clash" };
 
 export default function ForgotPasswordPage() {
   return (

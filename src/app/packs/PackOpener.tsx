@@ -265,7 +265,7 @@ export function PackOpener({ initialState, banners = [], standardPool = {}, expe
               <span className="pk-pack-seal pk-pack-seal-bottom" aria-hidden="true" />
               <span className="pk-pack-shine" aria-hidden="true" />
               <span className="pk-pack-logo">A</span>
-              <small>{banner ? banner.name.toUpperCase() : "ANIME MASTERS"}</small>
+              <small>{banner ? banner.name.toUpperCase() : "ANIMA CLASH"}</small>
               <strong>{lot} CARTES</strong>
             </button>
           )}

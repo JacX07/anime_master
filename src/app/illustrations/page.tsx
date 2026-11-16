@@ -8,7 +8,7 @@ import { RESOURCE_NAMES } from "@/lib/story";
 import { WEAPONS } from "@/lib/weapons";
 import { Editor, type ArtItem } from "./Editor";
 
-export const metadata = { title: "Illustrations — Anime Masters", robots: { index: false } };
+export const metadata = { title: "Illustrations — Anima Clash", robots: { index: false } };
 export default function IllustrationsPage() {
   if (process.env.NODE_ENV !== "development") notFound();
   return <main className="vt art-page"><div className="vt-inner">

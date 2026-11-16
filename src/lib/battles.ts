@@ -12,7 +12,7 @@ import { adventureLock } from "./adventure-state";
 import type { BattleMode, CardType, Rarity, TeamKind } from "../generated/prisma/enums";
 import type { Prisma } from "../generated/prisma/client";
 import {
-  BATTLE, applyAction, autoAction, battle, createBattle, currentActor, legalActions, seededRandom,
+  BATTLE, applyAction, autoAction, battle, createBattle, currentActor, decisionOf, legalActions, seededRandom, type DecisionView,
   type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId, timeline,
 } from "./battle";
 import { prisma } from "./db";
@@ -378,7 +378,7 @@ export async function getEmperorState(userId: string, now = new Date()) {
   return {
     tutorial,
     difficulties: DIFFICULTIES.map((d) => ({ key: d.key, name: d.name, mult: d.mult, unlocked: open.includes(d.key) })),
-    emperors: EMPERORS.map((e) => ({ key: e.key, name: e.name, blurb: e.blurb, characterId: e.characterId, keyName: e.keyName, keys: owned(e.keyResource), resource: e.resource, resourceName: e.resourceName, resources: owned(e.resource), clearedToday: cleared(e.key), weapon: e.weapon })),
+    emperors: EMPERORS.map((e) => ({ key: e.key, name: e.name, blurb: e.blurb, characterId: e.characterId, keyResource: e.keyResource, keyName: e.keyName, keys: owned(e.keyResource), resource: e.resource, resourceName: e.resourceName, resources: owned(e.resource), clearedToday: cleared(e.key), weapon: e.weapon })),
     hardcore: { keys: Math.min(...ALL_KEYS.map(owned)), clearedToday: cleared(HARDCORE_KEY) },
     fullHeartsLeft: Math.max(0, DAILY_FULL_HEARTS - (daily?.units ?? 0)),
   };
@@ -722,7 +722,9 @@ export interface BattleView {
   log: BattleEvent[];
   /** Carte du joueur qui doit agir (mode manuel, combat en cours) */
   actor: UnitId | null;
-  choices: { spell: Spell; targets: (UnitId | null)[] }[];
+  choices: { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[];
+  /** Décision hors tour du joueur (copie, vol), combat en cours */
+  decision: DecisionView | null;
   /** Actions que chaque carte doit encore attendre avant son sort affilié (0 = prêt), combat en cours */
   wait: Record<string, number>;
   /** Prochains acteurs projetés par l'ordonnanceur à jauge. */
@@ -768,6 +770,7 @@ async function toView(row: BattleRow, st: BattleState | null, from = 0): Promise
     log: log.slice(from),
     actor: running ? currentActor(st)!.id : null,
     choices: running ? legalActions(st) : [],
+    decision: running ? decisionOf(st) : null,
     // Le compteur avance une fois par tour, même après un buff instantané.
     wait: running
       ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => [
@@ -923,7 +926,7 @@ export async function getBattle(userId: string, battleId: string): Promise<Battl
   return toView(row, replay(row.teams as unknown as BattleTeams, row.seed, row.actions as unknown as Action[]));
 }
 
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate";
+const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide";
 
 /** Mode manuel : joue le choix du joueur, puis les cartes adverses, jusqu'au prochain choix. Renvoie les nouveaux événements. */
 export async function playAction(userId: string, battleId: string, action: Action | null, now = new Date(), expectedSteps?: number, toEnd = false): Promise<BattleView> {
@@ -940,7 +943,7 @@ export async function playAction(userId: string, battleId: string, action: Actio
   const st = replay(teams, row.seed, actions);
   const from = st.log.length;
   if (!currentActor(st)) throw new BattleError("Ce combat est terminé.");
-  const chosen: Action = action ? { spell: action.spell, target: action.target } : autoAction(st);
+  const chosen: Action = action ? { spell: action.spell, target: action.target, ...(typeof action.choice === "string" ? { choice: action.choice } : {}) } : autoAction(st);
   try {
     applyAction(st, chosen);
   } catch {

@@ -4,7 +4,7 @@ import { signIn } from "@/app/auth-actions";
 import { AuthForm } from "@/components/AuthForm";
 import { emailConfigured } from "@/lib/email-config";
 
-export const metadata: Metadata = { title: "Connexion — Anime Masters" };
+export const metadata: Metadata = { title: "Connexion — Anima Clash" };
 
 async function LoginForm({ searchParams }: { searchParams: Promise<{ reset?: string }> }) {
   const { reset } = await searchParams;

@@ -27,8 +27,8 @@ export async function arenaPollAction(matchId: string | null, from: number): Pro
   // Avec l'identifiant, on suit aussi un match qui vient de se terminer (le résultat reste lisible)
   return run(async (id) => ({ view: matchId ? await arenaView(id, String(matchId), offset) : await arenaState(id, offset) }));
 }
-export async function arenaPlayAction(matchId: string, spell: Spell, target: UnitId | null, steps: number, from: number): Promise<ActionResult<{ view: ArenaView }>> {
-  return run(async (id) => ({ view: await arenaPlay(id, String(matchId), { spell, target }, steps, Number.isSafeInteger(from) && from >= 0 ? from : 0) }));
+export async function arenaPlayAction(matchId: string, spell: Spell, target: UnitId | null, steps: number, from: number, choice?: string): Promise<ActionResult<{ view: ArenaView }>> {
+  return run(async (id) => ({ view: await arenaPlay(id, String(matchId), { spell, target, ...(typeof choice === "string" ? { choice } : {}) }, steps, Number.isSafeInteger(from) && from >= 0 ? from : 0) }));
 }
 /** File : quitter ; match : abandon (défaite). */
 export async function arenaLeaveAction(matchId: string): Promise<ActionResult<object>> {

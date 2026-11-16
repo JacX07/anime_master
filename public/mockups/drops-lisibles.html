@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — Butins et taux</title>
+<style>
+:root{--bg:#0b0e0f;--panel:#111514;--raised:#171b1a;--fg:#e9e5dc;--fg2:#b4b2aa;--muted:#767b76;--gold:#c4a76d;--gold-l:#d5bb7f;--gold-d:#a68e5d;--teal:#8fbfae;--teal-bg:rgb(111 154 141/14%);--warn:#d9a46b;
+--N:#94a3b8;--R:#38bdf8;--SR:#a855f7;--SSR:#f59e0b;--UR:#ff3b4a}
+*{box-sizing:border-box;margin:0;padding:0;border:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 "DM Sans",system-ui,sans-serif;padding:32px 16px 80px}
+main{max-width:1100px;margin:0 auto}
+h1,h2,h3{font-family:Cinzel,Georgia,serif;font-weight:500;letter-spacing:-.02em}
+h1{font-size:clamp(28px,4vw,40px);margin-bottom:6px}
+.lead{color:var(--fg2);max-width:70ch;margin-bottom:40px}
+section.demo{margin-bottom:64px}
+.kick{color:var(--gold-d);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+h2{font-size:24px;margin-bottom:6px}
+.note{color:var(--muted);font-size:12px;margin-bottom:16px;max-width:80ch}
+img{display:block}
+.tile{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;text-align:center}
+.tile .art{width:52px;height:52px;border-radius:5px;background:var(--raised);display:grid;place-items:center;overflow:hidden}
+.tile .art img{width:44px;height:44px;object-fit:contain}
+.tile b{font-size:12px;font-weight:500;color:var(--gold-l);font-variant-numeric:tabular-nums}
+.tile small{font-size:10px;color:var(--muted);line-height:1.2}
+.chip{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;background:var(--teal-bg);color:var(--teal)}
+.r-N{color:var(--N)}.r-R{color:var(--R)}.r-SR{color:var(--SR)}.r-SSR{color:var(--SSR)}.r-UR{color:var(--UR)}
+.tile[data-r] .art{box-shadow:inset 0 -2px 0 var(--c)}
+/* Donjon */
+.dg{background:var(--panel);border-radius:6px;padding:8px 16px}
+.lv{display:grid;grid-template-columns:48px 1fr auto;gap:16px;align-items:center;padding:14px 0}
+.lv+.lv{background:linear-gradient(var(--raised),var(--raised)) top/100% 1px no-repeat}
+.lv .no{font-family:Cinzel,serif;font-size:26px;color:var(--gold-d)}
+.lv h3{font-size:17px;display:flex;gap:10px;align-items:baseline}
+.lv h3 small{font:12px "DM Sans",sans-serif}
+.lv p{color:var(--fg2);font-size:12px}
+.drops{display:flex;gap:10px;align-items:flex-start}
+.drops .sep{width:1px;align-self:stretch;background:var(--raised);margin:0 4px}
+.bonus{font-size:11px;color:var(--teal);margin-top:6px}
+.ui-button{background:transparent;color:var(--gold-l);font:inherit;padding:6px 4px;cursor:pointer;background:linear-gradient(var(--gold),var(--gold)) bottom/0 1px no-repeat;transition:background-size .2s}
+.ui-button:hover{background-size:100% 1px}
+/* Empereurs */
+.emp{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.ec{background:var(--panel);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ec header{display:flex;gap:12px;align-items:center}
+.ec header img{width:56px;height:56px;object-fit:contain}
+.ec h3{font-size:18px}
+.ec header small{color:var(--muted);font-size:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.row span:first-child{color:var(--fg2)}
+.row b{color:var(--gold-l);font-weight:500;font-variant-numeric:tabular-nums}
+.bar{height:4px;border-radius:2px;background:var(--raised);overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;background:#6f9a8d}
+.ec h4{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-d);font-weight:400}
+/* Coffres */
+.tabs{display:flex;gap:20px;margin-bottom:12px}
+.tabs button{background:none;color:var(--muted);font:inherit;font-size:13px;padding:6px 0;cursor:pointer;background:linear-gradient(var(--gold),var(--gold)) bottom/0 1px no-repeat}
+.tabs button[aria-selected=true]{color:var(--gold-l);background-size:100% 1px}
+.chest{display:grid;grid-template-columns:260px 1fr;gap:12px}
+@media(max-width:760px){.chest{grid-template-columns:1fr}.lv{grid-template-columns:36px 1fr}.drops{grid-column:1/-1;flex-wrap:wrap}}
+.box{background:var(--panel);border-radius:6px;padding:16px}
+.box h4{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-d);font-weight:400;margin-bottom:10px}
+.odds{display:flex;flex-direction:column;gap:10px}
+.odds .line{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px}
+.odds .line span{color:var(--fg2)}
+.odds .line b{color:var(--gold-l);font-weight:500}
+.odds .line .bar{grid-column:1/-1}
+.items{display:flex;flex-direction:column}
+.it{display:grid;grid-template-columns:44px 1fr auto 68px;gap:12px;align-items:center;padding:7px 0}
+.it+.it{background:linear-gradient(var(--raised),var(--raised)) top/100% 1px no-repeat}
+.it .art{width:40px;height:40px;border-radius:5px;background:var(--raised);display:grid;place-items:center;overflow:hidden}
+.it .art img{width:34px;height:34px;object-fit:contain}
+.it .art svg{width:22px;height:22px}
+.it .nm{font-size:13px}
+.it .nm small{display:block;color:var(--muted);font-size:11px}
+.it .q{color:var(--fg2);font-size:12px;font-variant-numeric:tabular-nums}
+.it .p{text-align:right;color:var(--gold-l);font-variant-numeric:tabular-nums;font-size:13px}
+.it .p .bar{width:68px;margin-left:auto}
+.jack{margin-top:12px;background:var(--raised);border-radius:5px;padding:12px}
+.jack h4{margin-bottom:8px}
+.legend{margin-top:8px;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<p class="kick">Maquette — à valider</p>
+<h1>Butins et taux affichés</h1>
+<p class="lead">Trois écrans : les difficultés des donjons, le Défi des empereurs (mèches, écailles…), et le contenu des coffres d’expédition. Tous les taux viennent du code actuel (<code>dungeons.ts</code>, <code>emperors.ts</code>, <code>chests.ts</code>). Les images sont celles déjà dans le site ; pas de bordures, or réservé aux actions, vert-de-gris pour l’information.</p>
+
+<section class="demo" id="dj">
+  <p class="kick">1 · Donjons</p>
+  <h2>Le butin à côté de chaque difficulté</h2>
+  <p class="note">Les 4 emplacements ont 25 % chacun (une pièce tire son emplacement au hasard). La rareté colore le bas de l’icône. Exemple : Le Sanctuaire du Sharingan (Naruto).</p>
+  <div class="dg" id="dg"></div>
+  <p class="legend">Difficulté 10 du donjon One Piece : matériau d’arme d’empereur <b>10 %</b> par victoire, ×1 (les autres donjons : matériaux garantis à partir de la difficulté 7).</p>
+</section>
+
+<section class="demo" id="emp">
+  <p class="kick">2 · Défi des empereurs</p>
+  <h2>Taux des mèches et des clés</h2>
+  <p class="note">Une victoire donne toujours sa clé. La ressource de l’empereur dépend de la difficulté. Le Hardcore consomme les 4 clés et donne 2 ressources tirées parmi les 4 empereurs.</p>
+  <div class="emp" id="empGrid"></div>
+</section>
+
+<section class="demo" id="cf">
+  <p class="kick">3 · Expéditions</p>
+  <h2>Ce que contiennent les coffres</h2>
+  <p class="note">À gauche : les coffres qu’une expédition peut rapporter. À droite : le contenu du coffre choisi, avec la chance de chaque objet à chaque tirage.</p>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="chest"><div class="box"><h4>Coffres rapportés</h4><div class="odds" id="odds"></div><p class="legend">Échec : toujours 1 coffre Bronze. Triomphe : un coffre de plus, tiré un cran au-dessus.</p></div><div class="box"><h4 id="ctitle"></h4><div class="items" id="items"></div><div id="jack"></div></div></div>
+</section>
+</main>
+
+<script>
+const R = {N:"#94a3b8",R:"#38bdf8",SR:"#a855f7",SSR:"#f59e0b",UR:"#ff3b4a"};
+const RN = {N:"Commun",R:"Rare",SR:"Épique",SSR:"Légendaire",UR:"Mythique"};
+const SET = "/images/artifacts/sets/naruto/";
+const PIECES = [["helmet","Casque"],["breastplate","Plastron"],["gauntlets","Gants"],["boots","Bottes"]];
+const RAR = ["N","R","SR","SSR","UR"];
+const diff = l => RAR[Math.min(4, Math.floor((l-1)/2))];
+const tile = (src, big, small, r) => `<div class="tile" ${r?`data-r style="--c:${R[r]}"`:""}><div class="art"><img src="${src}" alt=""></div><b>${big}</b><small>${small||""}</small></div>`;
+
+// --- Donjons
+const dg = document.getElementById("dg");
+const lv = [1,2,3,4,7,9,10];
+dg.innerHTML = lv.map(l => {
+  const r = diff(l), low = RAR[RAR.indexOf(r)-1];
+  const second = l===1 ? "" : l%2===0 ? `<span class="chip">+ 2ᵉ pièce ${RN[r]} · 50 %</span>` : `<span class="chip">+ 1 pièce ${RN[low]} · garantie</span>`;
+  const pieces = PIECES.map(([f,n]) => tile(`${SET}${f}.webp`, "25 %", n, r)).join("");
+  const mat = l>=7 ? `<div class="sep"></div>` + tile("/items/metal-a-chakra.svg", "×"+(1+Math.floor((l-7)/2))+" · 100 %", "Métal à chakra").replace('class="tile"','class="tile" style="width:84px"') : "";
+  return `<article class="lv"><div class="no">${String(l).padStart(2,"0")}</div><div><h3>Difficulté ${l}<small class="r-${r}">${RN[r]}</small></h3><p>${l>=7?"Tempête de chakra : attaque de zone et affaiblissement.":l>=4?"Armure de Susanoo : dégâts de zone et bouclier.":"Aucune mécanique spéciale."}</p><div class="bonus">${second}</div><button class="ui-button" style="margin-top:6px">Préparer</button></div><div class="drops">${pieces}${mat}</div></article>`;
+}).join("");
+
+// --- Empereurs
+const EMP = [
+  ["Shanks","cheveux-roux-de-shanks","Cheveux roux de Shanks","Clé de Shanks"],
+  ["Big Mom","meche-de-big-mom","Mèche de Big Mom","Clé de Big Mom"],
+  ["Kaido","ecaille-de-kaido","Écaille de Kaido","Clé de Kaido"],
+  ["Barbe Blanche","moustache-de-barbe-blanche","Moustache de Barbe Blanche","Clé de Barbe Blanche"],
+];
+const bar = p => `<div class="bar"><i style="width:${p}%"></i></div>`;
+const rowp = (a,b,p) => `<div><div class="row"><span>${a}</span><b>${b}</b></div>${bar(p)}</div>`;
+document.getElementById("empGrid").innerHTML = EMP.map(([n,res,rn,kn]) => `<article class="ec">
+ <header><img src="/images/materials/${res}.webp" alt=""><div><h3>${n}</h3><small>${rn}</small></div></header>
+ <div class="row"><span>${kn}</span><b>×1 · 100 %</b></div>
+ <h4>${rn}</h4>
+ ${rowp("Normal","×1 · 100 %",100)}
+ ${rowp("Difficile","×1 · 50 %   ×2 · 50 %",50)}
+ ${rowp("Cauchemar","×2 · 50 %   ×3 · 50 %",50)}
+ <h4>Hardcore</h4>
+ <div class="row"><span>Chance d’en recevoir 1</span><b>50 %</b></div>
+</article>`).join("");
+
+// --- Coffres
+const TIERS = {
+  bronze:{n:"Bronze",c:"#d08a4a",items:[["ryo","Ryō","60",25.1],["awakening","Matériau d’éveil","×3",25.0],["signature","Fragment de signature","×4",19.5],["crystals","Cristaux","+2",19.4],["energy","Énergie","+5",11.1]]},
+  argent:{n:"Argent",c:"#dfe7ee",items:[["ryo","Ryō","150",19.2],["awakening","Matériau d’éveil","×8",19.1],["crystals","Cristaux","+5",15.0],["signature","Fragment de signature","×10",14.9],["energy","Énergie","+10",8.5],["weapon","Matériau d’arme","×1",8.5],["booster","Booster offert","×5 cartes",6.4],["artifact:SR","Artefact Épique","1 pièce",5.3],["card:R","Personnage Rare","1 carte",3.2]]},
+  or:{n:"Or",c:"#ffd36b",items:[["ryo","Ryō","400",18.1],["awakening","Matériau d’éveil","×15",17.9],["crystals","Cristaux","+10",14.0],["signature","Fragment de signature","×20",13.9],["weapon","Matériau d’arme","×2",8.1],["energy","Énergie","+20",8.0],["hearts","Cœurs de brèche","×3",6.0],["booster","Booster offert","×5 cartes",6.0],["card:SR","Personnage Épique","1 carte",3.0],["artifact:SR","Artefact Épique","1 pièce",2.5],["artifact:SSR","Artefact Légendaire","1 pièce",2.5]]},
+  legendaire:{n:"Légendaire",c:"#b98bff",items:[["ryo","Ryō","1 000",17.7],["awakening","Matériau d’éveil","×30",17.5],["crystals","Cristaux","+25",13.8],["signature","Fragment de signature","×40",13.7],["weapon","Matériau d’arme","×5",7.9],["energy","Énergie","+40",7.9],["hearts","Cœurs de brèche","×8",5.9],["booster","Booster offert","×10 cartes",5.9],["artifact:SSR","Artefact Légendaire","1 pièce",4.9],["card:SSR","Personnage Légendaire","1 carte",2.9],["emperor","Ressource d’empereur","×1",2.0]]},
+};
+const ART = {
+  ryo:"/items/ryo.svg", crystals:"/items/cristal.svg", signature:"/items/fragment-de-signature.svg", awakening:"/items/metal-a-chakra.svg", weapon:"/items/lame-ultra-dure.svg",
+  hearts:"/items/coeur-de-breche.svg", booster:"/images/boosters/standard.png", "artifact:SR":SET+"helmet.webp","artifact:SSR":SET+"breastplate.webp",
+  "card:R":"/images/cards/anima-clash-back.webp","card:SR":"/images/cards/anima-clash-back.webp","card:SSR":"/images/cards/anima-clash-back.webp","emperor":"/images/materials/meche-de-big-mom.webp"
+};
+const ENERGY = `<svg viewBox="0 0 24 24" fill="none" stroke="#8fbfae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/></svg>`;
+const ODDS = {
+  Faille:{n:"Faille",c:1,w:[80,18,2,0]}, "Brèche":{n:"Brèche",c:2,w:[45,40,13,2]}, Gouffre:{n:"Gouffre",c:3,w:[10,45,35,10]}
+};
+const order = ["bronze","argent","or","legendaire"];
+function show(t){
+  const T = TIERS[t];
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t===t));
+  document.getElementById("ctitle").textContent = `Coffre ${T.n} — ${t==="legendaire"?"5 objets + 1 gros lot":({bronze:2,argent:3,or:4})[t]+" objets"}`;
+  document.getElementById("items").innerHTML = T.items.map(([k,nm,q,p]) => {
+    const r = k.startsWith("card")||k.startsWith("artifact") ? k.split(":")[1] : null;
+    const art = k==="energy" ? ENERGY : `<img src="${ART[k]}" alt="">`;
+    return `<div class="it"><div class="art" ${r?`style="box-shadow:inset 0 -2px 0 ${R[r]}"`:""}>${art}</div><div class="nm">${nm}</div><div class="q">${q}</div><div class="p">${p.toFixed(1).replace(".",",")} %<div class="bar"><i style="width:${Math.min(100,p*3)}%"></i></div></div></div>`;
+  }).join("");
+  document.getElementById("jack").innerHTML = t==="legendaire" ? `<div class="jack"><h4>Gros lot garanti (1 par coffre)</h4><div class="items">
+   <div class="it"><div class="art"><img src="${ART.booster}" alt=""></div><div class="nm">Booster offert</div><div class="q">×10 cartes</div><div class="p">30 %</div></div>
+   <div class="it"><div class="art" style="box-shadow:inset 0 -2px 0 ${R.SSR}"><img src="${ART["artifact:SSR"]}" alt=""></div><div class="nm">Artefact Légendaire</div><div class="q">1 pièce</div><div class="p">25 %</div></div>
+   <div class="it"><div class="art" style="box-shadow:inset 0 -2px 0 ${R.SSR}"><img src="${ART["card:SSR"]}" alt=""></div><div class="nm">Personnage Légendaire <small>ou Mythique (1 sur 20)</small></div><div class="q">1 carte</div><div class="p">25 %</div></div>
+   <div class="it"><div class="art"><img src="${ART.emperor}" alt=""></div><div class="nm">Ressources d’empereur</div><div class="q">×2</div><div class="p">20 %</div></div></div></div>` : "";
+}
+document.getElementById("tabs").innerHTML = order.map(t => `<button role="tab" data-t="${t}">${TIERS[t].n}</button>`).join("");
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => show(b.dataset.t));
+document.getElementById("odds").innerHTML = Object.values(ODDS).map(o => {
+  const tot = o.w.reduce((a,b)=>a+b,0);
+  return `<div><div class="row"><span><b style="color:var(--fg)">${o.n}</b> · ${o.c} coffre${o.c>1?"s":""}</span></div>` + o.w.map((w,i)=>w?`<div class="line"><span>${TIERS[order[i]].n}</span><b>${Math.round(w/tot*100)} %</b>${bar(w/tot*100)}</div>`:"").join("") + `</div>`;
+}).join("");
+show("legendaire");
+</script>
+</body>
+</html>

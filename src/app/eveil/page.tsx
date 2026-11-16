@@ -9,7 +9,7 @@ import { InventoryTabs } from "@/components/InventoryTabs";
 import { AwakenList, type AwakenRow } from "./AwakenList";
 import "../inventaire/inventaire.css";
 
-export const metadata: Metadata = { title: "Éveil — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Éveil — Anima Clash", robots: { index: false } };
 
 export default function AwakenPage() {
   return (

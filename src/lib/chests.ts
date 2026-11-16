@@ -94,3 +94,32 @@ export function itemRarity(item: ChestItem, tier: ChestTier): "N" | "R" | "SR" |
   if (item.kind === "booster") return item.cards >= 10 ? "UR" : "SR";
   return (["N", "R", "SR", "SSR"] as const)[idx(tier)];
 }
+
+export type ChestContent = { item: ChestItem; chance: number };
+
+/** Chance de chaque objet d'un coffre, à chaque tirage (affichage ; vérifié contre `rollChest` par scripts/check-drop-odds.ts). */
+export function chestContents(tier: ChestTier): { items: ChestContent[]; jackpot: ChestContent[] } {
+  const t = idx(tier);
+  const rows = TABLE.map((row) => ({ weight: row.weight, low: row.make(t, () => 0), high: row.make(t, () => 0.999) })).filter((r) => r.low !== null);
+  const total = rows.reduce((sum, r) => sum + r.weight, 0);
+  // Un objet dont le contenu dépend du tirage (artefact SR ou SSR du coffre Or) se répartit à parts égales entre ses variantes
+  const items = rows.flatMap((r) => {
+    const variants = JSON.stringify(r.low) === JSON.stringify(r.high) ? [r.low!] : [r.low!, r.high!];
+    return variants.map((item) => ({ item, chance: r.weight / total / variants.length }));
+  });
+  const jackpot: ChestContent[] = tier !== "legendaire" ? [] : [
+    { item: { kind: "booster", cards: 10 }, chance: 0.3 },
+    { item: { kind: "artifact", rarity: "SSR" }, chance: 0.25 },
+    { item: { kind: "card", rarity: "SSR" }, chance: 0.25 * 0.95 },
+    { item: { kind: "card", rarity: "UR" }, chance: 0.25 * 0.05 },
+    { item: { kind: "emperor", amount: 2 }, chance: 0.2 },
+  ];
+  return { items, jackpot };
+}
+
+/** Chance de chaque rang de coffre pour un coffre rapporté par une expédition réussie de ce niveau (affichage). */
+export function breachChestOdds(tier: keyof typeof ODDS): { count: number; odds: { tier: ChestTier; chance: number }[] } {
+  const { count, weights } = ODDS[tier];
+  const total = weights.reduce((a, b) => a + b, 0);
+  return { count, odds: CHEST_TIERS.map((t, i) => ({ tier: t, chance: weights[i] / total })).filter((o) => o.chance > 0) };
+}

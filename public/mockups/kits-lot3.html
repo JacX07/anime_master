@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Kits lot 3</title>
+<style>
+.mq{--bg:#0b0e0f;--panel:#111514;--raised:#171b1a;--float:#151918f2;--fg:#e9e5dc;--fg2:#b4b2aa;--muted:#767b76;--gold:#c4a76d;--gold-l:#d5bb7f;--gold-d:#a68e5d;--teal:#8fbfae;--teal-bg:rgb(111 154 141/14%);--UR:#ff3b4a;--SSR:#f59e0b;--SR:#a855f7;--R:#38bdf8;
+  display:grid;gap:22px;color:var(--fg);font:13px/1.45 "DM Sans",system-ui,sans-serif}
+.mq *{box-sizing:border-box;margin:0;padding:0}
+.sec{background:var(--bg);border-radius:6px;padding:16px;display:grid;gap:10px}
+.kick{color:var(--gold-d);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.sec h2{font:500 18px Cinzel,Georgia,serif;letter-spacing:-.01em}
+.note{color:var(--muted);font-size:11.5px}
+.board{position:relative;background:radial-gradient(circle at 50% 40%,#1b2220,#0e1211);border-radius:5px;height:200px;display:flex;justify-content:space-between;align-items:center;padding:0 22px}
+.cards{display:flex;gap:8px}
+.c{width:52px;height:74px;border-radius:4px;background:#26302d;box-shadow:inset 0 -2px 0 var(--r,#94a3b8);display:grid;place-items:end center;font-size:9px;color:var(--fg2);padding-bottom:4px;position:relative}
+.c.act{outline:1px solid var(--gold);outline-offset:2px}
+.c .tag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--teal-bg);color:var(--teal);font-size:9px;padding:1px 5px;border-radius:3px;white-space:nowrap}
+.pop{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--float);backdrop-filter:blur(6px);border-radius:6px;padding:12px 14px;width:min(330px,90%);display:grid;gap:8px;box-shadow:0 10px 30px #000a}
+.pop h3{font:500 14px Cinzel,serif}
+.pop p{color:var(--fg2);font-size:12px}
+.sp{display:flex;gap:8px;align-items:center;background:var(--raised);border-radius:4px;padding:6px 8px}
+.sp i{width:26px;height:26px;border-radius:4px;background:#2b3532;flex:none}
+.sp b{font-weight:500;font-size:12px}.sp small{display:block;color:var(--muted);font-size:10.5px}
+.acts{display:flex;gap:16px;align-items:center}
+.btn{background:none;border:0;color:var(--gold-l);font:inherit;font-size:12px;padding:4px 0;background:linear-gradient(var(--gold),var(--gold)) bottom/100% 1px no-repeat;cursor:pointer}
+.btn.dim{color:var(--muted);background-size:0 1px}
+.timer{height:3px;border-radius:2px;background:var(--raised);overflow:hidden}.timer i{display:block;height:100%;width:62%;background:#6f9a8d}
+.book{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.page{background:var(--raised);border-radius:4px;padding:7px;display:grid;gap:3px;font-size:11px}
+.page small{color:var(--muted);font-size:10px}
+.page.sel{box-shadow:inset 0 0 0 1px var(--gold)}
+.hand{display:flex;gap:8px;flex-wrap:wrap}
+.alt{width:96px;background:var(--raised);border-radius:5px;padding:22px 7px 8px;display:grid;gap:4px;position:relative}
+.alt b{font-weight:500;font-size:11.5px}.alt small{color:var(--muted);font-size:10px;line-height:1.3}
+.alt.cd{opacity:.45}.alt .cdv{position:absolute;top:6px;right:7px;font-size:10px;color:var(--fg2)}
+.alt.auto{background:transparent;box-shadow:inset 0 0 0 1px #2b3532}
+.gauge{display:flex;gap:3px;margin-top:2px}.gauge i{width:12px;height:4px;border-radius:2px;background:#2b3532}.gauge i.on{background:var(--gold)}
+.chk{display:flex;gap:6px;flex-wrap:wrap}
+.ally{display:flex;align-items:center;gap:6px;background:var(--raised);border-radius:4px;padding:5px 8px;font-size:11.5px}
+.ally.on{box-shadow:inset 0 0 0 1px var(--teal);color:var(--teal)}
+.row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+</style>
+</head>
+<body>
+<div class="mq">
+
+<section class="sec">
+  <p class="kick">1 · Copie hors de son tour — Yuuta (80 %) et Madara (100 %)</p>
+  <h2>Un ennemi lance un sort : apprendre ou non ?</h2>
+  <div class="board">
+    <div class="cards"><div class="c act" style="--r:var(--UR)"><span class="tag">Copie prête</span>Yuuta</div><div class="c">Allié</div></div>
+    <div class="cards"><div class="c" style="--r:var(--SSR)">Ichigo</div><div class="c">Ennemi</div></div>
+    <div class="pop">
+      <h3>Yuuta peut copier ce sort</h3>
+      <div class="sp"><i></i><div><b>Getsuga Tenshou</b><small>Ichigo · 1,5× ATK → copie à 80 %</small></div></div>
+      <p>Remplace la copie actuelle : <b style="color:var(--fg)">Bleu</b> (Gojo).</p>
+      <div class="timer"><i></i></div>
+      <div class="acts"><button class="btn">Apprendre</button><button class="btn dim">Ignorer</button></div>
+    </div>
+  </div>
+  <p class="note">Le combat se met en pause le temps du choix (8 s, puis « Ignorer » par défaut). En Auto : appris automatiquement. Un seul sort gardé, il devient le secondaire « Copie : … » jusqu'à la copie suivante.</p>
+</section>
+
+<section class="sec">
+  <p class="kick">2 · Chrollo — Skill Hunter et le Livre du Bandit</p>
+  <h2>Livre plein : quelle page remplacer ?</h2>
+  <div class="board" style="height:190px">
+    <div class="cards"><div class="c act" style="--r:var(--UR)">Chrollo</div></div>
+    <div class="cards"><div class="c" style="--r:var(--SSR)">Sukuna</div></div>
+    <div class="pop">
+      <h3>Chrollo peut voler « Démantèlement »</h3>
+      <div class="book">
+        <div class="page sel"><small>Page 1 · remplacer</small><b>Getsuga Tenshou</b><small>Ichigo</small></div>
+        <div class="page"><small>Page 2</small><b>Bleu</b><small>Gojo</small></div>
+      </div>
+      <div class="timer"><i></i></div>
+      <div class="acts"><button class="btn">Remplacer la page 1</button><button class="btn dim">Garder mon livre</button></div>
+    </div>
+  </div>
+  <p class="note">Skill Hunter est son seul sort : il ouvre le livre et lance une des pages (en combat, deux cartes « Page 1 » / « Page 2 » dans la main). Livre vide : Skill Hunter ne fait rien et reste grisé. Pages gardées jusqu'à ce qu'il les remplace.</p>
+</section>
+
+<section class="sec">
+  <p class="kick">3 · Yhwach — Auswählen</p>
+  <h2>Choisir les alliés, puis retirer leur pouvoir</h2>
+  <div class="row">
+    <div style="flex:1;min-width:260px;display:grid;gap:8px">
+      <p class="note">Ciblage : touche les alliés à bénir (autant que tu veux), puis confirme.</p>
+      <div class="chk"><span class="ally on">✓ Ichigo</span><span class="ally on">✓ Uryū</span><span class="ally">Orihime</span></div>
+      <div class="acts"><button class="btn">Lancer Auswählen (2 alliés)</button><button class="btn dim">Annuler</button></div>
+      <p class="note">2 tours : +50 % de dégâts finaux, soin de 30 % des PV max à l'application.</p>
+    </div>
+    <div style="flex:1;min-width:260px;position:relative;background:radial-gradient(circle at 50% 40%,#1b2220,#0e1211);border-radius:5px;height:200px">
+      <div class="pop" style="width:90%">
+        <h3>Retirer le pouvoir d'Ichigo ?</h3>
+        <p>Ichigo meurt. Yhwach prend une de ses compétences :</p>
+        <div class="sp" style="box-shadow:inset 0 0 0 1px var(--gold)"><i></i><div><b>Getsuga Tenshou</b><small>Secondaire</small></div></div>
+        <div class="sp"><i></i><div><b>Mugetsu</b><small>Ultime</small></div></div>
+        <div class="acts"><button class="btn">Prendre Getsuga Tenshou</button><button class="btn dim">Annuler</button></div>
+      </div>
+    </div>
+  </div>
+  <p class="note">Le bouton « Retirer le pouvoir » apparaît sur chaque allié béni, même pendant le tour adverse (le combat se met en pause). En Auto : jamais de sacrifice. Passif The Almighty : une fois par combat, reste à 1 PV et joue aussitôt.</p>
+</section>
+
+<section class="sec">
+  <p class="kick">4 · Deku — One For All</p>
+  <h2>Six alters dans la main</h2>
+  <div class="hand">
+    <div class="alt"><span class="cdv">prêt</span><b>Embrayage</b><small>Vitesse +20 % alliés, −20 % ennemis, 2 t</small></div>
+    <div class="alt"><span class="cdv">prêt</span><b>Fa jin</b><small>×1,5 ATK +charge</small><div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><small style="color:var(--gold-l)">+150 %</small></div>
+    <div class="alt auto"><span class="cdv">auto</span><b>Danger sense</b><small>Coup fatal : esquive jusqu'à 50 %</small></div>
+    <div class="alt cd"><span class="cdv">2 t</span><b>Fouet noir</b><small>Étourdit 1 ennemi, 1 t</small></div>
+    <div class="alt"><span class="cdv">prêt</span><b>Écran de fumée</b><small>Intouchable par les attaques ciblées, 2 t</small></div>
+    <div class="alt"><span class="cdv">prêt</span><b>Voltige</b><small>Autres alters −1 t de recharge</small></div>
+  </div>
+  <p class="note">Les alters remplacent secondaire, tertiaire et ultime ; l'attaque de base reste (elle charge Fa jin, 5 crans = 250 %). Danger sense est passif : sa carte montre seulement sa recharge. Chaque alter : 3 tours de recharge.</p>
+</section>
+
+</div>
+</body>
+</html>

@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/session";
 import { FriendsBoard } from "./FriendsBoard";
 import "./friends.css";
 
-export const metadata: Metadata = { title: "Amis — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Amis — Anima Clash", robots: { index: false } };
 
 export default function FriendsPage() {
   return (

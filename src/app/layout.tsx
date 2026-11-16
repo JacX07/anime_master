@@ -23,7 +23,7 @@ const cinzel = Cinzel({ variable: "--font-cinzel", weight: ["500", "600", "700"]
 const dmSans = DM_Sans({ variable: "--font-dm", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Anime Masters",
+  title: "Anima Clash",
   description: "Collectionne les personnages d'anime en ouvrant des paquets de cartes.",
 };
 

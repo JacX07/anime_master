@@ -11,7 +11,7 @@ import { prisma } from "@/lib/db";
 import { DungeonsBoard } from "./DungeonsBoard";
 import "./donjons.css";
 
-export const metadata: Metadata = { title: "Donjons — Anime Masters", robots: { index: false } };
+export const metadata: Metadata = { title: "Donjons — Anima Clash", robots: { index: false } };
 
 export default function DungeonsPage({ searchParams }: { searchParams: Promise<{ set?: string }> }) {
   return <main className="vt"><SceneBody night scroll /><Suspense fallback={<p className="vt-inner vt-muted">Chargement du donjon…</p>}><Dungeon searchParams={searchParams} /></Suspense></main>;

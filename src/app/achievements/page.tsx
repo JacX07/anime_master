@@ -7,7 +7,7 @@ import { listAchievements } from "@/lib/achievements";
 import { requireUser } from "@/lib/session";
 import { ClaimButton } from "./ClaimButton";
 
-export const metadata: Metadata = { title: "Succès — Anime Masters" };
+export const metadata: Metadata = { title: "Succès — Anima Clash" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" });
 
 const TABS = [

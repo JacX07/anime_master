@@ -10,7 +10,7 @@ import { requireUser } from "@/lib/session";
 import { MAX_FLOOR } from "@/lib/tower";
 import { TowerBoard } from "./TowerBoard";
 
-export const metadata: Metadata = { title: "La Tour — Anime Masters" };
+export const metadata: Metadata = { title: "La Tour — Anima Clash" };
 
 export default function TowerPage() {
   return (

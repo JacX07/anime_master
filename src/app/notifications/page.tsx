@@ -8,7 +8,7 @@ import { MarkRead } from "./MarkRead";
 import "./notifications.css";
 import { PageHeading } from "@/components/mq/PageHeading";
 
-export const metadata: Metadata = { title: "Notifications — Anime Masters" };
+export const metadata: Metadata = { title: "Notifications — Anima Clash" };
 
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 

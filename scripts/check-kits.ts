@@ -188,17 +188,17 @@ async function main() {
   }
   check("Kurapika : lancer un sort sous sceau tue, l'IA s'en abstient", sealed > 0 && killed > 0 && aiCasts === 0, `${sealed} tours scellés, ${killed} morts, ${aiCasts} sorts de l'IA`);
 
-  // Mob : l'ultime frappe une cible et grandit avec les coups reçus (30 coups au plus).
+  // Mob : l'ultime frappe tous les ennemis et grandit avec les coups reçus (30 coups au plus).
   {
     const hit = (hitsTaken: number) => {
-      const st = createBattle([card(IDS.mob)], [card(17, { characterId: 999999, defense: 6000, attack: 1500, noSpell: true, noBasicAttack: true })], () => 0.99, { startingSide: "A", passive: false, combos: false, elements: false });
-      st.teams.B[0].maxHp = 1000000; st.teams.B[0].hp = 1000000; st.teams.B[0].shield = 0;
+      const st = createBattle([card(IDS.mob)], [card(17, { characterId: 999999, defense: 6000, attack: 1500, noSpell: true, noBasicAttack: true }), card(17, { characterId: 999998, defense: 6000, attack: 1500, noSpell: true, noBasicAttack: true })], () => 0.99, { startingSide: "A", passive: false, combos: false, elements: false });
+      for (const foe of st.teams.B) { foe.maxHp = 1000000; foe.hp = 1000000; foe.shield = 0; }
       st.teams.A[0].hitsTaken = hitsTaken; st.teams.A[0].ultimateGauge = 100;
-      applyAction(st, { spell: "ultimate", target: "B1" });
+      applyAction(st, { spell: "ultimate", target: null });
       return st.log.filter((e): e is Extract<BattleEvent, { kind: "damage" }> => e.kind === "damage");
     };
     const plain = hit(0), charged = hit(3), capped = hit(30), excess = hit(50);
-    check("Mob : Explosion frappe une seule cible", [plain, charged, capped, excess].every((hits) => hits.length === 1 && hits[0].target === "B1"));
+    check("Mob : Explosion frappe tous les ennemis", [plain, charged, capped, excess].every((hits) => hits.map((h) => h.target).sort().join() === "B1,B2"));
     check("Mob : +10 % par coup reçu, plafonné à 30 coups", Math.abs(charged[0].amount / plain[0].amount - 1.3) < 1e-9 && Math.abs(capped[0].amount / plain[0].amount - 4) < 1e-9 && capped[0].amount === excess[0].amount);
   }
 
