@@ -150,7 +150,6 @@ const LEGACY_TERTIARY: Record<number, CharacterSpell> = {
   88889: S("Raphtalia : Transformation de raphtalia — Pas de côté", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "dodge", "amount": 0.06, "turns": 1, "to": "self"}]),
   88892: S("Katsuki Bakugou : Howitzer Impact — Pression ciblée", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "atk", "amount": -0.08, "turns": 1, "to": "target"}]),
   88937: S("Koutarou Bokuto : Frappe de hibou — Élan bref", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "atk", "amount": 0.08, "turns": 1, "to": "self"}]),
-  89028: S("Izuku Midoriya : Delaware Smash léger — Élan bref", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "atk", "amount": 0.08, "turns": 1, "to": "self"}]),
   89198: S("Osamu Dazai : Pas de la déchéance — Pression ciblée", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "atk", "amount": -0.08, "turns": 1, "to": "target"}]),
   89201: S("Ranpo Edogawa : Ultra-déduction — Brèche tactique", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "def", "amount": -0.08, "turns": 1, "to": "target"}]),
   89220: S("Shouto Todoroki : Éclat de glace et de feu — Pression ciblée", [{"k": "damage", "mult": 0.62}, {"k": "mod", "stat": "atk", "amount": -0.08, "turns": 1, "to": "target"}]),

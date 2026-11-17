@@ -605,9 +605,73 @@ const fxOf = (s: BattleState, id: string, key: string) => s.teams[id[0] as "A" |
   applyAction(s, { spell: "ultimate", target: null });
   assert(fxOf(s, "A1", "taunt").length, "provocation");
 }
+// Deku : six alters (lot 3), recharges propres, Fa jin, Danger sense, Écran de fumée, Voltige
+{
+  const DEKU = 89028;
+  const dk = (s: BattleState) => s.teams.A[0];
+  // Kit : pas de secondaire, tertiaire ni ultime ; cinq alters actifs prêts dès la 1re action
+  const s = createBattle([card(DEKU), card(5, { rarity: "UR" })], [dummy({ defense: 1e9, attack: 1, maxHp: undefined } as Partial<BattleCard>), dummy({ defense: 1e9, attack: 1 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  const spells = legalActions(s).map((a) => a.spell);
+  assert.deepEqual(spells, ["base", "quirk0", "quirk1", "quirk2", "quirk3", "quirk4"], `alters prêts : ${spells}`);
+  // Embrayage : vitesse +20 % alliés, −20 % ennemis
+  applyAction(s, { spell: "quirk0", target: null });
+  assert(fxOf(s, "A2", "speedUp")[0]?.amount === 0.2 && fxOf(s, "B1", "speedDown")[0]?.amount === -0.2, "Embrayage");
+  until(s, "A1");
+  assert(!legalActions(s).some((a) => a.spell === "quirk0"), "Embrayage en recharge");
+  // Fa jin : chaque attaque de base +50 %, 250 % au plus
+  for (let i = 0; i < 6; i++) { applyAction(s, { spell: "base", target: "B1" }); until(s, "A1"); }
+  assert.equal(dk(s).faJin, 2.5, "charge plafonnée à 250 %");
+  assert(legalActions(s).some((a) => a.spell === "quirk0"), "Embrayage revenu après 3 tours");
+  const before = s.log.length;
+  applyAction(s, { spell: "quirk1", target: "B1" });
+  const blow = s.log.slice(before).find((e) => e.kind === "damage");
+  assert(blow && blow.kind === "damage", "Fa jin frappe");
+  assert.equal(dk(s).faJin, 0, "charge remise à zéro");
+  // Écran de fumée : les coups ciblés ne peuvent plus viser Deku
+  until(s, "A1");
+  applyAction(s, { spell: "quirk3", target: null });
+  until(s, "B1");
+  assert(!legalActions(s).find((a) => a.spell === "base")!.targets.includes("A1"), "Deku hors d'atteinte des coups ciblés");
+  // Voltige : −1 tour sur les autres alters
+  until(s, "A1");
+  // Recharges lues avant l'action : elles baissent d'un tour au début de l'action, puis d'un tour par Voltige
+  const cds = [...dk(s).quirkIn];
+  applyAction(s, { spell: "quirk4", target: null });
+  dk(s).quirkIn.forEach((n, i) => i !== 4 && assert.equal(n, Math.max(0, cds[i] - 2), `Voltige sur l'alter ${i}`));
+  assert.equal(dk(s).quirkIn[4], 3, "Voltige se recharge");
+}
+{
+  // Fouet noir : étourdit la cible 1 tour
+  const s = createBattle([card(89028)], [dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  applyAction(s, { spell: "quirk2", target: "B1" });
+  assert(s.log.some((e) => e.kind === "status" && e.target === "B1" && e.status === "stun" && e.on), "Fouet noir étourdit");
+}
+{
+  // Auto : Fouet noir vise un ennemi qui n'est pas un boss
+  const s = createBattle([card(89028)], [dummy({ defense: 1e9, boss: true, attack: 9 } as Partial<BattleCard>), dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  s.teams.A[0].quirkIn = [9, 9, 0, 9, 9];
+  const act = autoAction(s);
+  assert.deepEqual([act.spell, act.target], ["quirk2", "B2"], `Fouet noir en Auto : ${act.spell} ${act.target}`);
+}
+{
+  // Danger sense : face à un coup fatal, 50 % d'esquive, puis 3 tours de recharge
+  let roll = 0.4;
+  const s = createBattle([card(89028, { defense: 1 })], [card(5, { attack: 1e7 })], () => roll, { startingSide: "B" });
+  until(s, "B1");
+  applyAction(s, { spell: "base", target: "A1" });
+  assert(s.teams.A[0].hp > 0 && s.log.some((e) => e.kind === "dodge" && e.target === "A1"), "Danger sense esquive le coup fatal");
+  assert.equal(s.teams.A[0].dangerIn, 3, "Danger sense en recharge");
+  until(s, "B1");
+  roll = 0.1;
+  applyAction(s, { spell: "base", target: "A1" });
+  assert.equal(s.teams.A[0].hp, 0, "pas de second déclenchement pendant la recharge");
+}
 // Robustesse : 3 000 combats au hasard avec les kits du lot 4
 {
-  const pool = [MAOMAO, DAZAI, FRIEREN, VIOLET, LIGHT, MARIN, ASKELADD, CHIKA, 5, 40, 62, 422, 89361, 53901, 14489, 68537, 58, 129571];
+  const pool = [MAOMAO, DAZAI, FRIEREN, VIOLET, LIGHT, MARIN, ASKELADD, CHIKA, 89028, 89028, 5, 40, 62, 422, 89361, 53901, 14489, 68537, 58, 129571];
   const rng = seededRandom(404);
   for (let g = 0; g < 3000; g++) {
     const pick = () => Array.from({ length: 4 }, () => card(pool[Math.floor(rng() * pool.length)], { type: (["COMBAT", "MAGIE", "MYSTERE", "COEUR", "AVENTURE"] as const)[Math.floor(rng() * 5)] }));

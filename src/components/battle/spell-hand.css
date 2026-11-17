@@ -202,3 +202,7 @@
 }
 
 .mq-app-shell[class][class] .bt-hand-card { bottom: 10px; }
+
+/* Danger sense (Deku) : alter passif, jamais jouable mais lisible (contour, pas grisé) */
+.bt-hand-card[data-passive] { cursor: help; }
+.bt-hand-card[data-passive][aria-disabled="true"]:not([data-inspecting]) .bt-hand-face { filter: saturate(.6); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }

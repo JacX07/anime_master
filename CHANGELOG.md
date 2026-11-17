@@ -11,7 +11,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Un nouvel accueil Violet nuit**, avec un personnage de ta collection mis en avant, une reprise de l’histoire et des accès rapides aux activités.
 - **Cinq onglets sur mobile** : Accueil, Collection, Jouer au centre, Invocation et Menu. Le Marché et les fonctions secondaires restent accessibles depuis le Menu ; le chat dispose de son propre accès.
 - **Des sorts en éventail**, une fiche détaillée qui reste ouverte après un appui long et une interface de combat dégagée.
-- **De nouveaux kits et passifs** pour Madara, Netero, Anti-Spirale, Meruem, Saitama, Dio, Yuuta, Johan, Griffith, Dazai, Maomao, Frieren, Violet, Light, Marin, Askeladd, Chika et les quatre empereurs, ainsi que des ajustements pour Aizen, Toji, Momo et Sukuna.
+- **De nouveaux kits et passifs** pour Madara, Netero, Anti-Spirale, Meruem, Saitama, Dio, Yuuta, Johan, Griffith, Dazai, Maomao, Frieren, Violet, Light, Marin, Askeladd, Chika, Deku et les quatre empereurs, ainsi que des ajustements pour Aizen, Toji, Momo et Sukuna.
 
 ### Accueil, navigation et écrans de gestion
 
@@ -45,6 +45,7 @@ La mise à jour v0.4.0 prépare une nouvelle interface PC et mobile, un combat p
 - **Gilgamesh** : Ea désarme les porteurs d'épée pendant un tour (sans sort sans épée, ils passent leur tour), puis frappe tous les ennemis à ×2,1 ATK, +25 % par ennemi désarmé.
 - **Saitama** : plus d'attaque de base, seulement son coup de poing, prêt dès le premier tour.
 - **Madara** : Katon (×2,1) et Kyūbi (×3,3) brûlent au lieu d'empoisonner ; la Copie du Susanoo frappe à 100 %.
+- **Deku** : One For All remplace secondaire, tertiaire et ultime par six alters, chacun 3 tours de recharge : Embrayage (vitesse +20 % pour ses alliés, −20 % pour les ennemis, 2 tours), Fa jin (×1,5 ATK multiplié par la charge : +50 % par attaque de base, 250 % au plus), Fouet noir (étourdit un ennemi), Écran de fumée (hors d'atteinte des attaques ciblées, 2 tours), Voltige (−1 tour sur ses autres alters) et Danger sense, passif : face à un coup fatal, son esquive monte à 50 %.
 - **Poison cumulable** : chaque poison posé s'ajoute aux précédents, quel que soit le lanceur. Une carte porte au plus 10 malus en même temps.
 - **Maomao** : son attaque de base a 70 % de chance d'empoisonner ; Herbes toxiques empoisonne tous les ennemis et renforce leurs poisons de 25 % ; Remède de l'apothicaire purge l'équipe et la soigne (15 % des PV max de Maomao, +5 % par malus retiré) ; Réaction toxique fait exploser chaque cumul de poison.
 - **Osamu Dazai** : Contact dissipe les buffs d'un ennemi (recharge 2 tours) ; Plan de secours : tous les ennemis subissent +25 % de dégâts et ne font plus de critique, 2 tours ; Annulation totale immunise l'équipe contre les capacités magiques, 2 tours. Passif : −30 % de dégâts des sorts magiques.

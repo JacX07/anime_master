@@ -4,7 +4,7 @@ import { suspendWhenHidden } from "@/lib/audio-visibility";
 // Deux bus (effets, musique) passent par un master puis un compresseur, pour garder de la marge avant la saturation.
 // Les effets varient un peu à chaque coup (hauteur ±4 %) pour ne pas sonner en boucle, et la musique baisse un instant sous les gros impacts.
 
-import type { BattleEvent } from "@/lib/battle";
+import type { ActionSpell, BattleEvent } from "@/lib/battle";
 import type { CardType } from "@/generated/prisma/enums";
 import type { AttackElement } from "@/lib/attack-element";
 import { BattleResultMusic } from "./music";
@@ -249,7 +249,7 @@ export class BattleAudio {
    * Joue le son d'un événement du journal. `prev` est l'événement d'avant (pour ne pas répéter un son sur une zone ou une
    * distribution de boucliers), `cur` le sort en cours, `speed` la vitesse de lecture (les sons raccourcissent jusqu'à ×2).
    */
-  play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: "base" | "affinity" | "special" | "tertiary" | "ultimate"; type: CardType } | null, speed: number, actor: ActorSound = { element: null, magic: false }) {
+  play(ev: BattleEvent, prev: BattleEvent | undefined, cur: { spell: ActionSpell; type: CardType } | null, speed: number, actor: ActorSound = { element: null, magic: false }) {
     if (ev.kind === "action") {
       this.projectileActor = null;
       this.pendingProjectileActor = null;

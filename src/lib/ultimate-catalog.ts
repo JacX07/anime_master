@@ -157,7 +157,6 @@ const LEGACY_ULTIMATE: Record<number, CharacterSpell>  = {
   88889: S("Raphtalia — Déchaînement : Transformation de raphtalia", "foe", dmg(1.25), mod("dodge", 0.3, 2, "self")),
   88892: S("Katsuki Bakugou — Déchaînement : Howitzer Impact", "foe", dmg(1.3), mod("atk", -0.2, 2, "target")),
   88937: S("Koutarou Bokuto — Déchaînement : Frappe de hibou", "foe", dmg(1.35), mod("atk", 0.2, 2, "self")),
-  89028: S("Detroit Smash — Successeur", "foe", dmg(1.75, { ignoreDef: 0.3 }), mod("atk", 0.2, 2, "self")),
   89198: S("Osamu Dazai — Déchaînement : Pas de la déchéance", "foe", dmg(1.3), mod("atk", -0.2, 2, "target")),
   89201: S("Ranpo Edogawa — Déchaînement : Ultra-déduction", "foe", dmg(1.45), mod("def", -0.2, 2, "target")),
   89220: S("Glace et feu — Phosphor", null, dmg(0.42, { zone: true }), { k: "silence", turns: 1, to: "foes" }, mod("atk", -0.15, 2, "foes")),

@@ -566,6 +566,7 @@ function BattlePlayerContent({ music = "combat", allowDisableSpellFx = true, log
                 wait: live.wait[spellUnit] ?? 0,
                 waitSpecial: live.wait[`${spellUnit}:special`] ?? 0,
                 waitTertiary: live.wait[`${spellUnit}:tertiary`] ?? 0,
+                waits: Object.fromEntries(Object.entries(live.wait).filter(([k]) => k.startsWith(`${spellUnit}:`)).map(([k, v]) => [k.slice(spellUnit.length + 1), v])),
                 busy: live.busy || consuming,
                 error: live.error,
                 onSpell: (s, scope) => setSelection(s ? { key: selectionKey, spell: s, scope } : null),

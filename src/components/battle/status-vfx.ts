@@ -79,7 +79,7 @@ const STATUS_ALIASES: Partial<Record<Status, Status>> = {
   earth: "speedDown", swept: "wet", broken: "defDown", vulnerable: "exposed", bleed: "poison",
   // Empereurs et kits v0.3.0
   critDamageUp: "critUp", critDamageDown: "critDown", fear: "silence", sleep: "stun", devour: "poison", duel: "taunt",
-  intangible: "dodgeUp", charged: "atkUp",
+  intangible: "dodgeUp", smoke: "dodgeUp", charged: "atkUp",
   // Kits v0.4.0 : même rendu et même nettoyage que les effets déjà présents.
   susanoo: "immune", kannon: "atkUp", auraPierce: "ignoreDef", dread: "silence", puppet: "silence", godHand: "atkUp",
   gash: "poison", disarm: "atkDown",

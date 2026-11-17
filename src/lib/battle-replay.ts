@@ -105,6 +105,7 @@ export const STATUS_INFO: Record<Status, { label: string; glyph: string; help: s
   wet: { label: "Trempé", glyph: "≋", help: "Un sort de foudre l'étourdira (son prochain tour).", bad: true },
   ignoreDef: { label: "Ignore DEF", glyph: "◉", help: "Sa prochaine attaque ignore une partie de la DEF de sa cible.", bad: false },
   intangible: { label: "Intouchable", glyph: "◌", help: "Aucun ennemi ne peut le viser ni le toucher.", bad: false },
+  smoke: { label: "Écran de fumée", glyph: "◌", help: "Hors d'atteinte des attaques ciblées ; les zones le touchent.", bad: false },
   charged: { label: "Concentration", glyph: "✊", help: "Sa prochaine attaque de base frappe très fort, ignore la DEF et ne s'esquive pas.", bad: false },
   susanoo: { label: "Susanoo parfait", glyph: "⛨", help: "Immunisé contre l'étourdissement, le sommeil, la peur et le sceau ; sorts Copie et Kyūbi.", bad: false },
   kannon: { label: "Kannon", glyph: "✋", help: "Chaque paume frappe deux fois.", bad: false },

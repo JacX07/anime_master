@@ -117,7 +117,13 @@ export type Effect =
   /** Marin, Askeladd : −`turns` tours de recharge sur les sorts des alliés (pas du lanceur) */
   | { k: "cdCut"; turns: number }
   /** Chika : +`pct` de jauge de tour aux alliés (ordonnanceur à jauge) */
-  | { k: "turnGauge"; pct: number };
+  | { k: "turnGauge"; pct: number }
+  /** Deku, Fa jin : ×mult ATK multiplié par (1 + charge) ; chaque attaque de base ajoute de la charge, remise à zéro par le sort */
+  | { k: "faJin"; mult: number }
+  /** Deku, Écran de fumée : intouchable par les attaques ciblées (les zones touchent) */
+  | { k: "smoke"; turns: number }
+  /** Deku, Voltige : −`turns` tours de recharge sur ses autres alters */
+  | { k: "quirkCut"; turns: number };
 
 export interface CharacterSpell {
   /** Nature explicite du sort ; indépendante du type de la carte. */
@@ -563,6 +569,9 @@ export function describeEffect(e: Effect, detailed = false): string {
     case "control": return "la cible joue sa prochaine action contre son propre camp ; si elle n'a aucun sort prêt (ou si c'est un boss, ou la dernière de son camp), elle est étourdie à la place";
     case "cdCut": return `−${nx(e.turns)} de recharge sur les sorts de ses alliés`;
     case "turnGauge": return `+${pct(e.pct)} de jauge de tour pour ses alliés`;
+    case "faJin": return `frappe la cible${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, multiplié par 1 + la charge de Fa jin (+50 % par attaque de base, 250 % au plus) ; la charge retombe à zéro`;
+    case "smoke": return `intouchable par les attaques ciblées, ${nx(e.turns)} (les zones le touchent)`;
+    case "quirkCut": return `−${nx(e.turns)} de recharge sur ses autres alters`;
     case "counter": return `chaque fois que le lanceur est frappé et survit, une ombre sort de ses pieds et riposte${detailed ? ` (${String(e.mult).replace(".", ",")}× ATK)` : ""}, ${nx(e.turns)}`;
   }
 }

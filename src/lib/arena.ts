@@ -7,7 +7,7 @@ import { eloChange } from "./duel-rules";
 import { overBudget, budgetMessage } from "./team-budget";
 import { charactersOf, teamSnapshot } from "./battles";
 import {
-  applyAction, autoAction, BATTLE, createBattle, currentActor, decisionOf, legalActions, seededRandom, timeline, type DecisionView,
+  applyAction, autoAction, createBattle, currentActor, decisionOf, legalActions, seededRandom, isSpell, spellWaits, timeline, type DecisionView,
   type Action, type BattleCard, type BattleEvent, type BattleState, type Side, type Spell, type UnitId,
 } from "./battle";
 import type { Prisma } from "../generated/prisma/client";
@@ -27,7 +27,6 @@ const REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
 export class ArenaError extends Error {}
 
 const toJson = (x: unknown) => x as Prisma.InputJsonValue;
-const isSpell = (x: unknown): x is Spell => x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide" || x === "withdraw";
 const other = (s: Side): Side => (s === "A" ? "B" : "A");
 
 /** Inverse les camps A et B d'un journal, d'un identifiant ou d'une table indexée par identifiant (vue du joueur B). */
@@ -282,12 +281,7 @@ async function viewOf(row: Row, userId: string, from: number, now: Date): Promis
   const myTurn = !!actor && actor.id[0] === mySide;
   const winnerEngine = (row.winner as Side | null) ?? null;
   const waitAll = running
-    ? Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => [
-        [u.id, Math.max(0, u.spellIn - (u.continuingTurn ? 0 : 1))],
-        [`${u.id}:special`, Math.max(0, u.pIn - (u.continuingTurn ? 0 : 1))],
-        [`${u.id}:tertiary`, Math.max(0, u.tIn - (u.continuingTurn ? 0 : 1))],
-        [`${u.id}:ultimate`, Math.max(0, BATTLE.ultimateGaugeMax - u.ultimateGauge)],
-      ])))
+    ? spellWaits(st)
     : {};
   return {
     ...base,

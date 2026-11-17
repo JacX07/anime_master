@@ -22,6 +22,8 @@ export type HandCard = {
   /** Tours avant de pouvoir le relancer (0 si prêt) */
   wait: number;
   selected: boolean;
+  /** Effet passif (Danger sense) : carte en contour, jamais jouable */
+  passive?: boolean;
 };
 
 export function SpellHand({ cards, portrait, interactive, busy, inspecting, inspectionId, enabled, onInspect, onChoose }: {
@@ -60,7 +62,7 @@ export function SpellHand({ cards, portrait, interactive, busy, inspecting, insp
         const x = m * gap, y = inspectingCard ? -(small ? 14 : 24) : hovering ? -18 : c.selected ? -(small ? 4 : 10) : 10 + Math.abs(m) * 12, r = raised ? 0 : m * 8;
         const disabled = interactive && (!c.ready || busy);
         return (
-          <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-armed={c.selected || undefined} data-inspecting={inspectingCard || undefined}
+          <button key={c.key} type="button" className="bt-hand-card" data-spell={c.key} data-passive={c.passive || undefined} data-armed={c.selected || undefined} data-inspecting={inspectingCard || undefined}
             data-cd={interactive && !c.ready && c.wait > 0 ? c.wait : undefined} aria-disabled={disabled || undefined} aria-describedby={inspectingCard ? inspectionId : undefined} aria-pressed={interactive ? c.selected : undefined}
             aria-label={`${c.name} : ${c.details}`}
             style={{ "--accent": c.accent, "--img": portrait ? `url("${portrait}")` : "none", transform: `translate(${x}px, ${y}px) rotate(${r}deg) scale(${inspectingCard ? 1.08 : hovering ? 1.06 : c.selected ? 1.03 : 1})`, zIndex: inspectingCard ? 30 : hovering ? 25 : c.selected ? 20 : i, marginLeft: `${-w / 2}px` } as CSSProperties}

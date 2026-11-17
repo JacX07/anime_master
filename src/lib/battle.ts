@@ -16,6 +16,7 @@ import { isSoloBuff, specialCooldownOf, spellOf, tertiaryCooldownOf, SPELL_FIRST
 import { balanceSecondary, powerTertiaryDamage } from "./character-skills";
 import { TERTIARY_SPELLS } from "./tertiary-catalog";
 import { ULTIMATE_CATALOG } from "./ultimate-catalog";
+import { DANGER_COOLDOWN, DANGER_DODGE, DEKU, FA_JIN_MAX, FA_JIN_STEP, isQuirk, QUIRK_COOLDOWN, QUIRK_SPELLS, QUIRKS, quirkIndex, type QuirkSpell } from "./quirks";
 
 export type Random = () => number;
 
@@ -203,11 +204,11 @@ export interface BattleOptions {
   timeoutLoser?: Side;
 }
 
-export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate" | "decide" | "withdraw";
+export type Spell = "base" | "affinity" | "special" | "tertiary" | "ultimate" | QuirkSpell | "decide" | "withdraw";
 /** Sorts réellement joués (une décision hors tour ou le retrait du pouvoir de Yhwach ne sont pas des actions) */
 export type ActionSpell = Exclude<Spell, "decide" | "withdraw">;
 /** Effets durables des sorts de personnage et des attaques de base personnalisées. */
-export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand" | "blessed" | "toxic" | "antiMagic" | "noCrit" | "deathNote" | "named";
+export type FxKey = `${ModStat}${"Up" | "Down"}` | "silence" | "immune" | "poison" | "regen" | "ignoreDef" | "taunt" | "reduce" | "stun" | "burn" | "wet" | "counter" | "zombie" | "seal" | "controlled" | "bloodlust" | "bleed" | "earth" | "swept" | "broken" | "vulnerable" | "titan" | "fear" | "sleep" | "devour" | "duel" | "intangible" | "charged" | "susanoo" | "kannon" | "gash" | "disarm" | "auraPierce" | "dread" | "puppet" | "godHand" | "blessed" | "toxic" | "antiMagic" | "noCrit" | "deathNote" | "named" | "smoke";
 export type Status = "exposed" | "weaken" | "elan" | FxKey;
 /** Emplacement de sort remplaçable en combat (transformation, absorption) */
 export type KitSlot = "special" | "tertiary" | "ultimate";
@@ -372,6 +373,11 @@ interface Unit {
   absorbed: boolean;
   /** Saitama : sorti du combat après son coup (ni K.O., ni ciblable, ne joue plus) */
   out: boolean;
+  /** Deku : alters actifs et leurs recharges (prêt quand ≤ 1), charge de Fa jin, recharge de Danger sense */
+  quirks: CharacterSpell[];
+  quirkIn: number[];
+  faJin: number;
+  dangerIn: number;
 }
 
 interface Fx {
@@ -412,7 +418,10 @@ const cutOffByDuel = (st: BattleState, u: Unit) => alive(st, enemy(u.side)).leng
 const foesFor = (st: BattleState, u: Unit): Unit[] => {
   const foes = reachableFoes(st, u);
   const taunters = foes.filter((f) => hasFx(f, "taunt"));
-  return taunters.length ? taunters : foes;
+  if (taunters.length) return taunters;
+  // Écran de fumée (Deku) : hors d'atteinte des coups ciblés, sauf s'il ne reste personne d'autre
+  const seen = foes.filter((f) => !hasFx(f, "smoke"));
+  return seen.length ? seen : foes;
 };
 const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x));
 
@@ -504,6 +513,9 @@ function makeUnits(team: BattleCard[], side: Side, opts: BattleState["opts"]): U
       ultimateGauge: (starsOf(card) >= 2 ? BATTLE.starGaugeStart : 0) + (card.startGauge ?? 0),
       revived: false, master: null, deathCast: false, continuingTurn: false, titanTriggered: false, titanShield: 0, fx: [], hitsTaken: 0,
       clones: 0, clonesUsed: false, kitBackup: null, palms: 0, bookNext: 0, onceUsed: false, almightyUsed: false, absorbed: false, out: false,
+      quirks: opts.spells && !card.noSpell ? QUIRKS[card.characterId] ?? [] : [],
+      quirkIn: (opts.spells && !card.noSpell ? QUIRKS[card.characterId] ?? [] : []).map(() => SPELL_FIRST),
+      faJin: 0, dangerIn: 0,
     };
   });
 }
@@ -580,6 +592,7 @@ export const CHARACTER_PASSIVES: Record<number, { name: string; text: string }> 
   1086: { name: "Kyoka Suigetsu", text: "Une attaque ennemie sur deux visant Aizen frappe à la place un allié de l'attaquant, au hasard." },
   89198: { name: "No Longer Human", text: "Subit 30 % de dégâts en moins de tout lanceur d'un sort magique." },
   13020: { name: "Chef des Wolfs", text: "En tête d'équipe, les dégâts de saignement de son équipe sont doublés." },
+  [DEKU]: { name: "One For All", text: `Six alters à la place du secondaire, du tertiaire et de l'ultime, chacun ${QUIRK_COOLDOWN} tours de recharge. Danger sense : face à un coup fatal, son esquive monte à ${DANGER_DODGE * 100} % (${DANGER_COOLDOWN} tours entre deux déclenchements).` },
   162722: { name: "Lance inversée du ciel", text: "Annule les dégâts des sorts magiques et leurs dégâts sur la durée. Les attaques de base et les sorts physiques le touchent normalement." },
   53901: { name: "Cellules d'Hashirama", text: "Soin de 8 % des PV max à chacune de ses actions. Le premier Rinnegan invoque deux clones (un coup ciblé sur Madara touche un clone 2 fois sur 3) ; les suivants lancent la Pression gravitationnelle." },
   14489: { name: "Cent mille paumes", text: "Les paumes montent en puissance à chaque lancer : 100 %, 125 %, 150 %, puis Paume zéro à 200 % et retour au début. Recharge de 2 actions." },
@@ -826,9 +839,9 @@ function resolveDecision(st: BattleState, choice: string) {
 /** Désarmé (Gilgamesh) : un porteur d'épée sans sort sans dégâts prêt passe son tour */
 function disarmedStuck(st: BattleState, u: Unit): boolean {
   if (!hasFx(u, "disarm")) return false;
-  return !(["special", "tertiary", "ultimate"] as const).some((slot) => {
+  return !slotsOf(u).some((slot) => {
     const spell = spellFor(st, u, slot);
-    const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax;
+    const ready = slotReady(u, slot, spell);
     return spell && ready && !spell.effects.some((e) => e.k === "damage") && !hasFx(u, "silence");
   });
 }
@@ -837,6 +850,8 @@ function advanceCooldowns(u: Unit) {
   if (u.spellIn > 0) u.spellIn--;
   if (u.pIn > 0) u.pIn--;
   if (u.tIn > 0) u.tIn--;
+  u.quirkIn = u.quirkIn.map((n) => Math.max(0, n - 1));
+  if (u.dangerIn > 0) u.dangerIn--;
 }
 
 function clearBleed(st: BattleState, u: Unit) {
@@ -1108,7 +1123,8 @@ export function currentActor(st: BattleState): UnitView | null {
 }
 
 /** Sort personnel associé à une action spéciale. */
-function spellFor(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): CharacterSpell | null {
+function spellFor(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate" | QuirkSpell): CharacterSpell | null {
+  if (isQuirk(slot)) return u.quirks[quirkIndex(slot)] ?? null;
   if (slot !== "ultimate") return slot === "special" ? u.spell : u.tertiary;
   return ultimateOf(st, u);
 }
@@ -1150,6 +1166,36 @@ function targetsForSpell(st: BattleState, u: Unit, spell: CharacterSpell): (Unit
 /** Les SSR et UR ont 4 emplacements personnalisés (base, secondaire, tertiaire, ultime) : ils n'ont pas de sort de type. */
 export const hasCharacterSlots = (rarity: string) => rarity === "SSR" || rarity === "UR";
 const cooldownReady = (actor: Unit, remaining: number) => remaining <= (actor.continuingTurn ? 0 : 1);
+type SpellSlot = "special" | "tertiary" | "ultimate" | QuirkSpell;
+/** Sorts de la carte : secondaire, tertiaire, ultime, puis les alters de Deku */
+const slotsOf = (u: Unit): SpellSlot[] => ["special", "tertiary", "ultimate", ...QUIRK_SPELLS.slice(0, u.quirks.length)];
+function slotReady(u: Unit, slot: SpellSlot, spell: CharacterSpell | null): boolean {
+  if (isQuirk(slot)) return cooldownReady(u, u.quirkIn[quirkIndex(slot)] ?? Infinity);
+  if (slot === "special") return cooldownReady(u, u.pIn);
+  if (slot === "tertiary") return cooldownReady(u, u.tIn);
+  return u.ultimateGauge >= BATTLE.ultimateGaugeMax && !(spell?.oncePerCombat && u.onceUsed);
+}
+
+/**
+ * Attente avant chaque sort, pour l'affichage (le compteur avance une fois par tour, même après un buff instantané).
+ * Deku : `id:quirkN` par alter, `id:faJin` charge de Fa jin (en %), `id:danger` recharge de Danger sense.
+ */
+export function spellWaits(st: BattleState): Record<string, number> {
+  return Object.fromEntries((["A", "B"] as const).flatMap((side) => st.teams[side].flatMap((u) => {
+    const left = (n: number) => Math.max(0, n - (u.continuingTurn ? 0 : 1));
+    return [
+      [u.id, left(u.spellIn)],
+      [`${u.id}:special`, left(u.pIn)],
+      [`${u.id}:tertiary`, left(u.tIn)],
+      [`${u.id}:ultimate`, Math.max(0, BATTLE.ultimateGaugeMax - u.ultimateGauge)],
+      ...(u.quirks.length ? [...u.quirkIn.map((n, i) => [`${u.id}:quirk${i}`, left(n)]), [`${u.id}:faJin`, Math.round(u.faJin * 100)], [`${u.id}:danger`, u.dangerIn]] : []),
+    ];
+  })));
+}
+
+/** Nom d'action reçu du client (les alters de Deku compris) */
+export const isSpell = (x: unknown): x is Spell =>
+  x === "base" || x === "affinity" || x === "special" || x === "tertiary" || x === "ultimate" || x === "decide" || x === "withdraw" || (typeof x === "string" && (QUIRK_SPELLS as string[]).includes(x));
 
 /** Ce que la carte courante peut faire : attaque de base, sorts prêts et ultime chargé. */
 export function legalActions(st: BattleState): { spell: Spell; targets: (UnitId | null)[]; choices?: string[] }[] {
@@ -1181,16 +1227,16 @@ function turnActions(st: BattleState, u: Unit): { spell: Spell; targets: (UnitId
     const targets = t === "AVENTURE" ? [null] : t === "COEUR" ? alive(st, u.side).map((x) => x.id) : foes;
     list.push({ spell: "affinity", targets });
   }
-  for (const slot of ["special", "tertiary", "ultimate"] as const) {
+  for (const slot of slotsOf(u)) {
     const spell = spellFor(st, u, slot);
-    const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax && !(spell?.oncePerCombat && u.onceUsed);
+    const ready = slotReady(u, slot, spell);
     if (!spell || !ready) continue;
     const targets = targetsForSpell(st, u, spell);
     if (targets.length) list.push({ spell: slot, targets });
   }
   // Désarmé : ni attaque de base ni sort qui frappe
   if (hasFx(u, "disarm")) {
-    const unarmed = list.filter((a) => a.spell !== "base" && a.spell !== "affinity" && !spellFor(st, u, a.spell as "special" | "tertiary" | "ultimate")?.effects.some((e) => e.k === "damage"));
+    const unarmed = list.filter((a) => a.spell !== "base" && a.spell !== "affinity" && !spellFor(st, u, a.spell as SpellSlot)?.effects.some((e) => e.k === "damage"));
     if (unarmed.length) return unarmed;
   }
   // Saitama n'a que son coup de poing : pas d'attaque de base (elle ne reste qu'en dernier recours, sous silence)
@@ -1201,9 +1247,9 @@ function turnActions(st: BattleState, u: Unit): { spell: Spell; targets: (UnitId
 const isBound = (u: Unit) => u.fx.some((f) => f.key === "duel" && f.bound);
 
 /** Mode auto : lance un sort personnel prêt si sa cible et son effet sont utiles. */
-function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "ultimate"): Action | null {
+function autoSpecial(st: BattleState, u: Unit, slot: SpellSlot): Action | null {
   const spell = spellFor(st, u, slot);
-  const ready = slot === "special" ? cooldownReady(u, u.pIn) : slot === "tertiary" ? cooldownReady(u, u.tIn) : u.ultimateGauge >= BATTLE.ultimateGaugeMax && !(spell?.oncePerCombat && u.onceUsed);
+  const ready = slotReady(u, slot, spell);
   if (!spell || !ready) return null;
   const targets = targetsForSpell(st, u, spell);
   if (!targets.length) return null;
@@ -1212,6 +1258,11 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   if (spell.effects.some((e) => e.k === "auswahlen") && allies.length < 2) return null;
   const fx = spell.effects;
   const only = (k: Effect["k"]) => fx.every((e) => e.k === k);
+  // Étourdissement ciblé (Fouet noir) : l'ennemi le plus fort qui n'est ni boss ni immunisé
+  if (only("stun") && spell.target === "foe") {
+    const open = foes.filter((f) => targets.includes(f.id) && !f.card.boss && !hasFx(f, "immune"));
+    return open.length ? { spell: slot, target: open.reduce((m, x) => (x.atk > m.atk ? x : m)).id } : null;
+  }
   if (only("stun") && !fx.some((effect) => effect.k === "stun" && strongestFoes(st, u, effect.count).some((foe) => !foe.card.boss && !hasFx(foe, "immune")))) return null;
   if (spell.target === "deadAlly") return { spell: slot, target: targets[0] };
   if (fx.some((e) => e.k === "heal" || e.k === "purge" || e.k === "cleanse") && fx.every((e) => e.k === "heal" || e.k === "purge" || e.k === "cleanse")) {
@@ -1236,6 +1287,13 @@ function autoSpecial(st: BattleState, u: Unit, slot: "special" | "tertiary" | "u
   return { spell: slot, target: null };
 }
 
+/** Deku en Auto : Fa jin chargé, puis Fouet noir, Embrayage, Écran de fumée s'il est blessé, Voltige si au moins deux alters attendent */
+function autoQuirk(st: BattleState, u: Unit): Action | null {
+  const pick = (i: number, ok = true) => (ok ? autoSpecial(st, u, QUIRK_SPELLS[i]) : null);
+  const waiting = u.quirkIn.filter((n, i) => i !== 4 && !cooldownReady(u, n)).length;
+  return pick(1, u.faJin >= FA_JIN_MAX - FA_JIN_STEP) ?? pick(2) ?? pick(0) ?? pick(3, u.hp < u.maxHp * 0.5) ?? pick(4, waiting >= 2);
+}
+
 /** Stratégie automatique (mode auto et PvM en arrière-plan) : vise l'ennemi qui a le moins de PV. */
 export function autoAction(st: BattleState): Action {
   const id = currentActor(st)?.id;
@@ -1256,6 +1314,10 @@ export function autoAction(st: BattleState): Action {
   }
   // Concentration (Gon) : l'attaque chargée part au tour suivant
   if (hasFx(u, "silence") || hasFx(u, "seal") || hasFx(u, "charged") || isBound(u)) return base;
+  if (u.quirks.length) {
+    const quirk = autoQuirk(st, u);
+    if (quirk) return quirk;
+  }
   const ultimate = autoSpecial(st, u, "ultimate");
   if (ultimate) return ultimate;
   const special = autoSpecial(st, u, "special");
@@ -1441,6 +1503,14 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
     const g = t.card.guard;
     const passiveGuard = g && (g.when === "above" ? t.hp > t.maxHp * g.at : t.hp <= t.maxHp * g.at) ? g.reduce : 0;
     dmg *= 1 - clamp(fxKeySum(t, "reduce") + fxKeySum(t, "titan") + (weaponOf(t.card)?.stats?.reduce ?? 0) + t.guard + passiveGuard, 0, BATTLE.reduceCap);
+    // Danger sense (Deku) : face à un coup fatal, l'esquive est portée à 50 % (le jet d'esquive normal a déjà échoué)
+    if (t.side !== u.side && t.quirks.length && t.dangerIn === 0 && dmg - (pierce ? 0 : Math.min(t.shield, dmg)) >= t.hp) {
+      t.dangerIn = DANGER_COOLDOWN;
+      if (rng() < Math.max(0, (DANGER_DODGE - dodge) / (1 - dodge))) {
+        log.push({ kind: "dodge", source: u.id, target: t.id });
+        return 0;
+      }
+    }
     const absorbed = pierce ? 0 : Math.min(t.shield, dmg);
     t.shield -= absorbed;
     t.titanShield = Math.max(0, t.titanShield - absorbed);
@@ -1619,16 +1689,16 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
   const rinneganClones = action.spell === "special" && u.card.characterId === MADARA && !u.kitBackup && !u.clonesUsed;
   // Paumes de Netero : la puissance dépend du nombre de paumes déjà lancées
   const palm = action.spell === "special" && u.card.characterId === NETERO ? PALMS[u.palms % PALMS.length] : null;
-  const ownSpell = action.spell === "special" ? (rinneganClones ? { name: "Rinnegan : Clones", target: null, effects: [] } as CharacterSpell : u.spell) : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? ultimateOf(st, u) : null;
+  const ownSpell = isQuirk(action.spell) ? u.quirks[quirkIndex(action.spell)] ?? null : action.spell === "special" ? (rinneganClones ? { name: "Rinnegan : Clones", target: null, effects: [] } as CharacterSpell : u.spell) : action.spell === "tertiary" ? u.tertiary : action.spell === "ultimate" ? ultimateOf(st, u) : null;
   const learnsCopies = u.card.characterId in COPY_SCALE;
   const resolvedSpell = ownSpell?.effects.some((e) => e.k === "copySpell")
     ? learnsCopies ? { ...ownSpell, effects: ownSpell.effects.filter((e) => e.k !== "copySpell") } : copiedSpell(st, u, ownSpell)
     : ownSpell;
   // Figer la nature avant de mémoriser un modèle : une copie conserve le type du sort source.
-  const activeSpell: CharacterSpell | null = resolvedSpell ? { ...resolvedSpell, damageKind: isMagicalSpell(u.card, action.spell, resolvedSpell) ? "magic" : "physical" } : null;
-  const magicalAction = isMagicalSpell(u.card, action.spell, activeSpell);
+  const activeSpell: CharacterSpell | null = resolvedSpell ? { ...resolvedSpell, damageKind: isMagicalSpell(u.card, isQuirk(action.spell) ? "special" : action.spell, resolvedSpell) ? "magic" : "physical" } : null;
+  const magicalAction = isMagicalSpell(u.card, isQuirk(action.spell) ? "special" : action.spell, activeSpell);
   if (action.spell === "ultimate" && activeSpell) st.lastUltimate = activeSpell;
-  if ((action.spell === "special" || action.spell === "tertiary") && activeSpell && !activeSpell.effects.some((e) => e.k === "copySpell" || e.k === "oneShot") && !rinneganClones) {
+  if ((action.spell === "special" || action.spell === "tertiary" || isQuirk(action.spell)) && activeSpell && !activeSpell.effects.some((e) => e.k === "copySpell" || e.k === "oneShot") && !rinneganClones) {
     st.lastSpells[u.side] = activeSpell;
     st.lastAnySpell = activeSpell;
   }
@@ -1657,6 +1727,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       : hit(target!, basic?.mult ?? 1, basic?.rider.kind === "ignoreDef" && basic.rider.immediate ? basic.rider.pct : 0);
     // Main de Dieu (Griffith après l'Éclipse) : l'attaque de base touche aussi les autres ennemis
     if (hasFx(u, "godHand")) for (const f of reachableFoes(st, u)) if (f !== target) hit(f, 1);
+    // Fa jin (Deku) : chaque attaque de base ajoute de la charge
+    if (u.quirks.some((q) => q.effects.some((e) => e.k === "faJin"))) u.faJin = Math.min(FA_JIN_MAX, u.faJin + FA_JIN_STEP);
     if (amount > 0 && basic) {
       const applyRider = (rider: BasicRider) => {
         switch (rider.kind) {
@@ -1690,7 +1762,8 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
       };
       applyRider(basic.rider);
     }
-  } else if (action.spell === "special" || action.spell === "tertiary" || action.spell === "ultimate") {
+  } else if (action.spell === "special" || action.spell === "tertiary" || action.spell === "ultimate" || isQuirk(action.spell)) {
+    if (isQuirk(action.spell)) u.quirkIn[quirkIndex(action.spell)] = QUIRK_COOLDOWN;
     if (action.spell === "special") u.pIn = u.specialCd;
     if (action.spell === "tertiary") u.tIn = u.tertiaryCd;
     if (rinneganClones) {
@@ -1732,6 +1805,20 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
         case "intangible":
           addFx(u, "intangible", 0, e.turns);
           break;
+        case "faJin": {
+          const charge = u.faJin;
+          u.faJin = 0;
+          if (target && target.hp > 0) lastDealt = hit(target, e.mult * (1 + charge));
+          break;
+        }
+        case "smoke":
+          addFx(u, "smoke", 0, e.turns);
+          break;
+        case "quirkCut": {
+          const own = isQuirk(action.spell) ? quirkIndex(action.spell) : -1;
+          u.quirkIn = u.quirkIn.map((n, i) => (i === own ? n : Math.max(0, n - e.turns)));
+          break;
+        }
         case "charge":
           addFx(u, "charged", e.mult, 2);
           break;
@@ -1975,6 +2062,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
             t.spellIn = Math.max(0, t.spellIn - e.turns);
             t.pIn = Math.max(0, t.pIn - e.turns);
             t.tIn = Math.max(0, t.tIn - e.turns);
+            t.quirkIn = t.quirkIn.map((n) => Math.max(0, n - e.turns));
           }
           break;
         case "turnGauge":
@@ -2012,6 +2100,7 @@ function resolveAction(st: BattleState, u: Unit, rawAction: Action, reaction: bo
             t.spellIn = Math.min(t.spellIn, SPELL_FIRST);
             t.pIn = Math.min(t.pIn, SPELL_FIRST);
             t.tIn = Math.min(t.tIn, SPELL_FIRST);
+            t.quirkIn = t.quirkIn.map((n) => Math.min(n, SPELL_FIRST));
           }
           break;
         case "seal":

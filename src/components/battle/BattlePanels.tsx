@@ -18,6 +18,7 @@ import { SpellInspection } from "./SpellInspection";
 import type { InspectSpell } from "./useHoldInspection";
 import type { PlayerCharacter } from "./BattlePlayer";
 import { confirmationScope, type ConfirmationScope } from "@/lib/combat-selection";
+import { DANGER_SENSE, FA_JIN_MAX, FA_JIN_STEP, QUIRK_COOLDOWN, QUIRK_SPELLS, QUIRKS } from "@/lib/quirks";
 
 /** Sorts de la carte choisie : base, affilié, secondaire, tertiaire et ultime. */
 export function SpellsPanel({
@@ -37,6 +38,8 @@ export function SpellsPanel({
     waitSpecial: number;
     /** Actions à attendre avant le tertiaire */
     waitTertiary: number;
+    /** Deku : attente de chaque alter (quirk0…), charge de Fa jin en % (faJin), recharge de Danger sense (danger) */
+    waits?: Record<string, number>;
     busy: boolean;
     error?: string | null;
     onSpell: (spell: Spell | null, scope: ConfirmationScope) => void;
@@ -113,11 +116,27 @@ export function SpellsPanel({
       note: `Jauge : ${ultimateGauge}/${ultimateGaugeMax} · +${BATTLE.ultimateGaugeBase} par attaque de base réussie, +${BATTLE.ultimateGaugePerHit} par sort offensif réussi.`,
     });
   }
+  // Deku : six alters dans la main (maquette kits-lot3.html §4), Danger sense en carte passive
+  const quirks = QUIRKS[unit.characterId] ?? [];
+  const faJin = choose?.waits?.faJin;
+  quirks.forEach((q, i) => {
+    const charge = q.effects.some((e) => e.k === "faJin") && faJin !== undefined ? faJin : null;
+    spells.push({
+      key: QUIRK_SPELLS[i], title: <>{q.name}</>, name: q.name, kind: charge !== null ? `Alter · charge +${charge} %` : "Alter", cost: String(QUIRK_COOLDOWN), accent: "#7fd1a8",
+      target: SPELL_TARGET_LABEL[q.target ?? "none"], confirm: confirmationScope(q.effects),
+      text: describeSpell(q, true), tooltip: describeSpell(q, true),
+      note: `Rechargement : ${QUIRK_COOLDOWN} tours.${charge !== null ? ` Charge actuelle : +${charge} % (${Math.round(FA_JIN_STEP * 100)} % par attaque de base, ${Math.round(FA_JIN_MAX * 100)} % au plus).` : ""}`,
+    });
+    if (i === 1) {
+      const danger = choose?.waits?.danger ?? 0;
+      spells.push({ key: "danger" as Spell, title: <>{DANGER_SENSE.name}</>, name: DANGER_SENSE.name, kind: danger > 0 ? `Passif · ${danger} t` : "Passif · auto", cost: "auto", accent: "#7fd1a8", target: "Automatique", text: DANGER_SENSE.text, tooltip: DANGER_SENSE.text, note: null });
+    }
+  });
   const ultimateSpell = spells.find((s) => s.key === "ultimate");
   const handSpells = spells.filter((s) => s.key !== "ultimate");
-  const waitOf = (key: Spell) => (key === "special" ? choose?.waitSpecial ?? 0 : key === "tertiary" ? choose?.waitTertiary ?? 0 : choose?.wait ?? 0);
+  const waitOf = (key: Spell) => (key === "special" ? choose?.waitSpecial ?? 0 : key === "tertiary" ? choose?.waitTertiary ?? 0 : key.startsWith("quirk") ? choose?.waits?.[key] ?? 0 : (key as string) === "danger" ? 0 : choose?.wait ?? 0);
   const cards: HandCard[] = handSpells.map((s) => ({
-    key: s.key, name: s.name, kind: s.kind, cost: s.cost, text: s.target === "Aucune cible" ? ({ self: "Sur soi", team: "Toute l’équipe", foes: "Tous les ennemis", "fallen-allies": "Allié K.O.", "chosen-allies": "Alliés au choix" }[s.confirm ?? "self"]) : s.target, details: s.tooltip, accent: s.accent,
+    key: s.key, name: s.name, kind: s.kind, cost: s.cost, passive: (s.key as string) === "danger" || undefined, text: s.target === "Aucune cible" ? ({ self: "Sur soi", team: "Toute l’équipe", foes: "Tous les ennemis", "fallen-allies": "Allié K.O.", "chosen-allies": "Alliés au choix" }[s.confirm ?? "self"]) : s.target, details: s.tooltip, accent: s.accent,
     ready: !choose || choose.choices.some((c) => c.spell === s.key), wait: waitOf(s.key),
     selected: selected === s.key,
   }));

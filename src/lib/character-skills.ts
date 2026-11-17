@@ -77,6 +77,9 @@ export function balanceSecondary(spell: CharacterSpell, scale: number): Characte
       case "control":
       case "cdCut":
       case "turnGauge":
+      case "faJin":
+      case "smoke":
+      case "quirkCut":
       case "copySpell":
       case "donateShield":
       case "auraPierce":

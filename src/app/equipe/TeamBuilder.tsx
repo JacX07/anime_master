@@ -1,6 +1,7 @@
 "use client";
 
 import { SINGLE_SPELL } from "@/lib/spell-rules";
+import { QUIRK_COOLDOWN, QUIRKS } from "@/lib/quirks";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CardType, Rarity } from "@/generated/prisma/enums";
@@ -125,6 +126,13 @@ export function SpellList({ card }: { card: Pick<TeamCard, "characterId" | "rari
           <p>{basic ? describeBasicAttack(basic) : BASE_SPELL.text}</p>
         </li>
       )}
+      {(QUIRKS[card.characterId] ?? []).map((q) => (
+        <li key={q.name} tabIndex={0} title={describeSpell(q, true)}>
+          <b>● {q.name}</b> <small>Alter · {SPELL_TARGET_LABEL[q.target ?? "none"]}</small>
+          <p>{describeSpell(q, true)}</p>
+          <small>Rechargement : {QUIRK_COOLDOWN} tours de cette carte.</small>
+        </li>
+      ))}
       {!slots && (
         <li tabIndex={0} title={info.details}>
           <b><TypeIcon type={card.type} /> {SPELL_NAMES[card.type]}</b> <small>{info.target}</small>
