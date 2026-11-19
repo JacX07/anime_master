@@ -60,3 +60,5 @@ graphify-out/cache/ast/
 
 # Ignore le .idea
 .idea
+
+/postgres_data
