@@ -15,7 +15,7 @@ export const DANGER_COOLDOWN = 3;
 export const QUIRKS: Record<number, CharacterSpell[]> = {
   [DEKU]: [
     { name: "Embrayage", target: null, final: true, effects: [{ k: "mod", stat: "speed", amount: 0.2, turns: 2, to: "team" }, { k: "mod", stat: "speed", amount: -0.2, turns: 2, to: "foes" }] },
-    { name: "Fa jin", target: "foe", final: true, damageKind: "physical", effects: [{ k: "faJin", mult: 1.5 }] },
+    { name: "Fa jin", target: "foe", final: true, damageKind: "physical", effects: [{ k: "faJin", mult: 2 }] },
     { name: "Fouet noir", target: "foe", final: true, effects: [{ k: "stun", turns: 1, count: 1, to: "target" }] },
     { name: "Écran de fumée", target: null, final: true, effects: [{ k: "smoke", turns: 2 }] },
     { name: "Voltige", target: null, final: true, effects: [{ k: "quirkCut", turns: 1 }] },

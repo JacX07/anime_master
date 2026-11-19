@@ -1287,11 +1287,11 @@ function autoSpecial(st: BattleState, u: Unit, slot: SpellSlot): Action | null {
   return { spell: slot, target: null };
 }
 
-/** Deku en Auto : Fa jin chargé, puis Fouet noir, Embrayage, Écran de fumée s'il est blessé, Voltige si au moins deux alters attendent */
+/** Deku en Auto : Fa jin dès qu'il est prêt, puis Fouet noir, Embrayage, Écran de fumée s'il est blessé, Voltige si au moins deux alters attendent */
 function autoQuirk(st: BattleState, u: Unit): Action | null {
   const pick = (i: number, ok = true) => (ok ? autoSpecial(st, u, QUIRK_SPELLS[i]) : null);
   const waiting = u.quirkIn.filter((n, i) => i !== 4 && !cooldownReady(u, n)).length;
-  return pick(1, u.faJin >= FA_JIN_MAX - FA_JIN_STEP) ?? pick(2) ?? pick(0) ?? pick(3, u.hp < u.maxHp * 0.5) ?? pick(4, waiting >= 2);
+  return pick(1) ?? pick(2) ?? pick(0) ?? pick(3, u.hp < u.maxHp * 0.5) ?? pick(4, waiting >= 2);
 }
 
 /** Stratégie automatique (mode auto et PvM en arrière-plan) : vise l'ennemi qui a le moins de PV. */

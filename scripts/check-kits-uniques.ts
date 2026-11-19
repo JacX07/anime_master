@@ -657,6 +657,13 @@ const fxOf = (s: BattleState, id: string, key: string) => s.teams[id[0] as "A" |
   assert.deepEqual([act.spell, act.target], ["quirk2", "B2"], `Fouet noir en Auto : ${act.spell} ${act.target}`);
 }
 {
+  // Auto : Fa jin passe en premier dès qu'il est prêt, même sans charge
+  const s = createBattle([card(89028)], [dummy({ defense: 1e9 })], () => 0.5, { startingSide: "A" });
+  until(s, "A1");
+  assert.equal(s.teams.A[0].faJin, 0);
+  assert.equal(autoAction(s).spell, "quirk1", "Fa jin d'abord en Auto");
+}
+{
   // Danger sense : face à un coup fatal, 50 % d'esquive, puis 3 tours de recharge
   let roll = 0.4;
   const s = createBattle([card(89028, { defense: 1 })], [card(5, { attack: 1e7 })], () => roll, { startingSide: "B" });
