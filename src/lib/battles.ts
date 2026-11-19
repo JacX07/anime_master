@@ -30,6 +30,7 @@ import { weaponDef } from "./weapons";
 import { speedOf } from "./speed";
 import { dungeonArtifactRarities, artifactMainStat, artifactSlot, artifactSubStats, ARTIFACT_SLOTS, DUNGEON_KEY, DUNGEONS, SET_KEYS, DUNGEON_PREFIX, dungeonOf, dungeonOfKey, dungeonUnlocked, DUNGEON_UNLOCK_LEVEL, type Dungeon, levelReward, parseDungeonKey, type ArtifactSlot } from "./dungeons";
 import type { CharacterSpell } from "./spells";
+import { withCharacters } from "./character-catalog";
 
 export class BattleError extends Error {}
 
@@ -543,10 +544,10 @@ export const setAttackTeam = (userId: string, cardIds: string[]) => setTeam(user
 
 /** Équipe par défaut : les 4 cartes les plus rares du joueur (puis les plus populaires), hors enchères. */
 export async function autoTeam(userId: string, kind: TeamKind = "ATTACK", save = true) {
-  const cards = await prisma.card.findMany({
+  const cards = await withCharacters(await prisma.card.findMany({
     where: { ownerId: userId, inAuction: false },
-    select: { id: true, characterId: true, character: { select: { rarity: true, power: true } } },
-  });
+    select: { id: true, characterId: true },
+  }));
   const rank = { N: 0, R: 1, SR: 2, SSR: 3, UR: 4 } as const;
   cards.sort((a, b) => rank[b.character.rarity] - rank[a.character.rarity] || b.character.power - a.character.power);
   const picked: string[] = [], seen = new Set<number>();
@@ -614,11 +615,12 @@ export async function teamSnapshot(userId: string, kind: TeamKind): Promise<Batt
 
 /** Collection de préparation : mêmes équipements et statistiques que le lancement réel. */
 export async function getStoryRoster(userId: string) {
-  const cards = await prisma.card.findMany({
+  // Toute la collection : personnages tirés du catalogue en cache (egress Supabase)
+  const cards = await withCharacters(await prisma.card.findMany({
     where: { ownerId: userId, inAuction: false },
     orderBy: [{ character: { power: "desc" } }, { id: "asc" }],
-    select: { id: true, ownerId: true, stars: true, weaponKey: true, finish: true, character: { select: { ...CHARACTER_SELECT, name: true, imageUrl: true } } },
-  });
+    select: { id: true, ownerId: true, stars: true, weaponKey: true, finish: true, characterId: true },
+  }));
   const fitted = await fitCards(userId, cards);
   return fitted.map((c) => ({ id: c.id, name: c.character.name, imageUrl: c.character.imageUrl, stars: c.stars, finish: c.finish,
     combat: { ...toBattleCard(c.character, c.stars, c.weaponKey), artifactStats: c.artifactStats },
@@ -677,10 +679,15 @@ export async function getDungeonState(userId: string, setKey = DUNGEON_KEY) {
 }
 
 export async function getArtifactInventory(userId: string) {
-  const [artifacts, cards] = await Promise.all([
-    prisma.artifact.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, include: { equippedCard: { select: { id: true, character: { select: { name: true, imageUrl: true, rarity: true } } } } } }),
-    prisma.card.findMany({ where: { ownerId: userId }, orderBy: [{ character: { rarity: "desc" } }, { serial: "desc" }], select: { id: true, serial: true, character: { select: { name: true } } } }),
+  // Personnages tirés du catalogue en cache : toute la collection est listée ici (egress Supabase).
+  const [artifactRows, cardRows] = await Promise.all([
+    prisma.artifact.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, include: { equippedCard: { select: { id: true, characterId: true } } } }),
+    prisma.card.findMany({ where: { ownerId: userId }, orderBy: [{ character: { rarity: "desc" } }, { serial: "desc" }], select: { id: true, serial: true, characterId: true } }),
   ]);
+  const [owners, named] = await Promise.all([withCharacters(artifactRows.flatMap((a) => (a.equippedCard ? [a.equippedCard] : []))), withCharacters(cardRows)]);
+  const ownerOf = new Map(owners.map((o) => [o.id, { id: o.id, character: { name: o.character.name, imageUrl: o.character.imageUrl, rarity: o.character.rarity } }]));
+  const artifacts = artifactRows.map(({ equippedCard, ...artifact }) => ({ ...artifact, equippedCard: equippedCard ? ownerOf.get(equippedCard.id)! : null }));
+  const cards = named.map((c) => ({ id: c.id, serial: c.serial, character: { name: c.character.name } }));
   return { artifacts, cards };
 }
 

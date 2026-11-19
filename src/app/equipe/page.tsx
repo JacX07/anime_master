@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { getTeam } from "@/lib/battles";
+import { withCharacters } from "@/lib/character-catalog";
 import { requireUser } from "@/lib/session";
 import { speedOf } from "@/lib/speed";
 import { SquadManager } from "./SquadManager";
@@ -28,21 +29,12 @@ async function Builder() {
   const [attack, defense, cards, inventory, squads, favorites] = await Promise.all([
     getTeam(user.id, "ATTACK"),
     getTeam(user.id, "DEFENSE"),
+    // Toute la collection : personnages tirés du catalogue en cache (egress Supabase)
     prisma.card.findMany({
       where: { ownerId: user.id, inAuction: false },
       orderBy: [{ character: { power: "desc" } }, { id: "asc" }],
-      select: {
-        id: true,
-        stars: true,
-        weaponKey: true,
-        character: {
-          select: {
-            id: true, name: true, imageUrl: true, power: true, rarity: true, type: true, attack: true, defense: true, mainMediaId: true,
-            mainMedia: { select: { franchiseId: true, titleEnglish: true, titleRomaji: true } },
-          },
-        },
-      },
-    }),
+      select: { id: true, stars: true, weaponKey: true, characterId: true },
+    }).then(withCharacters),
     getPlayerInventory(user.id),
     prisma.squad.findMany({ where: { userId: user.id }, orderBy: { id: "asc" } }),
     getFavoriteIds(user.id),

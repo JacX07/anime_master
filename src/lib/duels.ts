@@ -25,6 +25,7 @@ import {
 } from "./duel-rules";
 import { startOfDay, tradeEligibility } from "./economy";
 import { notify } from "./notifications";
+import { withCharacters } from "./character-catalog";
 
 export class DuelError extends Error {}
 
@@ -358,12 +359,9 @@ export type DuelRow = Awaited<ReturnType<typeof listDuels>>[number];
 
 /** Cartes utilisables en duel, les plus fortes d'abord. */
 export async function duelCards(userId: string) {
-  const rows = await prisma.card.findMany({
-    where: { ownerId: userId },
-    select: { id: true, serial: true, finish: true, character: { select: { id: true, name: true, rarity: true, type: true, attack: true, defense: true, imageUrl: true } } },
-  });
+  const rows = await withCharacters(await prisma.card.findMany({ where: { ownerId: userId }, select: { id: true, serial: true, finish: true, characterId: true } }));
   return rows
-    .map((c) => ({ ...c.character, characterId: c.character.id, id: c.id, serial: c.serial, finish: c.finish }))
+    .map(({ character: { id, name, rarity, type, attack, defense, imageUrl }, ...c }) => ({ id: c.id, name, rarity, type, attack, defense, imageUrl, characterId: id, serial: c.serial, finish: c.finish }))
     .sort((a, b) => b.attack + b.defense - (a.attack + a.defense));
 }
 

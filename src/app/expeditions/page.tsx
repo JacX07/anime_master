@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SceneBody } from "@/components/SceneBody";
 import { prisma } from "@/lib/db";
+import { withCharacters } from "@/lib/character-catalog";
 import { BREACHES, chestStock, expeditionState, MAX_TEAM, SLOTS } from "@/lib/expeditions";
 import { Chests } from "./Chests";
 import { ChestContents } from "./ChestContents";
@@ -31,10 +32,10 @@ async function Expeditions() {
     expeditionState(user.id),
     prisma.card.findMany({
       where: { ownerId: user.id, inExpedition: false, inAuction: false },
-      select: { id: true, character: { select: { name: true, rarity: true, type: true, power: true, imageUrl: true } } },
+      select: { id: true, characterId: true },
       orderBy: { character: { power: "desc" } },
       take: 400,
-    }),
+    }).then(withCharacters),
     chestStock(user.id),
   ]);
   const toIso = (d: Date | null) => d?.toISOString() ?? null;
@@ -54,7 +55,7 @@ async function Expeditions() {
         nextSlotAt={state.nextSlotAt}
         slotSteps={SLOTS}
         breaches={BREACHES}
-        cards={cards.map((c) => ({ id: c.id, ...c.character }))}
+        cards={cards.map(({ id, character: { name, rarity, type, power, imageUrl } }) => ({ id, name, rarity, type, power, imageUrl }))}
         open={state.open.map((e) => ({
           id: e.id,
           breachId: e.breachId,

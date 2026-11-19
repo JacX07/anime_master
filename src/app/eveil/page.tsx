@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/lib/db";
+import { withCharacters } from "@/lib/character-catalog";
 import { awakenCost, duplicateHelps, universeOfFranchise } from "@/lib/awakening";
 import { duplicateWhere } from "@/lib/awaken";
 import { RESOURCE_NAMES } from "@/lib/story";
@@ -37,8 +38,8 @@ async function Cards() {
       where: { ownerId: user.id, inAuction: false, OR: [{ stars: { lt: 3 } }, { stars: { lt: 5 }, character: { rarity: { in: ["SSR", "UR"] } } }] },
       orderBy: [{ character: { power: "desc" } }, { id: "asc" }],
       take: 300,
-      select: { id: true, characterId: true, stars: true, finish: true, character: { select: { name: true, imageUrl: true, rarity: true, type: true, attack: true, defense: true, power: true, mainMediaId: true, mainMedia: { select: { franchiseId: true, titleEnglish: true, titleRomaji: true } } } } },
-    }),
+      select: { id: true, characterId: true, stars: true, finish: true },
+    }).then(withCharacters),
     prisma.resourceStock.findMany({ where: { userId: user.id } }),
   ]);
   const have = (key: string) => stock.find((s) => s.key === key)?.quantity ?? 0;
