@@ -67,7 +67,8 @@ async function main() {
     // Victoire : 4 UR au Normal
     await team("UR");
     const before = await stock(), usedBefore = await daily();
-    const win = await startBattle(uid, key(), false);
+    // Graine fixe : 4 UR gagnent avec elle contre chacun des 5 boss de la rotation (tirage au hasard : défaites possibles)
+    const win = await startBattle(uid, key(), false, undefined, undefined, 7);
     check("4 UR battent le boss Normal", win.winner === "A");
     check("Victoire : 5 cœurs au taux plein", hearts(win.loot?.resources) === Math.min(5, DAILY_FULL_HEARTS - usedBefore) + (usedBefore + 5 > DAILY_FULL_HEARTS ? hearts(win.loot?.resources) - Math.min(5, DAILY_FULL_HEARTS - usedBefore) : 0) && hearts(win.loot?.resources) >= 1, `${hearts(win.loot?.resources)} cœur(s)`);
     check("Cœurs versés en stock", (await stock()) === before + hearts(win.loot?.resources));
@@ -82,7 +83,7 @@ async function main() {
       create: { userId: uid, day: startOfDay(new Date()), source: "RAID", units: DAILY_FULL_HEARTS },
       update: { units: DAILY_FULL_HEARTS },
     });
-    const capped = await startBattle(uid, key(), false);
+    const capped = await startBattle(uid, key(), false, undefined, undefined, 7);
     check("Plafond atteint : taux réduit (1 ou 2 cœurs au lieu de 5)", capped.winner === "A" && hearts(capped.loot?.resources) >= 1 && hearts(capped.loot?.resources) <= 2, `${hearts(capped.loot?.resources)} cœur(s)`);
     check("Plafond atteint : le compteur du jour ne bouge plus", (await daily()) === DAILY_FULL_HEARTS);
     const state = await getRaidState(uid);

@@ -826,7 +826,8 @@ export async function getEnergy(userId: string, now = new Date()) {
 }
 
 /** Lance un combat avec l'équipe d'attaque du joueur. Automatique : calculé en entier. Manuel : un seul en cours à la fois. */
-export async function startBattle(userId: string, opponent: string, manual: boolean, now = new Date(), storyCardIds?: string[]): Promise<BattleView> {
+export async function startBattle(userId: string, opponent: string, manual: boolean, now = new Date(), storyCardIds?: string[], seed = Math.floor(Math.random() * 2 ** 31)): Promise<BattleView> {
+  // `seed` : tirage du combat, fixé seulement par les tests pour qu'ils soient reproductibles.
   // `storyCardIds` : composition choisie à l'écran de préparation (tous les modes depuis la v0.3.0 ; duo en histoire seulement).
   const adventureMode = opponent.startsWith("dungeon:") ? "dungeon" : opponent.startsWith("raid:") ? "raid" : opponent.startsWith("tower:") ? "tower" : null;
   if (adventureMode) {
@@ -880,7 +881,6 @@ export async function startBattle(userId: string, opponent: string, manual: bool
   const mine = fitted.map((s) => ({ ...toBattleCard(s.character, s.stars, s.weaponKey), artifactStats: s.artifactStats }));
   const foes = emperor ? await emperorFoes(emperor) : null;
   const teams: BattleTeams = { A: mine, B: foes ? foes.first : await opponentCards(opponent), ...(foes?.waves.length ? { waves: foes.waves, maxRounds: BATTLE.maxRounds * (foes.waves.length + 1) } : {}), scheduler: "gauge-v1", elements: "elements-v1", ...(dungeonLevel ? { spellFxUnlocked } : {}), ...(mode === "TEST" ? {} : { timeout: "attacker-loses-v1" as const }) };
-  const seed = Math.floor(Math.random() * 2 ** 31);
   if (!manual) {
     const result = battle(teams.A, teams.B, seededRandom(seed), { gauge: true, timeoutLoser: teams.timeout ? "A" : undefined, ...wavesOf(teams) });
     const row = await prisma.$transaction(async (tx) => {
